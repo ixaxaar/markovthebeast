@@ -8,6 +8,7 @@ import thebeast.nod.variable.RelationVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 19-Jan-2007 Time: 16:13:17
@@ -22,6 +23,7 @@ public class MemCreateIndex implements CreateIndex {
 
   public MemCreateIndex(String name, Collection<String> attributes, Index.Type indexType, RelationVariable variable) {
     this.attributes = new ArrayList<String>(attributes);
+    Collections.sort(this.attributes);
     this.indexType = indexType;
     this.variable = variable;
     this.name = name;

@@ -56,7 +56,7 @@ public final class MemSearch {
             MemEvaluator.evaluate(action.functions[0], chunks, currentRows, action.args, zero);
             int value = actionArgs.intData[0];
             MemChunkSequentialIndex index = action.sequentialIndex;
-            currentSizes[currentChunk] = index.getGEQ(value,chunks[currentChunk],action.col, currentChunk,currentSpaces);
+            currentSizes[currentChunk] = index.getGEQ(value, chunks[currentChunk], action.col, currentChunk, currentSpaces);
             currentPointers[currentChunk] = 0;
             if (currentSizes[currentChunk] > 0)
               currentRows[currentChunk] = currentSpaces[currentChunk][0];
@@ -124,8 +124,17 @@ public final class MemSearch {
     out.println();
   }
 
-  
+  static String currentRows(int[] currentPointers, int[][] currentSpaces, int[] currentRows, MemChunk[] chunks) {
+    StringBuffer result = new StringBuffer();
+    for (int i = 0; i < currentPointers.length; ++i) {
+      if (i > 0) result.append("| ");
+      int[] rows = currentSpaces[i];
+      int row = rows != null ? rows[currentPointers[i]] : currentRows[i];
+      for (int k = 0; k < chunks[i].numIntCols; ++k)
+        result.append(chunks[i].intData[row * chunks[i].numIntCols + k]).append(" ");
+    }
+    return result.toString();
+  }
 
 
- 
 }

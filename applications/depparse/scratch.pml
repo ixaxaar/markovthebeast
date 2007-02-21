@@ -14,10 +14,12 @@ corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 20);
 
 scores from "example.scores";
 
-//collect;
+collect;
 
-//set learner.maxIterations = 3;
-//learn 1;
+print weights;
+set learner.maxIterations = 10;
+print atoms;
+learn 1;
 
 //print weights;
 

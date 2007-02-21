@@ -547,17 +547,21 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (parserLearn.epochs == -1) {
       if (parserLearn.instances == -1) {
         learner.learnOne(gold, instances);
+        jump(1);
         while (iterator.hasNext()) {
-          jump(1);
           learner.learnOne(gold, instances);
+          jump(1);
         }
       } else {
         int instance = 1;
         learner.learnOne(gold, instances);
-        while (iterator.hasNext() && instance++ < parserLearn.instances) {
-          jump(1);
+        jump(1);
+        while (iterator.hasNext() && instance< parserLearn.instances) {
           learner.learnOne(gold, instances);
+          jump(1);
+          ++instance;
         }
+        out.println("Learned from " + instance + " instances.");
       }
     } else {
 
@@ -591,8 +595,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     LinkedList<Term> args = new LinkedList<Term>();
     Predicate predicate = signature.getPredicate(parserAtom.predicate);
     if (predicate == null)
-      throw new RuntimeException("There is no predicate called " + parserAtom.predicate);
+      throw new ShellException("There is no predicate called " + parserAtom.predicate);
     int index = 0;
+    if (parserAtom.args.size() != predicate.getArity())
+      throw new ShellException("Predicate " + predicate.getName() + " has " + predicate.getArity()
+              + " arguments, not " + parserAtom.args.size() + " as in " + parserAtom);
     for (ParserTerm term : parserAtom.args) {
       typeContext.push(predicate.getArgumentTypes().get(index++));
       term.acceptParserTermVisitor(this);

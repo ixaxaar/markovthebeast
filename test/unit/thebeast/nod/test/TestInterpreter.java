@@ -30,6 +30,7 @@ public class TestInterpreter extends NoDTest {
   public void testDoubleVariable() {
     DoubleVariable var = interpreter.createDoubleVariable(exprBuilder.doubleValue(1.5).getDouble());
     assertEquals(1.5, var.value().getDouble());
+    
   }
 
   public void testDoubleArithmetics() {
