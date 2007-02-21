@@ -1,8 +1,6 @@
-#summary this is the main page.
-
 = Markov The Wiki =
 
 This is the Wiki for Markov The Beast. Here we gather documentation, tutorials and everything random. 
 
-* TheDocumentation
-* TheTutorial
+  * TheDocumentation
+  * TheTutorial
