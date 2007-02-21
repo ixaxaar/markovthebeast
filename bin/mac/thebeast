@@ -1,0 +1,9 @@
+#!/bin/bash
+
+scriptdir=$(cd "$(dirname "$0")"; pwd)
+dir=${scriptdir}/../..
+classpath=${dir}/classes/production:${dir}/lib/JSAP-2.1.jar:${dir}/lib/lpsolve55j.jar:${dir}/lib/java-cup-11a.jar
+
+export DYLD_LIBRARY_PATH=${scriptdir}
+
+java -cp ${classpath} -Dhome=${PWD} -Xmx500m thebeast.pml.TheBeast $@ 
