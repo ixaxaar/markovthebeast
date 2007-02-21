@@ -89,11 +89,12 @@ public class OnlineLearner implements Learner {
     //either load the feature vector or extract it
     features.extract(instance);
 
+    System.out.println(features);
+
     //use the feature vector and weight to score ground atoms
     scores.score(features, this.weights);
 
     //use the scores to solve the model
-
     solver.setObservation(instance);
     solver.setScores(scores);
     solver.solve();
@@ -105,11 +106,10 @@ public class OnlineLearner implements Learner {
 
     //extract features
     guess.load(solution.extract(features));
-    //System.out.println(solution.getGroundFormulas());
 
     goldGroundFormulas.extract(instance);
     goldSolution.load(instance, goldGroundFormulas);
-    gold = goldSolution.extract();
+    gold.load(goldSolution.extract());
 
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
@@ -172,6 +172,7 @@ public class OnlineLearner implements Learner {
 
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
+
   }
 
 

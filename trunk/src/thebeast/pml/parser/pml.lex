@@ -6,6 +6,7 @@ import java_cup.runtime.Symbol;
 %line
 %state COMMENT
 %state MLCOMMENT
+%state MLMAYEND
 %char
 %eofval{
  	return (new Symbol(sym.EOF));
@@ -129,12 +130,24 @@ private Symbol symbol(int type, Object value) {
   yybegin(MLCOMMENT);
 }
 
-<MLCOMMENT> [.] {
+<MLCOMMENT> [ \t\r\n\f] {
 }
 
-<MLCOMMENT> "*/" {
+<MLCOMMENT> [^*] {
+}
+
+<MLCOMMENT> "*" {
+  yybegin(MLMAYEND);
+}
+
+<MLMAYEND> [^/] {
+  yybegin(MLCOMMENT);
+}
+
+<MLMAYEND> "/" {
   yybegin(YYINITIAL);
 }
+
 
 <YYINITIAL> [a-z][A-Z_a-z0-9]* { return symbol(sym.LOWERCASEID, yytext());}
 <YYINITIAL> [A-Z][A-Z_a-z0-9]* { return symbol(sym.UPPERCASEID, yytext());}

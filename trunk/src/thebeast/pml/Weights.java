@@ -47,7 +47,7 @@ public class Weights {
       RelationVariable relation = interpreter.createRelationVariable(function.getHeading());
       relation.setLabel(function.getName());
       relations.put(function, relation);
-      interpreter.addIndex(relation, "toIndex", Index.Type.HASH, names.subList(0, names.size() - 1));
+      //interpreter.addIndex(relation, "toIndex", Index.Type.HASH, names.subList(0, names.size() - 1));
     }
 
     dotProductArg = new SparseVector();
