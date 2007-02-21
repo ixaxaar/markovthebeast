@@ -1,14 +1,8 @@
 #summary this is the main page.
 
-= Introduction =
+= Markov The Wiki =
 
-Add your content here.
+This is the Wiki for Markov The Beast. Here we gather documentation, tutorials and everything random. 
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
+* TheDocumentation
+* TheTutorial
