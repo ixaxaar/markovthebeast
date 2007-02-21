@@ -2,7 +2,7 @@
 //types to "corpora/english_ptb_train.1of2.pml";
 
 include "corpora/english_ptb_train.1of2.pml";
-include "corpora/conll06.pml";
+include "conll06.pml";
 include "nonproj.pml";
 
 hidden: link, dep;
@@ -14,19 +14,19 @@ corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 20);
 
 scores from "example.scores";
 
-collect;
+//collect;
 
-set learner.maxIterations = 3;
-learn 1;
+//set learner.maxIterations = 3;
+//learn 1;
 
-print weights;
+//print weights;
 
-clear atoms;
-clear scores;
+//clear atoms;
+//clear scores;
 
-solve 5;
+//solve 5;
 
-print atoms;
+//print atoms;
 
 //print scores;
 
