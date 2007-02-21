@@ -1,9 +1,5 @@
 package thebeast.nod.type;
 
-import thebeast.forml.nod.*;
-import thebeast.nodmem.type.MemDoubleType;
-import thebeast.nodmem.type.MemBoolType;
-
 /**
  * @author Sebastian Riedel
  */

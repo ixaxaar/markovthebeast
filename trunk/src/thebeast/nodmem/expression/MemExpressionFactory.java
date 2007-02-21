@@ -1,6 +1,5 @@
 package thebeast.nodmem.expression;
 
-import thebeast.forml.nod.MemTupleComponent;
 import thebeast.nod.expression.*;
 import thebeast.nod.identifier.Identifier;
 import thebeast.nod.type.*;
