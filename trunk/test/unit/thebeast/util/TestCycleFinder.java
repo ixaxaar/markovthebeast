@@ -106,10 +106,10 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(3,cycles[0].length);
-    assertEquals(0,cycles[0][0]);
-    assertEquals(3,cycles[0][1]);
-    assertEquals(4,cycles[0][2]);
+    assertEquals(3, cycles[0].length);
+    assertEquals(0, cycles[0][0]);
+    assertEquals(3, cycles[0][1]);
+    assertEquals(4, cycles[0][2]);
 
   }
 
@@ -128,10 +128,10 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(3,cycles[0].length);
-    assertEquals(0,cycles[0][0]);
-    assertEquals(3,cycles[0][1]);
-    assertEquals(4,cycles[0][2]);
+    assertEquals(3, cycles[0].length);
+    assertEquals(0, cycles[0][0]);
+    assertEquals(3, cycles[0][1]);
+    assertEquals(4, cycles[0][2]);
 
   }
 
@@ -151,12 +151,47 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(4,cycles[0].length);
-    assertEquals(0,cycles[0][0]);
-    assertEquals(0,cycles[0][1]);
-    assertEquals(2,cycles[0][2]);
-    assertEquals(1,cycles[0][3]);
+    assertEquals(1, cycles[0].length);
+    assertEquals(0, cycles[0][0]);
+    assertEquals(1, cycles[1].length);
+    assertEquals(1, cycles[1][0]);
+    assertEquals(1, cycles[2].length);
+    assertEquals(2, cycles[2][0]);
+  }
 
+  public void testSimpleCycle7() {
+    int[][] graph = new int[][]{
+            new int[]{4, 12},
+            new int[]{3, 2},
+            new int[]{17, 18},
+            new int[]{9, 10},
+            new int[]{10, 12},
+            new int[]{6, 9},
+            new int[]{4, 6},
+            new int[]{2, 4},
+            new int[]{12, 3},
+    };
+    int[][] cycles = CycleFinder.findCycleVertices(graph, 21);
+    for (int[] cycle : cycles) {
+      System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
+    }
+    assertEquals(7, cycles[0].length);
+    assertEquals(2, cycles[0][0]);
+    assertEquals(4, cycles[0][1]);
+    assertEquals(6, cycles[0][2]);
+    assertEquals(9, cycles[0][3]);
+    assertEquals(10, cycles[0][4]);
+    assertEquals(12, cycles[0][5]);
+    assertEquals(3, cycles[0][6]);
+
+  }
+
+  public static String toArrayDef(int[][] graph) {
+    StringBuffer result = new StringBuffer("int[][] graph = new int[][]{");
+    for (int[] edge : graph)
+      result.append("\nnew int[] {").append(edge[0]).append(", ").append(edge[1]).append("},");
+    result.append("};");
+    return result.toString();
   }
 
 }

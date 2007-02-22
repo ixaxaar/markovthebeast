@@ -9,4 +9,6 @@ public interface ILPSolver {
   void init();
   void add(RelationVariable variables, RelationVariable constraints);
   RelationVariable solve();
+  void setVerbose(boolean verbose);
+  void setProperty(String name, Object value);
 }

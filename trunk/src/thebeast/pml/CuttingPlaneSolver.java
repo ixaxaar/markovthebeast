@@ -1,6 +1,7 @@
 package thebeast.pml;
 
 /**
+ * A PML Solver based on the Cutting Plane algorithm and column generation.
  * @author Sebastian Riedel
  */
 public class CuttingPlaneSolver implements Solver {
@@ -15,7 +16,6 @@ public class CuttingPlaneSolver implements Solver {
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated;
-
 
   public void configure(Model model, Weights weights) {
     this.model = model;
@@ -38,6 +38,10 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
+  }
+
+  public void setILPSolver(ILPSolver solver){
+    ilp.setSolver(solver);
   }
 
   public void setObservation(GroundAtoms atoms) {
@@ -109,6 +113,11 @@ public class CuttingPlaneSolver implements Solver {
     ilp.init(scores);
     scoresSet = true;
   }
+
+  public ILPSolver getILPSolver(){
+    return ilp.getSolver();
+  }
+
 
 
   public GroundAtoms getAtoms() {

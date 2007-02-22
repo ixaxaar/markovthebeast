@@ -300,13 +300,14 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
             new MemChunk(0, 0, result.getDim())});
     MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
     MemInserter.append(buffer.chunkData[0], result);
-
+    var.invalidate();
   }
 
   public void visitClearRelationVariable(ClearRelationVariable clearRelationVariable) {
     MemRelationVariable var = (MemRelationVariable) clearRelationVariable.variable();
     var.own();
     var.getContainerChunk().chunkData[var.getPointer().xChunk].size = 0;
+    var.invalidate();
   }
 
   public void visitArraySparseAdd(ArraySparseAdd arraySparseAdd) {
@@ -321,6 +322,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemEvaluator.evaluate(sparse.compile(), null, null, buffer, MemVector.ZERO);
     MemMath.sparseAdd(var.getContainerChunk().chunkData[var.getPointer().xChunk],
             buffer.chunkData[0], buffer.doubleData[0], indexCol, valueCol);
+    var.invalidate();
 
   }
 

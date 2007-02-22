@@ -16,10 +16,11 @@ scores from "example.scores";
 
 collect;
 
-print weights;
-set learner.maxIterations = 10;
-print atoms;
-learn 1;
+//print weights;
+set solver.maxIterations = 10;
+set ilp.verbose = false;
+//print atoms;
+//learn 1;
 
 //print weights;
 

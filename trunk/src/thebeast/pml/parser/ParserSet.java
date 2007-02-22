@@ -9,6 +9,7 @@ public class ParserSet extends ParserStatement {
   public final int intValue;
   public final double doubleValue;
   public final String stringValue;
+  public final boolean boolValue;
 
 
   public ParserSet(String qualifier, String property, int intValue) {
@@ -17,6 +18,7 @@ public class ParserSet extends ParserStatement {
     this.intValue = intValue;
     this.doubleValue = -1;
     this.stringValue = null;
+    this.boolValue = false;
   }
 
 
@@ -26,6 +28,7 @@ public class ParserSet extends ParserStatement {
     this.doubleValue = doubleValue;
     this.intValue = -1;
     this.stringValue = null;
+    this.boolValue = false;
   }
 
 
@@ -35,6 +38,15 @@ public class ParserSet extends ParserStatement {
     this.stringValue = stringValue;
     this.intValue = -1;
     this.doubleValue = -1;
+    this.boolValue = false;
+  }
+  public ParserSet(String qualifier, String property, boolean boolValue) {
+    this.qualifier = qualifier;
+    this.property = property;
+    this.stringValue = null;
+    this.intValue = -1;
+    this.doubleValue = -1;
+    this.boolValue = boolValue;
   }
 
   public void acceptParserStatementVisitor(ParserStatementVisitor visitor) {

@@ -8,6 +8,7 @@ import thebeast.nod.type.TypeFactory;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.variable.Index;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
 
@@ -103,6 +104,7 @@ public class IntegerLinearProgram {
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingILP());
+      interpreter.addIndex(variables, "index", Index.Type.HASH, "index");
       groundAtom2index.put(predicate, variables);
       builder.clear();
       builder.expr(variables).from("c");
@@ -185,9 +187,27 @@ public class IntegerLinearProgram {
   }
 
   public void init(Scores scores){
-    solver.init();
     this.scores.load(scores);
+    solver.init();
+    clear();
+  }
+
+  private void clear() {
+    interpreter.clear(constraints);
+    interpreter.clear(newConstraints);
+    interpreter.clear(vars);
+    interpreter.clear(newVars);
     interpreter.assign(varCount, builder.num(0).getInt());
+  }
+
+  public void setSolver(ILPSolver solver){
+    this.solver = solver;
+    clear();
+  }
+
+
+  public ILPSolver getSolver() {
+    return solver;
   }
 
   public boolean changed() {

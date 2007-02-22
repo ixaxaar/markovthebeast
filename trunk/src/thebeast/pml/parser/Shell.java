@@ -74,8 +74,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     this.out = out;
     this.err = err;
     signature = TheBeast.getInstance().createSignature();
+    weights = signature.createWeights();
     model = signature.createModel();
     solver = new CuttingPlaneSolver();
+    learner = new OnlineLearner(model, weights, solver);
     initCorpusTools();
   }
 
@@ -376,7 +378,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       solver.configure(model, weights);
       solution = new Solution(model, weights);
       if (learner == null) {
-        learner = new OnlineLearner(model, weights);
+        learner = new OnlineLearner(model, weights,solver);
       } else {
         learner.configure(model, weights);
       }
@@ -556,7 +558,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         int instance = 1;
         learner.learnOne(gold, instances);
         jump(1);
-        while (iterator.hasNext() && instance< parserLearn.instances) {
+        while (iterator.hasNext() && instance < parserLearn.instances) {
           learner.learnOne(gold, instances);
           jump(1);
           ++instance;
@@ -570,12 +572,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitSet(ParserSet parserSet) {
-    if ("learner".equals(parserSet.qualifier)) {
+    if ("solver".equals(parserSet.qualifier)) {
       if ("maxIterations".equals(parserSet.property)) {
-        CuttingPlaneSolver solver = (CuttingPlaneSolver) learner.getSolver();
         solver.setMaxIterations(parserSet.intValue);
         out.println(parserSet.qualifier + "." + parserSet.property + " set to " + parserSet.intValue + ".");
       }
+    } else if ("ilp".equals(parserSet.qualifier)){
+      solver.getILPSolver().setProperty(parserSet.property, parserSet.boolValue);
     }
   }
 
@@ -583,8 +586,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (parserClear.what.equals("atoms")) {
       guess.clear(model.getHiddenPredicates());
       out.println("Atoms cleared.");
-    }
-    else if (parserClear.what.equals("scores")) {
+    } else if (parserClear.what.equals("scores")) {
       scores.clear();
       out.println("Scores cleared.");
     }
@@ -708,6 +710,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitFunctionApplication(ParserFunctionApplication parserFunctionApplication) {
     LinkedList<Term> args = new LinkedList<Term>();
     Function function = signature.getFunction(parserFunctionApplication.function);
+    if (function == null)
+      throw new ShellException("There is no function with name " + parserFunctionApplication.function );
     int index = 0;
     for (ParserTerm term : parserFunctionApplication.args) {
       typeContext.push(function.getArgumentTypes().get(index++));
@@ -740,7 +744,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitBins(ParserBins parserBins) {
     LinkedList<Integer> bins = new LinkedList<Integer>();
-    for (ParserTerm term : parserBins.bins){
+    for (ParserTerm term : parserBins.bins) {
       if (term instanceof ParserIntConstant) {
         ParserIntConstant intConstant = (ParserIntConstant) term;
         bins.add(intConstant.number);
