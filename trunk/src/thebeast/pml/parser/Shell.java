@@ -47,7 +47,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private Iterator<GroundAtoms> iterator;
   private ListIterator<GroundAtoms> listIterator;
 
-  private CuttingPlaneSolver solver;
+  private CuttingPlaneSolver solver, solver4Learner;
   private Scores scores;
   private Weights weights;
   private Solution solution;
@@ -64,6 +64,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private boolean printPrompt = true;
 
   private String directory;
+  private boolean externalSolution;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -77,7 +78,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     weights = signature.createWeights();
     model = signature.createModel();
     solver = new CuttingPlaneSolver();
-    learner = new OnlineLearner(model, weights, solver);
+    solver4Learner = new CuttingPlaneSolver();
+    learner = new OnlineLearner(model, weights, solver4Learner);
     initCorpusTools();
   }
 
@@ -355,6 +357,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       if (parserLoad.target == null) {
         if (!parserLoad.gold) {
           guess.load(new FileInputStream(filename(parserLoad.file)));
+          solver.setObservation(guess);
+          externalSolution = true;
         }
       } else {
 
@@ -378,7 +382,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       solver.configure(model, weights);
       solution = new Solution(model, weights);
       if (learner == null) {
-        learner = new OnlineLearner(model, weights,solver);
+        learner = new OnlineLearner(model, weights, solver);
       } else {
         learner.configure(model, weights);
       }
@@ -405,13 +409,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitSolve(ParserSolve parserSolve) {
     update();
-    if (!guess.isEmpty(model.getHiddenPredicates()))
+    if (externalSolution && !guess.isEmpty(model.getHiddenPredicates()))
       solver.solve(guess, parserSolve.numIterations);
     else
       solver.solve(parserSolve.numIterations);
+    externalSolution = false;
     guess.load(solver.getAtoms(), model.getHiddenPredicates());
-
-    out.println("Solved in " + solver.getIterationCount() + " step(s).");
+    if (solver.getIterationCount() == 0)
+      out.println("Current solution is optimal.");
+    else
+      out.println("Solved in " + solver.getIterationCount() + " step(s).");
   }
 
   public void visitGenerateTypes(ParserGenerateTypes parserGenerateTypes) {
@@ -505,10 +512,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     gold.load(atoms);
     guess.load(atoms);
     solver.setObservation(atoms);
+    externalSolution = true;
   }
 
   public void visitGreedy(ParserGreedy parserGreedy) {
     guess.load(scores.greedySolve(0.0), model.getHiddenPredicates());
+    externalSolution = true;
     out.println("Greedy solution extracted.");
   }
 
@@ -572,19 +581,25 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitSet(ParserSet parserSet) {
-    if ("solver".equals(parserSet.qualifier)) {
-      if ("maxIterations".equals(parserSet.property)) {
-        solver.setMaxIterations(parserSet.intValue);
-        out.println(parserSet.qualifier + "." + parserSet.property + " set to " + parserSet.intValue + ".");
-      }
-    } else if ("ilp".equals(parserSet.qualifier)){
-      solver.getILPSolver().setProperty(parserSet.property, parserSet.boolValue);
-    }
+
+    if ("solver".equals(parserSet.propertyName.head))
+      solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+
+    if ("learner".equals(parserSet.propertyName.head))
+      learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+
+    out.println(parserSet.propertyName + " set to " + parserSet.value + ".");
+  }
+
+  private PropertyName toPropertyName(ParserName name) {
+    if (name.tail == null) return new PropertyName(name.head, null);
+    return new PropertyName(name.head, toPropertyName(name.tail));
   }
 
   public void visitClear(ParserClear parserClear) {
     if (parserClear.what.equals("atoms")) {
       guess.clear(model.getHiddenPredicates());
+      //reseting the solver
       out.println("Atoms cleared.");
     } else if (parserClear.what.equals("scores")) {
       scores.clear();
@@ -711,7 +726,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     LinkedList<Term> args = new LinkedList<Term>();
     Function function = signature.getFunction(parserFunctionApplication.function);
     if (function == null)
-      throw new ShellException("There is no function with name " + parserFunctionApplication.function );
+      throw new ShellException("There is no function with name " + parserFunctionApplication.function);
     int index = 0;
     for (ParserTerm term : parserFunctionApplication.args) {
       typeContext.push(function.getArgumentTypes().get(index++));

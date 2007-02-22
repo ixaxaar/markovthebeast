@@ -6,7 +6,7 @@ import thebeast.pml.corpora.Corpus;
 /**
  * @author Sebastian Riedel
  */
-public class OnlineLearner implements Learner {
+public class OnlineLearner implements Learner, HasProperties {
 
   private Solver solver = new CuttingPlaneSolver();
   private Learner collector = null;
@@ -181,4 +181,13 @@ public class OnlineLearner implements Learner {
   }
 
 
+  public void setProperty(PropertyName name, Object value) {
+    if ("solver".equals(name.getHead())){
+      solver.setProperty(name.getTail(), value);
+    }
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
+  }
 }

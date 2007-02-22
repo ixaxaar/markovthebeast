@@ -96,6 +96,16 @@ public class ILPSolverLpSolve implements ILPSolver {
     else this.verbose = verbose;
   }
 
+
+  public Object getProperty(PropertyName name) {
+    return null;
+  }
+
+  public void setProperty(PropertyName name, Object value) {
+    if (name.getHead().equals("verbose"))
+      setVerbose((Boolean)value);      
+  }
+
   public void setProperty(String name, Object value) {
     if ("verbose".equals(name))
       setVerbose((Boolean)value);

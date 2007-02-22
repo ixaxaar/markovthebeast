@@ -2,6 +2,7 @@ package thebeast.pml;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
+ *
  * @author Sebastian Riedel
  */
 public class CuttingPlaneSolver implements Solver {
@@ -40,7 +41,7 @@ public class CuttingPlaneSolver implements Solver {
     this.maxIterations = maxIterations;
   }
 
-  public void setILPSolver(ILPSolver solver){
+  public void setILPSolver(ILPSolver solver) {
     ilp.setSolver(solver);
   }
 
@@ -74,15 +75,15 @@ public class CuttingPlaneSolver implements Solver {
     while (ilp.changed() && iteration < maxIterations) {
       ilp.solve(atoms);
       update();
-      ++iteration;      
+      ++iteration;
     }
     done = ilp.changed();
   }
 
-  public void solve(){
+  public void solve() {
     solve(maxIterations);
   }
-  
+
   public void solve(GroundAtoms init, int maxIterations) {
     initSolution(init);
     if (!scoresSet) score();
@@ -104,7 +105,7 @@ public class CuttingPlaneSolver implements Solver {
   private void initSolution(GroundAtoms atoms) {
     this.atoms.load(atoms, model.getHiddenPredicates());
     initSet = true;
-    //updated = false;
+    updated = false;
   }
 
   private void score() {
@@ -114,10 +115,9 @@ public class CuttingPlaneSolver implements Solver {
     scoresSet = true;
   }
 
-  public ILPSolver getILPSolver(){
+  public ILPSolver getILPSolver() {
     return ilp.getSolver();
   }
-
 
 
   public GroundAtoms getAtoms() {
@@ -133,5 +133,16 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  public void setProperty(PropertyName name, Object value) {
+    if (name.getHead().equals("ilp"))
+      ilp.getSolver().setProperty(name.getTail(), value);
+    if (name.getHead().equals("maxIterations"))
+      setMaxIterations((Integer)value);
+  }
 
+  public Object getProperty(PropertyName name) {
+    if (name.getHead().equals("ilp"))
+      return ilp.getSolver().getProperty(name.getTail());
+    return null;
+  }
 }

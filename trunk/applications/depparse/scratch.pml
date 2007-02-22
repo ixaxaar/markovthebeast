@@ -14,11 +14,11 @@ corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 20);
 
 scores from "example.scores";
 
-collect;
+//collect;
 
 //print weights;
-set solver.maxIterations = 10;
-set ilp.verbose = false;
+set learner.solver.maxIterations = 10;
+set solver.ilp.verbose = false;
 //print atoms;
 //learn 1;
 
