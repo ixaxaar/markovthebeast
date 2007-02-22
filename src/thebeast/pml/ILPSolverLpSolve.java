@@ -18,6 +18,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private boolean enforceInteger = true;
+  private boolean verbose = false;
 
   public void init() {
     try {
@@ -26,7 +27,7 @@ public class ILPSolverLpSolve implements ILPSolver {
       solver.setBbDepthlimit(3);
       numRows = 0;
       numCols = 0;
-      //solver.setVerbose(0);
+      solver.setVerbose(verbose ? 5 : 0);
     } catch (LpSolveException e) {
       e.printStackTrace();
     }
@@ -88,5 +89,16 @@ public class ILPSolverLpSolve implements ILPSolver {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
+  }
+
+  public void setVerbose(boolean verbose) {
+    if (solver != null) solver.setVerbose(verbose ? 5 : 0);
+    else this.verbose = verbose;
+  }
+
+  public void setProperty(String name, Object value) {
+    if ("verbose".equals(name))
+      setVerbose((Boolean)value);
+
   }
 }

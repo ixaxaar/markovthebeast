@@ -32,7 +32,12 @@ public class OnlineLearner implements Learner {
     setSolver(new CuttingPlaneSolver());
   }
 
-  
+
+  public OnlineLearner(Model model, Weights weights, Solver solver) {
+    configure(model, weights);
+    setSolver(solver);
+  }
+
   public void setNumEpochs(int numEpochs) {
     this.numEpochs = numEpochs;
   }
@@ -89,7 +94,7 @@ public class OnlineLearner implements Learner {
     //either load the feature vector or extract it
     features.extract(instance);
 
-    System.out.println(features);
+    //System.out.println(features);
 
     //use the feature vector and weight to score ground atoms
     scores.score(features, this.weights);

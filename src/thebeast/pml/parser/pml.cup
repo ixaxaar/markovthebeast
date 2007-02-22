@@ -152,6 +152,10 @@ statement ::= createType:s
               {: RESULT = new ParserShift(Integer.valueOf(n)); :}
             | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN NUMBER:n
               {: RESULT = new ParserSet(q,v, Integer.valueOf(n)); :}
+            | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN TRUE
+              {: RESULT = new ParserSet(q,v, true); :}
+            | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN FALSE
+              {: RESULT = new ParserSet(q,v, false); :}
             | CLEAR ATOMS
               {: RESULT = new ParserClear("atoms"); :}
             | CLEAR SCORES

@@ -33,9 +33,9 @@ public class Scores {
   private HashMap<UserPredicate, RelationExpression> queries = new HashMap<UserPredicate, RelationExpression>();
 
   public Scores(Model model, Weights weights) {
-    if (model.getHiddenPredicates().isEmpty())
-      throw new RuntimeException("It doesn't make sense to create a Scores" +
-              " object for a model with no hidden predicates");
+//    if (model.getHiddenPredicates().isEmpty())
+//      throw new RuntimeException("It doesn't make sense to create a Scores" +
+//              " object for a model with no hidden predicates");
     this.model = model;
     this.weights = weights;
     this.signature = model.getSignature();
