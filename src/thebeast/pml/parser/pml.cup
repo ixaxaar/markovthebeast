@@ -45,6 +45,7 @@ non terminal LinkedList<ParserNamedConstant> namedconstantlist;
 non terminal LinkedList<ParserTerm> arguments;
 non terminal LinkedList<ParserTyping> quantification;
 non terminal ParserTyping typing;
+non terminal ParserName name;
 non terminal LinkedList<String> argtypes, lowercasecommalist;
 non terminal ParserTerm constant,term;
 non terminal ParserNamedConstant namedconstant;
@@ -150,12 +151,12 @@ statement ::= createType:s
               {: RESULT = new ParserLearn(Integer.valueOf(i),-1); :}
             | JUMP NUMBER:n
               {: RESULT = new ParserShift(Integer.valueOf(n)); :}
-            | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN NUMBER:n
-              {: RESULT = new ParserSet(q,v, Integer.valueOf(n)); :}
-            | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN TRUE
-              {: RESULT = new ParserSet(q,v, true); :}
-            | SET LOWERCASEID:q DOT LOWERCASEID:v ASSIGN FALSE
-              {: RESULT = new ParserSet(q,v, false); :}
+            | SET name:p ASSIGN NUMBER:n
+              {: RESULT = new ParserSet(p, Integer.valueOf(n)); :}
+            | SET name:n ASSIGN TRUE
+              {: RESULT = new ParserSet(n, true); :}
+            | SET name:n ASSIGN FALSE
+              {: RESULT = new ParserSet(n, false); :}
             | CLEAR ATOMS
               {: RESULT = new ParserClear("atoms"); :}
             | CLEAR SCORES
@@ -202,6 +203,13 @@ argtypes ::=
     {: LinkedList<String> l = new LinkedList<String>();
        l.add(c);
        RESULT = l; :};
+
+name ::=
+    LOWERCASEID:n
+    {: RESULT = new ParserName(n,null); :}
+  | LOWERCASEID:n DOT name:t
+    {: RESULT = new ParserName(n,t); :}
+    ;
 
 lowercasecommalist ::=
     lowercasecommalist:l COMMA LOWERCASEID:c
@@ -289,8 +297,6 @@ term ::=
   | BINS LPAREN arguments:bins COMMA term:arg RPAREN
     {: RESULT = new ParserBins(bins, arg); :}
     ;
-
-
 
 constant ::=
     namedconstant:c

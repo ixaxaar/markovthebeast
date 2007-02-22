@@ -5,48 +5,12 @@ package thebeast.pml.parser;
  */
 public class ParserSet extends ParserStatement {
 
-  public final String qualifier, property;
-  public final int intValue;
-  public final double doubleValue;
-  public final String stringValue;
-  public final boolean boolValue;
+  public final ParserName propertyName;
+  public final Object value;
 
-
-  public ParserSet(String qualifier, String property, int intValue) {
-    this.qualifier = qualifier;
-    this.property = property;
-    this.intValue = intValue;
-    this.doubleValue = -1;
-    this.stringValue = null;
-    this.boolValue = false;
-  }
-
-
-  public ParserSet(String qualifier, String property, double doubleValue) {
-    this.qualifier = qualifier;
-    this.property = property;
-    this.doubleValue = doubleValue;
-    this.intValue = -1;
-    this.stringValue = null;
-    this.boolValue = false;
-  }
-
-
-  public ParserSet(String qualifier, String property, String stringValue) {
-    this.qualifier = qualifier;
-    this.property = property;
-    this.stringValue = stringValue;
-    this.intValue = -1;
-    this.doubleValue = -1;
-    this.boolValue = false;
-  }
-  public ParserSet(String qualifier, String property, boolean boolValue) {
-    this.qualifier = qualifier;
-    this.property = property;
-    this.stringValue = null;
-    this.intValue = -1;
-    this.doubleValue = -1;
-    this.boolValue = boolValue;
+  public ParserSet(ParserName propertyName, Object value) {
+    this.propertyName = propertyName;
+    this.value = value;
   }
 
   public void acceptParserStatementVisitor(ParserStatementVisitor visitor) {

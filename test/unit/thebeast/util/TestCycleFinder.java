@@ -106,10 +106,13 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(3, cycles[0].length);
+    assertEquals(2, cycles[0].length);
     assertEquals(0, cycles[0][0]);
     assertEquals(3, cycles[0][1]);
-    assertEquals(4, cycles[0][2]);
+    assertEquals(3, cycles[1].length);
+    assertEquals(4, cycles[1][0]);
+    assertEquals(0, cycles[1][1]);
+    assertEquals(3, cycles[1][2]);
 
   }
 
@@ -128,10 +131,13 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(3, cycles[0].length);
+    assertEquals(2, cycles[0].length);
     assertEquals(0, cycles[0][0]);
     assertEquals(3, cycles[0][1]);
-    assertEquals(4, cycles[0][2]);
+    assertEquals(3, cycles[1].length);
+    assertEquals(4, cycles[1][0]);
+    assertEquals(0, cycles[1][1]);
+    assertEquals(3, cycles[1][2]);
 
   }
 
@@ -175,14 +181,19 @@ public class TestCycleFinder extends TestCase {
     for (int[] cycle : cycles) {
       System.out.println("Arrays.toString(cycle) = " + Arrays.toString(cycle));
     }
-    assertEquals(7, cycles[0].length);
+    assertEquals(4, cycles[0].length);
     assertEquals(2, cycles[0][0]);
     assertEquals(4, cycles[0][1]);
-    assertEquals(6, cycles[0][2]);
-    assertEquals(9, cycles[0][3]);
-    assertEquals(10, cycles[0][4]);
-    assertEquals(12, cycles[0][5]);
-    assertEquals(3, cycles[0][6]);
+    assertEquals(12, cycles[0][2]);
+    assertEquals(3, cycles[0][3]);
+    assertEquals(7, cycles[1].length);
+    assertEquals(6, cycles[1][0]);
+    assertEquals(9, cycles[1][1]);
+    assertEquals(10, cycles[1][2]);
+    assertEquals(12, cycles[1][3]);
+    assertEquals(3, cycles[1][4]);
+    assertEquals(2, cycles[1][5]);
+    assertEquals(4, cycles[1][6]);
 
   }
 

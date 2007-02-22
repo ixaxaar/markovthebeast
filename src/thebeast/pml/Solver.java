@@ -3,7 +3,7 @@ package thebeast.pml;
 /**
  * @author Sebastian Riedel
  */
-public interface Solver {
+public interface Solver extends HasProperties {
   void configure(Model model, Weights weights);
 
   void setObservation(GroundAtoms atoms);
