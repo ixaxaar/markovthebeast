@@ -490,6 +490,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       throw new RuntimeException(e);
     }
     scoresAvailable = true;
+    solver.setScores(scores);
     out.println("Scores loaded.");
   }
 
