@@ -905,7 +905,9 @@ public class TestTheBeast extends TestCase {
     solver.configure(model, weights);
     solver.setObservation(theManLikesTheBoat);
     solver.setScores(scores);
-    solver.solve(theManLikesTheBoat,1);
+    solver.setInititalSolution(theManLikesTheBoat);
+    solver.solve(1);
+    //solver.solve(theManLikesTheBoat,1);
     System.out.println(solver.getAtoms());
     //Solution result = new Solution(model, weights);
     //solver.solve(theManLikesTheBoat, scores, result);

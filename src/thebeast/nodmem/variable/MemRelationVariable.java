@@ -138,6 +138,16 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue,Relat
     return indexInformation().getIndex(name);
   }
 
+  public void assignByArray(int[] ints, double[] doubles) {
+    MemChunk target = chunk.chunkData[pointer.xChunk];
+    int newSize = ints.length / target.numIntCols;
+    if (target.capacity < newSize) target.increaseCapacity(newSize - target.capacity);
+    System.arraycopy(ints,0,target.intData,0,ints.length);
+    System.arraycopy(doubles, 0, target.doubleData, 0, doubles.length);
+    target.size = newSize;
+    invalidate();
+  }
+
 
   public void invalidate() {
     chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;

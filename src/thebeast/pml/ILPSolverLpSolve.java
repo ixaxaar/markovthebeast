@@ -17,7 +17,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
-  private boolean enforceInteger = true;
+  private boolean enforceInteger = false;
   private boolean verbose = false;
 
   public void init() {
@@ -27,7 +27,7 @@ public class ILPSolverLpSolve implements ILPSolver {
       solver.setBbDepthlimit(3);
       numRows = 0;
       numCols = 0;
-      solver.setVerbose(verbose ? 5 : 0);
+      solver.setVerbose(verbose ? 4 : 0);
     } catch (LpSolveException e) {
       e.printStackTrace();
     }
@@ -77,14 +77,22 @@ public class ILPSolverLpSolve implements ILPSolver {
   public RelationVariable solve() {
     try {
       solver.writeLp("/tmp/debug.lp");
+      //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
       solver.solve();
       double[] solution = new double[numCols];
       solver.getVariables(solution);
+      int[] indices = new int[numCols];
       for (int index = 0; index < solution.length; ++index) {
-        builder.id("index").num(index).id("value").num(solution[index]).tupleForIds();
+        indices[index] = index;
       }
-      builder.relation(solution.length);
-      return interpreter.createRelationVariable(builder.getRelation());
+      //RelationVariable variable = interpreter.createRelationVariable(builder.getRelation());
+      RelationVariable variable = interpreter.createRelationVariable(IntegerLinearProgram.getResultHeading());
+      variable.assignByArray(indices, solution);
+//       for (int index = 0; index < solution.length; ++index) {
+//        builder.id("index").num(index).id("value").num(solution[index]).tupleForIds();
+//      }
+//      builder.relation(solution.length);
+      return variable;
     } catch (LpSolveException e) {
       e.printStackTrace();
       throw new RuntimeException(e);

@@ -8,6 +8,7 @@ import java.io.PrintStream;
 public final class MemSearch {
 
   private static MemVector ZERO = new MemVector();
+  private static final int CAPACITY_INCREMENTS = 200;
 
   public static void search(MemSearchPlan plan, MemChunk[] chunks, MemChunk variables, MemChunk dst, int dstRow) {
     final int chunkCount = chunks.length;
@@ -67,7 +68,7 @@ public final class MemSearch {
             if (valid.intData[0] == 1) {
               //System.out.println("Written");
               if (dst.capacity == dst.size)
-                dst.increaseCapacity(20);
+                dst.increaseCapacity(CAPACITY_INCREMENTS);
               MemEvaluator.evaluate(action.functions[1], chunks, currentRows, dst, dstPointer);
               //++dst.size;
               dstPointer.xInt += dst.numIntCols;
@@ -79,7 +80,7 @@ public final class MemSearch {
           case WRITE:
             //printRows(currentPointers, currentSpaces, currentRows, System.out);
             if (dst.capacity == dst.size)
-              dst.increaseCapacity(20);
+              dst.increaseCapacity(CAPACITY_INCREMENTS);
             int oldSize = dst.size;
             MemEvaluator.evaluate(action.functions[0], chunks, currentRows, dst, dstPointer);
             int diffSize = dst.size - oldSize;

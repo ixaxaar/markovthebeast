@@ -97,13 +97,17 @@ public class IntegerLinearProgram {
     constraints = interpreter.createRelationVariable(constraintHeading);
     newConstraints = interpreter.createRelationVariable(constraintHeading);
     result = interpreter.createRelationVariable(resultHeading);
+    interpreter.addIndex(result, "index", Index.Type.HASH, "index");
     vars = interpreter.createRelationVariable(varHeading);
+    interpreter.addIndex(vars, "index", Index.Type.HASH, "index");
     newVars = interpreter.createRelationVariable(varHeading);
+    interpreter.addIndex(newVars, "index", Index.Type.HASH, "index");
     solution = model.getSignature().createGroundAtoms();
     atoms = model.getSignature().createGroundAtoms();
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingILP());
+      interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
       interpreter.addIndex(variables, "index", Index.Type.HASH, "index");
       groundAtom2index.put(predicate, variables);
       builder.clear();
