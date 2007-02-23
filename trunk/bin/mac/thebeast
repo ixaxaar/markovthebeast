@@ -2,7 +2,7 @@
 
 scriptdir=$(cd "$(dirname "$0")"; pwd)
 dir=${scriptdir}/../..
-classpath=${dir}/classes/production:${dir}/lib/JSAP-2.1.jar:${dir}/lib/lpsolve55j.jar:${dir}/lib/java-cup-11a.jar
+classpath=${dir}/classes/production:${dir}/lib/JSAP-2.1.jar:${dir}/lib/lpsolve55j.jar:${dir}/lib/java-cup-11a.jar:${dir}/lib/jline-0.9.9.jar
 
 export DYLD_LIBRARY_PATH=${scriptdir}
 

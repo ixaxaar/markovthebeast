@@ -29,6 +29,15 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * The cutting plane solve might not need as many iterations as specified through
+   * {@link thebeast.pml.CuttingPlaneSolver#setMaxIterations(int)} or as argument of
+   * {@link thebeast.pml.CuttingPlaneSolver#solve(int)}. This method returns the actual
+   * number of iterations that were needed.
+   *
+   * @return the number of iterations the solver did last time {@link thebeast.pml.CuttingPlaneSolver#solve(int)} or
+   *         {@link CuttingPlaneSolver#solve()} was called.
+   */
   public int getIterationCount() {
     return iteration;
   }
@@ -45,6 +54,12 @@ public class CuttingPlaneSolver implements Solver {
     ilp.setSolver(solver);
   }
 
+  /**
+   * Defines a new problem by setting the current observation. The next call to any solve method will use this
+   * observation as input.
+   *
+   * @param atoms the ground atoms to use as observation. Only predicates defined as "observation" are used.
+   */
   public void setObservation(GroundAtoms atoms) {
     done = false;
     scoresSet = false;
@@ -53,6 +68,13 @@ public class CuttingPlaneSolver implements Solver {
     this.atoms.load(atoms, model.getObservedPredicates());
   }
 
+  /**
+   * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that
+   * these scores will be forgotten once a new observation is specified with
+   * {@link thebeast.pml.CuttingPlaneSolver#setObservation(GroundAtoms)}.
+   *
+   * @param scores the scores to use.
+   */
   public void setScores(Scores scores) {
     done = false;
     this.scores.load(scores);
@@ -67,6 +89,13 @@ public class CuttingPlaneSolver implements Solver {
     updated = true;
   }
 
+  /**
+   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
+   * a initial guess (either from the last time this method was called or through external specification) this
+   * guess is used as a starting point. If not a greedy solution is used as a starting point.
+   *
+   * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
+   */
   public void solve(int maxIterations) {
     if (!scoresSet) score();
     if (!initSet) initSolution();
@@ -80,21 +109,12 @@ public class CuttingPlaneSolver implements Solver {
     done = ilp.changed();
   }
 
+  /**
+   * Calls {@link thebeast.pml.CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by
+   * {@link thebeast.pml.CuttingPlaneSolver#setMaxIterations(int)}.
+   */
   public void solve() {
     solve(maxIterations);
-  }
-
-  public void solve(GroundAtoms init, int maxIterations) {
-    initSolution(init);
-    if (!scoresSet) score();
-    if (!updated) update();
-    iteration = 0;
-    while (ilp.changed() && iteration < maxIterations) {
-      ilp.solve(atoms);
-      update();
-      ++iteration;
-    }
-    done = ilp.changed();
   }
 
   private void initSolution() {
@@ -102,7 +122,12 @@ public class CuttingPlaneSolver implements Solver {
     initSet = true;
   }
 
-  private void initSolution(GroundAtoms atoms) {
+  /**
+   * Set a starting point for the cutting plane solver.
+   *
+   * @param atoms a collection of ground atoms (needs to have hidden atoms).
+   */
+  public void setInititalSolution(GroundAtoms atoms) {
     this.atoms.load(atoms, model.getHiddenPredicates());
     initSet = true;
     updated = false;
@@ -137,7 +162,7 @@ public class CuttingPlaneSolver implements Solver {
     if (name.getHead().equals("ilp"))
       ilp.getSolver().setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
-      setMaxIterations((Integer)value);
+      setMaxIterations((Integer) value);
   }
 
   public Object getProperty(PropertyName name) {

@@ -15,4 +15,6 @@ public interface RelationVariable extends Variable<RelationValue,RelationType>, 
 
   Index getIndex(String name);
 
+  void assignByArray(int[] ints, double[] doubles);
+
 }

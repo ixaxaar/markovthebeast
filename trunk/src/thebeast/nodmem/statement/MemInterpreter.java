@@ -220,6 +220,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public void visitInsert(Insert insert) {
+    //System.out.println(insert.relationExp());
     typeCheck(insert.relationTarget().type(), insert.relationExp().type(), insert);
     MemRelationVariable var = (MemRelationVariable) insert.relationTarget();
     var.own();
@@ -241,6 +242,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   public void visitAssign(Assign assign) {
     typeCheck(assign.target().type(), assign.expression().type(), assign);
+    //System.out.println(assign.expression());
     if (assign.expression() instanceof AbstractMemVariable) {
       AbstractMemVariable other = (AbstractMemVariable) assign.expression();
       AbstractMemVariable var = (AbstractMemVariable) assign.target();

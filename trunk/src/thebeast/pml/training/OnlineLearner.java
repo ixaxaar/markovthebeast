@@ -2,6 +2,8 @@ package thebeast.pml.training;
 
 import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
+import thebeast.util.ProgressReporter;
+import thebeast.util.QuietProgressReporter;
 
 /**
  * @author Sebastian Riedel
@@ -22,6 +24,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Solution goldSolution;
   private Weights weights;
   private Model model;
+  private ProgressReporter progressReporter = new QuietProgressReporter();
 
   private int numEpochs;
 
@@ -32,6 +35,14 @@ public class OnlineLearner implements Learner, HasProperties {
     setSolver(new CuttingPlaneSolver());
   }
 
+
+  public ProgressReporter getProgressReporter() {
+    return progressReporter;
+  }
+
+  public void setProgressReporter(ProgressReporter progressReporter) {
+    this.progressReporter = progressReporter;
+  }
 
   public OnlineLearner(Model model, Weights weights, Solver solver) {
     configure(model, weights);
@@ -87,6 +98,15 @@ public class OnlineLearner implements Learner, HasProperties {
 
   }
 
+  public void startEpoch(){
+    progressReporter.started();
+  }
+
+  public void endEpoch(){
+    updateRule.endEpoch();
+    progressReporter.finished();
+  }
+
   public void learnOne(GroundAtoms data, TrainingInstances instances) {
     //load the instance from the corpus into our local variable
     instance.load(data);
@@ -120,6 +140,8 @@ public class OnlineLearner implements Learner, HasProperties {
     updateRule.update(gold, guess, evaluation, this.weights);
 
     instances.add(data.copy(), features.copy(), gold.copy());
+
+    progressReporter.progressed();
   }
 
   public void configure(Model model, Weights weights) {

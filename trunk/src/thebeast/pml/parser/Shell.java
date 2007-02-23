@@ -21,6 +21,8 @@ import thebeast.util.Util;
 import java.io.*;
 import java.util.*;
 
+import jline.ConsoleReader;
+
 /**
  * The Shell processes PML commands either in an active mode from standard in or directly from a file or any other input
  * stream.
@@ -64,7 +66,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private boolean printPrompt = true;
 
   private String directory;
-  private boolean externalSolution;
+  private boolean solutionAvailable, externalFeatures, externalScores, featuresAvailable, scoresAvailable;
+  public ConsoleReader console;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -74,12 +77,19 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     this.in = in;
     this.out = out;
     this.err = err;
+    try {
+      console = new ConsoleReader(System.in, new OutputStreamWriter(System.out));
+      console.getHistory().setHistoryFile(new File(System.getProperty("user.home") + "/.thebeasthistory"));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     signature = TheBeast.getInstance().createSignature();
     weights = signature.createWeights();
     model = signature.createModel();
     solver = new CuttingPlaneSolver();
     solver4Learner = new CuttingPlaneSolver();
     learner = new OnlineLearner(model, weights, solver4Learner);
+    learner.setProgressReporter(new DotProgressReporter(out, 1, 5, 3));
     initCorpusTools();
   }
 
@@ -137,10 +147,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
    * @throws IOException if there is some I/O problem.
    */
   public void interactive() throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    //BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     out.println("Markov The Beast v0.1");
     if (printPrompt) out.print("# ");
-    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+    for (String line = console.readLine(); line != null; line = console.readLine()) {
       PMLParser parser = new PMLParser(new Yylex(new ByteArrayInputStream(line.getBytes())));
       try {
         for (Object obj : ((List) parser.parse().value)) {
@@ -156,6 +166,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
       if (printPrompt) out.print("# ");
     }
+    //console.getHistory().
   }
 
 
@@ -358,7 +369,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         if (!parserLoad.gold) {
           guess.load(new FileInputStream(filename(parserLoad.file)));
           solver.setObservation(guess);
-          externalSolution = true;
+          solutionAvailable = true;
         }
       } else {
 
@@ -379,6 +390,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (modelUpdated) {
       weights = signature.createWeights();
       scores = new Scores(model, weights);
+      features = new LocalFeatures(model, weights);
       solver.configure(model, weights);
       solution = new Solution(model, weights);
       if (learner == null) {
@@ -409,11 +421,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitSolve(ParserSolve parserSolve) {
     update();
-    if (externalSolution && !guess.isEmpty(model.getHiddenPredicates()))
-      solver.solve(guess, parserSolve.numIterations);
-    else
-      solver.solve(parserSolve.numIterations);
-    externalSolution = false;
+    if (solutionAvailable && !guess.isEmpty(model.getHiddenPredicates()))
+      solver.setInititalSolution(guess);
+    solver.solve(parserSolve.numIterations);
+    solutionAvailable = false;
     guess.load(solver.getAtoms(), model.getHiddenPredicates());
     if (solver.getIterationCount() == 0)
       out.println("Current solution is optimal.");
@@ -478,6 +489,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    scoresAvailable = true;
     out.println("Scores loaded.");
   }
 
@@ -512,13 +524,31 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     gold.load(atoms);
     guess.load(atoms);
     solver.setObservation(atoms);
-    externalSolution = true;
+    solutionAvailable = true;
+    scoresAvailable = false;
+    featuresAvailable = false;
   }
 
   public void visitGreedy(ParserGreedy parserGreedy) {
+    updateScores();
     guess.load(scores.greedySolve(0.0), model.getHiddenPredicates());
-    externalSolution = true;
+    solutionAvailable = true;
     out.println("Greedy solution extracted.");
+  }
+
+  private void updateScores() {
+    if (!scoresAvailable) {
+      updateFeatures();
+      scores.score(features, weights);
+      scoresAvailable = true;
+    }
+  }
+
+  private void updateFeatures() {
+    if (!featuresAvailable) {
+      features.extract(guess);
+      featuresAvailable = true;
+    }
   }
 
   public void visitLoadWeights(ParserLoadWeights parserLoadWeights) {
@@ -556,6 +586,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLearn(ParserLearn parserLearn) {
     update();
     if (parserLearn.epochs == -1) {
+      //learner.startEpoch();
       if (parserLearn.instances == -1) {
         learner.learnOne(gold, instances);
         jump(1);
@@ -574,6 +605,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         }
         out.println("Learned from " + instance + " instances.");
       }
+      //learner.endEpoch();
     } else {
 
     }
