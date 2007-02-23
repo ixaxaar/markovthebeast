@@ -10,7 +10,7 @@ public class QP {
       * minimize | w |^2
       * such that:
       *
-      * w T a_i >= b_i for all i
+      * w T a_i >= b_i for all i 
       *
       * Generally, we're using this for machine learning, where w is a vector of weight parameters,
       * a_i is a feature vector difference which we'd like to have bigger than b_i, which we use

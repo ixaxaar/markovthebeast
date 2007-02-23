@@ -28,13 +28,54 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
   private HashMap<UserPredicate, Constant[]> constantAtoms = new HashMap<UserPredicate, Constant[]>();
 
   static {
-    CONLL_06_GENERATOR.addTypeTemplate(1,"Word",true,true);
-    CONLL_06_GENERATOR.addTypeTemplate(3,"Cpos",true,true);
-    CONLL_06_GENERATOR.addTypeTemplate(4,"Pos",true,true);
-    CONLL_06_GENERATOR.addTypeTemplate(7,"Dep",false,true);
-    CONLL_06_GENERATOR.addInitialConstants("Word", "ROOT");
-    CONLL_06_GENERATOR.addInitialConstants("Cpos", "ROOT");
-    CONLL_06_GENERATOR.addInitialConstants("Pos", "ROOT");
+    CONLL_06_GENERATOR.addTokenCollector(1, "Word", true, new Quote(), "ROOT");
+    CONLL_06_GENERATOR.addTokenCollector(1, "Prefix", true, new Pipeline(new Prefix(5), new Quote()), "ROOT");
+    CONLL_06_GENERATOR.addTokenCollector(3, "Cpos", true, new Quote(), "ROOT");
+    CONLL_06_GENERATOR.addTokenCollector(4, "Pos", true, new Quote(), "ROOT");
+    CONLL_06_GENERATOR.addTokenCollector(7, "Dep", true, new Itself());
+  }
+
+  public static interface TokenProcessor {
+    String process(String token);
+  }
+
+  public static class Pipeline implements TokenProcessor {
+    TokenProcessor[] processors;
+
+    public Pipeline(TokenProcessor ... processors) {
+      this.processors = processors;
+    }
+
+    public String process(String token) {
+      String result = token;
+      for (TokenProcessor processor : processors)
+        result = processor.process(result);
+      return result;
+    }
+  }
+
+  public static class Quote implements TokenProcessor {
+    public String process(String token) {
+      return "\"" + token + "\"";
+    }
+  }
+
+  public static class Prefix implements TokenProcessor {
+    int howmany;
+
+    public Prefix(int howmany) {
+      this.howmany = howmany;
+    }
+
+    public String process(String token) {
+      return token.length() > howmany ? token.substring(0, howmany) : token;
+    }
+  }
+
+  public static class Itself implements TokenProcessor {
+    public String process(String token) {
+      return token;
+    }
   }
 
   public static class CoNLL06Factory implements CorpusFactory {
@@ -45,36 +86,43 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       UserPredicate link = (UserPredicate) signature.getPredicate("link");
       UserPredicate dep = (UserPredicate) signature.getPredicate("dep");
       UserPredicate cpos = (UserPredicate) signature.getPredicate("cpos");
+      UserPredicate prefix = (UserPredicate) signature.getPredicate("prefix");
 
       CoNLLCorpus.AttributeExtractor words = new CoNLLCorpus.AttributeExtractor(word, 2);
-      words.addMapping(0,0);
-      words.addMapping(1,1);
-      words.addToQuote(1);
+      words.addMapping(0, 0);
+      words.addMapping(1, 1, new Quote());
+      //words.addToQuote(1);
 
+      CoNLLCorpus.AttributeExtractor prefixes = new CoNLLCorpus.AttributeExtractor(prefix, 2);
+      prefixes.addMapping(0, 0);
+      prefixes.addMapping(1, 1, new Pipeline(new Prefix(5), new Quote()));
+      
       CoNLLCorpus.AttributeExtractor cpostags = new CoNLLCorpus.AttributeExtractor(cpos, 2);
-      cpostags.addMapping(0,0);
-      cpostags.addMapping(3,1);
+      cpostags.addMapping(0, 0);
+      cpostags.addMapping(3, 1);
 
       CoNLLCorpus.AttributeExtractor postags = new CoNLLCorpus.AttributeExtractor(pos, 2);
-      postags.addMapping(0,0);
-      postags.addMapping(4,1);
+      postags.addMapping(0, 0);
+      postags.addMapping(4, 1);
 
       CoNLLCorpus.AttributeExtractor links = new CoNLLCorpus.AttributeExtractor(link, 2);
-      links.addMapping(0,1);
-      links.addMapping(6,0);
+      links.addMapping(0, 1);
+      links.addMapping(6, 0);
 
       CoNLLCorpus.AttributeExtractor deps = new CoNLLCorpus.AttributeExtractor(dep, 3);
-      deps.addMapping(0,1);
-      deps.addMapping(6,0);
-      deps.addMapping(7,2);
+      deps.addMapping(0, 1);
+      deps.addMapping(6, 0);
+      deps.addMapping(7, 2);
 
       CoNLLCorpus corpus = new CoNLLCorpus(signature, file);
-      corpus.addExtractor(words,0,1);
-      corpus.addExtractor(cpostags,0,3);
-      corpus.addExtractor(postags,0,4);
-      corpus.addExtractor(links,0,6);
-      corpus.addExtractor(deps,0,6,7);
+      corpus.addExtractor(prefixes);
+      corpus.addExtractor(words);
+      corpus.addExtractor(cpostags);
+      corpus.addExtractor(postags);
+      corpus.addExtractor(links);
+      corpus.addExtractor(deps);
 
+      corpus.addConstantAtom(prefix, 0, "ROOT");
       corpus.addConstantAtom(word, 0, "ROOT");
       corpus.addConstantAtom(pos, 0, "ROOT");
       corpus.addConstantAtom(cpos, 0, "ROOT");
@@ -86,61 +134,63 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
 
   public static class Generator implements TypeGenerator {
 
-    private HashMap<Integer, String> names = new HashMap<Integer, String>();
-    private HashMap<Integer, Boolean> quotes = new HashMap<Integer, Boolean>();
-    private HashMap<Integer, Boolean> unknowns = new HashMap<Integer, Boolean>();
-    private HashMap<Integer, HashSet<String>> values = new HashMap<Integer, HashSet<String>>();
+    private HashMultiMap<Integer, TokenCollector> collectors = new HashMultiMap<Integer, TokenCollector>();
 
-    private HashMultiMap<String,String> initialConstants = new HashMultiMap<String, String>();
+    public static class TokenCollector {
+      public String typeName;
+      public boolean unknowns;
+      public TokenProcessor processor;
+      public HashSet<String> tokens = new HashSet<String>();
 
-    public void addTypeTemplate(int column, String name, boolean quote, boolean unknown) {
-      names.put(column, name);
-      quotes.put(column, quote);
-      unknowns.put(column, unknown);
+      public TokenCollector(String typeName, boolean unknowns, TokenProcessor processor) {
+        this.typeName = typeName;
+        this.unknowns = unknowns;
+        this.processor = processor;
+      }
+
+      public TokenCollector(String typeName, boolean unknowns, TokenProcessor processor, String ... initial) {
+        this.typeName = typeName;
+        this.unknowns = unknowns;
+        this.processor = processor;
+        for (String s : initial) tokens.add(s);
+      }
+
+
+      public void collect(String token) {
+        tokens.add(processor.process(token));
+      }
     }
 
-    public void addInitialConstants(String type, String ... constants){
-      for (String constant : constants)
-        initialConstants.add(type,constant);
+
+    public void addTokenCollector(int column, String typeName, boolean unknown,
+                                  TokenProcessor processor, String ... intial) {
+      collectors.add(column, new TokenCollector(typeName, unknown, processor,intial));
     }
+
 
     public void generateTypes(InputStream is, Signature signature) {
       try {
-        for (int col : names.keySet()) {
-          values.put(col, new HashSet<String>());
-        }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
           line = line.trim();
           if (!line.equals("")) {
             String[] split = line.split("[\t ]");
             for (int col = 0; col < split.length; ++col) {
-              Boolean quote = quotes.get(col);
-              if (quote != null)
-                values.get(col).add(quote ? "\"" + split[col] + "\"" : split[col]);
+              List<TokenCollector> collectors4column = collectors.get(col);
+              if (collectors4column!=null) for (TokenCollector collector : collectors4column)
+                collector.collect(split[col]);
             }
           }
         }
-        for (int col : names.keySet()) {
-          String name = names.get(col);
-          boolean unknown = unknowns.get(col);
-          HashSet<String> values = this.values.get(col);
-          List<String> initial = initialConstants.get(name);
-          if (initial != null) values.addAll(initial);
-          ArrayList<String> strings = new ArrayList<String>(values);
-          signature.createType(name, unknown, strings);
-        }
+        for (List<TokenCollector> list : collectors.values())
+          for (TokenCollector collector : list)
+            signature.createType(collector.typeName, collector.unknowns, new LinkedList<String>(collector.tokens));
+
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
 
     }
-  }
-
-  private CoNLLCorpus(Signature signature, File file, HashMultiMap<Integer, Extractor> map) {
-    this.file = file;
-    this.signature = signature;
-    this.extractors.putAll(map);
   }
 
   public CoNLLCorpus(Signature signature, File file, Extractor... extractors) {
@@ -156,6 +206,10 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       this.extractors.add(col, extractor);
   }
 
+  public void addExtractor(Extractor extractor) {
+    for (int col : extractor.getColumns())
+      this.extractors.add(col, extractor);
+  }
 
   public CoNLLCorpus(Signature signature, byte[] bytes, Extractor... extractors) {
     this.signature = signature;
@@ -287,17 +341,18 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     }
   }
 
-  public void addConstantAtom(UserPredicate predicate, Object ... arg){
+  public void addConstantAtom(UserPredicate predicate, Object... arg) {
     int index = 0;
     Constant[] constants = new Constant[arg.length];
-    for (Type type : predicate.getArgumentTypes()){
-      constants[index] = type.getConstant(arg[index++].toString());  
+    for (Type type : predicate.getArgumentTypes()) {
+      constants[index] = type.getConstant(arg[index++].toString());
     }
-    constantAtoms.put(predicate,constants);
+    constantAtoms.put(predicate, constants);
   }
 
   public static interface Extractor {
     void extract(int line, int column, String value, GroundAtoms atoms);
+    Collection<Integer> getColumns();
   }
 
   public static class AttributeExtractor implements Extractor {
@@ -306,7 +361,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     private HashMap<Integer, Integer> mapping;
     private UserPredicate predicate;
     private Constant[] args;
-    private HashSet<Integer> toQuote = new HashSet<Integer>();
+    private HashMap<Integer, TokenProcessor> processors = new HashMap<Integer, TokenProcessor>();
 
     public AttributeExtractor(UserPredicate predicate, Map<Integer, Integer> mapping) {
       this.predicate = predicate;
@@ -321,23 +376,30 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
 
     }
 
-    public void addMapping(int column, int argIndex){
+    public void addMapping(int column, int argIndex) {
       mapping.put(column, argIndex);
+      processors.put(column, new Itself());
     }
 
-    public void addToQuote(int column){
-      toQuote.add(column);
+    public void addMapping(int column, int argIndex, TokenProcessor processor) {
+      mapping.put(column, argIndex);
+      processors.put(column, processor);
     }
 
     public void extract(int line, int column, String value, GroundAtoms atoms) {
       int argIndex = mapping.get(column);
       Type type = predicate.getArgumentTypes().get(argIndex);
-      args[argIndex] = type.getConstant(toQuote.contains(column) ? "\"" + value + "\"" : value);
+      args[argIndex] = type.getConstant(processors.get(column).process(value));
+//      args[argIndex] = type.getConstant(toQuote.contains(column) ? "\"" + value + "\"" : value);
       if (count == args.length - 1) {
         atoms.getGroundAtomsOf(predicate).addGroundAtom(args);
         count = 0;
       } else
         ++count;
+    }
+
+    public Collection<Integer> getColumns() {
+      return processors.keySet();
     }
   }
 
