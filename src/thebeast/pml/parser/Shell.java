@@ -142,7 +142,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
 
   /**
-   * Processes the input line by line.
+   * Processes the input line by line. I.e. it does not wait for EOFs but only for EOLs.
    *
    * @throws IOException if there is some I/O problem.
    */
@@ -170,6 +170,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
 
+  /**
+   * Parses the whole input stream in one run and executes each command.
+   *
+   * @throws IOException if I/O goes wrong.
+   */
   public void execute() throws IOException {
     byte[] buffer = new byte[1000];
     ByteArrayOutputStream os = new ByteArrayOutputStream();
