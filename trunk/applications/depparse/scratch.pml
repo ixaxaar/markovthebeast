@@ -8,7 +8,7 @@ include "nonproj.pml";
 hidden: link, dep;
 observed: word, pos, cpos;
 
-include "local.pml";
+include "mst.pml";
 
 corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 20);
 

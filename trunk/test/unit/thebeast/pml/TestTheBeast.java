@@ -270,9 +270,13 @@ public class TestTheBeast extends TestCase {
             "3 the DT\n" +
             "4 boat NN\n";
 
-    CoNLLCorpus.AttributeExtractor tokenExtractor = new CoNLLCorpus.AttributeExtractor(token, mapping);
-    CoNLLCorpus corpus = new CoNLLCorpus(signature, corpusTxt.getBytes(),
-            tokenExtractor, tokenExtractor, tokenExtractor);
+    CoNLLCorpus.AttributeExtractor tokenExtractor = new CoNLLCorpus.AttributeExtractor(token,3);
+    tokenExtractor.addMapping(0,0);
+    tokenExtractor.addMapping(1,1);
+    tokenExtractor.addMapping(2,2);
+
+    CoNLLCorpus corpus = new CoNLLCorpus(signature, corpusTxt.getBytes());
+    corpus.addExtractor(tokenExtractor);
     SequentialAccessCorpus seqCorpus = new SequentialAccessCorpus(corpus);
     System.out.println(seqCorpus.get(0));
     assertEquals(2, seqCorpus.size());
@@ -280,6 +284,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(5, seqCorpus.get(0).getGroundAtomsOf(token).size());
     assertEquals(0, seqCorpus.get(1).getGroundAtomsOf(phrase).size());
     assertEquals(5, seqCorpus.get(1).getGroundAtomsOf(token).size());
+    assertTrue(seqCorpus.get(1).getGroundAtomsOf(token).containsAtom(0, "the", "DT"));
 
 
   }
@@ -301,13 +306,16 @@ public class TestTheBeast extends TestCase {
             "4 boat NN\n";
 
     CoNLLCorpus.Generator generator = new CoNLLCorpus.Generator();
-    generator.addTypeTemplate(1, "Word", true, true);
-    generator.addTypeTemplate(2, "Tag", false, false);
+    generator.addTokenCollector(1, "Word", true, new CoNLLCorpus.Quote());
+    generator.addTokenCollector(2, "Tag", false, new CoNLLCorpus.Itself());
+//    generator.addTypeTemplate(1, "Word", true, true);
+//    generator.addTypeTemplate(2, "Tag", false, false);
 
     Signature signature = TheBeast.getInstance().createSignature();
     generator.generateTypes(new ByteArrayInputStream(corpusTxt.getBytes()), signature);
     System.out.println(signature.getType("Word").getConstants());
 
+    assertTrue(signature.getType("Word").getTypeClass() == Type.Class.CATEGORICAL_UNKNOWN);
     assertTrue(signature.getType("Word").getConstants().contains("\"man\""));
     assertTrue(signature.getType("Tag").getConstants().contains("DT"));
     assertEquals(4, signature.getType("Word").getConstants().size());

@@ -295,6 +295,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitImport(ParserImport parserImport) {
     File file = null;
+    PrintStream oldOut = out;
+    //out = new PrintStream(new ByteArrayOutputStream(1024));
     try {
       file = new File(filename(parserImport.filename));
       PMLParser parser = new PMLParser(new Yylex(new FileInputStream(file)));
@@ -303,15 +305,18 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         statement.acceptParserStatementVisitor(this);
       }
     } catch (PMLParseException e) {
+      out = oldOut;
       try {
-        System.out.println(errorMessage(e, new FileInputStream(file)));
+        out.println(errorMessage(e, new FileInputStream(file)));
       } catch (IOException e1) {
         e1.printStackTrace();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      out = oldOut;
+      e.printStackTrace(out);
     }
-
+    out = oldOut;
+    out.println("File \"" + parserImport.filename + "\" included.");
   }
 
   public void visitAddPredicateToModel(ParserAddPredicateToModel parserAddPredicateToModel) {
