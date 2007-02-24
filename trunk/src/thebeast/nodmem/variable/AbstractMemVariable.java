@@ -1,15 +1,14 @@
 package thebeast.nodmem.variable;
 
+import thebeast.nod.NoDServer;
+import thebeast.nod.type.Type;
 import thebeast.nod.value.Value;
 import thebeast.nod.variable.Variable;
-import thebeast.nod.type.Type;
-import thebeast.nod.statement.Interpreter;
-import thebeast.nod.NoDServer;
+import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.expression.AbstractMemExpression;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * @author Sebastian Riedel
@@ -23,7 +22,7 @@ public abstract class AbstractMemVariable<V extends Value, T extends Type>
   protected MemChunk chunk;
   protected MemVector pointer = new MemVector();
   protected String name;
-  protected LinkedList<AbstractMemVariable> owners = new LinkedList<AbstractMemVariable>();
+  protected ArrayList<AbstractMemVariable> owners = new ArrayList<AbstractMemVariable>();
   protected NoDServer server;
 
   protected static int count = 0;

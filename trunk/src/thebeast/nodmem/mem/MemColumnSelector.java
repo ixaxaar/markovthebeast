@@ -1,6 +1,5 @@
 package thebeast.nodmem.mem;
 
-import java.util.LinkedList;
 import java.util.ArrayList;
 
 /**
@@ -61,5 +60,27 @@ public class MemColumnSelector {
 
   public MemDim getDim(){
     return new MemDim(intCols.length,doubleCols.length,chunkCols.length);
+  }
+
+  public int compareTo(MemColumnSelector cols) {
+    if (intCols.length < cols.intCols.length) return -1;
+    if (intCols.length > cols.intCols.length) return 1;
+    if (doubleCols.length < cols.doubleCols.length) return -1;
+    if (doubleCols.length > cols.doubleCols.length) return 1;
+    if (chunkCols.length < cols.chunkCols.length) return -1;
+    if (chunkCols.length > cols.chunkCols.length) return 1;
+    for (int i = 0; i< intCols.length; ++i){
+      if (intCols[i] < cols.intCols[i]) return -1;
+      if (intCols[i] > cols.intCols[i]) return 1;
+    }
+    for (int i = 0; i< doubleCols.length; ++i){
+      if (doubleCols[i] < cols.doubleCols[i]) return -1;
+      if (doubleCols[i] > cols.doubleCols[i]) return 1;
+    }
+    for (int i = 0; i< chunkCols.length; ++i){
+      if (chunkCols[i] < cols.chunkCols[i]) return -1;
+      if (chunkCols[i] > cols.chunkCols[i]) return 1;
+    }
+    return 0;
   }
 }

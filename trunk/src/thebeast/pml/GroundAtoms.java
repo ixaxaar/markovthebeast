@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A Universe represents a collection of ground atoms for the predicates of a certain
- * signature. It also stores a set of weight functions to be used in PML models.
+ * A Universe represents a collection of ground atoms for the predicates of a certain signature. It also stores a set of
+ * weight functions to be used in PML models.
  */
 public class GroundAtoms {
 
@@ -22,8 +22,7 @@ public class GroundAtoms {
   }
 
   /**
-   * This method populates this universe with the ground atoms from another universe for
-   * the specified predicates.
+   * This method populates this universe with the ground atoms from another universe for the specified predicates.
    *
    * @param groundAtoms the universe from which to take the ground atoms. Must have the same signature.
    * @param predicates  the predicates for which we want to include the ground atoms from.
@@ -48,8 +47,7 @@ public class GroundAtoms {
   }
 
   /**
-   * The signature of a universe holds meta information for the predicates and functions
-   * stored in this universe.
+   * The signature of a universe holds meta information for the predicates and functions stored in this universe.
    *
    * @return the signature of this universe.
    */
@@ -69,8 +67,8 @@ public class GroundAtoms {
 
 
   /**
-   * Creates a deep copy of these atoms. Note that this does not mean an actual copy
-   * is going on unless the copy will be modified (lazy copying).
+   * Creates a deep copy of these atoms. Note that this does not mean an actual copy is going on unless the copy will be
+   * modified (lazy copying).
    *
    * @return a deep copy of this object.
    */
@@ -83,24 +81,26 @@ public class GroundAtoms {
 
   /**
    * Load a set of ground atoms from the given string
+   *
    * @param src input string in PML data format
    */
   public void load(String src) {
     try {
       load(new ByteArrayInputStream(src.getBytes()));
-    } catch (IOException e){
+    } catch (IOException e) {
       //won't happen
     }
   }
 
-  public void clear(Collection<UserPredicate> predicates){
-    for (UserPredicate pred : predicates){
+  public void clear(Collection<UserPredicate> predicates) {
+    for (UserPredicate pred : predicates) {
       getGroundAtomsOf(pred).clear();
     }
   }
 
   /**
    * Load a set of ground atoms from the given input stream.
+   *
    * @param is input stream with PML data format
    * @throws IOException in case something I/O-ish goes wrong.
    */
@@ -130,23 +130,25 @@ public class GroundAtoms {
 
   /**
    * Determines whether the ground atom collections for the specified predicates are all empty
+   *
    * @param predicates a collection of ground atoms
    * @return true iff the ground atom collection for the given predicates are all empty.
    */
-  public boolean isEmpty(Collection<UserPredicate> predicates){
+  public boolean isEmpty(Collection<UserPredicate> predicates) {
     for (UserPredicate predicate : predicates)
       if (!atoms.get(predicate).isEmpty()) return false;
     return true;
   }
 
 
-   /**
+  /**
    * Returns the (approximate) size of all contained ground atom collections in bytes.
+   *
    * @return the size in bytes.
    */
-  public int getUsedMemory(){
+  public int getUsedMemory() {
     int byteSize = 0;
-    for (Map.Entry<UserPredicate,GroundAtomCollection> entry : atoms.entrySet())
+    for (Map.Entry<UserPredicate, GroundAtomCollection> entry : atoms.entrySet())
       byteSize += entry.getValue().getUsedMemory();
     return byteSize;
   }

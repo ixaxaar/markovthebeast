@@ -1,6 +1,7 @@
 package thebeast.nodmem;
 
 import thebeast.nod.NoDServer;
+import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.expression.ExpressionFactory;
 import thebeast.nod.identifier.IdentifierFactory;
 import thebeast.nod.identifier.Name;
@@ -27,6 +28,7 @@ public class MemNoDServer implements NoDServer {
   private StatementFactory statementFactory = new MemStatementFactory();
   private IdentifierFactory identifierFactory = new MemIdentifierFactory();
   private MemInterpreter memInterpreter = new MemInterpreter(this);
+  private ExpressionBuilder expressionBuilder = new ExpressionBuilder(this);
 
 
   public VariableFactory variableFactory() {
@@ -43,6 +45,10 @@ public class MemNoDServer implements NoDServer {
 
   public ExpressionFactory expressionFactory() {
     return expressionFactory;
+  }
+
+  public ExpressionBuilder expressionBuilder() {
+    return expressionBuilder;
   }
 
   public IdentifierFactory identifierFactory() {

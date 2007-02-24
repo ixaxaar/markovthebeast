@@ -90,7 +90,6 @@ public class FeatureCollector {
       for (FactorFormula factor : inserts.keySet()){
         interpreter.interpret(inserts.get(factor));
         //System.out.println("in collector:" + weights.getRelation(factor.getWeightFunction()).value());
-        //interpreter.insert(weights.getRelation(factor.getWeightFunction()), collectQueries.get(factor));
       }
       progressReporter.progressed();
     }
@@ -116,4 +115,13 @@ public class FeatureCollector {
   public void setProgressReporter(ProgressReporter progressReporter) {
     this.progressReporter = progressReporter;
   }
+
+  /**
+   * Calculates the memory (int bytes) this collector is occupying
+   * @return memory usage in bytes.
+   */
+  public int getUsedMemory(){
+    return atoms.getUsedMemory();
+  }
+
 }

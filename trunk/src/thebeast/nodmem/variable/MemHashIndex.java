@@ -74,11 +74,19 @@ public class MemHashIndex implements Index {
     int numUsedIndices = memIndex.getNumUsedIndices();
     int numUsedKeys = memIndex.getNumKeys();
     int numNewRows = chunk.size - indexedSoFar;
-    double expectedLoadFactor = numUsedIndices == 0 ? Double.POSITIVE_INFINITY  :
-            numUsedKeys + numNewRows / (double) numUsedIndices;
-    if (expectedLoadFactor > maxLoadFactor){
-      int increase = (int) Math.ceil((numUsedKeys + numNewRows)/maxLoadFactor - numUsedIndices);
-      memIndex.increaseCapacity(increase);
+//    double expectedLoadFactor = numUsedIndices == 0 ? Double.POSITIVE_INFINITY  :
+//            numUsedKeys + numNewRows / (double) numUsedIndices;
+//    if (expectedLoadFactor > maxLoadFactor){
+//      int increase = (int) Math.ceil((numUsedKeys + numNewRows)/maxLoadFactor - numUsedIndices);
+//      System.out.println("memIndex.getCapacity() = " + memIndex.getCapacity());
+//      System.out.println("increase = " + increase);
+//      memIndex.increaseCapacity(increase);
+//    }
+    if (memIndex.getCapacity() == 0){
+      memIndex.increaseCapacity(initialCapacity(chunk.size));
+    }
+    else if (memIndex.getLoadFactor() > maxLoadFactor){
+      memIndex.increaseCapacity(incrementalCapacity(chunk.size));
     }
 
     MemDim chunkDim = chunk.getDim();
@@ -91,6 +99,14 @@ public class MemHashIndex implements Index {
     }
     indexedSoFar = chunk.size;
 
+  }
+
+  private int incrementalCapacity(int size) {
+    return size;
+  }
+
+  private int initialCapacity(int size) {
+    return size;
   }
 
 
@@ -113,5 +129,9 @@ public class MemHashIndex implements Index {
     result = 31 * result + attributes.hashCode();
     result = 31 * result + indexType.hashCode();
     return result;
+  }
+
+  public int compareTo(Index o) {
+    return cols.compareTo(((MemHashIndex)o).cols);
   }
 }

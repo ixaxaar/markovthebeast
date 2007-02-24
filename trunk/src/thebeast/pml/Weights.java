@@ -72,7 +72,7 @@ public class Weights {
    * @return the amount of memory this weights object has allocated.
    */
   public int getUsedMemory() {
-    int byteSize = 0;
+    int byteSize = weights.byteSize();
     for (RelationVariable var : relations.values())
       byteSize += var.byteSize();
     return byteSize;

@@ -69,6 +69,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private String directory;
   private boolean solutionAvailable, externalFeatures, externalScores, featuresAvailable, scoresAvailable;
   public ConsoleReader console;
+  private FeatureCollector collector;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -91,6 +92,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     solver4Learner = new CuttingPlaneSolver();
     learner = new OnlineLearner(model, weights, solver4Learner);
     learner.setProgressReporter(new DotProgressReporter(out, 1, 5, 3));
+    collector = new FeatureCollector(model, weights);
     initCorpusTools();
   }
 
@@ -323,7 +325,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitAddPredicateToModel(ParserAddPredicateToModel parserAddPredicateToModel) {
-    out.print("Predicates ");
+    if (printModelChanges) out.print("Predicates ");
     int index = 0;
     for (String name : parserAddPredicateToModel.predicates) {
       if (printModelChanges) {
@@ -413,6 +415,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       } else {
         learner.configure(model, weights);
       }
+      collector.configure(model,weights);
       instances = new TrainingInstances();
       modelUpdated = false;
     }
@@ -442,6 +445,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     else if ("memory".equals(parserPrint.name.head)){
       out.printf("%-20s%8.3fmb\n","Gold corpus:", corpus.getUsedMemory() / 1024 / 1024.0 );
       out.printf("%-20s%8.3fmb\n","Weights:", weights.getUsedMemory() / 1024 / 1024.0);
+      out.printf("%-20s%8.3fmb\n","Collector:", collector.getUsedMemory() / 1024 / 1024.0);
     }
   }
 
@@ -594,7 +598,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       throw new ShellException("Need a corpus for collecting features!");
     update();
     int oldCount = weights.getFeatureCount();
-    FeatureCollector collector = new FeatureCollector(model, weights);
     collector.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
     collector.collect(corpus);
     out.println("Collected " + (weights.getFeatureCount() - oldCount) + " features.");

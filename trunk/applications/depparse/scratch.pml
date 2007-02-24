@@ -10,12 +10,11 @@ observed: word, pos, cpos, prefix;
 
 include "mst.pml";
 
-
-corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 200);
+corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 5000);
                                                                
 //scores from "example.scores";
                                                              
-collect;
+//collect;
 
 set solver.ilp.verbose = true;
 set learner.solver.maxIterations = 0;

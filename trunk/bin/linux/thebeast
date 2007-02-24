@@ -7,4 +7,4 @@ classpath=${dir}/classes/production:${dir}/lib/JSAP-2.1.jar:${dir}/lib/lpsolve55
 
 export LD_LIBRARY_PATH=${scriptdir}
 
-java -cp ${classpath} -Xmx500m thebeast.pml.TheBeast $@ 
+java -cp ${classpath} -Xmx1500m thebeast.pml.TheBeast $@ 

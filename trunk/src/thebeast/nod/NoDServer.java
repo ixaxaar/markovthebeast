@@ -6,6 +6,7 @@ import thebeast.nod.variable.VariableFactory;
 import thebeast.nod.type.TypeFactory;
 import thebeast.nod.expression.ExpressionFactory;
 import thebeast.nod.identifier.IdentifierFactory;
+import thebeast.nod.util.ExpressionBuilder;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface NoDServer {
   StatementFactory statementFactory();
 
   ExpressionFactory expressionFactory();
+
+  ExpressionBuilder expressionBuilder();
 
   IdentifierFactory identifierFactory();
 
