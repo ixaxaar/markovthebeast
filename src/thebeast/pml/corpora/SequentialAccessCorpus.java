@@ -32,6 +32,13 @@ public class SequentialAccessCorpus extends LinkedList<GroundAtoms> implements C
     return signature;
   }
 
+  public int getUsedMemory() {
+    int bytesize = 0;
+    for (GroundAtoms atoms : this)
+      bytesize += atoms.getUsedMemory();
+    return bytesize;
+  }
+
   public GroundAtoms createAndAdd(){
     GroundAtoms result = signature.createGroundAtoms();
     add(result);

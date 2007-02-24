@@ -148,6 +148,10 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue,Relat
     invalidate();
   }
 
+  public int byteSize() {
+    return chunk.chunkData[pointer.xChunk].byteSize();
+  }
+
 
   public void invalidate() {
     chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;

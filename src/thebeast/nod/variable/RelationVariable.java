@@ -17,4 +17,6 @@ public interface RelationVariable extends Variable<RelationValue,RelationType>, 
 
   void assignByArray(int[] ints, double[] doubles);
 
+  int byteSize();
+
 }

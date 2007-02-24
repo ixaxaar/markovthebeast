@@ -177,7 +177,7 @@ public class QueryGenerator {
 
     builder = new FormulaBuilder(observation.getSignature());
 
-    Conjunction both = new Conjunction(factorFormula.getCondition(),factorFormula.getFormula());
+    Conjunction both = new Conjunction(factorFormula.getFormula(),factorFormula.getCondition());
 
     DNF dnf = dnfGenerator.convertToDNF(both);
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();

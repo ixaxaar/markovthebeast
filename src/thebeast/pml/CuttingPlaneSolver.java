@@ -17,11 +17,17 @@ public class CuttingPlaneSolver implements Solver {
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated;
+  public ILPSolverLpSolve ilpSolver;
+
+
+  public CuttingPlaneSolver() {
+    ilpSolver = new ILPSolverLpSolve();    
+  }
 
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
-    ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
+    ilp = new IntegerLinearProgram(model, weights, ilpSolver);
     formulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
     scores = new Scores(model, weights);
@@ -160,7 +166,7 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
-      ilp.getSolver().setProperty(name.getTail(), value);
+      ilpSolver.setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
   }

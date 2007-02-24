@@ -93,7 +93,12 @@ public final class MemChunk extends MemHolder {
   }
 
   public void buildRowIndex() {
+    if (rowIndex == null)
+      rowIndex = new MemChunkIndex(size,new MemDim(numIntCols, numDoubleCols, numChunkCols));
     MemVector pointer = new MemVector(rowIndexedSoFar, getDim());
+    if (rowIndex.getLoadFactor() > 3.0){
+      rowIndex.increaseCapacity(size - rowIndex.getCapacity());
+    }
     for (int row = rowIndexedSoFar; row < size; ++row) {
       rowIndex.put(this, pointer, allCols, row, false);
       pointer.xInt += numIntCols;
@@ -301,10 +306,8 @@ public final class MemChunk extends MemHolder {
   }
 
   public int byteSize() {
-    int size = 32; //all other junk
+    int size = 5 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE; //all other junk
     size += super.byteSize();
-    for (int i = 0; i < size * numChunkCols; ++i)
-      size += chunkData[i].byteSize();
     size += rowIndex.byteSize();
     for (MemChunkMultiIndex index : indices)
       size += index.byteSize();

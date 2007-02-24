@@ -15,5 +15,7 @@ public interface Corpus extends Collection<GroundAtoms> {
 
   ListIterator<GroundAtoms> listIterator();
 
+  int getUsedMemory();
+
 
 }

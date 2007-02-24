@@ -180,4 +180,12 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
   private void update() {
     if (!builder.isEmpty()) interpreter.insert(relation, builder.relation().getRelation());
   }
+
+  /**
+   * Returns the (approximate) size of this collection in bytes.
+   * @return the size in bytes.
+   */
+  public int getUsedMemory() {
+    return relation.byteSize();
+  }
 }

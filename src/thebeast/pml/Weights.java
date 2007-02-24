@@ -67,6 +67,18 @@ public class Weights {
   }
 
   /**
+   * Calculates the accumulated byte size of all weights contained in this object.
+   *
+   * @return the amount of memory this weights object has allocated.
+   */
+  public int getUsedMemory() {
+    int byteSize = 0;
+    for (RelationVariable var : relations.values())
+      byteSize += var.byteSize();
+    return byteSize;
+  }
+
+  /**
    * This object stores its weight in a No-D array variable whose corresponding array value v has weight at each index:
    * <pre>
    * v[i] = weight of feature with index i

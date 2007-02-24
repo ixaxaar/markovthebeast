@@ -221,6 +221,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   public void visitInsert(Insert insert) {
     //System.out.println(insert.relationExp());
+    MemInsert memInsert = (MemInsert) insert;
     typeCheck(insert.relationTarget().type(), insert.relationExp().type(), insert);
     MemRelationVariable var = (MemRelationVariable) insert.relationTarget();
     var.own();
@@ -230,14 +231,16 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       MemRelationVariable arg = (MemRelationVariable) insert.relationExp();
       src = arg.getContainerChunk().chunkData[arg.getPointer().xChunk];
     } else {
-      MemChunk buffer = new MemChunk(1, new int[0], new double[0], new MemChunk[]{
-              new MemChunk(0, 0, result.getDim())});
+      MemChunk buffer = memInsert.getBuffer();
+      buffer.size = 0;
+      buffer.rowIndexedSoFar = 0;
+      buffer.rowIndex.clear();
       AbstractMemExpression expr = (AbstractMemExpression) insert.relationExp();
       MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
       src = buffer.chunkData[0];
     }
     MemInserter.insert(src, result);
-    var.invalidate();
+    //var.invalidate();
   }
 
   public void visitAssign(Assign assign) {

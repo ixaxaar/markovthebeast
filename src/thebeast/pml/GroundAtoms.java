@@ -139,6 +139,18 @@ public class GroundAtoms {
     return true;
   }
 
+
+   /**
+   * Returns the (approximate) size of all contained ground atom collections in bytes.
+   * @return the size in bytes.
+   */
+  public int getUsedMemory(){
+    int byteSize = 0;
+    for (Map.Entry<UserPredicate,GroundAtomCollection> entry : atoms.entrySet())
+      byteSize += entry.getValue().getUsedMemory();
+    return byteSize;
+  }
+
   public String toString() {
     StringBuffer result = new StringBuffer();
     result.append(">>\n");
