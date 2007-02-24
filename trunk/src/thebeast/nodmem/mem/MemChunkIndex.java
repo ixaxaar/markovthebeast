@@ -16,6 +16,7 @@ public final class MemChunkIndex {
   private MemDim dim;
   private int numKeys;
   private int numUsedIndices;
+  private static int CAPACITY_INCREMENTS = 2;
 
 
 
@@ -42,9 +43,9 @@ public final class MemChunkIndex {
     int[] valuesAtIndex = values[index];
     MemHolder tuplesAtIndex = tuples[index];
     if (keysAtIndex == null) {
-      keysAtIndex = new int[1];
-      valuesAtIndex = new int[1];
-      tuplesAtIndex = new MemHolder(0, 1, dim);
+      keysAtIndex = new int[CAPACITY_INCREMENTS];
+      valuesAtIndex = new int[CAPACITY_INCREMENTS];
+      tuplesAtIndex = new MemHolder(0, CAPACITY_INCREMENTS, dim);
       keys[index] = keysAtIndex;
       values[index] = valuesAtIndex;
       tuples[index] = tuplesAtIndex;
@@ -78,12 +79,12 @@ public final class MemChunkIndex {
     //if we have arrived here the key-value pair has not yet been put
     //check if we need to increase the capacity
     if (length == tuplesAtIndex.capacity) {
-      tuplesAtIndex.increaseCapacity(1,dim);
-      int[] newValuesAtIndex = new int[length + 1];
+      tuplesAtIndex.increaseCapacity(CAPACITY_INCREMENTS,dim);
+      int[] newValuesAtIndex = new int[length + CAPACITY_INCREMENTS];
       System.arraycopy(valuesAtIndex, 0, newValuesAtIndex, 0, length);
       valuesAtIndex = newValuesAtIndex;
       values[index] = newValuesAtIndex;
-      int[] newKeysAtIndex = new int[length + 1];
+      int[] newKeysAtIndex = new int[length + CAPACITY_INCREMENTS];
       System.arraycopy(keysAtIndex, 0, newKeysAtIndex, 0, length);
       keysAtIndex = newKeysAtIndex;
       keys[index] = newKeysAtIndex;
@@ -157,6 +158,11 @@ public final class MemChunkIndex {
     values = new int[capacity][];
     numKeys = 0;
     numUsedIndices = 0;
+  }
+
+
+  public int getCapacity() {
+    return capacity;
   }
 
   public void increaseCapacity(int howMuch) {

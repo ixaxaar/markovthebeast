@@ -122,4 +122,7 @@ public abstract class InputStreamCorpus extends AbstractCollection<GroundAtoms> 
   }
 
 
+  public int getUsedMemory() {
+    return 1000;
+  }
 }

@@ -18,7 +18,6 @@ public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus
     this.signature = signature;
   }
 
-
   public RandomAccessCorpus(Corpus c) {
     super(c);
     this.signature = c.getSignature();
@@ -37,6 +36,13 @@ public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus
     GroundAtoms result = signature.createGroundAtoms();
     add(result);
     return result;
+  }
+
+  public int getUsedMemory(){
+    int byteSize = 0;
+    for (GroundAtoms atoms : this)
+      byteSize += atoms.getUsedMemory();
+    return byteSize;
   }
 
 

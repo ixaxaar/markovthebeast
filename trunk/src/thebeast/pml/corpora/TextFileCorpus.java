@@ -29,6 +29,9 @@ public class TextFileCorpus extends InputStreamCorpus {
     }
   }
 
+  public int getUsedMemory() {
+    return 0;
+  }
 
 
   public static class Factory implements CorpusFactory {

@@ -945,9 +945,9 @@ public class TestTheBeast extends TestCase {
     RandomAccessCorpus corpus = new RandomAccessCorpus(signature, 1);
     corpus.add(instance);
 
-    FeatureCollector collector = new FeatureCollector(model);
     Weights weights = signature.createWeights();
-    collector.collect(corpus, weights);
+    FeatureCollector collector = new FeatureCollector(model, weights);
+    collector.collect(corpus);
     weights.save(System.out);
     System.out.println(weights.getRelation(weightFunction1).value());
     System.out.println(weights.getRelation(weightFunction2).value());

@@ -5,13 +5,10 @@ package thebeast.pml.parser;
  */
 public class ParserPrint extends ParserStatement {
 
-  public final String target;
-  public final boolean gold, scores;
+  public final ParserName name;
 
-  public ParserPrint(String target, boolean gold, boolean scores) {
-    this.target = target;
-    this.gold = gold;
-    this.scores = scores;
+  public ParserPrint(ParserName name) {
+    this.name = name;
   }
 
   public void acceptParserStatementVisitor(ParserStatementVisitor visitor) {

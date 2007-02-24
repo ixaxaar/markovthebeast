@@ -268,6 +268,10 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     return null;
   }
 
+  public int getUsedMemory() {
+    return 1000;
+  }
+
   public class SentenceIterator implements Iterator<GroundAtoms> {
 
 

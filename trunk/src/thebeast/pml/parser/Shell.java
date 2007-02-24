@@ -62,7 +62,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private boolean weightsUpdated = false;
 
   private boolean printStackTraces = true;
-
+  private boolean printModelChanges = true;
+  private boolean printSignagureChanges = true;
   private boolean printPrompt = true;
 
   private String directory;
@@ -222,7 +223,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitCreateType(ParserCreateType parserCreateType) {
     signature.createType(parserCreateType.name, parserCreateType.unknowns, parserCreateType.getNames());
-    out.println("Type " + parserCreateType.name + " created.");
+    if (printSignagureChanges) out.println("Type " + parserCreateType.name + " created.");
     signatureUpdated = true;
   }
 
@@ -234,7 +235,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       types.add(type);
     }
     signature.createPredicate(parserCreatePredicate.name, types);
-    out.println("Predicate " + parserCreatePredicate.name + " created.");
+    if (printSignagureChanges) out.println("Predicate " + parserCreatePredicate.name + " created.");
     signatureUpdated = true;
 
   }
@@ -290,13 +291,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     model.addFactorFormula(factorFormula);
     if (parserFactorFormula.quantification != null)
       popQuantification();
-    out.println("Factor added: " + factorFormula);
+    if (printModelChanges) out.println("Factor added: " + factorFormula);
   }
 
   public void visitImport(ParserImport parserImport) {
     File file = null;
-    PrintStream oldOut = out;
     //out = new PrintStream(new ByteArrayOutputStream(1024));
+    boolean previousPrintModelChanges = printModelChanges;
+    boolean previousPrintSignatureChanges = printSignagureChanges;
+    printModelChanges = false;
+    printSignagureChanges = false;
     try {
       file = new File(filename(parserImport.filename));
       PMLParser parser = new PMLParser(new Yylex(new FileInputStream(file)));
@@ -305,26 +309,27 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         statement.acceptParserStatementVisitor(this);
       }
     } catch (PMLParseException e) {
-      out = oldOut;
       try {
         out.println(errorMessage(e, new FileInputStream(file)));
       } catch (IOException e1) {
         e1.printStackTrace();
       }
     } catch (Exception e) {
-      out = oldOut;
       e.printStackTrace(out);
     }
-    out = oldOut;
     out.println("File \"" + parserImport.filename + "\" included.");
+    printModelChanges = previousPrintModelChanges;
+    printSignagureChanges = previousPrintSignatureChanges;
   }
 
   public void visitAddPredicateToModel(ParserAddPredicateToModel parserAddPredicateToModel) {
     out.print("Predicates ");
     int index = 0;
     for (String name : parserAddPredicateToModel.predicates) {
-      if (index++ > 0) out.print(", ");
-      out.print(name);
+      if (printModelChanges) {
+        if (index++ > 0) out.print(", ");
+        out.print(name);
+      }
       UserPredicate predicate = (UserPredicate) signature.getPredicate(name);
       switch (parserAddPredicateToModel.type) {
         case HIDDEN:
@@ -335,7 +340,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           break;
       }
     }
-    out.println(" added to the model.");
+    if (printModelChanges) out.println(" added to the model.");
   }
 
   public void visitInspect(ParserInspect parserInspect) {
@@ -415,17 +420,28 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitPrint(ParserPrint parserPrint) {
-    if (parserPrint.target == null) {
-      if (!parserPrint.scores) {
-        if (!parserPrint.gold) {
-          out.print(guess);
-        }
-      } else {
-        out.print(scores);
+    if ("atoms".equals(parserPrint.name.head)) {
+      if (parserPrint.name.tail == null)
+        out.print(guess);
+      else {
+        UserPredicate predicate = (UserPredicate) signature.getPredicate(parserPrint.name.tail.head);
+        out.print(guess.getGroundAtomsOf(predicate));
       }
-    } else {
-      UserPredicate predicate = (UserPredicate) signature.getPredicate(parserPrint.target);
-      out.print(guess.getGroundAtomsOf(predicate));
+    }
+    else if ("scores".equals(parserPrint.name.head)){
+      out.print(scores);
+    }
+    else if ("weights".equals(parserPrint.name.head)){
+      if (parserPrint.name.tail == null)
+        weights.save(out);
+      else {
+        WeightFunction function = (WeightFunction) signature.getFunction(parserPrint.name.tail.head);
+        weights.save(function, out);
+      }
+    }
+    else if ("memory".equals(parserPrint.name.head)){
+      out.printf("%-20s%8.3fmb\n","Gold corpus:", corpus.getUsedMemory() / 1024 / 1024.0 );
+      out.printf("%-20s%8.3fmb\n","Weights:", weights.getUsedMemory() / 1024 / 1024.0);
     }
   }
 
@@ -578,9 +594,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       throw new ShellException("Need a corpus for collecting features!");
     update();
     int oldCount = weights.getFeatureCount();
-    FeatureCollector collector = new FeatureCollector(model);
+    FeatureCollector collector = new FeatureCollector(model, weights);
     collector.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
-    collector.collect(corpus, weights);
+    collector.collect(corpus);
     out.println("Collected " + (weights.getFeatureCount() - oldCount) + " features.");
 
 

@@ -6,14 +6,15 @@ include "conll06.pml";
 include "nonproj.pml";
 
 hidden: link, dep;
-observed: word, pos, cpos;
+observed: word, pos, cpos, prefix;
 
 include "mst.pml";
 
-corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 20);
 
-scores from "example.scores";
-
+corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 200);
+                                                               
+//scores from "example.scores";
+                                                             
 collect;
 
 set solver.ilp.verbose = true;

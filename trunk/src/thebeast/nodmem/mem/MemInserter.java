@@ -9,13 +9,14 @@ public class MemInserter {
     //assuming src is unique
     MemVector pointer = new MemVector();
     MemChunkIndex index = dst.rowIndex;
+    //System.out.println("index.getLoadFactor() = " + index.getLoadFactor());;
     dst.buildRowIndex();
     MemVector dstPointer = new MemVector(dst.size, dst.getDim());
     for (int row = 0; row < src.size; ++row) {
       int old = index.get(src, pointer, src.allCols);
       if (old == -1) {
         if (dst.size == dst.capacity)
-          dst.increaseCapacity(src.size);
+          dst.increaseCapacity(dst.size + src.size);
         System.arraycopy(src.intData, pointer.xInt, dst.intData, dstPointer.xInt, dst.numIntCols);
         System.arraycopy(src.doubleData, pointer.xDouble, dst.doubleData, dstPointer.xDouble, dst.numDoubleCols);
         System.arraycopy(src.chunkData, pointer.xChunk, dst.chunkData, dstPointer.xChunk, dst.numChunkCols);

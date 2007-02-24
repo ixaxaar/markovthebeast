@@ -101,16 +101,8 @@ statement ::= createType:s
               {: RESULT = new ParserInspect(id, false); :}
             | INSPECT UPPERCASEID:id
               {: RESULT = new ParserInspect(id, true); :}
-            | PRINT ATOMS LOWERCASEID:id
-              {: RESULT = new ParserPrint(id,false,false); :}
-            | PRINT SCORES
-              {: RESULT = new ParserPrint(null,false,true); :}
-            | PRINT ATOMS
-              {: RESULT = new ParserPrint(null,false,false); :}
-            | PRINT WEIGHTS
-              {: RESULT = new ParserPrintWeights(null); :}
-            | PRINT WEIGHTS LOWERCASEID:function
-              {: RESULT = new ParserPrintWeights(function); :}
+            | PRINT name:n
+              {: RESULT = new ParserPrint(n); :}
             | ATOMS FROM STRING:s
               {: RESULT = new ParserLoad(null, s.substring(1,s.length()-1),false,false); :}
             | SCORES FROM STRING:s
@@ -209,6 +201,18 @@ name ::=
     {: RESULT = new ParserName(n,null); :}
   | LOWERCASEID:n DOT name:t
     {: RESULT = new ParserName(n,t); :}
+  | ATOMS
+    {: RESULT = new ParserName("atoms",null); :}
+  | ATOMS DOT name:t
+    {: RESULT = new ParserName("atoms",t); :}
+  | WEIGHTS
+    {: RESULT = new ParserName("weights",null); :}
+  | WEIGHTS DOT name:t
+    {: RESULT = new ParserName("weights",t); :}
+  | SCORES
+    {: RESULT = new ParserName("scores",null); :}
+  | SCORES DOT name:t
+    {: RESULT = new ParserName("scores",t); :}
     ;
 
 lowercasecommalist ::=
