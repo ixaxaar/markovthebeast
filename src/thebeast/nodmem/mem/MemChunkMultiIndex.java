@@ -238,4 +238,8 @@ public final class MemChunkMultiIndex {
       }
     return size;
   }
+
+  public int getCapacity() {
+    return capacity;
+  }
 }

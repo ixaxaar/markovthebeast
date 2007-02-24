@@ -36,4 +36,8 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue,ArrayType> 
   public void acceptExpressionVisitor(ExpressionVisitor visitor) {
     visitor.visitArrayVariable(this);
   }
+
+  public int byteSize() {
+    return chunk.chunkData[pointer.xChunk].byteSize(); 
+  }
 }

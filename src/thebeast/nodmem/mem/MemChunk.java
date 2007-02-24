@@ -23,6 +23,8 @@ public final class MemChunk extends MemHolder {
   public int rowIndexedSoFar = 0;
 
   public MemColumnSelector allCols;
+  private static final double MAXLOADFACTOR = 3.0;
+  private static final int INCREMENTSCALE = 1;
 
   public void copyFrom(MemChunk other) {
     if (other.size > capacity) increaseCapacity(other.size - capacity);
@@ -94,10 +96,10 @@ public final class MemChunk extends MemHolder {
 
   public void buildRowIndex() {
     if (rowIndex == null)
-      rowIndex = new MemChunkIndex(size,new MemDim(numIntCols, numDoubleCols, numChunkCols));
+      rowIndex = new MemChunkIndex(size, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     MemVector pointer = new MemVector(rowIndexedSoFar, getDim());
-    if (rowIndex.getLoadFactor() > 3.0){
-      rowIndex.increaseCapacity(size - rowIndex.getCapacity());
+    if (rowIndex.getLoadFactor() > MAXLOADFACTOR) {
+      rowIndex.increaseCapacity((size - rowIndex.getCapacity()));
     }
     for (int row = rowIndexedSoFar; row < size; ++row) {
       rowIndex.put(this, pointer, allCols, row, false);
@@ -308,8 +310,10 @@ public final class MemChunk extends MemHolder {
   public int byteSize() {
     int size = 5 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE; //all other junk
     size += super.byteSize();
-    size += rowIndex.byteSize();
-    for (MemChunkMultiIndex index : indices)
+    if (rowIndex != null) {
+      size += rowIndex.byteSize();
+    }
+    if (indices != null) for (MemChunkMultiIndex index : indices)
       size += index.byteSize();
     return size;
   }

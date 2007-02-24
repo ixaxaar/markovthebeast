@@ -7,8 +7,6 @@ package thebeast.nodmem.mem;
  */
 public final class MemChunkIndex {
 
-  private MemColumnSelector cols;
-
   private MemHolder[] tuples;
   private int[][] values;
   private int[][] keys;
@@ -205,15 +203,14 @@ public final class MemChunkIndex {
   }
 
   public int byteSize() {
-    int size = 0;
+    int size = 3 * MemChunk.ARRAYSIZE + 3 & MemChunk.POINTERSIZE + dim.byteSize() + 3 * MemChunk.INTSIZE;
     size += tuples.length * MemChunk.POINTERSIZE;
     size += keys.length * MemChunk.POINTERSIZE;
     size += values.length * MemChunk.POINTERSIZE;
     for (int i = 0; i < capacity; ++i)
       if (tuples[i] != null) {
         size += tuples[i].byteSize();
-        size += keys[i].length * MemChunk.POINTERSIZE;
-        size += values[i].length * MemChunk.POINTERSIZE;
+        size += 2 * MemChunk.ARRAYSIZE;
         size += keys[i].length * MemChunk.INTSIZE;
         size += values[i].length * MemChunk.INTSIZE;
       }

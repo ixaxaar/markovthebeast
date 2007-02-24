@@ -11,7 +11,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 12-Feb-2007 Time: 17:55:01
+ * A class for corpora based on the CoNLL column format. Can be configured to extract dependency parse information
+ * (CoNLL 06/07).
  */
 public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
 
@@ -407,10 +408,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     }
   }
 
-  public class BIOExtractor {
-    private String predicate;
 
-  }
 
 
 }

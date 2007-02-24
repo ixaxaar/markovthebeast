@@ -11,9 +11,9 @@ import java.util.*;
  */
 public class IndexInformation {
 
-  private HashMap<String, Index> name2index = new HashMap<String, Index>();
-  private HashMap<String, Integer> name2nr = new HashMap<String, Integer>();
-  private HashMap<Index, Integer> index2nr = new HashMap<Index, Integer>();
+  private TreeMap<String, Index> name2index = new TreeMap<String, Index>();
+  private TreeMap<String, Integer> name2nr = new TreeMap<String, Integer>();
+  private TreeMap<Index, Integer> index2nr = new TreeMap<Index, Integer>();
 
   public int getIndexIdForAttributes(List<Attribute> attributes) {
     return -1;

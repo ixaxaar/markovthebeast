@@ -15,6 +15,10 @@ public class MemVector {
   public MemVector() {
   }
 
+  public int byteSize(){
+    return 3 * MemChunk.INTSIZE;
+  }
+
   public MemVector(int row, MemDim dim) {
     this.xInt = row * dim.xInt;
     this.xDouble = row * dim.xDouble;
