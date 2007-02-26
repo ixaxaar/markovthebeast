@@ -89,6 +89,7 @@ public class GroundFormulas {
 
   /**
    * Returns a relvar/table that contains all groundings of the given formula which are true in the current solution
+   *
    * @param factorFormula the factor formula we want groundings for.
    * @return a relvar with the true groundings. Has columns for each quantification variable.
    */
@@ -98,6 +99,7 @@ public class GroundFormulas {
 
   /**
    * Returns a relvar/table that contains all groundings of the given formula which are false in the current solution
+   *
    * @param factorFormula the factor formula we want groundings for.
    * @return a relvar with the false groundings. Has columns for each quantification variable.
    */
@@ -105,6 +107,13 @@ public class GroundFormulas {
     return falseGroundFormulas.get(factorFormula);
   }
 
+  /**
+   * Returns a table that contains cycles for a given predicate.
+   *
+   * @param predicate the predicate we want to know the cycles of.
+   * @return a relvar that contains rows which themselves contain a table with
+   *         the members (i.e. pairs) of the cycles.
+   */
   public RelationVariable getCycles(UserPredicate predicate) {
     return cycles.get(predicate);
   }
@@ -125,18 +134,22 @@ public class GroundFormulas {
       interpreter.assign(getExplicitGroundFormulas(formula), formulas.getExplicitGroundFormulas(formula));
     }
     for (UserPredicate predicate : cycles.keySet())
-      interpreter.assign(getCycles(predicate),formulas.getCycles(predicate));
+      interpreter.assign(getCycles(predicate), formulas.getCycles(predicate));
   }
 
+  /**
+   * Extract violated/true/both ground formulas within a given solution.
+   *
+   * @param solution the ground atoms we look for groundformulas in.
+   */
   public void extract(GroundAtoms solution) {
 
     this.groundAtoms.load(solution);
     for (FactorFormula factorFormula : model.getFactorFormulas()) {
-      if (factorFormula.isAcyclicityConstraint()){
+      if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
-      }
-      else if (!factorFormula.isLocal()) {
+      } else if (!factorFormula.isLocal()) {
         RelationVariable both = getExplicitGroundFormulas(factorFormula);
         if (!factorFormula.getWeight().isNonNegative()) {
           RelationVariable relation = getTrueGroundFormulas(factorFormula);
@@ -163,7 +176,7 @@ public class GroundFormulas {
   public String toString() {
     StringBuffer result = new StringBuffer();
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
-      if (formula.isAcyclicityConstraint()){
+      if (formula.isAcyclicityConstraint()) {
         UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
         result.append("# Cycles in: ").append(predicate.getName()).append("\n").append(cycles.get(predicate).value());
         continue;
@@ -187,12 +200,10 @@ public class GroundFormulas {
     this.groundAtoms.load(solution);
     //System.out.println(this.groundAtoms);
     for (FactorFormula factorFormula : model.getFactorFormulas()) {
-      if (factorFormula.isAcyclicityConstraint()){
+      if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
-      }
-
-      else if (!factorFormula.isLocal()) {
+      } else if (!factorFormula.isLocal()) {
         RelationVariable both = getExplicitGroundFormulas(factorFormula);
         if (!factorFormula.getWeight().isNonNegative()) {
           RelationVariable relation = getTrueGroundFormulas(factorFormula);

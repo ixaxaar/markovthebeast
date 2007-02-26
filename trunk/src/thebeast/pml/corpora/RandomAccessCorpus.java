@@ -41,7 +41,7 @@ public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus
   public int getUsedMemory(){
     int byteSize = 0;
     for (GroundAtoms atoms : this)
-      byteSize += atoms.getUsedMemory();
+      byteSize += atoms.getMemoryUsage();
     return byteSize;
   }
 

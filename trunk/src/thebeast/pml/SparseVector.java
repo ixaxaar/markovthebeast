@@ -9,10 +9,14 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.DoubleVariable;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.Dump;
 
 import java.util.LinkedList;
+import java.io.IOException;
 
 /**
+ * A SparseVector based by a database table with index and value column.
+ *
  * @author Sebastian Riedel
  */
 public class SparseVector {
@@ -44,39 +48,40 @@ public class SparseVector {
 
   public SparseVector() {
     values = interpreter.createRelationVariable(heading);
-    interpreter.addIndex(values,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(values, "index", Index.Type.HASH, "index");
     otherValues = interpreter.createRelationVariable(heading);
-    interpreter.addIndex(otherValues,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(otherValues, "index", Index.Type.HASH, "index");
     builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     scale = interpreter.createDoubleVariable(builder.num(1.0).getDouble());
 
-    sparseAdd = builder.expr(values).expr(scale).expr(otherValues).sparseAdd("index","value").getRelation();
+    sparseAdd = builder.expr(values).expr(scale).expr(otherValues).sparseAdd("index", "value").getRelation();
     //builder.id("index").
     //distinctOthers = builder.expr(other).expr(values).relationMinus().getRelation();
 
   }
 
-  public void addValue(int index, double value){
-    values.addTuple(index,value);
+  public void addValue(int index, double value) {
+    values.addTuple(index, value);
   }
 
-  public boolean contains(int index, double value){
-    return values.contains(index,value);
+  public boolean contains(int index, double value) {
+    return values.contains(index, value);
   }
 
   public SparseVector add(double scale, SparseVector other) {
     SparseVector result = new SparseVector();
     interpreter.assign(this.otherValues, other.values);
     interpreter.assign(this.scale, builder.num(scale).getDouble());
-    interpreter.assign(result.values,sparseAdd);
+    interpreter.assign(result.values, sparseAdd);
     return result;
   }
 
-   public void addInPlace(double scale, SparseVector other) {
+  public void addInPlace(double scale, SparseVector other) {
     interpreter.assign(this.otherValues, other.values);
     interpreter.assign(this.scale, builder.num(scale).getDouble());
-    interpreter.assign(values,sparseAdd);
+    interpreter.assign(values, sparseAdd);
   }
+
   public RelationVariable getValues() {
     return values;
   }
@@ -85,8 +90,12 @@ public class SparseVector {
     interpreter.assign(values, sparseVector.values);
   }
 
-  public int size(){
+  public int size() {
     return values.value().size();
+  }
+
+  public int getMemoryUsage() {
+    return values.byteSize();
   }
 
   public SparseVector copy() {
@@ -95,7 +104,15 @@ public class SparseVector {
     return result;
   }
 
-  public String toString(){
+  public String toString() {
     return values.value().toString();
+  }
+
+  public void write(Dump dump) throws IOException {
+    dump.write(values);
+  }
+
+  public void read(Dump dump) throws IOException {
+    dump.read(values);
   }
 }

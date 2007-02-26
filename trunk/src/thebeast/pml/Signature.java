@@ -153,6 +153,7 @@ public class Signature {
     UserPredicate result = new UserPredicate(name, argumentTypes);
     name2predicate.put(name, result);
     userPredicates.add(result);
+    Collections.sort(userPredicates);
     return result;
   }
 

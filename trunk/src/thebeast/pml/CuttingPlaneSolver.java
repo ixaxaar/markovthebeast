@@ -12,6 +12,7 @@ public class CuttingPlaneSolver implements Solver {
   private int maxIterations = 10;
   private Model model;
   private LocalFeatures features;
+  private LocalFeatureExtractor extractor;
   private Scores scores;
   private GroundAtoms atoms;
   private Weights weights;
@@ -30,6 +31,7 @@ public class CuttingPlaneSolver implements Solver {
     ilp = new IntegerLinearProgram(model, weights, ilpSolver);
     formulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
+    extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
   }
@@ -140,7 +142,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void score() {
-    features.extract(this.atoms);
+    extractor.extract(atoms,features);
+    //features.extract(this.atoms);
     scores.score(features, weights);
     ilp.init(scores);
     scoresSet = true;

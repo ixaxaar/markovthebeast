@@ -131,6 +131,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       return corpus;
     }
 
+
   }
 
   public static class Generator implements TypeGenerator {

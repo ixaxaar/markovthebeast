@@ -1,13 +1,15 @@
 package thebeast.pml;
 
+import thebeast.nod.Dump;
+
 import java.io.*;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A Universe represents a collection of ground atoms for the predicates of a certain signature. It also stores a set of
- * weight functions to be used in PML models.
+ * A GroundAtoms object represents a collection of ground atoms for the predicates of a certain signature.
+ * It also stores a set of weight functions to be used in PML models.
  */
 public class GroundAtoms {
 
@@ -92,6 +94,11 @@ public class GroundAtoms {
     }
   }
 
+  /**
+   * Clears the ground atoms for the given predicates.
+   *
+   * @param predicates the predicates to remove the ground atoms of.
+   */
   public void clear(Collection<UserPredicate> predicates) {
     for (UserPredicate pred : predicates) {
       getGroundAtomsOf(pred).clear();
@@ -146,13 +153,18 @@ public class GroundAtoms {
    *
    * @return the size in bytes.
    */
-  public int getUsedMemory() {
+  public int getMemoryUsage() {
     int byteSize = 0;
     for (Map.Entry<UserPredicate, GroundAtomCollection> entry : atoms.entrySet())
       byteSize += entry.getValue().getUsedMemory();
     return byteSize;
   }
 
+  /**
+   * Returns a string that shows all ground atoms in column form.
+   *
+   * @return a string in column form displaying all ground atoms for all predicates.
+   */
   public String toString() {
     StringBuffer result = new StringBuffer();
     result.append(">>\n");
@@ -162,5 +174,29 @@ public class GroundAtoms {
     return result.toString();
   }
 
+  /**
+   * Dump all ground atoms to a Database dump store. This is the fastest and most memory efficient way of storing
+   * ground atoms.
+   *
+   * @param dump a database dump.
+   * @throws java.io.IOException if I/O goes wrong
+   */
+  public void write(Dump dump) throws IOException {
+    for (UserPredicate predicate : signature.getUserPredicates()) {
+      atoms.get(predicate).write(dump);
+    }
+  }
+
+  /**
+   * Loads ground atoms from a database dump.
+   *
+   * @param dump the dump to load from.
+   * @throws java.io.IOException if I/O goes wrong.
+   */
+  public void read(Dump dump) throws IOException {
+    for (UserPredicate predicate : signature.getUserPredicates()) {
+      atoms.get(predicate).read(dump);
+    }
+  }
 
 }

@@ -12,6 +12,10 @@ import thebeast.pml.formula.QueryGenerator;
 import java.util.HashMap;
 
 /**
+ * A solution combines a ground atom set (reflecting the hidden ground atoms) and
+ * a ground formula set (containing all violated/true/both ground formulas within the
+ * hidden ground atoms).
+ *
  * @author Sebastian Riedel
  */
 public class Solution {

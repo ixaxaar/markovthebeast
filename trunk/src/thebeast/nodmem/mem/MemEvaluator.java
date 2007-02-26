@@ -107,13 +107,13 @@ public class MemEvaluator {
           {
             int value = argChunk.intData[0];
             boolean positive = value >= 0;
-            if (!positive) value = - value;
+            if (!positive) value = -value;
             for (int i = 0; i < f.bins.length; ++i)
               if (value <= f.bins[i]) {
                 returnChunk.intData[argPointerVec.xInt] = positive ? i : -i;
                 break bins;
               }
-            returnChunk.intData[argPointerVec.xInt] = positive ? f.bins.length : - f.bins.length;
+            returnChunk.intData[argPointerVec.xInt] = positive ? f.bins.length : -f.bins.length;
           }
           break;
         case RELATION_MINUS:

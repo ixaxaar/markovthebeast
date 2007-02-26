@@ -76,7 +76,6 @@ public abstract class NoDTest extends TestCase {
     typeFactory = server.typeFactory();
     statementFactory = server.statementFactory();
     expressionFactory = server.expressionFactory();
-    variableFactory = server.variableFactory();
     exprBuilder = new ExpressionBuilder(server);
     stmtBuilder = new StatementBuilder(server);
 

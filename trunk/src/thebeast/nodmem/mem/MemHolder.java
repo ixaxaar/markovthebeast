@@ -1,5 +1,7 @@
 package thebeast.nodmem.mem;
 
+import java.io.IOException;
+
 /**
  * @author Sebastian Riedel
  */
@@ -25,6 +27,15 @@ public class MemHolder {
 
 
   public MemHolder() {
+  }
+
+
+  public MemHolder(int size, int capacity, int[] intData, double[] doubleData, MemChunk[] chunkData) {
+    this.size = size;
+    this.intData = intData;
+    this.doubleData = doubleData;
+    this.chunkData = chunkData;
+    this.capacity = capacity;
   }
 
   void increaseCapacity(int howmuch, MemDim dim) {
@@ -54,11 +65,43 @@ public class MemHolder {
       size += doubleData.length * DOUBLESIZE + ARRAYSIZE;
     if (chunkData != null) {
       size += chunkData.length * POINTERSIZE + ARRAYSIZE;
-      for (int i = 0; i < chunkData.length && chunkData[i]!=null; ++i)
+      for (int i = 0; i < chunkData.length && chunkData[i] != null; ++i)
         size += chunkData[i].byteSize();
     }
     return size;
   }
+
+  public static void serialize(MemHolder holder, MemSerializer serializer, MemDim dim) throws IOException {
+    serializer.writeInts(holder.size);
+    if (holder.intData != null) {
+      serializer.writeInts(holder.intData, holder.size * dim.xInt);
+    }
+    if (holder.doubleData != null) {
+      serializer.writeDoubles(holder.doubleData, holder.size * dim.xDouble);
+    }
+    if (holder.chunkData != null) {
+      for (int i = 0; i < holder.size * dim.xChunk; ++i)
+        MemChunk.serialize(holder.chunkData[i], serializer);
+    }
+  }
+
+  public static MemHolder deserialize(MemDeserializer deserializer, MemDim dim) throws IOException {
+    int[] dummy = new int[1];
+    deserializer.read(dummy, 1);
+    int size = dummy[0];
+    MemHolder result = new MemHolder(size, size, dim);
+    if (dim.xInt > 0)
+      deserializer.read(result.intData, size * dim.xInt);
+    if (dim.xDouble > 0)
+      deserializer.read(result.doubleData, size * dim.xDouble);
+    if (dim.xChunk > 0) {
+      for (int i = 0; i < result.chunkData.length; ++i)
+        result.chunkData[i] = MemChunk.deserialize(deserializer);
+    }
+    return result;
+  }
+
+
 }
 
 

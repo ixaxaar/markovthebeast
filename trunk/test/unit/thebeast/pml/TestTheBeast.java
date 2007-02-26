@@ -7,6 +7,7 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.RelationType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.Dump;
 import thebeast.pml.corpora.ByteArrayCorpus;
 import thebeast.pml.corpora.CoNLLCorpus;
 import thebeast.pml.corpora.RandomAccessCorpus;
@@ -17,12 +18,11 @@ import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.CategoricalConstant;
-import thebeast.pml.training.OnlineLearner;
 import thebeast.pml.training.FeatureCollector;
+import thebeast.pml.training.OnlineLearner;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:38:07
@@ -120,7 +120,8 @@ public class TestTheBeast extends TestCase {
     System.out.println(factorDT);
 
     features = new LocalFeatures(model, weights);
-    features.extract(theManLikesTheBoat);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(theManLikesTheBoat, features);
 
     scores = new Scores(model, weights);
     scores.score(features, weights);
@@ -251,10 +252,6 @@ public class TestTheBeast extends TestCase {
   }
 
   public void testLoadCoNLL() {
-    HashMap<Integer, Integer> mapping = new HashMap<Integer, Integer>();
-    mapping.put(0, 0);
-    mapping.put(1, 1);
-    mapping.put(2, 2);
 
     String corpusTxt = "" +
             "\n" +
@@ -270,10 +267,10 @@ public class TestTheBeast extends TestCase {
             "3 the DT\n" +
             "4 boat NN\n";
 
-    CoNLLCorpus.AttributeExtractor tokenExtractor = new CoNLLCorpus.AttributeExtractor(token,3);
-    tokenExtractor.addMapping(0,0);
-    tokenExtractor.addMapping(1,1);
-    tokenExtractor.addMapping(2,2);
+    CoNLLCorpus.AttributeExtractor tokenExtractor = new CoNLLCorpus.AttributeExtractor(token, 3);
+    tokenExtractor.addMapping(0, 0);
+    tokenExtractor.addMapping(1, 1);
+    tokenExtractor.addMapping(2, 2);
 
     CoNLLCorpus corpus = new CoNLLCorpus(signature, corpusTxt.getBytes());
     corpus.addExtractor(tokenExtractor);
@@ -390,6 +387,43 @@ public class TestTheBeast extends TestCase {
     assertEquals(0.0, weights.getWeight(2));
   }
 
+  public void testDumpGroundAtoms() throws IOException {
+    GroundAtoms groundAtoms = signature.createGroundAtoms();
+    GroundAtomCollection tokens = groundAtoms.getGroundAtomsOf(token);
+    tokens.addGroundAtom(0, "the", "DT");
+    tokens.addGroundAtom(1, "man", "NN");
+    tokens.addGroundAtom(2, "likes", "VBZ");
+    tokens.addGroundAtom(3, "the", "DT");
+    tokens.addGroundAtom(4, "boat", "NN");
+    GroundAtomCollection phrases = groundAtoms.getGroundAtomsOf(phrase);
+    phrases.addGroundAtom(0, 1, "NP");
+    phrases.addGroundAtom(2, 4, "VP");
+    phrases.addGroundAtom(0, 4, "S");
+
+    Dump dump = server.getNodServer().createDump("tmp", true, 1024);
+    groundAtoms.write(dump);
+    dump.flush();
+    groundAtoms.clear(signature.getUserPredicates());
+    assertEquals(0, tokens.size());    
+    groundAtoms.read(dump);
+
+    assertEquals(5, tokens.size());
+    assertEquals(3, phrases.size());
+    System.out.println(tokens.getRelationVariable().value());
+    System.out.println(tokens);
+
+    assertTrue(tokens.containsAtom(0, "the", "DT"));
+    assertTrue(tokens.containsAtom(1, "man", "NN"));
+    assertTrue(tokens.containsAtom(2, "likes", "VBZ"));
+    assertTrue(tokens.containsAtom(3, "the", "DT"));
+    assertTrue(tokens.containsAtom(4, "boat", "NN"));
+    assertFalse(tokens.containsAtom(0, "the", "NN"));
+
+    dump.delete();
+
+  }
+
+
   public void testLoadModel() throws Exception {
     String input = "//an example;\n" +
             "type Tag: DT, NN, VBZ, JJ;" +
@@ -423,8 +457,9 @@ public class TestTheBeast extends TestCase {
     weights.addWeight(weightFunction2, 0.0, "NP");
     weights.addWeight(weightFunction2, 0.0, "VP");
     weights.addWeight(weightFunction3, 0.0, "NP", "VP", "S");
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
     LocalFeatures features = new LocalFeatures(model, weights);
-    features.extract(theManLikesTheBoat);
+    extractor.extract(theManLikesTheBoat, features);
     System.out.println(features.getRelation(phrase).value());
     assertEquals(24, features.getRelation(phrase).value().size());
     assertTrue(features.containsFeature(phrase, 0, 3, 4, "NP"));
@@ -434,7 +469,8 @@ public class TestTheBeast extends TestCase {
 
   public void testScores() {
     LocalFeatures features = new LocalFeatures(model, weights);
-    features.extract(theManLikesTheBoat);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(theManLikesTheBoat, features);
     System.out.println(features.getRelation(phrase).value().size());
     Scores scores = new Scores(model, weights);
     scores.score(features, weights);
@@ -448,7 +484,8 @@ public class TestTheBeast extends TestCase {
 
   public void testGreedySolve() {
     LocalFeatures features = new LocalFeatures(model, weights);
-    features.extract(theManLikesTheBoat);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(theManLikesTheBoat, features);
     Scores scores = new Scores(model, weights);
     scores.score(features, weights);
     GroundAtoms solution = scores.greedySolve(0.0);
@@ -728,7 +765,10 @@ public class TestTheBeast extends TestCase {
     assertEquals(3, features.size());
 
     LocalFeatures local = new LocalFeatures(model, weights);
-    local.extract(theManLikesTheBoat);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(theManLikesTheBoat, local);
+
+    //local.extract(theManLikesTheBoat);
 
     features = solution.extract(local);
     System.out.println(features.getValues().value());
@@ -925,7 +965,7 @@ public class TestTheBeast extends TestCase {
 
     //System.out.println(result.getGroundAtoms());
 
-  }                                                       
+  }
 
   public void testFeatureCollector() {
     GroundAtoms instance = signature.createGroundAtoms();
@@ -981,7 +1021,7 @@ public class TestTheBeast extends TestCase {
     weights.addWeight(weightFunction2, 0.0, "VP");
     weights.addWeight(weightFunction3, 0.0, "NP", "VP", "S");
 
-    OnlineLearner learner = new OnlineLearner(model,weights);
+    OnlineLearner learner = new OnlineLearner(model, weights);
     learner.setNumEpochs(1);
     learner.setSolver(new CuttingPlaneSolver());
     learner.learn(corpus);

@@ -1,5 +1,7 @@
 package thebeast.nodmem.mem;
 
+import java.io.IOException;
+
 /**
  * This index maps from row data to row numbers.
  *
@@ -33,6 +35,12 @@ public final class MemChunkMultiIndex {
     this.capacity = capacity;
     this.dim = dim;
   }
+
+  public int add(int[] ints, double[] doubles, MemChunk[] chunks, int value) {
+    return add(new MemHolder(1, 1, ints, doubles, chunks),
+            MemVector.ZERO, new MemColumnSelector(ints.length, doubles.length, chunks.length), value);
+  }
+
 
   public int add(MemHolder data, MemVector pointer, MemColumnSelector cols, int row) {
     //calculate key
@@ -90,7 +98,7 @@ public final class MemChunkMultiIndex {
     //if we have arrived here the key-value pair has not yet been put
     //check if we need to increase the capacity
     if (length == tuplesAtIndex.capacity) {
-      tuplesAtIndex.increaseCapacity(CAP_INCREASE_KEYS,dim);
+      tuplesAtIndex.increaseCapacity(CAP_INCREASE_KEYS, dim);
 
       int[][] newListsAtIndex = new int[length + CAP_INCREASE_KEYS][];
       System.arraycopy(listsAtIndex, 0, newListsAtIndex, 0, length);
@@ -112,6 +120,8 @@ public final class MemChunkMultiIndex {
       tuplesAtIndex.intData[p.xInt + i] = data.intData[pointer.xInt + cols.intCols[i]];
     for (int i = 0; i < cols.doubleCols.length; ++i)
       tuplesAtIndex.doubleData[p.xDouble + i] = data.doubleData[pointer.xDouble + cols.doubleCols[i]];
+    for (int i = 0; i < cols.chunkCols.length; ++i)
+      tuplesAtIndex.chunkData[p.xChunk + i] = data.chunkData[pointer.xChunk + cols.chunkCols[i]];
     ++tuplesAtIndex.size;
 
     listsAtIndex[length] = new int[CAP_INCREASE_LIST];
@@ -119,6 +129,11 @@ public final class MemChunkMultiIndex {
     keysAtIndex[length] = key;
     ++numKeys;
     return -CAP_INCREASE_LIST;
+  }
+
+  public int get(int[] ints, double[] doubles, MemChunk[] chunks, int targetCell, int[][] listHolder) {
+    return get(new MemHolder(1, 1, ints, doubles, chunks), MemVector.ZERO,
+            new MemColumnSelector(ints.length, doubles.length, chunks.length),targetCell, listHolder);
   }
 
 
@@ -205,7 +220,7 @@ public final class MemChunkMultiIndex {
     return numKeys;
   }
 
-  public int getNumUsedIndices () {
+  public int getNumUsedIndices() {
     return numUsedIndices;
   }
 
@@ -215,7 +230,7 @@ public final class MemChunkMultiIndex {
    *
    * @return the ratio |keys|/|used indices|
    */
-  public double getLoadFactor () {
+  public double getLoadFactor() {
     return (double) numKeys / (double) numUsedIndices;
   }
 
@@ -232,12 +247,59 @@ public final class MemChunkMultiIndex {
         size += lists[i].length * MemHolder.POINTERSIZE;
         size += keys[i].length * MemHolder.INTSIZE;
         size += listSizes[i].length * MemHolder.INTSIZE;
-        for (int[] list : lists[i]){
-          if (list!=null) size += list.length * MemHolder.INTSIZE;
+        for (int[] list : lists[i]) {
+          if (list != null) size += list.length * MemHolder.INTSIZE;
         }
       }
     return size;
   }
+
+  public static void serialize(MemChunkMultiIndex index, MemSerializer serializer) throws IOException {
+    serializer.writeInts(index.capacity, index.dim.xInt, index.dim.xDouble,
+            index.dim.xChunk, index.numKeys, index.numUsedIndices);
+    for (int i = 0; i < index.capacity; ++i) {
+      if (index.tuples[i] == null) {
+        serializer.writeInts(0);
+      } else {
+        int size = index.tuples[i].size;
+        serializer.writeInts(size);
+        MemHolder.serialize(index.tuples[i], serializer, index.dim);
+        serializer.writeInts(index.keys[i], size);
+        serializer.writeInts(index.listSizes[i],size);
+        for (int j = 0; j < size;++j){
+          serializer.writeInts(index.lists[i][j], index.listSizes[i][j]);
+        }
+      }
+    }
+  }
+
+  public static MemChunkMultiIndex deserialize(MemDeserializer deserializer) throws IOException {
+    int[] stats = new int[6];
+    deserializer.read(stats, 6);
+    MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1],stats[2],stats[3]));
+    index.numKeys = stats[4];
+    index.numUsedIndices = stats[5];
+    int[] sizeBuffer = new int[1];
+    for (int i = 0; i < index.capacity; ++i){
+      deserializer.read(sizeBuffer,1);
+      int size = sizeBuffer[0];
+      if (size > 0){
+
+        index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
+        index.keys[i] = new int[size];
+        deserializer.read(index.keys[i], size);
+        index.listSizes[i] = new int[size];
+        deserializer.read(index.listSizes[i], size);
+        index.lists[i] = new int[size][];
+        for (int j = 0; j < size ; ++j){
+          index.lists[i][j] = new int[index.listSizes[i][j]];
+          deserializer.read(index.lists[i][j], index.listSizes[i][j]);
+        }
+      }
+    }
+    return index;
+  }
+
 
   public int getCapacity() {
     return capacity;

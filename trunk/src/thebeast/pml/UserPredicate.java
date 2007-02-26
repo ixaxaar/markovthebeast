@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:14:32
  */
-public class UserPredicate extends Predicate {
+public class UserPredicate extends Predicate  {
 
   private Heading heading, headingScores, headingTmpScores, headingSolution;
   protected static Attribute scoreAttribute;

@@ -121,7 +121,7 @@ public class FeatureCollector {
    * @return memory usage in bytes.
    */
   public int getUsedMemory(){
-    return atoms.getUsedMemory();
+    return atoms.getMemoryUsage();
   }
 
 }

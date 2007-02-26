@@ -4,16 +4,46 @@ import thebeast.pml.GroundAtoms;
 import thebeast.pml.LocalFeatures;
 import thebeast.pml.SparseVector;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
+import java.io.File;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 09-Feb-2007 Time: 12:28:48
+ * This object represents a list of training instances (gold feature vector, gold solution (+observation)
+ * and local features). It can be configured to only contain a subset of all training instances
+ * in memory and stream in and out instances when they are needed.
  */
-public class TrainingInstances extends LinkedList<TrainingInstance> {
+public class TrainingInstances extends AbstractCollection<TrainingInstance> {
+
+  private int maxByteSize = 100000;
+  private int activeCount = 0;
+  private int activeSize = 0;
+  private File cacheFile;
+  //
+  private ArrayList<TrainingInstance> active = new ArrayList<TrainingInstance>(10000);
 
   public void add(GroundAtoms data, LocalFeatures features, SparseVector gold){
-    add(new TrainingInstance(data, features, gold));
+    TrainingInstance trainingInstance = new TrainingInstance(data, features, gold);
+    activeSize += trainingInstance.getMemoryUsage();
+    active.add(trainingInstance);
+    if (activeSize > maxByteSize)
+      streamOut();
   }
 
+  private void streamOut() {
+    for (TrainingInstance instance : active){
+      //instance.getData().saveBinary(file)
+    }
+  }
+
+  private void streamIn(){
+    //
+  }
+
+  public Iterator<TrainingInstance> iterator() {
+    return null;
+  }
+
+  public int size() {
+    return 0;
+  }
 }
