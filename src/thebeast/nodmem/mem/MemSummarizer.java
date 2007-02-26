@@ -20,6 +20,7 @@ public class MemSummarizer {
     Spec[] doubleSpecs = f.doubleSpecs;
     MemChunk tmp = new MemChunk(1,1,tmp2result.getDim());
     MemChunk wrappedTmp = new MemChunk(1, new int[0], new double[0], new MemChunk[]{tmp});
+    //todo: cache this index somewhere and reuse its buffers to avoid gc.    
     MemChunkIndex index = new MemChunkIndex(src.getSize(), key2original.getDim());
     MemVector srcPointer = new MemVector();
     MemVector dstPointer;

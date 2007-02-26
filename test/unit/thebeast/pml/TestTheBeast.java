@@ -7,11 +7,9 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.RelationType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.Dump;
-import thebeast.pml.corpora.ByteArrayCorpus;
-import thebeast.pml.corpora.CoNLLCorpus;
-import thebeast.pml.corpora.RandomAccessCorpus;
-import thebeast.pml.corpora.SequentialAccessCorpus;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
+import thebeast.pml.corpora.*;
 import thebeast.pml.formula.Conjunction;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.FormulaBuilder;
@@ -23,6 +21,7 @@ import thebeast.pml.training.OnlineLearner;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.File;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:38:07
@@ -400,12 +399,14 @@ public class TestTheBeast extends TestCase {
     phrases.addGroundAtom(2, 4, "VP");
     phrases.addGroundAtom(0, 4, "S");
 
-    Dump dump = server.getNodServer().createDump("tmp", true, 1024);
-    groundAtoms.write(dump);
-    dump.flush();
+    File file = new File("tmp");
+    FileSink fileSink = server.getNodServer().createSink(file, 1024);
+    FileSource fileSource = server.getNodServer().createSource(file, 1024);
+    groundAtoms.write(fileSink);
+    fileSink.flush();
     groundAtoms.clear(signature.getUserPredicates());
-    assertEquals(0, tokens.size());    
-    groundAtoms.read(dump);
+    assertEquals(0, tokens.size());
+    groundAtoms.read(fileSource);
 
     assertEquals(5, tokens.size());
     assertEquals(3, phrases.size());
@@ -419,8 +420,77 @@ public class TestTheBeast extends TestCase {
     assertTrue(tokens.containsAtom(4, "boat", "NN"));
     assertFalse(tokens.containsAtom(0, "the", "NN"));
 
-    dump.delete();
+    file.delete();
 
+  }
+
+  public void testDumpedCorpus() throws IOException {
+    GroundAtoms groundAtoms = signature.createGroundAtoms();
+    GroundAtomCollection tokens = groundAtoms.getGroundAtomsOf(token);
+    tokens.addGroundAtom(0, "the", "DT");
+    tokens.addGroundAtom(1, "man", "NN");
+    tokens.addGroundAtom(2, "likes", "VBZ");
+    tokens.addGroundAtom(3, "the", "DT");
+    tokens.addGroundAtom(4, "boat", "NN");
+    GroundAtomCollection phrases = groundAtoms.getGroundAtomsOf(phrase);
+    phrases.addGroundAtom(0, 1, "NP");
+    phrases.addGroundAtom(2, 4, "VP");
+    phrases.addGroundAtom(0, 4, "S");
+
+    RandomAccessCorpus ramCorpus = new RandomAccessCorpus(signature, 50);
+    for (int i = 0; i < 50; ++i)
+      ramCorpus.add(groundAtoms);
+
+    File file1 = new File("tmp1");
+    File file2 = new File("tmp2");
+    DumpedCorpus dumpedCorpus1 = new DumpedCorpus(file1, ramCorpus, 0, 50, 100 * 1024);
+    DumpedCorpus dumpedCorpus2 = new DumpedCorpus(file2, ramCorpus, 10 * 1024);
+
+    for (GroundAtoms atoms : dumpedCorpus1){
+      System.out.print(".");
+      tokens = atoms.getGroundAtomsOf(token);
+      phrases = atoms.getGroundAtomsOf(phrase);
+      assertEquals(5, tokens.size());
+      assertEquals(3, phrases.size());
+      assertTrue(tokens.containsAtom(0, "the", "DT"));
+      assertTrue(tokens.containsAtom(1, "man", "NN"));
+      assertTrue(tokens.containsAtom(2, "likes", "VBZ"));
+      assertTrue(tokens.containsAtom(3, "the", "DT"));
+      assertTrue(tokens.containsAtom(4, "boat", "NN"));
+      assertFalse(tokens.containsAtom(0, "the", "NN"));
+    }
+    //call it again.
+    System.out.println("");
+    for (GroundAtoms atoms : dumpedCorpus1){
+      System.out.print(".");
+      tokens = atoms.getGroundAtomsOf(token);
+      phrases = atoms.getGroundAtomsOf(phrase);
+      assertEquals(5, tokens.size());
+      assertEquals(3, phrases.size());
+      assertTrue(tokens.containsAtom(0, "the", "DT"));
+      assertTrue(tokens.containsAtom(1, "man", "NN"));
+      assertTrue(tokens.containsAtom(2, "likes", "VBZ"));
+      assertTrue(tokens.containsAtom(3, "the", "DT"));
+      assertTrue(tokens.containsAtom(4, "boat", "NN"));
+      assertFalse(tokens.containsAtom(0, "the", "NN"));
+    }
+    System.out.println("");
+    for (GroundAtoms atoms : dumpedCorpus2){
+      System.out.print(".");
+      tokens = atoms.getGroundAtomsOf(token);
+      phrases = atoms.getGroundAtomsOf(phrase);
+      assertEquals(5, tokens.size());
+      assertEquals(3, phrases.size());
+      assertTrue(tokens.containsAtom(0, "the", "DT"));
+      assertTrue(tokens.containsAtom(1, "man", "NN"));
+      assertTrue(tokens.containsAtom(2, "likes", "VBZ"));
+      assertTrue(tokens.containsAtom(3, "the", "DT"));
+      assertTrue(tokens.containsAtom(4, "boat", "NN"));
+      assertFalse(tokens.containsAtom(0, "the", "NN"));
+    }
+    System.out.println("");
+    file1.delete();
+    file2.delete();
   }
 
 
@@ -1107,7 +1177,6 @@ public class TestTheBeast extends TestCase {
 
     assertEquals(1, sentence.getGroundAtomsOf(link).size());
     assertTrue(sentence.getGroundAtomsOf(link).containsAtom(1, 0));
-
   }
 
 

@@ -38,6 +38,10 @@ public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus
     return result;
   }
 
+  /**
+   *
+   * @return a rough estimate of how much 
+   */
   public int getUsedMemory(){
     int byteSize = 0;
     for (GroundAtoms atoms : this)

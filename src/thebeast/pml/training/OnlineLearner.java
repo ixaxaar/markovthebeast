@@ -4,6 +4,7 @@ import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
+import thebeast.util.DotProgressReporter;
 
 /**
  * @author Sebastian Riedel

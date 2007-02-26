@@ -70,8 +70,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private String directory;
   private boolean solutionAvailable, externalFeatures, externalScores, featuresAvailable, scoresAvailable;
-  public ConsoleReader console;
+  private ConsoleReader console;
   private FeatureCollector collector;
+
+  private int defaultCacheSize = 20 * 1024 * 1024;
+
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -410,7 +413,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       weights = signature.createWeights();
       scores = new Scores(model, weights);
       features = new LocalFeatures(model, weights);
-      extractor = new LocalFeatureExtractor(model,weights);
+      extractor = new LocalFeatureExtractor(model, weights);
       solver.configure(model, weights);
       solution = new Solution(model, weights);
       if (learner == null) {
@@ -418,8 +421,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       } else {
         learner.configure(model, weights);
       }
-      collector.configure(model,weights);
-      instances = new TrainingInstances();
+      collector.configure(model, weights);
+      //instances = new TrainingInstances();
       modelUpdated = false;
     }
 
@@ -433,22 +436,23 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         UserPredicate predicate = (UserPredicate) signature.getPredicate(parserPrint.name.tail.head);
         out.print(guess.getGroundAtomsOf(predicate));
       }
-    }
-    else if ("scores".equals(parserPrint.name.head)){
+    } else if ("scores".equals(parserPrint.name.head)) {
       out.print(scores);
-    }
-    else if ("weights".equals(parserPrint.name.head)){
+    } else if ("weights".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
         weights.save(out);
       else {
         WeightFunction function = (WeightFunction) signature.getFunction(parserPrint.name.tail.head);
         weights.save(function, out);
       }
-    }
-    else if ("memory".equals(parserPrint.name.head)){
-      out.printf("%-20s%8.3fmb\n","Gold corpus:", corpus.getUsedMemory() / 1024 / 1024.0 );
-      out.printf("%-20s%8.3fmb\n","Weights:", weights.getUsedMemory() / 1024 / 1024.0);
-      out.printf("%-20s%8.3fmb\n","Collector:", collector.getUsedMemory() / 1024 / 1024.0);
+    } else if ("memory".equals(parserPrint.name.head)) {
+      out.printf("%-20s%8.3fmb\n", "Total memory:", Runtime.getRuntime().totalMemory() / 1024 / 1024.0);
+      out.printf("%-20s%8.3fmb\n", "Free memory:", Runtime.getRuntime().freeMemory() / 1024 / 1024.0);
+      out.printf("%-20s%8.3fmb\n", "Gold corpus:", corpus.getUsedMemory() / 1024 / 1024.0);
+      out.printf("%-20s%8.3fmb\n", "Training instances:", instances.getUsedMemory() / 1024 / 1024.0);
+      out.printf("%-20s%8.3fmb\n", "Weights:", weights.getUsedMemory() / 1024 / 1024.0);
+      //out.printf("%-20s%8.3fmb\n", "Collector:", collector.getUsedMemory() / 1024 / 1024.0);
+      //System.
     }
   }
 
@@ -507,12 +511,53 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         for (int i = parserLoadCorpus.from; i < parserLoadCorpus.to; ++i) corpus.add(instance.next());
       }
       iterator = corpus.iterator();
-      listIterator = corpus.listIterator();
-      GroundAtoms first = iterator.next();
-      loadAtoms(first);
+//      listIterator = corpus.listIterator();
+//      GroundAtoms first = iterator.next();
+//      loadAtoms(first);
     }
     out.println("Corpus loaded.");
   }
+
+  public void visitSaveCorpus(ParserSaveCorpus parserSaveCorpus) {
+    update();
+    try {
+      if ("dump".equals(parserSaveCorpus.factory)) {
+        File file = new File(parserSaveCorpus.file);
+        file.delete();
+        if (parserSaveCorpus.from != -1)
+          corpus = new DumpedCorpus(file, corpus, parserSaveCorpus.from, parserSaveCorpus.to, defaultCacheSize);
+        else
+          corpus = new DumpedCorpus(file, corpus, defaultCacheSize);
+        out.println("Corpus dumped to disk (using dumped version now).");
+        iterator = corpus.iterator();
+      } else if ("ram".equals(parserSaveCorpus.factory)) {
+        if (parserSaveCorpus.from != -1) {
+          Iterator<GroundAtoms> instance = corpus.iterator();
+          corpus = new RandomAccessCorpus(signature, parserSaveCorpus.to - parserSaveCorpus.from);
+          for (int i = 0; i < parserSaveCorpus.from; ++i) instance.next();
+          for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to; ++i) corpus.add(instance.next());
+        } else
+          corpus = new RandomAccessCorpus(corpus);
+        out.println("Corpus saved to RAM (using ram version now).");
+        iterator = corpus.iterator();
+      } else if ("instances".equals(parserSaveCorpus.factory)) {
+        File file = new File(parserSaveCorpus.file);
+        file.delete();
+        if (parserSaveCorpus.from != -1) {
+          throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
+        } else
+          instances = new TrainingInstances(file, extractor, iterator, defaultCacheSize,
+                  new DotProgressReporter(out, 5,5,5));
+        out.println("Instances generated.");
+      }
+//      listIterator = corpus.listIterator();
+//      GroundAtoms first = iterator.next();
+//      loadAtoms(first);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 
   public void visitLoadScores(ParserLoadScores parserLoadScores) {
     update();
@@ -580,7 +625,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private void updateFeatures() {
     if (!featuresAvailable) {
-      extractor.extract(guess,features);
+      extractor.extract(guess, features);
       //features.extract(guess);
       featuresAvailable = true;
     }
@@ -603,8 +648,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     update();
     int oldCount = weights.getFeatureCount();
     collector.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
-    collector.collect(corpus);
+    collector.collect(iterator);
+    System.out.println(iterator.hasNext());
+    //collector.collect(corpus);
     out.println("Collected " + (weights.getFeatureCount() - oldCount) + " features.");
+    iterator = corpus.iterator();
 
 
   }
@@ -876,6 +924,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public static interface PropertySetter {
     void set(ParserName name, ParserTerm term);
   }
- 
+
 
 }

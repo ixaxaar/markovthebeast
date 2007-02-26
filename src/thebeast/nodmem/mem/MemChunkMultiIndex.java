@@ -301,6 +301,7 @@ public final class MemChunkMultiIndex {
   }
 
 
+
   public int getCapacity() {
     return capacity;
   }

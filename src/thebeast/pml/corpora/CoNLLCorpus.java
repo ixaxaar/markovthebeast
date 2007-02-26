@@ -263,7 +263,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
   }
 
   public Signature getSignature() {
-    return null;
+    return signature;
   }
 
   public ListIterator<GroundAtoms> listIterator() {

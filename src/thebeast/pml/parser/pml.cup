@@ -15,7 +15,7 @@ parser code {:
 
 terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
-terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE;
 terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
@@ -119,6 +119,14 @@ statement ::= createType:s
             | LOAD CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
+            | SAVE CORPUS TO LOWERCASEID:f STRING:s
+              {: RESULT = new ParserSaveCorpus(f, s.substring(1,s.length()-1)); :}
+            | SAVE CORPUS TO LOWERCASEID:f
+              {: RESULT = new ParserSaveCorpus(f, null); :}
+            | SAVE CORPUS LPAREN NUMBER:f MINUS NUMBER:t RPAREN TO LOWERCASEID:factory STRING:s
+              {: RESULT = new ParserSaveCorpus(factory, s.substring(1,s.length()-1),Integer.valueOf(f), Integer.valueOf(t)); :}
+            | SAVE CORPUS LPAREN NUMBER:f MINUS NUMBER:t RPAREN TO LOWERCASEID:factory
+              {: RESULT = new ParserSaveCorpus(factory, null,Integer.valueOf(f), Integer.valueOf(t)); :}
             | TYPES FROM LOWERCASEID:g STRING:s
               {: RESULT = new ParserGenerateTypes(g, s.substring(1,s.length()-1)); :}
             | TYPES TO STRING:s
@@ -143,6 +151,8 @@ statement ::= createType:s
               {: RESULT = new ParserLearn(Integer.valueOf(i),-1); :}
             | JUMP NUMBER:n
               {: RESULT = new ParserShift(Integer.valueOf(n)); :}
+            | JUMP
+              {: RESULT = new ParserShift(1); :}
             | SET name:p ASSIGN NUMBER:n
               {: RESULT = new ParserSet(p, Integer.valueOf(n)); :}
             | SET name:n ASSIGN TRUE

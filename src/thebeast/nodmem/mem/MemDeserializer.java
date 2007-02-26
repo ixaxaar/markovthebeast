@@ -16,7 +16,6 @@ public class MemDeserializer {
   private DoubleBuffer doubleBuffer;
   private ByteBuffer byteBuffer;
   private boolean initialized = false;
-  private int remaining = 0;
   private int positionInBytes = 0;
 
   public MemDeserializer(ByteChannel channel, ByteBuffer byteBuffer) {

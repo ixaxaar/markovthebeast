@@ -39,8 +39,8 @@ public final class MemChunkIndex {
   }
 
   /**
-   * Adds a mapping from the data in the specified holder at the given pointer and given columns to
-   * the specified value.
+   * Adds a mapping from the data in the specified holder at the given pointer and given columns to the specified
+   * value.
    *
    * @param data     a MemHolder that stores the tuple to map from
    * @param pointer  a pointer to the beginning of the tuple in data.
@@ -283,5 +283,36 @@ public final class MemChunkIndex {
     return index;
   }
 
+
+  public static void deserializeInPlace(MemDeserializer deserializer, MemChunkIndex index) throws IOException {
+    int[] stats = new int[6];
+    index.clear();
+    deserializer.read(stats, 6);
+//    MemChunkIndex index = new MemChunkIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+    int savedSize = stats[0];
+    if (index.capacity < savedSize)
+      index.increaseCapacity(savedSize - index.capacity);
+    index.dim.xInt = stats[1];
+    index.dim.xDouble = stats[2];
+    index.dim.xChunk = stats[3];
+    index.numKeys = stats[4];
+    index.numUsedIndices = stats[5];
+    int[] size = new int[1];
+    for (int i = 0; i < savedSize; ++i) {
+      deserializer.read(size, 1);
+      if (size[0] > 0) {
+        if (index.tuples[i] == null)
+          index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
+        else
+          MemHolder.deserializeInPlace(deserializer, index.dim, index.tuples[i]);
+        if (index.keys[i] == null || index.keys[i].length < size[0])
+          index.keys[i] = new int[size[0]];
+        deserializer.read(index.keys[i], size[0]);
+        if (index.values[i] == null || index.values[i].length < size[0])
+          index.values[i] = new int[size[0]];
+        deserializer.read(index.values[i], size[0]);
+      }
+    }
+  }
 
 }
