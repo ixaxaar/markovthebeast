@@ -1,6 +1,7 @@
 package thebeast.pml;
 
-import thebeast.nod.Dump;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 
 import java.io.*;
 import java.util.Collection;
@@ -178,24 +179,24 @@ public class GroundAtoms {
    * Dump all ground atoms to a Database dump store. This is the fastest and most memory efficient way of storing
    * ground atoms.
    *
-   * @param dump a database dump.
+   * @param fileSink a database dump.
    * @throws java.io.IOException if I/O goes wrong
    */
-  public void write(Dump dump) throws IOException {
+  public void write(FileSink fileSink) throws IOException {
     for (UserPredicate predicate : signature.getUserPredicates()) {
-      atoms.get(predicate).write(dump);
+      atoms.get(predicate).write(fileSink);
     }
   }
 
   /**
    * Loads ground atoms from a database dump.
    *
-   * @param dump the dump to load from.
+   * @param fileSource the dump to load from.
    * @throws java.io.IOException if I/O goes wrong.
    */
-  public void read(Dump dump) throws IOException {
+  public void read(FileSource fileSource) throws IOException {
     for (UserPredicate predicate : signature.getUserPredicates()) {
-      atoms.get(predicate).read(dump);
+      atoms.get(predicate).read(fileSource);
     }
   }
 

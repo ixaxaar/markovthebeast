@@ -1,22 +1,23 @@
 package thebeast.nodmem;
 
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 import thebeast.nod.NoDServer;
-import thebeast.nod.Dump;
-import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.expression.ExpressionFactory;
 import thebeast.nod.identifier.IdentifierFactory;
 import thebeast.nod.identifier.Name;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.statement.StatementFactory;
 import thebeast.nod.type.TypeFactory;
-import thebeast.nod.variable.VariableFactory;
+import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nodmem.expression.MemExpressionFactory;
 import thebeast.nodmem.identifier.MemIdentifierFactory;
 import thebeast.nodmem.identifier.MemName;
 import thebeast.nodmem.statement.MemInterpreter;
 import thebeast.nodmem.statement.MemStatementFactory;
 import thebeast.nodmem.type.MemTypeFactory;
-import thebeast.nodmem.variable.MemVariableFactory;
+
+import java.io.File;
 
 /**
  * @author Sebastian Riedel
@@ -24,7 +25,6 @@ import thebeast.nodmem.variable.MemVariableFactory;
 public class MemNoDServer implements NoDServer {
 
   private MemTypeFactory typeFactory = new MemTypeFactory();
-  private VariableFactory variableFactory = new MemVariableFactory();
   private MemExpressionFactory expressionFactory = new MemExpressionFactory();
   private StatementFactory statementFactory = new MemStatementFactory();
   private IdentifierFactory identifierFactory = new MemIdentifierFactory();
@@ -56,10 +56,13 @@ public class MemNoDServer implements NoDServer {
     return memInterpreter;
   }
 
-  public Dump createDump(String filename, boolean createNew, int bufferSize) {
-    return new MemDump(filename, createNew, bufferSize);
+  public FileSink createSink(File file, int bufferSizeInKb) {
+    return new MemFileSink(file, bufferSizeInKb);
   }
 
+  public FileSource createSource(File file, int bufferSizeInKb) {
+    return new MemFileSource(file, bufferSizeInKb);
+  }
 
   public Name createIdentifier(String identifier) {
     return new MemName(identifier);

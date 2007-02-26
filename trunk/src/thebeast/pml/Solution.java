@@ -167,6 +167,7 @@ public class Solution {
 
   public void load(GroundAtoms groundAtoms) {
     this.groundAtoms.load(groundAtoms);
+    updateGroundFormulas();
     //this.groundFormulas.load(groundFormulas);
   }
 

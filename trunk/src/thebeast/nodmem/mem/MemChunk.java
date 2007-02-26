@@ -24,7 +24,7 @@ public final class MemChunk extends MemHolder {
 
   public MemColumnSelector allCols;
   private static final double MAXLOADFACTOR = 3.0;
-  private static final int INCREMENTSCALE = 1;
+  //private static final int INCREMENTSCALE = 1;
 
   public void copyFrom(MemChunk other) {
     if (other.size > capacity) increaseCapacity(other.size - capacity);
@@ -60,16 +60,42 @@ public final class MemChunk extends MemHolder {
     return result;
   }
 
-  public static void serialize(MemChunk chunk, MemSerializer serializer) throws IOException {
-    serializer.writeInts(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols, chunk.rowIndexedSoFar);
+  public static void deserializeInPlace(MemDeserializer deserializer, MemChunk dst) throws IOException {
+    int[] dims = new int[4];
+    deserializer.read(dims, 4);
+    MemDim dim = new MemDim(dims[0], dims[1], dims[2]);
+    MemHolder.deserializeInPlace(deserializer, dim, dst);
+    dst.rowIndexedSoFar = dims[3];
+    int[] buffer = new int[1];
+    deserializer.read(buffer, 1);
+    if (buffer[0] == 1) {
+      if (dst.rowIndex == null)
+        dst.rowIndex = MemChunkIndex.deserialize(deserializer);
+      else
+        MemChunkIndex.deserializeInPlace(deserializer, dst.rowIndex);
+    }
+    deserializer.read(buffer, 1);
+    if (buffer[0] > 0) {
+      dst.indices = new MemChunkMultiIndex[buffer[0]];
+      for (int i = 0; i < buffer[0]; ++i) {
+        dst.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
+      }
+    }
+  }
+
+
+  public static void serialize(MemChunk chunk, MemSerializer serializer, boolean dumpIndices) throws IOException {
+    MemChunkIndex rowIndex = dumpIndices ? chunk.rowIndex :null;
+    int rowIndexedSoFar = dumpIndices ? chunk.rowIndexedSoFar : 0;
+    serializer.writeInts(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols, rowIndexedSoFar);
     MemHolder.serialize(chunk, serializer, new MemDim(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols));
-    if (chunk.rowIndex != null) {
+    if (rowIndex != null) {
       serializer.writeInts(1);
       MemChunkIndex.serialize(chunk.rowIndex, serializer);
     } else {
       serializer.writeInts(0);
     }
-    if (chunk.indices == null) {
+    if (chunk.indices == null || !dumpIndices) {
       serializer.writeInts(0);
     } else {
       serializer.writeInts(chunk.indices.length);
@@ -77,6 +103,10 @@ public final class MemChunk extends MemHolder {
         MemChunkMultiIndex.serialize(index, serializer);
       }
     }
+  }
+
+  public int getOverhead() {
+    return capacity - size;
   }
 
   public enum DataType {
@@ -138,6 +168,11 @@ public final class MemChunk extends MemHolder {
     rowIndex.increaseCapacity(howMuch);
     allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
+
+  public void compactify(){
+    super.compactify(new MemDim(numIntCols,numDoubleCols, numChunkCols));
+  }
+
 
   public void buildRowIndex() {
     if (rowIndex == null)
@@ -395,8 +430,8 @@ public final class MemChunk extends MemHolder {
   }
 
   /**
-   * Writes this chunk + indices to the given channel and using the given byte buffer for converting
-   * ints and doubles to bytes (this allows fast transfer of byte arrays).
+   * Writes this chunk + indices to the given channel and using the given byte buffer for converting ints and doubles to
+   * bytes (this allows fast transfer of byte arrays).
    *
    * @param channel    the channel to write to.
    * @param byteBuffer the bytebuffer to use as buffer for converting rows into bytes.

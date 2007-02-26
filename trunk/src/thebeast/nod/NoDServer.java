@@ -2,13 +2,13 @@ package thebeast.nod;
 
 import thebeast.nod.statement.StatementFactory;
 import thebeast.nod.statement.Interpreter;
-import thebeast.nod.variable.VariableFactory;
 import thebeast.nod.type.TypeFactory;
 import thebeast.nod.expression.ExpressionFactory;
 import thebeast.nod.identifier.IdentifierFactory;
 import thebeast.nod.util.ExpressionBuilder;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * @author Sebastian Riedel
@@ -51,6 +51,8 @@ public interface NoDServer {
    */
   Interpreter interpreter();
 
-  Dump createDump(String filename, boolean createNew, int bufferSizeInKb);
+  FileSink createSink(File file, int bufferSizeInKb);  
+  FileSource createSource(File file, int bufferSizeInKb);
+
 
 }

@@ -9,7 +9,8 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.DoubleVariable;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.Dump;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 
 import java.util.LinkedList;
 import java.io.IOException;
@@ -108,11 +109,11 @@ public class SparseVector {
     return values.value().toString();
   }
 
-  public void write(Dump dump) throws IOException {
-    dump.write(values);
+  public void write(FileSink fileSink) throws IOException {
+    fileSink.write(values);
   }
 
-  public void read(Dump dump) throws IOException {
-    dump.read(values);
+  public void read(FileSource fileSource) throws IOException {
+    fileSource.read(values);
   }
 }

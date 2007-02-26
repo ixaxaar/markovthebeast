@@ -7,7 +7,8 @@ import thebeast.nod.variable.BoolVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.Index;
 import thebeast.nod.type.Attribute;
-import thebeast.nod.Dump;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 import thebeast.pml.term.Constant;
 
 import java.io.ByteArrayInputStream;
@@ -195,20 +196,20 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
   /**
    * Dumps these ground atoms to the database dump.
    *
-   * @param dump a database dump store.
+   * @param fileSink a database dump store.
    * @throws java.io.IOException if I/O goes wrong.
    */
-  public void write(Dump dump) throws IOException {
-    dump.write(relation);
+  public void write(FileSink fileSink) throws IOException {
+    fileSink.write(relation);
   }
 
   /**
    * Read ground atoms from a database dump store.
    *
-   * @param dump the store to load from.
+   * @param fileSource the store to load from.
    * @throws IOException if I/O goes wring.
    */
-  public void read(Dump dump) throws IOException {
-    dump.read(relation);
+  public void read(FileSource fileSource) throws IOException {
+    fileSource.read(relation);
   }
 }

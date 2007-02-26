@@ -47,4 +47,6 @@ public interface ParserStatementVisitor {
   void visitSet(ParserSet parserSet);
 
   void visitClear(ParserClear parserClear);
+
+  void visitSaveCorpus(ParserSaveCorpus parserSaveCorpus);
 }

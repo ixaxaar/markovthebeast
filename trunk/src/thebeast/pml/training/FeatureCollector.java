@@ -18,6 +18,7 @@ import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * @author Sebastian Riedel
@@ -75,18 +76,22 @@ public class FeatureCollector {
 
   }
 
+  public void collect(Corpus corpus){
+    collect(corpus.iterator());
+  }
+
   /**
    * Collects a set of weight function arguments which later learners
    * then can learn the weights for.
    *
    * @param corpus  the corpus to collect the features arguments from
    */
-  public void collect(Corpus corpus) {
+  public void collect(Iterator<GroundAtoms> corpus) {
 
     progressReporter.started();
 
-    for (GroundAtoms atoms : corpus){
-      this.atoms.load(atoms);
+    while (corpus.hasNext()) {
+      this.atoms.load(corpus.next());
       for (FactorFormula factor : inserts.keySet()){
         interpreter.interpret(inserts.get(factor));
         //System.out.println("in collector:" + weights.getRelation(factor.getWeightFunction()).value());

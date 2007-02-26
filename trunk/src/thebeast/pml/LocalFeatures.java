@@ -3,7 +3,8 @@ package thebeast.pml;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.Dump;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 
 import java.util.HashMap;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class LocalFeatures {
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
     }
-
+    
   }
 
   /**
@@ -107,24 +108,24 @@ public class LocalFeatures {
   /**
    * Write this set of features to a database dump.
    *
-   * @param dump the dump to write to.
+   * @param fileSink the dump to write to.
    * @throws java.io.IOException if I/O goes wrong.
    */
-  public void write(Dump dump) throws IOException {
+  public void write(FileSink fileSink) throws IOException {
     for (RelationVariable var : features.values()) {
-      dump.write(var);
+      fileSink.write(var);
     }
   }
 
   /**
    * Reads features from a database dump.
    *
-   * @param dump the dump to load from.
+   * @param fileSource the dump to load from.
    * @throws IOException if I/O goes wrong.
    */
-  public void read(Dump dump) throws IOException {
+  public void read(FileSource fileSource) throws IOException {
     for (RelationVariable var : features.values()) {
-      dump.read(var);
+      fileSource.read(var);
     }
   }
 

@@ -53,9 +53,10 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "learn" { return symbol(sym.LEARN); }
 <YYINITIAL> "epochs" { return symbol(sym.EPOCHS); }
 <YYINITIAL> "load" { return symbol(sym.LOAD); }
+<YYINITIAL> "save" { return symbol(sym.SAVE); }
 <YYINITIAL> "collect" { return symbol(sym.COLLECT); }
 <YYINITIAL> "if" { return symbol(sym.IF); }
-<YYINITIAL> "jump" { return symbol(sym.JUMP); }
+<YYINITIAL> "next" { return symbol(sym.JUMP); }
 <YYINITIAL> "_" { return symbol(sym.UNDERSCORE); }
 <YYINITIAL> "^-1" { return symbol(sym.INVERT); }
 <YYINITIAL> ";" { return symbol(sym.SEMI); }

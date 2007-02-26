@@ -10,8 +10,11 @@ observed: word, pos, cpos, prefix;
 
 include "mst.pml";
 
-load corpus from conll06 "corpora/english_ptb_train.1of2.conll" (0 - 5000);
-                                                               
+load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
+save corpus (0-100) to dump "/tmp/test.dmp";
+collect;
+save corpus to instances "/tmp/instances.dmp";
+
 //scores from "example.scores";
                                                              
 //collect;
