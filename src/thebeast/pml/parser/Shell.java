@@ -43,6 +43,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private HashMap<String, CorpusFactory> corpusFactories = new HashMap<String, CorpusFactory>();
   private HashMap<String, TypeGenerator> typeGenerators = new HashMap<String, TypeGenerator>();
+  private HashMap<String, PropertySetter> propertySetters = new HashMap<String, PropertySetter>();
 
   private GroundAtoms guess, gold;
   private Corpus guessCorpus, corpus;
@@ -54,6 +55,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private Weights weights;
   private Solution solution;
   private OnlineLearner learner;
+  private LocalFeatureExtractor extractor;
   private LocalFeatures features;
   private TrainingInstances instances;
 
@@ -408,6 +410,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       weights = signature.createWeights();
       scores = new Scores(model, weights);
       features = new LocalFeatures(model, weights);
+      extractor = new LocalFeatureExtractor(model,weights);
       solver.configure(model, weights);
       solution = new Solution(model, weights);
       if (learner == null) {
@@ -577,7 +580,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private void updateFeatures() {
     if (!featuresAvailable) {
-      features.extract(guess);
+      extractor.extract(guess,features);
+      //features.extract(guess);
       featuresAvailable = true;
     }
   }
@@ -869,5 +873,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerTypeGenerator("conll06", CoNLLCorpus.CONLL_06_GENERATOR);
   }
 
+  public static interface PropertySetter {
+    void set(ParserName name, ParserTerm term);
+  }
+ 
 
 }

@@ -16,6 +16,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Solution solution;
   private Scores scores;
   private LocalFeatures features;
+  private LocalFeatureExtractor extractor;
   private Evaluation evaluation;
   private UpdateRule updateRule;
   private SparseVector guess;
@@ -112,7 +113,8 @@ public class OnlineLearner implements Learner, HasProperties {
     instance.load(data);
 
     //either load the feature vector or extract it
-    features.extract(instance);
+    extractor.extract(instance, features);
+    //features.extract(instance);
 
     //System.out.println(features);
 
@@ -151,6 +153,7 @@ public class OnlineLearner implements Learner, HasProperties {
     solution = new Solution(model, weights);
     scores = new Scores(model, weights);
     features = new LocalFeatures(model, weights);
+    extractor = new LocalFeatureExtractor(model,weights);
     evaluation = new Evaluation(model);
     updateRule = new PerceptronUpdateRule();
     guess = new SparseVector();

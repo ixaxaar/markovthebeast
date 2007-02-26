@@ -3,6 +3,7 @@ package thebeast.nodmem.statement;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.variable.Index;
 import thebeast.nodmem.variable.MemHashIndex;
+import thebeast.nodmem.mem.MemChunk;
 
 import java.util.*;
 
@@ -74,16 +75,19 @@ public class IndexInformation {
   }
 
 
-  public List<Attribute> getAttributesForIndexID(int indexID) {
-    return null;
+  public void updateIndicesFromChunk(MemChunk chunk){
+    for (Map.Entry<Index,Integer> entry : index2nr.entrySet()){
+      ((MemHashIndex)entry.getKey()).useChunk(chunk, entry.getValue());
+    }
+  }
+
+  public void updateAll(){
+    for (Index index : name2index.values())
+      ((MemHashIndex)index).update();
   }
 
   public int getIndexCount() {
     return name2index.size();
-  }
-
-  public IndexInformation getSubRelationInformation(Attribute attribute) {
-    return null;
   }
 
   public void invalidateIndices() {

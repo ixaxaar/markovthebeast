@@ -52,6 +52,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "greedy" { return symbol(sym.GREEDY); }
 <YYINITIAL> "learn" { return symbol(sym.LEARN); }
 <YYINITIAL> "epochs" { return symbol(sym.EPOCHS); }
+<YYINITIAL> "load" { return symbol(sym.LOAD); }
 <YYINITIAL> "collect" { return symbol(sym.COLLECT); }
 <YYINITIAL> "if" { return symbol(sym.IF); }
 <YYINITIAL> "jump" { return symbol(sym.JUMP); }

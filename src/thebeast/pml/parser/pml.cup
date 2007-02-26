@@ -15,7 +15,7 @@ parser code {:
 
 terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
-terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD;
 terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
@@ -109,14 +109,14 @@ statement ::= createType:s
               {: RESULT = new ParserLoadScores(s.substring(1,s.length()-1)); :}
             | WEIGHTS FROM STRING:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
-            | CORPUS FROM STRING:s
+            | LOAD CORPUS FROM STRING:s
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1)); :}
-            | CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
+            | LOAD CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
-            | CORPUS FROM LOWERCASEID:f STRING:s
+            | LOAD CORPUS FROM LOWERCASEID:f STRING:s
               {: RESULT = new ParserLoadCorpus(f, s.substring(1,s.length()-1)); :}
-            | CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
+            | LOAD CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
             | TYPES FROM LOWERCASEID:g STRING:s

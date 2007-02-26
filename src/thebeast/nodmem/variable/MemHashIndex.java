@@ -42,6 +42,11 @@ public class MemHashIndex implements Index {
     indexedSoFar = 0;
   }
 
+  public void useChunk(MemChunk chunk, int indexNr){
+    memIndex = chunk.indices[indexNr];
+    this.chunk = chunk;
+    indexedSoFar = chunk.size;
+  }
 
   public MemColumnSelector getCols() {
     return cols;
@@ -71,17 +76,6 @@ public class MemHashIndex implements Index {
   public void update() {
     if (indexedSoFar == chunk.size) return;
 
-    int numUsedIndices = memIndex.getNumUsedIndices();
-    int numUsedKeys = memIndex.getNumKeys();
-    int numNewRows = chunk.size - indexedSoFar;
-//    double expectedLoadFactor = numUsedIndices == 0 ? Double.POSITIVE_INFINITY  :
-//            numUsedKeys + numNewRows / (double) numUsedIndices;
-//    if (expectedLoadFactor > maxLoadFactor){
-//      int increase = (int) Math.ceil((numUsedKeys + numNewRows)/maxLoadFactor - numUsedIndices);
-//      System.out.println("memIndex.getCapacity() = " + memIndex.getCapacity());
-//      System.out.println("increase = " + increase);
-//      memIndex.increaseCapacity(increase);
-//    }
     if (memIndex.getCapacity() == 0){
       memIndex.increaseCapacity(initialCapacity(chunk.size));
     }

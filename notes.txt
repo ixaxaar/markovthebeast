@@ -1,0 +1,24 @@
+
+
+load corpus from conll06 "asdasd";
+save corpus (1-100) to ram;
+save corpus (1-100) to dump "dump.txt" (100);
+save corpus (1-100) to text "text.txt";
+
+corpus from dump "dump.txt";
+
+set guess = load("asdasd");
+set guess = greedy();
+set scores = score();
+set scores = load("scores");
+
+Dump dump = server.createDump("/tmp/dmp");
+
+dump.save(var1);
+dump.save(var2);
+dump.close();
+dump.load(var);
+
+groundatoms:
+dump.save(count);
+dump.save(relation);

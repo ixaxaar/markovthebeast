@@ -7,6 +7,7 @@ import thebeast.nod.variable.BoolVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.Index;
 import thebeast.nod.type.Attribute;
+import thebeast.nod.Dump;
 import thebeast.pml.term.Constant;
 
 import java.io.ByteArrayInputStream;
@@ -183,9 +184,31 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
 
   /**
    * Returns the (approximate) size of this collection in bytes.
+   *
    * @return the size in bytes.
    */
   public int getUsedMemory() {
     return relation.byteSize();
+  }
+
+
+  /**
+   * Dumps these ground atoms to the database dump.
+   *
+   * @param dump a database dump store.
+   * @throws java.io.IOException if I/O goes wrong.
+   */
+  public void write(Dump dump) throws IOException {
+    dump.write(relation);
+  }
+
+  /**
+   * Read ground atoms from a database dump store.
+   *
+   * @param dump the store to load from.
+   * @throws IOException if I/O goes wring.
+   */
+  public void read(Dump dump) throws IOException {
+    dump.read(relation);
   }
 }

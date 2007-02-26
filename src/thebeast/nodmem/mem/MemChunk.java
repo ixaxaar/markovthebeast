@@ -34,6 +34,51 @@ public final class MemChunk extends MemHolder {
     size = other.size;
   }
 
+  public void serialize(MemSerializer serializer) {
+
+  }
+
+  public static MemChunk deserialize(MemDeserializer deserializer) throws IOException {
+    int[] dims = new int[4];
+    deserializer.read(dims, 4);
+    MemDim dim = new MemDim(dims[0], dims[1], dims[2]);
+    MemHolder holder = MemHolder.deserialize(deserializer, dim);
+    MemChunk result = new MemChunk(holder.size, holder.intData, holder.doubleData, holder.chunkData);
+    result.rowIndexedSoFar = dims[3];
+    int[] buffer = new int[1];
+    deserializer.read(buffer, 1);
+    if (buffer[0] == 1) {
+      result.rowIndex = MemChunkIndex.deserialize(deserializer);
+    }
+    deserializer.read(buffer, 1);
+    if (buffer[0] > 0) {
+      result.indices = new MemChunkMultiIndex[buffer[0]];
+      for (int i = 0; i < buffer[0]; ++i) {
+        result.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
+      }
+    }
+    return result;
+  }
+
+  public static void serialize(MemChunk chunk, MemSerializer serializer) throws IOException {
+    serializer.writeInts(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols, chunk.rowIndexedSoFar);
+    MemHolder.serialize(chunk, serializer, new MemDim(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols));
+    if (chunk.rowIndex != null) {
+      serializer.writeInts(1);
+      MemChunkIndex.serialize(chunk.rowIndex, serializer);
+    } else {
+      serializer.writeInts(0);
+    }
+    if (chunk.indices == null) {
+      serializer.writeInts(0);
+    } else {
+      serializer.writeInts(chunk.indices.length);
+      for (MemChunkMultiIndex index : chunk.indices) {
+        MemChunkMultiIndex.serialize(index, serializer);
+      }
+    }
+  }
+
   public enum DataType {
     INT, DOUBLE, CHUNK
   }
@@ -54,9 +99,9 @@ public final class MemChunk extends MemHolder {
   public MemChunk(int size, int[] intData, double[] doubleData, MemChunk[] chunkData) {
     this.size = size;
     this.capacity = size;
-    this.numIntCols = intData.length / size;
-    this.numDoubleCols = doubleData.length / size;
-    this.numChunkCols = chunkData.length / size;
+    this.numIntCols = intData == null ? 0 : intData.length / size;
+    this.numDoubleCols = doubleData == null ? 0 : doubleData.length / size;
+    this.numChunkCols = chunkData == null ? 0 : chunkData.length / size;
     this.intData = intData;
     this.doubleData = doubleData;
     this.chunkData = chunkData;
@@ -308,7 +353,7 @@ public final class MemChunk extends MemHolder {
   }
 
   public int byteSize() {
-    int size = 5 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE; //all other junk
+    int size = 5 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE;
     size += super.byteSize();
     if (rowIndex != null) {
       size += rowIndex.byteSize();
@@ -338,7 +383,7 @@ public final class MemChunk extends MemHolder {
     }
     int chunkLength = size * numChunkCols;
     for (int i = 0; i < chunkLength; ++i) {
-      if (chunkData[i] != null) chunkData[i].serialize(channel);
+      if (chunkData[i] != null) chunkData[i].serialize(channel, byteBuffer);
     }
 
     //save indices
@@ -349,7 +394,45 @@ public final class MemChunk extends MemHolder {
     chunkData = null;
   }
 
-  private void serialize(WritableByteChannel channel) {
+  /**
+   * Writes this chunk + indices to the given channel and using the given byte buffer for converting
+   * ints and doubles to bytes (this allows fast transfer of byte arrays).
+   *
+   * @param channel    the channel to write to.
+   * @param byteBuffer the bytebuffer to use as buffer for converting rows into bytes.
+   * @throws IOException if I/O goes wrong.
+   */
+  public void serialize(WritableByteChannel channel, ByteBuffer byteBuffer) throws IOException {
+    int byteSize = byteBuffer.capacity();
+    int intSize = byteSize / INTSIZE;
+    int doubleSize = byteSize / DOUBLESIZE;
+    //ByteBuffer byteBuffer = ByteBuffer.allocate(byteSize);
+    IntBuffer intBuffer = byteBuffer.asIntBuffer();
+
+    //write the size and column sizes
+    intBuffer.put(size);
+    intBuffer.put(numIntCols);
+    intBuffer.put(numDoubleCols);
+    intBuffer.put(numChunkCols);
+    channel.write(byteBuffer);
+
+    int intLength = size * numIntCols;
+    for (int i = 0; i < intLength; i += intSize) {
+      intBuffer.put(intData, i, i + intSize > intLength ? intLength - i : intSize);
+      channel.write(byteBuffer);
+    }
+    DoubleBuffer doubleBuffer = byteBuffer.asDoubleBuffer();
+    int doubleLength = size * numDoubleCols;
+    for (int i = 0; i < doubleLength; i += doubleSize) {
+      doubleBuffer.put(doubleData, i, i + doubleSize > doubleLength ? doubleLength - i : doubleSize);
+      channel.write(byteBuffer);
+    }
+    int chunkLength = size * numChunkCols;
+    for (int i = 0; i < chunkLength; ++i) {
+      if (chunkData[i] != null) chunkData[i].serialize(channel, byteBuffer);
+    }
+
+    //save indices
 
   }
 

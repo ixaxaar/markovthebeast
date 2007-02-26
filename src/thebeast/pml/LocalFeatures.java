@@ -1,77 +1,54 @@
 package thebeast.pml;
 
-import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.variable.Index;
-import thebeast.nod.expression.RelationExpression;
-import thebeast.nod.expression.DepthFirstExpressionVisitor;
-import thebeast.nod.expression.AttributeExpression;
 import thebeast.nod.statement.Interpreter;
-import thebeast.pml.formula.QueryGenerator;
-import thebeast.pml.formula.FactorFormula;
-import thebeast.pml.formula.PredicateAtom;
-import thebeast.pml.function.WeightFunction;
-import thebeast.util.HashMultiMap;
+import thebeast.nod.variable.Index;
+import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.Dump;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 08-Feb-2007 Time: 21:00:32
+ * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used
+ * to represent all active features for all possible ground atoms (and thus for scoring the
+ * ground atom).
  */
 public class LocalFeatures {
 
   private HashMap<UserPredicate, RelationVariable> features = new HashMap<UserPredicate, RelationVariable>();
-  private HashMultiMap<UserPredicate, RelationExpression>
-          queries = new HashMultiMap<UserPredicate, RelationExpression>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private Model model;
   private Weights weights;
 
-  private GroundAtoms atoms;
-
   public LocalFeatures(Model model, Weights weights) {
-    atoms = model.getSignature().createGroundAtoms();
     this.weights = weights;
     this.model = model;
-    QueryGenerator generator = new QueryGenerator(weights, atoms);
     for (UserPredicate pred : model.getHiddenPredicates()) {
       RelationVariable var = interpreter.createRelationVariable(pred.getHeadingForFeatures());
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
     }
-    for (FactorFormula formula : model.getLocalFactorFormulas()) {
-      RelationExpression query = generator.generateLocalQuery(formula, atoms, weights);
-      queries.add((UserPredicate) ((PredicateAtom) formula.getFormula()).getPredicate(), query);
-      WeightFunction weightFunction = formula.getWeightFunction();
-      RelationVariable relvar = weights.getRelation(weightFunction);
-      if (relvar.getIndex(weightFunction.getName()) == null) {
-        final HashSet<String> bound = new HashSet<String>();
-        query.acceptExpressionVisitor(new DepthFirstExpressionVisitor() {
-          public void visitAttribute(AttributeExpression attribute) {
-            if (attribute.prefix().equals("weights"))
-              bound.add(attribute.attribute().name());
-          }
-        });
-        interpreter.addIndex(relvar, weightFunction.getName(), Index.Type.HASH, bound);
-      }
-    }
 
   }
 
+  /**
+   * Loads a features from another set of features.
+   *
+   * @param localFeatures the features to load from.
+   */
   public void load(LocalFeatures localFeatures) {
     for (UserPredicate pred : features.keySet()) {
       interpreter.assign(features.get(pred), localFeatures.features.get(pred));
     }
   }
 
-  public void extract(GroundAtoms groundAtoms) {
-    atoms.load(groundAtoms);
-    for (UserPredicate pred : queries.keySet())
-      for (RelationExpression expression : queries.get(pred)) {
-        interpreter.insert(features.get(pred), expression);
-      }
-  }
 
+  /**
+   * Copies a set of local features. Copying is based on the underlying database engine, which might
+   * use a shallow mechanism until any of objects is changed.
+   *
+   * @return a copy of this object.
+   */
   public LocalFeatures copy() {
     LocalFeatures result = new LocalFeatures(model, weights);
     result.load(this);
@@ -93,14 +70,69 @@ public class LocalFeatures {
     return args;
   }
 
+  /**
+   * Do we have for a given ground atom a feature with the given index.
+   *
+   * @param predicate    the predicate
+   * @param featureIndex the index
+   * @param terms        the ground atom arguments
+   * @return true iff this object contains a mapping from the given ground atom to the given feature index.
+   */
   public boolean containsFeature(UserPredicate predicate, int featureIndex, Object... terms) {
     return features.get(predicate).contains(toTuple(featureIndex, terms));
   }
 
+  /**
+   * Gets the table that stores the feature indices for all ground atoms of a given predicate.
+   *
+   * @param pred the predicate
+   * @return the relvar that stores its feature indices.
+   */
   public RelationVariable getRelation(UserPredicate pred) {
     return features.get(pred);
   }
 
+  /**
+   * Calculates a rough estimate of how much memory this object uses.
+   *
+   * @return approx. memory used in bytes.
+   */
+  public int getMemoryUsage() {
+    int size = 0;
+    for (RelationVariable var : features.values())
+      size += var.byteSize();
+    return size;
+  }
+
+  /**
+   * Write this set of features to a database dump.
+   *
+   * @param dump the dump to write to.
+   * @throws java.io.IOException if I/O goes wrong.
+   */
+  public void write(Dump dump) throws IOException {
+    for (RelationVariable var : features.values()) {
+      dump.write(var);
+    }
+  }
+
+  /**
+   * Reads features from a database dump.
+   *
+   * @param dump the dump to load from.
+   * @throws IOException if I/O goes wrong.
+   */
+  public void read(Dump dump) throws IOException {
+    for (RelationVariable var : features.values()) {
+      dump.read(var);
+    }
+  }
+
+  /**
+   * Creates a column-based string representation of all features
+   *
+   * @return all features of all hidden predicates in column format.
+   */
   public String toString() {
     StringBuffer result = new StringBuffer();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
@@ -110,5 +142,6 @@ public class LocalFeatures {
     }
     return result.toString();
   }
+
 
 }

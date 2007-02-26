@@ -1,5 +1,7 @@
 package thebeast.nodmem.mem;
 
+import java.io.IOException;
+
 /**
  * This index maps from row data to row numbers.
  *
@@ -17,7 +19,12 @@ public final class MemChunkIndex {
   private static int CAPACITY_INCREMENTS = 2;
 
 
-
+  /**
+   * Creates a new memchunk index for tuples of the given dimension.
+   *
+   * @param capacity the initial capacity of the index.
+   * @param dim      the dimensions of the key-tuples.
+   */
   public MemChunkIndex(int capacity, MemDim dim) {
     tuples = new MemHolder[capacity];
     keys = new int[capacity][];
@@ -26,7 +33,23 @@ public final class MemChunkIndex {
     this.dim = dim;
   }
 
-  public int put(MemHolder data, MemVector pointer, MemColumnSelector cols, int row, boolean override) {
+  public int put(int[] ints, double[] doubles, MemChunk[] chunks, int value, boolean overide) {
+    return put(new MemHolder(1, 1, ints, doubles, chunks),
+            MemVector.ZERO, new MemColumnSelector(ints.length, doubles.length, chunks.length), value, overide);
+  }
+
+  /**
+   * Adds a mapping from the data in the specified holder at the given pointer and given columns to
+   * the specified value.
+   *
+   * @param data     a MemHolder that stores the tuple to map from
+   * @param pointer  a pointer to the beginning of the tuple in data.
+   * @param cols     the columns to use of the specified tuple.
+   * @param value    the value to put.
+   * @param override should we override existing values
+   * @return the old value for the given tuple or -1 if there was no old value.
+   */
+  public int put(MemHolder data, MemVector pointer, MemColumnSelector cols, int value, boolean override) {
     //calculate key
     int key = 17;
     for (int col : cols.intCols)
@@ -67,7 +90,7 @@ public final class MemChunkIndex {
             break check;
         //they are equal, let's just set the new value
         int old = valuesAtIndex[item];
-        if (override) valuesAtIndex[item] = row;
+        if (override) valuesAtIndex[item] = value;
         return old;
       }
       p.xInt += dim.xInt;
@@ -77,7 +100,7 @@ public final class MemChunkIndex {
     //if we have arrived here the key-value pair has not yet been put
     //check if we need to increase the capacity
     if (length == tuplesAtIndex.capacity) {
-      tuplesAtIndex.increaseCapacity(CAPACITY_INCREMENTS,dim);
+      tuplesAtIndex.increaseCapacity(CAPACITY_INCREMENTS, dim);
       int[] newValuesAtIndex = new int[length + CAPACITY_INCREMENTS];
       System.arraycopy(valuesAtIndex, 0, newValuesAtIndex, 0, length);
       valuesAtIndex = newValuesAtIndex;
@@ -95,13 +118,18 @@ public final class MemChunkIndex {
     for (int i = 0; i < cols.chunkCols.length; ++i)
       tuplesAtIndex.chunkData[p.xChunk + i] = data.chunkData[pointer.xChunk + cols.chunkCols[i]];
     ++tuplesAtIndex.size;
-    valuesAtIndex[length] = row;
+    valuesAtIndex[length] = value;
     keysAtIndex[length] = key;
     ++numKeys;
     return -1;
   }
 
-  public int get(MemChunk data, MemVector pointer, MemColumnSelector cols) {
+  public int get(int[] ints, double[] doubles, MemChunk[] chunks) {
+    return get(new MemHolder(1, 1, ints, doubles, chunks), MemVector.ZERO,
+            new MemColumnSelector(ints.length, doubles.length, chunks.length));
+  }
+
+  public int get(MemHolder data, MemVector pointer, MemColumnSelector cols) {
     if (capacity == 0) return -1;
     int key = 17;
     for (int col : cols.intCols)
@@ -216,4 +244,44 @@ public final class MemChunkIndex {
       }
     return size;
   }
+
+  public static void serialize(MemChunkIndex index, MemSerializer serializer) throws IOException {
+    serializer.writeInts(index.capacity, index.dim.xInt, index.dim.xDouble,
+            index.dim.xChunk, index.numKeys, index.numUsedIndices);
+    for (int i = 0; i < index.capacity; ++i) {
+      if (index.tuples[i] == null) {
+        serializer.writeInts(0);
+      } else {
+        int size = index.tuples[i].size;
+        serializer.writeInts(size);
+        if (size > 0) {
+          MemHolder.serialize(index.tuples[i], serializer, index.dim);
+          serializer.writeInts(index.keys[i], size);
+          serializer.writeInts(index.values[i], size);
+        }
+      }
+    }
+  }
+
+  public static MemChunkIndex deserialize(MemDeserializer deserializer) throws IOException {
+    int[] stats = new int[6];
+    deserializer.read(stats, 6);
+    MemChunkIndex index = new MemChunkIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+    index.numKeys = stats[4];
+    index.numUsedIndices = stats[5];
+    int[] size = new int[1];
+    for (int i = 0; i < index.capacity; ++i) {
+      deserializer.read(size, 1);
+      if (size[0] > 0) {
+        index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
+        index.keys[i] = new int[size[0]];
+        deserializer.read(index.keys[i], size[0]);
+        index.values[i] = new int[size[0]];
+        deserializer.read(index.values[i], size[0]);
+      }
+    }
+    return index;
+  }
+
+
 }

@@ -35,7 +35,7 @@ public class SequentialAccessCorpus extends LinkedList<GroundAtoms> implements C
   public int getUsedMemory() {
     int bytesize = 0;
     for (GroundAtoms atoms : this)
-      bytesize += atoms.getUsedMemory();
+      bytesize += atoms.getMemoryUsage();
     return bytesize;
   }
 

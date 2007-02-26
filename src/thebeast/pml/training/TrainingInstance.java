@@ -31,4 +31,8 @@ public class TrainingInstance {
   public SparseVector getGold() {
     return gold;
   }
+
+  public int getMemoryUsage(){
+    return data.getMemoryUsage() + features.getMemoryUsage() + gold.getMemoryUsage();
+  }
 }
