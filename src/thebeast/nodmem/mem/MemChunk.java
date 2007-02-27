@@ -80,6 +80,10 @@ public final class MemChunk extends MemHolder {
       for (int i = 0; i < buffer[0]; ++i) {
         dst.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
       }
+    } else {
+      if (dst.indices != null)
+        for (MemChunkMultiIndex index : dst.indices)
+          index.clear();
     }
   }
 

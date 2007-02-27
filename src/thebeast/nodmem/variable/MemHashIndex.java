@@ -45,7 +45,8 @@ public class MemHashIndex implements Index {
   public void useChunk(MemChunk chunk, int indexNr){
     memIndex = chunk.indices[indexNr];
     this.chunk = chunk;
-    indexedSoFar = chunk.size;
+    //we assume that if there are any keys we have fully indexed the table.
+    indexedSoFar = memIndex.getNumKeys() > 0 ? chunk.size : 0;
   }
 
   public MemColumnSelector getCols() {

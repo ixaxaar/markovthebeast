@@ -9,7 +9,6 @@ import thebeast.pml.Weights;
  */
 public interface UpdateRule {
   public void endEpoch();
-
   public void update(SparseVector gold, SparseVector guess, Evaluation evaluation, Weights weights);
 }
 

@@ -68,16 +68,25 @@ public class TestFileDumping extends TestCase {
     file.delete();
     FileSink fileSink = server.createSink(file, 1024);
     FileSource fileSource = server.createSource(file, 1024);
-    fileSink.write(var);
+    fileSink.write(var, true);
+    fileSink.write(var, false);
     fileSink.flush();
+    
     interpreter.clear(var);
     interpreter.assign(result,query);
     assertFalse(result.contains(2.0,5.0));
+
+    fileSource.read(var);
+    interpreter.assign(result,query);
+    assertEquals(12, result.value().size());
+    assertTrue(result.contains(2.0,5.0));
+    
     fileSource.read(var);
     interpreter.assign(result,query);
     assertEquals(12, result.value().size());
     assertTrue(result.contains(2.0,5.0));
     file.delete();
+    
 
     
   }

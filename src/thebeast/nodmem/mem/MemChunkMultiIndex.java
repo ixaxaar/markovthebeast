@@ -128,12 +128,12 @@ public final class MemChunkMultiIndex {
     listsAtIndex[length][listSizesAtIndex[length]++] = row;
     keysAtIndex[length] = key;
     ++numKeys;
-    return -CAP_INCREASE_LIST;
+    return -1;
   }
 
   public int get(int[] ints, double[] doubles, MemChunk[] chunks, int targetCell, int[][] listHolder) {
     return get(new MemHolder(1, 1, ints, doubles, chunks), MemVector.ZERO,
-            new MemColumnSelector(ints.length, doubles.length, chunks.length),targetCell, listHolder);
+            new MemColumnSelector(ints.length, doubles.length, chunks.length), targetCell, listHolder);
   }
 
 
@@ -177,8 +177,15 @@ public final class MemChunkMultiIndex {
   public void clear() {
     numKeys = 0;
     numUsedIndices = 0;
+    int i = 0;
     for (MemHolder tuple : tuples) {
-      if (tuple != null) tuple.size = 0;
+      if (tuple != null) {
+        tuple.size = 0;
+        for (int j = 0; j < listSizes[i].length; ++j)
+          listSizes[i][j] = 0;
+
+      }
+      ++i;
     }
   }
 
@@ -265,8 +272,8 @@ public final class MemChunkMultiIndex {
         serializer.writeInts(size);
         MemHolder.serialize(index.tuples[i], serializer, index.dim);
         serializer.writeInts(index.keys[i], size);
-        serializer.writeInts(index.listSizes[i],size);
-        for (int j = 0; j < size;++j){
+        serializer.writeInts(index.listSizes[i], size);
+        for (int j = 0; j < size; ++j) {
           serializer.writeInts(index.lists[i][j], index.listSizes[i][j]);
         }
       }
@@ -276,14 +283,14 @@ public final class MemChunkMultiIndex {
   public static MemChunkMultiIndex deserialize(MemDeserializer deserializer) throws IOException {
     int[] stats = new int[6];
     deserializer.read(stats, 6);
-    MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1],stats[2],stats[3]));
+    MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
     index.numKeys = stats[4];
     index.numUsedIndices = stats[5];
     int[] sizeBuffer = new int[1];
-    for (int i = 0; i < index.capacity; ++i){
-      deserializer.read(sizeBuffer,1);
+    for (int i = 0; i < index.capacity; ++i) {
+      deserializer.read(sizeBuffer, 1);
       int size = sizeBuffer[0];
-      if (size > 0){
+      if (size > 0) {
 
         index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
         index.keys[i] = new int[size];
@@ -291,7 +298,7 @@ public final class MemChunkMultiIndex {
         index.listSizes[i] = new int[size];
         deserializer.read(index.listSizes[i], size);
         index.lists[i] = new int[size][];
-        for (int j = 0; j < size ; ++j){
+        for (int j = 0; j < size; ++j) {
           index.lists[i][j] = new int[index.listSizes[i][j]];
           deserializer.read(index.lists[i][j], index.listSizes[i][j]);
         }
@@ -299,7 +306,6 @@ public final class MemChunkMultiIndex {
     }
     return index;
   }
-
 
 
   public int getCapacity() {
