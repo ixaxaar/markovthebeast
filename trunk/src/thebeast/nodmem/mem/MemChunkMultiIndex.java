@@ -232,8 +232,8 @@ public final class MemChunkMultiIndex {
   }
 
   /**
-   * Returns the ratio |keys|/|used indices|. High number means there are many keys
-   * occupying the same cell (resulting in slower access).
+   * Returns the ratio |keys|/|used indices|. High number means there are many keys occupying the same cell (resulting
+   * in slower access).
    *
    * @return the ratio |keys|/|used indices|
    */
@@ -279,6 +279,76 @@ public final class MemChunkMultiIndex {
       }
     }
   }
+
+//    public static void deserializeInPlace(MemDeserializer deserializer, MemChunkIndex index) throws IOException {
+//    int[] stats = new int[6];
+//    index.clear();
+//    deserializer.read(stats, 6);
+////    MemChunkIndex index = new MemChunkIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+//    int savedSize = stats[0];
+//    if (index.capacity < savedSize)
+//      index.increaseCapacity(savedSize - index.capacity);
+//    index.dim.xInt = stats[1];
+//    index.dim.xDouble = stats[2];
+//    index.dim.xChunk = stats[3];
+//    index.numKeys = stats[4];
+//    index.numUsedIndices = stats[5];
+//    int[] size = new int[1];
+//    for (int i = 0; i < savedSize; ++i) {
+//      deserializer.read(size, 1);
+//      if (size[0] > 0) {
+//        if (index.tuples[i] == null)
+//          index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
+//        else
+//          MemHolder.deserializeInPlace(deserializer, index.dim, index.tuples[i]);
+//        if (index.keys[i] == null || index.keys[i].length < size[0])
+//          index.keys[i] = new int[size[0]];
+//        deserializer.read(index.keys[i], size[0]);
+//        if (index.values[i] == null || index.values[i].length < size[0])
+//          index.values[i] = new int[size[0]];
+//        deserializer.read(index.values[i], size[0]);
+//      }
+//    }
+
+  //  }
+
+  public static MemChunkMultiIndex deserializeInPlace(MemDeserializer deserializer, MemChunkMultiIndex index) throws IOException {
+    int[] stats = new int[6];
+    deserializer.read(stats, 6);
+    //MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+    index.numKeys = stats[4];
+    index.numUsedIndices = stats[5];
+    int savedSize = stats[0];
+    if (index.capacity < savedSize)
+      index.increaseCapacity(savedSize - index.capacity);
+
+    int[] sizeBuffer = new int[1];
+    for (int i = 0; i < index.capacity; ++i) {
+      deserializer.read(sizeBuffer, 1);
+      int size = sizeBuffer[0];
+      if (size > 0) {
+        if (index.tuples[i] == null)
+          index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
+        else
+          MemHolder.deserializeInPlace(deserializer, index.dim, index.tuples[i]);
+        if (index.keys[i] == null || index.keys[i].length < size)
+          index.keys[i] = new int[size];
+        deserializer.read(index.keys[i], size);
+        if (index.listSizes[i] == null || index.listSizes[i].length < size)
+          index.listSizes[i] = new int[size];
+        deserializer.read(index.listSizes[i], size);
+        if (index.lists[i] == null || index.lists[i].length < size)
+          index.lists[i] = new int[size][];
+        for (int j = 0; j < size; ++j) {
+          if (index.lists[i][j] == null || index.lists[i][j].length < index.listSizes[i][j])
+            index.lists[i][j] = new int[index.listSizes[i][j]];
+          deserializer.read(index.lists[i][j], index.listSizes[i][j]);
+        }
+      }
+    }
+    return index;
+  }
+
 
   public static MemChunkMultiIndex deserialize(MemDeserializer deserializer) throws IOException {
     int[] stats = new int[6];

@@ -11,19 +11,19 @@ import java.nio.channels.WritableByteChannel;
  */
 public final class MemChunk extends MemHolder {
 
+  //these should go into a general info object to be shared over chunks
   public int numDoubleCols;
   public int numIntCols;
   public int numChunkCols;
+  public MemColumnSelector allCols;
 
-  public int insertionPoint;
-
+  //these should go to a chunk index information (or rather into higher layers, anyway).
   public MemChunkMultiIndex[] indices;
-
   public MemChunkIndex rowIndex;
   public int rowIndexedSoFar = 0;
 
-  public MemColumnSelector allCols;
   private static final double MAXLOADFACTOR = 3.0;
+
   //private static final int INCREMENTSCALE = 1;
 
   public void copyFrom(MemChunk other) {
@@ -78,7 +78,10 @@ public final class MemChunk extends MemHolder {
     if (buffer[0] > 0) {
       dst.indices = new MemChunkMultiIndex[buffer[0]];
       for (int i = 0; i < buffer[0]; ++i) {
-        dst.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
+        if (dst.indices[i]==null)
+          dst.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
+        else
+          MemChunkMultiIndex.deserializeInPlace(deserializer, dst.indices[i]);
       }
     } else {
       if (dst.indices != null)
@@ -248,14 +251,6 @@ public final class MemChunk extends MemHolder {
     for (int i = 0; i < chunkLength; ++i)
       result = result * 37 + chunkData[i].hashCode();
     return result;
-  }
-
-  public int getInsertionPoint() {
-    return insertionPoint;
-  }
-
-  public void setInsertionPoint(int insertionPoint) {
-    this.insertionPoint = insertionPoint;
   }
 
   public MemDim getDim() {

@@ -5,6 +5,7 @@ import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.value.RelationValue;
 
 import java.util.HashMap;
 import java.io.IOException;
@@ -113,7 +114,7 @@ public class LocalFeatures {
    */
   public void write(FileSink fileSink) throws IOException {
     for (RelationVariable var : features.values()) {
-      fileSink.write(var,false);
+      fileSink.write(var,true);
     }
   }
 
@@ -137,8 +138,9 @@ public class LocalFeatures {
   public String toString() {
     StringBuffer result = new StringBuffer();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      result.append("#").append(predicate.getName()).append("\n");
-      result.append(features.get(predicate).value().toString());
+      RelationValue value = features.get(predicate).value();
+      result.append(">").append(predicate.getName()).append(":").append(value.size()).append("\n");
+      result.append(value.toString());
       result.append("\n");
     }
     return result.toString();

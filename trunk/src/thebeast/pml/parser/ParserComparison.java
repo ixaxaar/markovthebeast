@@ -9,7 +9,7 @@ public class ParserComparison extends ParserFormula{
   public final ParserTerm lhs, rhs;
 
   public enum Type {
-    EQ,LT,GT,LEQ,GEQ
+    EQ,LT,GT,LEQ,GEQ,NEQ
   }
 
   public ParserComparison(Type type, ParserTerm lhs, ParserTerm rhs) {

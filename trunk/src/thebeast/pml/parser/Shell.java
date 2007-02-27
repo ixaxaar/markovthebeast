@@ -73,7 +73,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private ConsoleReader console;
   private FeatureCollector collector;
 
-  private int defaultCacheSize = 20 * 1024 * 1024;
+  private int defaultCorpusCacheSize = 20 * 1024 * 1024;
+  private int defaultTrainingCacheSize = 100 * 1024 * 1024;
 
 
   public Shell() {
@@ -96,7 +97,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     solver = new CuttingPlaneSolver();
     solver4Learner = new CuttingPlaneSolver();
     learner = new OnlineLearner(model, weights, solver4Learner);
-    learner.setProgressReporter(new DotProgressReporter(out, 1, 5, 3));
+    learner.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
     collector = new FeatureCollector(model, weights);
     initCorpusTools();
   }
@@ -525,9 +526,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         File file = new File(parserSaveCorpus.file);
         file.delete();
         if (parserSaveCorpus.from != -1)
-          corpus = new DumpedCorpus(file, corpus, parserSaveCorpus.from, parserSaveCorpus.to, defaultCacheSize);
+          corpus = new DumpedCorpus(file, corpus, parserSaveCorpus.from, parserSaveCorpus.to, defaultCorpusCacheSize);
         else
-          corpus = new DumpedCorpus(file, corpus, defaultCacheSize);
+          corpus = new DumpedCorpus(file, corpus, defaultCorpusCacheSize);
         out.println("Corpus dumped to disk (using dumped version now).");
         iterator = corpus.iterator();
       } else if ("ram".equals(parserSaveCorpus.factory)) {
@@ -546,8 +547,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         if (parserSaveCorpus.from != -1) {
           throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
         } else
-          instances = new TrainingInstances(file, extractor, iterator, defaultCacheSize,
+          instances = new TrainingInstances(file, extractor, iterator, defaultTrainingCacheSize,
                   new DotProgressReporter(out, 5,5,5));
+        iterator = corpus.iterator();
         out.println("Instances generated.");
       }
 //      listIterator = corpus.listIterator();
@@ -649,7 +651,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     int oldCount = weights.getFeatureCount();
     collector.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
     collector.collect(iterator);
-    System.out.println(iterator.hasNext());
     //collector.collect(corpus);
     out.println("Collected " + (weights.getFeatureCount() - oldCount) + " features.");
     iterator = corpus.iterator();
@@ -670,18 +671,25 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (parserLearn.epochs == -1) {
       //learner.startEpoch();
       if (parserLearn.instances == -1) {
-        learner.learnOne(gold, instances);
-        jump(1);
-        while (iterator.hasNext()) {
-          learner.learnOne(gold, instances);
-          jump(1);
-        }
+          if (instances.size() == 0)
+            out.println("There are no training instances. Use the 'save corpus to instances ... ' " +
+                    "command to create some");
+          else{
+            learner.learn(instances);
+          }
+
+//        learner.learn(gold);
+//        jump(1);
+//        while (iterator.hasNext()) {
+//          learner.learn(gold);
+//          jump(1);
+//        }
       } else {
         int instance = 1;
-        learner.learnOne(gold, instances);
+        learner.learn(gold);
         jump(1);
         while (iterator.hasNext() && instance < parserLearn.instances) {
-          learner.learnOne(gold, instances);
+          learner.learn(gold);
           jump(1);
           ++instance;
         }
@@ -695,12 +703,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitSet(ParserSet parserSet) {
-
-    if ("solver".equals(parserSet.propertyName.head))
+    if ("instancesCacheSize".equals(parserSet.propertyName.head))
+      defaultTrainingCacheSize = 1024 * 1024 * (Integer)parserSet.value;   
+    else if ("corpusCacheSize".equals(parserSet.propertyName.head))
+        defaultCorpusCacheSize = 1024 * 1024 * (Integer)parserSet.value;   
+    else if ("solver".equals(parserSet.propertyName.head))
       solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
-
-    if ("learner".equals(parserSet.propertyName.head))
+    else if ("learner".equals(parserSet.propertyName.head))
       learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+    else
+      throw new RuntimeException("There is no property named " + parserSet.propertyName);
 
     out.println(parserSet.propertyName + " set to " + parserSet.value + ".");
   }

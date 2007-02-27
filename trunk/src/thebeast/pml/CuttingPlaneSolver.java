@@ -105,10 +105,10 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
+    iteration = 0;
     if (!scoresSet) score();
     if (!initSet) initSolution();
     if (!updated) update();
-    iteration = 0;
     while (ilp.changed() && iteration < maxIterations) {
       ilp.solve(atoms);
       update();

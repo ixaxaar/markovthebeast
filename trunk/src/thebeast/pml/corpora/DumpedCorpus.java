@@ -28,6 +28,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
   private int activeCount;
   private Signature signature;
   private boolean iterating = false;
+  private boolean verbose = false;
   private File file;
 
   public DumpedCorpus(File file, Corpus corpus, int from, int to, int maxByteSize) throws IOException {
@@ -92,6 +93,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
       atoms.write(fileSink);
     }
     active.clear();
+    if (verbose) System.out.print(">");
   }
 
   public String toString() {
@@ -113,6 +115,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
           atoms.read(fileSource);
           //System.out.println(atoms.getMemoryUsage());
         }
+        if (verbose) System.out.print("<");
         iterating = false;
         return active.subList(0, size).iterator();
       } else {
@@ -158,6 +161,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
                 }
                 delegate = active.iterator();
               }
+              if (verbose) System.out.print("<");
             } catch (IOException e) {
               e.printStackTrace();
             }
