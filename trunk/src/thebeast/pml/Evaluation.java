@@ -41,6 +41,15 @@ public class Evaluation {
 
   }
 
+
+  public GroundAtoms getGold() {
+    return gold;
+  }
+
+  public GroundAtoms getGuess() {
+    return guess;
+  }
+
   public void evaluate(GroundAtoms gold, GroundAtoms guess) {
     this.gold.load(gold,model.getHiddenPredicates());
     this.guess.load(guess, model.getHiddenPredicates());

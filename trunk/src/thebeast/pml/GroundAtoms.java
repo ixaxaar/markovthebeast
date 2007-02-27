@@ -200,4 +200,17 @@ public class GroundAtoms {
     }
   }
 
+
+  /**
+   * Return the total number of ground atoms for all predicates.
+   *
+   * @return the sum of ground atom counts of all predicates.
+   */
+  public int getGroundAtomCount() {
+    int count = 0;
+    for (GroundAtomCollection atoms : this.atoms.values())
+      count += atoms.size();
+    return count;
+  }
+
 }

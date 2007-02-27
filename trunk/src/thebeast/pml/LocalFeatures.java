@@ -106,14 +106,14 @@ public class LocalFeatures {
   }
 
   /**
-   * Write this set of features to a database dump.
+   * Write this set of features to a database dump. Indices are not serialized.
    *
    * @param fileSink the dump to write to.
    * @throws java.io.IOException if I/O goes wrong.
    */
   public void write(FileSink fileSink) throws IOException {
     for (RelationVariable var : features.values()) {
-      fileSink.write(var);
+      fileSink.write(var,false);
     }
   }
 
