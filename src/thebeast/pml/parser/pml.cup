@@ -142,7 +142,7 @@ statement ::= createType:s
             | COLLECT
               {: RESULT = new ParserCollect(); :}
             | LEARN 
-              {: RESULT = new ParserLearn(-1,1); :}
+              {: RESULT = new ParserLearn(-1,-1); :}
             | LEARN FOR NUMBER:n EPOCHS
               {: RESULT = new ParserLearn(-1,Integer.valueOf(n)); :}
             | LEARN NUMBER:i FOR NUMBER:e EPOCHS
@@ -277,6 +277,8 @@ formula ::=
     {: RESULT = new ParserComparison(ParserComparison.Type.LT, lhs, rhs); :}
   | term:lhs GREATER term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.GT, lhs, rhs); :}
+  | term:lhs NOTEQUALS term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.NEQ, lhs, rhs); :}
     ;
 
 conjunction ::=

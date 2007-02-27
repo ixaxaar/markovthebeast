@@ -4,7 +4,6 @@ import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
-import thebeast.util.DotProgressReporter;
 
 /**
  * @author Sebastian Riedel
@@ -29,8 +28,6 @@ public class OnlineLearner implements Learner, HasProperties {
   private ProgressReporter progressReporter = new QuietProgressReporter();
 
   private int numEpochs;
-
-  private boolean initialized = false;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -81,35 +78,28 @@ public class OnlineLearner implements Learner, HasProperties {
     this.updateRule = updateRule;
   }
 
+
   public void learn(Corpus corpus) {
-    learn(corpus, new TrainingInstances());
-  }
-
-  public void learn(Corpus corpus, TrainingInstances instances) {
- 
     //do one run to create training instances
-    for (GroundAtoms data : corpus) {
-      learnOne(data, instances);
+    for (int epoch = 0; epoch < numEpochs; ++epoch) {
+
+      for (GroundAtoms data : corpus) {
+        learn(data);
+      }
+      updateRule.endEpoch();
     }
-
-    updateRule.endEpoch();
-
-    initialized = true;
-    learn(instances);
-    initialized = false;
-
   }
 
-  public void startEpoch(){
+  public void startEpoch() {
     progressReporter.started();
   }
 
-  public void endEpoch(){
+  public void endEpoch() {
     updateRule.endEpoch();
     progressReporter.finished();
   }
 
-  public void learnOne(GroundAtoms data, TrainingInstances instances) {
+  public void learn(GroundAtoms data) {
     //load the instance from the corpus into our local variable
     instance.load(data);
 
@@ -142,8 +132,6 @@ public class OnlineLearner implements Learner, HasProperties {
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
 
-    instances.add(data.copy(), features.copy(), gold.copy());
-
     progressReporter.progressed();
   }
 
@@ -154,7 +142,7 @@ public class OnlineLearner implements Learner, HasProperties {
     solution = new Solution(model, weights);
     scores = new Scores(model, weights);
     features = new LocalFeatures(model, weights);
-    extractor = new LocalFeatureExtractor(model,weights);
+    extractor = new LocalFeatureExtractor(model, weights);
     evaluation = new Evaluation(model);
     updateRule = new PerceptronUpdateRule();
     guess = new SparseVector();
@@ -166,23 +154,25 @@ public class OnlineLearner implements Learner, HasProperties {
 
   public void learn(TrainingInstances instances) {
 
-    for (int epoch = initialized ? 1 : 0; epoch < numEpochs; ++epoch) {
-
-      for (TrainingInstance data : instances) {
-        learnOne(data);
+    for (int epoch = 0; epoch < numEpochs; ++epoch) {
+      progressReporter.started();
+      for (TrainingInstance instance : instances) {
+        learn(instance);
       }
-
       updateRule.endEpoch();
+      progressReporter.finished();
     }
 
   }
 
-  private void learnOne(TrainingInstance data) {
+  private void learn(TrainingInstance data) {
     //load the instance from the corpus into our local variable
     instance.load(data.getData());
 
     //either load the feature vector or extract it
     features.load(data.getFeatures());
+
+    //System.out.println(features);
 
     //use the feature vector and weight to score ground atoms
     scores.score(features, this.weights);
@@ -204,12 +194,17 @@ public class OnlineLearner implements Learner, HasProperties {
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
 
+    progressReporter.progressed();
+
   }
 
 
   public void setProperty(PropertyName name, Object value) {
-    if ("solver".equals(name.getHead())){
+    if ("solver".equals(name.getHead())) {
       solver.setProperty(name.getTail(), value);
+    }
+    else if ("numEpochs".equals(name.getHead())) {
+      setNumEpochs((Integer)value);
     }
   }
 

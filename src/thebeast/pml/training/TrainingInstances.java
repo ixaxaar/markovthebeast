@@ -26,6 +26,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
   private boolean iterating = false;
   private Model model;
   private Weights weights;
+  private boolean verbose = false;
 
 
   public TrainingInstances() {
@@ -80,6 +81,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     for (TrainingInstance instance : active) {
       instance.write(fileSink);
     }
+    if (verbose) System.out.print(">");
     active.clear();
   }
 
@@ -96,11 +98,13 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
           instance.read(fileSource);
         }
         iterating = false;
+        if (verbose) System.out.print("<");
         return active.subList(0, size).iterator();
       } else {
         for (TrainingInstance instance : active) {
           instance.read(fileSource);
         }
+        System.out.print("<");
         return new Iterator<TrainingInstance>() {
           Iterator<TrainingInstance> delegate = active.iterator();
           int current = 0;
@@ -137,6 +141,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
                 }
                 delegate = active.iterator();
               }
+              if (verbose) System.out.print("<");
             } catch (IOException e) {
               e.printStackTrace();
             }
@@ -156,7 +161,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
 
 
   public int size() {
-    return 0;
+    return size;
   }
 
   public int getUsedMemory() {

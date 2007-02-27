@@ -46,7 +46,7 @@ public class MemFileSink implements FileSink {
 
   public void write(Variable variable, boolean writeIndices) throws IOException {
     AbstractMemVariable var = (AbstractMemVariable) variable;
-    if (var instanceof MemRelationVariable) {
+    if (var instanceof MemRelationVariable && writeIndices) {
       MemRelationVariable memRelationVariable = (MemRelationVariable) var;
       memRelationVariable.indexInformation().updateAll();
     }

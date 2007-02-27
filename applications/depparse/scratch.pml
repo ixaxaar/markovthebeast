@@ -10,17 +10,24 @@ observed: word, pos, cpos, prefix;
 
 include "mst.pml";
 
+set instancesCacheSize = 20;
+
 load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
-save corpus (0-100) to dump "/tmp/test.dmp";
+save corpus (0-5) to dump "/tmp/test.dmp";
 collect;
 save corpus to instances "/tmp/instances.dmp";
+//save corpus to instances "/disk/scratch/tmp/instances.dmp";
+//save corpus to instances "/disk/home/dendrite/s0349492/tmp/instances.dmp";
+
+set solver.ilp.verbose = false;
+set learner.solver.maxIterations = 0;
+set learner.numEpochs = 1;
+learn;
 
 //scores from "example.scores";
                                                              
 //collect;
 
-set solver.ilp.verbose = true;
-set learner.solver.maxIterations = 0;
 //learn 10;
 
 //print weights;
