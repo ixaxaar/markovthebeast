@@ -449,7 +449,7 @@ public class MemEvaluator {
     int foundRow = -1;
     final MemChunk chunk = f.getRel;
     MemVector ptr = new MemVector();
-    MemDim dim = f.getRel.getDim();
+    MemDim dim = chunk.getDim();
     argChunk = argChunk.chunkData[0];
     if (f.indexNr == -1) {
       int row;
@@ -494,11 +494,11 @@ public class MemEvaluator {
       //copy the backoff
       if (f.put) {
         for (int col = 0; col < f.resultCols.intCols.length; ++col)
-          chunk.intData[ptr.xInt + f.resultCols.intCols[col]] = dst.chunkData[0].intData[col];
+          chunk.intData[ptr.xInt + f.resultCols.intCols[col]] = dst.chunkData[dstVct.xChunk].intData[col];
         for (int col = 0; col < f.resultCols.doubleCols.length; ++col)
-          chunk.doubleData[ptr.xDouble + f.resultCols.doubleCols[col]] = dst.chunkData[0].doubleData[col];
+          chunk.doubleData[ptr.xDouble + f.resultCols.doubleCols[col]] = dst.chunkData[dstVct.xChunk].doubleData[col];
         for (int col = 0; col < f.resultCols.chunkCols.length; ++col)
-          chunk.chunkData[ptr.xChunk + f.resultCols.chunkCols[col]] = dst.chunkData[0].chunkData[col];
+          chunk.chunkData[ptr.xChunk + f.resultCols.chunkCols[col]] = dst.chunkData[dstVct.xChunk].chunkData[col];
         //use the arguments
         for (int col = 0; col < f.argCols.intCols.length; ++col)
           chunk.intData[ptr.xInt + f.argCols.intCols[col]] = argChunk.intData[col];
@@ -506,6 +506,15 @@ public class MemEvaluator {
           chunk.doubleData[ptr.xDouble + f.argCols.doubleCols[col]] = argChunk.doubleData[col];
         for (int col = 0; col < f.argCols.chunkCols.length; ++col)
           chunk.chunkData[ptr.xChunk + f.argCols.chunkCols[col]] = argChunk.chunkData[col];
+        //add to index
+        //todo: increase capacity?
+        if (f.indexNr != -1) {
+          if (chunk.indices[f.indexNr].getCapacity() == 0){
+            chunk.indices[f.indexNr].increaseCapacity(50);            
+          }
+          chunk.indices[f.indexNr].add(argChunk, MemVector.ZERO, f.indexCols, chunk.size);
+          ++chunk.indices[f.indexNr].indexedSoFar;
+        }
         ++chunk.size;
       }
     } else {

@@ -185,6 +185,8 @@ public class GroundFormulas {
       if (!formula.getWeight().isNonPositive()) {
         result.append("# False groundings of: ").append(formula.toString()).append("\n");
         result.append(getFalseGroundFormulas(formula).value().toString());
+//        result.append("# All groundings:\n");
+//        result.append(getExplicitGroundFormulas(formula).value().toString());
         result.append("\n");
       }
       if (!formula.getWeight().isNonNegative()) {
@@ -205,6 +207,7 @@ public class GroundFormulas {
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
       } else if (!factorFormula.isLocal()) {
         RelationVariable both = getExplicitGroundFormulas(factorFormula);
+        interpreter.clear(both);
         if (!factorFormula.getWeight().isNonNegative()) {
           RelationVariable relation = getTrueGroundFormulas(factorFormula);
           interpreter.assign(relation, trueQueries.get(factorFormula));

@@ -14,15 +14,16 @@ set instancesCacheSize = 20;
 
 load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
 //load corpus from dump "/tmp/test.dmp";
-save corpus (0-5) to dump "/tmp/test.dmp";
+//save corpus (0-5) to dump "/tmp/test.dmp";
+save corpus (0-5) to ram;
 collect;
-//save corpus to instances "/tmp/instances.dmp";
+save corpus to instances "/tmp/instances.dmp";
 //save corpus to instances "/disk/scratch/tmp/instances.dmp";
 //save corpus to instances "/disk/home/dendrite/s0349492/tmp/instances.dmp";
 
-set solver.ilp.verbose = false;
-set learner.solver.maxIterations = 0;
-set learner.numEpochs = 1;
+set solver.ilp.verbose = true;
+set learner.solver.maxIterations = 10;
+set learner.numEpochs = 10;
 //learn;
 
 //scores from "example.scores";

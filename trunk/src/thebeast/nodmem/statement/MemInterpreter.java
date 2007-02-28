@@ -232,9 +232,9 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       src = arg.getContainerChunk().chunkData[arg.getPointer().xChunk];
     } else {
       MemChunk buffer = memInsert.getBuffer();
-      buffer.size = 0;
-      buffer.rowIndexedSoFar = 0;
-      buffer.rowIndex.clear();
+      buffer.chunkData[0].size = 0;
+      buffer.chunkData[0].rowIndexedSoFar = 0;
+      buffer.chunkData[0].rowIndex.clear();
       AbstractMemExpression expr = (AbstractMemExpression) insert.relationExp();
       MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
       src = buffer.chunkData[0];

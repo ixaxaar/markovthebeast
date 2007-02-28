@@ -4,6 +4,7 @@ import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
+import thebeast.util.PrecisionRecallProgressReporter;
 
 /**
  * @author Sebastian Riedel
@@ -25,7 +26,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Solution goldSolution;
   private Weights weights;
   private Model model;
-  private ProgressReporter progressReporter = new QuietProgressReporter();
+  private PrecisionRecallProgressReporter progressReporter = new QuietProgressReporter();
 
   private int numEpochs;
 
@@ -39,7 +40,7 @@ public class OnlineLearner implements Learner, HasProperties {
     return progressReporter;
   }
 
-  public void setProgressReporter(ProgressReporter progressReporter) {
+  public void setProgressReporter(PrecisionRecallProgressReporter progressReporter) {
     this.progressReporter = progressReporter;
   }
 
@@ -194,7 +195,9 @@ public class OnlineLearner implements Learner, HasProperties {
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
 
-    progressReporter.progressed();
+    progressReporter.progressed(
+            evaluation.getFalsePositivesCount(),evaluation.getFalseNegativesCount(),
+            evaluation.getGoldCount(), evaluation.getGuessCount());
 
   }
 

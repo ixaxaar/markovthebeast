@@ -30,7 +30,7 @@ public class TestInterpreter extends NoDTest {
   public void testDoubleVariable() {
     DoubleVariable var = interpreter.createDoubleVariable(exprBuilder.doubleValue(1.5).getDouble());
     assertEquals(1.5, var.value().getDouble());
-    
+
   }
 
   public void testDoubleArithmetics() {
@@ -66,12 +66,12 @@ public class TestInterpreter extends NoDTest {
     assertEquals(false, var.value().getBool());
   }
 
-  public void testIntBins(){
-    assertEquals(0,interpreter.evaluateInt(exprBuilder.num(2).bins(3,6,9).getInt()).getInt());
-    assertEquals(1,interpreter.evaluateInt(exprBuilder.num(4).bins(3,6,9).getInt()).getInt());
-    assertEquals(1,interpreter.evaluateInt(exprBuilder.num(6).bins(3,6,9).getInt()).getInt());
-    assertEquals(2,interpreter.evaluateInt(exprBuilder.num(9).bins(3,6,9).getInt()).getInt());
-    assertEquals(3,interpreter.evaluateInt(exprBuilder.num(20).bins(3,6,9).getInt()).getInt());
+  public void testIntBins() {
+    assertEquals(0, interpreter.evaluateInt(exprBuilder.num(2).bins(3, 6, 9).getInt()).getInt());
+    assertEquals(1, interpreter.evaluateInt(exprBuilder.num(4).bins(3, 6, 9).getInt()).getInt());
+    assertEquals(1, interpreter.evaluateInt(exprBuilder.num(6).bins(3, 6, 9).getInt()).getInt());
+    assertEquals(2, interpreter.evaluateInt(exprBuilder.num(9).bins(3, 6, 9).getInt()).getInt());
+    assertEquals(3, interpreter.evaluateInt(exprBuilder.num(20).bins(3, 6, 9).getInt()).getInt());
   }
 
   public void testPostInc() {
@@ -261,11 +261,6 @@ public class TestInterpreter extends NoDTest {
     TupleVariable t4 = interpreter.createTupleVariable(exprBuilder.getTuple());
     assertEquals(1, t4.value().intElement(0).getInt());
 
-    exprBuilder.expr(relation);
-    exprBuilder.id("a").integer(50).id("b").integer(50).tupleForIds().id("c").integer(0).tupleForIds().get();
-    TupleVariable t5 = interpreter.createTupleVariable(exprBuilder.getTuple());
-    assertEquals(0, t5.value().intElement(0).getInt());
-    assertEquals(4, relation.value().size());
 
   }
 
@@ -301,6 +296,25 @@ public class TestInterpreter extends NoDTest {
 
   }
 
+  public void testGetTwice(){
+    exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
+    exprBuilder.id("a").integer(5).id("b").integer(2).id("c").integer(20).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
+    exprBuilder.relation(3);
+    RelationVariable relation = interpreter.createRelationVariable(exprBuilder.getRelation());
+    interpreter.addIndex(relation, "index", Index.Type.HASH, "a");
+
+    exprBuilder.expr(relation);
+    exprBuilder.id("a").integer(99).id("b").integer(99).tupleForIds().id("c").integer(99).tupleForIds().getPut();
+    exprBuilder.expr(relation);
+    exprBuilder.id("a").integer(99).id("b").integer(99).tupleForIds().id("c").integer(50).tupleForIds().getPut();
+    exprBuilder.relation(2);
+    RelationVariable rel = interpreter.createRelationVariable(exprBuilder.getRelation());
+    System.out.println(rel.value());
+    assertTrue(rel.contains(50));
+    assertEquals(1, rel.value().size());
+    
+  }
 
   public void testArrayAccess() {
     exprBuilder.integer(1).integer(2).integer(3).integer(1).array(4).integer(1).intArrayElement();
@@ -333,7 +347,7 @@ public class TestInterpreter extends NoDTest {
 
     assertEquals(16, array.size());
     for (int i = 8; i < 16; ++i)
-      assertEquals(0,array.intElement(i).getInt());
+      assertEquals(0, array.intElement(i).getInt());
 
   }
 
@@ -520,18 +534,18 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.relation();
     RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
     IntVariable x = interpreter.createIntVariable();
-    exprBuilder.expr(var).from("var").intAttribute("var","b").expr(x).equality().where();
-    exprBuilder.id("d").intAttribute("var","c").tuple(1).select().query();
+    exprBuilder.expr(var).from("var").intAttribute("var", "b").expr(x).equality().where();
+    exprBuilder.id("d").intAttribute("var", "c").tuple(1).select().query();
     Operator<RelationType> search = expressionFactory.createOperator("search", exprBuilder.getRelation(), x);
-    exprBuilder.expr(var).from("var").id("result").intAttribute("var","a").invokeRelOp(search);
-    exprBuilder.id("x").intAttribute("var","a").tuple(2).select().query();
+    exprBuilder.expr(var).from("var").id("result").intAttribute("var", "a").invokeRelOp(search);
+    exprBuilder.id("x").intAttribute("var", "a").tuple(2).select().query();
 
     RelationVariable result = interpreter.createRelationVariable(exprBuilder.getRelation());
     System.out.println(result.value());
     assertEquals(3, result.value().size());
-    assertTrue(result.contains(new Object[]{},1));
-    assertTrue(result.contains(new Object[]{new Object[]{1}, new Object[]{2}},2));
-    assertTrue(result.contains(new Object[]{new Object[]{3}, new Object[]{4}},3));
+    assertTrue(result.contains(new Object[]{}, 1));
+    assertTrue(result.contains(new Object[]{new Object[]{1}, new Object[]{2}}, 2));
+    assertTrue(result.contains(new Object[]{new Object[]{3}, new Object[]{4}}, 3));
 
   }
 

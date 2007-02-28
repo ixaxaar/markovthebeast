@@ -791,6 +791,12 @@ public class TestTheBeast extends TestCase {
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
     ilp.build(formulas, theManLikesTheBoat, scores);
+
+    System.out.println(ilp);
+    System.out.println(ilp.indexToString(0));
+    System.out.println(ilp.indexToString(1));
+    System.out.println(ilp.toLpSolveFormat());
+
     GroundAtoms solution = signature.createGroundAtoms();
     //these should be removed (the solver gives them a zero value
     solution.getGroundAtomsOf(phrase).addGroundAtom(2, 4, "VP");

@@ -18,7 +18,7 @@ public class MemHashIndex implements Index {
   private ArrayList<String> attributes;
   private Index.Type indexType;
   private MemChunkMultiIndex memIndex;
-  private int indexedSoFar;
+  //private int indexedSoFar;
   private MemColumnSelector cols;
   private MemDim dim;
   private MemChunk chunk;
@@ -39,14 +39,14 @@ public class MemHashIndex implements Index {
     dim = cols.getDim();
     chunk = variable.getContainerChunk().chunkData[variable.getPointer().xChunk];
     memIndex = new MemChunkMultiIndex(chunk.size, dim);
-    indexedSoFar = 0;
+    memIndex.indexedSoFar = 0;
   }
 
   public void useChunk(MemChunk chunk, int indexNr){
     memIndex = chunk.indices[indexNr];
     this.chunk = chunk;
     //we assume that if there are any keys we have fully indexed the table.
-    indexedSoFar = memIndex.getNumKeys() > 0 ? chunk.size : 0;
+    //indexedSoFar = memIndex.getNumKeys() > 0 ? chunk.size : 0;
   }
 
   public MemColumnSelector getCols() {
@@ -58,7 +58,7 @@ public class MemHashIndex implements Index {
   }
 
   public void invalidate(){
-    indexedSoFar = 0;
+    memIndex.indexedSoFar = 0;
     memIndex.clearMemory();
   }
 
@@ -75,7 +75,7 @@ public class MemHashIndex implements Index {
   }
 
   public void update() {
-    if (indexedSoFar == chunk.size) return;
+    if (memIndex.indexedSoFar == chunk.size) return;
 
     if (memIndex.getCapacity() == 0){
       memIndex.increaseCapacity(initialCapacity(chunk.size));
@@ -85,14 +85,15 @@ public class MemHashIndex implements Index {
     }
 
     MemDim chunkDim = chunk.getDim();
-    MemVector pointer = new MemVector(indexedSoFar,chunk.getDim());
-    for (int row = indexedSoFar; row < chunk.size;++row){
+    MemVector pointer = new MemVector(memIndex.indexedSoFar,chunk.getDim());
+    for (int row = memIndex.indexedSoFar; row < chunk.size;++row){
       memIndex.add(chunk,pointer, cols, row);
       pointer.xInt += chunkDim.xInt;
       pointer.xDouble += chunkDim.xDouble;
       pointer.xChunk += chunkDim.xChunk;
     }
-    indexedSoFar = chunk.size;
+    memIndex.indexedSoFar = chunk.size;
+    //indexedSoFar = chunk.size;
 
   }
 

@@ -71,6 +71,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
     active = new ArrayList<TrainingInstance>(10000);
     this.size = corpus.size();
+    this.file = file;
     ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
     builder.num(size);
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -93,7 +94,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
       TrainingInstance instance = new TrainingInstance(atoms, features, solution.extract(features));
       active.add(instance);
       byteSize += instance.getMemoryUsage();
-      ++size;
+      //++size;
       reporter.progressed();
     }
     activeCount = numDumps == 0 ? size : activeCount / numDumps;

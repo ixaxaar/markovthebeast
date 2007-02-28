@@ -2,6 +2,8 @@ package thebeast.pml;
 
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
+import thebeast.nod.statement.StatementFactory;
+import thebeast.nod.statement.Insert;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.type.Heading;
 import thebeast.nod.type.TypeFactory;
@@ -9,11 +11,17 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.Index;
+import thebeast.nod.value.RelationValue;
+import thebeast.nod.value.Value;
+import thebeast.nod.value.TupleValue;
+import thebeast.nod.value.DoubleValue;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Formatter;
 
 /**
  * @author Sebastian Riedel
@@ -32,6 +40,9 @@ public class IntegerLinearProgram {
           groundFormulaGetWeight = new HashMap<FactorFormula, RelationExpression>();
   private HashMap<FactorFormula, RelationExpression>
           formula2query = new HashMap<FactorFormula, RelationExpression>();
+  private HashMap<FactorFormula, Insert>
+          newConstraintsInserts = new HashMap<FactorFormula, Insert>(),
+          constraintsInserts = new HashMap<FactorFormula, Insert>();
   private HashMap<UserPredicate, RelationExpression>
           addTrueGroundAtoms = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
@@ -46,6 +57,8 @@ public class IntegerLinearProgram {
 
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
+  private StatementFactory factory = TheBeast.getInstance().getNodServer().statementFactory();
+
 
   private ILPSolver solver;
 
@@ -144,14 +157,28 @@ public class IntegerLinearProgram {
         if (!formula.isAcyclicityConstraint() && !formula.isDeterministic()) {
           RelationVariable constraintVariables = interpreter.createRelationVariable(formula.getHeadingILP());
           groundFormula2index.put(formula, constraintVariables);
-          formula2query.put(formula, generator.generateConstraintQuery(formula, formulas, scores, this,model));
+          RelationExpression query = generator.generateConstraintQuery(formula, formulas, scores, this, model);
+          formula2query.put(formula, query);
+          builder.expr(query).expr(constraints).relationMinus();
+          Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
+          newConstraintsInserts.put(formula, newConstraintsInsert);
+          Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
+          constraintsInserts.put(formula, constraintsInsert);
+
           builder.expr(constraintVariables).from("c");
           builder.expr(lastVarCount).intAttribute("c", "index").intLEQ().where();
           builder.id("index").intAttribute("c", "index").id("weight").doubleAttribute("c", "weight").tuple(2);
           builder.select().query();
           groundFormulaGetWeight.put(formula, builder.getRelation());
+
         } else {
-          formula2query.put(formula, generator.generateConstraintQuery(formula, formulas, scores, this,model));          
+          RelationExpression query = generator.generateConstraintQuery(formula, formulas, scores, this, model);
+          formula2query.put(formula, query);
+          builder.expr(query).expr(constraints).relationMinus();
+          Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
+          newConstraintsInserts.put(formula, newConstraintsInsert);
+          Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
+          constraintsInserts.put(formula, constraintsInsert);
         }
       }
     }
@@ -176,8 +203,10 @@ public class IntegerLinearProgram {
     this.scores.load(scores);
     this.atoms.load(atoms);
     for (FactorFormula formula : formula2query.keySet()) {
-      interpreter.insert(newConstraints, formula2query.get(formula));
-      interpreter.insert(constraints, newConstraints);
+      interpreter.interpret(newConstraintsInserts.get(formula));
+      interpreter.interpret(constraintsInserts.get(formula));
+//      interpreter.insert(newConstraints, formula2query.get(formula));
+//      interpreter.insert(constraints, newConstraints);
     }
     interpreter.clear(newVars);
     //get the new variables
@@ -190,7 +219,7 @@ public class IntegerLinearProgram {
     interpreter.insert(vars, newVars);
   }
 
-  public void init(Scores scores){
+  public void init(Scores scores) {
     this.scores.load(scores);
     solver.init();
     clear();
@@ -204,7 +233,7 @@ public class IntegerLinearProgram {
     interpreter.assign(varCount, builder.num(0).getInt());
   }
 
-  public void setSolver(ILPSolver solver){
+  public void setSolver(ILPSolver solver) {
     this.solver = solver;
     clear();
   }
@@ -243,8 +272,11 @@ public class IntegerLinearProgram {
 
     //for all solutions > 0.5 insert tuples (taken from the corresponding ground atom index table)
     //into the ground atoms
-    for (UserPredicate predicate : model.getHiddenPredicates())
-      interpreter.insert(solution.getGroundAtomsOf(predicate).getRelationVariable(), addTrueGroundAtoms.get(predicate));
+    for (UserPredicate predicate : model.getHiddenPredicates()) {
+      RelationExpression query = addTrueGroundAtoms.get(predicate);
+      RelationValue rel = interpreter.evaluateRelation(query);
+      interpreter.insert(solution.getGroundAtomsOf(predicate).getRelationVariable(), query);
+    }
 
   }
 
@@ -255,12 +287,17 @@ public class IntegerLinearProgram {
     this.atoms.load(atoms);
     interpreter.clear(newConstraints);
     for (FactorFormula formula : formula2query.keySet()) {
-      RelationExpression query = formula2query.get(formula);
-      builder.expr(query);
-      builder.expr(constraints);
-      interpreter.insert(newConstraints, builder.relationMinus().getRelation());
-      interpreter.insert(constraints, newConstraints);
+      System.out.println(formula);
+      interpreter.interpret(newConstraintsInserts.get(formula));
+      System.out.println(toLpSolveFormat(newVars, newConstraints));
+      interpreter.interpret(constraintsInserts.get(formula));
+//      RelationExpression query = formula2query.get(formula);
+//      builder.expr(query);
+//      builder.expr(constraints);
+//      interpreter.insert(newConstraints, builder.relationMinus().getRelation());
+//      interpreter.insert(constraints, newConstraints);
     }
+    //System.out.println(constraints.value());
     interpreter.clear(newVars);
     //get the new variables
     for (FactorFormula formula : groundFormula2index.keySet()) {
@@ -286,11 +323,9 @@ public class IntegerLinearProgram {
     return groundFormula2index.get(formula);
   }
 
-
   public static Heading getConstraintHeading() {
     return constraintHeading;
   }
-
 
   public static Heading getResultHeading() {
     return resultHeading;
@@ -309,12 +344,123 @@ public class IntegerLinearProgram {
   public String toString() {
     StringBuffer buffer = new StringBuffer();
     for (UserPredicate pred : groundAtom2index.keySet())
-      buffer.append(pred.getName()).append(":\n").append(groundAtom2index.get(pred).value());  
+      buffer.append(pred.getName()).append(":\n").append(groundAtom2index.get(pred).value());
 
     buffer.append("Variables:\n");
     buffer.append(vars.value());
     buffer.append("Constraints:\n");
     buffer.append(constraints.value());
+
     return buffer.toString();
   }
+
+
+  /**
+   * Returns a simple column-based representation of the current result for this ILP
+   *
+   * @return a string containing two columns: the variable name (predicate+args) and the value.
+   */
+  public String getResultString() {
+    StringBuffer result = new StringBuffer();
+    for (TupleValue var : this.result.value()) {
+      Formatter formatter = new Formatter();
+      result.append(formatter.format("%-12s\t", indexToString(var.intElement("index").getInt())));
+      result.append(var.doubleElement("value")).append("\n");
+    }
+    return result.toString();
+  }
+
+
+  /**
+   * Returns a representation of this ILP in LpSolve ("lp") format. This method should mostly be called for debugging
+   * purposes (it is not very optimized).
+   *
+   * @return ilp in lpsolve format.
+   */
+  public String toLpSolveFormat() {
+    return toLpSolveFormat(vars,constraints);
+  }
+
+
+  /**
+   * Returns a representation of this ILP in LpSolve ("lp") format. This method should mostly be called for debugging
+   * purposes (it is not very optimized).
+   *
+   * @param vars the variables to print out (a relation)
+   * @param constraints the constraints to print out (a relation).
+   * @return ilp in lpsolve format.
+   */
+  public String toLpSolveFormat(RelationVariable vars, RelationVariable constraints) {
+    StringBuffer result = new StringBuffer();
+
+    result.append("max: ");
+    int index = 0;
+    for (TupleValue var : vars.value()) {
+      double weight = var.doubleElement("weight").getDouble();
+      if (weight != 0.0) {
+        if (index++ > 0) result.append(" + ");
+        result.append(weight).append(" ");
+        result.append(indexToString(var.intElement("index").getInt()));
+      }
+    }
+
+    result.append(";\n\n");
+    for (TupleValue tuple : constraints.value()) {
+      double lb = tuple.doubleElement("lb").getDouble();
+      double ub = tuple.doubleElement("ub").getDouble();
+      index = 0;
+      for (TupleValue value : tuple.relationElement("values")) {
+        if (index++ > 0) result.append(" + ");
+        result.append(value.doubleElement("weight")).append(" ");
+        result.append(indexToString(value.intElement("index").getInt()));
+      }
+      if (lb == Double.NEGATIVE_INFINITY) {
+        result.append(" <= ").append(ub).append(";\n");
+      } else if (ub == Double.POSITIVE_INFINITY) {
+        result.append(" >= ").append(lb).append(";\n");
+      } else if (ub == lb) {
+        result.append(" = ").append(lb).append(";\n");
+      }
+    }
+    return result.toString();
+  }
+
+  /**
+   * Returns a string representation of the variable with the given index.
+   *
+   * @param index the index of the variable.
+   * @return a string representation with predicate name and arguments.
+   */
+  public String indexToString(int index) {
+    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
+      builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
+      RelationValue result = interpreter.evaluateRelation(builder.getRelation());
+      if (result.size() == 1) {
+        StringBuffer buffer = new StringBuffer(entry.getKey().getName());
+        int argIndex = 0;
+        for (Value value : result.iterator().next().values())
+          if (argIndex++ < entry.getKey().getArity())
+            buffer.append("_").append(value.toString());
+          else
+            break;
+        return buffer.toString();
+      }
+    }
+    for (Map.Entry<FactorFormula, RelationVariable> entry : groundFormula2index.entrySet()) {
+      builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
+      RelationValue result = interpreter.evaluateRelation(builder.getRelation());
+      if (result.size() == 1) {
+        StringBuffer buffer = new StringBuffer(entry.getKey().getName());
+        int argIndex = 0;
+        for (Value value : result.iterator().next().values())
+          if (argIndex++ < entry.getKey().getQuantification().getVariables().size())
+            buffer.append("_").append(value.toString());
+          else
+            break;
+        return buffer.toString();
+      }
+    }
+    return "NOT AVAILABLE";
+  }
+
 }
