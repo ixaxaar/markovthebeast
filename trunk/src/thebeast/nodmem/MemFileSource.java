@@ -43,12 +43,12 @@ public class MemFileSource implements FileSource {
 
   public void read(Variable variable) throws IOException {
     AbstractMemVariable var = (AbstractMemVariable) variable;
-    MemChunk chunk = var.getContainerChunk().chunkData[var.getPointer().xChunk];
+    MemChunk chunk = var.getContainerChunk();//.chunkData[var.getPointer().xChunk];
     MemChunk.deserializeInPlace(deserializer, chunk);
     //var.getContainerChunk().chunkData[var.getPointer().xChunk] = MemChunk.deserialize(deserializer);
     if (var instanceof MemRelationVariable) {
       MemRelationVariable memRelationVariable = (MemRelationVariable) var;
-      memRelationVariable.indexInformation().updateIndicesFromChunk(chunk);
+      memRelationVariable.indexInformation().updateIndicesFromChunk(chunk.chunkData[var.getPointer().xChunk]);
     }
   }
 

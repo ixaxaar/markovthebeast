@@ -50,7 +50,8 @@ public class MemFileSink implements FileSink {
       MemRelationVariable memRelationVariable = (MemRelationVariable) var;
       memRelationVariable.indexInformation().updateAll();
     }
-    MemChunk chunk = var.getContainerChunk().chunkData[var.getPointer().xChunk];
+    //MemChunk.serialize()
+    MemChunk chunk = var.getContainerChunk();//.chunkData[var.getPointer().xChunk];
     MemChunk.serialize(chunk, serializer, writeIndices);
   }
 

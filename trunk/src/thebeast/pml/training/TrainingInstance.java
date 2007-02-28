@@ -3,6 +3,7 @@ package thebeast.pml.training;
 import thebeast.pml.SparseVector;
 import thebeast.pml.GroundAtoms;
 import thebeast.pml.LocalFeatures;
+import thebeast.pml.Dumpable;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 
@@ -11,7 +12,7 @@ import java.io.IOException;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 09-Feb-2007 Time: 12:28:40
  */
-public class TrainingInstance {
+public class TrainingInstance implements Dumpable {
 
   private SparseVector gold;
   private GroundAtoms data;

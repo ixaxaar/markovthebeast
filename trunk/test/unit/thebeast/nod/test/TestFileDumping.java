@@ -7,6 +7,8 @@ import thebeast.nod.FileSource;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.Index;
+import thebeast.nod.variable.IntVariable;
+import thebeast.nod.variable.DoubleVariable;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nodmem.MemNoDServer;
@@ -43,6 +45,26 @@ public class TestFileDumping extends TestCase {
     fileSource.read(var);
     assertEquals(6, var.value().size());
     assertTrue(var.contains(1,1.0));
+    file.delete();
+  }
+
+  public void testDumpNumber() throws IOException {
+    IntVariable var1 = interpreter.createIntVariable(builder.num(1).getInt());
+    DoubleVariable var2 = interpreter.createDoubleVariable(builder.num(1.0).getDouble());
+    File file = new File("dmp");
+    file.delete();
+    FileSink fileSink = server.createSink(file,1024);
+    FileSource fileSource = server.createSource(file,1024);
+    fileSink.write(var1);
+    fileSink.write(var2);
+    fileSink.flush();
+    interpreter.assign(var1,builder.num(10).getInt());
+    interpreter.assign(var2,builder.num(10.0).getDouble());
+    fileSource.read(var1);
+    fileSource.read(var2);
+    assertEquals(1,var1.value().getInt());
+    assertEquals(1.0, var2.value().getDouble());
+
     file.delete();
 
   }

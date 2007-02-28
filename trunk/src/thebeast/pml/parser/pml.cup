@@ -109,6 +109,8 @@ statement ::= createType:s
               {: RESULT = new ParserLoadScores(s.substring(1,s.length()-1)); :}
             | WEIGHTS FROM STRING:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
+            | LOAD LOWERCASEID:id FROM STRING:s
+              {: RESULT = new ParserLoad(id, s.substring(1,s.length()-1),false,false); :}
             | LOAD CORPUS FROM STRING:s
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
