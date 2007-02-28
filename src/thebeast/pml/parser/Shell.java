@@ -46,7 +46,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private HashMap<String, PropertySetter> propertySetters = new HashMap<String, PropertySetter>();
 
   private GroundAtoms guess, gold;
-  private Corpus guessCorpus, corpus;
+  private Corpus corpus;
+  private RandomAccessCorpus ramCorpus;
   private Iterator<GroundAtoms> iterator;
   private ListIterator<GroundAtoms> listIterator;
 
@@ -388,7 +389,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoad(ParserLoad parserLoad) {
     update();
     try {
-      if (parserLoad.target == null) {
+      if ("instances".equals(parserLoad.target)){
+        instances = new TrainingInstances(signature, new File(parserLoad.file),defaultTrainingCacheSize);  
+      }
+      else if (parserLoad.target == null) {
         if (!parserLoad.gold) {
           guess.load(new FileInputStream(filename(parserLoad.file)));
           solver.setObservation(guess);
@@ -502,7 +506,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitLoadCorpus(ParserLoadCorpus parserLoadCorpus) {
     update();
-    if (parserLoadCorpus.factory != null) {
+    if ("dump".equals(parserLoadCorpus.factory))  {
+      corpus = new DumpedCorpus(signature, new File(parserLoadCorpus.file),defaultCorpusCacheSize);
+      //iterator = corpus.iterator();
+    }
+    else if (parserLoadCorpus.factory != null) {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
       corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
       if (parserLoadCorpus.from != -1) {
@@ -511,13 +519,14 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         for (int i = 0; i < parserLoadCorpus.from; ++i) instance.next();
         for (int i = parserLoadCorpus.from; i < parserLoadCorpus.to; ++i) corpus.add(instance.next());
       }
-      iterator = corpus.iterator();
+      //iterator = corpus.iterator();
 //      listIterator = corpus.listIterator();
 //      GroundAtoms first = iterator.next();
 //      loadAtoms(first);
     }
-    out.println("Corpus loaded.");
+    out.println("Corpus loaded using the " + parserLoadCorpus.factory + " factory.");
   }
+
 
   public void visitSaveCorpus(ParserSaveCorpus parserSaveCorpus) {
     update();
@@ -530,31 +539,28 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         else
           corpus = new DumpedCorpus(file, corpus, defaultCorpusCacheSize);
         out.println("Corpus dumped to disk (using dumped version now).");
-        iterator = corpus.iterator();
+        //iterator = corpus.iterator();
       } else if ("ram".equals(parserSaveCorpus.factory)) {
         if (parserSaveCorpus.from != -1) {
           Iterator<GroundAtoms> instance = corpus.iterator();
-          corpus = new RandomAccessCorpus(signature, parserSaveCorpus.to - parserSaveCorpus.from);
+          ramCorpus = new RandomAccessCorpus(signature, parserSaveCorpus.to - parserSaveCorpus.from);
           for (int i = 0; i < parserSaveCorpus.from; ++i) instance.next();
           for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to; ++i) corpus.add(instance.next());
         } else
-          corpus = new RandomAccessCorpus(corpus);
-        out.println("Corpus saved to RAM (using ram version now).");
-        iterator = corpus.iterator();
+          ramCorpus = new RandomAccessCorpus(corpus);
+        out.println("Corpus saved to RAM (can be used for inspection now).");
+        listIterator = ramCorpus.listIterator();
       } else if ("instances".equals(parserSaveCorpus.factory)) {
         File file = new File(parserSaveCorpus.file);
         file.delete();
         if (parserSaveCorpus.from != -1) {
           throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
         } else
-          instances = new TrainingInstances(file, extractor, iterator, defaultTrainingCacheSize,
+          instances = new TrainingInstances(file, extractor, corpus, defaultTrainingCacheSize,
                   new DotProgressReporter(out, 5,5,5));
-        iterator = corpus.iterator();
+        //iterator = corpus.iterator();
         out.println("Instances generated.");
       }
-//      listIterator = corpus.listIterator();
-//      GroundAtoms first = iterator.next();
-//      loadAtoms(first);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -580,10 +586,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void jump(int delta) {
-    if (iterator == null)
-      throw new RuntimeException("No corpus loaded, can't go forward or backwards");
-    if (delta < 0 && listIterator == null)
-      throw new RuntimeException("Can't go backwards with this corpus.");
+    if (listIterator == null)
+      throw new RuntimeException("No corpus loaded into ram, can't go forward or backwards");
     try {
       if (delta < 0) {
         for (int i = 0; i > delta + 1; --i)
@@ -592,8 +596,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         loadAtoms(atoms);
       } else {
         for (int i = 0; i < delta - 1; ++i)
-          iterator.next();
-        GroundAtoms atoms = iterator.next();
+          listIterator.next();
+        GroundAtoms atoms = listIterator.next();
         loadAtoms(atoms);
       }
     } catch (Exception e) {
@@ -650,7 +654,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     update();
     int oldCount = weights.getFeatureCount();
     collector.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
-    collector.collect(iterator);
+    collector.collect(corpus);
     //collector.collect(corpus);
     out.println("Collected " + (weights.getFeatureCount() - oldCount) + " features.");
     iterator = corpus.iterator();

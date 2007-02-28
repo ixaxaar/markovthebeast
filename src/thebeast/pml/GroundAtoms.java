@@ -12,7 +12,7 @@ import java.util.TreeMap;
  * A GroundAtoms object represents a collection of ground atoms for the predicates of a certain signature.
  * It also stores a set of weight functions to be used in PML models.
  */
-public class GroundAtoms {
+public class GroundAtoms implements Dumpable{
 
   private Signature signature;
   private Map<UserPredicate, GroundAtomCollection> atoms = new TreeMap<UserPredicate, GroundAtomCollection>();

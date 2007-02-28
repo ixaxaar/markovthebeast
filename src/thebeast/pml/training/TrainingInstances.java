@@ -2,7 +2,11 @@ package thebeast.pml.training;
 
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.statement.Interpreter;
+import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.variable.IntVariable;
 import thebeast.pml.*;
+import thebeast.pml.corpora.Corpus;
 import thebeast.util.ProgressReporter;
 
 import java.io.File;
@@ -27,22 +31,53 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
   private Model model;
   private Weights weights;
   private boolean verbose = false;
+  private File file;
+  private Signature signature;
+  private boolean loadedFromFile;
 
+
+  public TrainingInstances(Signature signature, File file, int maxByteSize) {
+    this.file = file;
+    this.signature = signature;
+    try {
+      fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
+      IntVariable sizeVar = TheBeast.getInstance().getNodServer().interpreter().createIntVariable();
+      fileSource.read(sizeVar);
+      size = sizeVar.value().getInt();
+      byteSize = 0;
+      active = new ArrayList<TrainingInstance>(10000);
+      for (int i = 0; i < size && byteSize < maxByteSize; ++i) {
+        TrainingInstance trainingInstance = new TrainingInstance(signature.createGroundAtoms(),
+                new LocalFeatures(model, weights), new SparseVector());
+        trainingInstance.read(fileSource);
+        byteSize += trainingInstance.getMemoryUsage();
+        active.add(trainingInstance);
+      }
+      activeCount = active.size();
+      loadedFromFile = true;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
 
   public TrainingInstances() {
   }
 
   public TrainingInstances(File file, LocalFeatureExtractor extractor,
-                           Iterator<GroundAtoms> corpus, int maxByteSize, ProgressReporter reporter) throws IOException {
+                           Corpus corpus, int maxByteSize, ProgressReporter reporter) throws IOException {
     Signature signature = extractor.getModel().getSignature();
     Solution solution = new Solution(extractor.getModel(), extractor.getWeights());
     FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
     active = new ArrayList<TrainingInstance>(10000);
-    this.size = 0;
+    this.size = corpus.size();
+    ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
+    builder.num(size);
+    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    fileSink.write(interpreter.createIntVariable(builder.getInt()));
     int numDumps = 0;
     reporter.started();
-    while (corpus.hasNext()) {
-      GroundAtoms atoms = corpus.next();
+    for (GroundAtoms atoms : corpus) {
       int memUsage = atoms.getMemoryUsage();
       if (byteSize + memUsage > maxByteSize) {
         activeCount += active.size();
@@ -89,22 +124,26 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     if (iterating)
       throw new RuntimeException("Dumped Corpus can only have one active iterator at a time!");
     iterating = true;
-    fileSource.reset();
-    //fill up initial actives
     try {
+      if (!loadedFromFile) {
+        fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
+        fileSource.read(TheBeast.getInstance().getNodServer().interpreter().createIntVariable());
+      }
       if (activeCount >= size) {
-        for (int i = 0; i < size; ++i) {
+        if (!loadedFromFile) for (int i = 0; i < size; ++i) {
           TrainingInstance instance = active.get(i);
           instance.read(fileSource);
         }
         iterating = false;
+        loadedFromFile = false;
         if (verbose) System.out.print("<");
         return active.subList(0, size).iterator();
       } else {
-        for (TrainingInstance instance : active) {
+        if (loadedFromFile) for (TrainingInstance instance : active) {
           instance.read(fileSource);
         }
-        System.out.print("<");
+        if (verbose) System.out.print("<");
+        loadedFromFile = false;        
         return new Iterator<TrainingInstance>() {
           Iterator<TrainingInstance> delegate = active.iterator();
           int current = 0;

@@ -2,6 +2,9 @@ package thebeast.pml.corpora;
 
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.variable.IntVariable;
+import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.statement.Interpreter;
 import thebeast.pml.GroundAtoms;
 import thebeast.pml.Signature;
 import thebeast.pml.TheBeast;
@@ -29,7 +32,32 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
   private Signature signature;
   private boolean iterating = false;
   private boolean verbose = false;
+  private boolean loadedFromFile = false;
   private File file;
+
+  public DumpedCorpus(Signature signature, File file, int maxByteSize) {
+    this.file = file;
+    this.signature = signature;
+    try {
+      fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
+      IntVariable sizeVar = TheBeast.getInstance().getNodServer().interpreter().createIntVariable();
+      fileSource.read(sizeVar);
+      size = sizeVar.value().getInt();
+      byteSize = 0;
+      active = new ArrayList<GroundAtoms>(10000);
+      for (int i = 0; i < size && byteSize < maxByteSize; ++i) {
+        GroundAtoms atoms = signature.createGroundAtoms();
+        atoms.read(fileSource);
+        byteSize += atoms.getMemoryUsage();
+        active.add(atoms);
+      }
+      activeCount = active.size();
+      loadedFromFile = true;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
 
   public DumpedCorpus(File file, Corpus corpus, int from, int to, int maxByteSize) throws IOException {
     this.file = file;
@@ -39,6 +67,11 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
     Iterator<GroundAtoms> iter = corpus.iterator();
     for (int i = 0; i < from; ++i) iter.next();
     this.size = to - from;
+    ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
+    builder.num(size);
+    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    fileSink.write(interpreter.createIntVariable(builder.getInt()));
+
     int numDumps = 0;
     for (int i = 0; i < size; ++i) {
       GroundAtoms atoms = iter.next();
@@ -65,7 +98,11 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
     FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
     active = new ArrayList<GroundAtoms>(10000);
     this.signature = corpus.getSignature();
-    this.size = 0;
+    this.size = corpus.size();
+    ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
+    builder.num(size);
+    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    fileSink.write(interpreter.createIntVariable(builder.getInt()));
     int numDumps = 0;
     for (GroundAtoms atoms : corpus) {
       int memUsage = atoms.getMemoryUsage();
@@ -77,7 +114,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
       }
       active.add(atoms);
       byteSize += memUsage;
-      ++size;
+      //++size;
     }
     activeCount = numDumps == 0 ? size : activeCount / numDumps;
     dump(fileSink);
@@ -100,28 +137,34 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
     return "DumpedCorpus size :" + size + " activeCount: " + activeCount;
   }
 
+  public int getActiveCount(){
+    return activeCount;
+  }
+
   public synchronized Iterator<GroundAtoms> iterator() {
     if (iterating)
       throw new RuntimeException("Dumped Corpus can only have one active iterator at a time!");
-    iterating = true;
-    //todo: why does reset not work?
-    fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
-//    fileSource.reset();
-    //fill up initial actives
     try {
+      iterating = true;
+      if (!loadedFromFile) {
+        //todo: why does reset not work?
+        fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
+        fileSource.read(TheBeast.getInstance().getNodServer().interpreter().createIntVariable());
+      }
       if (activeCount >= size) {
-        for (int i = 0; i < size; ++i) {
+        if (!loadedFromFile) for (int i = 0; i < size; ++i) {
           GroundAtoms atoms = active.get(i);
           atoms.read(fileSource);
-          //System.out.println(atoms.getMemoryUsage());
         }
         if (verbose) System.out.print("<");
         iterating = false;
+        loadedFromFile = false;        
         return active.subList(0, size).iterator();
       } else {
-        for (GroundAtoms atoms : active) {
+        if (!loadedFromFile) for (GroundAtoms atoms : active) {
           atoms.read(fileSource);
         }
+        loadedFromFile = false;
         return new Iterator<GroundAtoms>() {
           Iterator<GroundAtoms> delegate = active.iterator();
           int current = 0;
@@ -194,7 +237,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
   public int getUsedMemory() {
     int usage = 0;
     for (GroundAtoms atoms : active)
-      usage+=atoms.getMemoryUsage();
+      usage += atoms.getMemoryUsage();
     return usage;
   }
 }

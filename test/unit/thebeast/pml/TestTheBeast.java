@@ -443,7 +443,9 @@ public class TestTheBeast extends TestCase {
 
     File file1 = new File("tmp1");
     File file2 = new File("tmp2");
-    DumpedCorpus dumpedCorpus1 = new DumpedCorpus(file1, ramCorpus, 0, 50, 100 * 1024);
+    file1.delete();
+    file2.delete();
+    DumpedCorpus dumpedCorpus1 = new DumpedCorpus(file1, ramCorpus, 100 * 1024);
     DumpedCorpus dumpedCorpus2 = new DumpedCorpus(file2, ramCorpus, 10 * 1024);
 
     for (GroundAtoms atoms : dumpedCorpus1){
@@ -488,6 +490,25 @@ public class TestTheBeast extends TestCase {
       assertTrue(tokens.containsAtom(4, "boat", "NN"));
       assertFalse(tokens.containsAtom(0, "the", "NN"));
     }
+
+    //noinspection MismatchedQueryAndUpdateOfCollection
+    DumpedCorpus dumpedCorpus3 = new DumpedCorpus(signature, file1, 10 * 1024);
+    System.out.println(dumpedCorpus3.getActiveCount());
+    System.out.println("");
+    for (GroundAtoms atoms : dumpedCorpus3){
+      System.out.print(".");
+      tokens = atoms.getGroundAtomsOf(token);
+      phrases = atoms.getGroundAtomsOf(phrase);
+      assertEquals(5, tokens.size());
+      assertEquals(3, phrases.size());
+      assertTrue(tokens.containsAtom(0, "the", "DT"));
+      assertTrue(tokens.containsAtom(1, "man", "NN"));
+      assertTrue(tokens.containsAtom(2, "likes", "VBZ"));
+      assertTrue(tokens.containsAtom(3, "the", "DT"));
+      assertTrue(tokens.containsAtom(4, "boat", "NN"));
+      assertFalse(tokens.containsAtom(0, "the", "NN"));
+    }
+
     System.out.println("");
     file1.delete();
     file2.delete();
