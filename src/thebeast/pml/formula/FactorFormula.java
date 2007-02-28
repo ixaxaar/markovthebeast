@@ -39,7 +39,7 @@ public class FactorFormula {
 
   public FactorFormula(Quantification quantification, BooleanFormula condition,
                        BooleanFormula formula, Term weight){
-    this(null,quantification, condition, formula, weight);
+    this("formula",quantification, condition, formula, weight);
   }
 
   public FactorFormula(String name, Quantification quantification, BooleanFormula condition,

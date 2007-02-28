@@ -545,9 +545,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           Iterator<GroundAtoms> instance = corpus.iterator();
           ramCorpus = new RandomAccessCorpus(signature, parserSaveCorpus.to - parserSaveCorpus.from);
           for (int i = 0; i < parserSaveCorpus.from; ++i) instance.next();
-          for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to; ++i) corpus.add(instance.next());
-        } else
+          for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to; ++i) ramCorpus.add(instance.next());
+          corpus = ramCorpus;
+        } else {
           ramCorpus = new RandomAccessCorpus(corpus);
+          corpus = ramCorpus;
+        }
         out.println("Corpus saved to RAM (can be used for inspection now).");
         listIterator = ramCorpus.listIterator();
       } else if ("instances".equals(parserSaveCorpus.factory)) {
@@ -559,7 +562,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           instances = new TrainingInstances(file, extractor, corpus, defaultTrainingCacheSize,
                   new DotProgressReporter(out, 5,5,5));
         //iterator = corpus.iterator();
-        out.println("Instances generated.");
+        out.println(instances.size() + " instances generated.");
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -690,11 +693,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 //        }
       } else {
         int instance = 1;
-        learner.learn(gold);
         jump(1);
+        learner.learn(gold);
         while (iterator.hasNext() && instance < parserLearn.instances) {
-          learner.learn(gold);
           jump(1);
+          learner.learn(gold);
           ++instance;
         }
         out.println("Learned from " + instance + " instances.");

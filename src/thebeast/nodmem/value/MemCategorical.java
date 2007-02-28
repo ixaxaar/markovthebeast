@@ -54,4 +54,8 @@ public class MemCategorical extends AbstractMemValue<CategoricalType> implements
         MemCategorical other = (MemCategorical) v;
         chunk.intData[pointer] = other.chunk.intData[other.pointer]; 
     }
+
+  public String toString() {
+    return representation();
+  }
 }

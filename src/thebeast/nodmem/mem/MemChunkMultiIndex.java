@@ -23,8 +23,11 @@ public final class MemChunkMultiIndex {
   private MemDim dim;
   private int numKeys;
   private int numUsedIndices;
+  public int indexedSoFar; 
+
   private static final int CAP_INCREASE_LIST = 1;
   private static final int CAP_INCREASE_KEYS = 1;
+
 
 
   public MemChunkMultiIndex(int capacity, MemDim dim) {
@@ -263,7 +266,7 @@ public final class MemChunkMultiIndex {
 
   public static void serialize(MemChunkMultiIndex index, MemSerializer serializer) throws IOException {
     serializer.writeInts(index.capacity, index.dim.xInt, index.dim.xDouble,
-            index.dim.xChunk, index.numKeys, index.numUsedIndices);
+            index.dim.xChunk, index.numKeys, index.numUsedIndices, index.indexedSoFar);
     for (int i = 0; i < index.capacity; ++i) {
       if (index.tuples[i] == null) {
         serializer.writeInts(0);
@@ -313,11 +316,12 @@ public final class MemChunkMultiIndex {
   //  }
 
   public static MemChunkMultiIndex deserializeInPlace(MemDeserializer deserializer, MemChunkMultiIndex index) throws IOException {
-    int[] stats = new int[6];
-    deserializer.read(stats, 6);
+    int[] stats = new int[7];
+    deserializer.read(stats, 7);
     //MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
     index.numKeys = stats[4];
     index.numUsedIndices = stats[5];
+    index.indexedSoFar = stats[6];
     int savedSize = stats[0];
     if (index.capacity < savedSize)
       index.increaseCapacity(savedSize - index.capacity);
@@ -351,17 +355,17 @@ public final class MemChunkMultiIndex {
 
 
   public static MemChunkMultiIndex deserialize(MemDeserializer deserializer) throws IOException {
-    int[] stats = new int[6];
-    deserializer.read(stats, 6);
+    int[] stats = new int[7];
+    deserializer.read(stats, 7);
     MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
     index.numKeys = stats[4];
     index.numUsedIndices = stats[5];
+    index.indexedSoFar = stats[6];
     int[] sizeBuffer = new int[1];
     for (int i = 0; i < index.capacity; ++i) {
       deserializer.read(sizeBuffer, 1);
       int size = sizeBuffer[0];
       if (size > 0) {
-
         index.tuples[i] = MemHolder.deserialize(deserializer, index.dim);
         index.keys[i] = new int[size];
         deserializer.read(index.keys[i], size);

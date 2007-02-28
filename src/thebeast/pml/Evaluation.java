@@ -81,8 +81,25 @@ public class Evaluation {
     return falsePositives;
   }
 
+  public int getFalsePositivesCount(){
+    return falsePositives.getGroundAtomCount();
+  }
+
+
   public GroundAtoms getFalseNegatives(){
     return falseNegatives;
+  }
+
+  public int getFalseNegativesCount(){
+    return falseNegatives.getGroundAtomCount();
+  }
+
+  public int getGoldCount(){
+    return gold.getGroundAtomCount();
+  }
+
+  public int getGuessCount(){
+    return guess.getGroundAtomCount();
   }
 
 }
