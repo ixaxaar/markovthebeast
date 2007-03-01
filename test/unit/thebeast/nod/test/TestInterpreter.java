@@ -440,6 +440,27 @@ public class TestInterpreter extends NoDTest {
     assertTrue(sum.contains(0, 0.0));
     assertTrue(sum.contains(2, 13.0));
     assertTrue(sum.contains(4, 10.0));
+
+    exprBuilder.id("index").num(0).id("value").num(1.0).tupleForIds();
+    exprBuilder.id("index").num(2).id("value").num(1.0).tupleForIds();
+    exprBuilder.id("index").num(4).id("value").num(1.0).tupleForIds();
+    exprBuilder.id("index").num(2).id("value").num(2.0).tupleForIds();
+    exprBuilder.id("index").num(2).id("value").num(3.0).tupleForIds();
+    exprBuilder.id("index").num(4).id("value").num(2.0).tupleForIds();
+    interpreter.assign(rel, exprBuilder.relation(6).getRelation());
+
+    exprBuilder.expr(rel).by("index").doubleAttribute("value").summarizeAs("sum", Summarize.Spec.DOUBLE_SUM);
+    interpreter.assign(sum , exprBuilder.summarize().getRelation());
+
+    System.out.println(sum.value());
+    
+
+    assertEquals(3, sum.value().size());
+    assertTrue(sum.contains(0, 1.0));
+    assertTrue(sum.contains(2, 6.0));
+    assertTrue(sum.contains(4, 3.0));
+
+
   }
 
   public void testSparseAdd() {

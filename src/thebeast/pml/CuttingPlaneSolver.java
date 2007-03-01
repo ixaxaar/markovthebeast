@@ -73,6 +73,7 @@ public class CuttingPlaneSolver implements Solver {
     scoresSet = false;
     initSet = false;
     updated = false;
+    //this.atoms.clear(model.getHiddenPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
   }
 
@@ -86,6 +87,7 @@ public class CuttingPlaneSolver implements Solver {
   public void setScores(Scores scores) {
     done = false;
     this.scores.load(scores);
+    //ilp = new IntegerLinearProgram(model, weights, ilpSolver);
     ilp.init(this.scores);
     scoresSet = true;
   }
@@ -154,7 +156,9 @@ public class CuttingPlaneSolver implements Solver {
 
   private void score() {
     extractor.extract(atoms,features);
+    //scores = new Scores(model, weights);
     scores.score(features, weights);
+    //System.out.println(scores);
     ilp.init(scores);
     scoresSet = true;
   }
@@ -195,6 +199,8 @@ public class CuttingPlaneSolver implements Solver {
       return scores;
     if ("formulas".equals(name.getHead()))
       return formulas;
+    if ("features".equals(name.getHead()))
+      return features.toVerboseString();
     return null;
   }
 

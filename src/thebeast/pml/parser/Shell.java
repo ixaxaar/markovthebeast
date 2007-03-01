@@ -17,6 +17,7 @@ import thebeast.pml.training.OnlineLearner;
 import thebeast.pml.training.TrainingInstances;
 import thebeast.util.DotProgressReporter;
 import thebeast.util.Util;
+import thebeast.util.StopWatch;
 
 import java.io.*;
 import java.util.*;
@@ -40,6 +41,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private PrintStream err;
   private LinkedList<ParserStatement> history = new LinkedList<ParserStatement>();
   private ParserFactorFormula rootFactor;
+  private StopWatch stopWatch = new StopWatch();
 
   private HashMap<String, CorpusFactory> corpusFactories = new HashMap<String, CorpusFactory>();
   private HashMap<String, TypeGenerator> typeGenerators = new HashMap<String, TypeGenerator>();
@@ -389,10 +391,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoad(ParserLoad parserLoad) {
     update();
     try {
-      if ("instances".equals(parserLoad.target)){
-        instances = new TrainingInstances(signature, new File(parserLoad.file),defaultTrainingCacheSize);  
-      }
-      else if (parserLoad.target == null) {
+      if ("instances".equals(parserLoad.target)) {
+        instances = new TrainingInstances(signature, new File(parserLoad.file), defaultTrainingCacheSize);
+      } else if (parserLoad.target == null) {
         if (!parserLoad.gold) {
           guess.load(new FileInputStream(filename(parserLoad.file)));
           solver.setObservation(guess);
@@ -447,8 +448,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.print(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("learner".equals(parserPrint.name.head)) {
       out.print(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
+    } else if ("eval".equals(parserPrint.name.head)) {
+      Evaluation evaluation = new Evaluation(model);
+      evaluation.evaluate(gold,guess);
+      out.print(evaluation);
     } else if ("formulas".equals(parserPrint.name.head)) {
-      GroundFormulas formulas = new GroundFormulas(model,weights);
+      GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.extract(guess);
       out.print(formulas);
     } else if ("weights".equals(parserPrint.name.head)) {
@@ -471,15 +476,23 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitSolve(ParserSolve parserSolve) {
     update();
-    if (solutionAvailable && !guess.isEmpty(model.getHiddenPredicates()))
-      solver.setInititalSolution(guess);
+    //CuttingPlaneSolver solver = new CuttingPlaneSolver();
+    //solver.configure(model, weights);
+    stopWatch.start();
+    solver.setObservation(guess);
     solver.solve(parserSolve.numIterations);
-    solutionAvailable = false;
-    guess.load(solver.getAtoms(), model.getHiddenPredicates());
+    guess.load(solver.getAtoms());
+    long time = stopWatch.stopAndContinue();
+
+//    if (solutionAvailable && !guess.isEmpty(model.getHiddenPredicates()))
+//      solver.setInititalSolution(guess);
+//    solver.solve(parserSolve.numIterations);
+//    solutionAvailable = false;
+//    guess.load(solver.getAtoms(), model.getHiddenPredicates());
     if (solver.getIterationCount() == 0)
       out.println("Current solution is optimal.");
     else
-      out.println("Solved in " + solver.getIterationCount() + " step(s).");
+      out.println("Solved in " + solver.getIterationCount() + " step(s) and " + time + "ms.");
   }
 
   public void visitGenerateTypes(ParserGenerateTypes parserGenerateTypes) {
@@ -514,11 +527,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitLoadCorpus(ParserLoadCorpus parserLoadCorpus) {
     update();
-    if ("dump".equals(parserLoadCorpus.factory))  {
-      corpus = new DumpedCorpus(signature, new File(parserLoadCorpus.file),defaultCorpusCacheSize);
+    if ("dump".equals(parserLoadCorpus.factory)) {
+      corpus = new DumpedCorpus(signature, new File(parserLoadCorpus.file), defaultCorpusCacheSize);
       //iterator = corpus.iterator();
-    }
-    else if (parserLoadCorpus.factory != null) {
+    } else if (parserLoadCorpus.factory != null) {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
       corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
       if (parserLoadCorpus.from != -1) {
@@ -568,7 +580,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
         } else
           instances = new TrainingInstances(file, extractor, corpus, defaultTrainingCacheSize,
-                  new DotProgressReporter(out, 5,5,5));
+                  new DotProgressReporter(out, 5, 5, 5));
         //iterator = corpus.iterator();
         out.println(instances.size() + " instances generated.");
       }
@@ -683,45 +695,37 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitLearn(ParserLearn parserLearn) {
     update();
-    if (parserLearn.epochs == -1) {
-      //learner.startEpoch();
-      if (parserLearn.instances == -1) {
-          if (instances.size() == 0)
-            out.println("There are no training instances. Use the 'save corpus to instances ... ' " +
-                    "command to create some");
-          else{
-            learner.learn(instances);
-          }
-
-//        learner.learn(gold);
-//        jump(1);
-//        while (iterator.hasNext()) {
-//          learner.learn(gold);
-//          jump(1);
-//        }
-      } else {
-        int instance = 1;
+    if (parserLearn.instances == -1) {
+      if (instances.size() == 0)
+        out.println("There are no training instances. Use the 'save corpus to instances ... ' " +
+                "command to create some");
+      else {
+        int oldNumEpochs = learner.getNumEpochs();
+        if (parserLearn.epochs != -1)
+          learner.setNumEpochs(parserLearn.epochs);
+        learner.learn(instances);
+        learner.setNumEpochs(oldNumEpochs);
+      }
+    } else {
+      int instance = 1;
+      jump(1);
+      learner.learn(gold);
+      while (iterator.hasNext() && instance < parserLearn.instances) {
         jump(1);
         learner.learn(gold);
-        while (iterator.hasNext() && instance < parserLearn.instances) {
-          jump(1);
-          learner.learn(gold);
-          ++instance;
-        }
-        out.println("Learned from " + instance + " instances.");
+        ++instance;
       }
-      //learner.endEpoch();
-    } else {
-
+      out.println("Learned from " + instance + " instances.");
     }
-
+    //learner.endEpoch();
   }
+
 
   public void visitSet(ParserSet parserSet) {
     if ("instancesCacheSize".equals(parserSet.propertyName.head))
-      defaultTrainingCacheSize = 1024 * 1024 * (Integer)parserSet.value;   
+      defaultTrainingCacheSize = 1024 * 1024 * (Integer) parserSet.value;
     else if ("corpusCacheSize".equals(parserSet.propertyName.head))
-        defaultCorpusCacheSize = 1024 * 1024 * (Integer)parserSet.value;   
+      defaultCorpusCacheSize = 1024 * 1024 * (Integer) parserSet.value;
     else if ("solver".equals(parserSet.propertyName.head))
       solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("learner".equals(parserSet.propertyName.head))
@@ -740,7 +744,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitClear(ParserClear parserClear) {
     if (parserClear.what.equals("atoms")) {
       guess.clear(model.getHiddenPredicates());
-      //reseting the solver
+//reseting the solver
       out.println("Atoms cleared.");
     } else if (parserClear.what.equals("scores")) {
       scores.clear();
@@ -831,7 +835,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
     term = typeContext.peek().getConstant(parserNamedConstant.name);
-    //typeCheck();
+//typeCheck();
   }
 
   public void visitIntConstant(ParserIntConstant parserIntConstant) {
@@ -860,7 +864,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitDontCare(ParserDontCare parserDontCare) {
     term = DontCare.DONTCARE;
-    //typeCheck();
+//typeCheck();
   }
 
   public void visitFunctionApplication(ParserFunctionApplication parserFunctionApplication) {

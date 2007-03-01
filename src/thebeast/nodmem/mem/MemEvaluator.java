@@ -431,6 +431,7 @@ public class MemEvaluator {
       for (int vertexIndex = 0; vertexIndex < cycle.length; ++vertexIndex) {
         int row = edge2row.get(new Pair<Integer, Integer>(cycle[vertexIndex],
                 cycle[vertexIndex == cycle.length - 1 ? 0 : vertexIndex + 1]));
+        //System.out.print(graph.intData[row * 2] + "-" + graph.intData[row * 2 + 1] + " ");
         System.arraycopy(graph.intData, row * graph.numIntCols,
                 edges.intData, vertexIndex * graph.numIntCols, graph.numIntCols);
         System.arraycopy(graph.doubleData, row * graph.numDoubleCols,
@@ -439,6 +440,8 @@ public class MemEvaluator {
           edges.chunkData[vertexIndex * graph.numChunkCols + chunkIndex] =
                   graph.chunkData[row * graph.numChunkCols + chunkIndex].copy();
       }
+      edges.size = cycle.length;
+      //System.out.println("");
     }
   }
 

@@ -79,48 +79,48 @@ factor :
 weight pos_m1p1_3 : Pos x Pos x Pos -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos m_pos, Pos hm1_pos
-  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos) & word(h,_)
   add [link(h,m)] * pos_m1p1_3(mp1_pos,m_pos, hm1_pos);
 
 weight pos_m1p1_l_3 : Pos x Pos x Pos x Dep -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos m_pos, Pos hm1_pos, Dep label
-  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos) & word(h,_)
   add [dep(h,m,label)] * pos_m1p1_l_3(mp1_pos,m_pos, hm1_pos, label);
 
 weight pos_m1p1_d_3 : Pos x Pos x Pos x Int -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos m_pos, Pos hm1_pos
-  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos) & word(h,_)
   add [link(h,m)] * pos_m1p1_d_3(mp1_pos,m_pos, hm1_pos, bins(1,2,3,4,5,10,h-m));
 
 weight pos_m1p1_l_d_3 : Pos x Pos x Pos x Dep x Int -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos m_pos, Pos hm1_pos, Dep label
-  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(m,m_pos) & pos(h-1,hm1_pos) & word(h,_)
   add [dep(h,m,label)] * pos_m1p1_l_d_3(mp1_pos,m_pos, hm1_pos, label, bins(1,2,3,4,5,10,h-m));
 
 //hm1_pos, h_pos, mp1_pos
 weight pos_m1p1_4 : Pos x Pos x Pos -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos h_pos, Pos hm1_pos
-  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos) & word(m,_)
   add [link(h,m)] * pos_m1p1_4(mp1_pos,h_pos, hm1_pos);
 
 weight pos_m1p1_l_4 : Pos x Pos x Pos x Dep -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos h_pos, Pos hm1_pos, Dep label
-  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos) & word(m,_)
   add [dep(h,m,label)] * pos_m1p1_l_4(mp1_pos,h_pos, hm1_pos, label);
 
 weight pos_m1p1_d_4 : Pos x Pos x Pos x Int -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos h_pos, Pos hm1_pos
-  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos) & word(m,_)
   add [link(h,m)] * pos_m1p1_d_4(mp1_pos,h_pos, hm1_pos, bins(1,2,3,4,5,10,h-m));
 
 weight pos_m1p1_l_d_4 : Pos x Pos x Pos x Dep x Int -> Double;
 factor :
   for Int h, Int m, Pos mp1_pos, Pos h_pos, Pos hm1_pos, Dep label
-  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos)
+  if pos(m+1,mp1_pos) & pos(h,h_pos) & pos(h-1,hm1_pos) & word(m,_)
   add [dep(h,m,label)] * pos_m1p1_l_d_4(mp1_pos,h_pos, hm1_pos, label, bins(1,2,3,4,5,10,h-m));

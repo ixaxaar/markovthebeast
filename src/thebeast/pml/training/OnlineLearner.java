@@ -59,6 +59,11 @@ public class OnlineLearner implements Learner, HasProperties {
     this.numEpochs = numEpochs;
   }
 
+
+  public int getNumEpochs() {
+    return numEpochs;
+  }
+
   public Solver getSolver() {
     return solver;
   }

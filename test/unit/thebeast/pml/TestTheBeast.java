@@ -751,6 +751,8 @@ public class TestTheBeast extends TestCase {
     assertEquals(2.0 / 3.0, evaluation.getRecall(phrase));
     assertEquals(2.0 / 3.0, evaluation.getPrecision(phrase));
     assertEquals(2.0 / 3.0, evaluation.getF1(phrase));
+
+    System.out.println(evaluation);
   }
 
 
@@ -942,10 +944,6 @@ public class TestTheBeast extends TestCase {
     phraseAtoms.addGroundAtom(2, 2, "VP");
 
     System.out.println(factor);
-//
-//    QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
-//    RelationExpression query = generator.generateGlobalFalseQuery(factor, theManLikesTheBoat, weights);
-//    System.out.println(query);
 
     Model model = signature.createModel();
     model.addFactorFormula(factor);
@@ -954,8 +952,6 @@ public class TestTheBeast extends TestCase {
     GroundFormulas formulas = new GroundFormulas(model, weights);
     formulas.extract(theManLikesTheBoat);
     System.out.println(formulas);
-    //assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
-    //assertTrue(formulas.getFalseGroundFormulas(factor).contains(2));
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
 
@@ -980,15 +976,6 @@ public class TestTheBeast extends TestCase {
     //ilp.init(scores);
     ilp.update(formulas, theManLikesTheBoat);
     System.out.println(ilp.toLpSolveFormat());
-
-//
-//    assertEquals(5, ilp.getVars().value().size());
-//
-//    System.out.println(ilp.getConstraints().value());
-
-    //RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
-
-    //System.out.println(constraintQuery);
 
   }
 

@@ -5,9 +5,10 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
 
 import java.util.HashMap;
+import java.util.Formatter;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 08-Feb-2007 Time: 21:19:43
+ * An Evaluation object can extract precision/recall information from a gold and guess set of ground atoms.
  */
 public class Evaluation {
 
@@ -101,5 +102,27 @@ public class Evaluation {
   public int getGuessCount(){
     return guess.getGroundAtomCount();
   }
+
+  public String toString(){
+    StringBuffer result = new StringBuffer();
+    for (UserPredicate pred : model.getHiddenPredicates()){
+      result.append(pred.getName()).append("\n");
+      for (int i = 0; i < 25; ++i) result.append("-");
+      result.append("\n");
+      Formatter formatter = new Formatter();
+      formatter.format("%-20s%5.2f\n","Recall", getRecall(pred));
+      formatter.format("%-20s%5.2f\n","Precision", getPrecision(pred));
+      formatter.format("%-20s%5.2f\n","F1", getF1(pred));
+      result.append(formatter.toString());
+      result.append("False positives:\n");
+      result.append(falsePositives.getGroundAtomsOf(pred));
+      result.append("False negatives:\n");
+      result.append(falseNegatives.getGroundAtomsOf(pred));
+      result.append("\n");
+    }
+    return result.toString();
+  }
+
+  
 
 }

@@ -18,7 +18,7 @@ public class MemSummarizer {
     MemColumnSelector tmp2result = f.tmp2result;
     Spec[] intSpecs = f.intSpecs;
     Spec[] doubleSpecs = f.doubleSpecs;
-    MemChunk tmp = new MemChunk(1,1,tmp2result.getDim());
+    MemChunk tmp = new MemChunk(1, 1, tmp2result.getDim());
     MemChunk wrappedTmp = new MemChunk(1, new int[0], new double[0], new MemChunk[]{tmp});
     //todo: cache this index somewhere and reuse its buffers to avoid gc.    
     MemChunkIndex index = new MemChunkIndex(src.getSize(), key2original.getDim());
@@ -62,23 +62,35 @@ public class MemSummarizer {
       MemEvaluator.evaluate(f.tmpFunction, chunks, rows, wrappedTmp, MemVector.ZERO);
 
       //evaluate specs
-      for (int i = 0; i < intSpecs.length; ++i){
-        switch (intSpecs[i]){
+      for (int i = 0; i < intSpecs.length; ++i) {
+        switch (intSpecs[i]) {
           case INT_SUM:
-            dst.intData[dstInt + tmp2result.intCols[i]] += tmp.intData[i];
+            if (old == -1)
+              dst.intData[dstInt + tmp2result.intCols[i]] = tmp.intData[i];
+            else
+              dst.intData[dstInt + tmp2result.intCols[i]] += tmp.intData[i];
             break;
           case INT_COUNT:
-            ++dst.intData[dstInt + tmp2result.intCols[i]];
+            if (old == -1)
+              dst.intData[dstInt + tmp2result.intCols[i]] = 1;
+            else
+              ++dst.intData[dstInt + tmp2result.intCols[i]];
             break;
         }
       }
-      for (int i = 0; i < doubleSpecs.length; ++i){
-        switch (doubleSpecs[i]){
+      for (int i = 0; i < doubleSpecs.length; ++i) {
+        switch (doubleSpecs[i]) {
           case DOUBLE_SUM:
-            dst.doubleData[dstDouble + tmp2result.doubleCols[i]] += tmp.doubleData[i];
+            if (old == -1)
+              dst.doubleData[dstDouble + tmp2result.doubleCols[i]] = tmp.doubleData[i];
+            else
+              dst.doubleData[dstDouble + tmp2result.doubleCols[i]] += tmp.doubleData[i];
             break;
           case DOUBLE_COUNT:
-            ++dst.doubleData[dstDouble + tmp2result.doubleCols[i]];
+            if (old == -1)
+              dst.doubleData[dstDouble + tmp2result.doubleCols[i]] = 0;
+            else
+              ++dst.doubleData[dstDouble + tmp2result.doubleCols[i]];
             break;
         }
       }
