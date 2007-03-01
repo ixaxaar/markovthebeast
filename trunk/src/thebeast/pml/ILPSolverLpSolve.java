@@ -24,7 +24,7 @@ public class ILPSolverLpSolve implements ILPSolver {
     try {
       solver = LpSolve.makeLp(0, 0);
       solver.setMaxim();
-      solver.setBbDepthlimit(3);
+      //solver.setBbDepthlimit(3);
       numRows = 0;
       numCols = 0;
       solver.setVerbose(verbose ? 4 : 0);

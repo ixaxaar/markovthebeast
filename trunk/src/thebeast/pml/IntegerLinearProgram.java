@@ -271,8 +271,11 @@ public class IntegerLinearProgram implements HasProperties{
     interpreter.assign(this.result, result);
     //for all solutions <= 0.5 remove tuples
     //System.out.println(result.value());
-    for (UserPredicate predicate : model.getHiddenPredicates())
+    for (UserPredicate predicate : model.getHiddenPredicates()){
+      //System.out.println(solution.getGroundAtomsOf(predicate).getRelationVariable());
       interpreter.assign(solution.getGroundAtomsOf(predicate).getRelationVariable(), removeFalseGroundAtoms.get(predicate));
+      //System.out.println(solution.getGroundAtomsOf(predicate).getRelationVariable());
+    }
 
     //for all solutions > 0.5 insert tuples (taken from the corresponding ground atom index table)
     //into the ground atoms
@@ -290,10 +293,12 @@ public class IntegerLinearProgram implements HasProperties{
     this.scores.load(scores);
     this.atoms.load(atoms);
     interpreter.clear(newConstraints);
+//    System.out.println(atoms);
+//    System.out.println(formulas);
     for (FactorFormula formula : formula2query.keySet()) {
       //System.out.println(formula);
       interpreter.interpret(newConstraintsInserts.get(formula));
-      //System.out.println(toLpSolveFormat(newVars, newConstraints));
+//      System.out.println(toLpSolveFormat(newVars, newConstraints));
       interpreter.interpret(constraintsInserts.get(formula));
 //      RelationExpression query = formula2query.get(formula);
 //      builder.expr(query);
