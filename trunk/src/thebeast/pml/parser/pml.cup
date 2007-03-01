@@ -153,6 +153,8 @@ statement ::= createType:s
               {: RESULT = new ParserLearn(Integer.valueOf(i),-1); :}
             | JUMP NUMBER:n
               {: RESULT = new ParserShift(Integer.valueOf(n)); :}
+            | JUMP MINUS NUMBER:n
+              {: RESULT = new ParserShift(-Integer.valueOf(n)); :}
             | JUMP
               {: RESULT = new ParserShift(1); :}
             | SET name:p ASSIGN NUMBER:n

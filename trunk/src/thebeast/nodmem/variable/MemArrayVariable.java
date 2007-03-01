@@ -20,6 +20,12 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue,ArrayType> 
     chunk.chunkData[0] = new MemChunk(0,0,((MemArrayType)type).getDim());
   }
 
+  public MemArrayVariable(NoDServer server, ArrayType type, int size) {
+      super(server, type, new MemChunk(1,1,0,0,1));
+      chunk.chunkData[0] = new MemChunk(size,size,((MemArrayType)type).getDim());
+    }
+
+
   public void destroy() {
       
   }

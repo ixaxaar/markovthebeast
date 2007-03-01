@@ -3,20 +3,24 @@ package thebeast.nodmem.statement;
 import thebeast.nod.expression.*;
 import thebeast.nod.statement.*;
 import thebeast.nod.type.*;
+import thebeast.nod.value.BoolValue;
+import thebeast.nod.value.DoubleValue;
+import thebeast.nod.value.IntValue;
+import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.*;
-import thebeast.nod.value.*;
 import thebeast.nodmem.MemNoDServer;
 import thebeast.nodmem.expression.AbstractMemExpression;
+import thebeast.nodmem.expression.MemDoubleConstant;
 import thebeast.nodmem.mem.*;
 import thebeast.nodmem.type.*;
 import thebeast.nodmem.variable.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Collection;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Sebastian Riedel
@@ -122,6 +126,14 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     return new MemArrayVariable(server, typeFactory.createArrayType(instanceType));
   }
 
+  public ArrayVariable createArrayVariable(Type instanceType, int size) {
+    return new MemArrayVariable(server, typeFactory.createArrayType(instanceType), size);
+  }
+
+  public ArrayVariable createDoubleArrayVariable(int size) {
+    return createArrayVariable(typeFactory.doubleType(),size);
+  }
+
   public ArrayVariable createArrayVariable(ArrayExpression expr) {
     MemArrayVariable var = new MemArrayVariable(server, expr.type());
     interpret(factory.createAssign(var, expr));
@@ -177,6 +189,26 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemArrayAppend(arrayVariable, expression));
   }
 
+  public void add(ArrayVariable arrayVariable, ArrayExpression argument, DoubleExpression scale){
+    interpret(new MemArrayAdd(arrayVariable, argument, scale));
+  }
+
+  public void scale(ArrayVariable arrayVariable, DoubleExpression scale) {
+    MemChunk dst = new MemChunk(1,1,0,1,0);
+    MemEvaluator.evaluate(((AbstractMemExpression)scale).compile(), null,null,dst, MemVector.ZERO);
+    AbstractMemVariable var = (AbstractMemVariable) arrayVariable;
+    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk],dst.doubleData[0]);
+    var.invalidate();
+  }
+
+   public void scale(ArrayVariable arrayVariable, double scale) {
+    AbstractMemVariable var = (AbstractMemVariable) arrayVariable;
+    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk],scale);
+    var.invalidate();
+  }
+  public void add(ArrayVariable arrayVariable, ArrayExpression argument, double scale) {
+    add(arrayVariable, argument, new MemDoubleConstant(MemDoubleType.DOUBLE,scale));
+  }
 
   public void sparseAdd(ArrayVariable var, RelationExpression sparse, DoubleExpression scale,
                         String indexAttribute, String valueAttribute) {
@@ -331,6 +363,19 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   }
 
+  public void visitArrayAdd(ArrayAdd arrayAdd) {
+    MemArrayVariable var = (MemArrayVariable) arrayAdd.variable();
+    AbstractMemExpression scale = (AbstractMemExpression) arrayAdd.scale();
+    AbstractMemExpression arg = (AbstractMemExpression) arrayAdd.argument();
+    MemChunk buffer = new MemChunk(1, 1, 0, 1, 1);
+    MemEvaluator.evaluate(scale.compile(), null, null, buffer, MemVector.ZERO);
+    MemEvaluator.evaluate(arg.compile(), null, null, buffer, MemVector.ZERO);
+    MemChunk dst = var.getContainerChunk().chunkData[var.getPointer().xChunk];
+    MemMath.add(dst, buffer.chunkData[0],buffer.doubleData[0]);
+    var.invalidate();
+
+  }
+
   public void append(ArrayVariable arrayVariable, int howmany, Object constant) {
     MemArrayVariable var = (MemArrayVariable) arrayVariable;
     //var.own();
@@ -338,15 +383,15 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     if (chunk.size + howmany > chunk.capacity)
       chunk.increaseCapacity(chunk.size + howmany - chunk.capacity);
     if (arrayVariable.type().instanceType() instanceof DoubleType) {
-      double value = (Double)constant;
-      Arrays.fill(chunk.doubleData,chunk.size,chunk.size + howmany,value);
-    } else if (arrayVariable.type().instanceType() instanceof IntType){
+      double value = (Double) constant;
+      Arrays.fill(chunk.doubleData, chunk.size, chunk.size + howmany, value);
+    } else if (arrayVariable.type().instanceType() instanceof IntType) {
       int value = (Integer) constant;
-      Arrays.fill(chunk.intData,chunk.size,chunk.size + howmany,value);
-    } else if (arrayVariable.type().instanceType() instanceof CategoricalType){
+      Arrays.fill(chunk.intData, chunk.size, chunk.size + howmany, value);
+    } else if (arrayVariable.type().instanceType() instanceof CategoricalType) {
       CategoricalType type = (CategoricalType) arrayVariable.type().instanceType();
-      int value = type.index((String)constant);
-      Arrays.fill(chunk.intData,chunk.size,chunk.size + howmany,value);
+      int value = type.index((String) constant);
+      Arrays.fill(chunk.intData, chunk.size, chunk.size + howmany, value);
     } else
       throw new IllegalArgumentException("Can't append other types then ints, doubles and categoricals with this method");
     chunk.size += howmany;

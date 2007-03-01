@@ -5,6 +5,8 @@ import thebeast.pml.corpora.Corpus;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
 import thebeast.util.PrecisionRecallProgressReporter;
+import thebeast.nod.variable.ArrayVariable;
+import thebeast.nod.statement.Interpreter;
 
 /**
  * @author Sebastian Riedel
@@ -27,6 +29,10 @@ public class OnlineLearner implements Learner, HasProperties {
   private Weights weights;
   private Model model;
   private PrecisionRecallProgressReporter progressReporter = new QuietProgressReporter();
+  private boolean averaging = false;
+  private ArrayVariable average;
+  private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+  private int count;
 
   private int numEpochs;
 
@@ -81,13 +87,30 @@ public class OnlineLearner implements Learner, HasProperties {
 
 
   public void learn(Corpus corpus) {
-    //do one run to create training instances
+    setUpAverage();
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
-
+      progressReporter.started();
       for (GroundAtoms data : corpus) {
         learn(data);
       }
       updateRule.endEpoch();
+      progressReporter.finished();
+    }
+    finalizeAverage();
+  }
+
+  private void finalizeAverage() {
+    if (averaging && average != null) {
+      interpreter.scale(average, 1.0 / count);
+      interpreter.assign(weights.getWeights(), average);
+    }
+    average = null;
+  }
+
+  private void setUpAverage() {
+    if (averaging) {
+      average = interpreter.createDoubleArrayVariable(weights.getFeatureCount());
+      count = 0;
     }
   }
 
@@ -113,12 +136,14 @@ public class OnlineLearner implements Learner, HasProperties {
     //use the feature vector and weight to score ground atoms
     scores.score(features, this.weights);
 
+
+    //System.out.println(features.toVerboseString());
+    System.out.println(scores);
     //use the scores to solve the model
     solver.setObservation(instance);
     solver.setScores(scores);
     solver.solve();
     solution.getGroundAtoms().load(solver.getAtoms());
-    //solver.solve(instance, scores, solution);
 
     //evaluate the guess vs the gold.
     evaluation.evaluate(instance, solution.getGroundAtoms());
@@ -133,7 +158,18 @@ public class OnlineLearner implements Learner, HasProperties {
     //update the weights
     updateRule.update(gold, guess, evaluation, this.weights);
 
-    progressReporter.progressed();
+    updateAverage();
+
+    progressReporter.progressed(
+            evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
+            evaluation.getGoldCount(), evaluation.getGuessCount());
+  }
+
+  private void updateAverage() {
+    if (averaging && average != null) {
+      interpreter.add(average, weights.getWeights(), 1.0);
+      ++count;
+    }
   }
 
   public void configure(Model model, Weights weights) {
@@ -154,7 +190,7 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
   public void learn(TrainingInstances instances) {
-
+    setUpAverage();
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       progressReporter.started();
       for (TrainingInstance instance : instances) {
@@ -163,7 +199,7 @@ public class OnlineLearner implements Learner, HasProperties {
       updateRule.endEpoch();
       progressReporter.finished();
     }
-
+    finalizeAverage();
   }
 
   private void learn(TrainingInstance data) {
@@ -184,6 +220,7 @@ public class OnlineLearner implements Learner, HasProperties {
     solver.solve();
     solution.getGroundAtoms().load(solver.getAtoms());
     //solver.solve(instance, scores, solution);
+    //System.out.println(solution.getGroundAtoms());
 
     //evaluate the guess vs the gold.
     evaluation.evaluate(instance, solution.getGroundAtoms());
@@ -196,7 +233,7 @@ public class OnlineLearner implements Learner, HasProperties {
     updateRule.update(gold, guess, evaluation, this.weights);
 
     progressReporter.progressed(
-            evaluation.getFalsePositivesCount(),evaluation.getFalseNegativesCount(),
+            evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
             evaluation.getGoldCount(), evaluation.getGuessCount());
 
   }
@@ -205,13 +242,18 @@ public class OnlineLearner implements Learner, HasProperties {
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
       solver.setProperty(name.getTail(), value);
-    }
-    else if ("numEpochs".equals(name.getHead())) {
-      setNumEpochs((Integer)value);
+    } else if ("numEpochs".equals(name.getHead())) {
+      setNumEpochs((Integer) value);
     }
   }
 
   public Object getProperty(PropertyName name) {
+    if ("solution".equals(name.getHead()))
+      return solution.getGroundAtoms();
+    if ("gold".equals(name.getHead()))
+      return gold;
+    if ("guess".equals(name.getHead()))
+      return guess;
     return null;
   }
 }

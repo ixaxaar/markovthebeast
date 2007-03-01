@@ -18,6 +18,20 @@ public class MemMath {
     return result;
   }
 
+  public static void add(MemChunk dst, MemChunk arg, double scale){
+    for (int row = 0; row < dst.size;++row){
+      dst.doubleData[row] += scale * arg.doubleData[row];
+    }
+  }
+
+
+  public static void scale(MemChunk dst, double scale){
+    for (int row = 0; row < dst.size;++row){
+      dst.doubleData[row] *= scale;
+    }
+  }
+
+
   public static double indexSum(MemChunk array, MemChunk indexRelation, int indexColumn){
     double result = 0;
     int relPointer = indexColumn;

@@ -12,7 +12,7 @@ public class MemDoubleConstant extends AbstractMemConstant<DoubleType, DoubleVal
 
   private double constant;
 
-  protected MemDoubleConstant(DoubleType type, double constant) {
+  public MemDoubleConstant(DoubleType type, double constant) {
     super(type);
     this.constant = constant;
   }
