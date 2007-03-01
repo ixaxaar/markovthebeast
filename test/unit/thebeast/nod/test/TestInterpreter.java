@@ -326,6 +326,26 @@ public class TestInterpreter extends NoDTest {
     assertEquals(2.5, var.value().getDouble());
   }
 
+  public void testArrayAdd(){
+    ArrayVariable var = interpreter.createArrayVariable(typeFactory.doubleType(),4);
+    exprBuilder.num(1.0).num(2.0).num(3.0).num(4.0).array(4);
+    ArrayExpression argument = exprBuilder.getArray();
+    interpreter.add(var, argument, exprBuilder.num(1.0).getDouble());
+    ArrayValue array = var.value();
+    assertEquals(1.0,array.doubleElement(0).getDouble());
+    assertEquals(2.0,array.doubleElement(1).getDouble());
+    assertEquals(3.0,array.doubleElement(2).getDouble());
+    assertEquals(4.0,array.doubleElement(3).getDouble());
+    System.out.println(var.value());
+    interpreter.add(var,argument, exprBuilder.num(2.0).getDouble());
+    System.out.println(var.value());
+    assertEquals(3.0,array.doubleElement(0).getDouble());
+    assertEquals(6.0,array.doubleElement(1).getDouble());
+    assertEquals(9.0,array.doubleElement(2).getDouble());
+    assertEquals(12.0,array.doubleElement(3).getDouble());
+
+  }
+
   public void testArrayAppend() {
     ArrayVariable var = interpreter.createArrayVariable(typeFactory.intType());
     exprBuilder.integer(1).integer(2).integer(3).integer(1).array(4);
@@ -464,13 +484,14 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.id("arg1").num(50).id("arg2").num(60).id("index").num(1).tupleForIds();
     exprBuilder.id("arg1").num(60).id("arg2").num(200).id("index").num(2).tupleForIds();
     exprBuilder.id("arg1").num(200).id("arg2").num(50).id("index").num(3).tupleForIds();
-    exprBuilder.relation(6);
+    exprBuilder.id("arg1").num(1).id("arg2").num(1).id("index").num(3).tupleForIds();
+    exprBuilder.relation(7);
     RelationVariable graph = interpreter.createRelationVariable(exprBuilder.getRelation());
     graph.setLabel("graph");
     RelationExpression cyclesExpr = exprBuilder.expr(graph).cycles("arg1", "arg2").getRelation();
     RelationVariable cycles = interpreter.createRelationVariable(cyclesExpr);
     System.out.println(cycles.value());
-    assertEquals(2, cycles.value().size());
+    assertEquals(3, cycles.value().size());
   }
 
   public void testCount() {

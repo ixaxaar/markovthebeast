@@ -168,7 +168,8 @@ public class FormulaBuilder {
   }
 
   public FactorFormula produceFactorFormula() {
-    FactorFormula factorFormula = new FactorFormula(popQuantification(), condition, formula, weight);
+    FactorFormula factorFormula = new FactorFormula(popQuantification(), condition, formula,
+            weight == null ? new DoubleConstant(Double.POSITIVE_INFINITY) : weight );
     condition = null;
     formula = null;
     weight = null;

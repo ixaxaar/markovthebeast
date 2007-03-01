@@ -26,7 +26,7 @@ import java.util.Formatter;
 /**
  * @author Sebastian Riedel
  */
-public class IntegerLinearProgram {
+public class IntegerLinearProgram implements HasProperties{
 
   private RelationVariable
           constraints, newConstraints, vars, newVars, result;
@@ -231,6 +231,10 @@ public class IntegerLinearProgram {
     interpreter.clear(vars);
     interpreter.clear(newVars);
     interpreter.assign(varCount, builder.num(0).getInt());
+    for (RelationVariable var : groundAtom2index.values())
+      interpreter.clear(var);
+    for (RelationVariable var : groundFormula2index.values())
+      interpreter.clear(var);
   }
 
   public void setSolver(ILPSolver solver) {
@@ -274,7 +278,7 @@ public class IntegerLinearProgram {
     //into the ground atoms
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationExpression query = addTrueGroundAtoms.get(predicate);
-      RelationValue rel = interpreter.evaluateRelation(query);
+      //RelationValue rel = interpreter.evaluateRelation(query);
       interpreter.insert(solution.getGroundAtomsOf(predicate).getRelationVariable(), query);
     }
 
@@ -287,9 +291,9 @@ public class IntegerLinearProgram {
     this.atoms.load(atoms);
     interpreter.clear(newConstraints);
     for (FactorFormula formula : formula2query.keySet()) {
-      System.out.println(formula);
+      //System.out.println(formula);
       interpreter.interpret(newConstraintsInserts.get(formula));
-      System.out.println(toLpSolveFormat(newVars, newConstraints));
+      //System.out.println(toLpSolveFormat(newVars, newConstraints));
       interpreter.interpret(constraintsInserts.get(formula));
 //      RelationExpression query = formula2query.get(formula);
 //      builder.expr(query);
@@ -463,4 +467,16 @@ public class IntegerLinearProgram {
     return "NOT AVAILABLE";
   }
 
+  public void setProperty(PropertyName name, Object value) {
+    if ("solver".equals(name.getHead()))
+      solver.setProperty(name.getTail(),value);
+  }
+
+  public Object getProperty(PropertyName name) {
+    if ("result".equals(name.getHead()))
+      return getResultString();
+    if ("solver".equals(name.getHead()))
+      return solver;
+    return null;
+  }
 }

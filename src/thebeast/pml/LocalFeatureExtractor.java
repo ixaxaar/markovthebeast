@@ -76,7 +76,8 @@ public class LocalFeatureExtractor {
 
   public void extract(GroundAtoms groundAtoms, LocalFeatures features) {
     atoms.load(groundAtoms);
-    this.features.load(features);
+    //this.features.load(features);
+    features.clear();
     for (UserPredicate pred : queries.keySet()) {
 //      for (Insert insert : inserts.get(pred))
 //        interpreter.interpret(insert);

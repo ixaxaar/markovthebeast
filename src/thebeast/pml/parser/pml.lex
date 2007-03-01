@@ -41,7 +41,6 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "include" { return symbol(sym.INCLUDE); }
 <YYINITIAL> "atoms" { return symbol(sym.ATOMS); }
 <YYINITIAL> "types" { return symbol(sym.TYPES); }
-<YYINITIAL> "gold" { return symbol(sym.GOLD); }
 <YYINITIAL> "corpus" { return symbol(sym.CORPUS); }
 <YYINITIAL> "scores" { return symbol(sym.SCORES); }
 <YYINITIAL> "from" { return symbol(sym.FROM); }

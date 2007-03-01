@@ -6,6 +6,9 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 import thebeast.nod.value.RelationValue;
+import thebeast.nod.value.TupleValue;
+import thebeast.nod.value.Value;
+import thebeast.nod.value.IntValue;
 
 import java.util.HashMap;
 import java.io.IOException;
@@ -30,7 +33,7 @@ public class LocalFeatures {
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
     }
-    
+
   }
 
   /**
@@ -114,7 +117,7 @@ public class LocalFeatures {
    */
   public void write(FileSink fileSink) throws IOException {
     for (RelationVariable var : features.values()) {
-      fileSink.write(var,true);
+      fileSink.write(var, true);
     }
   }
 
@@ -146,5 +149,36 @@ public class LocalFeatures {
     return result.toString();
   }
 
+  /**
+   * Returns a string that also displays the weight function and its argument
+   * for each ground atom.
+   *
+   * @return all ground atoms that have active features together with these features
+   *         in literal form.
+   */
+  public String toVerboseString() {
+    StringBuffer result = new StringBuffer();
+    for (UserPredicate predicate : model.getHiddenPredicates()) {
+      for (TupleValue tuple : features.get(predicate).value()) {
+        int index = 0;
+        result.append("for ").append(predicate.getName()).append("(");
+        for (Value value : tuple.values()) {
+          if (index < predicate.getArity()) {
+            if (index > 0) result.append(", ");            
+            result.append(value);
+          }
+          else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
+          index++;
+        }
+        result.append("\n");
+      }
+    }
+    return result.toString();
+  }
 
+
+  public void clear() {
+    for (RelationVariable var : features.values())
+      interpreter.clear(var);
+  }
 }

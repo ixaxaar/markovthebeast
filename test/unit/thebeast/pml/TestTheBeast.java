@@ -375,6 +375,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(0, weights.getIndex(weightFunction1, "DT", "NP"));
     assertEquals(1, weights.getIndex(weightFunction1, "NN", "VP"));
     assertEquals(-1, weights.getIndex(weightFunction1, "DT", "VP"));
+    System.out.println(weights.getFeatureString(1));
   }
 
   public void testAddWeightGetWeight() {
@@ -556,6 +557,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.containsFeature(phrase, 0, 3, 4, "NP"));
     assertTrue(features.containsFeature(phrase, 3, 0, 1, "VP"));
     assertTrue(features.containsFeature(phrase, 1, 2, 4, "VP"));
+    System.out.println(features.toVerboseString());
   }
 
   public void testScores() {
@@ -924,6 +926,69 @@ public class TestTheBeast extends TestCase {
     RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
 
     System.out.println(constraintQuery);
+
+  }
+  public void testCycleConstraint() {
+    FormulaBuilder builder = new FormulaBuilder(signature);
+
+    //a vbz has to have at least one VP starting at its position
+    //for int i if token(i,_,VBZ) : |int j : token(j,_,_) & phrase(i,j,VP)| >= 1;
+    builder.aclicity(phrase).formula();
+    FactorFormula factor = builder.produceFactorFormula();
+
+    GroundAtomCollection phraseAtoms = theManLikesTheBoat.getGroundAtomsOf(phrase);
+    phraseAtoms.addGroundAtom(0, 1, "VP");
+    phraseAtoms.addGroundAtom(1, 0, "VP");
+    phraseAtoms.addGroundAtom(2, 2, "VP");
+
+    System.out.println(factor);
+//
+//    QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
+//    RelationExpression query = generator.generateGlobalFalseQuery(factor, theManLikesTheBoat, weights);
+//    System.out.println(query);
+
+    Model model = signature.createModel();
+    model.addFactorFormula(factor);
+    model.addHiddenPredicate(phrase);
+
+    GroundFormulas formulas = new GroundFormulas(model, weights);
+    formulas.extract(theManLikesTheBoat);
+    System.out.println(formulas);
+    //assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
+    //assertTrue(formulas.getFalseGroundFormulas(factor).contains(2));
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
+
+    ilp.build(formulas, theManLikesTheBoat, scores);
+
+    System.out.println(ilp.toLpSolveFormat());
+    System.out.println(ilp);
+
+    assertEquals(2, ilp.getConstraints().value().size());
+    assertTrue(ilp.getConstraints().contains(Double.NEGATIVE_INFINITY, 1.0, new Object[]{
+            new Object[]{0, 1.0},
+            new Object[]{1, 1.0}}));
+    assertTrue(ilp.getConstraints().contains(Double.NEGATIVE_INFINITY, 0.0, new Object[]{
+            new Object[]{2, 1.0}}));
+
+    //phraseAtoms.clear();
+    phraseAtoms.addGroundAtom(3, 4, "VP");
+    phraseAtoms.addGroundAtom(4, 3, "VP");
+
+    formulas.extract(theManLikesTheBoat);
+    System.out.println(formulas);
+    //ilp.init(scores);
+    ilp.update(formulas, theManLikesTheBoat);
+    System.out.println(ilp.toLpSolveFormat());
+
+//
+//    assertEquals(5, ilp.getVars().value().size());
+//
+//    System.out.println(ilp.getConstraints().value());
+
+    //RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
+
+    //System.out.println(constraintQuery);
 
   }
 

@@ -19,4 +19,6 @@ public interface StatementVisitor {
   void visitClearRelationVariable(ClearRelationVariable clearRelationVariable);
 
   void visitArraySparseAdd(ArraySparseAdd arraySparseAdd);
+
+  void visitArrayAdd(ArrayAdd arrayAdd);
 }

@@ -443,6 +443,14 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
     } else if ("scores".equals(parserPrint.name.head)) {
       out.print(scores);
+    } else if ("solver".equals(parserPrint.name.head)) {
+      out.print(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
+    } else if ("learner".equals(parserPrint.name.head)) {
+      out.print(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
+    } else if ("formulas".equals(parserPrint.name.head)) {
+      GroundFormulas formulas = new GroundFormulas(model,weights);
+      formulas.extract(guess);
+      out.print(formulas);
     } else if ("weights".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
         weights.save(out);

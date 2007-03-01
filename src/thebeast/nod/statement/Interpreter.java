@@ -55,6 +55,10 @@ public interface Interpreter {
 
   ArrayVariable createArrayVariable(Type instanceType);
 
+  ArrayVariable createArrayVariable(Type instanceType, int size);
+
+  ArrayVariable createDoubleArrayVariable(int size);
+
   ArrayVariable createArrayVariable(ArrayExpression expr);
 
   RelationVariable createRelationVariable(RelationExpression expr);
@@ -94,4 +98,13 @@ public interface Interpreter {
   CategoricalVariable createCategoricalVariable(CategoricalType type);
 
   void append(ArrayVariable arrayVariable, int howmany, Object constant);
+
+  void add(ArrayVariable arrayVariable, ArrayExpression argument, DoubleExpression scale);
+
+  void scale(ArrayVariable arrayVariable, DoubleExpression scale);
+
+
+  void add(ArrayVariable arrayVariable, ArrayExpression argument, double scale);
+
+  void scale(ArrayVariable arrayVariable, double scale);
 }

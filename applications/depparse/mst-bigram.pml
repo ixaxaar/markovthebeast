@@ -8,7 +8,7 @@
 weight pos : Pos x Pos -> Double;
 factor :
   for Int h, Int m, Pos h_pos, Pos m_pos
-  if pos(h,h_pos) & pos(m,m_pos)
+  if pos(h,h_pos) & pos(m,m_pos) 
   add [link(h,m)] * pos(h_pos,m_pos);
 
 weight pos_l : Pos x Pos x Dep-> Double;

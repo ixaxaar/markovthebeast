@@ -93,7 +93,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private void update() {
     formulas.update(atoms);
-    System.out.println(formulas);    
+    //System.out.println(formulas);    
     ilp.update(formulas, atoms);
     updated = true;
   }
@@ -110,19 +110,20 @@ public class CuttingPlaneSolver implements Solver {
     if (!scoresSet) score();
     if (!initSet) initSolution();
     if (!updated) update();
-    System.out.println(atoms);
-    System.out.println(formulas);
+    //System.out.println(atoms);
+    //System.out.println(formulas);
     //System.out.println(ilp);
-    System.out.println(ilp.toLpSolveFormat());
+    //System.out.println(ilp.toLpSolveFormat());
     while (ilp.changed() && iteration < maxIterations) {
-      System.out.println(ilp.toLpSolveFormat());
+      //System.out.println(ilp.toLpSolveFormat());
       ilp.solve(atoms);
-      System.out.println(ilp.getResultString());
-      System.out.println(atoms);
+      //System.out.println(ilp.getResultString());
+      //System.out.println(atoms);
       update();
       ++iteration;
       //System.out.println(formulas);
     }
+    //System.out.println("Final ILP:\n" + ilp.toLpSolveFormat());
     done = ilp.changed();
   }
 
@@ -178,14 +179,26 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
-      ilpSolver.setProperty(name.getTail(), value);
+      ilp.setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
   }
 
   public Object getProperty(PropertyName name) {
-    if (name.getHead().equals("ilp"))
-      return ilp.getSolver().getProperty(name.getTail());
+    if (name.getHead().equals("ilp")) {
+      if (name.getTail() == null)
+        return ilp.toLpSolveFormat();
+      else
+        return ilp.getProperty(name.getTail());
+    }
+    if ("scores".equals(name.getHead()))
+      return scores;
+    if ("formulas".equals(name.getHead()))
+      return formulas;
     return null;
+  }
+
+  public IntegerLinearProgram getILP() {
+    return ilp;
   }
 }

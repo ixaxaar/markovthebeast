@@ -1,6 +1,8 @@
 package thebeast.pml;
 
 import thebeast.nod.NoDServer;
+import thebeast.nod.value.RelationValue;
+import thebeast.nod.value.Value;
 import thebeast.nod.expression.Expression;
 import thebeast.nod.expression.DoubleExpression;
 import thebeast.nod.type.*;
@@ -11,6 +13,7 @@ import thebeast.pml.function.WeightFunction;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.io.*;
 
 /**
@@ -242,6 +245,28 @@ public class Weights {
             builder.clear().expr(weights).integer(featureIndex).doubleArrayElement().getDouble());
     return var.value().getDouble();
   }
+
+  public String getFeatureString(int featureIndex){
+    for (Map.Entry<WeightFunction,RelationVariable> entry : relations.entrySet()){
+      builder.expr(entry.getValue());
+      builder.intAttribute("index").num(featureIndex).equality().restrict();
+      RelationValue rel = interpreter.evaluateRelation(builder.getRelation());
+      if (rel.size() > 0){
+        StringBuffer buffer = new StringBuffer(entry.getKey().getName());
+        buffer.append("(");
+        int index = 0;
+        for (Value value : rel.iterator().next().values()){
+          if (index >= entry.getKey().getArity()) break;
+          if (index++>0) buffer.append(", ");
+          buffer.append(value);
+        }
+        buffer.append(")");
+        return buffer.toString();
+      }
+    }
+    return "NOT AVAILABLE";
+  }
+
 
   /**
    * Returns the number of features.
