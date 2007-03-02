@@ -17,7 +17,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
-  private boolean enforceInteger = false;
+  private boolean enforceInteger = false;                                                                                                                     
   private boolean verbose = false;
 
   public void init() {

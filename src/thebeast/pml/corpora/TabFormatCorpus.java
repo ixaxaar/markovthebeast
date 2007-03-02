@@ -14,7 +14,7 @@ import java.util.*;
  * A class for corpora based on the CoNLL column format. Can be configured to extract dependency parse information
  * (CoNLL 06/07).
  */
-public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
+public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
 
   private Signature signature;
 
@@ -25,7 +25,10 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
   private int size;
   private HashMultiMap<Integer, Extractor> extractors = new HashMultiMap<Integer, Extractor>();
   public final static CorpusFactory CONLL_06_FACTORY = new CoNLL06Factory();
-  public static final Generator CONLL_06_GENERATOR = new Generator();
+  public final static CorpusFactory MALT_FACTORY = new MALTFactory();
+  public static final Generator
+          CONLL_06_GENERATOR = new Generator(),
+          MALT_GENERATOR = new Generator();
   private HashMap<UserPredicate, Constant[]> constantAtoms = new HashMap<UserPredicate, Constant[]>();
 
   static {
@@ -34,6 +37,11 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     CONLL_06_GENERATOR.addTokenCollector(3, "Cpos", true, new Quote(), "ROOT");
     CONLL_06_GENERATOR.addTokenCollector(4, "Pos", true, new Quote(), "ROOT");
     CONLL_06_GENERATOR.addTokenCollector(7, "Dep", true, new Itself());
+    MALT_GENERATOR.addTokenCollector(0, "Word", true, new Quote(), "ROOT");
+    MALT_GENERATOR.addTokenCollector(0, "Prefix", true, new Pipeline(new Prefix(5), new Quote()), "ROOT");
+    MALT_GENERATOR.addTokenCollector(1, "Pos", true, new Quote(), "ROOT");
+    MALT_GENERATOR.addTokenCollector(1, "Cpos", true, new Pipeline(new Prefix(2), new Quote()), "ROOT");
+    MALT_GENERATOR.addTokenCollector(3, "Dep", true, new Itself());
   }
 
   public static interface TokenProcessor {
@@ -79,6 +87,61 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     }
   }
 
+  public static class MALTFactory implements CorpusFactory {
+
+    public Corpus createCorpus(Signature signature, File file) {
+      UserPredicate word = (UserPredicate) signature.getPredicate("word");
+      UserPredicate pos = (UserPredicate) signature.getPredicate("pos");
+      UserPredicate link = (UserPredicate) signature.getPredicate("link");
+      UserPredicate dep = (UserPredicate) signature.getPredicate("dep");
+      UserPredicate cpos = (UserPredicate) signature.getPredicate("cpos");
+      UserPredicate prefix = (UserPredicate) signature.getPredicate("prefix");
+
+      TabFormatCorpus.AttributeExtractor words = new TabFormatCorpus.AttributeExtractor(word, 2);
+      words.addLineNrArg(0);
+      words.addMapping(0, 1, new Quote());
+      //words.addToQuote(1);
+
+      TabFormatCorpus.AttributeExtractor prefixes = new TabFormatCorpus.AttributeExtractor(prefix, 2);
+      prefixes.addLineNrArg(0);
+      prefixes.addMapping(0, 1, new Pipeline(new Prefix(5), new Quote()));
+
+      TabFormatCorpus.AttributeExtractor cpostags = new TabFormatCorpus.AttributeExtractor(cpos, 2);
+      cpostags.addLineNrArg(0);
+      cpostags.addMapping(1, 1, new Pipeline(new Prefix(2), new Quote()));
+
+      TabFormatCorpus.AttributeExtractor postags = new TabFormatCorpus.AttributeExtractor(pos, 2);
+      postags.addLineNrArg(0);
+      postags.addMapping(1, 1, new Quote());
+
+      TabFormatCorpus.AttributeExtractor links = new TabFormatCorpus.AttributeExtractor(link, 2);
+      links.addLineNrArg(1);
+      links.addMapping(2, 0);
+
+      TabFormatCorpus.AttributeExtractor deps = new TabFormatCorpus.AttributeExtractor(dep, 3);
+      deps.addLineNrArg(1);
+      deps.addMapping(2, 0);
+      deps.addMapping(3, 2);
+
+      TabFormatCorpus corpus = new TabFormatCorpus(signature, file);
+      corpus.addExtractor(prefixes);
+      corpus.addExtractor(words);
+      corpus.addExtractor(cpostags);
+      corpus.addExtractor(postags);
+      corpus.addExtractor(links);
+      corpus.addExtractor(deps);
+
+      corpus.addConstantAtom(prefix, 0, "ROOT");
+      corpus.addConstantAtom(word, 0, "ROOT");
+      corpus.addConstantAtom(pos, 0, "ROOT");
+      corpus.addConstantAtom(cpos, 0, "ROOT");
+
+      return corpus;
+    }
+
+
+  }
+
   public static class CoNLL06Factory implements CorpusFactory {
 
     public Corpus createCorpus(Signature signature, File file) {
@@ -89,33 +152,33 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       UserPredicate cpos = (UserPredicate) signature.getPredicate("cpos");
       UserPredicate prefix = (UserPredicate) signature.getPredicate("prefix");
 
-      CoNLLCorpus.AttributeExtractor words = new CoNLLCorpus.AttributeExtractor(word, 2);
+      TabFormatCorpus.AttributeExtractor words = new TabFormatCorpus.AttributeExtractor(word, 2);
       words.addMapping(0, 0);
       words.addMapping(1, 1, new Quote());
       //words.addToQuote(1);
 
-      CoNLLCorpus.AttributeExtractor prefixes = new CoNLLCorpus.AttributeExtractor(prefix, 2);
+      TabFormatCorpus.AttributeExtractor prefixes = new TabFormatCorpus.AttributeExtractor(prefix, 2);
       prefixes.addMapping(0, 0);
       prefixes.addMapping(1, 1, new Pipeline(new Prefix(5), new Quote()));
       
-      CoNLLCorpus.AttributeExtractor cpostags = new CoNLLCorpus.AttributeExtractor(cpos, 2);
+      TabFormatCorpus.AttributeExtractor cpostags = new TabFormatCorpus.AttributeExtractor(cpos, 2);
       cpostags.addMapping(0, 0);
       cpostags.addMapping(3, 1);
 
-      CoNLLCorpus.AttributeExtractor postags = new CoNLLCorpus.AttributeExtractor(pos, 2);
+      TabFormatCorpus.AttributeExtractor postags = new TabFormatCorpus.AttributeExtractor(pos, 2);
       postags.addMapping(0, 0);
       postags.addMapping(4, 1);
 
-      CoNLLCorpus.AttributeExtractor links = new CoNLLCorpus.AttributeExtractor(link, 2);
+      TabFormatCorpus.AttributeExtractor links = new TabFormatCorpus.AttributeExtractor(link, 2);
       links.addMapping(0, 1);
       links.addMapping(6, 0);
 
-      CoNLLCorpus.AttributeExtractor deps = new CoNLLCorpus.AttributeExtractor(dep, 3);
+      TabFormatCorpus.AttributeExtractor deps = new TabFormatCorpus.AttributeExtractor(dep, 3);
       deps.addMapping(0, 1);
       deps.addMapping(6, 0);
       deps.addMapping(7, 2);
 
-      CoNLLCorpus corpus = new CoNLLCorpus(signature, file);
+      TabFormatCorpus corpus = new TabFormatCorpus(signature, file);
       corpus.addExtractor(prefixes);
       corpus.addExtractor(words);
       corpus.addExtractor(cpostags);
@@ -195,7 +258,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
     }
   }
 
-  public CoNLLCorpus(Signature signature, File file, Extractor... extractors) {
+  public TabFormatCorpus(Signature signature, File file, Extractor... extractors) {
     this.file = file;
     this.signature = signature;
     int index = 0;
@@ -213,7 +276,7 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       this.extractors.add(col, extractor);
   }
 
-  public CoNLLCorpus(Signature signature, byte[] bytes, Extractor... extractors) {
+  public TabFormatCorpus(Signature signature, byte[] bytes, Extractor... extractors) {
     this.signature = signature;
     this.bytes = bytes;
     int index = 0;
@@ -315,9 +378,19 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
           if (line.trim().equals("")) break;
           String[] split = line.split("[\t ]");
           for (int col = 0; col < split.length; ++col) {
-            List<Extractor> extractorsForCol = CoNLLCorpus.this.extractors.get(col);
+            List<Extractor> extractorsForCol = TabFormatCorpus.this.extractors.get(col);
             if (extractorsForCol != null) for (Extractor extractor : extractorsForCol)
-              extractor.extract(lineNr, col, split[col], next);
+              extractor.beginLine(lineNr);
+          }
+          for (int col = 0; col < split.length; ++col) {
+            List<Extractor> extractorsForCol = TabFormatCorpus.this.extractors.get(col);
+            if (extractorsForCol != null) for (Extractor extractor : extractorsForCol)
+              extractor.extract(col, split[col]);
+          }
+          for (int col = 0; col < split.length; ++col) {
+            List<Extractor> extractorsForCol = TabFormatCorpus.this.extractors.get(col);
+            if (extractorsForCol != null) for (Extractor extractor : extractorsForCol)
+              extractor.endLine(next);
           }
           ++lineNr;
         }
@@ -357,17 +430,22 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
   }
 
   public static interface Extractor {
-    void extract(int line, int column, String value, GroundAtoms atoms);
     Collection<Integer> getColumns();
+
+    void beginLine(int lineNr);
+
+    void endLine(GroundAtoms atoms);
+
+    void extract(int column, String value);
   }
 
   public static class AttributeExtractor implements Extractor {
 
-    private int count = 0;
     private HashMap<Integer, Integer> mapping;
     private UserPredicate predicate;
     private Constant[] args;
     private HashMap<Integer, TokenProcessor> processors = new HashMap<Integer, TokenProcessor>();
+    private HashSet<Integer> lineNrArgs = new HashSet<Integer>();
 
     public AttributeExtractor(UserPredicate predicate, Map<Integer, Integer> mapping) {
       this.predicate = predicate;
@@ -382,6 +460,10 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
 
     }
 
+    public void addLineNrArg(int argIndex){
+      lineNrArgs.add(argIndex);
+    }
+
     public void addMapping(int column, int argIndex) {
       mapping.put(column, argIndex);
       processors.put(column, new Itself());
@@ -392,16 +474,20 @@ public class CoNLLCorpus extends AbstractCollection<GroundAtoms> implements Corp
       processors.put(column, processor);
     }
 
-    public void extract(int line, int column, String value, GroundAtoms atoms) {
+    public void beginLine(int lineNr){
+      for (int i : lineNrArgs){
+        args[i] = Type.INT.toConstant(lineNr);
+      }
+    }
+
+    public void endLine(GroundAtoms atoms){
+      atoms.getGroundAtomsOf(predicate).addGroundAtom(args);
+    }
+
+    public void extract(int column, String value) {
       int argIndex = mapping.get(column);
       Type type = predicate.getArgumentTypes().get(argIndex);
       args[argIndex] = type.getConstant(processors.get(column).process(value));
-//      args[argIndex] = type.getConstant(toQuote.contains(column) ? "\"" + value + "\"" : value);
-      if (count == args.length - 1) {
-        atoms.getGroundAtomsOf(predicate).addGroundAtom(args);
-        count = 0;
-      } else
-        ++count;
     }
 
     public Collection<Integer> getColumns() {
