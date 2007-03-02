@@ -290,7 +290,7 @@ public class IntegerLinearProgram implements HasProperties{
   public void update(GroundFormulas formulas, GroundAtoms atoms) {
     interpreter.assign(lastVarCount, varCount);
     this.formulas.load(formulas);
-    this.scores.load(scores);
+    //this.scores.load(scores);
     this.atoms.load(atoms);
     interpreter.clear(newConstraints);
 //    System.out.println(atoms);

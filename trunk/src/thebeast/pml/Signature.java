@@ -21,6 +21,8 @@ public class Signature {
   private HashMap<String, Type> name2type = new HashMap<String, Type>();
 
   private LinkedList<UserPredicate> userPredicates = new LinkedList<UserPredicate>();
+  private LinkedList<WeightFunction> weightFunctions = new LinkedList<WeightFunction>();
+
 
   public Signature(){
     name2type.put(Type.DOUBLE.getName(), Type.DOUBLE);
@@ -102,6 +104,8 @@ public class Signature {
   public WeightFunction createWeightFunction(String name, List<Type> argumentTypes){
     WeightFunction result = new WeightFunction(name, argumentTypes);
     name2weightFunction.put(name, result);
+    weightFunctions.add(result);
+    Collections.sort(weightFunctions);
     return result;
   }
 
@@ -127,21 +131,21 @@ public class Signature {
   public WeightFunction createWeightFunction(String name, boolean positive, List<Type> argumentTypes){
     WeightFunction result = new WeightFunction(name, positive, argumentTypes);
     name2weightFunction.put(name, result);
+    weightFunctions.add(result);
+    Collections.sort(weightFunctions);
     return result;
   }
 
   public WeightFunction createWeightFunction(String name, boolean positive, Type ... argumentTypes){
-    WeightFunction result = new WeightFunction(name, positive, Arrays.asList(argumentTypes));
-    name2weightFunction.put(name, result);
-    return result;
+    return createWeightFunction(name, positive,Arrays.asList(argumentTypes));
   }
 
   /**
    * Returns all weight functions defined in this signature.
    * @return a collection of all weight function.
    */
-  public Collection<WeightFunction> getWeightFunctions(){
-    return name2weightFunction.values();
+  public List<WeightFunction> getWeightFunctions(){
+    return weightFunctions;
   }
 
 

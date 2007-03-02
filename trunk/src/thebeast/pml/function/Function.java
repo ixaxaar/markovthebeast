@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 16:20:41
  */
-public abstract class Function {
+public abstract class Function implements Comparable<Function> {
 
   protected Type returnType;
   protected List<Type> argumentTypes;
@@ -37,6 +37,11 @@ public abstract class Function {
 
   public Type getReturnType() {
     return returnType;
+  }
+
+
+  public int compareTo(Function function) {
+    return name.compareTo(function.getName());
   }
 
   public abstract void acceptFunctionVisitor(FunctionVisitor visitor);

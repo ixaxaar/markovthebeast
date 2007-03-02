@@ -104,13 +104,15 @@ statement ::= createType:s
             | PRINT name:n
               {: RESULT = new ParserPrint(n); :}
             | ATOMS FROM STRING:s
-              {: RESULT = new ParserLoad(null, s.substring(1,s.length()-1),false,false); :}
+              {: RESULT = new ParserLoad(null, null, s.substring(1,s.length()-1)); :}
             | SCORES FROM STRING:s
               {: RESULT = new ParserLoadScores(s.substring(1,s.length()-1)); :}
             | WEIGHTS FROM STRING:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
-            | LOAD LOWERCASEID:id FROM STRING:s
-              {: RESULT = new ParserLoad(id, s.substring(1,s.length()-1),false,false); :}
+            | LOAD name:n FROM STRING:s
+              {: RESULT = new ParserLoad(n, null, s.substring(1,s.length()-1)); :}
+            | LOAD name:n FROM LOWERCASEID:m STRING:s
+              {: RESULT = new ParserLoad(n, m, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
@@ -121,6 +123,8 @@ statement ::= createType:s
             | LOAD CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
+            | SAVE name:n TO LOWERCASEID:f STRING:s
+              {: RESULT = new ParserSave(n, f, s.substring(1,s.length()-1)); :}
             | SAVE CORPUS TO LOWERCASEID:f STRING:s
               {: RESULT = new ParserSaveCorpus(f, s.substring(1,s.length()-1)); :}
             | SAVE CORPUS TO LOWERCASEID:f
@@ -134,7 +138,7 @@ statement ::= createType:s
             | TYPES TO STRING:s
               {: RESULT = new ParserSaveTypes(s.substring(1,s.length()-1)); :}
             | ATOMS LOWERCASEID:id FROM STRING:s
-              {: RESULT = new ParserLoad(id, s.substring(1,s.length()-1),false,false); :}
+              {: RESULT = new ParserLoad(null,null, s.substring(1,s.length()-1)); :}
             | SOLVE NUMBER:n
               {: RESULT = new ParserSolve(Integer.valueOf(n)); :}
             | SOLVE

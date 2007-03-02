@@ -1,20 +1,24 @@
 package thebeast.pml;
 
 import thebeast.nod.NoDServer;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
+import thebeast.nod.expression.DoubleExpression;
+import thebeast.nod.expression.Expression;
+import thebeast.nod.statement.Interpreter;
+import thebeast.nod.type.Attribute;
+import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.value.Value;
-import thebeast.nod.expression.Expression;
-import thebeast.nod.expression.DoubleExpression;
-import thebeast.nod.type.*;
-import thebeast.nod.statement.Interpreter;
-import thebeast.nod.util.ExpressionBuilder;
-import thebeast.nod.variable.*;
+import thebeast.nod.variable.ArrayVariable;
+import thebeast.nod.variable.DoubleVariable;
+import thebeast.nod.variable.IntVariable;
+import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.function.WeightFunction;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A Weights object corresponds to a collection of mappings for a set of weight functions. Each weight function maps its
@@ -25,7 +29,7 @@ import java.io.*;
 public class Weights {
 
   private Signature signature;
-  private IntVariable sequence;
+  private IntVariable counter;
   private ArrayVariable weights;
 
   private NoDServer nodServer = TheBeast.getInstance().getNodServer();
@@ -43,10 +47,10 @@ public class Weights {
    */
   public Weights(Signature signature) {
     this.signature = signature;
-    sequence = interpreter.createIntVariable(builder.integer(0).getInt());
+    counter = interpreter.createIntVariable(builder.integer(0).getInt());
     weights = interpreter.createArrayVariable(nodServer.typeFactory().doubleType());
     for (WeightFunction function : signature.getWeightFunctions()) {
-      List<String> names = function.getHeading().getAttributeNames();
+      //List<String> names = function.getHeading().getAttributeNames();
       RelationVariable relation = interpreter.createRelationVariable(function.getHeading());
       relation.setLabel(function.getName());
       relations.put(function, relation);
@@ -106,8 +110,37 @@ public class Weights {
     return relations.get(function);
   }
 
+
   /**
-   * Saves these weights onto the given output stream
+   * Dumps these weights to disk (in binary form).
+   *
+   * @param sink a database file sink.
+   * @throws IOException if I/O goes wrong
+   */
+  public void write(FileSink sink) throws IOException {
+    sink.write(counter, false);
+    sink.write(weights, false);
+    for (WeightFunction function : signature.getWeightFunctions()) {
+      sink.write(getRelation(function), false);
+    }
+  }
+
+  /**
+   * loads weights from disk (in binary form).
+   *
+   * @param source a database file source.
+   * @throws IOException if i/o goes wrong.
+   */
+  public void read(FileSource source) throws IOException {
+    source.read(counter);
+    source.read(weights);
+    for (WeightFunction function : signature.getWeightFunctions()) {
+      source.read(getRelation(function));
+    }
+  }
+
+  /**
+   * Saves these weights onto the given output stream (in text format).
    *
    * @param os the outputstream to writ to.
    */
@@ -118,7 +151,7 @@ public class Weights {
   }
 
   /**
-   * Saves these weights onto the given output stream
+   * Saves these weights onto the given output stream (in text format).
    *
    * @param function the weightfunction to print out.
    * @param os       the outputstream to writ to.
@@ -153,7 +186,7 @@ public class Weights {
     RelationVariable rel = relations.get(weightFunction);
     interpreter.append(weights, builder.doubleValue(weight).array(1).getArray());
     //the index is the first column
-    builder.id(weightFunction.getIndexAttribute().name()).expr(sequence).intPostInc();
+    builder.id(weightFunction.getIndexAttribute().name()).expr(counter).intPostInc();
     int index = 0;
     //now insert the arguments into the relation variable
     for (Type type : weightFunction.getArgumentTypes()) {
@@ -246,18 +279,18 @@ public class Weights {
     return var.value().getDouble();
   }
 
-  public String getFeatureString(int featureIndex){
-    for (Map.Entry<WeightFunction,RelationVariable> entry : relations.entrySet()){
+  public String getFeatureString(int featureIndex) {
+    for (Map.Entry<WeightFunction, RelationVariable> entry : relations.entrySet()) {
       builder.expr(entry.getValue());
       builder.intAttribute("index").num(featureIndex).equality().restrict();
       RelationValue rel = interpreter.evaluateRelation(builder.getRelation());
-      if (rel.size() > 0){
+      if (rel.size() > 0) {
         StringBuffer buffer = new StringBuffer(entry.getKey().getName());
         buffer.append("(");
         int index = 0;
-        for (Value value : rel.iterator().next().values()){
+        for (Value value : rel.iterator().next().values()) {
           if (index >= entry.getKey().getArity()) break;
-          if (index++>0) buffer.append(", ");
+          if (index++ > 0) buffer.append(", ");
           buffer.append(value);
         }
         buffer.append(")");
@@ -269,12 +302,12 @@ public class Weights {
 
 
   /**
-   * Returns the number of features.
+   * Returns the number of (explicit) features.
    *
    * @return the current number of features.
    */
   public int getFeatureCount() {
-    return sequence.value().getInt();
+    return counter.value().getInt();
   }
 
 
@@ -284,7 +317,7 @@ public class Weights {
    * @return the integer variable that contains the current feature count.
    */
   public IntVariable getFeatureCounter() {
-    return sequence;
+    return counter;
   }
 
   /**
@@ -299,7 +332,7 @@ public class Weights {
       interpreter.assign(local, other);
     }
     interpreter.assign(this.weights, weights.weights);
-    interpreter.assign(sequence, weights.sequence);
+    interpreter.assign(counter, weights.counter);
   }
 
   /**
@@ -422,7 +455,12 @@ public class Weights {
     }
     weightBuilder.array(index);
     interpreter.assign(weights, weightBuilder.getArray());
-    interpreter.assign(sequence, builder.num(index).getInt());
+    interpreter.assign(counter, builder.num(index).getInt());
 
+  }
+
+  public void clear() {
+    interpreter.assign(counter, builder.num(0).getInt());
+    interpreter.clear(weights);
   }
 }

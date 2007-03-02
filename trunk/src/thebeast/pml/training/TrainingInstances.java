@@ -36,9 +36,11 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
   private boolean loadedFromFile;
 
 
-  public TrainingInstances(Signature signature, File file, int maxByteSize) {
+  public TrainingInstances(Model model, File file, int maxByteSize) {
     this.file = file;
-    this.signature = signature;
+    this.signature = model.getSignature();
+    this.model = model;
+
     try {
       fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
       IntVariable sizeVar = TheBeast.getInstance().getNodServer().interpreter().createIntVariable();

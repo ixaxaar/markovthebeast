@@ -351,6 +351,36 @@ public class TestTheBeast extends TestCase {
     assertEquals(2, weights.getFeatureCount());
   }
 
+  public void testSaveWeight() throws IOException {
+    Weights weights = signature.createWeights();
+    weights.addWeight(weightFunction1, 1.5, "DT", "NP");
+    weights.addWeight(weightFunction1, -2.0, "NN", "VP");
+    weights.addWeight(weightFunction2, -2.0, "VP");
+
+    File file = new File("/tmp/test");
+    file.delete();
+    FileSink sink = server.getNodServer().createSink(file, 1024);
+    weights.write(sink);
+    sink.flush();
+    weights.clear();
+    weights.addWeight(weightFunction1, 1.5, "NN", "NP");
+    weights.addWeight(weightFunction2, -2.0, "NP");
+    weights.addWeight(weightFunction1, 2.0, "VBZ", "VP");
+    weights.clear();
+
+    FileSource source = server.getNodServer().createSource(file, 1024);
+    weights.read(source);
+
+    assertEquals(1.5, weights.getWeight(weightFunction1, "DT", "NP"));
+    assertEquals(0.0, weights.getWeight(weightFunction1, "NN", "NP"));
+    assertEquals(-2.0, weights.getWeight(weightFunction1, "NN", "VP"));
+    assertEquals(-2.0, weights.getWeight(weightFunction2, "VP"));
+    assertEquals(3, weights.getFeatureCount());
+
+    file.delete();
+
+  }
+
 
   public void testSparseAddWeight() {
     Weights weights = signature.createWeights();
@@ -449,7 +479,7 @@ public class TestTheBeast extends TestCase {
     DumpedCorpus dumpedCorpus1 = new DumpedCorpus(file1, ramCorpus, 100 * 1024);
     DumpedCorpus dumpedCorpus2 = new DumpedCorpus(file2, ramCorpus, 10 * 1024);
 
-    for (GroundAtoms atoms : dumpedCorpus1){
+    for (GroundAtoms atoms : dumpedCorpus1) {
       System.out.print(".");
       tokens = atoms.getGroundAtomsOf(token);
       phrases = atoms.getGroundAtomsOf(phrase);
@@ -464,7 +494,7 @@ public class TestTheBeast extends TestCase {
     }
     //call it again.
     System.out.println("");
-    for (GroundAtoms atoms : dumpedCorpus1){
+    for (GroundAtoms atoms : dumpedCorpus1) {
       System.out.print(".");
       tokens = atoms.getGroundAtomsOf(token);
       phrases = atoms.getGroundAtomsOf(phrase);
@@ -478,7 +508,7 @@ public class TestTheBeast extends TestCase {
       assertFalse(tokens.containsAtom(0, "the", "NN"));
     }
     System.out.println("");
-    for (GroundAtoms atoms : dumpedCorpus2){
+    for (GroundAtoms atoms : dumpedCorpus2) {
       System.out.print(".");
       tokens = atoms.getGroundAtomsOf(token);
       phrases = atoms.getGroundAtomsOf(phrase);
@@ -496,7 +526,7 @@ public class TestTheBeast extends TestCase {
     DumpedCorpus dumpedCorpus3 = new DumpedCorpus(signature, file1, 10 * 1024);
     System.out.println(dumpedCorpus3.getActiveCount());
     System.out.println("");
-    for (GroundAtoms atoms : dumpedCorpus3){
+    for (GroundAtoms atoms : dumpedCorpus3) {
       System.out.print(".");
       tokens = atoms.getGroundAtomsOf(token);
       phrases = atoms.getGroundAtomsOf(phrase);
@@ -930,6 +960,7 @@ public class TestTheBeast extends TestCase {
     System.out.println(constraintQuery);
 
   }
+
   public void testCycleConstraint() {
     FormulaBuilder builder = new FormulaBuilder(signature);
 

@@ -141,6 +141,7 @@ public class CuttingPlaneSolver implements Solver {
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
     //System.out.println(atoms);
     initSet = true;
+    //++iteration;
   }
 
   /**

@@ -136,6 +136,42 @@ public class TestInterpreter extends NoDTest {
     RelationVariable var3 = interpreter.createRelationVariable(var2);
     interpreter.assign(var2, var1);
     assertEquals(4, var3.value().size());
+
+    RelationVariable var4 = interpreter.createRelationVariable(var3);
+
+    //lets var4 = var1 and change var4
+    interpreter.assign(var4,var1);
+    exprBuilder.id("arg1").num(1).id("arg2").num(1).id("index").num(4).tupleForIds();
+    exprBuilder.id("arg1").num(1).id("arg2").num(2).id("index").num(5).tupleForIds();
+    exprBuilder.id("arg1").num(1).id("arg2").num(3).id("index").num(6).tupleForIds();
+    exprBuilder.relation(3);
+
+    RelationExpression relation = exprBuilder.getRelation();
+    interpreter.assign(var4, relation);
+    //var1 should be the same
+    assertTrue(var1.contains(5,5,1));
+    assertTrue(var1.contains(2,2,2));
+    assertTrue(var1.contains(4,4,3));
+    //var 4 should as defined
+    assertTrue(var4.contains(1,1,4));
+    assertTrue(var4.contains(1,2,5));
+    assertTrue(var4.contains(1,3,6));
+
+    //lets var4 = var1 and change var1
+    interpreter.assign(var4,var1);
+    interpreter.assign(var1,relation);
+    //var1 should have changed
+    assertTrue(var1.contains(1,1,4));
+    assertTrue(var1.contains(1,2,5));
+    assertTrue(var1.contains(1,3,6));
+    //var 4 should remain the same
+    assertTrue(var4.contains(5,5,1));
+    assertTrue(var4.contains(2,2,2));
+    assertTrue(var4.contains(4,4,3));
+
+    System.out.println(var4.value());
+    System.out.println(var1.value());
+
   }
 
   public void testTupleFrom() {
@@ -189,6 +225,15 @@ public class TestInterpreter extends NoDTest {
     assertEquals(1, array.intElement(3).getInt());
   }
 
+
+  public void testArrayClear() {
+    ArrayVariable var = interpreter.createArrayVariable(typeFactory.intType());
+    exprBuilder.integer(1).integer(2).integer(3).integer(1).array(4);
+    interpreter.assign(var, exprBuilder.getArray());
+    interpreter.clear(var);
+    ArrayValue array = var.value();
+    assertEquals(0, array.size());
+  }
   public void testIndexedSum() {
     exprBuilder.doubleValue(1.0).doubleValue(2.0).doubleValue(3.0).doubleValue(5.0).array(4);
     ArrayVariable array = interpreter.createArrayVariable(exprBuilder.getArray());

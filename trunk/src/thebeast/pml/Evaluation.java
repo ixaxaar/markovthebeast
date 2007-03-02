@@ -39,7 +39,6 @@ public class Evaluation {
       builder.relationMinus();
       fpQueries.put(pred, builder.getRelation());
     }
-
   }
 
 
