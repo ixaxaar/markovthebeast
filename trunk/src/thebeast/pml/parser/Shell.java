@@ -970,8 +970,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void initCorpusTools() {
-    registerCorpusFactory("conll06", CoNLLCorpus.CONLL_06_FACTORY);
-    registerTypeGenerator("conll06", CoNLLCorpus.CONLL_06_GENERATOR);
+    registerCorpusFactory("malt", TabFormatCorpus.MALT_FACTORY);
+    registerTypeGenerator("malt", TabFormatCorpus.MALT_GENERATOR);
+    registerCorpusFactory("conll06", TabFormatCorpus.CONLL_06_FACTORY);
+    registerTypeGenerator("conll06", TabFormatCorpus.CONLL_06_GENERATOR);
   }
 
   public static interface PropertySetter {

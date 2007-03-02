@@ -266,12 +266,12 @@ public class TestTheBeast extends TestCase {
             "3 the DT\n" +
             "4 boat NN\n";
 
-    CoNLLCorpus.AttributeExtractor tokenExtractor = new CoNLLCorpus.AttributeExtractor(token, 3);
+    TabFormatCorpus.AttributeExtractor tokenExtractor = new TabFormatCorpus.AttributeExtractor(token, 3);
     tokenExtractor.addMapping(0, 0);
     tokenExtractor.addMapping(1, 1);
     tokenExtractor.addMapping(2, 2);
 
-    CoNLLCorpus corpus = new CoNLLCorpus(signature, corpusTxt.getBytes());
+    TabFormatCorpus corpus = new TabFormatCorpus(signature, corpusTxt.getBytes());
     corpus.addExtractor(tokenExtractor);
     SequentialAccessCorpus seqCorpus = new SequentialAccessCorpus(corpus);
     System.out.println(seqCorpus.get(0));
@@ -301,9 +301,9 @@ public class TestTheBeast extends TestCase {
             "3 the DT\n" +
             "4 boat NN\n";
 
-    CoNLLCorpus.Generator generator = new CoNLLCorpus.Generator();
-    generator.addTokenCollector(1, "Word", true, new CoNLLCorpus.Quote());
-    generator.addTokenCollector(2, "Tag", false, new CoNLLCorpus.Itself());
+    TabFormatCorpus.Generator generator = new TabFormatCorpus.Generator();
+    generator.addTokenCollector(1, "Word", true, new TabFormatCorpus.Quote());
+    generator.addTokenCollector(2, "Tag", false, new TabFormatCorpus.Itself());
 //    generator.addTypeTemplate(1, "Word", true, true);
 //    generator.addTypeTemplate(2, "Tag", false, false);
 
