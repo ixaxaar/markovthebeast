@@ -5,6 +5,7 @@
    - instead of only conjoining a single token with the edge label we use the label in almost all features
    - we don't use unigram features whatsoever (use coarser bigram features instead)   */
 
+include "mst-between.pml";
 include "mst-bigram.pml";
 include "mst-outer-pos.pml";
 include "mst-outer-cpos.pml";
