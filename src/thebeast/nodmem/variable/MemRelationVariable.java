@@ -107,7 +107,6 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   public void own() {
     //if this variable is owned by others let them own themselves again
     if (owners.size() > 0) {
-      chunk.chunkData[pointer.xChunk].own();
       for (MemRelationVariable var : new ArrayList<MemRelationVariable>(owners)) {
         var.own();
       }
@@ -115,6 +114,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     }
     //if this variable owns another variable let it own itself exclusively
     if (owns != null) {
+      chunk.chunkData[pointer.xChunk].own();
       owns.removeOwner(this);
       owns = null;
     }
@@ -128,6 +128,17 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     other.addOwner(this);
     chunk.chunkData[pointer.xChunk].shallowCopy(other.chunk.chunkData[other.pointer.xChunk]);
     //lets check if we can reuse some indices
+//    for (Index index: information.getIndices()){
+//      MemHashIndex hashIndex = (MemHashIndex) index;
+//      int myIndexNr = information.getIndexIdForAttributes(index.attributes());
+//      MemHashIndex otherIndex = (MemHashIndex) other.indexInformation().getIndex(index.attributes());
+//      int otherIndexNr = other.indexInformation().getIndexIdForAttributes(index.attributes());
+//      if (otherIndexNr != -1){
+//        hashIndex.shallowCopy(myIndexNr, otherIndex);
+//        //hashIndex.useChunk(index,);
+//        //hashIndex.useChunk();
+//      }
+//    }
     owns = other;
   }
 

@@ -17,7 +17,7 @@ public class MemHashIndex implements Index {
   private MemRelationVariable variable;
   private ArrayList<String> attributes;
   private Index.Type indexType;
-  private MemChunkMultiIndex memIndex;
+  private MemChunkMultiIndex memIndex,ownIndex;
   //private int indexedSoFar;
   private MemColumnSelector cols;
   private MemDim dim;
@@ -129,5 +129,16 @@ public class MemHashIndex implements Index {
 
   public int compareTo(Index o) {
     return cols.compareTo(((MemHashIndex)o).cols);
+  }
+
+  public void shallowCopy(int indexNr, MemHashIndex otherIndex) {
+    ownIndex = memIndex;
+    memIndex = otherIndex.memIndex;
+    chunk.indices[indexNr] = memIndex;
+  }
+
+  public void own(int indexNr){
+    memIndex = ownIndex;
+    chunk.indices[indexNr] = ownIndex;
   }
 }

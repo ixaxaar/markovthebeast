@@ -246,6 +246,11 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemClearRelationVariable((MemRelationVariable) var));
   }
 
+  public void clear(ArrayVariable variable) {
+    AbstractMemVariable var = (AbstractMemVariable) variable;
+    var.getContainerChunk().chunkData[var.getPointer().xChunk].size = 0;
+  }
+
   public void typeCheck(Type t1, Type t2, Object context) {
     if (!t1.equals(t2))
       throw new NoDTypeMismatchException(t1, t2, context);
@@ -286,6 +291,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     } else {
       AbstractMemExpression expr = (AbstractMemExpression) assign.expression();
       AbstractMemVariable var = (AbstractMemVariable) assign.target();
+      var.own();
       MemEvaluator.evaluate(expr.compile(), null, null, var.getContainerChunk(), var.getPointer());
       var.invalidate();
     }

@@ -16,8 +16,18 @@ public class IndexInformation {
   private TreeMap<String, Integer> name2nr = new TreeMap<String, Integer>();
   private TreeMap<Index, Integer> index2nr = new TreeMap<Index, Integer>();
 
-  public int getIndexIdForAttributes(List<Attribute> attributes) {
+  public int getIndexIdForAttributes(List<String> attributes) {
+    for (Map.Entry<Index, Integer> entry : index2nr.entrySet()) {
+      if (entry.getKey().attributes().equals(attributes)) return entry.getValue();
+    }
     return -1;
+  }
+
+  public Index getIndex(List<String> attributes) {
+    for (Map.Entry<Index, Integer> entry : index2nr.entrySet()) {
+      if (entry.getKey().attributes().equals(attributes)) return entry.getKey();
+    }
+    return null;
   }
 
   /**
@@ -64,7 +74,7 @@ public class IndexInformation {
     }
     int nr = name2nr.size();
     name2nr.put(name, nr);
-    name2index.put(name,index);
+    name2index.put(name, index);
     index2nr.put(index, nr);
     return nr;
 
@@ -75,15 +85,15 @@ public class IndexInformation {
   }
 
 
-  public void updateIndicesFromChunk(MemChunk chunk){
-    for (Map.Entry<Index,Integer> entry : index2nr.entrySet()){
-      ((MemHashIndex)entry.getKey()).useChunk(chunk, entry.getValue());
+  public void updateIndicesFromChunk(MemChunk chunk) {
+    for (Map.Entry<Index, Integer> entry : index2nr.entrySet()) {
+      ((MemHashIndex) entry.getKey()).useChunk(chunk, entry.getValue());
     }
   }
 
-  public void updateAll(){
+  public void updateAll() {
     for (Index index : name2index.values())
-      ((MemHashIndex)index).update();
+      ((MemHashIndex) index).update();
   }
 
   public int getIndexCount() {
@@ -96,4 +106,9 @@ public class IndexInformation {
 
     }
   }
+
+  public Collection<Index> getIndices() {
+    return name2index.values();
+  }
+
 }

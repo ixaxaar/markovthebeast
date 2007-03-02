@@ -18,6 +18,8 @@ import thebeast.pml.training.TrainingInstances;
 import thebeast.util.DotProgressReporter;
 import thebeast.util.Util;
 import thebeast.util.StopWatch;
+import thebeast.nod.FileSource;
+import thebeast.nod.FileSink;
 
 import java.io.*;
 import java.util.*;
@@ -391,21 +393,22 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoad(ParserLoad parserLoad) {
     update();
     try {
-      if ("instances".equals(parserLoad.target)) {
-        instances = new TrainingInstances(signature, new File(parserLoad.file), defaultTrainingCacheSize);
-      } else if (parserLoad.target == null) {
-        if (!parserLoad.gold) {
-          guess.load(new FileInputStream(filename(parserLoad.file)));
-          solver.setObservation(guess);
-          solutionAvailable = true;
+      if ("instances".equals(parserLoad.target.head)) {
+        instances = new TrainingInstances(model, new File(parserLoad.file), defaultTrainingCacheSize);
+        out.println(instances.size() + " instances loaded.");
+      } else if ("weights".equals(parserLoad.target.head)) {
+        if ("dump".equals(parserLoad.mode)) {
+          FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(parserLoad.file), 1024);
+          weights.read(source);
+          weightsUpdated = true;
+        } else {
+          throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
         }
-      } else {
-
+        out.println(weights.getFeatureCount() + " weights loaded.");                
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      e.printStackTrace();
     }
-    out.println("Atoms loaded.");
   }
 
   private void update() {
@@ -450,7 +453,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.print(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("eval".equals(parserPrint.name.head)) {
       Evaluation evaluation = new Evaluation(model);
-      evaluation.evaluate(gold,guess);
+      evaluation.evaluate(gold, guess);
       out.print(evaluation);
     } else if ("formulas".equals(parserPrint.name.head)) {
       GroundFormulas formulas = new GroundFormulas(model, weights);
@@ -490,7 +493,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 //    solutionAvailable = false;
 //    guess.load(solver.getAtoms(), model.getHiddenPredicates());
     if (solver.getIterationCount() == 0)
-      out.println("Current solution is optimal.");
+      out.println("Solved locally in " + time + "ms.");
     else
       out.println("Solved in " + solver.getIterationCount() + " step(s) and " + time + "ms.");
   }
@@ -585,6 +588,25 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.println(instances.size() + " instances generated.");
       }
     } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void visitSave(ParserSave parserSave) {
+    update();
+    try {
+      if ("weights".equals(parserSave.target.head)) {
+        if ("dump".equals(parserSave.mode)) {
+          FileSink sink = TheBeast.getInstance().getNodServer().createSink(new File(parserSave.file), 1024);
+          weights.write(sink);
+          sink.flush();
+          //weightsUpdated = true;
+        } else {
+          throw new ShellException("Mode " + parserSave.mode + " not supported for saving " + parserSave.target);
+        }
+        out.println(weights.getFeatureCount() + " weights saved.");
+      }
+    } catch (IOException e) {   
       e.printStackTrace();
     }
   }

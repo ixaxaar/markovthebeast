@@ -3,10 +3,8 @@ package thebeast.pml.function;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.type.Heading;
 import thebeast.nod.type.TypeFactory;
-import thebeast.pml.function.FunctionVisitor;
-import thebeast.pml.function.Function;
-import thebeast.pml.Type;
 import thebeast.pml.TheBeast;
+import thebeast.pml.Type;
 
 import java.util.LinkedList;
 import java.util.List;

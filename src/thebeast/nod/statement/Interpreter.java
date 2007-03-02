@@ -45,6 +45,8 @@ public interface Interpreter {
 
   void clear(RelationVariable var);
 
+  void clear(ArrayVariable var);
+
   DoubleVariable createDoubleVariable(DoubleExpression expr);
 
   IntVariable createIntVariable(IntExpression expr);
@@ -107,4 +109,5 @@ public interface Interpreter {
   void add(ArrayVariable arrayVariable, ArrayExpression argument, double scale);
 
   void scale(ArrayVariable arrayVariable, double scale);
+
 }
