@@ -31,7 +31,7 @@ public final class MemFunction {
     OPERATOR_INV, GET,
     COUNT, RELATION_COPY, CYCLES,
     DOUBLE_LEQ, SPARSE_ADD, SUMMARIZE, RELATION_MINUS, INT_NOTEQUAL, CHUNK_NOTEQUAL, DOUBLE_ADD, UNION,
-    DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_TIMES
+    DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_EQUAL, DOUBLE_TIMES, DOUBLE_NOTEQUAL
 
   }
 
@@ -55,9 +55,9 @@ public final class MemFunction {
     this.chunkSpecs = chunkSpecs;
     this.tmpFunction = tmpFunction;
     this.type = Type.SUMMARIZE;
-    this.argPointersVec = new MemVector[] { new MemVector(0,0,0)};
-    this.arguments = new MemFunction[] {relFunction};
-    this.argHolder= new MemChunk(1,1,0,0,1);
+    this.argPointersVec = new MemVector[]{new MemVector(0, 0, 0)};
+    this.arguments = new MemFunction[]{relFunction};
+    this.argHolder = new MemChunk(1, 1, 0, 0, 1);
     this.returnDim = returnDim;
     buildStacks();
   }
@@ -281,33 +281,34 @@ public final class MemFunction {
 
   /**
    * Create a variable function.
-   * @param type must be either INT_VARIABLE, DOUBLE_VARIABLE or CHUNK_VARIABLE
-   * @param chunk the container chunk
+   *
+   * @param type    must be either INT_VARIABLE, DOUBLE_VARIABLE or CHUNK_VARIABLE
+   * @param chunk   the container chunk
    * @param pointer the pointer to the variable content within the container
    */
   public MemFunction(Type type, MemChunk chunk, MemVector pointer) {
     this.type = type;
     this.varChunk = chunk;
     this.varPointer = pointer;
-    switch (type){
+    switch (type) {
       case INT_VARIABLE:
-        returnDim = new MemDim(1,0,0);
+        returnDim = new MemDim(1, 0, 0);
         break;
       case DOUBLE_VARIABLE:
-        returnDim = new MemDim(0,1,0);
+        returnDim = new MemDim(0, 1, 0);
         break;
       case CHUNK_VARIABLE:
-        returnDim = new MemDim(0,0,1);
+        returnDim = new MemDim(0, 0, 1);
         break;
     }
     buildStacks();
   }
 
 
-  public MemFunction(MemFunction arg, int ... bins){
+  public MemFunction(MemFunction arg, int... bins) {
     this.type = Type.INT_BINS;
-    this.returnDim = new MemDim(1,0,0);
-    this.argHolder = new MemChunk(1,1,1,0,0);
+    this.returnDim = new MemDim(1, 0, 0);
+    this.argHolder = new MemChunk(1, 1, 1, 0, 0);
     this.arguments = new MemFunction[]{arg};
     this.argPointersVec = new MemVector[]{MemVector.ZERO};
     this.bins = bins;
@@ -422,6 +423,8 @@ public final class MemFunction {
       case DOUBLE_TIMES:
       case DOUBLE_LEQ:
       case DOUBLE_GT:
+      case DOUBLE_EQUAL:
+      case DOUBLE_NOTEQUAL:
         argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 1, 0)};
         argHolder = new MemChunk(1, 1, 0, 2, 0);
         returnDim = new MemDim(0, 1, 0);

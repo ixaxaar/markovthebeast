@@ -10,6 +10,7 @@ import thebeast.nod.type.IntType;
 import thebeast.nod.type.RelationType;
 
 import java.util.HashSet;
+import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -84,6 +85,33 @@ public class TestInterpreter extends NoDTest {
     assertEquals(2, sequence.value().getInt());
   }
 
+  public void testGetColumn() {
+    exprBuilder.id("arg1").num(5).id("arg2").num(5.0).id("index").num(1).tupleForIds();
+    exprBuilder.id("arg1").num(2).id("arg2").num(2.0).id("index").num(2).tupleForIds();
+    exprBuilder.id("arg1").num(4).id("arg2").num(4.0).id("index").num(3).tupleForIds();
+    exprBuilder.relation(3);
+
+    RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
+    int[] arg1 = var.getIntColumn("arg1");
+    double[] arg2 = var.getDoubleColumn("arg2");
+    int[] index = var.getIntColumn("index");
+
+    System.out.println(Arrays.toString(arg1));
+    System.out.println(Arrays.toString(arg2));
+    System.out.println(Arrays.toString(index));
+
+    assertEquals(5, arg1[0]);
+    assertEquals(2, arg1[1]);
+    assertEquals(4, arg1[2]);
+    assertEquals(5.0, arg2[0]);
+    assertEquals(2.0, arg2[1]);
+    assertEquals(4.0, arg2[2]);
+    assertEquals(1, index[0]);
+    assertEquals(2, index[1]);
+    assertEquals(3, index[2]);
+
+
+  }
   public void testAddTuple() {
     exprBuilder.id("arg1").num(5).id("arg2").num(5.0).id("index").num(1).tupleForIds();
     exprBuilder.id("arg1").num(2).id("arg2").num(2.0).id("index").num(2).tupleForIds();

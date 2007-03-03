@@ -16,16 +16,20 @@ load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
 //load corpus from dump "/tmp/test.dmp";
 //save corpus (0-5) to dump "/tmp/test.dmp";
 save corpus (0-10) to ram;
-//collect;
+collect;
 //learn 2;
 //print weights;
-//save corpus to instances "/tmp/instances.dmp";
+save corpus to instances "/tmp/instances.dmp";
 //save corpus to instances "/disk/scratch/tmp/instances.dmp";
 //save corpus to instances "/disk/home/dendrite/s0349492/tmp/instances.dmp";
 
 set solver.ilp.solver.verbose = false;
 set learner.solver.maxIterations = 0;
 set learner.numEpochs = 1;
+
+//load weights from dump "/tmp/weights.dmp";
+//load instances from dump "/tmp/instances.dmp";
+
 //learn;
 
 //scores from "example.scores";

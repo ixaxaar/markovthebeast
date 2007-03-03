@@ -66,7 +66,7 @@ public class Evaluation {
   }
 
   public double getPrecision(UserPredicate pred){
-    double all = gold.getGroundAtomsOf(pred).getRelationVariable().value().size();
+    double all = guess.getGroundAtomsOf(pred).getRelationVariable().value().size();
     double fp = falsePositives.getGroundAtomsOf(pred).getRelationVariable().value().size();
     return (all - fp) / all;
   }
@@ -122,6 +122,25 @@ public class Evaluation {
     return result.toString();
   }
 
-  
 
+  public double getPrecision(){
+    double all = getGuessCount();
+    if (all == 0) return 1.0;
+    return (all - getFalsePositivesCount()) / all;
+  }
+
+  public double getRecall(){
+    double all = getGoldCount();
+    return (all - getFalseNegativesCount()) / all;
+  }
+
+  public double getF1() {
+    double recall = getRecall();
+    double precision = getPrecision();
+    return 2 * recall * precision / (recall + precision);
+  }
+
+  public int getNumErrors(){
+    return getFalseNegativesCount() + getFalsePositivesCount();
+  }
 }

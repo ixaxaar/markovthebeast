@@ -58,7 +58,7 @@ public class Weights {
     }
 
     dotProductArg = new SparseVector();
-    builder.expr(weights).expr(dotProductArg.getValues()).indexedSum("index", "value");
+    builder.expr(weights).expr(dotProductArg.getValuesRelation()).indexedSum("index", "value");
     dotProduct = builder.getDouble();
 
 
@@ -353,7 +353,7 @@ public class Weights {
    * @param weights the weights to add (scaled).
    */
   public void add(double scale, SparseVector weights) {
-    interpreter.sparseAdd(this.weights, weights.getValues(), builder.num(scale).getDouble(), "index", "value");
+    interpreter.sparseAdd(this.weights, weights.getValuesRelation(), builder.num(scale).getDouble(), "index", "value");
   }
 
 

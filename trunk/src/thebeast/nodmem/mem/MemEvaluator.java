@@ -137,6 +137,12 @@ public class MemEvaluator {
         case COUNT:
           returnChunk.intData[argPointerVec.xInt] = argChunk.chunkData[0].size;
           break;
+        case DOUBLE_EQUAL:
+          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] == argChunk.doubleData[1] ? 1 : 0;
+          break;
+        case DOUBLE_NOTEQUAL:
+          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] != argChunk.doubleData[1] ? 1 : 0;
+          break;
         case DOUBLE_ADD:
           returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] + argChunk.doubleData[1];
           break;

@@ -15,6 +15,10 @@ public interface RelationVariable extends Variable<RelationValue,RelationType>, 
 
   Index getIndex(String name);
 
+  int[] getIntColumn(String attribute);
+
+  double[] getDoubleColumn(String attribute);
+
   void assignByArray(int[] ints, double[] doubles);
 
   int byteSize();
