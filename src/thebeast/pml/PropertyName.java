@@ -22,4 +22,8 @@ public class PropertyName {
   public PropertyName getTail() {
     return tail;
   }
+
+  public String toString(){
+    return tail == null ? head : head + "." + tail; 
+  }
 }

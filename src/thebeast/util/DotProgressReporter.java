@@ -54,7 +54,7 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
       out.printf("%-20s%-6d\n", "Guess count: ", guessCount);
       out.printf("%-20s%-6d\n", "FP count: ", fpCount);
       out.printf("%-20s%-6d\n", "FN count: ", fnCount);
-      double recall = (guessCount - fpCount) / (double)goldCount;
+      double recall = (goldCount - fnCount) / (double)goldCount;
       double precision = (guessCount - fpCount) / (double)guessCount;
       out.printf("%-20s%-6.2f\n", "Recall: ", recall);
       out.printf("%-20s%-6.2f\n", "Precision: ", precision);

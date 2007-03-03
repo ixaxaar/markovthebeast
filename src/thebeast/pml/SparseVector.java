@@ -43,6 +43,7 @@ public class SparseVector {
   private RelationVariable values, otherValues;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private RelationExpression sparseAdd;
+  private RelationExpression removeZeros;
   private DoubleVariable scale;
   private ExpressionBuilder builder;
 
@@ -58,6 +59,8 @@ public class SparseVector {
     sparseAdd = builder.expr(values).expr(scale).expr(otherValues).sparseAdd("index", "value").getRelation();
     //builder.id("index").
     //distinctOthers = builder.expr(other).expr(values).relationMinus().getRelation();
+    removeZeros = builder.expr(values).doubleAttribute("value").num(0.0).equality().not().restrict().getRelation();
+    
 
   }
 
@@ -67,6 +70,11 @@ public class SparseVector {
 
   public boolean contains(int index, double value) {
     return values.contains(index, value);
+  }
+
+  public void compactify(){
+    interpreter.assign(otherValues, removeZeros);
+    interpreter.assign(values,otherValues);
   }
 
   public SparseVector add(double scale, SparseVector other) {
@@ -83,7 +91,7 @@ public class SparseVector {
     interpreter.assign(values, sparseAdd);
   }
 
-  public RelationVariable getValues() {
+  public RelationVariable getValuesRelation() {
     return values;
   }
 
@@ -115,5 +123,13 @@ public class SparseVector {
 
   public void read(FileSource fileSource) throws IOException {
     fileSource.read(values);
+  }
+
+  public int[] getIndices() {
+    return values.getIntColumn("index");
+  }
+
+  public double[] getValues() {
+    return values.getDoubleColumn("value");
   }
 }

@@ -312,8 +312,11 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     if (lhs.type() instanceof IntType || lhs.type() instanceof CategoricalType) {
       function = new MemFunction(MemFunction.Type.INT_EQUAL, functionLhs, functionRhs);
     }
-    if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
+    else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
       function = new MemFunction(MemFunction.Type.CHUNK_EQUAL, functionLhs, functionRhs);
+    }
+    else if (lhs.type() instanceof DoubleType) {
+      function = new MemFunction(MemFunction.Type.DOUBLE_EQUAL, functionLhs, functionRhs);
     }
   }
 
@@ -331,8 +334,11 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     if (lhs.type() instanceof IntType || lhs.type() instanceof CategoricalType) {
       function = new MemFunction(MemFunction.Type.INT_NOTEQUAL, functionLhs, functionRhs);
     }
-    if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
+    else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
       function = new MemFunction(MemFunction.Type.CHUNK_NOTEQUAL, functionLhs, functionRhs);
+    }
+    else if (lhs.type() instanceof DoubleType) {
+      function = new MemFunction(MemFunction.Type.DOUBLE_NOTEQUAL, functionLhs, functionRhs);
     }
 
   }

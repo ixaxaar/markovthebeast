@@ -141,7 +141,6 @@ public class OnlineLearner implements Learner, HasProperties {
     //use the feature vector and weight to score ground atoms
     scores.score(features, this.weights);
 
-
     //System.out.println(features.toVerboseString());
     System.out.println(scores);
     //use the scores to solve the model
@@ -244,11 +243,31 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
+  public boolean isAveraging() {
+    return averaging;
+  }
+
+  public void setAveraging(boolean averaging) {
+    this.averaging = averaging;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
       solver.setProperty(name.getTail(), value);
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
+    } else if ("update".equals(name.getHead())) {
+      if ("mira".equals(value.toString()))
+        setUpdateRule(new MiraUpdateRule());
+      else if ("perceptron".equals(value.toString()))
+        setUpdateRule(new PerceptronUpdateRule());
+      else throw new IllegalPropertyValueException(name, value);
+    } else if ("average".equals(name.getHead())) {
+      if ("true".equals(value))
+        setAveraging(true);
+      else if ("false".equals(name.getHead()))
+        setAveraging(false);
+      else throw new IllegalPropertyValueException(name, value);
     }
   }
 

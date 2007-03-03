@@ -398,6 +398,25 @@ public class TestTheBeast extends TestCase {
     assertEquals(1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
   }
 
+  public void testCompactify(){
+    SparseVector vector = new SparseVector();
+    vector.addValue(0, 0.75);
+    vector.addValue(1, 2.0);
+    vector.addValue(2, -1.5);
+    vector.addValue(3, 0.0);
+    vector.compactify();
+    System.out.println(vector);
+    int[] indices = vector.getIndices();
+    double[] values = vector.getValues();
+    assertEquals(0, indices[0]);
+    assertEquals(1, indices[1]);
+    assertEquals(2, indices[2]);
+    assertEquals(0.75, values[0]);
+    assertEquals(2.0, values[1]);
+    assertEquals(-1.5, values[2]);
+    assertEquals(3, values.length);
+  }
+
   public void testAddWeightGetIndex() {
     Weights weights = signature.createWeights();
     weights.addWeight(weightFunction1, 1.5, "DT", "NP");
@@ -642,10 +661,10 @@ public class TestTheBeast extends TestCase {
 
     SparseVector result = arg1.add(2.0, arg2);
 
-    System.out.println(result.getValues().value());
-    assertTrue(result.getValues().contains(0, 10.0));
-    assertTrue(result.getValues().contains(1, 5.0));
-    assertTrue(result.getValues().contains(2, 6.0));
+    System.out.println(result.getValuesRelation().value());
+    assertTrue(result.getValuesRelation().contains(0, 10.0));
+    assertTrue(result.getValuesRelation().contains(1, 5.0));
+    assertTrue(result.getValuesRelation().contains(2, 6.0));
 
   }
 
@@ -889,7 +908,7 @@ public class TestTheBeast extends TestCase {
     solution.updateGroundFormulas();
 
     SparseVector features = solution.extract();
-    System.out.println(features.getValues().value());
+    System.out.println(features.getValuesRelation().value());
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
     assertTrue(features.contains(4, -1.0));
@@ -902,7 +921,7 @@ public class TestTheBeast extends TestCase {
     //local.extract(theManLikesTheBoat);
 
     features = solution.extract(local);
-    System.out.println(features.getValues().value());
+    System.out.println(features.getValuesRelation().value());
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
     assertTrue(features.contains(4, -1.0));

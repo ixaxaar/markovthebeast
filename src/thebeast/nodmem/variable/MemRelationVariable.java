@@ -2,8 +2,7 @@ package thebeast.nodmem.variable;
 
 import thebeast.nod.NoDServer;
 import thebeast.nod.expression.ExpressionVisitor;
-import thebeast.nod.type.RelationType;
-import thebeast.nod.type.TupleType;
+import thebeast.nod.type.*;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.Index;
@@ -11,6 +10,8 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemPointer;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.statement.IndexInformation;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemRelationType;
@@ -153,6 +154,46 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
 
   public Index getIndex(String name) {
     return indexInformation().getIndex(name);
+  }
+
+  public int[] getIntColumn(String attribute) {
+    Attribute att = type.heading().attribute(attribute);
+    if (att == null)
+      throw new IllegalArgumentException(type + " has no attribute " + attribute);
+    if (!(att.type() instanceof IntType))
+      throw new IllegalArgumentException(attribute + " is not an int attribute");
+    MemHeading memHeading = (MemHeading) type.heading();
+    MemPointer pointer = memHeading.pointerForAttribute(attribute);
+    MemDim dim = memHeading.getDim();
+    MemChunk chunk = this.chunk.chunkData[this.pointer.xChunk];
+    int[] result = new int[chunk.size];
+    if (dim.xInt == 1)
+      System.arraycopy(chunk.intData,0,result,0,chunk.size);
+    else {
+      int index = pointer.pointer;
+      for (int row = 0;row < chunk.size; ++row, index+=dim.xInt)
+        result[row] = chunk.intData[index];
+    }
+    return result;
+  }
+
+  public double[] getDoubleColumn(String attribute) {
+    Attribute att = type.heading().attribute(attribute);
+    if (!(att.type() instanceof DoubleType))
+      throw new IllegalArgumentException(attribute + " is not an double attribute");
+    MemHeading memHeading = (MemHeading) type.heading();
+    MemPointer pointer = memHeading.pointerForAttribute(attribute);
+    MemDim dim = memHeading.getDim();
+    MemChunk chunk = this.chunk.chunkData[this.pointer.xChunk];
+    double[] result = new double[chunk.size];
+    if (dim.xInt == 1)
+      System.arraycopy(chunk.doubleData,0,result,0,chunk.size);
+    else {
+      int index = pointer.pointer;
+      for (int row = 0;row < chunk.size; ++row, index+=dim.xDouble)
+        result[row] = chunk.doubleData[index];
+    }
+    return result;
   }
 
   public void assignByArray(int[] ints, double[] doubles) {

@@ -121,16 +121,16 @@ public class Solution {
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
       interpreter.assign(tmpFeatures.get(formula), localExtractors.get(formula));
       SparseVector tmp = new SparseVector();
-      interpreter.assign(tmp.getValues(), localSummarizer.get(formula));
+      interpreter.assign(tmp.getValuesRelation(), localSummarizer.get(formula));
       result.addInPlace(1.0, tmp);
     }
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
         if (!formula.getWeight().isNonNegative())
-          interpreter.insert(tmp.getValues(), globalTrueSummarizer.get(formula));
+          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (!formula.getWeight().isNonPositive())
-          interpreter.insert(tmp.getValues(), globalFalseSummarizer.get(formula));
+          interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         result.addInPlace(1.0, tmp);
       }
     }
@@ -144,16 +144,16 @@ public class Solution {
       RelationVariable var = tmpFeaturesPerPred.get(pred);
       interpreter.assign(var, localJoin.get(pred));
       SparseVector tmp = new SparseVector();
-      interpreter.assign(tmp.getValues(), localSummarizerForFeatures.get(pred));
+      interpreter.assign(tmp.getValuesRelation(), localSummarizerForFeatures.get(pred));
       result.addInPlace(1.0, tmp);
     }
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
         if (!formula.getWeight().isNonNegative())
-          interpreter.insert(tmp.getValues(), globalTrueSummarizer.get(formula));
+          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (!formula.getWeight().isNonPositive())
-          interpreter.insert(tmp.getValues(), globalFalseSummarizer.get(formula));
+          interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         result.addInPlace(1.0, tmp);
       }
     }
