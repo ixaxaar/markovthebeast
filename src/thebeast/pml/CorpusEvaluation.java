@@ -100,9 +100,9 @@ public class CorpusEvaluation {
        for (int i = 0; i < 25; ++i) result.append("-");
        result.append("\n");
        Formatter formatter = new Formatter();
-       formatter.format("%-20s%5.2f\n","Recall", getRecall(pred));
-       formatter.format("%-20s%5.2f\n","Precision", getPrecision(pred));
-       formatter.format("%-20s%5.2f\n","F1", getF1(pred));
+       formatter.format("%-20s%4.3f\n","Recall", getRecall(pred));
+       formatter.format("%-20s%4.3f\n","Precision", getPrecision(pred));
+       formatter.format("%-20s%4.3f\n","F1", getF1(pred));
        result.append(formatter.toString());
      }
      return result.toString();

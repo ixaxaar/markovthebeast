@@ -312,8 +312,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     boolean previousPrintSignatureChanges = printSignagureChanges;
     printModelChanges = false;
     printSignagureChanges = false;
+    String oldDir = directory;
     try {
       file = new File(filename(parserImport.filename));
+      if (file.getParentFile() != null) directory = file.getParentFile().getPath();
       PMLParser parser = new PMLParser(new Yylex(new FileInputStream(file)));
       for (Object obj : ((List) parser.parse().value)) {
         ParserStatement statement = (ParserStatement) obj;
@@ -327,7 +329,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
     } catch (Exception e) {
       e.printStackTrace(out);
+    } finally{
+      directory = oldDir;
     }
+
     out.println("File \"" + parserImport.filename + "\" included.");
     printModelChanges = previousPrintModelChanges;
     printSignagureChanges = previousPrintSignatureChanges;
@@ -540,10 +545,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         for (int i = 0; i < parserLoadCorpus.from; ++i) instance.next();
         for (int i = parserLoadCorpus.from; i < parserLoadCorpus.to; ++i) corpus.add(instance.next());
       }
-      //iterator = corpus.iterator();
-//      listIterator = corpus.listIterator();
-//      GroundAtoms first = iterator.next();
-//      loadAtoms(first);
     }
     out.println("Corpus loaded using the " + parserLoadCorpus.factory + " factory.");
   }
@@ -575,6 +576,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.println("Corpus saved to RAM (can be used for inspection now).");
         listIterator = ramCorpus.listIterator();
       } else if ("instances".equals(parserSaveCorpus.factory)) {
+        if (corpus == null) throw new ShellException("Corpus must be loaded before training instances can generated");
         File file = new File(parserSaveCorpus.file);
         file.delete();
         if (parserSaveCorpus.from != -1) {

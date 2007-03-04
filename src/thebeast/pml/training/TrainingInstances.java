@@ -119,6 +119,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     for (TrainingInstance instance : active) {
       instance.write(fileSink);
     }
+    //fileSink.flush();
     if (verbose) System.out.print(">");
     active.clear();
   }
@@ -142,7 +143,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
         if (verbose) System.out.print("<");
         return active.subList(0, size).iterator();
       } else {
-        if (loadedFromFile) for (TrainingInstance instance : active) {
+        if (!loadedFromFile) for (TrainingInstance instance : active) {
           instance.read(fileSource);
         }
         if (verbose) System.out.print("<");
