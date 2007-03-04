@@ -2,10 +2,7 @@ package thebeast.pml;
 
 import thebeast.pml.formula.FactorFormula;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Sebastian Riedel
@@ -14,10 +11,10 @@ public class Model {
 
   private Signature signature;
 
-  private HashSet<UserPredicate>
-          hidden = new HashSet<UserPredicate>(),
-          observed = new HashSet<UserPredicate>(),
-          globalPreds = new HashSet<UserPredicate>();
+  private LinkedList<UserPredicate>
+          hidden = new LinkedList<UserPredicate>(),
+          observed = new LinkedList<UserPredicate>(),
+          globalPreds = new LinkedList<UserPredicate>();
 
   private LinkedList<FactorFormula>
           factorFormulas = new LinkedList<FactorFormula>(),
@@ -42,6 +39,7 @@ public class Model {
    */
   public void addHiddenPredicate(UserPredicate predicate) {
     hidden.add(predicate);
+    Collections.sort(hidden);
   }
 
   /**
@@ -52,6 +50,7 @@ public class Model {
    */
   public void addObservedPredicate(UserPredicate predicate) {
     observed.add(predicate);
+    Collections.sort(observed);
   }
 
   /**
@@ -62,6 +61,7 @@ public class Model {
    */
   public void addGlobalPredicate(UserPredicate predicate) {
     globalPreds.add(predicate);
+    Collections.sort(globalPreds);
   }
 
 
@@ -121,15 +121,15 @@ public class Model {
   }
 
 
-  public Set<UserPredicate> getHiddenPredicates() {
+  public List<UserPredicate> getHiddenPredicates() {
     return hidden;
   }
 
-  public Set<UserPredicate> getObservedPredicates() {
+  public List<UserPredicate> getObservedPredicates() {
     return observed;
   }
 
-  public Set<UserPredicate> getGlobalPredicates() {
+  public List<UserPredicate> getGlobalPredicates() {
     return globalPreds;
   }
 }

@@ -14,9 +14,8 @@ import java.util.HashMap;
 import java.io.IOException;
 
 /**
- * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used
- * to represent all active features for all possible ground atoms (and thus for scoring the
- * ground atom).
+ * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
+ * for all possible ground atoms (and thus for scoring the ground atom).
  */
 public class LocalFeatures {
 
@@ -49,8 +48,8 @@ public class LocalFeatures {
 
 
   /**
-   * Copies a set of local features. Copying is based on the underlying database engine, which might
-   * use a shallow mechanism until any of objects is changed.
+   * Copies a set of local features. Copying is based on the underlying database engine, which might use a shallow
+   * mechanism until any of objects is changed.
    *
    * @return a copy of this object.
    */
@@ -116,9 +115,8 @@ public class LocalFeatures {
    * @throws java.io.IOException if I/O goes wrong.
    */
   public void write(FileSink fileSink) throws IOException {
-    for (RelationVariable var : features.values()) {
-      fileSink.write(var, true);
-    }
+    for (UserPredicate pred : model.getHiddenPredicates())
+      fileSink.write(features.get(pred), true);
   }
 
   /**
@@ -128,9 +126,8 @@ public class LocalFeatures {
    * @throws IOException if I/O goes wrong.
    */
   public void read(FileSource fileSource) throws IOException {
-    for (RelationVariable var : features.values()) {
-      fileSource.read(var);
-    }
+    for (UserPredicate pred : model.getHiddenPredicates())
+      fileSource.read(features.get(pred));
   }
 
   /**
@@ -150,11 +147,9 @@ public class LocalFeatures {
   }
 
   /**
-   * Returns a string that also displays the weight function and its argument
-   * for each ground atom.
+   * Returns a string that also displays the weight function and its argument for each ground atom.
    *
-   * @return all ground atoms that have active features together with these features
-   *         in literal form.
+   * @return all ground atoms that have active features together with these features in literal form.
    */
   public String toVerboseString() {
     StringBuffer result = new StringBuffer();
@@ -164,10 +159,9 @@ public class LocalFeatures {
         result.append("for ").append(predicate.getName()).append("(");
         for (Value value : tuple.values()) {
           if (index < predicate.getArity()) {
-            if (index > 0) result.append(", ");            
+            if (index > 0) result.append(", ");
             result.append(value);
-          }
-          else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
+          } else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
           index++;
         }
         result.append("\n");
