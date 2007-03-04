@@ -122,9 +122,15 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   }
 
   public boolean copy(AbstractMemVariable var) {
-    if (this == var) return false;
+    if (this == var || owns == var) return false;
     MemRelationVariable other = (MemRelationVariable) var;
     if (other.owns == this) return false;
+    if (owners.size() > 0) {
+      for (MemRelationVariable owner : new ArrayList<MemRelationVariable>(owners)) {
+        owner.own();
+      }
+      owners.clear();
+    }
     if (owns != null) owns.removeOwner(this);
     other.addOwner(this);
     chunk.chunkData[pointer.xChunk].shallowCopy(other.chunk.chunkData[other.pointer.xChunk]);

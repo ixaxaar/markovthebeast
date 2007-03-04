@@ -287,8 +287,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     if (assign.expression() instanceof AbstractMemVariable) {
       AbstractMemVariable other = (AbstractMemVariable) assign.expression();
       AbstractMemVariable var = (AbstractMemVariable) assign.target();
-      var.copy(other);
-      var.invalidate();
+      if (var.copy(other))
+        var.invalidate();
     } else {
       AbstractMemExpression expr = (AbstractMemExpression) assign.expression();
       AbstractMemVariable var = (AbstractMemVariable) assign.target();
