@@ -76,7 +76,7 @@ public abstract class AbstractMemVariable<V extends Value, T extends Type>
     
   }
 
-  public abstract void copy(AbstractMemVariable other);
+  public abstract boolean copy(AbstractMemVariable other);
 
   public void invalidate(){
     

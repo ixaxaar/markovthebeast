@@ -15,7 +15,7 @@ parser code {:
 
 terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
-terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST;
 terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
@@ -123,6 +123,8 @@ statement ::= createType:s
             | LOAD CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
+            | TEST TO LOWERCASEID:f STRING:s
+              {: RESULT = new ParserTest(f, s.substring(1,s.length()-1)); :}
             | SAVE name:n TO LOWERCASEID:f STRING:s
               {: RESULT = new ParserSave(n, f, s.substring(1,s.length()-1)); :}
             | SAVE CORPUS TO LOWERCASEID:f STRING:s

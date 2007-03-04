@@ -30,8 +30,9 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue,ArrayType> 
       
   }
 
-  public void copy(AbstractMemVariable other) {
+  public boolean copy(AbstractMemVariable other) {
     chunk.chunkData[pointer.xChunk] = other.chunk.chunkData[other.pointer.xChunk].copy();
+    return true;
   }
 
   public ArrayValue value(){

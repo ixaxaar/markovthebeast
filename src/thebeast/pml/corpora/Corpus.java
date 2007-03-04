@@ -4,7 +4,6 @@ import thebeast.pml.GroundAtoms;
 import thebeast.pml.Signature;
 
 import java.util.Collection;
-import java.util.ListIterator;
 
 /**
  * A Corpus is a collection of ground atoms (which a specific order).
@@ -21,18 +20,19 @@ public interface Corpus extends Collection<GroundAtoms> {
   Signature getSignature();
 
   /**
-   * A list iterator over this corpus. Implementation is optional.
-   *
-   * @return a list iteration or null if implementation does not support it.
-   */
-  ListIterator<GroundAtoms> listIterator();
-
-  /**
    * A rough estimate of how much memory the corpus uses.
    *
    * @return estimates memory usage in bytes.
    */
   int getUsedMemory();
+
+
+  /**
+   * Appends a ground atom collection to the end of this corpus.
+   *
+   * @param atoms the atoms to add.
+   */
+  void append(GroundAtoms atoms);
 
 
 }

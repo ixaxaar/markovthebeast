@@ -23,7 +23,12 @@ public class MemVector {
     this.xInt = row * dim.xInt;
     this.xDouble = row * dim.xDouble;
     this.xChunk = row * dim.xChunk;
+  }
 
+  public MemVector(int row, int xInt, int xDouble, int xChunk) {
+    this.xInt = row * xInt;
+    this.xDouble = row * xDouble;
+    this.xChunk = row * xChunk;
   }
 
   public MemVector(MemVector pointer) {
@@ -94,5 +99,11 @@ public class MemVector {
     this.xInt = pointer.xInt;
     this.xDouble = pointer.xDouble;
     this.xChunk = pointer.xChunk;
+  }
+
+  public void set(int xInt, int xDouble, int xChunk) {
+    this.xInt = xInt;
+    this.xDouble = xDouble;
+    this.xChunk = xChunk;
   }
 }

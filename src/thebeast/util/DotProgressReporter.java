@@ -30,7 +30,16 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
   public void progressed() {
     if (count % dotInterval == dotInterval - 1) out.print(".");
     if (count % chunkInterval == chunkInterval - 1) out.print(" ");
-    if (count % lineInterval == lineInterval - 1) out.printf("%6d\n", count + 1);
+    if (count % lineInterval == lineInterval - 1) {
+      out.printf("%6d", count + 1);
+      if (goldCount > 0){
+        double recall = (goldCount - fnCount) / (double)goldCount;
+        double precision = (guessCount - fpCount) / (double)guessCount;
+        out.printf("%-6.2f %-6.2f\n", recall,precision);
+      } else {
+        out.println();
+      }
+    }
     ++count;
 
   }

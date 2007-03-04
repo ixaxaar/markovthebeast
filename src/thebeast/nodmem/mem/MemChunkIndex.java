@@ -17,6 +17,7 @@ public final class MemChunkIndex {
   private int numKeys;
   private int numUsedIndices;
   private static int CAPACITY_INCREMENTS = 2;
+  public MemVector current = new MemVector();
 
 
   /**
@@ -73,29 +74,29 @@ public final class MemChunkIndex {
     }
     int length = tuplesAtIndex.size;
     if (length == 0) ++numUsedIndices;
-    MemVector p = new MemVector();
+    current.set(0,0,0);
     for (int item = 0; item < length; ++item) {
       //test key equality
       check:
       if (key == keysAtIndex[item]) {
         //test tuple equality
         for (int i = 0; i < cols.intCols.length; ++i)
-          if (tuplesAtIndex.intData[p.xInt + i] != data.intData[pointer.xInt + cols.intCols[i]])
+          if (tuplesAtIndex.intData[current.xInt + i] != data.intData[pointer.xInt + cols.intCols[i]])
             break check;
         for (int i = 0; i < cols.doubleCols.length; ++i)
-          if (tuplesAtIndex.doubleData[p.xDouble + i] != data.doubleData[pointer.xDouble + cols.doubleCols[i]])
+          if (tuplesAtIndex.doubleData[current.xDouble + i] != data.doubleData[pointer.xDouble + cols.doubleCols[i]])
             break check;
         for (int i = 0; i < cols.chunkCols.length; ++i)
-          if (!tuplesAtIndex.chunkData[p.xChunk + i].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
+          if (!tuplesAtIndex.chunkData[current.xChunk + i].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
             break check;
         //they are equal, let's just set the new value
         int old = valuesAtIndex[item];
         if (override) valuesAtIndex[item] = value;
         return old;
       }
-      p.xInt += dim.xInt;
-      p.xDouble += dim.xDouble;
-      p.xChunk += dim.xChunk;
+      current.xInt += dim.xInt;
+      current.xDouble += dim.xDouble;
+      current.xChunk += dim.xChunk;
     }
     //if we have arrived here the key-value pair has not yet been put
     //check if we need to increase the capacity
@@ -112,11 +113,11 @@ public final class MemChunkIndex {
     }
     //insert
     for (int i = 0; i < cols.intCols.length; ++i)
-      tuplesAtIndex.intData[p.xInt + i] = data.intData[pointer.xInt + cols.intCols[i]];
+      tuplesAtIndex.intData[current.xInt + i] = data.intData[pointer.xInt + cols.intCols[i]];
     for (int i = 0; i < cols.doubleCols.length; ++i)
-      tuplesAtIndex.doubleData[p.xDouble + i] = data.doubleData[pointer.xDouble + cols.doubleCols[i]];
+      tuplesAtIndex.doubleData[current.xDouble + i] = data.doubleData[pointer.xDouble + cols.doubleCols[i]];
     for (int i = 0; i < cols.chunkCols.length; ++i)
-      tuplesAtIndex.chunkData[p.xChunk + i] = data.chunkData[pointer.xChunk + cols.chunkCols[i]];
+      tuplesAtIndex.chunkData[current.xChunk + i] = data.chunkData[pointer.xChunk + cols.chunkCols[i]];
     ++tuplesAtIndex.size;
     valuesAtIndex[length] = value;
     keysAtIndex[length] = key;
@@ -199,14 +200,15 @@ public final class MemChunkIndex {
       if (tuplesAtIndex != null) {
         //int[] keysAtIndex = keys[index];
         int[] valuesAtIndex = values[index];
-        MemVector p = new MemVector();
+        //MemVector current = new MemVector();
+        current.set(0,0,0);
         int length = tuplesAtIndex.size;
         for (int item = 0; item < length; ++item) {
           //todo: use existing keys
-          helper.put(tuplesAtIndex, p, cols, valuesAtIndex[item], true);
-          p.xInt += dim.xInt;
-          p.xDouble += dim.xDouble;
-          p.xChunk += dim.xChunk;
+          helper.put(tuplesAtIndex, current, cols, valuesAtIndex[item], true);
+          current.xInt += dim.xInt;
+          current.xDouble += dim.xDouble;
+          current.xChunk += dim.xChunk;
         }
       }
     }

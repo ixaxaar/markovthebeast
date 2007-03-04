@@ -198,8 +198,8 @@ public final class MemChunk extends MemHolder {
   }
 
   public void unify() {
-    MemVector srcPointer = new MemVector(rowIndexedSoFar, getDim());
-    MemVector dstPointer = new MemVector(rowIndexedSoFar, getDim());
+    MemVector srcPointer = new MemVector(rowIndexedSoFar, numIntCols,numDoubleCols,numChunkCols);
+    MemVector dstPointer = new MemVector(rowIndexedSoFar, numIntCols,numDoubleCols,numChunkCols);
     int dstRow = rowIndexedSoFar;
     for (int row = rowIndexedSoFar; row < size; ++row) {
       int old = rowIndex.put(this, srcPointer, allCols, row, false);
