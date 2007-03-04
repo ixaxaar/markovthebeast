@@ -23,6 +23,10 @@ public class PropertyName {
     return tail;
   }
 
+  public boolean isTerminal(){
+    return tail == null;
+  }
+
   public String toString(){
     return tail == null ? head : head + "." + tail; 
   }

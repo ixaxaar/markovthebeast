@@ -27,7 +27,7 @@ public final class MemChunkMultiIndex {
 
   private static final int CAP_INCREASE_LIST = 1;
   private static final int CAP_INCREASE_KEYS = 1;
-
+  public MemVector current = new MemVector();
 
 
   public MemChunkMultiIndex(int capacity, MemDim dim) {
@@ -154,25 +154,25 @@ public final class MemChunkMultiIndex {
     if (keysAtIndex == null) return 0;
     MemHolder tuplesAtIndex = tuples[index];
     int length = tuplesAtIndex.size;
-    MemVector p = new MemVector();
+    current.set(0,0,0);
     for (int item = 0; item < length; ++item) {
       //test key equality
       check:
       if (key == keysAtIndex[item]) {
         //test tuple equality
         for (int i = 0; i < cols.intCols.length; ++i)
-          if (tuplesAtIndex.intData[p.xInt + i] != data.intData[pointer.xInt + cols.intCols[i]])
+          if (tuplesAtIndex.intData[current.xInt + i] != data.intData[pointer.xInt + cols.intCols[i]])
             break check;
         for (int i = 0; i < cols.doubleCols.length; ++i)
-          if (tuplesAtIndex.doubleData[p.xDouble + i] != data.doubleData[pointer.xDouble + cols.doubleCols[i]])
+          if (tuplesAtIndex.doubleData[current.xDouble + i] != data.doubleData[pointer.xDouble + cols.doubleCols[i]])
             break check;
         //they are equal, let's just set the new value
         listHolder[targetCell] = lists[index][item];
         return listSizes[index][item];
       }
-      p.xInt += cols.intCols.length;
-      p.xDouble += cols.doubleCols.length;
-      p.xChunk += cols.chunkCols.length;
+      current.xInt += cols.intCols.length;
+      current.xDouble += cols.doubleCols.length;
+      current.xChunk += cols.chunkCols.length;
     }
     return 0;
   }

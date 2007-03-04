@@ -1,5 +1,8 @@
 package thebeast.pml;
 
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
+
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
  *
@@ -19,16 +22,18 @@ public class CuttingPlaneSolver implements Solver {
   private int iteration;
   private boolean done, scoresSet, initSet, updated;
   public ILPSolverLpSolve ilpSolver;
+  private Profiler profiler = new NullProfiler();
 
 
   public CuttingPlaneSolver() {
-    ilpSolver = new ILPSolverLpSolve();    
+    ilpSolver = new ILPSolverLpSolve();
   }
 
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
     ilp = new IntegerLinearProgram(model, weights, ilpSolver);
+    ilp.setProfiler(profiler);
     formulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
     extractor = new LocalFeatureExtractor(model, weights);
@@ -50,12 +55,40 @@ public class CuttingPlaneSolver implements Solver {
     return iteration;
   }
 
+  /**
+   * Return the maximum number of cutting plane iterations. The solver might use less if
+   * feasibility is reached before.
+   *
+   * @return the maximum number of cutting plane iterations.
+   */
   public int getMaxIterations() {
     return maxIterations;
   }
 
+  /**
+   * Set the maximum number of cutting plane iterations. The solver might use less if
+   * feasibility is reached before.
+   *
+   * @param maxIterations the maximum number of cutting plane iterations.
+   */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
+  }
+
+
+  /**
+   * The solver maintains a profiler that can count the number of (abstract) operations
+   * performed during solving. The default profiler does not do any profiling ({@link NullProfiler}.
+   *
+   * @return the profiler this solver is using.
+   */
+  public Profiler getProfiler() {
+    return profiler;
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
+    if (ilp != null) ilp.setProfiler(profiler);
   }
 
   public void setILPSolver(ILPSolver solver) {
@@ -94,10 +127,15 @@ public class CuttingPlaneSolver implements Solver {
 
 
   private void update() {
+    profiler.start("update");
+    profiler.start("formulas");
     formulas.update(atoms);
-    //System.out.println(formulas);    
+    profiler.end();
+    profiler.start("ilp.update");
     ilp.update(formulas, atoms);
+    profiler.end();
     updated = true;
+    profiler.end();
   }
 
   /**
@@ -108,25 +146,22 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
+    profiler.start("solve");
     iteration = 0;
     if (!scoresSet) score();
     if (!initSet) initSolution();
     if (!updated) update();
-    //System.out.println(atoms);
-    //System.out.println(formulas);
-    //System.out.println(ilp);
-    //System.out.println(ilp.toLpSolveFormat());
+    profiler.start("iterations");
     while (ilp.changed() && iteration < maxIterations) {
-      //System.out.println(ilp.toLpSolveFormat());
+      profiler.start("ilp.solve");
       ilp.solve(atoms);
-      //System.out.println(ilp.getResultString());
-      //System.out.println(atoms);
-      update();
+      profiler.end();
       ++iteration;
-      //System.out.println(formulas);
+      update();
     }
-    //System.out.println("Final ILP:\n" + ilp.toLpSolveFormat());
+    profiler.end();
     done = ilp.changed();
+    profiler.end();
   }
 
   /**
@@ -138,10 +173,10 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void initSolution() {
+    profiler.start("greedy",0);
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
-    //System.out.println(atoms);
     initSet = true;
-    //++iteration;
+    profiler.end();
   }
 
   /**
@@ -156,12 +191,18 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void score() {
-    extractor.extract(atoms,features);
-    //scores = new Scores(model, weights);
+    profiler.start("scoring");
+    profiler.start("extract");    
+    extractor.extract(atoms, features);
+    profiler.end();
+    profiler.start("score");
     scores.score(features, weights);
-    //System.out.println(scores);
+    profiler.end();
+    profiler.start("ilp.init");    
     ilp.init(scores);
+    profiler.end();    
     scoresSet = true;
+    profiler.end();
   }
 
   public ILPSolver getILPSolver() {
@@ -202,6 +243,8 @@ public class CuttingPlaneSolver implements Solver {
       return formulas;
     if ("features".equals(name.getHead()))
       return features.toVerboseString();
+    if ("profiler".equals(name.getHead()))
+      return profiler;
     return null;
   }
 

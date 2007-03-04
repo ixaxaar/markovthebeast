@@ -13,6 +13,7 @@ import java.util.Formatter;
 public class Evaluation {
 
   private GroundAtoms gold, guess, falsePositives, falseNegatives;
+  
 
   private Model model;
 

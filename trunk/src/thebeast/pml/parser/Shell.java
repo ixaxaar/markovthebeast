@@ -1,5 +1,8 @@
 package thebeast.pml.parser;
 
+import jline.ConsoleReader;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 import thebeast.pml.*;
 import thebeast.pml.corpora.*;
 import thebeast.pml.formula.*;
@@ -16,15 +19,12 @@ import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
 import thebeast.pml.training.TrainingInstances;
 import thebeast.util.DotProgressReporter;
-import thebeast.util.Util;
 import thebeast.util.StopWatch;
-import thebeast.nod.FileSource;
-import thebeast.nod.FileSink;
+import thebeast.util.Util;
+import thebeast.util.TreeProfiler;
 
 import java.io.*;
 import java.util.*;
-
-import jline.ConsoleReader;
 
 /**
  * The Shell processes PML commands either in an active mode from standard in or directly from a file or any other input
@@ -41,14 +41,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private InputStream in;
   private PrintStream out;
   private PrintStream err;
-  private LinkedList<ParserStatement> history = new LinkedList<ParserStatement>();
   private ParserFactorFormula rootFactor;
   private StopWatch stopWatch = new StopWatch();
 
   private HashMap<String, CorpusFactory> corpusFactories = new HashMap<String, CorpusFactory>();
   private HashMap<String, TypeGenerator> typeGenerators = new HashMap<String, TypeGenerator>();
-  private HashMap<String, PropertySetter> propertySetters = new HashMap<String, PropertySetter>();
-
+  
   private GroundAtoms guess, gold;
   private Corpus corpus;
   private RandomAccessCorpus ramCorpus;
@@ -100,8 +98,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     weights = signature.createWeights();
     model = signature.createModel();
     solver = new CuttingPlaneSolver();
+    solver.setProfiler(new TreeProfiler());
     solver4Learner = new CuttingPlaneSolver();
     learner = new OnlineLearner(model, weights, solver4Learner);
+    learner.setProfiler(new TreeProfiler());
     learner.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
     collector = new FeatureCollector(model, weights);
     initCorpusTools();
@@ -170,7 +170,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         for (Object obj : ((List) parser.parse().value)) {
           ParserStatement statement = (ParserStatement) obj;
           statement.acceptParserStatementVisitor(this);
-          history.add(statement);
         }
       } catch (PMLParseException e) {
         System.out.println(errorMessage(e, new ByteArrayInputStream(line.getBytes())));
@@ -203,7 +202,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       for (Object obj : ((List) parser.parse().value)) {
         ParserStatement statement = (ParserStatement) obj;
         statement.acceptParserStatementVisitor(this);
-        history.add(statement);
       }
     } catch (PMLParseException e) {
       System.out.println(errorMessage(e, new ByteArrayInputStream(file)));
@@ -586,6 +584,15 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
                   new DotProgressReporter(out, 5, 5, 5));
         //iterator = corpus.iterator();
         out.println(instances.size() + " instances generated.");
+      } else {
+        CorpusFactory factory = corpusFactories.get(parserSaveCorpus.factory);
+        File file = new File(parserSaveCorpus.file);
+        file.delete();
+        Corpus dst = factory.createCorpus(signature, file);
+        for (GroundAtoms atoms : corpus){
+          dst.append(atoms);
+        }
+        corpus = dst;        
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -609,6 +616,27 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     } catch (IOException e) {   
       e.printStackTrace();
     }
+  }
+
+  public void visitTest(ParserTest parserTest) {
+    File file = new File(parserTest.file);
+    file.delete();
+    Corpus dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
+    CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
+    Evaluation evaluation = new Evaluation(model);
+    DotProgressReporter reporter = new DotProgressReporter(out, 5,5,5);
+    reporter.started();
+    for (GroundAtoms gold : corpus){
+      solver.setObservation(gold);
+      solver.solve();
+      evaluation.evaluate(gold,solver.getAtoms());
+      corpusEvaluation.add(evaluation);
+      dst.append(solver.getAtoms());
+      reporter.progressed(evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(), 
+              evaluation.getGoldCount(), evaluation.getGuessCount());
+    }
+    reporter.finished();
+    out.print(corpusEvaluation);
   }
 
 

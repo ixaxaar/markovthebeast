@@ -17,6 +17,8 @@ import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.DoubleValue;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -59,6 +61,7 @@ public class IntegerLinearProgram implements HasProperties{
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private StatementFactory factory = TheBeast.getInstance().getNodServer().statementFactory();
 
+  private Profiler profiler = new NullProfiler();
 
   private ILPSolver solver;
 
@@ -196,6 +199,14 @@ public class IntegerLinearProgram implements HasProperties{
   }
 
 
+  public Profiler getProfiler() {
+    return profiler;
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
+  }
+
   public void build(GroundFormulas formulas, GroundAtoms atoms, Scores scores) {
     solver.init();
     interpreter.assign(varCount, builder.num(0).getInt());
@@ -261,9 +272,15 @@ public class IntegerLinearProgram implements HasProperties{
   }
 
   public void solve(GroundAtoms solution) {
+    profiler.start("add to ilp",0);
     solver.add(newVars, newConstraints);
+    profiler.end();
+    profiler.start("solve",1);
     RelationVariable result = solver.solve();
+    profiler.end();
+    profiler.start("extract",2);
     extractSolution(result, solution);
+    profiler.end();
   }
 
   public void extractSolution(RelationVariable result, GroundAtoms solution) {

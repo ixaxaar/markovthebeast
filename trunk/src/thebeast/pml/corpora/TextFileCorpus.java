@@ -2,15 +2,12 @@ package thebeast.pml.corpora;
 
 import thebeast.pml.Signature;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 12-Feb-2007 Time: 16:38:52
  */
-public class TextFileCorpus extends InputStreamCorpus {
+public class TextFileCorpus extends TextFormatCorpus {
 
   private File file;
 
@@ -19,9 +16,17 @@ public class TextFileCorpus extends InputStreamCorpus {
     this.file = file;
   }
 
-  public InputStream createStream() {
+  public InputStream createInputStream() {
     try {
       return new FileInputStream(file);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public OutputStream getOutputStream() {
+    try {
+      return new FileOutputStream(file, true);
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }

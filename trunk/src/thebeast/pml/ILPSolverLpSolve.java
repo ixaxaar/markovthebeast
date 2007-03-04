@@ -7,6 +7,8 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
@@ -19,6 +21,8 @@ public class ILPSolverLpSolve implements ILPSolver {
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private boolean enforceInteger = false;                                                                                                                     
   private boolean verbose = false;
+  private Profiler profiler = new NullProfiler();
+  private boolean writeLp = false;
 
   public void init() {
     try {
@@ -38,6 +42,9 @@ public class ILPSolverLpSolve implements ILPSolver {
     if (solver == null)
       throw new RuntimeException("Solver not initialized, please call init() first");
     try {
+      int numRows = solver.getNrows() + constraints.value().size();
+      int numCols = solver.getNcolumns() + constraints.value().size();
+      solver.resizeLp(numRows, numCols);
       for (int i = 0; i < variables.value().size(); ++i)
         solver.addColumnex(0, new double[0], new int[0]);
       for (TupleValue var : variables.value()) {
@@ -46,7 +53,7 @@ public class ILPSolverLpSolve implements ILPSolver {
         solver.setObj(index + 1, weight);
         solver.setBounds(index + 1, 0, 1);
         if (enforceInteger) solver.setInt(index + 1, true);
-        ++numCols;
+        ++this.numCols;
       }
       solver.setAddRowmode(true);
       for (TupleValue constraint : constraints.value()) {
@@ -64,7 +71,7 @@ public class ILPSolverLpSolve implements ILPSolver {
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
                 LpSolve.GE : LpSolve.LE;
         solver.addConstraintex(length, weights, shifted, type, type == LpSolve.LE ? ub : lb);
-        ++numRows;
+        ++this.numRows;
       }
       solver.setAddRowmode(false);
     } catch (LpSolveException e) {
@@ -76,7 +83,7 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public RelationVariable solve() {
     try {
-      solver.writeLp("/tmp/debug.lp");
+      if (writeLp) solver.writeLp("/tmp/debug.lp");
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
       solver.solve();
       double[] solution = new double[numCols];
@@ -102,6 +109,10 @@ public class ILPSolverLpSolve implements ILPSolver {
   public void setVerbose(boolean verbose) {
     if (solver != null) solver.setVerbose(verbose ? 5 : 0);
     else this.verbose = verbose;
+  }
+
+  public void setProfiler(Profiler profiler) {
+
   }
 
 

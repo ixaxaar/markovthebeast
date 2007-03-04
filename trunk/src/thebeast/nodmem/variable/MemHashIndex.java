@@ -59,7 +59,8 @@ public class MemHashIndex implements Index {
 
   public void invalidate(){
     memIndex.indexedSoFar = 0;
-    memIndex.clearMemory();
+    memIndex.clear();
+    //memIndex.clearMemory();
   }
 
   public List<String> attributes() {

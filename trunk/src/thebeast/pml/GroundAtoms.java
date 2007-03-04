@@ -81,7 +81,6 @@ public class GroundAtoms implements Dumpable{
     return result;
   }
 
-
   /**
    * Load a set of ground atoms from the given string
    *

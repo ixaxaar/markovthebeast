@@ -37,7 +37,8 @@ public class MemTupleVariable extends AbstractMemVariable<TupleValue, TupleType>
     visitor.visitTupleVariable(this);
   }
 
-  public void copy(AbstractMemVariable other) {
+  public boolean copy(AbstractMemVariable other) {
     chunk.chunkData[pointer.xChunk] = other.chunk.chunkData[other.pointer.xChunk].copy();
+    return true;
   }
 }

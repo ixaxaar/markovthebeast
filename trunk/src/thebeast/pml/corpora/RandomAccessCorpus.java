@@ -49,6 +49,9 @@ public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus
     return byteSize;
   }
 
+  public void append(GroundAtoms atoms) {
+    add(atoms);
+  }
 
 
 }

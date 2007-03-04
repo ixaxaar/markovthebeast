@@ -34,11 +34,13 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
   private boolean verbose = false;
   private boolean loadedFromFile = false;
   private File file;
+  public FileSink fileSink;
 
   public DumpedCorpus(Signature signature, File file, int maxByteSize) {
     this.file = file;
     this.signature = signature;
     try {
+      fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
       fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
       IntVariable sizeVar = TheBeast.getInstance().getNodServer().interpreter().createIntVariable();
       fileSource.read(sizeVar);
@@ -61,7 +63,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
 
   public DumpedCorpus(File file, Corpus corpus, int from, int to, int maxByteSize) throws IOException {
     this.file = file;
-    FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
+    fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
     active = new ArrayList<GroundAtoms>(to - from);
     this.signature = corpus.getSignature();
     Iterator<GroundAtoms> iter = corpus.iterator();
@@ -95,7 +97,7 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
 
   public DumpedCorpus(File file, Corpus corpus, int maxByteSize) throws IOException {
     this.file = file;
-    FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
+    fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
     active = new ArrayList<GroundAtoms>(10000);
     this.signature = corpus.getSignature();
     this.size = corpus.size();
@@ -239,5 +241,13 @@ public class DumpedCorpus extends AbstractCollection<GroundAtoms> implements Cor
     for (GroundAtoms atoms : active)
       usage += atoms.getMemoryUsage();
     return usage;
+  }
+
+  public void append(GroundAtoms atoms) {
+    try {
+      atoms.write(fileSink);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

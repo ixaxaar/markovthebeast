@@ -39,12 +39,9 @@ public class SequentialAccessCorpus extends LinkedList<GroundAtoms> implements C
     return bytesize;
   }
 
-  public GroundAtoms createAndAdd(){
-    GroundAtoms result = signature.createGroundAtoms();
-    add(result);
-    return result;
+  public void append(GroundAtoms atoms) {
+    add(atoms);
   }
-
 
 
 }

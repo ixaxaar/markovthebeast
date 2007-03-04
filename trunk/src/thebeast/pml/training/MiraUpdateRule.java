@@ -6,11 +6,13 @@ import thebeast.pml.Weights;
 import thebeast.util.QP;
 
 /**
+ * Update weights according to (Single-best) MIRA as presented in McDonald et al. 2005.
+ *
  * @author Sebastian Riedel
  */
 public class MiraUpdateRule implements UpdateRule {
   public void endEpoch() {
-
+    
   }
 
   public void update(SparseVector gold, SparseVector guess, Evaluation evaluation, Weights weights) {
@@ -23,8 +25,7 @@ public class MiraUpdateRule implements UpdateRule {
     double[] values = diffFeature.getValues();
     double[][] a = new double[][]{values};
     double[] b = new double[]{loss - diffScore};
-    double[] alpha = QP.runHildreth(a,b);
-    weights.add(alpha[0],diffFeature);
-    //find
+    double[] alpha = QP.runHildreth(a, b);
+    weights.add(alpha[0], diffFeature);
   }
 }

@@ -131,7 +131,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public ArrayVariable createDoubleArrayVariable(int size) {
-    return createArrayVariable(typeFactory.doubleType(),size);
+    return createArrayVariable(typeFactory.doubleType(), size);
   }
 
   public ArrayVariable createArrayVariable(ArrayExpression expr) {
@@ -189,25 +189,26 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemArrayAppend(arrayVariable, expression));
   }
 
-  public void add(ArrayVariable arrayVariable, ArrayExpression argument, DoubleExpression scale){
+  public void add(ArrayVariable arrayVariable, ArrayExpression argument, DoubleExpression scale) {
     interpret(new MemArrayAdd(arrayVariable, argument, scale));
   }
 
   public void scale(ArrayVariable arrayVariable, DoubleExpression scale) {
-    MemChunk dst = new MemChunk(1,1,0,1,0);
-    MemEvaluator.evaluate(((AbstractMemExpression)scale).compile(), null,null,dst, MemVector.ZERO);
+    MemChunk dst = new MemChunk(1, 1, 0, 1, 0);
+    MemEvaluator.evaluate(((AbstractMemExpression) scale).compile(), null, null, dst, MemVector.ZERO);
     AbstractMemVariable var = (AbstractMemVariable) arrayVariable;
-    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk],dst.doubleData[0]);
+    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk], dst.doubleData[0]);
     var.invalidate();
   }
 
-   public void scale(ArrayVariable arrayVariable, double scale) {
+  public void scale(ArrayVariable arrayVariable, double scale) {
     AbstractMemVariable var = (AbstractMemVariable) arrayVariable;
-    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk],scale);
+    MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk], scale);
     var.invalidate();
   }
+
   public void add(ArrayVariable arrayVariable, ArrayExpression argument, double scale) {
-    add(arrayVariable, argument, new MemDoubleConstant(MemDoubleType.DOUBLE,scale));
+    add(arrayVariable, argument, new MemDoubleConstant(MemDoubleType.DOUBLE, scale));
   }
 
   public void sparseAdd(ArrayVariable var, RelationExpression sparse, DoubleExpression scale,
@@ -377,7 +378,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemEvaluator.evaluate(scale.compile(), null, null, buffer, MemVector.ZERO);
     MemEvaluator.evaluate(arg.compile(), null, null, buffer, MemVector.ZERO);
     MemChunk dst = var.getContainerChunk().chunkData[var.getPointer().xChunk];
-    MemMath.add(dst, buffer.chunkData[0],buffer.doubleData[0]);
+    MemMath.add(dst, buffer.chunkData[0], buffer.doubleData[0]);
     var.invalidate();
 
   }

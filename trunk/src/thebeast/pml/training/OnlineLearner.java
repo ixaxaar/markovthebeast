@@ -2,9 +2,7 @@ package thebeast.pml.training;
 
 import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
-import thebeast.util.ProgressReporter;
-import thebeast.util.QuietProgressReporter;
-import thebeast.util.PrecisionRecallProgressReporter;
+import thebeast.util.*;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.nod.statement.Interpreter;
 
@@ -33,6 +31,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private ArrayVariable average;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private int count;
+  private Profiler profiler = new NullProfiler();
 
   private int numEpochs;
 
@@ -128,6 +127,16 @@ public class OnlineLearner implements Learner, HasProperties {
     progressReporter.finished();
   }
 
+
+  public Profiler getProfiler() {
+    return profiler;
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
+    solver.setProfiler(profiler);
+  }
+
   public void learn(GroundAtoms data) {
     //load the instance from the corpus into our local variable
     instance.load(data);
@@ -194,52 +203,62 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
   public void learn(TrainingInstances instances) {
+    profiler.start("learn");
     setUpAverage();
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
+      profiler.start("epoch");
       progressReporter.started();
       for (TrainingInstance instance : instances) {
         learn(instance);
       }
       updateRule.endEpoch();
       progressReporter.finished();
+      profiler.end();
     }
     finalizeAverage();
+    profiler.end();
   }
 
   private void learn(TrainingInstance data) {
     //load the instance from the corpus into our local variable
+    profiler.start("learn one");
     instance.load(data.getData());
 
     //either load the feature vector or extract it
     features.load(data.getFeatures());
 
-    //System.out.println(features);
-
     //use the feature vector and weight to score ground atoms
+    profiler.start("score");
     scores.score(features, this.weights);
+    profiler.end();
 
     //use the scores to solve the model
     solver.setObservation(data.getData());
     solver.setScores(scores);
     solver.solve();
     solution.getGroundAtoms().load(solver.getAtoms());
-    //solver.solve(instance, scores, solution);
-    //System.out.println(solution.getGroundAtoms());
 
     //evaluate the guess vs the gold.
+    profiler.start("evaluate");
     evaluation.evaluate(instance, solution.getGroundAtoms());
+    profiler.end();
 
     //extract features (or load)
+    profiler.start("extract");
     guess.load(solution.extract(features));
+    profiler.end();
     gold.load(data.getGold());
 
     //update the weights
+    profiler.start("update");
     updateRule.update(gold, guess, evaluation, this.weights);
+    profiler.end();
 
     progressReporter.progressed(
             evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
             evaluation.getGoldCount(), evaluation.getGuessCount());
 
+    profiler.end();
   }
 
 
@@ -274,6 +293,13 @@ public class OnlineLearner implements Learner, HasProperties {
   public Object getProperty(PropertyName name) {
     if ("solution".equals(name.getHead()))
       return solution.getGroundAtoms();
+    if ("profiler".equals(name.getHead()))
+      return profiler;
+    if ("solver".equals(name.getHead()))
+      if (name.isTerminal())
+        return solver;
+      else
+        return solver.getProperty(name.getTail());
     if ("gold".equals(name.getHead()))
       return gold;
     if ("guess".equals(name.getHead()))

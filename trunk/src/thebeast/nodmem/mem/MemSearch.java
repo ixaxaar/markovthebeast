@@ -16,21 +16,33 @@ public final class MemSearch {
 //    for (int i = 0; i < chunks.length; ++i)
 //      indices[i] = chunks[i].indices[plan.indicesToUse[i]];
 
-    int[] currentPointers = new int[chunkCount];
-    int[] currentSizes = new int[chunkCount];
-    int[] currentRows = new int[chunkCount];
+    int[] currentPointers = plan.currentPointers;
+    int[] currentSizes = plan.currentSizes;
+    int[] currentRows = plan.currentRows;
 
-    int[][] currentSpaces = new int[chunkCount][];
+    int[][] currentSpaces = plan.currentSpaces;
 
-    boolean[] filled = new boolean[chunkCount];
-    boolean[] incremental = new boolean[chunkCount];
+    boolean[] filled = plan.filled;
+    for (int i = 0; i < filled.length; ++i) filled[i] = false;
+    boolean[] incremental = plan.incremental;
+    for (int i = 0; i < incremental.length; ++i) incremental[i] = false;
+//    int[] currentPointers = new int[chunkCount];
+//    int[] currentSizes = new int[chunkCount];
+//    int[] currentRows = new int[chunkCount];
+//
+//    int[][] currentSpaces = new int[chunkCount][];
+//
+//    boolean[] filled = new boolean[chunkCount];
+//    boolean[] incremental = new boolean[chunkCount];
     MemVector zero = new MemVector();
 
     MemVector dstPointer = new MemVector(dstRow, new MemDim(dst.numIntCols, dst.numDoubleCols, dst.numChunkCols));
     dst.size = dstRow;
 
     int currentChunk = 0;
-    MemChunk valid = new MemChunk(1, 1, new MemDim(1, 0, 0));
+    MemChunk valid = plan.valid;
+//
+//    MemChunk valid = new MemChunk(1, 1, new MemDim(1, 0, 0));
 
     main:
     do {

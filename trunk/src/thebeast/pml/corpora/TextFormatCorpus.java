@@ -6,31 +6,25 @@ import thebeast.pml.Signature;
 import java.io.*;
 import java.util.AbstractCollection;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 12-Feb-2007 Time: 16:38:52
  */
-public abstract class InputStreamCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
+public abstract class TextFormatCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
 
   private Signature signature;
   private int size;
   private boolean sizeKnown = false;
 
-
-  public InputStreamCorpus(Signature signature) {
+  public TextFormatCorpus(Signature signature) {
     this.signature = signature;
   }
 
-  public abstract InputStream createStream();
+  public abstract InputStream createInputStream();
 
   public Iterator<GroundAtoms> iterator() {
-    return new InputStreamCorpus.GroundAtomsIterator(
-            new BufferedReader(new InputStreamReader(createStream())));
-  }
-
-  public ListIterator<GroundAtoms> listIterator() {
-    return null;
+    return new TextFormatCorpus.GroundAtomsIterator(
+            new BufferedReader(new InputStreamReader(createInputStream())));
   }
 
   public int size() {
@@ -41,7 +35,7 @@ public abstract class InputStreamCorpus extends AbstractCollection<GroundAtoms> 
   private void determineSize() {
     size = 0;
     try {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(createStream()));
+      BufferedReader reader = new BufferedReader(new InputStreamReader(createInputStream()));
       for (String line = reader.readLine(); line != null; line = reader.readLine()) {
         if (line.startsWith(">>")) ++size;
       }
@@ -55,6 +49,15 @@ public abstract class InputStreamCorpus extends AbstractCollection<GroundAtoms> 
 
   public Signature getSignature() {
     return signature;
+  }
+
+  public abstract OutputStream getOutputStream();
+
+  public void append(GroundAtoms atoms){
+    PrintStream out = new PrintStream(getOutputStream());
+    out.print(atoms.toString());
+    out.flush();
+    ++size;
   }
 
   private class GroundAtomsIterator implements Iterator<GroundAtoms> {

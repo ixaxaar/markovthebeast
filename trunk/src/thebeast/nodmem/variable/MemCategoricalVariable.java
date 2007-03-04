@@ -1,16 +1,11 @@
 package thebeast.nodmem.variable;
 
-import thebeast.nod.value.IntValue;
 import thebeast.nod.value.CategoricalValue;
-import thebeast.nod.type.IntType;
 import thebeast.nod.type.CategoricalType;
-import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.CategoricalVariable;
 import thebeast.nod.expression.ExpressionVisitor;
 import thebeast.nod.NoDServer;
 import thebeast.nodmem.mem.MemChunk;
-import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.value.MemInt;
 import thebeast.nodmem.value.MemCategorical;
 
 /**
@@ -28,8 +23,9 @@ public class MemCategoricalVariable extends AbstractMemVariable<CategoricalValue
 
   }
 
-  public void copy(AbstractMemVariable other) {
+  public boolean copy(AbstractMemVariable other) {
     chunk.intData[pointer.xInt] = other.chunk.intData[other.pointer.xInt];
+    return true;
   }
 
   public CategoricalValue value(){

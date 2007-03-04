@@ -27,8 +27,9 @@ public class MemIntVariable extends AbstractMemVariable<IntValue, IntType> imple
       
   }
 
-  public void copy(AbstractMemVariable other) {
+  public boolean copy(AbstractMemVariable other) {
     chunk.intData[pointer.xInt] = other.chunk.intData[other.pointer.xInt];
+    return true;
   }
 
   public IntValue value(){

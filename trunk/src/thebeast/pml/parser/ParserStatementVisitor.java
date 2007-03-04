@@ -51,4 +51,6 @@ public interface ParserStatementVisitor {
   void visitSaveCorpus(ParserSaveCorpus parserSaveCorpus);
 
   void visitSave(ParserSave parserSave);
+
+  void visitTest(ParserTest parserTest);
 }

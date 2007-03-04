@@ -1,16 +1,11 @@
 package thebeast.nodmem.variable;
 
-import thebeast.nod.value.IntValue;
 import thebeast.nod.value.BoolValue;
-import thebeast.nod.type.IntType;
 import thebeast.nod.type.BoolType;
-import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.BoolVariable;
 import thebeast.nod.expression.ExpressionVisitor;
 import thebeast.nod.NoDServer;
 import thebeast.nodmem.mem.MemChunk;
-import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.value.MemInt;
 import thebeast.nodmem.value.MemBool;
 
 /**
@@ -27,8 +22,9 @@ public class MemBoolVariable extends AbstractMemVariable<BoolValue, BoolType> im
 
   }
 
-  public void copy(AbstractMemVariable other) {
+  public boolean copy(AbstractMemVariable other) {
     chunk.intData[pointer.xInt] = other.chunk.intData[other.pointer.xInt];
+    return true;
   }
 
   public BoolValue value(){

@@ -1,10 +1,8 @@
 package thebeast.pml.corpora;
 
-import thebeast.pml.GroundAtoms;
-import thebeast.pml.Signature;
-import thebeast.pml.Type;
-import thebeast.pml.UserPredicate;
+import thebeast.pml.*;
 import thebeast.pml.term.Constant;
+import thebeast.pml.term.IntConstant;
 import thebeast.util.HashMultiMap;
 
 import java.io.*;
@@ -12,7 +10,7 @@ import java.util.*;
 
 /**
  * A class for corpora based on the CoNLL column format. Can be configured to extract dependency parse information
- * (CoNLL 06/07).
+ * from CoNLL 06/07) or MALT format.
  */
 public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
 
@@ -24,12 +22,18 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
   private boolean sizeKnown;
   private int size;
   private HashMultiMap<Integer, Extractor> extractors = new HashMultiMap<Integer, Extractor>();
+  private HashMultiMap<UserPredicate, AtomWriter> writers = new HashMultiMap<UserPredicate, AtomWriter>();
   public final static CorpusFactory CONLL_06_FACTORY = new CoNLL06Factory();
   public final static CorpusFactory MALT_FACTORY = new MALTFactory();
   public static final Generator
           CONLL_06_GENERATOR = new Generator(),
           MALT_GENERATOR = new Generator();
   private HashMap<UserPredicate, Constant[]> constantAtoms = new HashMap<UserPredicate, Constant[]>();
+  private boolean printZeroRow = false;
+
+  private int columns = 0;
+  private PrintStream out;
+
 
   static {
     CONLL_06_GENERATOR.addTokenCollector(1, "Word", true, new Quote(), "ROOT");
@@ -51,7 +55,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
   public static class Pipeline implements TokenProcessor {
     TokenProcessor[] processors;
 
-    public Pipeline(TokenProcessor ... processors) {
+    public Pipeline(TokenProcessor... processors) {
       this.processors = processors;
     }
 
@@ -66,6 +70,12 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
   public static class Quote implements TokenProcessor {
     public String process(String token) {
       return "\"" + token + "\"";
+    }
+  }
+
+  public static class Dequote implements TokenProcessor {
+    public String process(String token) {
+      return token.substring(1, token.length() - 1);
     }
   }
 
@@ -160,7 +170,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
       TabFormatCorpus.AttributeExtractor prefixes = new TabFormatCorpus.AttributeExtractor(prefix, 2);
       prefixes.addMapping(0, 0);
       prefixes.addMapping(1, 1, new Pipeline(new Prefix(5), new Quote()));
-      
+
       TabFormatCorpus.AttributeExtractor cpostags = new TabFormatCorpus.AttributeExtractor(cpos, 2);
       cpostags.addMapping(0, 0);
       cpostags.addMapping(3, 1);
@@ -191,6 +201,15 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
       corpus.addConstantAtom(pos, 0, "ROOT");
       corpus.addConstantAtom(cpos, 0, "ROOT");
 
+      corpus.addWriter(word, new TokenFeatureWriter(0,0,0));
+      corpus.addWriter(word, new TokenFeatureWriter(1,0,1, new Dequote()));
+      corpus.addWriter(word, new ConstantWriter(2,0,"_"));
+      corpus.addWriter(cpos, new TokenFeatureWriter(3,0,1, new Dequote()));
+      corpus.addWriter(pos, new TokenFeatureWriter(4,0,1, new Dequote()));
+      corpus.addWriter(word, new ConstantWriter(5,0,"_"));
+      corpus.addWriter(link, new TokenFeatureWriter(6,1,0));
+      corpus.addWriter(dep, new TokenFeatureWriter(7,1,2));
+
       return corpus;
     }
 
@@ -213,7 +232,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
         this.processor = processor;
       }
 
-      public TokenCollector(String typeName, boolean unknowns, TokenProcessor processor, String ... initial) {
+      public TokenCollector(String typeName, boolean unknowns, TokenProcessor processor, String... initial) {
         this.typeName = typeName;
         this.unknowns = unknowns;
         this.processor = processor;
@@ -228,8 +247,8 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
 
     public void addTokenCollector(int column, String typeName, boolean unknown,
-                                  TokenProcessor processor, String ... intial) {
-      collectors.add(column, new TokenCollector(typeName, unknown, processor,intial));
+                                  TokenProcessor processor, String... intial) {
+      collectors.add(column, new TokenCollector(typeName, unknown, processor, intial));
     }
 
 
@@ -242,7 +261,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
             String[] split = line.split("[\t ]");
             for (int col = 0; col < split.length; ++col) {
               List<TokenCollector> collectors4column = collectors.get(col);
-              if (collectors4column!=null) for (TokenCollector collector : collectors4column)
+              if (collectors4column != null) for (TokenCollector collector : collectors4column)
                 collector.collect(split[col]);
             }
           }
@@ -261,6 +280,11 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
   public TabFormatCorpus(Signature signature, File file, Extractor... extractors) {
     this.file = file;
     this.signature = signature;
+    try {
+      out = new PrintStream(new FileOutputStream(file, true));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
     int index = 0;
     for (Extractor extractor : extractors)
       this.extractors.add(index++, extractor);
@@ -335,6 +359,110 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
   public int getUsedMemory() {
     return 1000;
+  }
+
+  public class ColumnTable {
+    private HashMap<Integer, HashMap<Integer, String>> rows = new HashMap<Integer, HashMap<Integer, String>>();
+
+    public void set(int line, int column, String value) {
+      HashMap<Integer, String> row = rows.get(line);
+      if (row == null) {
+        row = new HashMap<Integer, String>();
+        rows.put(line, row);
+      }
+      row.put(column, value);
+    }
+
+    public void write(PrintStream os, int firstLine) {
+
+      for (int i = firstLine; i < rows.size(); ++i) {
+        HashMap<Integer, String> row = rows.get(i);
+        for (int j = 0; j < columns; ++j) {
+          if (j > 0) os.print("\t");
+          String value = row.get(j);
+          os.print(value != null ? value : "_");
+        }
+        os.println();
+      }
+      os.println();
+    }
+  }
+
+  public void addWriter(UserPredicate predicate, AtomWriter writer) {
+    writers.add(predicate, writer);
+    if (writer.getColumn() >= columns)
+      columns = writer.getColumn() + 1;
+  }
+
+  public static interface AtomWriter {
+    int getColumn();
+    void write(GroundAtom atom, ColumnTable table);
+  }
+
+  public static class ConstantWriter implements AtomWriter {
+
+    private int tokenArg;
+    private int column;
+    private String constant;
+
+
+    public ConstantWriter(int column, int tokenArg, String constant) {
+      this.column = column;
+      this.tokenArg = tokenArg;
+      this.constant = constant;
+    }
+
+
+    public int getColumn() {
+      return column;
+    }
+
+    public void write(GroundAtom atom, ColumnTable table) {
+      IntConstant token = (IntConstant) atom.getArguments().get(tokenArg);
+      table.set(token.getInteger(),column,constant);      
+    }
+  }
+
+  public static class TokenFeatureWriter implements AtomWriter {
+
+    private int tokenArg;
+    private int featureArg;
+    private int column;
+    private TokenProcessor processor;
+
+    public TokenFeatureWriter(int column, int tokenArg, int featureArg, TokenProcessor processor) {
+      this.column = column;
+      this.tokenArg = tokenArg;
+      this.featureArg = featureArg;
+      this.processor = processor;
+    }
+
+
+    public int getColumn() {
+      return column;
+    }
+
+    public TokenFeatureWriter(int column, int tokenArg, int featureArg) {
+      this(column,tokenArg,featureArg, new Itself());
+    }
+
+    public void write(GroundAtom atom, ColumnTable table) {
+      IntConstant token = (IntConstant) atom.getArguments().get(tokenArg);
+      Constant feature = atom.getArguments().get(featureArg);
+      table.set(token.getInteger(), column, processor.process(feature.toString()));
+    }
+  }
+
+  public void append(GroundAtoms atoms) {
+    ColumnTable table = new ColumnTable();
+    for (UserPredicate predicate : signature.getUserPredicates()) {
+      for (AtomWriter writer : writers.get(predicate))
+        for (GroundAtom atom : atoms.getGroundAtomsOf(predicate)) {
+          writer.write(atom, table);
+        }
+    }
+    table.write(out, printZeroRow ? 0 : 1);
+    out.flush();
   }
 
   public class SentenceIterator implements Iterator<GroundAtoms> {
@@ -460,7 +588,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
     }
 
-    public void addLineNrArg(int argIndex){
+    public void addLineNrArg(int argIndex) {
       lineNrArgs.add(argIndex);
     }
 
@@ -474,13 +602,13 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
       processors.put(column, processor);
     }
 
-    public void beginLine(int lineNr){
-      for (int i : lineNrArgs){
+    public void beginLine(int lineNr) {
+      for (int i : lineNrArgs) {
         args[i] = Type.INT.toConstant(lineNr);
       }
     }
 
-    public void endLine(GroundAtoms atoms){
+    public void endLine(GroundAtoms atoms) {
       atoms.getGroundAtomsOf(predicate).addGroundAtom(args);
     }
 
@@ -494,8 +622,6 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
       return processors.keySet();
     }
   }
-
-
 
 
 }

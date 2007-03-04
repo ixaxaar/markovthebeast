@@ -1,5 +1,14 @@
-TheBeast: will contain runtime object
+to conll06 "test.conll";
 
+load corpus.gold from "...";
+load corpus.guess from "...";
+
+save corpus to 
+
+test to conll06 "test.conll"; //goes over the gold corpus and create a guess corpus;
+test to ram;
+
+TheRuntime: will contain runtime object
 
 
 1. Model
@@ -8,6 +17,7 @@ TheBeast: will contain runtime object
 4. Guess atoms
 5. Training instances (if produced before)
 6. Scores
+7. RAM Corpus (for playing around)
 
 
 

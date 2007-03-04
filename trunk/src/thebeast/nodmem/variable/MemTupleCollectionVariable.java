@@ -2,7 +2,8 @@ package thebeast.nodmem.variable;
 
 import thebeast.nod.NoDServer;
 import thebeast.nod.expression.ExpressionVisitor;
-import thebeast.nod.type.*;
+import thebeast.nod.type.RelationType;
+import thebeast.nod.type.TupleType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.Index;
@@ -10,8 +11,6 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.mem.MemPointer;
-import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.statement.IndexInformation;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemRelationType;
@@ -108,6 +107,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   public void own() {
     //if this variable is owned by others let them own themselves again
     if (owners.size() > 0) {
+      chunk.chunkData[pointer.xChunk].own();
       for (MemRelationVariable var : new ArrayList<MemRelationVariable>(owners)) {
         var.own();
       }
@@ -115,33 +115,20 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     }
     //if this variable owns another variable let it own itself exclusively
     if (owns != null) {
-      chunk.chunkData[pointer.xChunk].own();
       owns.removeOwner(this);
       owns = null;
     }
   }
 
-  public boolean copy(AbstractMemVariable var) {
-    if (this == var) return false;
+  public void copy(AbstractMemVariable var) {
+    if (this == var) return;
     MemRelationVariable other = (MemRelationVariable) var;
-    if (other.owns == this) return false;
+    if (other.owns == this) return;
     if (owns != null) owns.removeOwner(this);
     other.addOwner(this);
     chunk.chunkData[pointer.xChunk].shallowCopy(other.chunk.chunkData[other.pointer.xChunk]);
     //lets check if we can reuse some indices
-//    for (Index index: information.getIndices()){
-//      MemHashIndex hashIndex = (MemHashIndex) index;
-//      int myIndexNr = information.getIndexIdForAttributes(index.attributes());
-//      MemHashIndex otherIndex = (MemHashIndex) other.indexInformation().getIndex(index.attributes());
-//      int otherIndexNr = other.indexInformation().getIndexIdForAttributes(index.attributes());
-//      if (otherIndexNr != -1){
-//        hashIndex.shallowCopy(myIndexNr, otherIndex);
-//        //hashIndex.useChunk(index,);
-//        //hashIndex.useChunk();
-//      }
-//    }
     owns = other;
-    return true;
   }
 
   public void addTuple(Object... args) {
@@ -155,46 +142,6 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
 
   public Index getIndex(String name) {
     return indexInformation().getIndex(name);
-  }
-
-  public int[] getIntColumn(String attribute) {
-    Attribute att = type.heading().attribute(attribute);
-    if (att == null)
-      throw new IllegalArgumentException(type + " has no attribute " + attribute);
-    if (!(att.type() instanceof IntType))
-      throw new IllegalArgumentException(attribute + " is not an int attribute");
-    MemHeading memHeading = (MemHeading) type.heading();
-    MemPointer pointer = memHeading.pointerForAttribute(attribute);
-    MemDim dim = memHeading.getDim();
-    MemChunk chunk = this.chunk.chunkData[this.pointer.xChunk];
-    int[] result = new int[chunk.size];
-    if (dim.xInt == 1)
-      System.arraycopy(chunk.intData,0,result,0,chunk.size);
-    else {
-      int index = pointer.pointer;
-      for (int row = 0;row < chunk.size; ++row, index+=dim.xInt)
-        result[row] = chunk.intData[index];
-    }
-    return result;
-  }
-
-  public double[] getDoubleColumn(String attribute) {
-    Attribute att = type.heading().attribute(attribute);
-    if (!(att.type() instanceof DoubleType))
-      throw new IllegalArgumentException(attribute + " is not an double attribute");
-    MemHeading memHeading = (MemHeading) type.heading();
-    MemPointer pointer = memHeading.pointerForAttribute(attribute);
-    MemDim dim = memHeading.getDim();
-    MemChunk chunk = this.chunk.chunkData[this.pointer.xChunk];
-    double[] result = new double[chunk.size];
-    if (dim.xInt == 1)
-      System.arraycopy(chunk.doubleData,0,result,0,chunk.size);
-    else {
-      int index = pointer.pointer;
-      for (int row = 0;row < chunk.size; ++row, index+=dim.xDouble)
-        result[row] = chunk.doubleData[index];
-    }
-    return result;
   }
 
   public void assignByArray(int[] ints, double[] doubles) {
