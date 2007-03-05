@@ -55,8 +55,40 @@ public class MemMath {
     return result;
   }
 
-  public static void collect(MemChunk grouped, int groupedAttribute, MemChunk dstSparseVector){
-    
+  public static void collect(MemChunk grouped, int groupedAttribute, MemChunk dstSparseVector, MemFunction f){
+    MemChunkIndex chunkIndex = f.index;
+    if (chunkIndex.getCapacity() == 0){
+      chunkIndex.increaseCapacity(grouped.size);
+    }
+    chunkIndex.clear();
+    int chunkPtr = groupedAttribute;
+    MemVector indexPtr = new MemVector();
+    MemColumnSelector cols = new MemColumnSelector(1,0,0);
+    int dstSize = 0;
+    for (int row = 0; row < grouped.size; ++row){
+      MemChunk indices = grouped.chunkData[chunkPtr];
+      for (int i = 0; i < indices.size; ++i){
+        int index = indices.intData[i];
+        int old = chunkIndex.put(indices,indexPtr,cols,dstSize, false);
+        if (old == -1){
+          if (dstSize > dstSparseVector.capacity){
+            dstSparseVector.increaseCapacity(dstSize);
+          }
+          dstSparseVector.intData[dstSize] = index;
+          dstSparseVector.doubleData[dstSize] = 1.0;
+          ++dstSparseVector.size;
+          if (chunkIndex.getLoadFactor() > 3){
+            chunkIndex.increaseCapacity(chunkIndex.getCapacity());
+          }
+        } else {
+          dstSparseVector.doubleData[old] += 1.0;
+        }
+         
+        ++indexPtr.xInt;
+      }
+      chunkPtr+=grouped.numChunkCols;
+    }
+    dstSparseVector.size = dstSize; 
   }
 
 }

@@ -9,6 +9,8 @@ public final class MemFunction {
   int indexNr;
   boolean put;
   int[] bins;
+  public MemChunkIndex index;
+  public int groupAtt;
 
 
   public enum Type {
@@ -31,7 +33,8 @@ public final class MemFunction {
     OPERATOR_INV, GET,
     COUNT, RELATION_COPY, CYCLES,
     DOUBLE_LEQ, SPARSE_ADD, SUMMARIZE, RELATION_MINUS, INT_NOTEQUAL, CHUNK_NOTEQUAL, DOUBLE_ADD, UNION,
-    DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_EQUAL, DOUBLE_TIMES, DOUBLE_NOTEQUAL
+    DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_EQUAL, DOUBLE_TIMES, DOUBLE_NOTEQUAL,
+    INDEX_COLLECTOR
 
   }
 

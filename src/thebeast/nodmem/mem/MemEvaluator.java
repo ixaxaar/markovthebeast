@@ -380,6 +380,9 @@ public class MemEvaluator {
             sparseAdd(f, lhs, scale, rhs, memChunk);
           }
           break;
+        case INDEX_COLLECTOR:
+          MemMath.collect(argChunk.chunkData[0],f.groupAtt, returnChunk.chunkData[argPointerVec.xChunk],f);
+          break;
       }
       --stackPointer;
     }

@@ -976,6 +976,17 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     function = new MemFunction(arg, bins);
   }
 
+  public void visitIndexCollector(IndexCollector indexCollector) {
+    MemHeading headingGrouped = (MemHeading) indexCollector.grouped().type().heading();
+    int groupAttribute = headingGrouped.pointerForAttribute(indexCollector.groupAttribute()).pointer;
+    indexCollector.grouped().acceptExpressionVisitor(this);
+    MemFunction grouped = function;
+    function = new MemFunction(MemFunction.Type.INDEX_COLLECTOR,
+            new MemChunk(1,1,0,0,1),new MemVector[]{MemVector.ZERO},grouped);
+    function.index = new MemChunkIndex(0,new MemDim(1,0,0));
+    function.groupAtt = groupAttribute;
+  }
+
   public void visitArrayAccess(ArrayAccess arrayAccess) {
     MemChunk argHolder = new MemChunk(1, 1, 1, 0, 1);
     arrayAccess.array().acceptExpressionVisitor(this);
