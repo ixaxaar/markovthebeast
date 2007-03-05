@@ -1,14 +1,14 @@
 package thebeast.pml;
 
 import junit.framework.TestCase;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 import thebeast.nod.expression.Operator;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.RelationType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.FileSink;
-import thebeast.nod.FileSource;
 import thebeast.pml.corpora.*;
 import thebeast.pml.formula.Conjunction;
 import thebeast.pml.formula.FactorFormula;
@@ -20,8 +20,8 @@ import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:38:07
@@ -606,7 +606,15 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.containsFeature(phrase, 0, 3, 4, "NP"));
     assertTrue(features.containsFeature(phrase, 3, 0, 1, "VP"));
     assertTrue(features.containsFeature(phrase, 1, 2, 4, "VP"));
+    assertTrue(features.containsFeature(phrase, 0, 0, 1, "NP"));
+    assertTrue(features.containsFeature(phrase, 2, 0, 1, "NP"));
     System.out.println(features.toVerboseString());
+    features.invalidate();
+    RelationVariable grouped = features.getGroupedRelation(phrase);
+    System.out.println(grouped.value());
+    assertEquals(17, grouped.value().size());
+    assertTrue(grouped.contains(0,1,"NP", new Object[]{new Object[]{0}, new Object[]{2}}));
+
   }
 
   public void testScores() {
@@ -621,6 +629,14 @@ public class TestTheBeast extends TestCase {
     assertEquals(19, var.value().size());
     assertEquals(7.0, scores.getScore(phrase, 0, 0, "NP"));
     assertEquals(0.0, scores.getScore(phrase, 2, 3, "VP"));
+
+    features.invalidate();
+    Scores byGrouping = new Scores(model,weights);
+    byGrouping.scoreWithGroups(features);
+    System.out.println(byGrouping);
+    assertEquals(19, byGrouping.getScoreRelation(phrase).value().size());
+    assertEquals(7.0, byGrouping.getScore(phrase, 0, 0, "NP"));
+    assertEquals(0.0, byGrouping.getScore(phrase, 2, 3, "VP"));
 
   }
 

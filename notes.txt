@@ -1,3 +1,5 @@
+index: dep(*,*,_);
+
 to conll06 "test.conll";
 
 load corpus.gold from "...";

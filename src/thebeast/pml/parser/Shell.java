@@ -641,6 +641,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     out.print(corpusEvaluation);
   }
 
+  public void visitCreateIndex(ParserCreateIndex parserCreateIndex) {
+    UserPredicate predicate = signature.getUserPredicate(parserCreateIndex.name);
+    predicate.addIndex(parserCreateIndex.markers);
+  }
+
 
   public void visitLoadScores(ParserLoadScores parserLoadScores) {
     update();

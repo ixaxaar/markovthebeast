@@ -10,11 +10,13 @@ import thebeast.nod.type.Attribute;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 import thebeast.pml.term.Constant;
+import thebeast.pml.predicate.PredicateIndex;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 22-Jan-2007 Time: 17:03:18
@@ -36,6 +38,16 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
     this.relation = interpreter.createRelationVariable(predicate.getHeading());
     for (Attribute attribute : predicate.getHeading().attributes())
       interpreter.addIndex(relation, attribute.name(), Index.Type.HASH, attribute.name());
+    int indexNr = 0;
+    for (PredicateIndex index : predicate.getIndices()){
+      ArrayList<String> attNames = new ArrayList<String>();
+      int i = 0;
+      for (Attribute attribute : predicate.getHeading().attributes()){
+        if (index.getMarkers().get(i++))
+          attNames.add(attribute.name());
+      }
+      interpreter.addIndex(relation, "index" + indexNr++, Index.Type.HASH, attNames);
+    }
     this.relation.setLabel(predicate.getName());
   }
 

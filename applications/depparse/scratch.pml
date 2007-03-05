@@ -19,7 +19,7 @@ save corpus (0-50) to ram;
 collect;
 //learn 2;
 //print weights;
-save corpus to instances "/tmp/instances.dmp";
+//save corpus to instances "/tmp/instances.dmp";
 load instances from dump "/tmp/instances.dmp";
 //save corpus to instances "/disk/scratch/tmp/instances.dmp";
 //save corpus to instances "/disk/home/dendrite/s0349492/tmp/instances.dmp";

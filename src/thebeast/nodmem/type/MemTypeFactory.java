@@ -73,6 +73,10 @@ public class MemTypeFactory implements TypeFactory {
     return new MemHeading(attributes, 1);
   }
 
+  public Heading createHeading(Attribute... attributes) {
+    return createHeadingFromAttributes(Arrays.asList(attributes));
+  }
+
   public TupleType createTupleType(Heading heading) {
     MemTupleType type = new MemTupleType((MemHeading) heading);
     types.add(type);

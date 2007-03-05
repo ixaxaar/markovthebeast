@@ -27,6 +27,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "sequential" { return symbol(sym.SEQ); }
 <YYINITIAL> "weight" { return symbol(sym.WEIGHT); }
 <YYINITIAL> "weights" { return symbol(sym.WEIGHTS); }
+<YYINITIAL> "index" { return symbol(sym.INDEX); }
 <YYINITIAL> "..." { return symbol(sym.ELLIPSIS); }
 <YYINITIAL> "hidden" { return symbol(sym.HIDDEN); }
 <YYINITIAL> "acyclic" { return symbol(sym.ACYCLIC); }

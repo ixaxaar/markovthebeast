@@ -469,6 +469,12 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder group(String as, List<String> attributes) {
+    RelationExpression rel = (RelationExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createGroup(rel, attributes, as));
+    return this;
+  }
+
   public ExpressionBuilder indexedSum(String indexAttribute) {
     return indexedSum(indexAttribute,null);
   }

@@ -41,7 +41,6 @@ public class ConjunctionProcessor {
       this.var2term.putAll(var2term);
     }
 
-    
 
   }
 
@@ -53,13 +52,13 @@ public class ConjunctionProcessor {
 
   }
 
-  public void resolveBruteForce(final Context context, List<SignedAtom> conjunction){
+  public void resolveBruteForce(final Context context, List<SignedAtom> conjunction) {
     UnresolvedVariableCollector finalCollector = new UnresolvedVariableCollector();
     finalCollector.bind(context.var2expr.keySet());
     finalCollector.bind(context.var2term.keySet());
-    for (SignedAtom atom : conjunction){
+    for (SignedAtom atom : conjunction) {
       atom.getAtom().acceptBooleanFormulaVisitor(finalCollector);
-      for (Variable var : finalCollector.getUnresolved()){
+      for (Variable var : finalCollector.getUnresolved()) {
         Type type = var.getType();
         if (type.isNumeric())
           throw new RuntimeException("Unresolved numeric variable " + var + "! Will blow up search space");
@@ -67,7 +66,7 @@ public class ConjunctionProcessor {
         RelationExpression all = factory.createAllConstants((CategoricalType) type.getNodType());
         AttributeExpression att = factory.createAttribute(var.getName(), all.type().heading().attribute("value"));
         context.var2expr.put(var, att);
-        context.var2term.put(var,var);
+        context.var2term.put(var, var);
         context.relations.add(all);
       }
       finalCollector.bind(finalCollector.getUnresolved());
@@ -95,7 +94,7 @@ public class ConjunctionProcessor {
               int argIndex = 0;
               LinkedList<BoolExpression> localConditions = new LinkedList<BoolExpression>();
               main:
-              if (sign)
+              if (sign) {
                 for (Term arg : predicateAtom.getArguments()) {
                   if (arg instanceof DontCare) {
                     ++argIndex;
@@ -108,7 +107,7 @@ public class ConjunctionProcessor {
                   if (termResolver.getUnresolved().size() == 0) {
                     builder.var(artificial).term(resolved).equality();
                     localConditions.add((BoolExpression) exprGenerator.convertFormula(
-                            builder.getFormula(), groundAtoms, weights, context.var2expr,context.var2term));
+                            builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
                   } else if (termResolver.getUnresolved().size() == 1) {
                     Variable toResolve = termResolver.getUnresolved().get(0);
                     Term inverted = inverter.invert(resolved, artificial, toResolve);
@@ -123,7 +122,9 @@ public class ConjunctionProcessor {
                   }
                   ++argIndex;
                 }
-              else {
+                context.prefixes.add(prefix);
+                context.relations.add(groundAtoms.getGroundAtomsOf(userPredicate).getRelationVariable());
+              } else {
                 builder.clear();
                 for (Term arg : predicateAtom.getArguments()) {
                   if (arg instanceof DontCare) {
@@ -149,18 +150,16 @@ public class ConjunctionProcessor {
                         builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
               }
               context.conditions.addAll(localConditions);
-              context.prefixes.add(prefix);
-              context.relations.add(groundAtoms.getGroundAtomsOf(userPredicate).getRelationVariable());
             }
 
-            public void visitPredicate(Predicate predicate){
+            public void visitPredicate(Predicate predicate) {
               BooleanFormula resolved = formulaResolver.resolve(atom, context.var2term);
               if (resolved == null) {
                 atoms.add(signedAtom);
                 return;
               }
               context.conditions.add((BoolExpression) exprGenerator.convertFormula(
-                      resolved, groundAtoms, weights, context.var2expr,context.var2term));
+                      resolved, groundAtoms, weights, context.var2expr, context.var2term));
             }
 
             public void visitEquals(Equals equals) {
@@ -187,16 +186,16 @@ public class ConjunctionProcessor {
         }
 
         public void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint) {
-         
+
           //we have to check whether we can resolve all unbound variables in the main clause of the constraint
           try {
-            if (!sign){
-              cardinalityConstraint = new CardinalityConstraint(false, cardinalityConstraint);  
+            if (!sign) {
+              cardinalityConstraint = new CardinalityConstraint(false, cardinalityConstraint);
             }
             context.conditions.add((BoolExpression)
                     exprGenerator.convertFormula(cardinalityConstraint, groundAtoms, weights,
-                            context.var2expr,context.var2term));
-          } catch (NoDExpressionGenerator.UnresolvableVariableException e){
+                            context.var2expr, context.var2term));
+          } catch (NoDExpressionGenerator.UnresolvableVariableException e) {
             if (triedOnce.contains(signedAtom))
               throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
             atoms.add(signedAtom);

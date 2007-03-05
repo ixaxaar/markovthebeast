@@ -28,6 +28,8 @@ public interface TypeFactory {
 
   Heading createHeadingFromAttributes(List<Attribute> attributes);
 
+  Heading createHeading(Attribute ... attributes);
+
   TupleType createTupleType(Heading heading);
 
   RelationType createRelationType(Heading heading);
