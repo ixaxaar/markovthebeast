@@ -189,6 +189,13 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemArrayAppend(arrayVariable, expression));
   }
 
+
+
+
+  public void append(RelationVariable relVar, RelationExpression expression){
+    interpret(new MemRelationAppend(relVar, expression));
+  }
+
   public void add(ArrayVariable arrayVariable, ArrayExpression argument, DoubleExpression scale) {
     interpret(new MemArrayAdd(arrayVariable, argument, scale));
   }
@@ -279,6 +286,28 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     }
     MemInserter.insert(src, result);
     //var.invalidate();
+  }
+
+   public void visitRelationAppend(RelationAppend relationAppend) {
+    MemRelationAppend append = (MemRelationAppend) relationAppend;
+    MemRelationVariable var = (MemRelationVariable) relationAppend.relationTarget();
+    var.own();
+    MemChunk result = var.getContainerChunk().chunkData[var.getPointer().xChunk];
+    MemChunk src;
+    if (relationAppend.relationExp() instanceof AbstractMemVariable) {
+      MemRelationVariable arg = (MemRelationVariable) relationAppend.relationExp();
+      src = arg.getContainerChunk().chunkData[arg.getPointer().xChunk];
+    } else {
+      MemChunk buffer = append.getBuffer();
+      buffer.chunkData[0].size = 0;
+      buffer.chunkData[0].rowIndexedSoFar = 0;
+      buffer.chunkData[0].rowIndex.clear();
+      AbstractMemExpression expr = (AbstractMemExpression) relationAppend.relationExp();
+      MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
+      src = buffer.chunkData[0];
+    }
+    MemInserter.append(src, result);
+
   }
 
   public void visitAssign(Assign assign) {
@@ -382,6 +411,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     var.invalidate();
 
   }
+
 
   public void append(ArrayVariable arrayVariable, int howmany, Object constant) {
     MemArrayVariable var = (MemArrayVariable) arrayVariable;

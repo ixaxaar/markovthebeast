@@ -140,6 +140,8 @@ public class LocalFeatures {
   public void write(FileSink fileSink) throws IOException {
     for (UserPredicate pred : model.getHiddenPredicates())
       fileSink.write(features.get(pred), true);
+    for (UserPredicate pred : model.getHiddenPredicates())
+      fileSink.write(grouped.get(pred), true);
   }
 
   /**
@@ -151,6 +153,8 @@ public class LocalFeatures {
   public void read(FileSource fileSource) throws IOException {
     for (UserPredicate pred : model.getHiddenPredicates())
       fileSource.read(features.get(pred));
+    for (UserPredicate pred : model.getHiddenPredicates())
+      fileSource.read(grouped.get(pred));
   }
 
   /**

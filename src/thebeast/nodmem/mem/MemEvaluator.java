@@ -293,9 +293,8 @@ public class MemEvaluator {
             returnChunk.chunkData[argPointerVec.xChunk] = result;
           } else if (result.capacity < neededSize) {
             result.increaseCapacity(neededSize - result.chunkData.length);
-            result.size = neededSize;
           }
-
+          result.size = neededSize;
           MemChunk[] tuples = f.argHolder.chunkData;
           for (int i = 0; i < tuples.length; ++i) {
             tuple = tuples[i];

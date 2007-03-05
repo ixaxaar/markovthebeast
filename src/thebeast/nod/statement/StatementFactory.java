@@ -16,6 +16,8 @@ import java.util.List;
 public interface StatementFactory {
   Insert createInsert(RelationVariable relationTarget, RelationExpression relationExp);
 
+  RelationAppend createRelationAppend(RelationVariable relationTarget, RelationExpression relationExp);
+
   Assign createAssign(Variable relationTarget, Expression value);
 
   AttributeAssign createAttributeAssign(String name, Expression value);

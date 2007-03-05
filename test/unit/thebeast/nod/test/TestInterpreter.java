@@ -8,6 +8,7 @@ import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.*;
 import thebeast.nod.type.IntType;
 import thebeast.nod.type.RelationType;
+import thebeast.nod.statement.RelationAppend;
 
 import java.util.HashSet;
 import java.util.Arrays;
@@ -703,6 +704,26 @@ public class TestInterpreter extends NoDTest {
     interpreter.insert(var, exprBuilder.getRelation());
     assertEquals(5, var.value().size());
   }
+
+  public void testRelationAppend() {
+    exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
+    exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
+    exprBuilder.relation(3);
+    RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
+    exprBuilder.id("a").integer(1).id("b").integer(1).id("c").integer(1).tuple(3);
+    exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(3).id("c").integer(3).tuple(3);
+    exprBuilder.relation(3);
+    RelationExpression expression = exprBuilder.getRelation();
+    RelationAppend append = statementFactory.createRelationAppend(var,expression);
+    interpreter.interpret(append);
+    System.out.println(var.value());
+    assertEquals(6, var.value().size());
+    interpreter.interpret(append);
+    assertEquals(9, var.value().size());
+  }
+
 
   public void testRelationUnion() {
     exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);

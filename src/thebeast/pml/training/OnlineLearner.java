@@ -256,6 +256,8 @@ public class OnlineLearner implements Learner, HasProperties {
     updateRule.update(gold, guess, evaluation, this.weights);
     profiler.end();
 
+    updateAverage();
+
     progressReporter.progressed(
             evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
             evaluation.getGoldCount(), evaluation.getGuessCount());
@@ -284,11 +286,7 @@ public class OnlineLearner implements Learner, HasProperties {
         setUpdateRule(new PerceptronUpdateRule());
       else throw new IllegalPropertyValueException(name, value);
     } else if ("average".equals(name.getHead())) {
-      if ("true".equals(value))
-        setAveraging(true);
-      else if ("false".equals(name.getHead()))
-        setAveraging(false);
-      else throw new IllegalPropertyValueException(name, value);
+      setAveraging((Boolean) value);
     }
   }
 

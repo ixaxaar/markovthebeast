@@ -1,3 +1,11 @@
+"NNP"          "NNP"          -6.975000
+"VBZ"          "NNP"          -3.210000
+ROOT           "VBZ"          -0.375000
+"VBZ"          "."            0.090000
+"NNP"          "NNPS"         -1.335000
+"VBD"          "NNP"          -0.980000      
+ROOT           "VBD"          3.270000
+
 index: dep(*,*,_);
 
 to conll06 "test.conll";

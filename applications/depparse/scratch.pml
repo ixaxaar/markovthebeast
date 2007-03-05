@@ -15,20 +15,27 @@ set instancesCacheSize = 2;
 load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
 //load corpus from dump "/tmp/test.dmp";
 //save corpus (0-5) to dump "/tmp/test.dmp";
-save corpus (0-50) to ram;
-collect;
-//learn 2;
+save corpus (0-100) to ram;
+//collect;
+//save weights to dump "/tmp/weights.blank.dmp";
+load weights from dump "/tmp/weights.blank.dmp";
+save corpus to instances "/tmp/instances.dmp";
+load instances from dump "/tmp/instances.dmp";
+
+set learner.average = true;
+set learner.solver.maxIterations = 0;
+learn for 5 epochs;
+print learner.profiler;
 //print weights;
 //save corpus to instances "/tmp/instances.dmp";
-load instances from dump "/tmp/instances.dmp";
 //save corpus to instances "/disk/scratch/tmp/instances.dmp";
 //save corpus to instances "/disk/home/dendrite/s0349492/tmp/instances.dmp";
 
-set solver.ilp.solver.verbose = false;
-set learner.solver.maxIterations = 0;
-set learner.numEpochs = 1;
+//set solver.ilp.solver.verbose = false;
+//set learner.numEpochs = 1;
 
-learn;
+//learn for 3 epochs;
+//print learner.profiler;
 //load weights from dump "/tmp/weights.dmp";
 
 //learn;

@@ -606,7 +606,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     try {
       if ("weights".equals(parserSave.target.head)) {
         if ("dump".equals(parserSave.mode)) {
-          FileSink sink = TheBeast.getInstance().getNodServer().createSink(new File(parserSave.file), 1024);
+          File file = new File(parserSave.file);
+          file.delete();
+          FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
           weights.write(sink);
           sink.flush();
           //weightsUpdated = true;

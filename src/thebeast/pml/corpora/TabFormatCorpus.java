@@ -209,6 +209,8 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
       corpus.addWriter(word, new ConstantWriter(5,0,"_"));
       corpus.addWriter(link, new TokenFeatureWriter(6,1,0));
       corpus.addWriter(dep, new TokenFeatureWriter(7,1,2));
+      corpus.addWriter(word, new ConstantWriter(8,0,"_"));
+      corpus.addWriter(word, new ConstantWriter(9,0,"_"));
 
       return corpus;
     }
