@@ -21,4 +21,6 @@ public interface StatementVisitor {
   void visitArraySparseAdd(ArraySparseAdd arraySparseAdd);
 
   void visitArrayAdd(ArrayAdd arrayAdd);
+
+  void visitRelationAppend(RelationAppend relationAppend);
 }

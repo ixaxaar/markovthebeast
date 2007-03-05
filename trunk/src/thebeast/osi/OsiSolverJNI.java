@@ -8,14 +8,14 @@ import java.util.HashSet;
  */
 public final class OsiSolverJNI implements OsiSolver {
 
-  private int pointer;
+  private long pointer;
   private static HashSet<OsiSolverJNI> instances = new HashSet<OsiSolverJNI>();
 
   static {
     System.loadLibrary("osi");
   }
 
-  private OsiSolverJNI(int pointer) {
+  private OsiSolverJNI(long pointer) {
     this.pointer = pointer;
   }
 
@@ -34,33 +34,33 @@ public final class OsiSolverJNI implements OsiSolver {
       solver.delete(solver.pointer);
   }
 
-  private static native int createImplementation(int ordinal);
+  private static native long createImplementation(int ordinal);
 
 
   public boolean setHintParam(OsiHintParam key, boolean yesNo, OsiHintStrength strength) {
     return setHintParam(key.ordinal(), yesNo,strength.ordinal(),pointer);
   }
 
-  private native static boolean setHintParam(int key, boolean yesNo, int strength, int ptr);
+  private native static boolean setHintParam(int key, boolean yesNo, int strength, long ptr);
 
 
   public void intialSolve() {
     initialSolve(pointer);
   }
 
-  private native void initialSolve(int pointer);
+  private native void initialSolve(long pointer);
 
   public void resolve() {
     resolve(pointer);
   }
 
-  private native void resolve(int pointer);
+  private native void resolve(long pointer);
 
   public void branchAndBound() {
     branchAndBound(pointer);
   }
 
-  private native void branchAndBound(int pointer);
+  private native void branchAndBound(long pointer);
 
   public double[] getColSolution() {
     return getColSolution(pointer);
@@ -70,7 +70,7 @@ public final class OsiSolverJNI implements OsiSolver {
     return getNumCols(pointer);
   }
 
-  private native int getNumCols(int pointer);
+  private native int getNumCols(long pointer);
 
   public int getNumRows(){
     return getNumRows(pointer);
@@ -80,41 +80,41 @@ public final class OsiSolverJNI implements OsiSolver {
     setCbcLogLevel(level,pointer);
   }
 
-  private static native void setCbcLogLevel(int level, int ptr);
+  private static native void setCbcLogLevel(int level, long ptr);
 
-  private native int getNumRows(int pointer);
+  private native int getNumRows(long pointer);
 
-  private native double[] getColSolution(int pointer);
+  private native double[] getColSolution(long pointer);
 
   public void setColLower(int elementIndex, double elementValue) {
     setColLower(elementIndex, elementValue, pointer);
   }
 
-  private native void setColLower(int elementIndex, double elementValue, int pointer);
+  private native void setColLower(int elementIndex, double elementValue, long pointer);
 
   public void setColUpper(int elementIndex, double elementValue) {
     setColUpper(elementIndex, elementValue, pointer);
   }
 
-  private native void setColUpper(int elementIndex, double elementValue, int pointer);
+  private native void setColUpper(int elementIndex, double elementValue, long pointer);
 
   public void setObjCooeff(int elementIndex, double elementValue) {
     setObjCooeff(elementIndex, elementValue, pointer);
   }
 
-  private native void setObjCooeff(int elementIndex, double elementValue, int pointer);
+  private native void setObjCooeff(int elementIndex, double elementValue, long pointer);
 
   public void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj) {
     addCol(numberElements, rows, elements, collb, colub, obj, pointer);
   }
 
-  private native void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj, int pointer);
+  private native void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj, long pointer);
 
   public void addRow(int numberElements, int[] columns, double[] element, double rowlb, double rowub){
     addRow(numberElements,columns,element,rowlb,rowub,pointer);
   }
 
-  private native void addRow(int numberElements, int[] columns, double[] elements, double rowlb, double rowub, int pointer);
+  private native void addRow(int numberElements, int[] columns, double[] elements, double rowlb, double rowub, long pointer);
 
   public void setInteger(int index){
     setInteger(index,pointer);  
@@ -128,7 +128,7 @@ public final class OsiSolverJNI implements OsiSolver {
     return getObjValue(pointer);
   }
 
-  private native void reset(int pointer);
+  private native void reset(long pointer);
 
   public void reset(){
     reset(pointer);
@@ -139,13 +139,13 @@ public final class OsiSolverJNI implements OsiSolver {
     instances.remove(this);
   }
 
-  private native void delete(int pointer);
+  private native void delete(long pointer);
 
-  private native double getObjValue(int pointer);
+  private native double getObjValue(long pointer);
 
-  private native void setObjSense(double s, int pointer);
+  private native void setObjSense(double s, long pointer);
 
-  private native void setInteger(int index, int pointer);
+  private native void setInteger(int index, long pointer);
 
   public static void main(String[] args) {
     OsiSolverJNI solver = OsiSolverJNI.create(Implementation.CBC);

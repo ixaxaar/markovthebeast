@@ -32,10 +32,10 @@ public class CorpusEvaluation {
     fnCount += evaluation.getFalseNegativesCount();
     fpCount += evaluation.getFalsePositivesCount();
     for (UserPredicate pred : model.getHiddenPredicates()) {
-      goldCountPerPredicate.increment(pred, evaluation.getGold().getGroundAtomCount());
-      guessCountPerPredicate.increment(pred, evaluation.getGuess().getGroundAtomCount());
-      fnCountPerPredicate.increment(pred, evaluation.getFalseNegatives().getGroundAtomCount());
-      fpCountPerPredicate.increment(pred, evaluation.getFalsePositives().getGroundAtomCount());
+      goldCountPerPredicate.increment(pred, evaluation.getGold().getGroundAtomsOf(pred).size());
+      guessCountPerPredicate.increment(pred, evaluation.getGuess().getGroundAtomsOf(pred).size());
+      fnCountPerPredicate.increment(pred, evaluation.getFalseNegatives().getGroundAtomsOf(pred).size());
+      fpCountPerPredicate.increment(pred, evaluation.getFalsePositives().getGroundAtomsOf(pred).size());
     }
   }
 

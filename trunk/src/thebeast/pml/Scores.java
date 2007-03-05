@@ -30,9 +30,10 @@ public class Scores {
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private LocalFeatures localFeatures;
 
-  private HashMap<UserPredicate, RelationExpression> queries = new HashMap<UserPredicate, RelationExpression>();
-  private HashMap<UserPredicate, RelationExpression> sums =
-    new HashMap<UserPredicate, RelationExpression>();        
+  private HashMap<UserPredicate, RelationExpression>
+          queries = new HashMap<UserPredicate, RelationExpression>();
+  private HashMap<UserPredicate, RelationExpression>
+          sums = new HashMap<UserPredicate, RelationExpression>();
 
   public Scores(Model model, Weights weights) {
 //    if (model.getHiddenPredicates().isEmpty())
@@ -201,8 +202,11 @@ public class Scores {
 
   public void score(LocalFeatures features, Weights weight) {
     localFeatures.load(features);
+//    for (UserPredicate predicate : model.getHiddenPredicates()) {
+//      interpreter.assign(atomScores.get(predicate), queries.get(predicate));
+//    }
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      interpreter.assign(atomScores.get(predicate), queries.get(predicate));
+      interpreter.assign(atomScores.get(predicate), sums.get(predicate));
     }
   }
 

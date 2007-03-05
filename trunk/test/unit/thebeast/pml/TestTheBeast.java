@@ -609,7 +609,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.containsFeature(phrase, 0, 0, 1, "NP"));
     assertTrue(features.containsFeature(phrase, 2, 0, 1, "NP"));
     System.out.println(features.toVerboseString());
-    features.invalidate();
+    //features.invalidate();
     RelationVariable grouped = features.getGroupedRelation(phrase);
     System.out.println(grouped.value());
     assertEquals(17, grouped.value().size());
@@ -630,7 +630,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(7.0, scores.getScore(phrase, 0, 0, "NP"));
     assertEquals(0.0, scores.getScore(phrase, 2, 3, "VP"));
 
-    features.invalidate();
+    //features.invalidate();
     Scores byGrouping = new Scores(model,weights);
     byGrouping.scoreWithGroups(features);
     System.out.println(byGrouping);

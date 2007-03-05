@@ -20,6 +20,10 @@ public class MemStatementFactory implements StatementFactory {
     return new MemInsert(relationTarget, relationExp);
   }
 
+  public RelationAppend createRelationAppend(RelationVariable relationTarget, RelationExpression relationExp) {
+    return new MemRelationAppend(relationTarget, relationExp);
+  }
+
   public Assign createAssign(Variable variable, Expression value) {
     return new MemAssign((AbstractMemVariable) variable,value);
   }

@@ -6,6 +6,7 @@ import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.statement.Insert;
 import thebeast.nod.statement.StatementFactory;
+import thebeast.nod.statement.RelationAppend;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
@@ -27,6 +28,8 @@ public class LocalFeatureExtractor {
           queries = new HashMultiMap<UserPredicate, RelationExpression>();
   private HashMultiMap<UserPredicate, Insert>
           inserts = new HashMultiMap<UserPredicate, Insert>();
+  private HashMultiMap<UserPredicate, RelationAppend>
+          appends = new HashMultiMap<UserPredicate, RelationAppend>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private StatementFactory factory = TheBeast.getInstance().getNodServer().statementFactory();
   private Model model;
@@ -51,6 +54,8 @@ public class LocalFeatureExtractor {
       queries.add(userPredicate, query);
       Insert insert = factory.createInsert(features.getRelation(userPredicate), query);
       inserts.add(userPredicate, insert);
+      RelationAppend append = factory.createRelationAppend(features.getRelation(userPredicate), query);
+      appends.add(userPredicate, append);
       WeightFunction weightFunction = formula.getWeightFunction();
       RelationVariable relvar = weights.getRelation(weightFunction);
       if (relvar.getIndex(weightFunction.getName()) == null) {
@@ -79,13 +84,17 @@ public class LocalFeatureExtractor {
     //this.features.load(features);
     features.clear();
     for (UserPredicate pred : queries.keySet()) {
+//      for (RelationAppend append : appends.get(pred))
+//        interpreter.interpret(append);
 //      for (Insert insert : inserts.get(pred))
 //        interpreter.interpret(insert);
       for (RelationExpression expression : queries.get(pred)) {
         interpreter.insert(features.getRelation(pred), expression);
+        //interpreter.append(features.getRelation(pred), expression);
       }
     }
-//    features.load(this.features);
+    features.invalidate();
+    //features.load(this.features);
   }
 
 }

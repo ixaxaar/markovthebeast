@@ -7,7 +7,6 @@ import java.io.PrintStream;
  */
 public final class MemSearch {
 
-  private static MemVector ZERO = new MemVector();
   private static final int CAPACITY_INCREMENTS = 200;
 
   public static void search(MemSearchPlan plan, MemChunk[] chunks, MemChunk variables, MemChunk dst, int dstRow) {
