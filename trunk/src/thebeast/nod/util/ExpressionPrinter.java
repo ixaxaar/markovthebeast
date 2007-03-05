@@ -440,6 +440,11 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     os.print(")");
   }
 
+  public void visitIndexCollector(IndexCollector indexCollector) {
+    os.print("COLLECT " + indexCollector.groupAttribute() + " FROM ");
+    indexCollector.grouped().acceptExpressionVisitor(this);
+  }
+
   public void visitOperatorInvocation(OperatorInvocation operatorInvocation){
     os.print(operatorInvocation.operator().name());
     os.print("(");

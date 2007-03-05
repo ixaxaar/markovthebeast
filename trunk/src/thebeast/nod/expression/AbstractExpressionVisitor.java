@@ -262,6 +262,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitExpression(intBins);
   }
 
+  public void visitIndexCollector(IndexCollector indexCollector) {
+    visitExpression(indexCollector);
+  }
+
   public void visitRelationSelector(RelationSelector relationSelector) {
     visitExpression(relationSelector);
   }
