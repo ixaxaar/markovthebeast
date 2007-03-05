@@ -15,7 +15,7 @@ parser code {:
 
 terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
-terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST, INDEX;
 terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
@@ -44,6 +44,7 @@ non terminal LinkedList<ParserConstant> constantlist;
 non terminal LinkedList<ParserNamedConstant> namedconstantlist;
 non terminal LinkedList<ParserTerm> arguments;
 non terminal LinkedList<ParserTyping> quantification;
+non terminal LinkedList<Boolean> markers;
 non terminal ParserTyping typing;
 non terminal ParserName name;
 non terminal LinkedList<String> argtypes, lowercasecommalist;
@@ -91,6 +92,8 @@ statement ::= createType:s
               {: RESULT = s; :}
             | factor:f
               {: RESULT = f; :}
+            | INDEX COLON LOWERCASEID:pred LPAREN markers:m RPAREN
+              {: RESULT = new ParserCreateIndex(pred,m); :}
             | INCLUDE STRING:s
               {: RESULT = new ParserImport(s.substring(1,s.length()-1)); :}
             | HIDDEN COLON lowercasecommalist:a
@@ -217,6 +220,26 @@ argtypes ::=
     {: LinkedList<String> l = new LinkedList<String>();
        l.add(c);
        RESULT = l; :};
+
+markers ::=
+    markers:l COMMA TIMES
+    {: l.add(true);
+       RESULT = l ; :}
+  | markers:l COMMA UNDERSCORE
+    {: l.add(false);
+       RESULT = l ; :}
+  | TIMES
+    {: LinkedList<Boolean> l = new LinkedList<Boolean>();
+       l.add(true);
+       RESULT = l; :}
+  | UNDERSCORE
+    {: LinkedList<Boolean> l = new LinkedList<Boolean>();
+       l.add(false);
+       RESULT = l; :}
+
+
+       ;
+
 
 name ::=
     LOWERCASEID:n

@@ -31,6 +31,8 @@ public class Scores {
   private LocalFeatures localFeatures;
 
   private HashMap<UserPredicate, RelationExpression> queries = new HashMap<UserPredicate, RelationExpression>();
+  private HashMap<UserPredicate, RelationExpression> sums =
+    new HashMap<UserPredicate, RelationExpression>();        
 
   public Scores(Model model, Weights weights) {
 //    if (model.getHiddenPredicates().isEmpty())
@@ -52,6 +54,19 @@ public class Scores {
       builder.expr(weights.getWeights()).intAttribute("index").doubleArrayElement();
       builder.summarizeAs("score", Summarize.Spec.DOUBLE_SUM).summarize();
       queries.put(predicate, builder.getRelation());
+
+      builder.expr(localFeatures.getGroupedRelation(predicate)).from("features");
+      for (Attribute attribute : predicate.getHeading().attributes()){
+        builder.id(attribute.name()).attribute("features",attribute);
+      }
+      builder.id("score");
+      builder.expr(weights.getWeights());
+      builder.attribute("features",UserPredicate.getFeatureIndicesAttribute());
+      builder.indexedSum("index");
+      builder.tuple(predicate.getArity() + 1);
+      builder.select().query();
+      sums.put(predicate,builder.getRelation());
+
     }
   }
 
@@ -191,6 +206,12 @@ public class Scores {
     }
   }
 
+  public void scoreWithGroups(LocalFeatures features) {
+    localFeatures.load(features);
+    for (UserPredicate predicate : model.getHiddenPredicates()) {
+      interpreter.assign(atomScores.get(predicate), sums.get(predicate));
+    }
+  }
 
   public void clear() {
     for (UserPredicate predicate : model.getHiddenPredicates()) {

@@ -6,6 +6,7 @@ import thebeast.nod.type.RelationType;
 import thebeast.nod.type.TypeFactory;
 import thebeast.pml.predicate.Predicate;
 import thebeast.pml.predicate.PredicateVisitor;
+import thebeast.pml.predicate.PredicateIndex;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:14:32
  */
-public class UserPredicate extends Predicate  {
+public class UserPredicate extends Predicate {
 
   private Heading heading, headingScores, headingTmpScores, headingSolution;
   protected static Attribute scoreAttribute;
@@ -22,6 +23,7 @@ public class UserPredicate extends Predicate  {
   protected static Attribute featureIndicesAttribute;
   protected static Attribute solutionAttribute;
   private LinkedList<Attribute> attributes;
+  private LinkedList<PredicateIndex> indices = new LinkedList<PredicateIndex>();
 
   private int sequentialColumn = -1;
 
@@ -30,6 +32,7 @@ public class UserPredicate extends Predicate  {
   private Heading headingForScore;
   private Heading headingCycle;
   private Heading headingCycles;
+  private Heading headingGroupedFeatures;
 
   static {
     TypeFactory factory = TheBeast.getInstance().getNodServer().typeFactory();
@@ -39,7 +42,7 @@ public class UserPredicate extends Predicate  {
     LinkedList<Attribute> indexTableAttributes = new LinkedList<Attribute>();
     indexTableAttributes.add(indexAttribute);
     RelationType relType = factory.createRelationType(factory.createHeadingFromAttributes(indexTableAttributes));
-    featureIndicesAttribute = factory.createAttribute("indices", relType);
+    featureIndicesAttribute = factory.createAttribute("features", relType);
   }
 
 
@@ -50,17 +53,17 @@ public class UserPredicate extends Predicate  {
    * @param argumentTypes the list of argument types.
    */
   protected UserPredicate(String name, List<Type> argumentTypes) {
-    this(name, argumentTypes,-1);
+    this(name, argumentTypes, -1);
   }
 
 
   /**
    * Creates a new predicate with the given name and argument types.
    *
-   * @param name          the name of the predicate.
-   * @param argumentTypes the list of argument types.
+   * @param name             the name of the predicate.
+   * @param argumentTypes    the list of argument types.
    * @param sequentialColumn the column/argument which will contain a contiguous set of integers in each
-   * ground atom collection. -1 if there is no such column. The Column type must be integer. 
+   *                         ground atom collection. -1 if there is no such column. The Column type must be integer.
    */
   protected UserPredicate(String name, List<Type> argumentTypes, int sequentialColumn) {
     super(name, argumentTypes);
@@ -99,12 +102,16 @@ public class UserPredicate extends Predicate  {
 
     headingIndex = factory.createHeadingFromAttributes(attributesForIndex);
 
+    LinkedList<Attribute> attributesForGroupedFeatures = new LinkedList<Attribute>(attributes);
+    attributesForGroupedFeatures.add(featureIndicesAttribute);
+    headingGroupedFeatures = factory.createHeadingFromAttributes(attributesForGroupedFeatures);
+
     LinkedList<Attribute> attributesForRealScores = new LinkedList<Attribute>(attributes);
     attributesForRealScores.add(scoreAttribute);
     headingForScore = factory.createHeadingFromAttributes(attributesForRealScores);
 
     LinkedList<Attribute> attributesForCycle = new LinkedList<Attribute>();
-    attributesForCycle.add(factory.createAttribute("cycle",factory.createRelationType(heading)));
+    attributesForCycle.add(factory.createAttribute("cycle", factory.createRelationType(heading)));
     headingCycle = factory.createHeadingFromAttributes(attributesForCycle);
 
     LinkedList<Attribute> attributeForCycles = new LinkedList<Attribute>();
@@ -117,6 +124,7 @@ public class UserPredicate extends Predicate  {
   /**
    * Get the argument index for which, in each ground atom collection, the set of arguments of all ground atoms
    * for this index will be a contiguous set of integers (i.e. from f,f+1,f+2,f+3 to t-2,t-1,t).
+   *
    * @return the sequential column or -1 if there is no such column.
    */
   public int getSequentialColumn() {
@@ -168,6 +176,31 @@ public class UserPredicate extends Predicate  {
    */
   public Attribute getAttribute(int argument) {
     return attributes.get(argument);
+  }
+
+
+  /**
+   * Adds an index for this predicate. This means in every collection of ground atoms for this
+   * predicate there will be an index to make access of values fast.
+   *
+   * @param markers a list boolean markers, one for each argument of this predicate.
+   *                If <code>markers.get(i)==true</code> the argument <code>i</code> is part of the index. Otherwise
+   *                it is not.
+   */
+  public void addIndex(List<Boolean> markers) {
+    if (markers.size() != getArity())
+      throw new IllegalArgumentException("Number of index markers must match arity of predicate!");
+    indices.add(new PredicateIndex(markers));
+  }
+
+
+  /**
+   * Return the index definitions for this predicate.
+   *
+   * @return a list of index definition.
+   */
+  public List<PredicateIndex> getIndices() {
+    return indices;
   }
 
   /**
@@ -241,8 +274,12 @@ public class UserPredicate extends Predicate  {
     return headingCycle;
   }
 
-
   public Heading getHeadingCycles() {
     return headingCycles;
+  }
+
+
+  public Heading getHeadingGroupedFeatures() {
+    return headingGroupedFeatures;
   }
 }

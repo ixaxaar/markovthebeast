@@ -1,17 +1,19 @@
 package thebeast.pml;
 
-import thebeast.nod.statement.Interpreter;
-import thebeast.nod.variable.Index;
-import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.expression.RelationExpression;
+import thebeast.nod.statement.Interpreter;
+import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.value.IntValue;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.Value;
-import thebeast.nod.value.IntValue;
+import thebeast.nod.variable.Index;
+import thebeast.nod.variable.RelationVariable;
 
-import java.util.HashMap;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
@@ -19,7 +21,12 @@ import java.io.IOException;
  */
 public class LocalFeatures {
 
-  private HashMap<UserPredicate, RelationVariable> features = new HashMap<UserPredicate, RelationVariable>();
+  private HashMap<UserPredicate, RelationVariable>
+          grouped = new HashMap<UserPredicate, RelationVariable>();
+  private HashMap<UserPredicate, RelationVariable>
+          features = new HashMap<UserPredicate, RelationVariable>();
+  private HashMap<UserPredicate, RelationExpression>
+          groupExpressions = new HashMap<UserPredicate, RelationExpression>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private Model model;
   private Weights weights;
@@ -27,12 +34,17 @@ public class LocalFeatures {
   public LocalFeatures(Model model, Weights weights) {
     this.weights = weights;
     this.model = model;
+    ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
     for (UserPredicate pred : model.getHiddenPredicates()) {
       RelationVariable var = interpreter.createRelationVariable(pred.getHeadingForFeatures());
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
+      RelationVariable group = interpreter.createRelationVariable(pred.getHeadingGroupedFeatures());
+      grouped.put(pred,group);
+      interpreter.addIndex(group, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
+      builder.expr(var).group("features","index");
+      groupExpressions.put(pred,builder.getRelation());
     }
-
   }
 
   /**
@@ -43,9 +55,20 @@ public class LocalFeatures {
   public void load(LocalFeatures localFeatures) {
     for (UserPredicate pred : features.keySet()) {
       interpreter.assign(features.get(pred), localFeatures.features.get(pred));
+      interpreter.assign(grouped.get(pred), localFeatures.grouped.get(pred));
     }
   }
 
+
+  public void invalidate(){
+    for (UserPredicate pred : features.keySet()) {
+      interpreter.assign(grouped.get(pred), groupExpressions.get(pred));
+    }
+  }
+
+  public RelationVariable getGroupedRelation(UserPredicate predicate){
+    return grouped.get(predicate);
+  }
 
   /**
    * Copies a set of local features. Copying is based on the underlying database engine, which might use a shallow

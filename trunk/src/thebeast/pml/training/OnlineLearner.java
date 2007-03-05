@@ -135,6 +135,7 @@ public class OnlineLearner implements Learner, HasProperties {
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
     solver.setProfiler(profiler);
+    if (solution != null) solution.setProfiler(profiler);
   }
 
   public void learn(GroundAtoms data) {
@@ -190,6 +191,7 @@ public class OnlineLearner implements Learner, HasProperties {
     this.model = model;
     instance = model.getSignature().createGroundAtoms();
     solution = new Solution(model, weights);
+    solution.setProfiler(profiler);
     scores = new Scores(model, weights);
     features = new LocalFeatures(model, weights);
     extractor = new LocalFeatureExtractor(model, weights);

@@ -8,6 +8,8 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.type.Attribute;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 
 import java.util.HashMap;
 
@@ -46,6 +48,8 @@ public class Solution {
   private LocalFeatures localFeatures;
 
   private boolean groundFormulasNeedUpdate;
+
+  private Profiler profiler = new NullProfiler();
 
   public Solution(Model model, Weights weights) {
     groundAtoms = model.getSignature().createGroundAtoms();
@@ -115,15 +119,40 @@ public class Solution {
     groundFormulasNeedUpdate = false;
   }
 
+
+  public Profiler getProfiler() {
+    return profiler;
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
+  }
+
   public SparseVector extract() {
     //extract args + index into tmp vars
     SparseVector result = new SparseVector();
+    profiler.start("local");
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
+      profiler.start("formula");
+
+      profiler.start("extract");
       interpreter.assign(tmpFeatures.get(formula), localExtractors.get(formula));
+      profiler.end();
+
       SparseVector tmp = new SparseVector();
+
+      profiler.start("summarize");
       interpreter.assign(tmp.getValuesRelation(), localSummarizer.get(formula));
+      profiler.end();
+
+      profiler.start("add");
       result.addInPlace(1.0, tmp);
+      profiler.end();
+
+      profiler.end();
     }
+    profiler.end();
+    profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
@@ -134,19 +163,34 @@ public class Solution {
         result.addInPlace(1.0, tmp);
       }
     }
+    profiler.end();
     return result;
   }
 
   public SparseVector extract(LocalFeatures features) {
     SparseVector result = new SparseVector();
     localFeatures.load(features);
+    profiler.start("local");
     for (UserPredicate pred : model.getHiddenPredicates()) {
+      profiler.start("predicate");
+
+      profiler.start("extract");
       RelationVariable var = tmpFeaturesPerPred.get(pred);
       interpreter.assign(var, localJoin.get(pred));
+      profiler.end();
+
       SparseVector tmp = new SparseVector();
+      profiler.start("summarize");
       interpreter.assign(tmp.getValuesRelation(), localSummarizerForFeatures.get(pred));
+      profiler.end();
+
+      profiler.start("add");
       result.addInPlace(1.0, tmp);
+      profiler.end();
+
+      profiler.end();
     }
+    profiler.end();
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {

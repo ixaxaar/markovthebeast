@@ -55,4 +55,8 @@ public class MemMath {
     return result;
   }
 
+  public static void collect(MemChunk grouped, int groupedAttribute, MemChunk dstSparseVector){
+    
+  }
+
 }

@@ -53,4 +53,6 @@ public interface ParserStatementVisitor {
   void visitSave(ParserSave parserSave);
 
   void visitTest(ParserTest parserTest);
+
+  void visitCreateIndex(ParserCreateIndex parserCreateIndex);
 }
