@@ -78,7 +78,7 @@ public final class MemChunk extends MemHolder {
     if (buffer[0] > 0) {
       dst.indices = new MemChunkMultiIndex[buffer[0]];
       for (int i = 0; i < buffer[0]; ++i) {
-        if (dst.indices[i]==null)
+        if (dst.indices[i] == null)
           dst.indices[i] = MemChunkMultiIndex.deserialize(deserializer);
         else
           MemChunkMultiIndex.deserializeInPlace(deserializer, dst.indices[i]);
@@ -92,7 +92,7 @@ public final class MemChunk extends MemHolder {
 
 
   public static void serialize(MemChunk chunk, MemSerializer serializer, boolean dumpIndices) throws IOException {
-    MemChunkIndex rowIndex = dumpIndices ? chunk.rowIndex :null;
+    MemChunkIndex rowIndex = dumpIndices ? chunk.rowIndex : null;
     int rowIndexedSoFar = dumpIndices ? chunk.rowIndexedSoFar : 0;
     serializer.writeInts(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols, rowIndexedSoFar);
     MemHolder.serialize(chunk, serializer, new MemDim(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols));
@@ -176,8 +176,8 @@ public final class MemChunk extends MemHolder {
     allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
-  public void compactify(){
-    super.compactify(new MemDim(numIntCols,numDoubleCols, numChunkCols));
+  public void compactify() {
+    super.compactify(new MemDim(numIntCols, numDoubleCols, numChunkCols));
   }
 
 
@@ -198,8 +198,8 @@ public final class MemChunk extends MemHolder {
   }
 
   public void unify() {
-    MemVector srcPointer = new MemVector(rowIndexedSoFar, numIntCols,numDoubleCols,numChunkCols);
-    MemVector dstPointer = new MemVector(rowIndexedSoFar, numIntCols,numDoubleCols,numChunkCols);
+    MemVector srcPointer = new MemVector(rowIndexedSoFar, numIntCols, numDoubleCols, numChunkCols);
+    MemVector dstPointer = new MemVector(rowIndexedSoFar, numIntCols, numDoubleCols, numChunkCols);
     int dstRow = rowIndexedSoFar;
     for (int row = rowIndexedSoFar; row < size; ++row) {
       int old = rowIndex.put(this, srcPointer, allCols, row, false);
@@ -311,9 +311,12 @@ public final class MemChunk extends MemHolder {
 
   public MemChunk copy() {
     MemChunk result = new MemChunk(size, size, numIntCols, numDoubleCols, numChunkCols);
-    System.arraycopy(intData, 0, result.intData, 0, size * numIntCols);
-    System.arraycopy(doubleData, 0, result.doubleData, 0, size * numDoubleCols);
-    System.arraycopy(chunkData, 0, result.chunkData, 0, size * numChunkCols);
+    if (intData != null)
+      System.arraycopy(intData, 0, result.intData, 0, size * numIntCols);
+    if (doubleData != null)
+      System.arraycopy(doubleData, 0, result.doubleData, 0, size * numDoubleCols);
+    if (chunkData != null)
+      System.arraycopy(chunkData, 0, result.chunkData, 0, size * numChunkCols);
     return result;
   }
 
@@ -471,4 +474,7 @@ public final class MemChunk extends MemHolder {
   }
 
 
+  public String toString() {
+    return "size: " + size;
+  }
 }

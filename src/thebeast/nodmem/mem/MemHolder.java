@@ -136,7 +136,7 @@ public class MemHolder {
     if (dim.xDouble > 0)
       deserializer.read(dst.doubleData, size * dim.xDouble);
     if (dim.xChunk > 0) {
-      for (int i = 0; i < dst.chunkData.length; ++i)
+      for (int i = 0; i < size * dim.xChunk; ++i)
         if (dst.chunkData[i]==null)
           dst.chunkData[i] = MemChunk.deserialize(deserializer);
         else

@@ -98,15 +98,66 @@ public final class OsiSolverJNI implements OsiSolver {
 
   private native void setColUpper(int elementIndex, double elementValue, long pointer);
 
-  public void setObjCooeff(int elementIndex, double elementValue) {
-    setObjCooeff(elementIndex, elementValue, pointer);
+  public void setObjCoeff(int elementIndex, double elementValue) {
+    setObjCoeff(elementIndex, elementValue, pointer);
   }
 
-  private native void setObjCooeff(int elementIndex, double elementValue, long pointer);
+  private native void setObjCoeff(int elementIndex, double elementValue, long pointer);
 
   public void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj) {
     addCol(numberElements, rows, elements, collb, colub, obj, pointer);
   }
+
+  public void addCols(int numcols, int[][] rows, double[][] elements, double[] collb, double[] colub, double[] obj) {
+    int[] starts = new int[numcols];
+    int count = rows[0].length;
+    for (int i = 1; i < rows.length; ++i){
+      starts[i] = rows[i-1].length;
+      count += rows[i].length;
+    }
+    int[] flatRows = new int[count];
+    int index = 0;
+    for (int[] col : rows)
+      for (int row : col)
+        flatRows[index++] = row;
+
+    double[] flatElements = new double[count];
+    index = 0;
+    for (double[] col : elements)
+      for (double row : col)
+        flatElements[index++] = row;
+
+    addCols(numcols, starts, flatRows, flatElements, collb, colub, obj ,pointer);
+  }
+
+  public void addRows(int numRows, int[][] cols, double[][] elements, double[] rowlb, double[] rowub) {
+    int[] ends = new int[numRows];
+    int end = 0;
+    for (int i = 0; i < cols.length; ++i){
+      end += cols[i].length;
+      ends[i] = end;
+    }
+    int[] flatRows = new int[end];
+    int index = 0;
+    for (int[] col : cols)
+      for (int row : col)
+        flatRows[index++] = row;
+
+    double[] flatElements = new double[end];
+    index = 0;
+    for (double[] col : elements)
+      for (double row : col)
+        flatElements[index++] = row;
+
+    addRows(numRows, ends, flatRows, flatElements, rowlb, rowub,pointer);
+  }
+
+
+  private native void addCols(int numCols, int[] columnStarts, int[] rows, double[] elements,
+                              double[] collb, double[] colub, double[] obj, long ptr);
+
+  private native void addRows(int numRows, int[] rowStarts, int[] cols, double[] elements,
+                              double[] collb, double[] colub, long ptr);
 
   private native void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj, long pointer);
 
@@ -149,11 +200,15 @@ public final class OsiSolverJNI implements OsiSolver {
 
   public static void main(String[] args) {
     OsiSolverJNI solver = OsiSolverJNI.create(Implementation.CBC);
-    solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
-    solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
-    solver.addRow(2,new int[]{0,1},new double[]{1.0,1.0},-INF,1.0);
+    //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
+    //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
+    solver.addCols(2, new int[2][0], new double[2][0], new double[]{0.0, 0.0}, new double[]{1.5,1.5}, new double[]{1.0,1.0});
+    solver.addRows(2, new int[][]{new int[]{0,1}, new int[]{0}},
+            new double[][]{new double[]{1.0,1.0}, new double[]{1.0}}, new double[]{-INF, 0.2}, new double[]{1.0,0.4});
+    //solver.addRow(2,new int[]{0,1},new double[]{1.0,1.0},-INF,1.0);
+    //solver.addRow(1,new int[]{0},new double[]{1.0},0.2,0.4);
     solver.setObjSense(-1);
-    solver.setInteger(0);
+    //solver.setInteger(0);
     System.out.println("solver.getNumCols() = " + solver.getNumCols());
     System.out.println("solver.getNumRows() = " + solver.getNumRows());
     //solver.intialSolve();

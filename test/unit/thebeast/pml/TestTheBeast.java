@@ -942,6 +942,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.contains(2, 2.0));
     assertTrue(features.contains(4, -1.0));
     assertEquals(3, features.size());
+
   }
 
   public void testLEQConstraint() {

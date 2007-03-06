@@ -21,12 +21,13 @@ public class CuttingPlaneSolver implements Solver {
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated;
-  public ILPSolverLpSolve ilpSolver;
+  public ILPSolver ilpSolver;
   private Profiler profiler = new NullProfiler();
 
 
   public CuttingPlaneSolver() {
-    ilpSolver = new ILPSolverLpSolve();
+    //ilpSolver = new ILPSolverLpSolve();
+    ilpSolver = new ILPSolverOsi();
   }
 
   public void configure(Model model, Weights weights) {

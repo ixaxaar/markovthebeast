@@ -160,7 +160,6 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
             if (delegate.hasNext()) {
               ++current;
               if (!hasNext()) iterating = false;
-
               return delegate.next();
             }
             update();

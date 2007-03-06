@@ -40,10 +40,10 @@ public class LocalFeatures {
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
       RelationVariable group = interpreter.createRelationVariable(pred.getHeadingGroupedFeatures());
-      grouped.put(pred,group);
+      grouped.put(pred, group);
       interpreter.addIndex(group, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
-      builder.expr(var).group("features","index");
-      groupExpressions.put(pred,builder.getRelation());
+      builder.expr(var).group("features", "index");
+      groupExpressions.put(pred, builder.getRelation());
     }
   }
 
@@ -60,13 +60,19 @@ public class LocalFeatures {
   }
 
 
-  public void invalidate(){
+  /**
+   * Call this method if you have made changes to the ungrouped
+   * tables of these features (i.e. the tables in which we have
+   * a row for each ground atom and each feature index active
+   * for this ground atom).
+   */
+  public void invalidate() {
     for (UserPredicate pred : features.keySet()) {
       interpreter.assign(grouped.get(pred), groupExpressions.get(pred));
     }
   }
 
-  public RelationVariable getGroupedRelation(UserPredicate predicate){
+  public RelationVariable getGroupedRelation(UserPredicate predicate) {
     return grouped.get(predicate);
   }
 
@@ -126,8 +132,9 @@ public class LocalFeatures {
    */
   public int getMemoryUsage() {
     int size = 0;
-    for (RelationVariable var : features.values())
+    for (RelationVariable var : grouped.values()) {
       size += var.byteSize();
+    }
     return size;
   }
 
@@ -139,9 +146,7 @@ public class LocalFeatures {
    */
   public void write(FileSink fileSink) throws IOException {
     for (UserPredicate pred : model.getHiddenPredicates())
-      fileSink.write(features.get(pred), true);
-    for (UserPredicate pred : model.getHiddenPredicates())
-      fileSink.write(grouped.get(pred), true);
+      fileSink.write(grouped.get(pred), false);
   }
 
   /**
@@ -151,10 +156,9 @@ public class LocalFeatures {
    * @throws IOException if I/O goes wrong.
    */
   public void read(FileSource fileSource) throws IOException {
-    for (UserPredicate pred : model.getHiddenPredicates())
-      fileSource.read(features.get(pred));
-    for (UserPredicate pred : model.getHiddenPredicates())
+    for (UserPredicate pred : model.getHiddenPredicates()) {
       fileSource.read(grouped.get(pred));
+    }
   }
 
   /**
@@ -165,7 +169,7 @@ public class LocalFeatures {
   public String toString() {
     StringBuffer result = new StringBuffer();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      RelationValue value = features.get(predicate).value();
+      RelationValue value = grouped.get(predicate).value();
       result.append(">").append(predicate.getName()).append(":").append(value.size()).append("\n");
       result.append(value.toString());
       result.append("\n");

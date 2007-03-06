@@ -96,6 +96,10 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemIntBins(MemIntType.INT, argument, bins);
   }
 
+  public IndexCollector createIndexCollector(RelationExpression relation, String groupAttribute, String indexAttribute, String valueAttribute) {
+    return new MemIndexCollector(groupAttribute, relation, indexAttribute, valueAttribute);
+  }
+
 
   public IntMinus createIntMinus(IntExpression leftHandSide, IntExpression rightHandSide) {
     return new MemIntMinus(MemIntType.INT, leftHandSide, rightHandSide);

@@ -7,6 +7,8 @@ public interface OsiSolver {
 
   public static final double INF = 1E100;
 
+  void addRows(int numRows, int[][] cols, double[][] elements, double[] rowlb, double[] rowub);
+
   enum OsiHintParam {
     OsiDoPresolveInInitial, OsiDoDualInInitial, OsiDoPresolveInResolve, OsiDoDualInResolve,
     OsiDoScale, OsiDoCrash, OsiDoReducePrint, OsiDoInBranchAndCut,
@@ -33,9 +35,11 @@ public interface OsiSolver {
 
   void setColUpper(int elementIndex, double elementValue);
 
-  void setObjCooeff(int elementIndex, double elementValue);
+  void setObjCoeff(int elementIndex, double elementValue);
 
   void addCol(int numberElements, int[] rows, double[] elements, double collb, double colub, double obj);
+
+  void addCols(int numcols, int[][] rows, double[][] elements, double[] collb, double[] colub, double[] obj);
 
   void addRow(int numberElements, int[] columns, double[] element, double rowlb, double rowub);
 
