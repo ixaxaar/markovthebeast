@@ -31,6 +31,8 @@ public class Solution {
   private HashMap<FactorFormula, RelationExpression>
           localSummarizer = new HashMap<FactorFormula, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
+          localCollectors = new HashMap<UserPredicate, RelationExpression>();
+  private HashMap<UserPredicate, RelationExpression>
           localSummarizerForFeatures = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
           localJoin = new HashMap<UserPredicate, RelationExpression>();
@@ -81,10 +83,10 @@ public class Solution {
       }
     }
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      RelationVariable var = interpreter.createRelationVariable(predicate.getHeadingIndex());
+      RelationVariable var = interpreter.createRelationVariable(predicate.getHeadingGroupedFeatures());
       tmpFeaturesPerPred.put(predicate, var);
       builder.expr(groundAtoms.getGroundAtomsOf(predicate).getRelationVariable()).from("atoms");
-      builder.expr(localFeatures.getRelation(predicate)).from("features");
+      builder.expr(localFeatures.getGroupedRelation(predicate)).from("features");
       for (Attribute att : predicate.getHeading().attributes()) {
         builder.attribute("atoms", att).attribute("features", att).equality();
       }
@@ -92,15 +94,18 @@ public class Solution {
       for (Attribute att : predicate.getHeading().attributes()) {
         builder.id(att.name()).attribute("atoms", att);
       }
-      builder.id("index").intAttribute("features", "index");
+      builder.id("features").attribute("features", UserPredicate.getFeatureIndicesAttribute());
       builder.tuple(predicate.getArity() + 1).select().query();
       localJoin.put(predicate, builder.getRelation());
 
-      builder.expr(var).by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
-      localSummarizerForFeatures.put(predicate, builder.getRelation());
-      builder.expr(var).by("index");
-      builder.num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
-      localSummarizerForFeatures.put(predicate, builder.getRelation());
+//      builder.expr(var).by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+//      localSummarizerForFeatures.put(predicate, builder.getRelation());
+//      builder.expr(var).by("index");
+//      builder.num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+//      localSummarizerForFeatures.put(predicate, builder.getRelation());
+
+      builder.expr(var).collect("features","index","value");
+      localCollectors.put(predicate, builder.getRelation());
     }
 
   }
@@ -174,14 +179,23 @@ public class Solution {
     for (UserPredicate pred : model.getHiddenPredicates()) {
       profiler.start("predicate");
 
+      //System.out.println(localFeatures.getGroupedRelation(pred).value());
       profiler.start("extract");
       RelationVariable var = tmpFeaturesPerPred.get(pred);
       interpreter.assign(var, localJoin.get(pred));
       profiler.end();
 
+      //System.out.println(tmpFeaturesPerPred.get(pred).value());
+
+//
+//      SparseVector tmp = new SparseVector();
+//      profiler.start("summarize");
+//      interpreter.assign(tmp.getValuesRelation(), localSummarizerForFeatures.get(pred));
+//      profiler.end();
+
       SparseVector tmp = new SparseVector();
-      profiler.start("summarize");
-      interpreter.assign(tmp.getValuesRelation(), localSummarizerForFeatures.get(pred));
+      profiler.start("collect");
+      interpreter.assign(tmp.getValuesRelation(), localCollectors.get(pred));
       profiler.end();
 
       profiler.start("add");

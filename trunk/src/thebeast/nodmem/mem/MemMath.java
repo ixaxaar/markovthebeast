@@ -65,13 +65,16 @@ public class MemMath {
     MemVector indexPtr = new MemVector();
     MemColumnSelector cols = new MemColumnSelector(1,0,0);
     int dstSize = 0;
+    if (dstSparseVector.capacity == 0)
+      dstSparseVector.increaseCapacity(grouped.size);
     for (int row = 0; row < grouped.size; ++row){
       MemChunk indices = grouped.chunkData[chunkPtr];
+      indexPtr.set(0,0,0);
       for (int i = 0; i < indices.size; ++i){
         int index = indices.intData[i];
         int old = chunkIndex.put(indices,indexPtr,cols,dstSize, false);
         if (old == -1){
-          if (dstSize > dstSparseVector.capacity){
+          if (dstSize >= dstSparseVector.capacity){
             dstSparseVector.increaseCapacity(dstSize);
           }
           dstSparseVector.intData[dstSize] = index;
@@ -80,6 +83,7 @@ public class MemMath {
           if (chunkIndex.getLoadFactor() > 3){
             chunkIndex.increaseCapacity(chunkIndex.getCapacity());
           }
+          ++dstSize;
         } else {
           dstSparseVector.doubleData[old] += 1.0;
         }

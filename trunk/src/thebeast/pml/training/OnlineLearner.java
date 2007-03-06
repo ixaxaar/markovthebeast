@@ -228,10 +228,11 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //either load the feature vector or extract it
     features.load(data.getFeatures());
-
+    
     //use the feature vector and weight to score ground atoms
     profiler.start("score");
-    scores.score(features, this.weights);
+    //scores.score(features, this.weights);
+    scores.scoreWithGroups(features);
     profiler.end();
 
     //use the scores to solve the model

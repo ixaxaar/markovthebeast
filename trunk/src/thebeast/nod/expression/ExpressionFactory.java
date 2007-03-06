@@ -127,5 +127,8 @@ public interface ExpressionFactory {
 
   IntBins createIntBins(IntExpression argument, List<Integer> bins);
 
+  IndexCollector createIndexCollector(RelationExpression relation,String groupAttribute,
+                                      String indexAttribute, String valueAttribute);
+
 }
 

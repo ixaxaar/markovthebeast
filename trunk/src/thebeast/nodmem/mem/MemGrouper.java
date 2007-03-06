@@ -40,6 +40,7 @@ public class MemGrouper {
           groupCol = new MemChunk(0,1,groupedCols.getDim());
           dst.chunkData[dstPointer.xChunk + dstGroupCol] = groupCol;
         }
+        groupCol.size = 0;
         dstRow++;
         ++dst.size;
       } else {

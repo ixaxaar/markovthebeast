@@ -764,4 +764,11 @@ public class ExpressionBuilder {
     expressionStack.push(expressionFactory.createIntBins(arg, bins));
     return this;
   }
+
+  public ExpressionBuilder collect(String groupAttribute, String indexId, String valueId){
+    RelationExpression grouped = (RelationExpression) pop();
+    expressionStack.push(expressionFactory.createIndexCollector(grouped, groupAttribute, indexId, valueId));
+    return this;
+  }
+
 }

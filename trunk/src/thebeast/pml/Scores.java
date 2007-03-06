@@ -202,11 +202,8 @@ public class Scores {
 
   public void score(LocalFeatures features, Weights weight) {
     localFeatures.load(features);
-//    for (UserPredicate predicate : model.getHiddenPredicates()) {
-//      interpreter.assign(atomScores.get(predicate), queries.get(predicate));
-//    }
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      interpreter.assign(atomScores.get(predicate), sums.get(predicate));
+      interpreter.assign(atomScores.get(predicate), queries.get(predicate));
     }
   }
 

@@ -946,6 +946,28 @@ public class TestInterpreter extends NoDTest {
 
   }
 
+  public void testIndexCollector(){
+    int size = 10;
+    for (int i = 0; i < size; ++i){
+      exprBuilder.id("a").num(i).id("rel");
+      for (int j = 0; j < 10; ++j) exprBuilder.id("value").num(j).tuple(1);
+      exprBuilder.relation(10).tuple(2);
+    }
+    exprBuilder.relation(size);
+    RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
+    exprBuilder.expr(var).collect("rel","index","value");
+    RelationExpression collector = exprBuilder.getRelation();
+    RelationVariable collected = interpreter.createRelationVariable(collector);
+    System.out.println(collected.value());
+
+    assertEquals(10, collected.value().size());
+    for (int i = 0; i < 10; ++i)
+      assertTrue(collected.contains(i, 10.0));
+
+    interpreter.assign(collected, collector);
+    System.out.println(collected.value());
+  }
+
 
   public void testIndexedQuery() {
     exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
@@ -976,8 +998,6 @@ public class TestInterpreter extends NoDTest {
       System.out.println(t.element(0) + " " + t.element(1));
       assertEquals(t.element(0), t.element(1));
     }
-
-
   }
 
 

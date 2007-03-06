@@ -92,13 +92,8 @@ public class ILPSolverLpSolve implements ILPSolver {
       for (int index = 0; index < solution.length; ++index) {
         indices[index] = index;
       }
-      //RelationVariable variable = interpreter.createRelationVariable(builder.getRelation());
       RelationVariable variable = interpreter.createRelationVariable(IntegerLinearProgram.getResultHeading());
       variable.assignByArray(indices, solution);
-//       for (int index = 0; index < solution.length; ++index) {
-//        builder.id("index").num(index).id("value").num(solution[index]).tupleForIds();
-//      }
-//      builder.relation(solution.length);
       return variable;
     } catch (LpSolveException e) {
       e.printStackTrace();

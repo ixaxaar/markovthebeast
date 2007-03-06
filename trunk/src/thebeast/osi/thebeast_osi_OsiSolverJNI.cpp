@@ -7,10 +7,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "thebeast_osi_OsiSolverJNI.h"
 #include "OsiClpSolverInterface.hpp"
 #include "OsiCbcSolverInterface.hpp"
+#include "CbcModel.hpp"
+#include "CoinBuild.hpp"
 
 #define MY_INF 1E100
 
@@ -19,11 +22,11 @@
  * Method:    createImplementation
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_thebeast_osi_OsiSolverJNI_createImplementation
+JNIEXPORT jlong JNICALL Java_thebeast_osi_OsiSolverJNI_createImplementation
   (JNIEnv *, jclass, jint implementation){
   OsiSolverInterface* solver = 0;
   switch(implementation){
-    case 0: solver = new OsiCbcSolverInterface; break;
+    case 0: solver = new OsiCbcSolverInterface(new OsiClpSolverInterface()); break;
     case 1: solver = new OsiClpSolverInterface; break;
   }
   double dEmpty = 0;
@@ -40,7 +43,7 @@ JNIEXPORT jint JNICALL Java_thebeast_osi_OsiSolverJNI_createImplementation
  * Signature: (IZII)Z
  */
 JNIEXPORT jboolean JNICALL Java_thebeast_osi_OsiSolverJNI_setHintParam
-  (JNIEnv *, jclass, jint key, jboolean yesNo, jint strength, jint ptr){
+  (JNIEnv *, jclass, jint key, jboolean yesNo, jint strength, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
 //  return solver->setHintParam(OsiDoReducePrint,yesNo,OsiHintTry);  
   return solver->setHintParam(OsiHintParam(key),yesNo,OsiHintStrength(strength));
@@ -52,12 +55,15 @@ JNIEXPORT jboolean JNICALL Java_thebeast_osi_OsiSolverJNI_setHintParam
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setCbcLogLevel
-  (JNIEnv *, jclass, jint level, jint ptr){
+  (JNIEnv *, jclass, jint level, jlong ptr){
 
   OsiCbcSolverInterface* solver = (OsiCbcSolverInterface*) ptr;
-  //printf("%d",solver);
-  solver->messageHandler()->setLogLevel(level);
+  //solver->messageHandler()->setLogLevel(level);
   //solver->getModelPtr()->messageHandler()->setLogLevel(level);
+  CbcModel* model = solver->getModelPtr();
+  //printf("model: %d",model);
+  //model->setLogLevel(level);
+
 }
 
 
@@ -68,7 +74,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setCbcLogLevel
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_initialSolve
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
   solver->initialSolve();
 }
@@ -79,7 +85,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_initialSolve
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_resolve
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
   solver->resolve();
 }
@@ -90,7 +96,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_resolve
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_branchAndBound
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
   solver->branchAndBound();
 }
@@ -101,7 +107,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_branchAndBound
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_thebeast_osi_OsiSolverJNI_getNumCols
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
   return (jint) solver->getNumCols();   
 }
@@ -112,7 +118,7 @@ JNIEXPORT jint JNICALL Java_thebeast_osi_OsiSolverJNI_getNumCols
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_thebeast_osi_OsiSolverJNI_getNumRows
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
   return (jint) solver->getNumRows();   
 }
@@ -127,7 +133,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addCol
   (JNIEnv * env, jobject, jint numberElements,
   jintArray rows, jdoubleArray elements,
   jdouble collb, jdouble colub,
-  jdouble obj, jint ptr){
+  jdouble obj, jlong ptr){
 
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
 
@@ -150,7 +156,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addCol
  * Signature: (I[I[DDDI)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addRow
-  (JNIEnv * env, jobject, jint numberElements, jintArray cols, jdoubleArray elements, jdouble rowlb, jdouble rowub, jint ptr){
+  (JNIEnv * env, jobject, jint numberElements, jintArray cols, jdoubleArray elements, jdouble rowlb, jdouble rowub, jlong ptr){
 
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
 
@@ -174,7 +180,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addRow
  * Signature: (IDI)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setColLower
-  (JNIEnv *, jobject, jint index, jdouble collb, jint ptr){
+  (JNIEnv *, jobject, jint index, jdouble collb, jlong ptr){
 
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
 
@@ -189,7 +195,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setColLower
  * Signature: (IDI)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setColUpper
-  (JNIEnv *, jobject, jint index, jdouble colub, jint ptr){
+  (JNIEnv *, jobject, jint index, jdouble colub, jlong ptr){
 
   OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
 
@@ -206,7 +212,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setColUpper
  * Signature: (DI)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setObjSense
-  (JNIEnv *, jobject, jdouble s, jint ptr){
+  (JNIEnv *, jobject, jdouble s, jlong ptr){
 
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     solver->setObjSense(s);
@@ -218,7 +224,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setObjSense
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setInteger
-  (JNIEnv *, jobject, jint index, jint ptr){
+  (JNIEnv *, jobject, jint index, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     solver->setInteger(index);
   
@@ -233,7 +239,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setInteger
  * Signature: (I)D
  */
 JNIEXPORT jdouble JNICALL Java_thebeast_osi_OsiSolverJNI_getObjValue
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     return solver->getObjValue();  
 
@@ -245,7 +251,7 @@ JNIEXPORT jdouble JNICALL Java_thebeast_osi_OsiSolverJNI_getObjValue
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_reset
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     solver->reset();  
 }
@@ -256,12 +262,22 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_reset
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_delete
-  (JNIEnv *, jobject, jint ptr){
+  (JNIEnv *, jobject, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     delete solver;
 }
 
-
+/*
+ * Class:     thebeast_osi_OsiSolverJNI
+ * Method:    setObjCooeff
+ * Signature: (IDJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setObjCoeff
+  (JNIEnv *, jobject, jint index, jdouble coeff, jlong ptr){
+    OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
+    solver->setObjCoeff(index,coeff);  
+  
+}
 
 /*
  * Class:     thebeast_osi_OsiSolverJNI
@@ -269,7 +285,7 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_delete
  * Signature: (I)[D
  */
 JNIEXPORT jdoubleArray JNICALL Java_thebeast_osi_OsiSolverJNI_getColSolution
-  (JNIEnv * env, jobject, jint ptr){
+  (JNIEnv * env, jobject, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
     int colCount = solver->getNumCols();
     const double* cResult = solver->getColSolution();
@@ -277,5 +293,94 @@ JNIEXPORT jdoubleArray JNICALL Java_thebeast_osi_OsiSolverJNI_getColSolution
     env->SetDoubleArrayRegion(jResult,0,colCount,const_cast<jdouble*>(cResult));
     return jResult;
     
+}
+
+/*
+ * Class:     thebeast_osi_OsiSolverJNI
+ * Method:    addCols
+ * Signature: (I[I[I[D[D[D[D)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addCols
+  (JNIEnv * env, jobject, jint numCols, jintArray columnstarts,
+  jintArray rows, jdoubleArray elements, jdoubleArray collb, jdoubleArray colub,
+  jdoubleArray obj, jlong ptr){
+
+  OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
+
+  jint* cStarts = env->GetIntArrayElements(columnstarts, 0);
+  jint* cCols = env->GetIntArrayElements(rows, 0);
+  jdouble* cElements = env->GetDoubleArrayElements(elements,0);
+  jdouble* cLb = env->GetDoubleArrayElements(collb,0);
+  jdouble* cUb = env->GetDoubleArrayElements(colub,0);
+  jdouble* cObj = env->GetDoubleArrayElements(obj,0);
+
+  CoinBuild build;
+  int prev = 0;
+  for(int col = 0; col < numCols; ++col){
+    int size = cStarts[col] - prev;
+    int* indices = new int[size];
+    double* elem = new double[size];
+    int index = 0;
+    for (int row = prev; row < prev + size; ++row){
+      indices[index] = cCols[row];
+      elem[index++] = cElements[row];
+    }
+    build.addColumn(size,indices,elem,cLb[col],cUb[col],cObj[col]);
+    prev = cStarts[col];
+  }
+  try {
+    solver->addCols(build);
+  } catch (CoinError e){
+    std::cout << e.message() << std::endl;
+    //printf("Error");
+    
+  }
+}
+
+
+/*
+ * Class:     thebeast_osi_OsiSolverJNI
+ * Method:    addCols
+ * Signature: (I[I[I[D[D[D)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addRows
+  (JNIEnv * env, jobject, jint numCols, jintArray columnEnds,
+  jintArray rows, jdoubleArray elements, jdoubleArray collb, jdoubleArray colub,
+  jlong ptr){
+
+  OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
+
+  jint* cEnds = env->GetIntArrayElements(columnEnds, 0);
+  jint* cCols = env->GetIntArrayElements(rows, 0);
+  jdouble* cElements = env->GetDoubleArrayElements(elements,0);
+  jdouble* cLb = env->GetDoubleArrayElements(collb,0);
+  jdouble* cUb = env->GetDoubleArrayElements(colub,0);
+
+  CoinBuild build;
+  int current = 0;
+  for(int col = 0; col < numCols; ++col){
+    //printf("%d,%d,%d", col, cEnds[col],current);
+    int next = cEnds[col];
+    //printf("current: %d, next: %d\n", current,next);
+    int size = next - current;
+    int* indices = new int[size];
+    double* elem = new double[size];
+    int index = 0;
+    for (int row = current; row < next; ++row){
+      indices[index] = cCols[row];
+      elem[index] = cElements[row];
+      //printf("%d,%f\n",indices[index],elem[index]);
+      ++index;
+    }
+    build.addRow(size,indices,elem,cLb[col],cUb[col]);
+    current = next;
+  }
+  try {
+    solver->addRows(build);
+  } catch (CoinError e){
+    std::cout << e.message() << std::endl;
+    //printf("Error");
+
+  }
 }
 
