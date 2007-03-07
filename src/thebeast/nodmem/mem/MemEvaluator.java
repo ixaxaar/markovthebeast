@@ -172,8 +172,14 @@ public class MemEvaluator {
         case DOUBLE_GT:
           returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] > argChunk.doubleData[1] ? 1 : 0;
           break;
+        case DOUBLE_LT:
+          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] < argChunk.doubleData[1] ? 1 : 0;
+          break;
         case DOUBLE_LEQ:
           returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] <= argChunk.doubleData[1] ? 1 : 0;
+          break;
+        case DOUBLE_GEQ:
+          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] >= argChunk.doubleData[1] ? 1 : 0;
           break;
         case CHUNK_CONSTANT:
           returnChunk.chunkData[argPointerVec.xChunk] = f.constantChunk;

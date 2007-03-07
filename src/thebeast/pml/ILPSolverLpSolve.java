@@ -19,7 +19,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
-  private boolean enforceInteger = false;                                                                                                                     
+  private boolean enforceInteger = false;
   private boolean verbose = false;
   private Profiler profiler = new NullProfiler();
   private boolean writeLp = false;
@@ -80,6 +80,16 @@ public class ILPSolverLpSolve implements ILPSolver {
     }
   }
 
+  public void addIntegerConstraints(RelationVariable variables) {
+    int[] indices = variables.getIntColumn("index");
+    try {
+      for (int index : indices)
+        solver.setInt(index+1, true);
+    } catch (LpSolveException e) {
+      e.printStackTrace();
+    }
+  }
+
 
   public RelationVariable solve() {
     try {
@@ -117,12 +127,12 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("verbose"))
-      setVerbose((Boolean)value);      
+      setVerbose((Boolean) value);
   }
 
   public void setProperty(String name, Object value) {
     if ("verbose".equals(name))
-      setVerbose((Boolean)value);
+      setVerbose((Boolean) value);
 
   }
 }

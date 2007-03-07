@@ -34,7 +34,7 @@ public final class MemFunction {
     COUNT, RELATION_COPY, CYCLES,
     DOUBLE_LEQ, SPARSE_ADD, SUMMARIZE, RELATION_MINUS, INT_NOTEQUAL, CHUNK_NOTEQUAL, DOUBLE_ADD, UNION,
     DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_EQUAL, DOUBLE_TIMES, DOUBLE_NOTEQUAL,
-    INDEX_COLLECTOR
+    DOUBLE_GEQ, DOUBLE_LT, INDEX_COLLECTOR
 
   }
 
@@ -425,7 +425,9 @@ public final class MemFunction {
       case DOUBLE_MINUS:
       case DOUBLE_TIMES:
       case DOUBLE_LEQ:
+      case DOUBLE_GEQ:
       case DOUBLE_GT:
+      case DOUBLE_LT:
       case DOUBLE_EQUAL:
       case DOUBLE_NOTEQUAL:
         argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 1, 0)};

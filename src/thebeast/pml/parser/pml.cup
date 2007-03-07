@@ -314,6 +314,10 @@ formula ::=
     {: RESULT = new ParserComparison(ParserComparison.Type.GT, lhs, rhs); :}
   | term:lhs NOTEQUALS term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.NEQ, lhs, rhs); :}
+  | EXCL formula:f
+    {: RESULT = new ParserNot(f); :}
+  | LPAREN formula:f RPAREN
+    {: RESULT = f; :}  
     ;
 
 conjunction ::=

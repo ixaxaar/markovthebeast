@@ -2,6 +2,8 @@ package thebeast.nod.expression;
 
 import thebeast.nod.variable.*;
 import thebeast.nodmem.expression.MemIndexCollector;
+import thebeast.nodmem.expression.MemDoubleGEQ;
+import thebeast.nodmem.expression.MemDoubleLessThan;
 
 /**
  * @author Sebastian Riedel
@@ -90,6 +92,8 @@ public interface ExpressionVisitor {
 
   void visitDoubleLEQ(DoubleLEQ doubleLEQ);
 
+  void visitDoubleGEQ(DoubleGEQ doubleGEQ);
+
   void visitRelationAttribute(RelationAttribute relationAttribute);
 
   void visitDoubleExtractComponent(DoubleExtractComponent doubleExtractComponent);
@@ -97,6 +101,8 @@ public interface ExpressionVisitor {
   void visitDoubleAttribute(DoubleAttribute doubleAttribute);
 
   void visitDoubleGreaterThan(DoubleGreaterThan doubleGreaterThan);
+
+  void visitDoubleLessThan(DoubleLessThan doubleLessThan);
 
   void visitNot(Not not);
 
@@ -125,4 +131,5 @@ public interface ExpressionVisitor {
   void visitIntBin(IntBins intBins);
 
   void visitIndexCollector(IndexCollector indexCollector);
+
 }
