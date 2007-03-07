@@ -221,4 +221,16 @@ public class GroundFormulas {
       }
     }
   }
+
+  public void clear() {
+    for (RelationVariable var : cycles.values())
+      interpreter.clear(var);
+    for (RelationVariable var : trueGroundFormulas.values())
+      interpreter.clear(var);
+    for (RelationVariable var : falseGroundFormulas.values())
+      interpreter.clear(var);
+    for (RelationVariable var : explicitGroundFormulas.values())
+      interpreter.clear(var);
+
+  }
 }

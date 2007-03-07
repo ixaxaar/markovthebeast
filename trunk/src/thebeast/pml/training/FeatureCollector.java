@@ -66,9 +66,9 @@ public class FeatureCollector {
     atoms = model.getSignature().createGroundAtoms();
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
-    for (FactorFormula factor : model.getLocalFactorFormulas())
+    for (FactorFormula factor : model.getFactorFormulas())
       if (factor.isParametrized()) {
-        RelationExpression query = generator.generateLocalCollectorQuery(factor, atoms, weights);
+        RelationExpression query = generator.generateCollectorQuery(factor, atoms, weights);
         inserts.put(factor, statementFactory.createInsert(weights.getRelation(factor.getWeightFunction()),query));
         updateIndices.put(factor, factory.createAttributeAssign("index", builder.expr(counter).intPostInc().getInt()));
 

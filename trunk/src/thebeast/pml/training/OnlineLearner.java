@@ -28,6 +28,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Model model;
   private PrecisionRecallProgressReporter progressReporter = new QuietProgressReporter();
   private boolean averaging = false;
+  private boolean global = true;
   private ArrayVariable average;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private int count;
@@ -277,7 +278,18 @@ public class OnlineLearner implements Learner, HasProperties {
 
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
-      solver.setProperty(name.getTail(), value);
+      if (!name.isTerminal())
+        solver.setProperty(name.getTail(), value);
+      else{
+        if ("local".equals(value))
+          solver = new LocalSolver();
+        else if ("cut".equals(value))
+          solver = new CuttingPlaneSolver();
+        else
+          throw new IllegalPropertyValueException(name,value);
+        solver.configure(model, weights);
+      }
+
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
     } else if ("update".equals(name.getHead())) {

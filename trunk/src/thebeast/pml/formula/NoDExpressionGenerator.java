@@ -103,6 +103,12 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
             atom.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
             builder.intGreaterThan();
           }
+
+          public void visitIntGEQ(IntGEQ intGEQ) {
+            atom.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+            atom.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
+            builder.intGEQ();
+          }
         });
       }
 

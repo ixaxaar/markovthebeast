@@ -135,5 +135,6 @@ public interface ExpressionFactory {
   IndexCollector createIndexCollector(RelationExpression relation,String groupAttribute,
                                       String indexAttribute, String valueAttribute);
 
+  IntGEQ createIntGEQ(IntExpression lhs, IntExpression rhs);
 }
 

@@ -76,6 +76,13 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
             atom.getArguments().get(1).acceptTermVisitor(termPrinter);
 
           }
+
+          public void visitIntGEQ(IntGEQ intGEQ) {
+            atom.getArguments().get(0).acceptTermVisitor(termPrinter);
+            out.print(" >= ");
+            atom.getArguments().get(1).acceptTermVisitor(termPrinter);
+
+          }
         });
 
       }

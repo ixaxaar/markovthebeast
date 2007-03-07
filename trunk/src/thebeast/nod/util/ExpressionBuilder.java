@@ -552,6 +552,13 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder intGEQ() {
+    IntExpression rhs = (IntExpression) expressionStack.pop();
+    IntExpression lhs = (IntExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createIntGEQ(lhs, rhs));
+    return this;
+  }
+
   public ExpressionBuilder intLessThan() {
     IntExpression rhs = (IntExpression) expressionStack.pop();
     IntExpression lhs = (IntExpression) expressionStack.pop();
@@ -786,5 +793,6 @@ public class ExpressionBuilder {
     expressionStack.push(expressionFactory.createIndexCollector(grouped, groupAttribute, indexId, valueId));
     return this;
   }
+
 
 }

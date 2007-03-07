@@ -17,4 +17,6 @@ public interface PredicateVisitor {
   void visitIntLT(IntLT intLT);
 
   void visitIntGT(IntGT intGT);
+
+  void visitIntGEQ(IntGEQ intGEQ);
 }

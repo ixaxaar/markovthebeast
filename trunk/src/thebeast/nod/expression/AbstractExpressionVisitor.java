@@ -182,6 +182,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitBinaryExpression(intLEQ);
   }
 
+  public void visitIntGEQ(IntGEQ intGEQ) {
+    visitBinaryExpression(intGEQ);
+  }
+
   public void visitIntLessThan(IntLessThan intLessThan) {
     visitBinaryExpression(intLessThan);
   }

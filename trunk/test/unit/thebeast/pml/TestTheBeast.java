@@ -266,7 +266,7 @@ public class TestTheBeast extends TestCase {
             "3 the DT\n" +
             "4 boat NN\n";
 
-    TabFormatCorpus.AttributeExtractor tokenExtractor = new TabFormatCorpus.AttributeExtractor(token, 3);
+    AttributeExtractor tokenExtractor = new AttributeExtractor(token, 3);
     tokenExtractor.addMapping(0, 0);
     tokenExtractor.addMapping(1, 1);
     tokenExtractor.addMapping(2, 2);
@@ -302,8 +302,8 @@ public class TestTheBeast extends TestCase {
             "4 boat NN\n";
 
     TabFormatCorpus.Generator generator = new TabFormatCorpus.Generator();
-    generator.addTokenCollector(1, "Word", true, new TabFormatCorpus.Quote());
-    generator.addTokenCollector(2, "Tag", false, new TabFormatCorpus.Itself());
+    generator.addTokenCollector(1, "Word", true, new Quote());
+    generator.addTokenCollector(2, "Tag", false, new Itself());
 //    generator.addTypeTemplate(1, "Word", true, true);
 //    generator.addTypeTemplate(2, "Tag", false, false);
 
@@ -398,7 +398,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
   }
 
-  public void testCompactify(){
+  public void testCompactify() {
     SparseVector vector = new SparseVector();
     vector.addValue(0, 0.75);
     vector.addValue(1, 2.0);
@@ -613,7 +613,7 @@ public class TestTheBeast extends TestCase {
     RelationVariable grouped = features.getGroupedRelation(phrase);
     System.out.println(grouped.value());
     assertEquals(17, grouped.value().size());
-    assertTrue(grouped.contains(0,1,"NP", new Object[]{new Object[]{0}, new Object[]{2}}));
+    assertTrue(grouped.contains(0, 1, "NP", new Object[]{new Object[]{0}, new Object[]{2}}));
 
   }
 
@@ -631,7 +631,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(0.0, scores.getScore(phrase, 2, 3, "VP"));
 
     //features.invalidate();
-    Scores byGrouping = new Scores(model,weights);
+    Scores byGrouping = new Scores(model, weights);
     byGrouping.scoreWithGroups(features);
     System.out.println(byGrouping);
     assertEquals(19, byGrouping.getScoreRelation(phrase).value().size());
@@ -1207,9 +1207,10 @@ public class TestTheBeast extends TestCase {
     weights.save(System.out);
     System.out.println(weights.getRelation(weightFunction1).value());
     System.out.println(weights.getRelation(weightFunction2).value());
-    assertEquals(5, weights.getFeatureCount());
+    assertEquals(6, weights.getFeatureCount());
     assertEquals(0.0, weights.getWeight(weightFunction1, "DT", "NP"));
     assertEquals(0.0, weights.getWeight(weightFunction1, "NP"));
+    assertTrue(weights.getIndex(weightFunction3, "NP", "VP", "S") != -1);
   }
 
   public void testOnlineLearner() {
