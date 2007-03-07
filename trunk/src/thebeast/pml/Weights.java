@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * A Weights object corresponds to a collection of mappings for a set of weight functions. Each weight function maps its
  * input domain to some weight, as well as to some index which can be used to identify the weight without the input
- * arguments. <p/> The Weights class members which are No D Database variables are ment to be used directly in
+ * arguments. <p/> The Weights class members which are No-D Database variables are ment to be used directly in
  * algorithms, thus they're relatively exposed. This is by design.
  */
 public class Weights {

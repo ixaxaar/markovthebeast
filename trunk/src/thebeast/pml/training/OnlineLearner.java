@@ -1,6 +1,9 @@
 package thebeast.pml.training;
 
 import thebeast.pml.*;
+import thebeast.pml.solve.CuttingPlaneSolver;
+import thebeast.pml.solve.Solver;
+import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.corpora.Corpus;
 import thebeast.util.*;
 import thebeast.nod.variable.ArrayVariable;

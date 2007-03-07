@@ -891,11 +891,11 @@ public class QueryGenerator {
     //the 'small' constraints
     double scale = disjunction ? 1.0 : -1.0;
     for (int i = 0; i < size; ++i) {
-      builder.id("lb").num(0.0);
+      builder.id("lb").num(disjunction ? signs[i] ? 0.0 : 1.0 : signs[i] ? 1.0 : 0.0);
       builder.id("ub").num(Double.POSITIVE_INFINITY);
       builder.id("values");
       builder.id("index").expr(f).id("weight").num(scale).tuple(2);
-      builder.id("index").expr(variables[i]).id("weight").num(-scale).tuple(2);
+      builder.id("index").expr(variables[i]).id("weight").num(signs[i] ? -scale : scale).tuple(2);
       builder.relation(2);
       builder.tuple(3);
     }

@@ -1,13 +1,18 @@
 package thebeast.pml;
 
-import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.util.ExpressionBuilder;
-import thebeast.nod.statement.Interpreter;
+import thebeast.nod.expression.AttributeExpression;
+import thebeast.nod.expression.DepthFirstExpressionVisitor;
 import thebeast.nod.expression.RelationExpression;
+import thebeast.nod.statement.Interpreter;
+import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.variable.Index;
+import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
+import thebeast.pml.function.WeightFunction;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * A FormulaStates object is container with
@@ -76,15 +81,50 @@ public class GroundFormulas {
         cycleQueries.put(formula.getAcyclicityConstraint().getPredicate(),
                 generator.generateCycleQuery(groundAtoms, formula.getAcyclicityConstraint()));
       } else if (!formula.isLocal()) {
-        if (!formula.getWeight().isNonNegative())
-          trueQueries.put(formula, generator.generateGlobalTrueQuery(formula, groundAtoms, weights));
+        if (!formula.getWeight().isNonNegative()) {
+          RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, weights);
+          trueQueries.put(formula, query);
+          if (formula.isParametrized()){
+            addIndices(weights, formula.getWeightFunction(), query);
+          }
+        }
         if (!formula.getWeight().isNonPositive()) {
-          RelationExpression relationExpression = generator.generateGlobalFalseQuery(formula, groundAtoms, weights);
-          falseQueries.put(formula, relationExpression);
+          RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, weights);
+          falseQueries.put(formula, query);
+          if (formula.isParametrized()){
+            addIndices(weights, formula.getWeightFunction(), query);
+          }
         }
       }
+
     }
 
+  }
+
+  private void addIndices(Weights weights, WeightFunction weightFunction, RelationExpression query) {
+    RelationVariable relvar = weights.getRelation(weightFunction);
+    if (relvar.getIndex(weightFunction.getName()) == null) {
+      final HashSet<String> bound = new HashSet<String>();
+      query.acceptExpressionVisitor(new DepthFirstExpressionVisitor() {
+
+        public void visitAttribute(AttributeExpression attribute) {
+          if (attribute.prefix().equals("weights"))
+            bound.add(attribute.attribute().name());
+        }
+      });
+      addAllPossibleIndices(relvar, weightFunction, bound);
+    }
+  }
+
+  private void addAllPossibleIndices(RelationVariable relvar, WeightFunction weightFunction, HashSet<String> bound) {
+    if (bound.size() == 0) return;
+    String name = bound.toString();
+    if (!relvar.hasIndex(name)) interpreter.addIndex(relvar, name, Index.Type.HASH, bound);
+    for (String var : bound){
+      HashSet<String> subset = new HashSet<String>(bound);
+      subset.remove(var);
+      addAllPossibleIndices(relvar, weightFunction, subset);
+    }
   }
 
   /**
