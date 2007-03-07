@@ -50,6 +50,9 @@ public class FactorFormula {
     this.weight = weight;
     this.name = name;
 
+    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
+      throw new RuntimeException("We don't support local features with non-free weights.");
+
     LinkedList<Attribute> varAttributes = new LinkedList<Attribute>();
     int index = 0;
     for (Variable var : quantification.getVariables()){
@@ -65,6 +68,8 @@ public class FactorFormula {
     ilpAttributes.add(weightAttribute);
 
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
+
+
   }
 
   public boolean isLocal(){

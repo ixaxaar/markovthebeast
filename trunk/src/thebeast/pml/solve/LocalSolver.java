@@ -4,8 +4,13 @@ import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
 import thebeast.pml.*;
 
+import java.util.List;
+import java.util.Collections;
+
 /**
- * A PML Solver based on the Cutting Plane algorithm and column generation.
+ * The local solver only uses local information to find a solution. Most likely, this solution will neither be optimal
+ * nor even a valid solution. In addition, the local solver does not deliver ground formulas (or rather, it delivers an
+ * empty set of ground formulas). It is, however, really fast and useful during learning.
  *
  * @author Sebastian Riedel
  */
@@ -35,8 +40,8 @@ public class LocalSolver implements Solver {
   }
 
   /**
-   * The solver maintains a profiler that can count the number of (abstract) operations
-   * performed during solving. The default profiler does not do any profiling ({@link thebeast.util.NullProfiler}.
+   * The solver maintains a profiler that can count the number of (abstract) operations performed during solving. The
+   * default profiler does not do any profiling ({@link thebeast.util.NullProfiler}.
    *
    * @return the profiler this solver is using.
    */
@@ -58,9 +63,8 @@ public class LocalSolver implements Solver {
   }
 
   /**
-   * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that
-   * these scores will be forgotten once a new observation is specified with
-   * {@link LocalSolver#setObservation(thebeast.pml.GroundAtoms)}.
+   * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that these
+   * scores will be forgotten once a new observation is specified with {@link LocalSolver#setObservation(thebeast.pml.GroundAtoms)}.
    *
    * @param scores the scores to use.
    */
@@ -93,7 +97,6 @@ public class LocalSolver implements Solver {
   }
 
 
-
   public GroundAtoms getAtoms() {
     return atoms;
   }
@@ -106,6 +109,14 @@ public class LocalSolver implements Solver {
     this.profiler = profiler;
   }
 
+
+  public List<GroundAtoms> getCandidateAtoms() {
+    return Collections.singletonList(atoms);
+  }
+
+  public List<GroundFormulas> getCandidateFormulas() {
+    return Collections.singletonList(formulas);
+  }
 
   public void setProperty(PropertyName name, Object value) {
   }

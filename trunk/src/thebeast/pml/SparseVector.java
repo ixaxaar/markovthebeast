@@ -13,6 +13,7 @@ import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 
 import java.util.LinkedList;
+import java.util.Arrays;
 import java.io.IOException;
 
 /**
@@ -24,6 +25,48 @@ public class SparseVector {
 
   private static Heading heading;
   private static Heading headingIndex;
+
+  public static class Indices {
+    private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    private RelationVariable indices =
+            interpreter.createRelationVariable(headingIndex);
+
+
+    public Indices() {
+    }
+
+    public Indices(int[] indexArray){
+      indices.assignByArray(indexArray, new double[0]);
+    }
+
+    public void add(Indices indices){
+      interpreter.insert(this.indices, indices.indices);      
+    }
+
+    public RelationVariable getRelation() {
+      return indices;
+    }
+
+    public void add(int index){
+      indices.addTuple(index);
+    }
+
+    public int[] getIndexArray(){
+      return indices.getIntColumn("index");
+    }
+
+    public boolean contains(int index){
+      return indices.contains(index);
+    }
+
+    public String toString() {
+      return indices.value().toString();
+    }
+
+    public int size(){
+      return indices.value().size();
+    }
+  }
 
 
   static {
@@ -60,12 +103,26 @@ public class SparseVector {
     //builder.id("index").
     //distinctOthers = builder.expr(other).expr(values).relationMinus().getRelation();
     removeZeros = builder.expr(values).doubleAttribute("value").num(0.0).equality().not().restrict().getRelation();
-    
+  }
 
+  public SparseVector(int indices[], double[] values){
+    this();
+    this.values.assignByArray(indices, values);
+  }
+
+  public SparseVector(int indices[], double constant){
+    this();
+    double[] values = new double[indices.length];
+    Arrays.fill(values,constant);
+    this.values.assignByArray(indices, values);
   }
 
   public void addValue(int index, double value) {
     values.addTuple(index, value);
+  }
+
+  public Indices getIndices(){
+    return new Indices(getIndexArray());
   }
 
   public boolean contains(int index, double value) {
@@ -76,6 +133,7 @@ public class SparseVector {
     interpreter.assign(otherValues, removeZeros);
     interpreter.assign(values,otherValues);
   }
+
 
   public SparseVector add(double scale, SparseVector other) {
     SparseVector result = new SparseVector();
@@ -125,11 +183,11 @@ public class SparseVector {
     fileSource.read(values);
   }
 
-  public int[] getIndices() {
+  public int[] getIndexArray() {
     return values.getIntColumn("index");
   }
 
-  public double[] getValues() {
+  public double[] getValueArray() {
     return values.getDoubleColumn("value");
   }
 }

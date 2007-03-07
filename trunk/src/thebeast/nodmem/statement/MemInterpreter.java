@@ -223,6 +223,12 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemArraySparseAdd(var, sparse, scale, indexAttribute, valueAttribute));
   }
 
+  public void sparseAdd(ArrayVariable var, RelationExpression sparse, DoubleExpression scale, String indexAttribute,
+                        String valueAttribute, boolean positive) {
+    interpret(new MemArraySparseAdd(var, sparse, scale, indexAttribute, valueAttribute,
+            positive ? ArraySparseAdd.Sign.NONNEGATIVE : ArraySparseAdd.Sign.NONPOSITIVE));
+  }
+
   public void update(RelationVariable relationVariable, BoolExpression where, List<AttributeAssign> assigns) {
     interpret(new MemRelationUpdate(relationVariable, where, assigns));
   }
@@ -393,8 +399,21 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemChunk buffer = new MemChunk(1, 1, 0, 1, 1);
     MemEvaluator.evaluate(scale.compile(), null, null, buffer, MemVector.ZERO);
     MemEvaluator.evaluate(sparse.compile(), null, null, buffer, MemVector.ZERO);
-    MemMath.sparseAdd(var.getContainerChunk().chunkData[var.getPointer().xChunk],
-            buffer.chunkData[0], buffer.doubleData[0], indexCol, valueCol);
+    switch (arraySparseAdd.sign()) {
+      case FREE:
+        MemMath.sparseAdd(var.getContainerChunk().chunkData[var.getPointer().xChunk],
+                buffer.chunkData[0], buffer.doubleData[0], indexCol, valueCol);
+        break;
+      case NONNEGATIVE:
+        MemMath.sparseAdd(var.getContainerChunk().chunkData[var.getPointer().xChunk],
+                buffer.chunkData[0], buffer.doubleData[0], indexCol, valueCol, true);
+        break;
+      case NONPOSITIVE:
+        MemMath.sparseAdd(var.getContainerChunk().chunkData[var.getPointer().xChunk],
+                buffer.chunkData[0], buffer.doubleData[0], indexCol, valueCol, true);
+        break;
+
+    }
     var.invalidate();
 
   }

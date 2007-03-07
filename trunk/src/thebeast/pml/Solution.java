@@ -133,9 +133,10 @@ public class Solution {
     this.profiler = profiler;
   }
 
-  public SparseVector extract() {
+  public FeatureVector extract() {
     //extract args + index into tmp vars
-    SparseVector result = new SparseVector();
+    FeatureVector vector = new FeatureVector();
+    //SparseVector result = new SparseVector();
     profiler.start("local");
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
       profiler.start("formula");
@@ -151,7 +152,7 @@ public class Solution {
       profiler.end();
 
       profiler.start("add");
-      result.addInPlace(1.0, tmp);
+      vector.getFree().addInPlace(1.0,tmp);
       profiler.end();
 
       profiler.end();
@@ -165,15 +166,21 @@ public class Solution {
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (!formula.getWeight().isNonPositive())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
-        result.addInPlace(1.0, tmp);
+        if (formula.getWeight().isNonNegative())
+          vector.getNonnegative().addInPlace(1.0,tmp);
+        else if (formula.getWeight().isNonPositive())
+          vector.getNonpositive().addInPlace(1.0,tmp);
+        else
+          vector.getFree().addInPlace(1.0,tmp);
       }
     }
     profiler.end();
-    return result;
+    return vector;
   }
 
-  public SparseVector extract(LocalFeatures features) {
-    SparseVector result = new SparseVector();
+  public FeatureVector extract(LocalFeatures features) {
+    //SparseVector result = new SparseVector();
+    FeatureVector vector = new FeatureVector();
     localFeatures.load(features);
     profiler.start("local");
     for (UserPredicate pred : model.getHiddenPredicates()) {
@@ -199,7 +206,7 @@ public class Solution {
       profiler.end();
 
       profiler.start("add");
-      result.addInPlace(1.0, tmp);
+      vector.getFree().addInPlace(1.0, tmp);
       profiler.end();
 
       profiler.end();
@@ -212,10 +219,16 @@ public class Solution {
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (!formula.getWeight().isNonPositive())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
-        result.addInPlace(1.0, tmp);
+        if (formula.getWeight().isNonNegative())
+          vector.getNonnegative().addInPlace(1.0,tmp);
+        else if (formula.getWeight().isNonPositive())
+          vector.getNonpositive().addInPlace(1.0,tmp);
+        else
+          vector.getFree().addInPlace(1.0,tmp);
+        //result.addInPlace(1.0, tmp);
       }
     }
-    return result;
+    return vector;
   }
 
   public void load(GroundAtoms groundAtoms, GroundFormulas groundFormulas) {

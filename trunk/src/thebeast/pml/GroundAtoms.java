@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A GroundAtoms object represents a collection of ground atoms for the predicates of a certain signature.
- * It also stores a set of weight functions to be used in PML models.
+ * A GroundAtoms object represents a collection of ground atoms for the predicates of a certain signature. It also
+ * stores a set of weight functions to be used in PML models.
  */
-public class GroundAtoms implements Dumpable{
+public class GroundAtoms implements Dumpable {
 
   private Signature signature;
   private Map<UserPredicate, GroundAtomCollection> atoms = new TreeMap<UserPredicate, GroundAtomCollection>();
@@ -22,6 +22,16 @@ public class GroundAtoms implements Dumpable{
     for (UserPredicate predicate : signature.getUserPredicates()) {
       atoms.put(predicate, new GroundAtomCollection(predicate));
     }
+  }
+
+  /**
+   * Copy constructor.
+   *
+   * @param atoms the atoms to copy.
+   */
+  public GroundAtoms(GroundAtoms atoms) {
+    this(atoms.getSignature());
+    load(atoms);
   }
 
   /**
@@ -175,8 +185,8 @@ public class GroundAtoms implements Dumpable{
   }
 
   /**
-   * Dump all ground atoms to a Database dump store. This is the fastest and most memory efficient way of storing
-   * ground atoms.
+   * Dump all ground atoms to a Database dump store. This is the fastest and most memory efficient way of storing ground
+   * atoms.
    *
    * @param fileSink a database dump.
    * @throws java.io.IOException if I/O goes wrong

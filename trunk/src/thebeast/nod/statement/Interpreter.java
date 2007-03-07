@@ -93,7 +93,10 @@ public interface Interpreter {
   RelationValue evaluateRelation(RelationExpression expr);
 
   void sparseAdd(ArrayVariable var, RelationExpression sparse, DoubleExpression scale,
-                        String indexAttribute, String valueAttribute);
+                 String indexAttribute, String valueAttribute);
+
+  void sparseAdd(ArrayVariable var, RelationExpression sparse, DoubleExpression scale,
+                 String indexAttribute, String valueAttribute, boolean positive);  
 
   DoubleVariable createDoubleVariable();
 

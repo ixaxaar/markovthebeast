@@ -356,6 +356,20 @@ public class Weights {
     interpreter.sparseAdd(this.weights, weights.getValuesRelation(), builder.num(scale).getDouble(), "index", "value");
   }
 
+  /**
+   * Add the sparse vector to this weights
+   *
+   * @param scale    the number to scale the argument with
+   * @param weights  the weights to add (scaled).
+   * @param positive if true the resulting weights will be nonnegative (if the result of the addition is positive we
+   *                 keep this result, if not the result is set to be zero). If false weights will be made nonpositive
+   *                 in the same fashion.
+   */
+  public void add(double scale, SparseVector weights, boolean positive) {
+    interpreter.sparseAdd(this.weights, weights.getValuesRelation(),
+            builder.num(scale).getDouble(), "index", "value", positive);
+  }
+
 
   /**
    * Loads the weighs from an input string in PML weight format.

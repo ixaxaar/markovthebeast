@@ -18,6 +18,23 @@ public class MemMath {
     return result;
   }
 
+  public static double sparseAdd(MemChunk array, MemChunk sparse,
+                                 double scale, int indexColumn, int valueColumn, boolean nonnegative){
+    double result = 0;
+    int indexPtr = indexColumn;
+    int valuePtr = valueColumn;
+    for (int row = 0; row < sparse.size;++row){
+      int ptr = sparse.intData[indexPtr];
+      array.doubleData[ptr] += scale * sparse.doubleData[valuePtr];
+      if (nonnegative & array.doubleData[ptr] < 0 || !nonnegative & array.doubleData[ptr] > 0)
+        array.doubleData[ptr] = 0;        
+      indexPtr += sparse.numIntCols;
+      valuePtr += sparse.numDoubleCols;
+    }
+    return result;
+  }
+
+
   public static void add(MemChunk dst, MemChunk arg, double scale){
     for (int row = 0; row < dst.size;++row){
       dst.doubleData[row] += scale * arg.doubleData[row];
