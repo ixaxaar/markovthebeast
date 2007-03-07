@@ -19,4 +19,11 @@ public class ParserBins extends ParserTerm {
   public void acceptParserTermVisitor(ParserTermVisitor visitor) {
     visitor.visitBins(this);
   }
+
+  public String toString() {
+    StringBuffer buffer = new StringBuffer("bins(");
+    for (ParserTerm term : bins) buffer.append(term).append(", ");
+    buffer.append(argument).append(")");
+    return buffer.toString();
+  }
 }

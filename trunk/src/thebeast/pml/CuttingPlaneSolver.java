@@ -23,6 +23,7 @@ public class CuttingPlaneSolver implements Solver {
   private boolean done, scoresSet, initSet, updated;
   public ILPSolver ilpSolver;
   private Profiler profiler = new NullProfiler();
+  private boolean enforceIntegers;
 
 
   public CuttingPlaneSolver() {
@@ -159,6 +160,8 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       ++iteration;
       update();
+      if (enforceIntegers && !ilp.changed() &&ilp.isFractional())
+        ilp.enforceIntegerSolution();
     }
     profiler.end();
     done = ilp.changed();

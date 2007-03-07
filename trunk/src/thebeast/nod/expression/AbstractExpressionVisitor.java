@@ -194,6 +194,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitBinaryExpression(doubleLEQ);
   }
 
+  public void visitDoubleGEQ(DoubleGEQ doubleGEQ) {
+    visitBinaryExpression(doubleGEQ);
+  }
+
   public void visitRelationAttribute(RelationAttribute relationAttribute) {
     visitAttribute(relationAttribute);
   }
@@ -208,6 +212,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
 
   public void visitDoubleGreaterThan(DoubleGreaterThan doubleGreaterThan) {
     visitBinaryExpression(doubleGreaterThan);
+  }
+
+  public void visitDoubleLessThan(DoubleLessThan doubleLessThan) {
+    visitBinaryExpression(doubleLessThan);
   }
 
   public void visitNot(Not not) {

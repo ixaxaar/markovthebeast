@@ -892,6 +892,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     formula = new AcyclicityConstraint(predicate);
   }
 
+  public void visitNot(ParserNot parserNot) {
+    parserNot.formula.acceptParserFormulaVisitor(this);
+    formula = new Not(formula);
+  }
+
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
     term = typeContext.peek().getConstant(parserNamedConstant.name);
 //typeCheck();
@@ -932,6 +937,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (function == null)
       throw new ShellException("There is no function with name " + parserFunctionApplication.function);
     int index = 0;
+    if (function.getArity() != parserFunctionApplication.args.size()){
+      throw new ShellException("Function " + function.getName() + " has arity " + function.getArity() + " but " +
+              "it is applied with " + parserFunctionApplication.args.size() + " in " + parserFunctionApplication);
+    }
     for (ParserTerm term : parserFunctionApplication.args) {
       typeContext.push(function.getArgumentTypes().get(index++));
       term.acceptParserTermVisitor(this);

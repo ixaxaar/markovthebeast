@@ -316,6 +316,12 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     doubleLEQ.rightHandSide().acceptExpressionVisitor(this);
   }
 
+  public void visitDoubleGEQ(DoubleGEQ doubleGEQ) {
+    doubleGEQ.leftHandSide().acceptExpressionVisitor(this);
+    os.print(" <= ");
+    doubleGEQ.rightHandSide().acceptExpressionVisitor(this);
+  }
+
   public void visitRelationAttribute(RelationAttribute relationAttribute) {
     if (relationAttribute.prefix() != null)
       os.print(relationAttribute.prefix());
@@ -340,6 +346,13 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     doubleGreaterThan.leftHandSide().acceptExpressionVisitor(this);
     os.print(" > ");
     doubleGreaterThan.rightHandSide().acceptExpressionVisitor(this);
+  }
+
+  public void visitDoubleLessThan(DoubleLessThan doubleLessThan) {
+    doubleLessThan.leftHandSide().acceptExpressionVisitor(this);
+    os.print(" < ");
+    doubleLessThan.rightHandSide().acceptExpressionVisitor(this);
+
   }
 
   public void visitNot(Not not) {

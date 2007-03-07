@@ -61,7 +61,5 @@ public class WeightFunction extends Function {
     return attributes.get(argIndex + 1);
   }
 
-  public int getArity() {
-    return getArgumentTypes().size();
-  }
+
 }

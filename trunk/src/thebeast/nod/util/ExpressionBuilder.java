@@ -573,12 +573,28 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder doubleLessThan() {
+    DoubleExpression rhs = (DoubleExpression) expressionStack.pop();
+    DoubleExpression lhs = (DoubleExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createDoubleLessThan(lhs, rhs));
+    return this;
+  }
+
+
   public ExpressionBuilder doubleLEQ() {
     DoubleExpression rhs = (DoubleExpression) expressionStack.pop();
     DoubleExpression lhs = (DoubleExpression) expressionStack.pop();
     expressionStack.push(expressionFactory.createDoubleLEQ(lhs, rhs));
     return this;
   }
+
+  public ExpressionBuilder doubleGEQ() {
+    DoubleExpression rhs = (DoubleExpression) expressionStack.pop();
+    DoubleExpression lhs = (DoubleExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createDoubleGEQ(lhs, rhs));
+    return this;
+  }
+
 
   public ExpressionBuilder allConstants(CategoricalType ofType) {
     expressionStack.push(expressionFactory.createAllConstants(ofType));

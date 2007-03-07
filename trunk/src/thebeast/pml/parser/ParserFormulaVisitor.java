@@ -15,4 +15,6 @@ public interface ParserFormulaVisitor {
   void visitComparison(ParserComparison parserComparison);
 
   void visitAcyclicityConstraint(ParserAcyclicityConstraint parserAcyclicityConstraint);
+
+  void visitNot(ParserNot parserNot);
 }

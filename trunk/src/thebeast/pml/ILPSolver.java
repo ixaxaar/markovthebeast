@@ -9,6 +9,7 @@ import thebeast.util.Profiler;
 public interface ILPSolver extends HasProperties {
   void init();
   void add(RelationVariable variables, RelationVariable constraints);
+  void addIntegerConstraints(RelationVariable variables);
   RelationVariable solve();
   void setVerbose(boolean verbose);
   void setProfiler(Profiler profiler);

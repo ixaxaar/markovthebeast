@@ -10,6 +10,8 @@ public final class OsiSolverJNI implements OsiSolver {
 
   private long pointer;
   private static HashSet<OsiSolverJNI> instances = new HashSet<OsiSolverJNI>();
+  private boolean exceptionThrown = false;
+  private String message;
 
   static {
     System.loadLibrary("osi");
@@ -179,10 +181,10 @@ public final class OsiSolverJNI implements OsiSolver {
     return getObjValue(pointer);
   }
 
-  private native void reset(long pointer);
+  private native long reset(long pointer);
 
   public void reset(){
-    reset(pointer);
+    pointer = reset(pointer);
   }
 
   public synchronized void delete(){
@@ -200,6 +202,7 @@ public final class OsiSolverJNI implements OsiSolver {
 
   public static void main(String[] args) {
     OsiSolverJNI solver = OsiSolverJNI.create(Implementation.CBC);
+    solver.reset();
     //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
     //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
     solver.addCols(2, new int[2][0], new double[2][0], new double[]{0.0, 0.0}, new double[]{1.5,1.5}, new double[]{1.0,1.0});

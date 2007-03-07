@@ -138,9 +138,9 @@ JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_addRow
 /*
  * Class:     thebeast_osi_OsiSolverJNI
  * Method:    reset
- * Signature: (J)V
+ * Signature: (J)J
  */
-JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_reset
+JNIEXPORT jlong JNICALL Java_thebeast_osi_OsiSolverJNI_reset
   (JNIEnv *, jobject, jlong);
 
 /*

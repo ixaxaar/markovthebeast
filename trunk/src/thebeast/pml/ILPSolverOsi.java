@@ -17,7 +17,7 @@ import java.util.Arrays;
  */
 public class ILPSolverOsi implements ILPSolver {
 
-  private OsiSolver solver =OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP) ;
+  private OsiSolver solver =OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC) ;
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -27,8 +27,8 @@ public class ILPSolverOsi implements ILPSolver {
   private boolean writeLp = false;
 
   public void init() {
-    //solver.reset();
-    solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
+    solver.reset();
+    //solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
     solver.setObjSense(-1);
     solver.setHintParam(OsiSolver.OsiHintParam.OsiDoReducePrint, true, OsiSolver.OsiHintStrength.OsiHintTry);
     
@@ -83,6 +83,12 @@ public class ILPSolverOsi implements ILPSolver {
       //solver.addRow(length,indices, weights, lb, ub);
     }
     solver.addRows(newRows, cols, elem, rowlb, rowub);
+  }
+
+  public void addIntegerConstraints(RelationVariable variables) {
+    int[] indices = variables.getIntColumn("index");
+    for (int index : indices)
+      solver.setInteger(index);
   }
 
   public static double convert(double orginal) {

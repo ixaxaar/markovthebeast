@@ -91,7 +91,12 @@ public interface ExpressionFactory {
 
   DoubleGreaterThan createDoubleGreaterThan(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
 
+  DoubleLessThan createDoubleLessThan(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
+
+
   DoubleLEQ createDoubleLEQ(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
+
+  DoubleGEQ createDoubleGEQ(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
 
   Not createNot(BoolExpression expression);
 

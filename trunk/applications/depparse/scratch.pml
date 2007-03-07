@@ -3,19 +3,20 @@
 
 include "corpora/english_ptb_train.1of2.pml";
 include "conll06.pml";
-include "nonproj.pml";
+include "proj.pml";
 
 hidden: link, dep;
 observed: word, pos, cpos, prefix;
 
 include "mst.pml";
+//include "mst-unigram.pml";
 
 set instancesCacheSize = 3;
 
 load corpus from conll06 "corpora/english_ptb_train.1of2.conll";
 //load corpus from dump "/tmp/test.dmp";
 //save corpus (0-5) to dump "/tmp/test.dmp";
-save corpus (10-20) to ram;
+save corpus (0-10) to ram;
 collect;
 save weights to dump "/tmp/weights.blank.dmp";
 load weights from dump "/tmp/weights.blank.dmp";
@@ -24,9 +25,9 @@ load instances from dump "/tmp/instances.dmp";
 
 set learner.average = true;
 set learner.solver.maxIterations = 0;
-learn for 3 epochs;
+learn for 2 epochs;
 set learner.solver.maxIterations = 4;
-learn for 7 epochs;
+learn for 6 epochs;
 
 print learner.profiler;
 //print weights.pos;

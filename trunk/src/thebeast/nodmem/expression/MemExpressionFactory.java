@@ -128,8 +128,16 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemDoubleGreaterThan(leftHandSide, rightHandSide);
   }
 
+  public DoubleLessThan createDoubleLessThan(DoubleExpression leftHandSide, DoubleExpression rightHandSide) {
+    return new MemDoubleLessThan(leftHandSide, rightHandSide);
+  }
+
   public DoubleLEQ createDoubleLEQ(DoubleExpression leftHandSide, DoubleExpression rightHandSide) {
     return new MemDoubleLEQ(leftHandSide, rightHandSide);
+  }
+
+  public DoubleGEQ createDoubleGEQ(DoubleExpression leftHandSide, DoubleExpression rightHandSide) {
+    return new MemDoubleGEQ(leftHandSide, rightHandSide);
   }
 
   public Not createNot(BoolExpression expression) {

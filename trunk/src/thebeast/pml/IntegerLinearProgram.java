@@ -1,29 +1,28 @@
 package thebeast.pml;
 
 import thebeast.nod.expression.RelationExpression;
+import thebeast.nod.statement.Insert;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.statement.StatementFactory;
-import thebeast.nod.statement.Insert;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.type.Heading;
 import thebeast.nod.type.TypeFactory;
 import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.value.RelationValue;
+import thebeast.nod.value.TupleValue;
+import thebeast.nod.value.Value;
+import thebeast.nod.variable.Index;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.variable.Index;
-import thebeast.nod.value.RelationValue;
-import thebeast.nod.value.Value;
-import thebeast.nod.value.TupleValue;
-import thebeast.nod.value.DoubleValue;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.util.Profiler;
 
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Formatter;
 
 /**
  * @author Sebastian Riedel
@@ -56,6 +55,10 @@ public class IntegerLinearProgram implements HasProperties{
   private GroundAtoms solution, atoms;
   private Scores scores;
   private Model model;
+  private RelationVariable fractionals;
+  private RelationExpression findFractionals;
+
+  private boolean newFractionals;
 
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
@@ -70,6 +73,7 @@ public class IntegerLinearProgram implements HasProperties{
   private static Heading varHeading;
   private static Heading resultHeading;
   private static Heading valuesHeading;
+  private static Heading indexHeading;
 
 
   static {
@@ -100,7 +104,9 @@ public class IntegerLinearProgram implements HasProperties{
     resultAttributes.add(value);
     resultHeading = typeFactory.createHeadingFromAttributes(resultAttributes);
 
+    indexHeading = typeFactory.createHeading(index);
   }
+
 
 
   public IntegerLinearProgram(Model model, Weights weights, ILPSolver solver) {
@@ -120,6 +126,12 @@ public class IntegerLinearProgram implements HasProperties{
     interpreter.addIndex(newVars, "index", Index.Type.HASH, "index");
     solution = model.getSignature().createGroundAtoms();
     atoms = model.getSignature().createGroundAtoms();
+    fractionals = interpreter.createRelationVariable(resultHeading);
+    builder.expr(result);
+    builder.doubleAttribute("value").num(0.0).doubleGreaterThan();
+    builder.doubleAttribute("value").num(1.0).doubleLessThan().and(2).restrict();
+    findFractionals = builder.getRelation();
+
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingILP());
@@ -138,7 +150,7 @@ public class IntegerLinearProgram implements HasProperties{
         builder.id(attribute.name()).attribute("vars", attribute);
       }
       builder.tupleForIds().select();
-      builder.doubleAttribute("result", "value").num(0.5).doubleGreaterThan();
+      builder.doubleAttribute("result", "value").num(0.5).doubleGEQ();
       builder.intAttribute("result", "index").intAttribute("vars", "index").equality();
       builder.and(2).where().query();
       addTrueGroundAtoms.put(predicate, builder.getRelation());
@@ -259,7 +271,7 @@ public class IntegerLinearProgram implements HasProperties{
   }
 
   public boolean changed() {
-    return newConstraints.value().size() > 0;
+    return newConstraints.value().size() > 0 || newFractionals;
   }
 
 
@@ -279,13 +291,27 @@ public class IntegerLinearProgram implements HasProperties{
     RelationVariable result = solver.solve();
     profiler.end();
     profiler.start("extract",2);
-    extractSolution(result, solution);
+    interpreter.assign(this.result, result);
+    extractSolution(solution);
     profiler.end();
+    newFractionals = false;
+    findFractionals();
   }
 
-  public void extractSolution(RelationVariable result, GroundAtoms solution) {
+  private void findFractionals(){
+    interpreter.assign(fractionals, findFractionals);    
+  }
+
+  public RelationVariable getFractionals(){
+    return fractionals;
+  }
+
+  public boolean isFractional(){
+    return fractionals.value().size() > 0;      
+  }
+
+  private void extractSolution(GroundAtoms solution) {
     this.solution.load(solution);
-    interpreter.assign(this.result, result);
     //for all solutions <= 0.5 remove tuples
     //System.out.println(result.value());
     for (UserPredicate predicate : model.getHiddenPredicates()){
@@ -387,8 +413,12 @@ public class IntegerLinearProgram implements HasProperties{
    * @return a string containing two columns: the variable name (predicate+args) and the value.
    */
   public String getResultString() {
+    return getVariableString(this.result.value());
+  }
+
+  public String getVariableString(RelationValue value) {
     StringBuffer result = new StringBuffer();
-    for (TupleValue var : this.result.value()) {
+    for (TupleValue var : value) {
       Formatter formatter = new Formatter();
       result.append(formatter.format("%-12s\t", indexToString(var.intElement("index").getInt())));
       result.append(var.doubleElement("value")).append("\n");
@@ -407,6 +437,17 @@ public class IntegerLinearProgram implements HasProperties{
     return toLpSolveFormat(vars,constraints);
   }
 
+
+  /**
+   * Calling this method will guarantee that when {@link thebeast.pml.IntegerLinearProgram#solve(GroundAtoms)} is
+   * called the next time the solution will be integer.
+   */
+  public void enforceIntegerSolution(){
+    if (isFractional()){
+      solver.addIntegerConstraints(fractionals);
+      newFractionals = true;
+    }
+  }
 
   /**
    * Returns a representation of this ILP in LpSolve ("lp") format. This method should mostly be called for debugging
@@ -499,6 +540,8 @@ public class IntegerLinearProgram implements HasProperties{
       return getResultString();
     if ("solver".equals(name.getHead()))
       return solver;
+    if ("fractionals".equals(name.getHead()))
+      return getVariableString(fractionals.value());
     return null;
   }
 }

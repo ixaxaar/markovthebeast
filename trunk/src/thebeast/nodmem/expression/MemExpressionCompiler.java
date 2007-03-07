@@ -655,7 +655,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     Expression lhs = doubleLEQ.leftHandSide();
     Expression rhs = doubleLEQ.rightHandSide();
     if (!lhs.type().equals(rhs.type())) {
-      throw new IllegalArgumentException("Equality arguments must have same type");
+      throw new IllegalArgumentException("Comparison arguments must have same type");
     }
     lhs.acceptExpressionVisitor(this);
     MemFunction functionLhs = function;
@@ -663,6 +663,25 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemFunction functionRhs = function;
     function = new MemFunction(MemFunction.Type.DOUBLE_LEQ, functionLhs, functionRhs);
 
+
+  }
+
+  public void visitDoubleGEQ(DoubleGEQ doubleGEQ) {
+    if (toSkip.contains(doubleGEQ)) {
+      function = null;
+      return;
+    }
+
+    Expression lhs = doubleGEQ.leftHandSide();
+    Expression rhs = doubleGEQ.rightHandSide();
+    if (!lhs.type().equals(rhs.type())) {
+      throw new IllegalArgumentException("Comparison arguments must have same type");
+    }
+    lhs.acceptExpressionVisitor(this);
+    MemFunction functionLhs = function;
+    rhs.acceptExpressionVisitor(this);
+    MemFunction functionRhs = function;
+    function = new MemFunction(MemFunction.Type.DOUBLE_GEQ, functionLhs, functionRhs);
 
   }
 
@@ -710,6 +729,26 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     rhs.acceptExpressionVisitor(this);
     MemFunction functionRhs = function;
     function = new MemFunction(MemFunction.Type.DOUBLE_GT, functionLhs, functionRhs);
+
+
+  }
+
+  public void visitDoubleLessThan(DoubleLessThan doubleLessThan) {
+    if (toSkip.contains(doubleLessThan)) {
+      function = null;
+      return;
+    }
+
+    Expression lhs = doubleLessThan.leftHandSide();
+    Expression rhs = doubleLessThan.rightHandSide();
+    if (!lhs.type().equals(rhs.type())) {
+      throw new IllegalArgumentException("double types must match for  less than comparison");
+    }
+    lhs.acceptExpressionVisitor(this);
+    MemFunction functionLhs = function;
+    rhs.acceptExpressionVisitor(this);
+    MemFunction functionRhs = function;
+    function = new MemFunction(MemFunction.Type.DOUBLE_LT, functionLhs, functionRhs);
 
 
   }

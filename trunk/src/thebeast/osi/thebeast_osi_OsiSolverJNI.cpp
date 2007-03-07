@@ -26,14 +26,14 @@ JNIEXPORT jlong JNICALL Java_thebeast_osi_OsiSolverJNI_createImplementation
   (JNIEnv *, jclass, jint implementation){
   OsiSolverInterface* solver = 0;
   switch(implementation){
-    case 0: solver = new OsiCbcSolverInterface(new OsiClpSolverInterface()); break;
+    case 0: solver = new OsiCbcSolverInterface; break;
     case 1: solver = new OsiClpSolverInterface; break;
   }
   double dEmpty = 0;
 	int iEmpty = 0;
   //char cEmpty = '?';
 	solver->loadProblem(0, 0, &iEmpty, &iEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty);  
-  return (jint)solver;
+  return (jlong)solver;
 }
 
 
@@ -250,10 +250,18 @@ JNIEXPORT jdouble JNICALL Java_thebeast_osi_OsiSolverJNI_getObjValue
  * Method:    reset
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_reset
+JNIEXPORT jlong JNICALL Java_thebeast_osi_OsiSolverJNI_reset
   (JNIEnv *, jobject, jlong ptr){
     OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
-    solver->reset();  
+    try {
+      solver->reset();
+    } catch (CoinError e){
+      //std::cout << e.message() << std::endl;
+      delete solver;
+      solver = new OsiCbcSolverInterface;
+    }
+    return (jlong) solver;
+
 }
 
 /*

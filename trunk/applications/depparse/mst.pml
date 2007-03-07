@@ -6,6 +6,7 @@
    - we don't use unigram features whatsoever (use coarser bigram features instead)   */
 
 include "mst-between-pos.pml";
+include "mst-unigram.pml";
 include "mst-bigram.pml";
 include "mst-outer-pos.pml";
 include "mst-outer-cpos.pml";

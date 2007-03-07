@@ -46,4 +46,7 @@ public abstract class Function implements Comparable<Function> {
 
   public abstract void acceptFunctionVisitor(FunctionVisitor visitor);
 
+  public int getArity() {
+    return getArgumentTypes().size();
+  }
 }
