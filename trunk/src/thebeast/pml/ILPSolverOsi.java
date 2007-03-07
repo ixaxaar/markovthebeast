@@ -17,7 +17,7 @@ import java.util.Arrays;
  */
 public class ILPSolverOsi implements ILPSolver {
 
-  private OsiSolver solver =OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC) ;
+  private OsiSolver solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -25,17 +25,19 @@ public class ILPSolverOsi implements ILPSolver {
   private boolean verbose = false;
   private Profiler profiler = new NullProfiler();
   private boolean writeLp = false;
+  private boolean hasIntegerConstraints = false;
 
   public void init() {
     solver.reset();
     //solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
     solver.setObjSense(-1);
     solver.setHintParam(OsiSolver.OsiHintParam.OsiDoReducePrint, true, OsiSolver.OsiHintStrength.OsiHintTry);
-    
+
     solver.setCbcLogLevel(0);
     //solver.setCbcLogLevel(0);
     numRows = 0;
     numCols = 0;
+    hasIntegerConstraints = false;
 
   }
 
@@ -48,8 +50,8 @@ public class ILPSolverOsi implements ILPSolver {
     double[][] elements = new double[newCols][0];
     double[] zeros = new double[newCols];
     double[] colub = new double[newCols];
-    Arrays.fill(colub,1.0);
-    if (newCols > 0) solver.addCols(newCols,rows, elements, zeros, colub, zeros);
+    Arrays.fill(colub, 1.0);
+    if (newCols > 0) solver.addCols(newCols, rows, elements, zeros, colub, zeros);
     for (TupleValue var : variables.value()) {
       int index = var.intElement("index").getInt();
       double weight = var.doubleElement("weight").getDouble();
@@ -89,6 +91,7 @@ public class ILPSolverOsi implements ILPSolver {
     int[] indices = variables.getIntColumn("index");
     for (int index : indices)
       solver.setInteger(index);
+    if (indices.length > 0) hasIntegerConstraints = true;
   }
 
   public static double convert(double orginal) {
@@ -98,7 +101,10 @@ public class ILPSolverOsi implements ILPSolver {
   }
 
   public RelationVariable solve() {
-    solver.resolve();
+    if (hasIntegerConstraints)
+      solver.branchAndBound();
+    else
+      solver.resolve();
     //solver.branchAndBound();
     //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
     double[] solution = solver.getColSolution();
