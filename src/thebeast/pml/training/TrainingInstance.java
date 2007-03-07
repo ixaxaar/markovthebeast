@@ -1,9 +1,6 @@
 package thebeast.pml.training;
 
-import thebeast.pml.SparseVector;
-import thebeast.pml.GroundAtoms;
-import thebeast.pml.LocalFeatures;
-import thebeast.pml.Dumpable;
+import thebeast.pml.*;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 
@@ -14,11 +11,11 @@ import java.io.IOException;
  */
 public class TrainingInstance implements Dumpable {
 
-  private SparseVector gold;
+  private FeatureVector gold;
   private GroundAtoms data;
   private LocalFeatures features;
 
-  public TrainingInstance(GroundAtoms data, LocalFeatures features, SparseVector gold) {
+  public TrainingInstance(GroundAtoms data, LocalFeatures features, FeatureVector gold) {
     this.data = data;
     this.features = features;
     this.gold = gold;
@@ -32,7 +29,7 @@ public class TrainingInstance implements Dumpable {
     return features;
   }
 
-  public SparseVector getGold() {
+  public FeatureVector getGold() {
     return gold;
   }
 

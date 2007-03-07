@@ -9,9 +9,7 @@ import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
 import thebeast.osi.OsiSolver;
 import thebeast.osi.OsiSolverJNI;
-import thebeast.pml.TheBeast;
-import thebeast.pml.IntegerLinearProgram;
-import thebeast.pml.PropertyName;
+import thebeast.pml.*;
 
 import java.util.Arrays;
 
@@ -20,7 +18,7 @@ import java.util.Arrays;
  */
 public class ILPSolverOsi implements ILPSolver {
 
-  private OsiSolver solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
+  private OsiSolverJNI solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -138,11 +136,21 @@ public class ILPSolverOsi implements ILPSolver {
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
+    else if ("implementation".equals(name.getHead())){
+      String impl = (String) value;
+      solver.delete();
+      if ("cbc".equals(impl)){
+        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
+      } else if ("clp".equals(impl))
+        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
+      else
+        throw new IllegalPropertyValueException(name, value);
+    }
+    else throw new NoSuchPropertyException(name);
   }
 
   public void setProperty(String name, Object value) {
     if ("verbose".equals(name))
       setVerbose((Boolean) value);
-
   }
 }

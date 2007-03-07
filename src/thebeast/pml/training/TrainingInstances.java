@@ -50,7 +50,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
       active = new ArrayList<TrainingInstance>(10000);
       for (int i = 0; i < size && byteSize < maxByteSize; ++i) {
         TrainingInstance trainingInstance = new TrainingInstance(signature.createGroundAtoms(),
-                new LocalFeatures(model, weights), new SparseVector());
+                new LocalFeatures(model, weights), new FeatureVector());
         trainingInstance.read(fileSource);
         byteSize += trainingInstance.getMemoryUsage();
         active.add(trainingInstance);
@@ -103,14 +103,14 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     dump(fileSink);
     for (int i = 0; i < activeCount; ++i) {
       active.add(new TrainingInstance(signature.createGroundAtoms(),
-              new LocalFeatures(model, weights), new SparseVector()));
+              new LocalFeatures(model, weights), new FeatureVector()));
     }
     fileSink.flush();
     fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
     reporter.finished();
   }
 
-  public void add(GroundAtoms data, LocalFeatures features, SparseVector gold) {
+  public void add(GroundAtoms data, LocalFeatures features, FeatureVector gold) {
     TrainingInstance trainingInstance = new TrainingInstance(data, features, gold);
     //active.add(trainingInstance);
   }

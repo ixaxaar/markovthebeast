@@ -51,6 +51,33 @@ public class GroundFormulas {
 
 
   /**
+   * Creates a (read-only) copy of the given ground formulas.  
+   * @param formulas the formulas to copy.
+   */
+  public GroundFormulas(GroundFormulas formulas){
+    this.model = formulas.model;
+    this.weights = formulas.weights;
+    for (FactorFormula formula : model.getFactorFormulas()) {
+      if (!formula.isLocal()) {
+        //Heading heading = formula.isParametrized() ? formula.getSolutionHeading() : formula.get
+        if (formula.isAcyclicityConstraint()) {
+          UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
+          cycles.put(predicate, interpreter.createRelationVariable(formulas.getCycles(predicate)));
+        } else {
+          explicitGroundFormulas.put(formula,
+                  interpreter.createRelationVariable(formulas.getExplicitGroundFormulas(formula)));
+          if (!formula.getWeight().isNonNegative())
+            trueGroundFormulas.put(formula,
+                    interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
+          if (!formula.getWeight().isNonPositive())
+            falseGroundFormulas.put(formula,
+                    interpreter.createRelationVariable(formulas.getFalseGroundFormulas(formula)));
+        }
+      }
+    }
+  }
+
+  /**
    * Creates an empty solution
    *
    * @param model   the model this solution is solving
@@ -74,31 +101,38 @@ public class GroundFormulas {
         }
       }
     }
+    buildQueries();
+
+  }
+
+  /**
+   * Builds the queries to extract ground formulas from ground atoms.
+   */
+  private void buildQueries() {
     QueryGenerator generator = new QueryGenerator();
-    this.groundAtoms = weights.getSignature().createGroundAtoms();
-    for (FactorFormula formula : model.getFactorFormulas()) {
+    this.groundAtoms = this.weights.getSignature().createGroundAtoms();
+    for (FactorFormula formula : this.model.getFactorFormulas()) {
       if (formula.isAcyclicityConstraint()) {
         cycleQueries.put(formula.getAcyclicityConstraint().getPredicate(),
                 generator.generateCycleQuery(groundAtoms, formula.getAcyclicityConstraint()));
       } else if (!formula.isLocal()) {
         if (!formula.getWeight().isNonNegative()) {
-          RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, weights);
+          RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
           if (formula.isParametrized()){
-            addIndices(weights, formula.getWeightFunction(), query);
+            addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
         if (!formula.getWeight().isNonPositive()) {
-          RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, weights);
+          RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
           if (formula.isParametrized()){
-            addIndices(weights, formula.getWeightFunction(), query);
+            addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
       }
 
     }
-
   }
 
   private void addIndices(Weights weights, WeightFunction weightFunction, RelationExpression query) {

@@ -3,6 +3,8 @@ package thebeast.pml.solve;
 import thebeast.util.Profiler;
 import thebeast.pml.*;
 
+import java.util.List;
+
 /**
  * @author Sebastian Riedel
  */
@@ -18,6 +20,10 @@ public interface Solver extends HasProperties {
   GroundAtoms getAtoms();
 
   GroundFormulas getFormulas();
+
+  List<GroundAtoms> getCandidateAtoms();
+
+  List<GroundFormulas> getCandidateFormulas();
 
   void setProfiler(Profiler profiler);
 }

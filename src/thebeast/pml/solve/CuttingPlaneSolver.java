@@ -1,8 +1,13 @@
 package thebeast.pml.solve;
 
-import thebeast.util.Profiler;
-import thebeast.util.NullProfiler;
 import thebeast.pml.*;
+import thebeast.util.NullProfiler;
+import thebeast.util.Profiler;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
@@ -26,6 +31,8 @@ public class CuttingPlaneSolver implements Solver {
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
+  private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
+  private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
 
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
@@ -150,10 +157,15 @@ public class CuttingPlaneSolver implements Solver {
    */
   public void solve(int maxIterations) {
     profiler.start("solve");
+    candidateAtoms.clear();
+    candidateFormulas.clear();
     iteration = 0;
     if (!scoresSet) score();
     if (!initSet) initSolution();
     if (!updated) update();
+    candidateAtoms.add(new GroundAtoms(atoms));
+    candidateFormulas.add(new GroundFormulas(formulas));
+
     profiler.start("iterations");
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
@@ -161,6 +173,8 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       ++iteration;
       update();
+      candidateAtoms.add(0, new GroundAtoms(atoms));
+      candidateFormulas.add(0, new GroundFormulas(formulas));
       if (enforceIntegers && !ilp.changed() && ilp.isFractional())
         ilp.enforceIntegerSolution();
     }
@@ -221,6 +235,14 @@ public class CuttingPlaneSolver implements Solver {
 
   public GroundFormulas getFormulas() {
     return formulas;
+  }
+
+  public List<GroundAtoms> getCandidateAtoms() {
+    return new ArrayList<GroundAtoms>(candidateAtoms);
+  }
+
+  public List<GroundFormulas> getCandidateFormulas() {
+    return new ArrayList<GroundFormulas>(candidateFormulas);
   }
 
   public boolean isDone() {
