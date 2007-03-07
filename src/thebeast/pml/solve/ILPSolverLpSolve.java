@@ -1,4 +1,4 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import lpsolve.LpSolve;
 import lpsolve.LpSolveException;
@@ -9,6 +9,9 @@ import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.pml.TheBeast;
+import thebeast.pml.IntegerLinearProgram;
+import thebeast.pml.PropertyName;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52

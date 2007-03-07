@@ -1,4 +1,4 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
@@ -9,6 +9,9 @@ import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
 import thebeast.osi.OsiSolver;
 import thebeast.osi.OsiSolverJNI;
+import thebeast.pml.TheBeast;
+import thebeast.pml.IntegerLinearProgram;
+import thebeast.pml.PropertyName;
 
 import java.util.Arrays;
 

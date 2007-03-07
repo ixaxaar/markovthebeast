@@ -1,6 +1,7 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import thebeast.util.Profiler;
+import thebeast.pml.*;
 
 /**
  * @author Sebastian Riedel

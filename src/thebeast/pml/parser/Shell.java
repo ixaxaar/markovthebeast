@@ -4,6 +4,7 @@ import jline.ConsoleReader;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 import thebeast.pml.*;
+import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.corpora.*;
 import thebeast.pml.formula.*;
 import thebeast.pml.function.Function;

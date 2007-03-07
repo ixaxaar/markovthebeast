@@ -16,6 +16,7 @@ import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
+import thebeast.pml.solve.ILPSolver;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
@@ -418,6 +419,7 @@ public class IntegerLinearProgram implements HasProperties{
 
   public String getVariableString(RelationValue value) {
     StringBuffer result = new StringBuffer();
+    if (value.size() == 0) return "No Fractionals.";
     for (TupleValue var : value) {
       Formatter formatter = new Formatter();
       result.append(formatter.format("%-12s\t", indexToString(var.intElement("index").getInt())));
@@ -518,12 +520,9 @@ public class IntegerLinearProgram implements HasProperties{
       RelationValue result = interpreter.evaluateRelation(builder.getRelation());
       if (result.size() == 1) {
         StringBuffer buffer = new StringBuffer(entry.getKey().getName());
-        int argIndex = 0;
-        for (Value value : result.iterator().next().values())
-          if (argIndex++ < entry.getKey().getQuantification().getVariables().size())
-            buffer.append("_").append(value.toString());
-          else
-            break;
+        TupleValue tuple = result.iterator().next();
+        for (int i = 1; i < tuple.size() - 1; ++i)
+            buffer.append("_").append(tuple.element(i).toString());
         return buffer.toString();
       }
     }

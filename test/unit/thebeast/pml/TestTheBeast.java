@@ -18,6 +18,9 @@ import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.CategoricalConstant;
 import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
+import thebeast.pml.solve.ILPSolverLpSolve;
+import thebeast.pml.solve.CuttingPlaneSolver;
+import thebeast.pml.solve.ILPSolver;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

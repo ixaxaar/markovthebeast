@@ -1,7 +1,8 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.pml.*;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.

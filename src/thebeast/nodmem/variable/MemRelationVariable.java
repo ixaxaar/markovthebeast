@@ -219,6 +219,10 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     return size;
   }
 
+  public boolean hasIndex(String name) {
+    return indexInformation().getIndex(name) != null;
+  }
+
 
   public void invalidate() {
     chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;

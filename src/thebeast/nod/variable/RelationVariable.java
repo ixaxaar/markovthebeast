@@ -23,4 +23,6 @@ public interface RelationVariable extends Variable<RelationValue,RelationType>, 
 
   int byteSize();
 
+  public boolean hasIndex(String name);
+
 }

@@ -1,7 +1,8 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.pml.*;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
@@ -46,11 +47,11 @@ public class CuttingPlaneSolver implements Solver {
 
   /**
    * The cutting plane solve might not need as many iterations as specified through
-   * {@link thebeast.pml.CuttingPlaneSolver#setMaxIterations(int)} or as argument of
-   * {@link thebeast.pml.CuttingPlaneSolver#solve(int)}. This method returns the actual
+   * {@link CuttingPlaneSolver#setMaxIterations(int)} or as argument of
+   * {@link CuttingPlaneSolver#solve(int)}. This method returns the actual
    * number of iterations that were needed.
    *
-   * @return the number of iterations the solver did last time {@link thebeast.pml.CuttingPlaneSolver#solve(int)} or
+   * @return the number of iterations the solver did last time {@link CuttingPlaneSolver#solve(int)} or
    *         {@link CuttingPlaneSolver#solve()} was called.
    */
   public int getIterationCount() {
@@ -115,7 +116,7 @@ public class CuttingPlaneSolver implements Solver {
   /**
    * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that
    * these scores will be forgotten once a new observation is specified with
-   * {@link thebeast.pml.CuttingPlaneSolver#setObservation(GroundAtoms)}.
+   * {@link CuttingPlaneSolver#setObservation(GroundAtoms)}.
    *
    * @param scores the scores to use.
    */
@@ -169,8 +170,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Calls {@link thebeast.pml.CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by
-   * {@link thebeast.pml.CuttingPlaneSolver#setMaxIterations(int)}.
+   * Calls {@link CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by
+   * {@link CuttingPlaneSolver#setMaxIterations(int)}.
    */
   public void solve() {
     solve(maxIterations);
