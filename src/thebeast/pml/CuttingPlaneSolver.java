@@ -160,7 +160,7 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       ++iteration;
       update();
-      if (enforceIntegers && !ilp.changed() &&ilp.isFractional())
+      if (enforceIntegers && !ilp.changed() && ilp.isFractional())
         ilp.enforceIntegerSolution();
     }
     profiler.end();
@@ -177,7 +177,7 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void initSolution() {
-    profiler.start("greedy",0);
+    profiler.start("greedy", 0);
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
     initSet = true;
     profiler.end();
@@ -196,15 +196,15 @@ public class CuttingPlaneSolver implements Solver {
 
   private void score() {
     profiler.start("scoring");
-    profiler.start("extract");    
+    profiler.start("extract");
     extractor.extract(atoms, features);
     profiler.end();
     profiler.start("score");
     scores.score(features, weights);
     profiler.end();
-    profiler.start("ilp.init");    
+    profiler.start("ilp.init");
     ilp.init(scores);
-    profiler.end();    
+    profiler.end();
     scoresSet = true;
     profiler.end();
   }
@@ -227,11 +227,22 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * Setting this property to true ensures that final solutions will always be integer.
+   *
+   * @param enforceIntegers true iff integer solutions should be enforced.
+   */
+  public void setEnforceIntegers(boolean enforceIntegers) {
+    this.enforceIntegers = enforceIntegers;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
       ilp.setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
+    if (name.getHead().equals("integer"))
+      setEnforceIntegers((Boolean)value);
   }
 
   public Object getProperty(PropertyName name) {

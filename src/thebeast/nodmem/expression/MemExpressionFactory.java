@@ -100,6 +100,10 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemIndexCollector(groupAttribute, relation, indexAttribute, valueAttribute);
   }
 
+  public IntGEQ createIntGEQ(IntExpression lhs, IntExpression rhs) {
+    return new MemIntGEQ(lhs, rhs);
+  }
+
 
   public IntMinus createIntMinus(IntExpression leftHandSide, IntExpression rightHandSide) {
     return new MemIntMinus(MemIntType.INT, leftHandSide, rightHandSide);

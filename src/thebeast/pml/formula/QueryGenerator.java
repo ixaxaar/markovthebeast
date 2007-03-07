@@ -166,18 +166,33 @@ public class QueryGenerator {
     }
   }
 
-  public RelationExpression generateLocalCollectorQuery(FactorFormula factorFormula,
-                                                        GroundAtoms observation,
-                                                        Weights w) {
-    if (!factorFormula.isLocal()) throw new IllegalArgumentException("Factor formula must be local for " +
-            "generating a local feature query");
-
+  public RelationExpression generateCollectorQuery(FactorFormula factorFormula,
+                                                   GroundAtoms observation,
+                                                   Weights w) {
+//    if (!factorFormula.isLocal()) throw new IllegalArgumentException("Factor formula must be local for " +
+//            "generating a local feature query");
+//
     this.groundAtoms = observation;
     this.weights = w;
 
     builder = new FormulaBuilder(observation.getSignature());
 
-    Conjunction both = new Conjunction(factorFormula.getFormula(),factorFormula.getCondition());
+    BooleanFormula formula = null;
+    if (factorFormula.isLocal()) {
+      formula = factorFormula.getFormula();
+    } else if (factorFormula.getFormula() instanceof Implication) {
+      Implication implication = (Implication) factorFormula.getFormula();
+      formula = new Conjunction(implication.getPremise(), implication.getConclusion());
+    } else if (factorFormula.getFormula() instanceof Conjunction) {
+      formula = new Not(factorFormula.getFormula());
+    } else if (factorFormula.getFormula() instanceof Disjunction){
+      formula = factorFormula.getFormula();
+    }
+
+    BooleanFormula both = factorFormula.getCondition() == null ?
+            formula : 
+            new Conjunction(formula, factorFormula.getCondition());
+    //Conjunction both = new Conjunction(factorFormula.getFormula(), factorFormula.getCondition());
 
     DNF dnf = dnfGenerator.convertToDNF(both);
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();
@@ -197,7 +212,7 @@ public class QueryGenerator {
       TermResolver resolver = new TermResolver();
       NoDExpressionGenerator generator = new NoDExpressionGenerator();
       int argIndex = 0;
-      for (Term term : weight.getArguments()){
+      for (Term term : weight.getArguments()) {
         Term resolved = resolver.resolve(term, conjunctionContext.var2term);
         if (resolver.getUnresolved().size() > 0)
           throw new RuntimeException("During collection all terms in the weight function application must be bound");
@@ -333,7 +348,7 @@ public class QueryGenerator {
       }
 
       public void visitBinnedInt(BinnedInt binnedInt) {
-        
+
       }
     });
 
@@ -744,6 +759,8 @@ public class QueryGenerator {
 
             }
           }
+
+
         });
       }
     });
@@ -940,7 +957,7 @@ public class QueryGenerator {
     builder.expr(items);
     //builder.id("")
     for (int i = 0; i < size; ++i) {
-      builder.id("index").expr(variables.get(i+2));
+      builder.id("index").expr(variables.get(i + 2));
       builder.id("weight").expr(lowerBound).doubleCast();
       if (!signs.get(i))
         builder.num(-1.0).doubleTimes();
@@ -982,7 +999,7 @@ public class QueryGenerator {
     builder.id("values");
     builder.expr(items);
     for (int i = 0; i < size; ++i) {
-      builder.id("index").expr(variables.get(i+2));
+      builder.id("index").expr(variables.get(i + 2));
       builder.id("weight").expr(upperBound).expr(items).count().doubleCast().doubleAdd();
       if (signs.get(i))
         builder.num(-1.0).doubleTimes();

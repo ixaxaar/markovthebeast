@@ -10,10 +10,7 @@ import thebeast.pml.function.Function;
 import thebeast.pml.function.IntAdd;
 import thebeast.pml.function.IntMinus;
 import thebeast.pml.function.WeightFunction;
-import thebeast.pml.predicate.IntGT;
-import thebeast.pml.predicate.IntLEQ;
-import thebeast.pml.predicate.IntLT;
-import thebeast.pml.predicate.Predicate;
+import thebeast.pml.predicate.*;
 import thebeast.pml.term.*;
 import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
@@ -462,6 +459,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.extract(guess);
       out.print(formulas);
+    } else if ("gold".equals(parserPrint.name.head)){
+      if ("formulas".equals(parserPrint.name.tail.head)){
+        GroundFormulas formulas = new GroundFormulas(model, weights);
+        formulas.extract(gold);
+        out.print(formulas);
+      } else if ("atoms".equals(parserPrint.name.tail.head))
+        out.print(gold);
     } else if ("weights".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
         weights.save(out);
@@ -875,6 +879,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     parserComparison.rhs.acceptParserTermVisitor(this);
     Term rhs = term;
     switch (parserComparison.type) {
+      case NEQ:
+        formula = new PredicateAtom(signature.createNotEquals(Type.INT), lhs, rhs);
+        break;
       case LEQ:
         formula = new PredicateAtom(IntLEQ.INT_LEQ, lhs, rhs);
         break;
@@ -883,6 +890,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         break;
       case GT:
         formula = new PredicateAtom(IntGT.INT_GT, lhs, rhs);
+        break;
+      case GEQ:
+        formula = new PredicateAtom(IntGEQ.INT_GEQ,lhs, rhs);
         break;
     }
   }
@@ -1016,10 +1026,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void initCorpusTools() {
-    registerCorpusFactory("malt", TabFormatCorpus.MALT_FACTORY);
-    registerTypeGenerator("malt", TabFormatCorpus.MALT_GENERATOR);
-    registerCorpusFactory("conll06", TabFormatCorpus.CONLL_06_FACTORY);
-    registerTypeGenerator("conll06", TabFormatCorpus.CONLL_06_GENERATOR);
+    registerCorpusFactory("malt", new MALTFactory());
+    registerTypeGenerator("malt", MALTFactory.GENERATOR);
+    registerCorpusFactory("conll06", new CoNLL06Factory());
+    registerTypeGenerator("conll06", CoNLL06Factory.GENERATOR);
+    registerCorpusFactory("conll00", new CoNLL00Factory());
+    registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
   }
 
   public static interface PropertySetter {

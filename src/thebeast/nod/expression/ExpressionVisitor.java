@@ -1,9 +1,6 @@
 package thebeast.nod.expression;
 
 import thebeast.nod.variable.*;
-import thebeast.nodmem.expression.MemIndexCollector;
-import thebeast.nodmem.expression.MemDoubleGEQ;
-import thebeast.nodmem.expression.MemDoubleLessThan;
 
 /**
  * @author Sebastian Riedel
@@ -85,6 +82,8 @@ public interface ExpressionVisitor {
   void visitIntMinus(IntMinus intMinus);
 
   void visitIntLEQ(IntLEQ intLEQ);
+
+  void visitIntGEQ(IntGEQ intGEQ);  
 
   void visitIntLessThan(IntLessThan intLessThan);
 

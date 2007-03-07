@@ -297,6 +297,12 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     intLEQ.rightHandSide().acceptExpressionVisitor(this);
   }
 
+  public void visitIntGEQ(IntGEQ intGEQ) {
+    intGEQ.leftHandSide().acceptExpressionVisitor(this);
+    os.print(" >= ");
+    intGEQ.rightHandSide().acceptExpressionVisitor(this);
+  }
+
   public void visitIntLessThan(IntLessThan intLessThan) {
     intLessThan.leftHandSide().acceptExpressionVisitor(this);
     os.print(" < ");

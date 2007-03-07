@@ -608,6 +608,26 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
   }
 
+  public void visitIntGEQ(IntGEQ intGEQ) {
+    if (toSkip.contains(intGEQ)) {
+      function = null;
+      return;
+    }
+
+    Expression lhs = intGEQ.leftHandSide();
+    Expression rhs = intGEQ.rightHandSide();
+    if (!lhs.type().equals(rhs.type())) {
+      throw new IllegalArgumentException("Equality arguments must have same type");
+    }
+    lhs.acceptExpressionVisitor(this);
+    MemFunction functionLhs = function;
+    rhs.acceptExpressionVisitor(this);
+    MemFunction functionRhs = function;
+    function = new MemFunction(MemFunction.Type.INT_GEQ, functionLhs, functionRhs);
+
+
+  }
+
   public void visitIntLessThan(IntLessThan intLessThan) {
     if (toSkip.contains(intLessThan)) {
       function = null;

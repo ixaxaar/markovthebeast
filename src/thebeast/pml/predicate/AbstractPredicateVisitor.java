@@ -51,5 +51,9 @@ public abstract class AbstractPredicateVisitor implements PredicateVisitor {
     if (throwExceptions) throw new UnsupportedHostException(intGT);
   }
 
+  public void visitIntGEQ(IntGEQ intGEQ) {
+    if (throwExceptions) throw new UnsupportedHostException(intGEQ);
+  }
+
 
 }

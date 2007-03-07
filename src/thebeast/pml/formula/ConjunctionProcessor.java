@@ -5,6 +5,7 @@ import thebeast.nod.type.CategoricalType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.pml.*;
 import thebeast.pml.predicate.*;
+import thebeast.pml.predicate.IntGEQ;
 import thebeast.pml.predicate.IntLEQ;
 import thebeast.pml.term.*;
 
@@ -180,6 +181,10 @@ public class ConjunctionProcessor {
 
             public void visitIntGT(IntGT intGT) {
               visitPredicate(intGT);
+            }
+
+            public void visitIntGEQ(IntGEQ intGEQ) {
+              visitPredicate(intGEQ);
             }
           });
 

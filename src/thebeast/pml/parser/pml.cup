@@ -287,6 +287,8 @@ quantification ::=
 factor ::=
     FACTOR COLON FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
     {: RESULT = new ParserFactorFormula(q,c,f,w); :}
+  | FACTOR COLON FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+    {: RESULT = new ParserFactorFormula(q,null,f,w); :}
   | FACTOR COLON FOR quantification:q IF formula:c COLON formula:f
     {: RESULT = new ParserFactorFormula(q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
   | FACTOR COLON FOR quantification:q COLON formula:f
@@ -312,6 +314,10 @@ formula ::=
     {: RESULT = new ParserComparison(ParserComparison.Type.LT, lhs, rhs); :}
   | term:lhs GREATER term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.GT, lhs, rhs); :}
+  | term:lhs LEQ term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.LEQ, lhs, rhs); :}
+  | term:lhs GEQ term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.GEQ, lhs, rhs); :}
   | term:lhs NOTEQUALS term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.NEQ, lhs, rhs); :}
   | EXCL formula:f
