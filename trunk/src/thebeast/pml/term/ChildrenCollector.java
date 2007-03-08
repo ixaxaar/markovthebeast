@@ -70,4 +70,11 @@ public class ChildrenCollector implements TermVisitor{
     binnedInt.getArgument().acceptTermVisitor(this);
     parents.pop();
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+    children.add(boolConstant,boolConstant);
+    for (Term parent : parents)
+      children.add(parent,boolConstant);
+
+  }
 }

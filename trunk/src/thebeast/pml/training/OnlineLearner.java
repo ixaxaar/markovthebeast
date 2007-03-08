@@ -38,7 +38,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private int count;
   private Profiler profiler = new NullProfiler();
-  private int maxCandidates = 1;
+  private int maxCandidates = 1000;
   private LossFunction lossFunction;
 
   private int numEpochs;

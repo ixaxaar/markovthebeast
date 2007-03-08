@@ -53,4 +53,22 @@ public class FeatureVector {
     nonpositive.load(vector.getNonpositive());
   }
 
+  public SparseVector getAll(){
+    int[] indices = new int[size()];
+    double[] values = new double[size()];
+    System.arraycopy(free.getIndexArray(), 0, indices, 0, free.size());
+    System.arraycopy(free.getValueArray(), 0, values, 0, free.size());
+    System.arraycopy(nonnegative.getIndexArray(), 0, indices, free.size(), nonnegative.size());
+    System.arraycopy(nonnegative.getValueArray(), 0, values, free.size(), nonnegative.size());
+    int sizeFreeNN = free.size() + nonnegative.size();
+    System.arraycopy(nonpositive.getIndexArray(), 0, indices, sizeFreeNN, nonpositive.size());
+    System.arraycopy(nonpositive.getValueArray(), 0, values, sizeFreeNN, nonpositive.size());
+    return new SparseVector(indices, values);
+
+  }
+
+  private int size() {
+    return free.size() + nonnegative.size() + nonpositive.size();
+  }
+
 }

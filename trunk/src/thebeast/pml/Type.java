@@ -4,10 +4,8 @@ import thebeast.nod.NoDServer;
 import thebeast.nod.value.CategoricalValue;
 import thebeast.nod.value.IntValue;
 import thebeast.nod.value.Value;
-import thebeast.pml.term.CategoricalConstant;
-import thebeast.pml.term.Constant;
-import thebeast.pml.term.IntConstant;
-import thebeast.pml.term.DoubleConstant;
+import thebeast.nod.value.BoolValue;
+import thebeast.pml.term.*;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,12 +16,13 @@ import java.util.Set;
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 16:43:08
  */
 public class Type {
+  public static Type BOOL;
 
 
   public enum Class {
     INT, POSITIVE_INT, NEGATIVE_INT,
     DOUBLE, POSITIVE_DOUBLE, NEGATIVE_DOUBLE,
-    CATEGORICAL, CATEGORICAL_UNKNOWN
+    CATEGORICAL, CATEGORICAL_UNKNOWN, BOOL
   }
 
   public final static String UNKNOWN = "-UNKNOWN-";
@@ -38,6 +37,7 @@ public class Type {
     POS_DOUBLE = new Type("Double+", Type.Class.POSITIVE_DOUBLE, nodServer.typeFactory().doubleType());
     NEG_INT = new Type("Int-", Type.Class.NEGATIVE_INT, nodServer.typeFactory().intType());
     NEG_DOUBLE = new Type("Double-", Type.Class.NEGATIVE_DOUBLE, nodServer.typeFactory().doubleType());
+    BOOL = new Type("Bool", Class.BOOL, nodServer.typeFactory().boolType());
   }
 
   private String name;
@@ -99,11 +99,13 @@ public class Type {
       case INT:
         int integer = ((IntValue) value).getInt();
         return new IntConstant(this, integer);
+      case BOOL:
+        return new BoolConstant(((BoolValue)value).getBool());
     }
     return null;
   }
 
-    public Constant toConstant(Object value) {
+  public Constant toConstant(Object value) {
     switch (typeClass) {
       case CATEGORICAL_UNKNOWN:
       case CATEGORICAL:
@@ -111,11 +113,13 @@ public class Type {
       case POSITIVE_INT:
       case NEGATIVE_INT:
       case INT:
-        return new IntConstant(this, (Integer)value);
+        return new IntConstant(this, (Integer) value);
       case POSITIVE_DOUBLE:
       case NEGATIVE_DOUBLE:
       case DOUBLE:
-        return new DoubleConstant(this, (Double)value);
+        return new DoubleConstant(this, (Double) value);
+      case BOOL:
+        return new BoolConstant(this, (Boolean)value);
     }
     return null;
   }
@@ -147,6 +151,8 @@ public class Type {
       case NEGATIVE_INT:
         if (Integer.valueOf(name) > 0) throw new NotInTypeException(name, this);
         return new IntConstant(this, Integer.valueOf(name));
+      case BOOL:
+        return new BoolConstant("true".equals(name));
     }
     return null;
   }

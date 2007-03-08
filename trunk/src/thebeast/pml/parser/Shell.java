@@ -44,7 +44,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private HashMap<String, CorpusFactory> corpusFactories = new HashMap<String, CorpusFactory>();
   private HashMap<String, TypeGenerator> typeGenerators = new HashMap<String, TypeGenerator>();
-  
+
   private GroundAtoms guess, gold;
   private Corpus corpus;
   private RandomAccessCorpus ramCorpus;
@@ -327,7 +327,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
     } catch (Exception e) {
       e.printStackTrace(out);
-    } finally{
+    } finally {
       directory = oldDir;
     }
 
@@ -405,7 +405,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         } else {
           throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
         }
-        out.println(weights.getFeatureCount() + " weights loaded.");                
+        out.println(weights.getFeatureCount() + " weights loaded.");
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -420,6 +420,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       signatureUpdated = false;
     }
     if (modelUpdated) {
+      if (model.getHiddenPredicates().size() ==0)
+        throw new ShellException("There are no hidden predicates defined.");
       weights = signature.createWeights();
       scores = new Scores(model, weights);
       features = new LocalFeatures(model, weights);
@@ -460,8 +462,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.extract(guess);
       out.print(formulas);
-    } else if ("gold".equals(parserPrint.name.head)){
-      if ("formulas".equals(parserPrint.name.tail.head)){
+    } else if ("gold".equals(parserPrint.name.head)) {
+      if ("formulas".equals(parserPrint.name.tail.head)) {
         GroundFormulas formulas = new GroundFormulas(model, weights);
         formulas.extract(gold);
         out.print(formulas);
@@ -596,10 +598,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         File file = new File(parserSaveCorpus.file);
         file.delete();
         Corpus dst = factory.createCorpus(signature, file);
-        for (GroundAtoms atoms : corpus){
+        for (GroundAtoms atoms : corpus) {
           dst.append(atoms);
         }
-        corpus = dst;        
+        corpus = dst;
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -622,26 +624,31 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         }
         out.println(weights.getFeatureCount() + " weights saved.");
       }
-    } catch (IOException e) {   
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
   public void visitTest(ParserTest parserTest) {
-    File file = new File(parserTest.file);
-    file.delete();
-    Corpus dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
+    Corpus dst = null;
+    if (parserTest.mode.equals("ram")) {
+      dst = new RandomAccessCorpus(signature,1000);
+    } else {
+      File file =  new File(parserTest.file);
+      file.delete();
+      dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
+    }
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
     Evaluation evaluation = new Evaluation(model);
-    DotProgressReporter reporter = new DotProgressReporter(out, 5,5,5);
+    DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
     reporter.started();
-    for (GroundAtoms gold : corpus){
+    for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
       solver.solve();
-      evaluation.evaluate(gold,solver.getAtoms());
+      evaluation.evaluate(gold, solver.getAtoms());
       corpusEvaluation.add(evaluation);
       dst.append(solver.getAtoms());
-      reporter.progressed(evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(), 
+      reporter.progressed(evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
               evaluation.getGoldCount(), evaluation.getGuessCount());
     }
     reporter.finished();
@@ -893,7 +900,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         formula = new PredicateAtom(IntGT.INT_GT, lhs, rhs);
         break;
       case GEQ:
-        formula = new PredicateAtom(IntGEQ.INT_GEQ,lhs, rhs);
+        formula = new PredicateAtom(IntGEQ.INT_GEQ, lhs, rhs);
         break;
     }
   }
@@ -948,7 +955,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (function == null)
       throw new ShellException("There is no function with name " + parserFunctionApplication.function);
     int index = 0;
-    if (function.getArity() != parserFunctionApplication.args.size()){
+    if (function.getArity() != parserFunctionApplication.args.size()) {
       throw new ShellException("Function " + function.getName() + " has arity " + function.getArity() + " but " +
               "it is applied with " + parserFunctionApplication.args.size() + " in " + parserFunctionApplication);
     }
@@ -992,7 +999,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     }
     parserBins.argument.acceptParserTermVisitor(this);
     term = new BinnedInt(bins, term);
+    typeCheck();
+  }
 
+  public void visitBoolConstant(ParserBoolConstant parserBoolConstant) {
+    term = new BoolConstant(parserBoolConstant.value);
+    typeCheck();
   }
 
   private void typeCheck() {
@@ -1027,6 +1039,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void initCorpusTools() {
+    registerCorpusFactory("ram", RandomAccessCorpus.FACTORY);
     registerCorpusFactory("malt", new MALTFactory());
     registerTypeGenerator("malt", MALTFactory.GENERATOR);
     registerCorpusFactory("conll06", new CoNLL06Factory());

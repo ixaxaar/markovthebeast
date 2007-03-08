@@ -96,4 +96,8 @@ public class TermPrinter implements TermVisitor {
     binnedInt.getArgument().acceptTermVisitor(this);
     out.print(")");
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+    out.print(boolConstant.getBool());
+  }
 }

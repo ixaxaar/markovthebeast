@@ -82,4 +82,8 @@ public class TermInverter implements TermVisitor{
   public void visitBinnedInt(BinnedInt binnedInt) {
 
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+
+  }
 }

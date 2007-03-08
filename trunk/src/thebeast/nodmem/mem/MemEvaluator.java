@@ -312,13 +312,14 @@ public class MemEvaluator {
           }
           result.unify();
           break;
-        case ARRAY_ACCESS:
+        case ARRAY_ACCESS_ZERO:
           int arrayIndex = f.argHolder.intData[0];
           MemChunk array = f.argHolder.chunkData[0];
           if (array.numIntCols > 0)
             returnChunk.intData[argPointerVec.xInt] = array.intData[arrayIndex * array.numIntCols];
           else if (array.numDoubleCols > 0)
-            returnChunk.doubleData[argPointerVec.xDouble] = array.doubleData[arrayIndex * array.numDoubleCols];
+            returnChunk.doubleData[argPointerVec.xDouble] = arrayIndex != -1 ?
+                    array.doubleData[arrayIndex * array.numDoubleCols] : 0.0;
           else if (array.numChunkCols > 0)
             returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.numChunkCols];
           break;
@@ -386,7 +387,7 @@ public class MemEvaluator {
           }
           break;
         case INDEX_COLLECTOR:
-          MemMath.collect(argChunk.chunkData[0],f.groupAtt, returnChunk.chunkData[argPointerVec.xChunk],f);
+          MemMath.collect(argChunk.chunkData[0], f.groupAtt, returnChunk.chunkData[argPointerVec.xChunk], f);
           break;
       }
       --stackPointer;
@@ -526,8 +527,8 @@ public class MemEvaluator {
         //add to index
         //todo: increase capacity?
         if (f.indexNr != -1) {
-          if (chunk.indices[f.indexNr].getCapacity() == 0){
-            chunk.indices[f.indexNr].increaseCapacity(50);            
+          if (chunk.indices[f.indexNr].getCapacity() == 0) {
+            chunk.indices[f.indexNr].increaseCapacity(50);
           }
           chunk.indices[f.indexNr].add(argChunk, MemVector.ZERO, f.indexCols, chunk.size);
           ++chunk.indices[f.indexNr].indexedSoFar;
@@ -553,7 +554,8 @@ public class MemEvaluator {
     //add lhs (and check whether it is in rhs)
     MemColumnSelector cols = new MemColumnSelector(new int[]{add.indexAtt}, new int[0], new int[0]);
     MemVector dstPtr = new MemVector();
-    dst.increaseCapacity(lhs.size + rhs.size - dst.capacity);
+    if (dst.capacity < lhs.size + rhs.size)
+      dst.increaseCapacity(lhs.size + rhs.size - dst.capacity);
     MemDim dim = dst.getDim();
 
     if (add.rhsIndex != -1) {
@@ -563,7 +565,8 @@ public class MemEvaluator {
       for (int row = 0; row < lhs.size; ++row) {
         System.arraycopy(lhs.intData, lhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
         System.arraycopy(lhs.doubleData, lhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
-        System.arraycopy(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+        if (lhs.chunkData != null)
+          System.arraycopy(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
         int count = index.get(lhs, lhsPtr, cols, 0, rows);
         if (count == 1) {
           dst.doubleData[dstPtr.xDouble + add.valueAtt] +=
@@ -585,7 +588,8 @@ public class MemEvaluator {
         if (count == 0) {
           System.arraycopy(rhs.intData, rhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
           System.arraycopy(rhs.doubleData, rhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
-          System.arraycopy(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+          if (rhs.chunkData != null)
+            System.arraycopy(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
           dst.doubleData[dstPtr.xDouble + add.valueAtt] *= scale;
           dstPtr.add(dim);
           ++dst.size;

@@ -5,6 +5,7 @@ import thebeast.pml.Signature;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.io.File;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 08-Feb-2007 Time: 20:57:22
@@ -12,6 +13,12 @@ import java.util.Collection;
 public class RandomAccessCorpus extends ArrayList<GroundAtoms> implements Corpus {
 
   private Signature signature;
+
+  public static CorpusFactory FACTORY = new CorpusFactory() {
+    public Corpus createCorpus(Signature signature, File file) {
+      return new RandomAccessCorpus(signature,1000);
+    }
+  };
 
   public RandomAccessCorpus(Signature signature, Collection<GroundAtoms> instances) {
     super(instances);

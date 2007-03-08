@@ -17,4 +17,5 @@ public interface Extractor {
   void endSentence(GroundAtoms atoms);
 
   void extract(int column, String value);
+
 }

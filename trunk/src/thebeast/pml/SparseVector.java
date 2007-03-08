@@ -110,6 +110,8 @@ public class SparseVector {
     this.values.assignByArray(indices, values);
   }
 
+ 
+
   public SparseVector(int indices[], double constant){
     this();
     double[] values = new double[indices.length];
@@ -133,6 +135,15 @@ public class SparseVector {
     interpreter.assign(otherValues, removeZeros);
     interpreter.assign(values,otherValues);
   }
+
+  public int nonZeroCount(){
+    double[] values = getValueArray();
+    int count = 0;
+    for (double value : values)
+      if (value != 0.0) ++count;
+    return count;
+  }
+
 
 
   public SparseVector add(double scale, SparseVector other) {
