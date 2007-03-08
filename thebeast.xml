@@ -38,36 +38,6 @@
     <include name="**/?*.tld"/>
   </patternset>
   
-  <!-- JDK definitions -->
-  
-  <property name="jdk.bin.1.5" value="${jdk.home.1.5}/bin"/>
-  <path id="jdk.classpath.1.5">
-    <fileset dir="${jdk.home.1.5}">
-      <include name="lib/deploy.jar"/>
-      <include name="lib/dt.jar"/>
-      <include name="lib/jce.jar"/>
-      <include name="lib/plugin.jar"/>
-      <include name="lib/sa-jdi.jar"/>
-      <include name="../Classes/charsets.jar"/>
-      <include name="../Classes/classes.jar"/>
-      <include name="../Classes/dt.jar"/>
-      <include name="../Classes/jce.jar"/>
-      <include name="../Classes/jconsole.jar"/>
-      <include name="../Classes/jsse.jar"/>
-      <include name="../Classes/laf.jar"/>
-      <include name="../Classes/ui.jar"/>
-      <include name="lib/ext/apple_provider.jar"/>
-      <include name="lib/ext/dnsns.jar"/>
-      <include name="lib/ext/localedata.jar"/>
-      <include name="lib/ext/sunjce_provider.jar"/>
-      <include name="lib/ext/sunpkcs11.jar"/>
-    </fileset>
-  </path>
-  
-  <property name="project.jdk.home" value="${jdk.home.1.5}"/>
-  <property name="project.jdk.bin" value="${jdk.bin.1.5}"/>
-  <property name="project.jdk.classpath" value="jdk.classpath.1.5"/>
-  
   
   <!-- Project Libraries -->
   
@@ -77,7 +47,78 @@
   
   <!-- Modules -->
   
-  <import file="${basedir}/module_thebeast.xml"/>
+  
+  <!-- Module thebeast -->
+  
+  <dirname property="module.thebeast.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.thebeast" value="${compiler.args}"/>
+  
+  <property name="thebeast.output.dir" value="${module.thebeast.basedir}/classes/production"/>
+  <property name="thebeast.testoutput.dir" value="${module.thebeast.basedir}/classes/test"/>
+  
+  <path id="thebeast.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="thebeast.module.classpath">
+    <path refid="library.junit.classpath"/>
+    <pathelement location="${module.thebeast.basedir}/lib/JLex"/>
+    <pathelement location="${module.thebeast.basedir}/lib/java-cup-11a.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/lpsolve55j.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/JSAP-2.1.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/jline-0.9.9.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.thebeast">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.thebeast">
+    <patternset refid="excluded.from.module.thebeast"/>
+  </patternset>
+  
+  <path id="thebeast.module.sourcepath">
+    <dirset dir="${module.thebeast.basedir}">
+      <include name="src"/>
+      <include name="test/unit"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.thebeast" depends="compile.module.thebeast.production,compile.module.thebeast.tests" description="Compile module thebeast"/>
+  
+  <target name="compile.module.thebeast.production" description="Compile module thebeast; production classes">
+    <mkdir dir="${thebeast.output.dir}"/>
+    <javac destdir="${thebeast.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.thebeast}"/>
+      <bootclasspath refid="thebeast.module.bootclasspath"/>
+      <classpath refid="thebeast.module.classpath"/>
+      <src refid="thebeast.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.thebeast"/>
+    </javac>
+    
+    <copy todir="${thebeast.output.dir}">
+      <fileset dir="${module.thebeast.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.thebeast.basedir}/test/unit">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.thebeast.tests" depends="compile.module.thebeast.production" description="compile module thebeast; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.thebeast" description="cleanup module">
+    <delete dir="${thebeast.output.dir}"/>
+    <delete dir="${thebeast.testoutput.dir}"/>
+  </target>
   
   <target name="init" description="Build initialization">
     <!-- Perform any build initialization in this target -->
