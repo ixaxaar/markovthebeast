@@ -128,6 +128,8 @@ statement ::= createType:s
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
             | TEST TO LOWERCASEID:f STRING:s
               {: RESULT = new ParserTest(f, s.substring(1,s.length()-1)); :}
+            | TEST TO LOWERCASEID:f
+              {: RESULT = new ParserTest(f, null); :}
             | SAVE name:n TO LOWERCASEID:f STRING:s
               {: RESULT = new ParserSave(n, f, s.substring(1,s.length()-1)); :}
             | SAVE CORPUS TO LOWERCASEID:f STRING:s
@@ -366,6 +368,10 @@ constant ::=
     {: RESULT = new ParserVariable(v); :}
   | NUMBER:c
     {: RESULT = new ParserIntConstant(Integer.valueOf(c)); :}
+  | TRUE
+    {: RESULT = new ParserBoolConstant(true); :}
+  | FALSE
+    {: RESULT = new ParserBoolConstant(false); :}
   | MINUS NUMBER:c
     {: RESULT = new ParserIntConstant(-Integer.valueOf(c)); :}
   | DOUBLE:c

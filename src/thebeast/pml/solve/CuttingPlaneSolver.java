@@ -1,13 +1,14 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
+import thebeast.pml.formula.FactorFormula;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
@@ -26,7 +27,7 @@ public class CuttingPlaneSolver implements Solver {
   private GroundAtoms atoms;
   private Weights weights;
   private int iteration;
-  private boolean done, scoresSet, initSet, updated;
+  private boolean done, scoresSet, initSet, updated, deterministicFirst;
   public ILPSolver ilpSolver;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
@@ -136,10 +137,10 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  private void update() {
+  private void update(Collection<FactorFormula> factors) {
     profiler.start("update");
     profiler.start("formulas");
-    formulas.update(atoms);
+    formulas.update(atoms, factors);
     profiler.end();
     profiler.start("ilp.update");
     ilp.update(formulas, atoms);
@@ -162,9 +163,13 @@ public class CuttingPlaneSolver implements Solver {
     iteration = 0;
     if (!scoresSet) score();
     if (!initSet) initSolution();
-    if (!updated) update();
-    candidateAtoms.add(new GroundAtoms(atoms));
-    candidateFormulas.add(new GroundFormulas(formulas));
+    if (deterministicFirst) {
+      deterministicFirst();      
+    } else {
+      update(model.getFactorFormulas());
+      candidateAtoms.add(new GroundAtoms(atoms));
+      candidateFormulas.add(new GroundFormulas(formulas));
+    }
 
     profiler.start("iterations");
     while (ilp.changed() && iteration < maxIterations) {
@@ -172,7 +177,7 @@ public class CuttingPlaneSolver implements Solver {
       ilp.solve(atoms);
       profiler.end();
       ++iteration;
-      update();
+      update(model.getFactorFormulas());
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
       if (enforceIntegers && !ilp.changed() && ilp.isFractional())
@@ -180,6 +185,26 @@ public class CuttingPlaneSolver implements Solver {
     }
     profiler.end();
     done = ilp.changed();
+    profiler.end();
+  }
+
+  private void deterministicFirst() {
+    profiler.start("deterministic");
+    GroundFormulas partial = new GroundFormulas(model,weights);
+    partial.update(atoms,model.getDeterministicFormulas());
+    ilp.update(partial,atoms);
+    formulas.update(atoms,model.getNondeterministicFormulas());
+    formulas.load(partial, model.getDeterministicFormulas());
+    candidateAtoms.add(new GroundAtoms(atoms));
+    candidateFormulas.add(new GroundFormulas(formulas));
+    if (ilp.changed()){
+      ilp.solve(atoms);
+      update(model.getFactorFormulas());
+      candidateAtoms.add(0, new GroundAtoms(atoms));
+      candidateFormulas.add(0, new GroundFormulas(formulas));
+    } else{
+      ilp.update(formulas, atoms);
+    }
     profiler.end();
   }
 
@@ -259,13 +284,24 @@ public class CuttingPlaneSolver implements Solver {
     this.enforceIntegers = enforceIntegers;
   }
 
+
+  public boolean isDeterministicFirst() {
+    return deterministicFirst;
+  }
+
+  public void setDeterministicFirst(boolean deterministicFirst) {
+    this.deterministicFirst = deterministicFirst;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
       ilp.setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     if (name.getHead().equals("integer"))
-      setEnforceIntegers((Boolean)value);
+      setEnforceIntegers((Boolean) value);
+    if (name.getHead().equals("deterministicFirst"))
+      setDeterministicFirst((Boolean) value);
   }
 
   public Object getProperty(PropertyName name) {

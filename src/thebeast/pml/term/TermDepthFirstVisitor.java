@@ -32,4 +32,8 @@ public abstract class TermDepthFirstVisitor implements TermVisitor {
   public void visitBinnedInt(BinnedInt binnedInt) {
     binnedInt.getArgument().acceptTermVisitor(this);
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+
+  }
 }

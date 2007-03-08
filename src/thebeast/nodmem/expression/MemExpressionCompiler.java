@@ -1053,7 +1053,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     arrayAccess.index().acceptExpressionVisitor(this);
     MemFunction index = function;
     MemVector[] argPointers = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 0)};
-    function = new MemFunction(MemFunction.Type.ARRAY_ACCESS, argHolder, argPointers, array, index);
+    function = new MemFunction(MemFunction.Type.ARRAY_ACCESS_ZERO, argHolder, argPointers, array, index);
 
   }
 

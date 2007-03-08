@@ -3,6 +3,7 @@ package thebeast.pml.corpora;
 import thebeast.pml.*;
 import thebeast.pml.term.Constant;
 import thebeast.util.HashMultiMap;
+import thebeast.util.Counter;
 
 import java.io.*;
 import java.util.*;
@@ -29,7 +30,6 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
   private int columns = 0;
   private PrintStream out;
-
 
   public static class Generator implements TypeGenerator {
 
@@ -315,5 +315,5 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
     constantAtoms.put(predicate, constants);
   }
 
-
+  
 }

@@ -20,4 +20,6 @@ public interface TermVisitor {
   void visitDoubleConstant(DoubleConstant doubleConstant);
 
   void visitBinnedInt(BinnedInt binnedInt);
+
+  void visitBoolConstant(BoolConstant boolConstant);
 }

@@ -10,5 +10,7 @@ import thebeast.nod.expression.ArrayExpression;
  * @author Sebastian Riedel
  */
 public interface ArrayVariable extends Variable<ArrayValue,ArrayType>, ArrayExpression {
-  int byteSize(); 
+  int byteSize();
+
+  double doubleValue(int index);
 }

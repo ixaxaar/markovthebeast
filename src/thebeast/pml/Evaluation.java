@@ -132,12 +132,14 @@ public class Evaluation {
 
   public double getRecall(){
     double all = getGoldCount();
+    if (all == 0) return 1.0;
     return (all - getFalseNegativesCount()) / all;
   }
 
   public double getF1() {
     double recall = getRecall();
     double precision = getPrecision();
+    if (recall == 0.0 && precision == 0.0) return 0.0;
     return 2 * recall * precision / (recall + precision);
   }
 

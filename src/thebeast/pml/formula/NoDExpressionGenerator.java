@@ -301,4 +301,8 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
     binnedInt.getArgument().acceptTermVisitor(this);
     builder.bins(binnedInt.getBins());
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+    builder.bool(boolConstant.getBool());
+  }
 }

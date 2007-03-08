@@ -17,6 +17,8 @@ public class Model {
           globalPreds = new LinkedList<UserPredicate>();
 
   private LinkedList<FactorFormula>
+          nondeterministicFormulas = new LinkedList<FactorFormula>(),
+          deterministicFormulas = new LinkedList<FactorFormula>(),
           factorFormulas = new LinkedList<FactorFormula>(),
           localFactorFormulas = new LinkedList<FactorFormula>(),
           globalFactorFormulas = new LinkedList<FactorFormula>();
@@ -87,6 +89,10 @@ public class Model {
     } else {
       globalFactorFormulas.add(factorFormula);
     }
+    if (factorFormula.isDeterministic()) {
+      deterministicFormulas.add(factorFormula);
+    } else
+      nondeterministicFormulas.add(factorFormula);
   }
 
   /**
@@ -109,13 +115,34 @@ public class Model {
 
   /**
    * Get the formulas that contain more than one atom.
+   *
    * @return the global factor formulas.
    */
-  public LinkedList<FactorFormula> getGlobalFactorFormulas() {
+  public List<FactorFormula> getGlobalFactorFormulas() {
     return globalFactorFormulas;
   }
 
-  public void validateModel(){
+
+  /**
+   * Return all deterministic formulas of this model.
+   *
+   * @return all deterministic formulas of this model.
+   */
+  public List<FactorFormula> getDeterministicFormulas() {
+    return deterministicFormulas;
+  }
+
+
+  /**
+   * Return all nondeterministic formulas (where weights are not infinite)
+   *
+   * @return a list of all all nondetermministic formulas.
+   */
+  public List<FactorFormula> getNondeterministicFormulas() {
+    return nondeterministicFormulas;
+  }
+
+  public void validateModel() {
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
   }

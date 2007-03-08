@@ -27,6 +27,7 @@ public class Signature {
   public Signature() {
     name2type.put(Type.DOUBLE.getName(), Type.DOUBLE);
     name2type.put(Type.INT.getName(), Type.INT);
+    name2type.put(Type.BOOL.getName(), Type.BOOL);
   }
 
   /**

@@ -64,6 +64,10 @@ public class FormulaDepthFirstVisitor implements BooleanFormulaVisitor, TermVisi
     binnedInt.getArgument().acceptTermVisitor(this);
   }
 
+  public void visitBoolConstant(BoolConstant boolConstant) {
+
+  }
+
   public void visitPredicateAtom(PredicateAtom predicateAtom) {
     for (Term term : predicateAtom.getArguments())
       term.acceptTermVisitor(FormulaDepthFirstVisitor.this);

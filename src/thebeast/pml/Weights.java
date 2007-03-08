@@ -1,8 +1,8 @@
 package thebeast.pml;
 
-import thebeast.nod.NoDServer;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.NoDServer;
 import thebeast.nod.expression.DoubleExpression;
 import thebeast.nod.expression.Expression;
 import thebeast.nod.statement.Interpreter;
@@ -17,7 +17,9 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.function.WeightFunction;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +40,10 @@ public class Weights {
   private HashMap<WeightFunction, RelationVariable> relations = new HashMap<WeightFunction, RelationVariable>();
   private SparseVector dotProductArg;
   private DoubleExpression dotProduct;
+
+  private int[] tmpIndices;
+  private int[] tmpIndicesList;
+  private boolean[] tmpSet;
 
 
   /**
@@ -477,4 +483,107 @@ public class Weights {
     interpreter.assign(counter, builder.num(0).getInt());
     interpreter.clear(weights);
   }
+
+
+  public int[] intersectIndices(int[] ... indices){
+    initTmps();
+    int size = 0;
+    for (int[] indexArray : indices){
+      for (int index : indexArray){
+        if (!tmpSet[index]){
+          tmpIndicesList[size] = index;
+          tmpIndices[index] = size;
+          tmpSet[size] = true;
+          ++size;
+        }
+      }
+    }
+    int[] result = new int[size];
+    System.arraycopy(tmpIndicesList, 0, result, 0, size);
+    clearTmps(size);
+    return result;
+  }
+
+  public synchronized SparseVector getSubWeights(int[] base, int[] indices) {
+    initTmps();
+    for (int i = 0; i < base.length; ++i) {
+      int index = base[i];
+      tmpIndices[index] = i;
+    }
+
+    double[] values = new double[indices.length];
+    int[] rebased = new int[indices.length];
+    for (int i = 0; i < indices.length;++i){
+      int index = indices[i];      
+      values[i] = weights.doubleValue(index);
+      rebased[i] = tmpIndices[index];
+    }
+    clearTmps(base.length);
+    return new SparseVector(rebased, values);
+  }
+
+  private void initTmps() {
+    if (tmpIndices == null) {
+      tmpIndices = new int[getFeatureCount()];
+      tmpIndicesList = new int[getFeatureCount()];
+      tmpSet = new boolean[getFeatureCount()];
+    }
+  }
+
+  public synchronized List<SparseVector> add(SparseVector lhs, double scale, List<SparseVector> rhs) {
+    initTmps();
+    ArrayList<SparseVector> result = new ArrayList<SparseVector>(rhs.size());
+    double[] lhsValues = lhs.getValueArray();
+    int[] lhsIndices = lhs.getIndexArray();
+    int size = 0;
+    for (int index : lhsIndices) {
+      tmpSet[index] = true;
+      tmpIndices[index] = size;
+      tmpIndicesList[size++] = index;
+    }
+
+    ArrayList<int[]> indexArrays = new ArrayList<int[]>(rhs.size());
+
+    for (SparseVector vector : rhs) {
+      int[] indices = vector.getIndexArray();
+      indexArrays.add(indices);
+      for (int index : indices) {
+        if (!tmpSet[index]) {
+          tmpSet[index] = true;
+          tmpIndices[index] = size;
+          tmpIndicesList[size++] = index;
+        }
+      }
+    }
+
+    int[] baseIndices = new int[size];
+    System.arraycopy(tmpIndicesList, 0, baseIndices, 0, size);
+    double[] baseLhs = new double[size];
+    for (int j = 0; j < lhsIndices.length; ++j) {
+      int index = lhsIndices[j];
+      baseLhs[tmpIndices[index]] = lhsValues[j];
+    }
+    int i = 0;
+    for (SparseVector vector : rhs) {
+      double[] values = vector.getValueArray();
+      int[] indices = indexArrays.get(i++);
+      double[] dst = new double[size];
+      System.arraycopy(baseLhs, 0, dst, 0, size);
+      for (int j = 0; j < indices.length; ++j) {
+        int index = indices[j];
+        dst[tmpIndices[index]] += scale * values[j];
+      }
+      result.add(new SparseVector(baseIndices, dst));
+    }
+
+    clearTmps(size);
+    return result;
+
+  }
+
+  private void clearTmps(int size) {
+    for (int index = 0; index < size; ++index)
+      tmpSet[tmpIndicesList[index]] = false;
+  }
+
 }

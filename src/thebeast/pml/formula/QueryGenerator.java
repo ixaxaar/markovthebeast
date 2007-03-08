@@ -14,6 +14,7 @@ import thebeast.pml.term.IntConstant;
 import thebeast.pml.term.CategoricalConstant;
 import thebeast.pml.term.DoubleConstant;
 import thebeast.pml.term.Variable;
+import thebeast.pml.term.BoolConstant;
 
 import java.util.*;
 
@@ -26,16 +27,6 @@ public class QueryGenerator {
   private IntegerLinearProgram ilp;
   private FactorFormula formula;
 
-  private static class ConjunctionContext {
-    private LinkedList<BoolExpression> conditions = new LinkedList<BoolExpression>();
-    private HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
-    private HashMap<Variable, Term> var2term = new HashMap<Variable, Term>();
-    private LinkedList<RelationVariable> relations = new LinkedList<RelationVariable>();
-    private LinkedList<String> prefixes = new LinkedList<String>();
-    private ExpressionBuilder selectBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
-    private HashMap<String, Term> remainingHiddenArgs = new HashMap<String, Term>();
-
-  }
 
   private DNFGenerator dnfGenerator = new DNFGenerator();
   private CNFGenerator cnfGenerator = new CNFGenerator();
@@ -184,7 +175,7 @@ public class QueryGenerator {
       Implication implication = (Implication) factorFormula.getFormula();
       formula = new Conjunction(implication.getPremise(), implication.getConclusion());
     } else if (factorFormula.getFormula() instanceof Conjunction) {
-      formula = new Not(factorFormula.getFormula());
+      formula = factorFormula.getFormula();
     } else if (factorFormula.getFormula() instanceof Disjunction){
       formula = factorFormula.getFormula();
     }
@@ -348,6 +339,10 @@ public class QueryGenerator {
       }
 
       public void visitBinnedInt(BinnedInt binnedInt) {
+
+      }
+
+      public void visitBoolConstant(BoolConstant boolConstant) {
 
       }
     });
@@ -879,19 +874,19 @@ public class QueryGenerator {
     int falseCount = size - trueCount;
     //the 'big' constraint
     //TODO: this is not enough to turn this into a conjunction, further changes below are necessary
-    builder.id("lb").doubleValue(disjunction ? -falseCount : size - falseCount);
+    builder.id("lb").doubleValue(disjunction ? -falseCount : falseCount - 1);
     builder.id("ub").num(Double.POSITIVE_INFINITY);
     builder.id("values");
-    builder.id("index").expr(f).id("weight").num(-1.0).tuple(2);
+    double scale = disjunction ? 1.0 : -1.0;
+    builder.id("index").expr(f).id("weight").num(-1.0 * scale).tuple(2);
     for (int i = 0; i < size; ++i) {
-      builder.id("index").expr(variables[i]).id("weight").num(signs[i] ? 1.0 : -1.0).tuple(2);
+      builder.id("index").expr(variables[i]).id("weight").num(scale *(signs[i] ? 1.0 : -1.0)).tuple(2);
     }
     builder.relation(size + 1);
     builder.tuple(3);
     //the 'small' constraints
-    double scale = disjunction ? 1.0 : -1.0;
     for (int i = 0; i < size; ++i) {
-      builder.id("lb").num(disjunction ? signs[i] ? 0.0 : 1.0 : signs[i] ? 1.0 : 0.0);
+      builder.id("lb").num(disjunction ? signs[i] ? 0.0 : 1.0 : signs[i] ? 0.0 : -1.0);
       builder.id("ub").num(Double.POSITIVE_INFINITY);
       builder.id("values");
       builder.id("index").expr(f).id("weight").num(scale).tuple(2);

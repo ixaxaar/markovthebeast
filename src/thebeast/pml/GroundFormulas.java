@@ -13,6 +13,7 @@ import thebeast.pml.function.WeightFunction;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Collection;
 
 /**
  * A FormulaStates object is container with
@@ -51,10 +52,11 @@ public class GroundFormulas {
 
 
   /**
-   * Creates a (read-only) copy of the given ground formulas.  
+   * Creates a (read-only) copy of the given ground formulas.
+   *
    * @param formulas the formulas to copy.
    */
-  public GroundFormulas(GroundFormulas formulas){
+  public GroundFormulas(GroundFormulas formulas) {
     this.model = formulas.model;
     this.weights = formulas.weights;
     for (FactorFormula formula : model.getFactorFormulas()) {
@@ -119,14 +121,14 @@ public class GroundFormulas {
         if (!formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
-          if (formula.isParametrized()){
+          if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
         if (!formula.getWeight().isNonPositive()) {
           RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
-          if (formula.isParametrized()){
+          if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
@@ -154,7 +156,7 @@ public class GroundFormulas {
     if (bound.size() == 0) return;
     String name = bound.toString();
     if (!relvar.hasIndex(name)) interpreter.addIndex(relvar, name, Index.Type.HASH, bound);
-    for (String var : bound){
+    for (String var : bound) {
       HashSet<String> subset = new HashSet<String>(bound);
       subset.remove(var);
       addAllPossibleIndices(relvar, weightFunction, subset);
@@ -195,6 +197,21 @@ public class GroundFormulas {
 
   public Model getModel() {
     return model;
+  }
+
+  public void load(GroundFormulas formulas, Collection<FactorFormula> factors) {
+    for (FactorFormula formula : factors) {
+      if (!formula.getWeight().isNonNegative())
+        interpreter.assign(getTrueGroundFormulas(formula), formulas.getTrueGroundFormulas(formula));
+      else if (!formula.getWeight().isNonPositive())
+        interpreter.assign(getFalseGroundFormulas(formula), formulas.getFalseGroundFormulas(formula));
+      else if (formula.isAcyclicityConstraint()) {
+        UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
+        interpreter.assign(getCycles(predicate), formulas.getCycles(predicate));
+      }
+      interpreter.assign(getExplicitGroundFormulas(formula), formulas.getExplicitGroundFormulas(formula));
+
+    }
   }
 
   public void load(GroundFormulas formulas) {
@@ -272,10 +289,26 @@ public class GroundFormulas {
     return result.toString();
   }
 
+  /**
+   * Find violated/true ground formulas for all formulas in the current model.
+   *
+   * @param solution the solution to extract groundings from.
+   */
   public void update(GroundAtoms solution) {
+    update(solution, model.getFactorFormulas());
+  }
+
+  /**
+   * Find violated/true ground formulas for the specified quantified formulas within the
+   * given solution
+   *
+   * @param solution the solution to extract the groundings from
+   * @param formulas the formulas to find ground formulas for.
+   */
+  public void update(GroundAtoms solution, Collection<FactorFormula> formulas) {
     this.groundAtoms.load(solution);
     //System.out.println(this.groundAtoms);
-    for (FactorFormula factorFormula : model.getFactorFormulas()) {
+    for (FactorFormula factorFormula : formulas) {
       if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));

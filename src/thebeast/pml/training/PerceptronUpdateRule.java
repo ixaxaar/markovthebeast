@@ -21,11 +21,7 @@ public class PerceptronUpdateRule implements UpdateRule {
 
   public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights) {
     double scale = 1.0 / candidates.size();
-    System.out.println("Gold:");
-    System.out.println(gold.getNonnegative());
     for (FeatureVector guess : candidates) {
-      System.out.println("Guess:");
-      System.out.println(guess.getNonnegative());
       //FeatureVector guess = candidates.get(candidates.size() - 1);
       SparseVector diffFree = gold.getFree().add(-scale, guess.getFree());
       weights.add(learningRate, diffFree);

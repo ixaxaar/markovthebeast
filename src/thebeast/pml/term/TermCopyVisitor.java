@@ -47,4 +47,8 @@ public class TermCopyVisitor implements TermVisitor {
     binnedInt.getArgument().acceptTermVisitor(this);
     term = new BinnedInt(binnedInt.getBins(), term);
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+    term = boolConstant;
+  }
 }

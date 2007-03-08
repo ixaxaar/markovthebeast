@@ -58,4 +58,9 @@ public class AbstractTermVisitor implements TermVisitor {
     if (throwExceptions) throw new UnsupportedHostException(binnedInt);
 
   }
+
+  public void visitBoolConstant(BoolConstant boolConstant) {
+    if (throwExceptions) throw new UnsupportedHostException(boolConstant);
+
+  }
 }
