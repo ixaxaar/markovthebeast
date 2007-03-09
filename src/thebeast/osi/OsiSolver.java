@@ -53,6 +53,7 @@ public interface OsiSolver {
 
   int getNumRows();
 
-  void setCbcLogLevel(int level);
+  void setLogLevel(int level);
+
 
 }

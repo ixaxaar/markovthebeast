@@ -12,13 +12,15 @@ public final class OsiSolverJNI implements OsiSolver {
   private static HashSet<OsiSolverJNI> instances = new HashSet<OsiSolverJNI>();
   private boolean exceptionThrown = false;
   private String message;
+  private Implementation implementation;
 
   static {
     System.loadLibrary("osi");
   }
 
-  private OsiSolverJNI(long pointer) {
+  private OsiSolverJNI(long pointer, Implementation implementation) {
     this.pointer = pointer;
+    this.implementation = implementation;
   }
 
   public enum Implementation {
@@ -26,8 +28,9 @@ public final class OsiSolverJNI implements OsiSolver {
   }
 
   public synchronized static OsiSolverJNI create(Implementation implementation) {
-    OsiSolverJNI solver = new OsiSolverJNI(createImplementation(implementation.ordinal()));
+    OsiSolverJNI solver = new OsiSolverJNI(createImplementation(implementation.ordinal()),implementation);
     instances.add(solver);
+
     return solver;
   }
 
@@ -76,6 +79,11 @@ public final class OsiSolverJNI implements OsiSolver {
 
   public int getNumRows(){
     return getNumRows(pointer);
+  }
+
+  public void setLogLevel(int level) {
+    if (implementation == Implementation.CBC)
+      setCbcLogLevel(level);
   }
 
   public void setCbcLogLevel(int level) {
@@ -202,7 +210,9 @@ public final class OsiSolverJNI implements OsiSolver {
 
   public static void main(String[] args) {
     OsiSolverJNI solver = OsiSolverJNI.create(Implementation.CBC);
+    solver.intialSolve();
     solver.reset();
+    solver.setHintParam(OsiSolver.OsiHintParam.OsiDoReducePrint, true, OsiSolver.OsiHintStrength.OsiHintTry);    
     //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
     //solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
     solver.addCols(2, new int[2][0], new double[2][0], new double[]{0.0, 0.0}, new double[]{1.5,1.5}, new double[]{1.0,1.0});
@@ -215,9 +225,11 @@ public final class OsiSolverJNI implements OsiSolver {
     System.out.println("solver.getNumCols() = " + solver.getNumCols());
     System.out.println("solver.getNumRows() = " + solver.getNumRows());
     //solver.intialSolve();
+    solver.setCbcLogLevel(0);
     solver.branchAndBound();
     System.out.println("solver.getObjValue() = " + solver.getObjValue());
     solver.addRow(1,new int[]{1},new double[]{1.0},0,0.5);
+    solver.setCbcLogLevel(0);
     solver.branchAndBound();
     System.out.println("solver.getObjValue() = " + solver.getObjValue());
     double[] result = solver.getColSolution();
@@ -225,6 +237,7 @@ public final class OsiSolverJNI implements OsiSolver {
 
     solver.delete();
     solver = OsiSolverJNI.create(Implementation.CBC);
+    solver.setCbcLogLevel(0);    
     //solver.reset();
     solver.addCol(0,new int[0],new double[0],0,1.5,1.0);
     solver.addCol(0,new int[0],new double[0],0,1.5,1.0);

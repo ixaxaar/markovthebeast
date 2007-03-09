@@ -34,7 +34,6 @@ public class ILPSolverOsi implements ILPSolver {
     solver.setObjSense(-1);
     solver.setHintParam(OsiSolver.OsiHintParam.OsiDoReducePrint, true, OsiSolver.OsiHintStrength.OsiHintTry);
 
-    solver.setCbcLogLevel(0);
     //solver.setCbcLogLevel(0);
     numRows = 0;
     numCols = 0;
@@ -102,6 +101,7 @@ public class ILPSolverOsi implements ILPSolver {
   }
 
   public RelationVariable solve() {
+    solver.setLogLevel(0);
     if (hasIntegerConstraints)
       solver.branchAndBound();
     else

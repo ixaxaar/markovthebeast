@@ -304,6 +304,7 @@ public class GroundFormulas {
 
 
   public void updateDeterministic(GroundAtoms solution){
+    clear();
     update(solution,model.getDeterministicFormulas());
     isDeterministic = true;
   }

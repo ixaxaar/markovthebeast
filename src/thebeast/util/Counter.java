@@ -1,7 +1,6 @@
 package thebeast.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.io.*;
 
 /**
@@ -33,7 +32,13 @@ public class Counter<T> extends HashMap<T, Integer> {
 
   public void save(OutputStream outputStream) throws FileNotFoundException {
     PrintStream out = new PrintStream(outputStream);
-    for (Map.Entry<T,Integer> entry : entrySet()){
+    ArrayList<Map.Entry<T,Integer>> sorted = new ArrayList<Map.Entry<T, Integer>>(entrySet());
+    Collections.sort(sorted, new Comparator<Map.Entry<T,Integer>>(){
+      public int compare(Map.Entry<T, Integer> o1, Map.Entry<T, Integer> o2) {
+        return o2.getValue() - o1.getValue();
+      }
+    });
+    for (Map.Entry<T,Integer> entry : sorted){
       out.println(entry.getKey() + "\t" + entry.getValue());
     }
   }

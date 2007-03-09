@@ -138,7 +138,7 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  private void update(Collection<FactorFormula> factors) {
+  private void update() {
     profiler.start("update");
 
     profiler.start("formulas");
@@ -172,7 +172,7 @@ public class CuttingPlaneSolver implements Solver {
     if (deterministicFirst) {
       deterministicFirst();      
     } else {
-      update(model.getFactorFormulas());
+      update();
       candidateAtoms.add(new GroundAtoms(atoms));
       candidateFormulas.add(new GroundFormulas(formulas));
     }
@@ -183,7 +183,7 @@ public class CuttingPlaneSolver implements Solver {
       ilp.solve(atoms);
       profiler.end();
       ++iteration;
-      update(model.getFactorFormulas());
+      update();
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
       if (enforceIntegers && !ilp.changed() && ilp.isFractional())
@@ -202,6 +202,7 @@ public class CuttingPlaneSolver implements Solver {
     profiler.start("update det");
     formulas.updateDeterministic(atoms);
     profiler.end();
+    //System.out.println(formulas);
 
     profiler.start("update det ilp");
     ilp.update(formulas,atoms);
@@ -214,13 +215,12 @@ public class CuttingPlaneSolver implements Solver {
 
     if (ilp.changed()){
       ilp.solve(atoms);
-      update(model.getFactorFormulas());
+      update();
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
     } else{
-      profiler.start("update ilp");
+      formulas.update(atoms, model.getNondeterministicFormulas());
       ilp.update(formulas, atoms);
-      profiler.end();
     }
     profiler.end();
   }
