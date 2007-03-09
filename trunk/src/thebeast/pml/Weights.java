@@ -299,7 +299,8 @@ public class Weights {
           if (index++ > 0) buffer.append(", ");
           buffer.append(value);
         }
-        buffer.append(")");
+        buffer.append(") = " + weights.doubleValue(featureIndex));
+
         return buffer.toString();
       }
     }

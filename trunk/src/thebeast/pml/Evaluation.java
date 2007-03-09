@@ -62,12 +62,14 @@ public class Evaluation {
 
   public double getRecall(UserPredicate pred){
     double all = gold.getGroundAtomsOf(pred).getRelationVariable().value().size();
+    if (all == 0) return 1.0;
     double fn = falseNegatives.getGroundAtomsOf(pred).getRelationVariable().value().size();
     return (all - fn) / all;
   }
 
   public double getPrecision(UserPredicate pred){
     double all = guess.getGroundAtomsOf(pred).getRelationVariable().value().size();
+    if (all == 0) return 1.0;
     double fp = falsePositives.getGroundAtomsOf(pred).getRelationVariable().value().size();
     return (all - fp) / all;
   }
@@ -75,6 +77,7 @@ public class Evaluation {
   public double getF1(UserPredicate predicate){
     double recall = getRecall(predicate);
     double precision = getPrecision(predicate);
+    if (recall == 0 & precision == 0) return 0;
     return 2 * recall * precision / (recall + precision);
   }
 
@@ -141,6 +144,14 @@ public class Evaluation {
     double precision = getPrecision();
     if (recall == 0.0 && precision == 0.0) return 0.0;
     return 2 * recall * precision / (recall + precision);
+  }
+
+  public double getAverageF1(){
+    double avg = 0;
+    for (UserPredicate pred : model.getHiddenPredicates()){
+      avg += getF1(pred);
+    }
+    return avg / model.getHiddenPredicates().size();
   }
 
   public int getNumErrors(){

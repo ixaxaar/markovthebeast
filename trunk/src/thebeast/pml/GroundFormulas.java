@@ -50,6 +50,8 @@ public class GroundFormulas {
   private HashMap<UserPredicate, RelationVariable>
           cycles = new HashMap<UserPredicate, RelationVariable>();
 
+  private boolean isDeterministic;
+
 
   /**
    * Creates a (read-only) copy of the given ground formulas.
@@ -215,6 +217,7 @@ public class GroundFormulas {
   }
 
   public void load(GroundFormulas formulas) {
+    isDeterministic = formulas.isDeterministic();
     for (FactorFormula formula : trueGroundFormulas.keySet()) {
       interpreter.assign(getTrueGroundFormulas(formula), formulas.getTrueGroundFormulas(formula));
     }
@@ -296,6 +299,17 @@ public class GroundFormulas {
    */
   public void update(GroundAtoms solution) {
     update(solution, model.getFactorFormulas());
+    isDeterministic = false;
+  }
+
+
+  public void updateDeterministic(GroundAtoms solution){
+    update(solution,model.getDeterministicFormulas());
+    isDeterministic = true;
+  }
+
+  public boolean isDeterministic() {
+    return isDeterministic;
   }
 
   /**

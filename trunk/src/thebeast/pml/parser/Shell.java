@@ -449,26 +449,26 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.print(guess.getGroundAtomsOf(predicate));
       }
     } else if ("scores".equals(parserPrint.name.head)) {
-      out.print(scores);
+      out.println(scores);
     } else if ("solver".equals(parserPrint.name.head)) {
-      out.print(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
+      out.println(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("learner".equals(parserPrint.name.head)) {
-      out.print(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
+      out.println(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("eval".equals(parserPrint.name.head)) {
       Evaluation evaluation = new Evaluation(model);
       evaluation.evaluate(gold, guess);
-      out.print(evaluation);
+      out.println(evaluation);
     } else if ("formulas".equals(parserPrint.name.head)) {
       GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.extract(guess);
-      out.print(formulas);
+      out.println(formulas);
     } else if ("gold".equals(parserPrint.name.head)) {
       if ("formulas".equals(parserPrint.name.tail.head)) {
         GroundFormulas formulas = new GroundFormulas(model, weights);
         formulas.extract(gold);
-        out.print(formulas);
+        out.println(formulas);
       } else if ("atoms".equals(parserPrint.name.tail.head))
-        out.print(gold);
+        out.println(gold);
     } else if ("weights".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
         weights.save(out);
@@ -494,7 +494,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     stopWatch.start();
     solver.setObservation(guess);
     solver.solve(parserSolve.numIterations);
-    guess.load(solver.getAtoms());
+    guess.load(solver.getBestAtoms());
     long time = stopWatch.stopAndContinue();
 
 //    if (solutionAvailable && !guess.isEmpty(model.getHiddenPredicates()))
@@ -645,11 +645,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
       solver.solve();
-      evaluation.evaluate(gold, solver.getAtoms());
+      evaluation.evaluate(gold, solver.getBestAtoms());
       corpusEvaluation.add(evaluation);
-      dst.append(solver.getAtoms());
-      reporter.progressed(evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
-              evaluation.getGoldCount(), evaluation.getGuessCount());
+      dst.append(solver.getBestAtoms());
+      reporter.progressed(
+              0.0, 0);
     }
     reporter.finished();
     out.print(corpusEvaluation);
@@ -808,8 +808,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private PropertyName toPropertyName(ParserName name) {
-    if (name.tail == null) return new PropertyName(name.head, null);
-    return new PropertyName(name.head, toPropertyName(name.tail));
+    if (name.tail == null) return new PropertyName(name.head, null, name.arguments);
+    return new PropertyName(name.head, toPropertyName(name.tail), name.arguments);
   }
 
   public void visitClear(ParserClear parserClear) {

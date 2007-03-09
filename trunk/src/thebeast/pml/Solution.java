@@ -212,6 +212,7 @@ public class Solution {
       profiler.end();
     }
     profiler.end();
+    profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
@@ -228,12 +229,14 @@ public class Solution {
         //result.addInPlace(1.0, tmp);
       }
     }
+    profiler.end();
     return vector;
   }
 
   public void load(GroundAtoms groundAtoms, GroundFormulas groundFormulas) {
     this.groundAtoms.load(groundAtoms);
     this.groundFormulas.load(groundFormulas);
+
   }
 
   public void load(GroundAtoms groundAtoms) {

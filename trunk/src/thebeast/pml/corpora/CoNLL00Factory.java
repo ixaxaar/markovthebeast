@@ -51,6 +51,7 @@ public class CoNLL00Factory implements CorpusFactory {
     UserPredicate isNumber = (UserPredicate) signature.getPredicate("cardinal");
     UserPredicate chunk = (UserPredicate) signature.getPredicate("chunk");
     UserPredicate count = signature.getUserPredicate("count");
+    UserPredicate highestFreq = signature.getUserPredicate("highestfreq");
 
     AttributeExtractor words = new AttributeExtractor(word, 2);
     words.addLineNrArg(0);
@@ -60,7 +61,7 @@ public class CoNLL00Factory implements CorpusFactory {
     hyphens.addLineNrArg(0);
     hyphens.addMapping(0, 1, new HasSubstring("-"));
 
-    Counter counter = null;
+    Counter<String> counter = null;
     try {
       counter = Counter.loadFromFile(new File("/tmp/counts"));
     } catch (IOException e) {
@@ -69,6 +70,9 @@ public class CoNLL00Factory implements CorpusFactory {
     AttributeExtractor counts = new AttributeExtractor(count, 2);
     counts.addLineNrArg(0);
     counts.addMapping(0, 1, new Count(counter));
+
+    PhraseStatistics freqs = new PhraseStatistics(0, highestFreq,
+            new PhraseStatistics.HighestFrequency(counter));
 
     AttributeExtractor prefixes1 = new AttributeExtractor(prefix1, 2);
     prefixes1.addLineNrArg(0);
@@ -133,6 +137,7 @@ public class CoNLL00Factory implements CorpusFactory {
     corpus.addExtractor(cases);
     corpus.addExtractor(numbers);
     corpus.addExtractor(chunks);
+    corpus.addExtractor(freqs);
 
     corpus.addWriter(word, new TokenFeatureWriter(0, 0, 0));
     corpus.addWriter(word, new TokenFeatureWriter(1, 0, 1, new Dequote()));

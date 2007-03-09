@@ -635,6 +635,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.containsFeature(phrase, 0, 0, 1, "NP"));
     assertTrue(features.containsFeature(phrase, 2, 0, 1, "NP"));
     System.out.println(features.toVerboseString());
+    System.out.println(features.toVerboseString(phrase, 0,1, "NP"));
     //features.invalidate();
     RelationVariable grouped = features.getGroupedRelation(phrase);
     System.out.println(grouped.value());
@@ -1199,12 +1200,12 @@ public class TestTheBeast extends TestCase {
     solver.setInititalSolution(theManLikesTheBoat);
     solver.solve(1);
     //solver.solve(theManLikesTheBoat,1);
-    System.out.println(solver.getAtoms());
+    System.out.println(solver.getBestAtoms());
     //Solution result = new Solution(model, weights);
     //solver.solve(theManLikesTheBoat, scores, result);
 
-    assertEquals(1, solver.getAtoms().getGroundAtomsOf(phrase).size());
-    assertTrue(solver.getAtoms().getGroundAtomsOf(phrase).containsAtom(2, 4, "VP"));
+    assertEquals(1, solver.getBestAtoms().getGroundAtomsOf(phrase).size());
+    assertTrue(solver.getBestAtoms().getGroundAtomsOf(phrase).containsAtom(2, 4, "VP"));
 
     //System.out.println(result.getGroundAtoms());
 
@@ -1282,8 +1283,8 @@ public class TestTheBeast extends TestCase {
     solver.configure(model, weights);
     solver.setObservation(instance);
     solver.solve(1);
-    System.out.println(solver.getAtoms());
-    System.out.println(solver.getFormulas());
+    System.out.println(solver.getBestAtoms());
+    System.out.println(solver.getBestFormulas());
 
     //now use the new weights to train on
     learner.learn(corpus);
