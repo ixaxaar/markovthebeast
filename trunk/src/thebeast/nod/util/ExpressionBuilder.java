@@ -313,12 +313,25 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder categoricalAttribute(String prefix, String name) {
+    Attribute attribute = prefix2rel.get(prefix).type().heading().attribute(name);
+    if (attribute == null)
+      throw new RuntimeException(prefix + " does not have a " + name + " attribute!");
+    if (!(attribute.type() instanceof CategoricalType))
+      throw new RuntimeException(prefix + ":" + name + " is not an int attribute");
+    expressionStack.push(expressionFactory.createAttribute(prefix, attribute));
+    return this;
+  }
+
+
   public ExpressionBuilder intAttribute(String name) {
     IntType type = typeFactory.intType();
     Attribute attr = typeFactory.createAttribute(name, type);
     expressionStack.push(expressionFactory.createIntAttribute(null, attr));
     return this;
   }
+
+
 
   public ExpressionBuilder doubleAttribute(String prefix, String name) {
     DoubleType type = typeFactory.doubleType();

@@ -1,3 +1,7 @@
+weight w_pos: Pos -> Double;
+factor:
+  for Int i, Pos p if word(i,_) add [pos(i,p)] * w_pos(p);
+
 //local word unigram based factors
 weight w_word: Word x Pos -> Double;
 factor:

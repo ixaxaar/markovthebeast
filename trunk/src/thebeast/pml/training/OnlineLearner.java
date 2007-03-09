@@ -304,6 +304,12 @@ public class OnlineLearner implements Learner, HasProperties {
 
     progressReporter.progressed(losses.get(0), losses.size());
 
+//    for (UserPredicate pred : model.getHiddenPredicates()) {
+//      System.out.println(goldAtoms.getGroundAtomsOf(pred));
+//      System.out.println(candidateAtoms.get(0).getGroundAtomsOf(pred));
+//    }
+    //System.out.println(losses);
+
     profiler.end();
   }
 

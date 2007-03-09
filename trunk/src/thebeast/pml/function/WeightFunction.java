@@ -14,9 +14,10 @@ import java.util.List;
  */
 public class WeightFunction extends Function {
 
-  private Heading heading;
+  private Heading headingWithIndex;
   private LinkedList<Attribute> attributes;
   private Attribute indexAttribute;
+  private Heading heading;
 
   public WeightFunction(String name, List<Type> argumentTypes) {
     super(name, Type.DOUBLE, argumentTypes);
@@ -31,19 +32,23 @@ public class WeightFunction extends Function {
   private void init(List<Type> argumentTypes, String name) {
     TypeFactory factory = TheBeast.getInstance().getNodServer().typeFactory();
     attributes = new LinkedList<Attribute>();
-    indexAttribute = factory.createAttribute("index", factory.intType());
-    attributes.add(indexAttribute);
     int index = 0;
     for (Type type : argumentTypes) {
       attributes.add(factory.createAttribute(getColumnName(index++), type.getNodType()));
     }
     heading = factory.createHeadingFromAttributes(attributes);
+    indexAttribute = factory.createAttribute("index", factory.intType());
+    attributes.add(indexAttribute);
+    headingWithIndex = factory.createHeadingFromAttributes(attributes);
+  }
+
+  public Heading getIndexedHeading() {
+    return headingWithIndex;
   }
 
   public Heading getHeading() {
     return heading;
   }
-
 
   public Attribute getIndexAttribute() {
     return indexAttribute;
@@ -58,7 +63,8 @@ public class WeightFunction extends Function {
   }
 
   public Attribute getAttributeForArg(int argIndex) {
-    return attributes.get(argIndex + 1);
+    return heading.attributes().get(argIndex);
+    //return attributes.get(argIndex + 1);
   }
 
 

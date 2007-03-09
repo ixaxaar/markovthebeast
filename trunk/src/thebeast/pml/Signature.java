@@ -209,6 +209,11 @@ public class Signature {
     return name2weightFunction.get(functionName);
   }
 
+  public WeightFunction getWeightFunction(String functionName) {
+    return name2weightFunction.get(functionName);
+  }
+
+
   /**
    * Create an Equals predicate for the given type
    *

@@ -57,7 +57,7 @@ public class Weights {
     weights = interpreter.createArrayVariable(nodServer.typeFactory().doubleType());
     for (WeightFunction function : signature.getWeightFunctions()) {
       //List<String> names = function.getHeading().getAttributeNames();
-      RelationVariable relation = interpreter.createRelationVariable(function.getHeading());
+      RelationVariable relation = interpreter.createRelationVariable(function.getIndexedHeading());
       relation.setLabel(function.getName());
       relations.put(function, relation);
       //interpreter.addIndex(relation, "toIndex", Index.Type.HASH, names.subList(0, names.size() - 1));
@@ -240,7 +240,7 @@ public class Weights {
     int index = 0;
     builder.expr(weights);
     builder.expr(rel);
-    for (Attribute attribute : weightFunction.getHeading().attributes().subList(1, args.length + 1))
+    for (Attribute attribute : weightFunction.getIndexedHeading().attributes().subList(1, args.length + 1))
       builder.attribute(attribute).expr(args[index++]).equality();
     builder.and(args.length);
     builder.restrict();

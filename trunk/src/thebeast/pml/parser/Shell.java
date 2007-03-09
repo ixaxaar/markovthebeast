@@ -13,9 +13,7 @@ import thebeast.pml.function.IntMinus;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.predicate.*;
 import thebeast.pml.term.*;
-import thebeast.pml.training.FeatureCollector;
-import thebeast.pml.training.OnlineLearner;
-import thebeast.pml.training.TrainingInstances;
+import thebeast.pml.training.*;
 import thebeast.util.DotProgressReporter;
 import thebeast.util.StopWatch;
 import thebeast.util.Util;
@@ -642,14 +640,20 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     Evaluation evaluation = new Evaluation(model);
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
     reporter.started();
+    LossFunction lossFunction = new AverageF1Loss(model);
     for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
       solver.solve();
       evaluation.evaluate(gold, solver.getBestAtoms());
+//      for (UserPredicate pred : model.getHiddenPredicates()){
+//        System.out.println(gold.getGroundAtomsOf(pred));
+//        System.out.println(solver.getBestAtoms().getGroundAtomsOf(pred));
+//      }
       corpusEvaluation.add(evaluation);
       dst.append(solver.getBestAtoms());
-      reporter.progressed(
-              0.0, 0);
+      double loss = lossFunction.loss(gold, solver.getBestAtoms());
+      reporter.progressed(loss, 1);
+      //System.out.println(loss);
     }
     reporter.finished();
     out.print(corpusEvaluation);
@@ -801,6 +805,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("learner".equals(parserSet.propertyName.head))
       learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+    else if ("collector".equals(parserSet.propertyName.head))
+      collector.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else
       throw new RuntimeException("There is no property named " + parserSet.propertyName);
 

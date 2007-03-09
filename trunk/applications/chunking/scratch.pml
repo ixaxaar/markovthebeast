@@ -6,9 +6,9 @@ include "conll00.pml";
 include "chunking.pml";
 include "tagging.pml";
 
-include "pos-word-unigram.pml";
+include "pos-unigram.pml";
 include "pos-unknowns.pml";
-include "pos-pos.pml";
+//include "pos-pos.pml";
 //include "chunk-bigram.pml";
 //include "chunk-phrase.pml";
 include "chunk-pos.pml";
@@ -28,9 +28,16 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-100) to ram;
+save corpus (0-50) to ram;
+
+//set collector.all.w_word = true;
+//set collector.all.w_pos_pos = true;
 
 collect;
+
+save weights to dump "/tmp/weights.scratch.blank.dmp";
+
+//load weights from dump "/tmp/weights.scratch.blank.dmp";
 
 save corpus to instances "/tmp/chunk.inst.dmp";
 
@@ -53,18 +60,18 @@ set learner.profile = true;
 
 //set learner.solver = "cut";
 
-learn for 4 epochs;
+//learn for 1 epochs;
 
-print learner.profiler;
+//print learner.profiler;
 
 //load corpus from conll00 "corpora/test.conll";
 
-//save corpus (0-10) to ram;
+//save corpus (0-100) to ram;
 
-set solver.ilp.solver = "lpsolve";
-set solver.integer = true;
-set solver.deterministicFirst = true;
-set learner.solver.maxIterations = 10;
+//set solver.ilp.solver = "lpsolve";
+//set solver.integer = true;
+//set solver.deterministicFirst = true;
+//set learner.solver.maxIterations = 10;
 
 
 //print weights.ch_pos_2;

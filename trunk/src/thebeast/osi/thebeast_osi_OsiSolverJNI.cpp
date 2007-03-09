@@ -30,9 +30,10 @@ JNIEXPORT jlong JNICALL Java_thebeast_osi_OsiSolverJNI_createImplementation
     case 1: solver = new OsiClpSolverInterface; break;
   }
   double dEmpty = 0;
+
 	int iEmpty = 0;
   //char cEmpty = '?';
-	solver->loadProblem(0, 0, &iEmpty, &iEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty);  
+	solver->loadProblem(0, 0, &iEmpty, &iEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty, &dEmpty);
   return (jlong)solver;
 }
 
@@ -57,16 +58,11 @@ JNIEXPORT jboolean JNICALL Java_thebeast_osi_OsiSolverJNI_setHintParam
 JNIEXPORT void JNICALL Java_thebeast_osi_OsiSolverJNI_setCbcLogLevel
   (JNIEnv *, jclass, jint level, jlong ptr){
 
-  OsiCbcSolverInterface* solver = (OsiCbcSolverInterface*) ptr;
-  //solver->messageHandler()->setLogLevel(level);
-  //solver->getModelPtr()->messageHandler()->setLogLevel(level);
-  CbcModel* model = solver->getModelPtr();
-  //printf("model: %d",model);
-  //model->setLogLevel(level);
+  OsiSolverInterface* solver = (OsiSolverInterface*) ptr;
+  OsiCbcSolverInterface* cbc = dynamic_cast<OsiCbcSolverInterface*>(solver);
+  cbc->messageHandler()->setLogLevel(level);
 
 }
-
-
 
 /*
  * Class:     thebeast_osi_OsiSolverJNI
