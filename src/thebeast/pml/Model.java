@@ -145,6 +145,8 @@ public class Model {
   public void validateModel() {
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
+    HashSet<UserPredicate> hiddenSet = new HashSet<UserPredicate>(hidden);
+    HashSet<UserPredicate> observationSet = new HashSet<UserPredicate>(observed);
   }
 
 

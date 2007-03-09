@@ -36,10 +36,12 @@ factor:
 
 
 //look at outer tags
-/*
 weight ch_pos_2_outer: Pos x Pos x Chunk -> Double+;
 factor:
   for Int t, Pos p_1, Pos p_2, Chunk c
   add [pos(t-1,p_1) & pos(t+2,p_2) => chunk(t,t+1,c)] * ch_pos_2_outer(p_1,p_2,c);
 
-*/
+weight ch_pos_3_outer: Pos x Pos x Pos x Chunk -> Double+;
+factor:
+  for Int t, Pos p_1, Pos p_2, Pos p_3, Chunk c
+  add [pos(t-1,p_1) & pos(t,p_2) & pos(t+2,p_3) => chunk(t,t+1,c)] * ch_pos_3_outer(p_1,p_2,p_3,c);

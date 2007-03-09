@@ -71,4 +71,8 @@ public class FeatureVector {
     return free.size() + nonnegative.size() + nonpositive.size();
   }
 
+  public void loadSigned(FeatureVector vector) {
+    this.nonnegative.load(vector.nonnegative);
+    this.nonpositive.load(vector.nonpositive);
+  }
 }

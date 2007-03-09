@@ -32,7 +32,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Solution goldSolution;
   private Weights weights;
   private Model model;
-  private PrecisionRecallProgressReporter progressReporter = new QuietProgressReporter();
+  private PerformanceProgressReporter progressReporter = new QuietProgressReporter();
   private boolean averaging = false;
   private ArrayVariable average;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -53,7 +53,7 @@ public class OnlineLearner implements Learner, HasProperties {
     return progressReporter;
   }
 
-  public void setProgressReporter(PrecisionRecallProgressReporter progressReporter) {
+  public void setProgressReporter(PerformanceProgressReporter progressReporter) {
     this.progressReporter = progressReporter;
   }
 
@@ -183,7 +183,7 @@ public class OnlineLearner implements Learner, HasProperties {
     solver.setObservation(goldAtoms);
     solver.setScores(scores);
     solver.solve();
-    solution.getGroundAtoms().load(solver.getAtoms());
+    solution.getGroundAtoms().load(solver.getBestAtoms());
 
     //evaluate the guess vs the gold.
     evaluation.evaluate(goldAtoms, solution.getGroundAtoms());
@@ -201,8 +201,7 @@ public class OnlineLearner implements Learner, HasProperties {
     updateAverage();
 
     progressReporter.progressed(
-            evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
-            evaluation.getGoldCount(), evaluation.getGuessCount());
+            0.0, 0);
   }
 
   private void updateAverage() {
@@ -228,7 +227,7 @@ public class OnlineLearner implements Learner, HasProperties {
     goldGroundFormulas = new GroundFormulas(model, weights);
     goldSolution = new Solution(model, weights);
     solver.configure(model, weights);
-    lossFunction = new F1Loss(model);
+    lossFunction = new GlobalF1Loss(model);
   }
 
   public void learn(TrainingInstances instances) {
@@ -266,14 +265,16 @@ public class OnlineLearner implements Learner, HasProperties {
     solver.setObservation(data.getData());
     solver.setScores(scores);
     solver.solve();
-    solution.getGroundAtoms().load(solver.getAtoms());
-    solution.getGroundFormulas().load(solver.getFormulas());
+    solution.getGroundAtoms().load(solver.getBestAtoms());
+    solution.getGroundFormulas().load(solver.getBestFormulas());
 
     //evaluate the guess vs the gold.
     profiler.start("evaluate");
-    evaluation.evaluate(goldAtoms, solver.getAtoms());
+    evaluation.evaluate(goldAtoms, solver.getBestAtoms());
     profiler.end();
 
+    gold.load(data.getGold());
+    
     //extract features (or load)
     profiler.start("extract");
     List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();
@@ -284,13 +285,15 @@ public class OnlineLearner implements Learner, HasProperties {
       GroundAtoms guessAtoms = candidateAtoms.get(i);
       solution.getGroundAtoms().load((guessAtoms));
       solution.getGroundFormulas().load(candidateFormulas.get(i));
-      candidates.add(solution.extract(features));
+      FeatureVector features = solution.extract(this.features);
+      if (solution.getGroundFormulas().isDeterministic())
+        features.loadSigned(gold);
+      candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, guessAtoms));
     }
 
     //guess.load(solution.extract(features));
     profiler.end();
-    gold.load(data.getGold());
 
     //update the weights
     profiler.start("update");
@@ -299,9 +302,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
     updateAverage();
 
-    progressReporter.progressed(
-            evaluation.getFalsePositivesCount(), evaluation.getFalseNegativesCount(),
-            evaluation.getGoldCount(), evaluation.getGuessCount());
+    progressReporter.progressed(losses.get(0), losses.size());
 
     profiler.end();
   }
@@ -341,7 +342,16 @@ public class OnlineLearner implements Learner, HasProperties {
       else throw new IllegalPropertyValueException(name, value);
     } else if ("average".equals(name.getHead())) {
       setAveraging((Boolean) value);
-    }
+    } else if ("loss".equals(name.getHead())) {
+      if (value.equals("avgF1"))
+        setLossFunction(new AverageF1Loss(model));
+      else if (value.equals("globalF1"))
+        setLossFunction(new GlobalF1Loss(model));
+      else
+        throw new IllegalPropertyValueException(name, value);
+    } else if (name.getHead().equals("profile"))
+      setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
+
   }
 
   public Object getProperty(PropertyName name) {

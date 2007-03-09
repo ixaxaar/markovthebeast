@@ -15,4 +15,9 @@ public class NullProfiler implements Profiler {
   public void end() {
 
   }
+
+
+  public String toString() {
+    return "No profile available";
+  }
 }

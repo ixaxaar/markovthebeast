@@ -1,3 +1,4 @@
+/*
 //word_b, word_e
 weight ch_word: Word x Word x Chunk -> Double;
 factor:
@@ -23,3 +24,4 @@ factor:
   for Int b, Int e, Word w_bm1, Word w_ep1, Chunk c
   if word(b-1,w_bm1) & word(e+1,w_ep1) & e >= b
   add [chunk(b,e,c)] * ch_word_bm1ep1_d(w_bm1,w_ep1,c,bins(1,2,3,4,5,10,e-b));
+*/

@@ -2,6 +2,7 @@ package thebeast.pml;
 
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.type.Attribute;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.util.ExpressionBuilder;
@@ -19,7 +20,7 @@ import java.util.HashMap;
  * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
  * for all possible ground atoms (and thus for scoring the ground atom).
  */
-public class LocalFeatures {
+public class LocalFeatures implements HasProperties{
 
   private HashMap<UserPredicate, RelationVariable>
           grouped = new HashMap<UserPredicate, RelationVariable>();
@@ -28,6 +29,7 @@ public class LocalFeatures {
   private HashMap<UserPredicate, RelationExpression>
           groupExpressions = new HashMap<UserPredicate, RelationExpression>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+  private ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
   private Model model;
   private Weights weights;
 
@@ -185,25 +187,62 @@ public class LocalFeatures {
   public String toVerboseString() {
     StringBuffer result = new StringBuffer();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      for (TupleValue tuple : features.get(predicate).value()) {
-        int index = 0;
-        result.append("for ").append(predicate.getName()).append("(");
-        for (Value value : tuple.values()) {
-          if (index < predicate.getArity()) {
-            if (index > 0) result.append(", ");
-            result.append(value);
-          } else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
-          index++;
-        }
-        result.append("\n");
+      RelationValue relation = features.get(predicate).value();
+      result.append(toVerboseString(relation, predicate));
+    }
+    return result.toString();
+  }
+
+  private String toVerboseString(RelationValue relation, UserPredicate predicate) {
+    StringBuffer result = new StringBuffer();
+    for (TupleValue tuple : relation) {
+      int index = 0;
+      result.append("for ").append(predicate.getName()).append("(");
+      for (Value value : tuple.values()) {
+        if (index < predicate.getArity()) {
+          if (index > 0) result.append(", ");
+          result.append(value);
+        } else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
+        index++;
       }
+      result.append("\n");
     }
     return result.toString();
   }
 
 
+  public String toVerboseString(UserPredicate predicate, Object... args) {
+    builder.expr(features.get(predicate));
+    int index = 0;
+    int argCount = 0;
+    for (Attribute att : predicate.getHeading().attributes()) {
+      Object arg = args[index++];
+      if (arg != null) {
+        ++argCount;
+        builder.attribute(att).value(att.type(), arg).equality();
+      }
+    }
+    builder.and(argCount);
+    builder.restrict();
+    RelationValue relation = interpreter.evaluateRelation(builder.getRelation());
+    return toVerboseString(relation, predicate);
+
+  }
+
   public void clear() {
     for (RelationVariable var : features.values())
       interpreter.clear(var);
+  }
+
+  public void setProperty(PropertyName name, Object value) {
+
+  }
+
+  public Object getProperty(PropertyName name) {
+    UserPredicate pred = model.getSignature().getUserPredicate(name.getHead());
+    if (name.hasArguments()){
+      return toVerboseString(pred,name.getArguments().toArray(new Object[0]));
+    }
+    return toVerboseString(features.get(pred).value(), pred);
   }
 }

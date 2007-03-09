@@ -9,6 +9,7 @@ import thebeast.util.TreeProfiler;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Update weights according to (Single-best) MIRA as presented in McDonald et al. 2005.
@@ -69,6 +70,7 @@ public class MiraUpdateRule implements UpdateRule {
 
     double[][] a = new double[candidates.size() + nnCount + npCount][];
     double[] b = new double[candidates.size() + nnCount + npCount];
+    double[] d = new double[candidates.size() + nnCount + npCount];
     SparseVector[] diffs = new SparseVector[candidates.size() + nnCount + npCount];
 
     for (int candidateIndex = 0; candidateIndex < candidates.size(); ++candidateIndex) {
@@ -78,6 +80,7 @@ public class MiraUpdateRule implements UpdateRule {
       double loss = losses.get(candidateIndex);
       a[candidateIndex] = diffVector.getValueArray();
       b[candidateIndex] = loss - diffScore;
+      d[candidateIndex] = diffScore;
     }
 
     if (enforceSigns) {
@@ -112,6 +115,25 @@ public class MiraUpdateRule implements UpdateRule {
       weights.add(alpha[i], diffs[i]);
     }
     profiler.end();
+
+    //to test
+//    double[] newD = new double[candidates.size()];
+//    double[] newW = new double[a[0].length];
+//    for (int i = 0; i < newD.length; ++i){
+//      for (int j = 0; j < newW.length; ++j)
+//        newW[j] += a[i][j] * alpha[i];
+//    }
+//    for (int i = 0; i < newD.length; ++i){
+//      newD[i] = 0;
+//      for (int j = 0; j < newW.length; ++j)
+//        newD[i] += newW[j] * a[i][j];
+//    }
+//
+//    System.out.println("l: " + losses);
+//    System.out.println("d: " + Arrays.toString(d));
+//    System.out.println("b: " + Arrays.toString(b));
+//    System.out.println("a: " + Arrays.toString(alpha));
+//    System.out.println("n: " + Arrays.toString(newD));
     //System.out.println(profiler);
   }
 }

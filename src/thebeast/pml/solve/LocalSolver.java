@@ -97,11 +97,11 @@ public class LocalSolver implements Solver {
   }
 
 
-  public GroundAtoms getAtoms() {
+  public GroundAtoms getBestAtoms() {
     return atoms;
   }
 
-  public GroundFormulas getFormulas() {
+  public GroundFormulas getBestFormulas() {
     return formulas;
   }
 

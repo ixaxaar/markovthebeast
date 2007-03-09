@@ -4,6 +4,7 @@ import thebeast.pml.*;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
+import thebeast.util.TreeProfiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,13 +140,17 @@ public class CuttingPlaneSolver implements Solver {
 
   private void update(Collection<FactorFormula> factors) {
     profiler.start("update");
+
     profiler.start("formulas");
-    formulas.update(atoms, factors);
+    formulas.update(atoms);
     profiler.end();
+
     profiler.start("ilp.update");
     ilp.update(formulas, atoms);
     profiler.end();
+
     updated = true;
+
     profiler.end();
   }
 
@@ -158,6 +163,7 @@ public class CuttingPlaneSolver implements Solver {
    */
   public void solve(int maxIterations) {
     profiler.start("solve");
+
     candidateAtoms.clear();
     candidateFormulas.clear();
     iteration = 0;
@@ -184,26 +190,37 @@ public class CuttingPlaneSolver implements Solver {
         ilp.enforceIntegerSolution();
     }
     profiler.end();
+
     done = ilp.changed();
+
     profiler.end();
   }
 
   private void deterministicFirst() {
     profiler.start("deterministic");
-    GroundFormulas partial = new GroundFormulas(model,weights);
-    partial.update(atoms,model.getDeterministicFormulas());
-    ilp.update(partial,atoms);
-    formulas.update(atoms,model.getNondeterministicFormulas());
-    formulas.load(partial, model.getDeterministicFormulas());
+
+    profiler.start("update det");
+    formulas.updateDeterministic(atoms);
+    profiler.end();
+
+    profiler.start("update det ilp");
+    ilp.update(formulas,atoms);
+    profiler.end();
+
+    profiler.start("load");
     candidateAtoms.add(new GroundAtoms(atoms));
     candidateFormulas.add(new GroundFormulas(formulas));
+    profiler.end();
+
     if (ilp.changed()){
       ilp.solve(atoms);
       update(model.getFactorFormulas());
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
     } else{
+      profiler.start("update ilp");
       ilp.update(formulas, atoms);
+      profiler.end();
     }
     profiler.end();
   }
@@ -254,11 +271,11 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  public GroundAtoms getAtoms() {
+  public GroundAtoms getBestAtoms() {
     return atoms;
   }
 
-  public GroundFormulas getFormulas() {
+  public GroundFormulas getBestFormulas() {
     return formulas;
   }
 
@@ -302,6 +319,8 @@ public class CuttingPlaneSolver implements Solver {
       setEnforceIntegers((Boolean) value);
     if (name.getHead().equals("deterministicFirst"))
       setDeterministicFirst((Boolean) value);
+    if (name.getHead().equals("profile"))
+      setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
   }
 
   public Object getProperty(PropertyName name) {
@@ -316,7 +335,7 @@ public class CuttingPlaneSolver implements Solver {
     if ("formulas".equals(name.getHead()))
       return formulas;
     if ("features".equals(name.getHead()))
-      return features.toVerboseString();
+      return PropertyName.getProperty(features,name.getTail());
     if ("profiler".equals(name.getHead()))
       return profiler;
     return null;

@@ -5,14 +5,16 @@ import java.io.PrintStream;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 19-Feb-2007 Time: 17:34:18
  */
-public class DotProgressReporter implements PrecisionRecallProgressReporter{
+public class DotProgressReporter implements PerformanceProgressReporter {
 
   private PrintStream out;
   private int dotInterval;
   private int chunkInterval, lineInterval;
   private int count;
   private StopWatch stopWatch = new StopWatch();
-  private int goldCount, guessCount, fnCount, fpCount;
+  private double loss;
+  private boolean performanceAvailable;
+  private int candidates;
 
   public DotProgressReporter(PrintStream out, int stepsPerDot, int dotsPerChunk, int chunksPerLine) {
     this.out = out;
@@ -23,7 +25,8 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
 
   public void started() {
     count = 0;
-    fnCount = fpCount = goldCount = guessCount = 0;
+    loss =  0;
+    candidates = 0;
     stopWatch.start();
   }
 
@@ -32,10 +35,8 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
     if (count % chunkInterval == chunkInterval - 1) out.print(" ");
     if (count % lineInterval == lineInterval - 1) {
       out.printf("%6d", count + 1);
-      if (goldCount > 0){
-        double recall = (goldCount - fnCount) / (double)goldCount;
-        double precision = (guessCount - fpCount) / (double)guessCount;
-        out.printf(" %3.2f %3.2f\n", recall,precision);
+      if (performanceAvailable){
+        out.printf(" %3.2f %3.2f\n", loss / count, (double)candidates / count);
       } else {
         out.println();
       }
@@ -44,11 +45,10 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
 
   }
 
-  public void progressed(int fpCount, int fnCount, int goldCount, int guessCount) {
-    this.fpCount += fpCount;
-    this.fnCount += fnCount;
-    this.goldCount += goldCount;
-    this.guessCount += guessCount;
+  public void progressed(double loss, int candidateCount) {
+    performanceAvailable = true;
+    this.loss += loss;
+    this.candidates += candidateCount;
     progressed();
   }
 
@@ -58,15 +58,9 @@ public class DotProgressReporter implements PrecisionRecallProgressReporter{
     out.printf("%-20s%-6d\n", "Processed:", count);
     out.printf("%-20s%-6.2f\n", "Time(in s):", time/1000.0);
     out.printf("%-20s%-6d\n", "Avg. time(in ms):", time/count);
-    if (goldCount > 0){
-      out.printf("%-20s%-6d\n", "Gold count: ", goldCount);
-      out.printf("%-20s%-6d\n", "Guess count: ", guessCount);
-      out.printf("%-20s%-6d\n", "FP count: ", fpCount);
-      out.printf("%-20s%-6d\n", "FN count: ", fnCount);
-      double recall = (goldCount - fnCount) / (double)goldCount;
-      double precision = (guessCount - fpCount) / (double)guessCount;
-      out.printf("%-20s%-6.2f\n", "Recall: ", recall);
-      out.printf("%-20s%-6.2f\n", "Precision: ", precision);
+    if (performanceAvailable){
+      out.printf("%-20s%-6.2f\n", "Loss: ", loss / count);
+      out.printf("%-20s%-6.2f\n", "Candidates: ", (double) candidates / count);
     }
   }
 }

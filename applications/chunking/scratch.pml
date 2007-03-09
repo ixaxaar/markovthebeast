@@ -9,12 +9,14 @@ include "tagging.pml";
 include "pos-word-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
-include "chunk-bigram.pml";
+//include "chunk-bigram.pml";
+//include "chunk-phrase.pml";
 include "chunk-pos.pml";
-include "chunk-chunk.pml";
+//include "chunk-chunk.pml";
+
 
 observed:
-  word, case, cardinal, hyphen, count,
+  word, case, cardinal, hyphen, count, highestfreq,
   prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4;
 
 hidden: chunk, pos;
@@ -36,26 +38,28 @@ save corpus to instances "/tmp/chunk.inst.dmp";
 
 //set learner.solver = "local";
 
-set learner.solver.ilp.solver = "lpsolve";
-//set learner.solver.ilp.solver = "osi";
-//set learner.solver.ilp.solver.implementation = "clp";
-set learner.solver.maxIterations = 10;
-set learner.solver.integer = true;
+//set learner.solver.ilp.solver = "lpsolve";
+set learner.solver.ilp.solver = "osi";
+set learner.solver.ilp.solver.implementation = "clp";
+set learner.solver.maxIterations = 2;
+set learner.solver.integer = false;
 set learner.solver.deterministicFirst = true;
 set learner.update = "mira";
 set learner.maxCandidates = 10;
+set learner.loss = "avgF1";
+set learner.profile = true;
 
 //learn for 2 epochs;
 
 //set learner.solver = "cut";
 
-learn for 5 epochs;
+learn for 4 epochs;
 
 print learner.profiler;
 
 //load corpus from conll00 "corpora/test.conll";
 
-save corpus (0-10) to ram;
+//save corpus (0-10) to ram;
 
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;
