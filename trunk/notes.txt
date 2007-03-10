@@ -1,3 +1,24 @@
+speed optimized training
+
+w=(w_s,w_h)
+
+w * df > L
+w_s * df > L
+
+
+f = feature vector of violation
+f = f1 + f2 (f1 and f2 don't violate)
+
+(fg-f) * w > L
+
+(fg-(f1+f2)) * w > L
+
+(fg - f1 - f2) * w > L
+fg * w - f1 * w - f2 * w > L
+(fg-f1)*w - f2 * w > L
+
+
+
 44,44,12,6,2
 
 85:312844
