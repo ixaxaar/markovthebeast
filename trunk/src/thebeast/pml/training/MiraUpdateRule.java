@@ -68,10 +68,10 @@ public class MiraUpdateRule implements UpdateRule {
       npCount = npAllIndices.length;
     }
 
-    double[][] a = new double[candidates.size() + nnCount + npCount][];
-    double[] b = new double[candidates.size() + nnCount + npCount];
-    double[] d = new double[candidates.size() + nnCount + npCount];
-    SparseVector[] diffs = new SparseVector[candidates.size() + nnCount + npCount];
+    double[][] a = new double[candidates.size()][];
+    double[] b = new double[candidates.size()];
+    double[] d = new double[candidates.size()];
+    SparseVector[] diffs = new SparseVector[candidates.size()];
 
     for (int candidateIndex = 0; candidateIndex < candidates.size(); ++candidateIndex) {
       SparseVector diffVector = diffVectors.get(candidateIndex);
@@ -84,37 +84,37 @@ public class MiraUpdateRule implements UpdateRule {
     }
 
     if (enforceSigns) {
-      int current = candidates.size();
+      double[] lb = new double[rebasedSize];
+      double[] ub = new double[rebasedSize];
+      for (int i = 0; i < rebasedSize; ++i) {
+        lb[i] = Double.NEGATIVE_INFINITY;
+        ub[i] = Double.POSITIVE_INFINITY;
+      }
       int[] nnRebased = nnOld.getIndexArray();
       int[] npRebased = npOld.getIndexArray();
       double[] nnWeights = nnOld.getValueArray();
       double[] npWeights = npOld.getValueArray();
       for (int i = 0; i < nnCount; ++i) {
-        a[current] = new double[rebasedSize];
-        a[current][nnRebased[i]] = 1.0;
-        b[current] = -nnWeights[i];
-        diffs[current] = new SparseVector(new int[]{base[nnRebased[i]]},1.0);
-        ++current;
+        lb[nnRebased[i]] = -nnWeights[i];
       }
       for (int i = 0; i < npCount; ++i) {
-        a[current] = new double[rebasedSize];
-        a[current][npRebased[i]] = 1.0;
-        b[current] = npWeights[i];
-        diffs[current] = new SparseVector(new int[]{base[npRebased[i]]},-1.0);
-        ++current;
+        ub[npRebased[i]] = -npWeights[i];
       }
-    }
 
+      double[] x = QP.art2(a, b, lb, ub);
+      weights.add(1.0, new SparseVector(base, x));
 
-    profiler.end();
-    profiler.start("qp");
-    double[] alpha = QP.runHildreth(a, b);
-    profiler.end();
-    profiler.start("update");
-    for (int i = 0; i < alpha.length; ++i) {
-      weights.add(alpha[i], diffs[i]);
+    } else {
+      profiler.end();
+      profiler.start("qp");
+      double[] alpha = QP.runHildreth(a, b);
+      profiler.end();
+      profiler.start("update");
+      for (int i = 0; i < alpha.length; ++i) {
+        weights.add(alpha[i], diffs[i]);
+      }
+      profiler.end();
     }
-    profiler.end();
 
     //to test
 //    double[] newD = new double[candidates.size()];
