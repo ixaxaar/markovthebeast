@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class ParserAddPredicateToModel extends ParserStatement {
 
-  enum Type {HIDDEN, OBSERVED
+  enum Type {HIDDEN, OBSERVED, GLOBAL
   }
 
   final Type type;

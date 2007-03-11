@@ -350,6 +350,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         case OBSERVED:
           model.addObservedPredicate(predicate);
           break;
+        case GLOBAL:
+          model.addGlobalPredicate(predicate);
+          break;
       }
     }
     if (printModelChanges) out.println(" added to the model.");
@@ -392,12 +395,17 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoad(ParserLoad parserLoad) {
     update();
     try {
-      if ("instances".equals(parserLoad.target.head)) {
-        instances = new TrainingInstances(model, new File(parserLoad.file), defaultTrainingCacheSize);
+      if ("global".equals(parserLoad.target.head)) {
+        model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
+        out.println("Global atoms loaded.");
+        //System.out.println(model.getGlobalAtoms());
+      }
+      else if ("instances".equals(parserLoad.target.head)) {
+        instances = new TrainingInstances(model, new File(filename(parserLoad.file)), defaultTrainingCacheSize);
         out.println(instances.size() + " instances loaded.");
       } else if ("weights".equals(parserLoad.target.head)) {
         if ("dump".equals(parserLoad.mode)) {
-          FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(parserLoad.file), 1024);
+          FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(filename(parserLoad.file)), 1024);
           weights.read(source);
           weightsUpdated = true;
         } else {
@@ -413,7 +421,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void update() {
     if (signatureUpdated) {
       guess = signature.createGroundAtoms();
+      guess.load(model.getGlobalAtoms(),model.getGlobalPredicates());
       gold = signature.createGroundAtoms();
+      gold.load(model.getGlobalAtoms(),model.getGlobalPredicates());
       //solution = new Solution(model, weights);
       signatureUpdated = false;
     }
@@ -704,8 +714,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void loadAtoms(GroundAtoms atoms) {
-    gold.load(atoms);
-    guess.load(atoms);
+    gold.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    gold.load(atoms, model.getInstancePredicates());
+    guess.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    guess.load(atoms, model.getInstancePredicates());
     solver.setObservation(atoms);
     solutionAvailable = true;
     scoresAvailable = false;

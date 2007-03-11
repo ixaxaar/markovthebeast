@@ -43,11 +43,7 @@ public class FeatureCollector implements HasProperties {
   private StatementFactory factory = TheBeast.getInstance().getNodServer().statementFactory();
 
   private ProgressReporter progressReporter;
-  private BigInteger maxFeaturesPerWeightFunction = BigInteger.valueOf(1000);
   private Weights weights;
-
-  private HashMap<WeightFunction, BigInteger>
-          maxFeatures = new HashMap<WeightFunction, BigInteger>();
 
   private HashSet<WeightFunction>
           collectAll = new HashSet<WeightFunction>();
@@ -98,13 +94,11 @@ public class FeatureCollector implements HasProperties {
 
     HashSet<WeightFunction> done = new HashSet<WeightFunction>();
 
-    progressReporter.started();
+    progressReporter.started("Instantiating Features");
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.isParametrized()) {
         WeightFunction function = factor.getWeightFunction();
-        BigInteger domainSize = function.getDomainSize();
-        BigInteger maxSize = getMaxFeatureCount(function);
-        if (domainSize.compareTo(maxSize) < 1 || collectAll.contains(function)) {
+        if ( collectAll.contains(function)) {
           Heading heading = function.getHeading();
           for (Attribute attribute : heading.attributes()) {
             builder.allConstants((CategoricalType) attribute.type()).from(attribute.name());
@@ -122,7 +116,7 @@ public class FeatureCollector implements HasProperties {
       }
     progressReporter.finished();
 
-    progressReporter.started();
+    progressReporter.started("Collecting Features");
     while (corpus.hasNext()) {
       this.atoms.load(corpus.next());
       for (FactorFormula factor : inserts.keySet()) {
@@ -165,13 +159,7 @@ public class FeatureCollector implements HasProperties {
   }
 
 
-  public BigInteger getMaxFeaturesPerWeightFunction() {
-    return maxFeaturesPerWeightFunction;
-  }
 
-  public void setMaxFeaturesPerWeightFunction(BigInteger maxFeaturesPerWeightFunction) {
-    this.maxFeaturesPerWeightFunction = maxFeaturesPerWeightFunction;
-  }
 
   public void setCollectAll(WeightFunction function, boolean collectAll){
     if (collectAll) this.collectAll.add(function);
@@ -179,23 +167,12 @@ public class FeatureCollector implements HasProperties {
   }
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("maxCount"))
-      if (name.isTerminal())
-        setMaxFeaturesPerWeightFunction(BigInteger.valueOf((Integer) value));
-      else
-        setMaxFeatureCount(model.getSignature().getWeightFunction(name.getTail().getHead()), (Integer) value);
-    else if (name.getHead().equals("all"))
+
+    if (name.getHead().equals("all"))
       setCollectAll(model.getSignature().getWeightFunction(name.getTail().getHead()),(Boolean)value);
   }
 
-  public void setMaxFeatureCount(WeightFunction function, int max) {
-    maxFeatures.put(function, BigInteger.valueOf(max));
-  }
 
-  public BigInteger getMaxFeatureCount(WeightFunction function) {
-    BigInteger max = maxFeatures.get(function);
-    return max == null ? maxFeaturesPerWeightFunction : max;
-  }
 
 
   public Object getProperty(PropertyName name) {

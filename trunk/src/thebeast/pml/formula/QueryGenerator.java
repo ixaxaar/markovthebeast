@@ -874,7 +874,7 @@ public class QueryGenerator {
     int falseCount = size - trueCount;
     //the 'big' constraint
     //TODO: this is not enough to turn this into a conjunction, further changes below are necessary
-    builder.id("lb").doubleValue(disjunction ? -falseCount : falseCount - 1);
+    builder.id("lb").doubleValue(disjunction ? -falseCount : 1 - trueCount);
     builder.id("ub").num(Double.POSITIVE_INFINITY);
     builder.id("values");
     double scale = disjunction ? 1.0 : -1.0;

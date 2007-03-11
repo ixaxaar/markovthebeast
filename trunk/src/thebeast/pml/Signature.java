@@ -15,13 +15,12 @@ import java.io.InputStream;
 public class Signature {
 
   private HashMap<String, Predicate> name2predicate = new HashMap<String, Predicate>();
-
   private HashMap<String, WeightFunction> name2weightFunction = new HashMap<String, WeightFunction>();
-
   private HashMap<String, Type> name2type = new HashMap<String, Type>();
 
   private LinkedList<UserPredicate> userPredicates = new LinkedList<UserPredicate>();
   private LinkedList<WeightFunction> weightFunctions = new LinkedList<WeightFunction>();
+  private ArrayList<SignatureListener> listeners = new ArrayList<SignatureListener>();
 
 
   public Signature() {
@@ -170,6 +169,8 @@ public class Signature {
     name2predicate.put(name, result);
     userPredicates.add(result);
     Collections.sort(userPredicates);
+    for (SignatureListener listener : listeners)
+      listener.predicateAdded(result);
     return result;
   }
 
@@ -246,6 +247,10 @@ public class Signature {
 
   public GroundAtoms loadGroundAtoms(InputStream inputStream) {
     return null;
+  }
+
+  public void addSignatureListener(SignatureListener listener){
+    listeners.add(listener);
   }
 
 }

@@ -14,6 +14,7 @@ public class Model {
   private LinkedList<UserPredicate>
           hidden = new LinkedList<UserPredicate>(),
           observed = new LinkedList<UserPredicate>(),
+          instance = new LinkedList<UserPredicate>(),
           globalPreds = new LinkedList<UserPredicate>();
 
   private LinkedList<FactorFormula>
@@ -23,9 +24,11 @@ public class Model {
           localFactorFormulas = new LinkedList<FactorFormula>(),
           globalFactorFormulas = new LinkedList<FactorFormula>();
 
+  private GroundAtoms globalAtoms;
+
   /**
-   * Creates a new Model with the given signature, i.e. it only contains predicates and functions
-   * which are described in the signature object.
+   * Creates a new Model with the given signature, i.e. it only contains predicates and functions which are described in
+   * the signature object.
    *
    * @param signature the signature the predicates of this model use.
    */
@@ -34,30 +37,33 @@ public class Model {
   }
 
   /**
-   * A hidden predicate is a predicate for which we don't have observed ground atoms. Instead, the solver
-   * is responsible for inferring the true ground atoms of the given predicate.
+   * A hidden predicate is a predicate for which we don't have observed ground atoms. Instead, the solver is responsible
+   * for inferring the true ground atoms of the given predicate.
    *
    * @param predicate the predicate to be defined as hidden.
    */
   public void addHiddenPredicate(UserPredicate predicate) {
     hidden.add(predicate);
+    instance.add(predicate);
     Collections.sort(hidden);
+    Collections.sort(instance);
   }
 
   /**
-   * An observed predicate is a predicate for which we have observed data. The solver will take these as
-   * ground truth.
+   * An observed predicate is a predicate for which we have observed data. The solver will take these as ground truth.
    *
    * @param predicate the predicate to be defined as observed.
    */
   public void addObservedPredicate(UserPredicate predicate) {
     observed.add(predicate);
+    instance.add(predicate);
     Collections.sort(observed);
+    Collections.sort(instance);
   }
 
   /**
-   * A global predicate is a predicate for which the same ground atoms hold over a whole corpus, not
-   * just for a single problem instance.
+   * A global predicate is a predicate for which the same ground atoms hold over a whole corpus, not just for a single
+   * problem instance.
    *
    * @param predicate the predicate to be defined as global.
    */
@@ -68,8 +74,8 @@ public class Model {
 
 
   /**
-   * All formulas of this model contain predicates and functions of the same signature. This method
-   * returns this signature.
+   * All formulas of this model contain predicates and functions of the same signature. This method returns this
+   * signature.
    *
    * @return The common signature containing all used predicates in this model.
    */
@@ -142,6 +148,18 @@ public class Model {
     return nondeterministicFormulas;
   }
 
+  /**
+   * Global atoms are atoms that hold within all possible universes of the signature. Or in other words, if the model is
+   * applied to some observation these ground atoms will be implicitely included.
+   *
+   * @return the set of ground atoms that hold in all universes of the model's signature.
+   */
+  public GroundAtoms getGlobalAtoms() {
+    if (globalAtoms == null)
+      globalAtoms = signature.createGroundAtoms();
+    return globalAtoms;
+  }
+
   public void validateModel() {
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
@@ -160,5 +178,9 @@ public class Model {
 
   public List<UserPredicate> getGlobalPredicates() {
     return globalPreds;
+  }
+
+  public List<UserPredicate> getInstancePredicates() {
+    return instance;
   }
 }

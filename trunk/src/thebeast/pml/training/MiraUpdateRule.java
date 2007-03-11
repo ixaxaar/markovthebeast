@@ -1,14 +1,15 @@
 package thebeast.pml.training;
 
 import thebeast.pml.FeatureVector;
+import thebeast.pml.PropertyName;
 import thebeast.pml.SparseVector;
 import thebeast.pml.Weights;
 import thebeast.util.Profiler;
 import thebeast.util.QP;
 import thebeast.util.TreeProfiler;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Arrays;
  */
 public class MiraUpdateRule implements UpdateRule {
 
-  private boolean enforceSigns = false;
+  private boolean enforceSigns = true;
 
   //private int[] mapping;
   //private Weights weights;
@@ -102,8 +103,16 @@ public class MiraUpdateRule implements UpdateRule {
       }
 
       double[] x = QP.art2(a, b, lb, ub);
+      //System.out.println(Arrays.toString(a[0]));
+      //System.out.println(Arrays.toString(b));
       weights.add(1.0, new SparseVector(base, x));
-
+      //System.out.println(Arrays.toString(b));
+      //System.out.println(Arrays.toString(x));
+//      double lowest = Double.POSITIVE_INFINITY;
+//      for (int i = 0; i < rebasedSize; ++i){
+//        if (x[i] < lowest) lowest = x[i];
+//      }
+//      System.out.println(lowest);
     } else {
       profiler.end();
       profiler.start("qp");
@@ -116,24 +125,14 @@ public class MiraUpdateRule implements UpdateRule {
       profiler.end();
     }
 
-    //to test
-//    double[] newD = new double[candidates.size()];
-//    double[] newW = new double[a[0].length];
-//    for (int i = 0; i < newD.length; ++i){
-//      for (int j = 0; j < newW.length; ++j)
-//        newW[j] += a[i][j] * alpha[i];
-//    }
-//    for (int i = 0; i < newD.length; ++i){
-//      newD[i] = 0;
-//      for (int j = 0; j < newW.length; ++j)
-//        newD[i] += newW[j] * a[i][j];
-//    }
-//
-//    System.out.println("l: " + losses);
-//    System.out.println("d: " + Arrays.toString(d));
-//    System.out.println("b: " + Arrays.toString(b));
-//    System.out.println("a: " + Arrays.toString(alpha));
-//    System.out.println("n: " + Arrays.toString(newD));
-    //System.out.println(profiler);
+  }
+
+  public void setProperty(PropertyName name, Object value) {
+    if (name.getHead().equals("signed"))
+      enforceSigns = (Boolean) value;
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
   }
 }
