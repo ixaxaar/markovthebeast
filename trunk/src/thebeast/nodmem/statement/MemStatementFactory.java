@@ -10,6 +10,7 @@ import thebeast.nodmem.variable.AbstractMemVariable;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Arrays;
 
 /**
  * @author Sebastian Riedel
@@ -34,6 +35,10 @@ public class MemStatementFactory implements StatementFactory {
 
   public RelationUpdate createRelationUpdate(RelationVariable variable, BoolExpression where, List<AttributeAssign> assigns){
     return new MemRelationUpdate(variable, where, assigns);
+  }
+
+  public RelationUpdate createRelationUpdate(RelationVariable variable, BoolExpression where, AttributeAssign... assigns) {
+    return new MemRelationUpdate(variable, where, Arrays.asList(assigns));
   }
 
   public RelationUpdate createRelationUpdate(RelationVariable variable, AttributeAssign assign) {

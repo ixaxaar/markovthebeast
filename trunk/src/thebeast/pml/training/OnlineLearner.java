@@ -40,6 +40,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Profiler profiler = new NullProfiler();
   private int maxCandidates = 1000;
   private LossFunction lossFunction;
+  private boolean penalizeGold = false;
 
   private int numEpochs;
 
@@ -260,6 +261,8 @@ public class OnlineLearner implements Learner, HasProperties {
     profiler.start("score");
     //scores.score(features, this.weights);
     scores.scoreWithGroups(features);
+    if (penalizeGold)
+      scores.penalize(goldAtoms);
     profiler.end();
 
     //use the scores to solve the model
@@ -323,6 +326,15 @@ public class OnlineLearner implements Learner, HasProperties {
     this.averaging = averaging;
   }
 
+
+  public boolean isPenalizeGold() {
+    return penalizeGold;
+  }
+
+  public void setPenalizeGold(boolean penalizeGold) {
+    this.penalizeGold = penalizeGold;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
       if (!name.isTerminal())
@@ -352,9 +364,13 @@ public class OnlineLearner implements Learner, HasProperties {
         updateRule.setProperty(name.getTail(),value);
     } else if ("average".equals(name.getHead())) {
       setAveraging((Boolean) value);
+    } else if ("penalize".equals(name.getHead())) {
+      setPenalizeGold((Boolean) value);
     } else if ("loss".equals(name.getHead())) {
       if (value.equals("avgF1"))
         setLossFunction(new AverageF1Loss(model));
+      else if (value.equals("avgNumErrors"))
+        setLossFunction(new AverageNumErrors(model));
       else if (value.equals("globalF1"))
         setLossFunction(new GlobalF1Loss(model));
       else

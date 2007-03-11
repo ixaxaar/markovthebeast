@@ -22,7 +22,7 @@ public class GroundAtoms implements Dumpable, SignatureListener {
     for (UserPredicate predicate : signature.getUserPredicates()) {
       atoms.put(predicate, new GroundAtomCollection(predicate));
     }
-    signature.addSignatureListener(this);
+    //signature.addSignatureListener(this);
   }
 
   /**
@@ -231,4 +231,9 @@ public class GroundAtoms implements Dumpable, SignatureListener {
   public void predicateAdded(UserPredicate predicate) {
     atoms.put(predicate, new GroundAtomCollection(predicate));    
   }
+  
+  public void detach(){
+	  signature.removeSignatureListener(this);
+  }
+  
 }

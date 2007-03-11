@@ -2,7 +2,12 @@ package thebeast.pml;
 
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.expression.Summarize;
+import thebeast.nod.expression.BoolExpression;
+import thebeast.nod.expression.DoubleExpression;
 import thebeast.nod.statement.Interpreter;
+import thebeast.nod.statement.RelationUpdate;
+import thebeast.nod.statement.StatementFactory;
+import thebeast.nod.statement.AttributeAssign;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
@@ -10,6 +15,7 @@ import thebeast.nod.variable.RelationVariable;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A Scores object contains a score for each ground atom (explicitely or implicitely by not storing scores equal to
@@ -35,6 +41,12 @@ public class Scores {
   private HashMap<UserPredicate, RelationExpression>
           sums = new HashMap<UserPredicate, RelationExpression>();
 
+  private HashMap<UserPredicate, RelationUpdate>
+          penalizeCorrects = new HashMap<UserPredicate, RelationUpdate>(),
+          encourageInCorrects = new HashMap<UserPredicate, RelationUpdate>();
+
+  private GroundAtoms gold;
+
   public Scores(Model model, Weights weights) {
 //    if (model.getHiddenPredicates().isEmpty())
 //      throw new RuntimeException("It doesn't make sense to create a Scores" +
@@ -43,6 +55,7 @@ public class Scores {
     this.weights = weights;
     this.signature = model.getSignature();
     localFeatures = new LocalFeatures(model, weights);
+    gold = signature.createGroundAtoms();
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable scores = interpreter.createRelationVariable(predicate.getHeadingForScore());
@@ -68,6 +81,24 @@ public class Scores {
       builder.select().query();
       sums.put(predicate,builder.getRelation());
 
+      //for add losses
+      builder.expr(gold.getGroundAtomsOf(predicate).getRelationVariable());
+      for (Attribute att : predicate.getHeading().attributes())
+        builder.id(att.name()).attribute(att);
+      builder.tupleForIds();
+      builder.contains();
+      BoolExpression whereGold = builder.getBool();
+      StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
+      DoubleExpression minus1 = builder.doubleAttribute("score").num(-1.0).doubleAdd().getDouble();
+      AttributeAssign substract = statementFactory.createAttributeAssign("score", minus1);
+      RelationUpdate penalize = statementFactory.createRelationUpdate(scores,whereGold,substract);
+      penalizeCorrects.put(predicate,penalize);
+
+      BoolExpression whereNotGold = builder.expr(whereGold).not().getBool();
+      DoubleExpression plus1 = builder.doubleAttribute("score").num(1.0).doubleAdd().getDouble();
+      AttributeAssign add = statementFactory.createAttributeAssign("score", plus1);
+      RelationUpdate encourage = statementFactory.createRelationUpdate(scores, whereNotGold,add);
+      encourageInCorrects.put(predicate,encourage);
     }
   }
 
@@ -218,6 +249,17 @@ public class Scores {
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       interpreter.clear(atomScores.get(predicate));
     }
-
   }
+
+  public void penalize(GroundAtoms gold){
+    this.gold.load(gold, model.getHiddenPredicates());
+    //add 1 to each wrong ground atom, add -1 to each corrent one.
+    for (RelationUpdate update : penalizeCorrects.values()){
+      interpreter.interpret(update);
+    }
+    for (RelationUpdate update : encourageInCorrects.values()){
+      interpreter.interpret(update);
+    }
+  }
+
 }
