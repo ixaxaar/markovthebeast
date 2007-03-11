@@ -250,7 +250,8 @@ public class OnlineLearner implements Learner, HasProperties {
   private void learn(TrainingInstance data) {
     //load the instance from the corpus into our local variable
     profiler.start("learn one");
-    goldAtoms.load(data.getData());
+    goldAtoms.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+    goldAtoms.load(data.getData(),model.getInstancePredicates());
 
     //either load the feature vector or extract it
     features.load(data.getFeatures());
@@ -265,7 +266,7 @@ public class OnlineLearner implements Learner, HasProperties {
     solver.setObservation(data.getData());
     solver.setScores(scores);
     solver.solve();
-    solution.getGroundAtoms().load(solver.getBestAtoms());
+    solution.getGroundAtoms().load(solver.getBestAtoms(), model.getHiddenPredicates());
     solution.getGroundFormulas().load(solver.getBestFormulas());
 
     //evaluate the guess vs the gold.
@@ -274,7 +275,7 @@ public class OnlineLearner implements Learner, HasProperties {
     profiler.end();
 
     gold.load(data.getGold());
-    
+
     //extract features (or load)
     profiler.start("extract");
     List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();
@@ -341,11 +342,14 @@ public class OnlineLearner implements Learner, HasProperties {
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
     } else if ("update".equals(name.getHead())) {
-      if ("mira".equals(value.toString()))
-        setUpdateRule(new MiraUpdateRule());
-      else if ("perceptron".equals(value.toString()))
-        setUpdateRule(new PerceptronUpdateRule());
-      else throw new IllegalPropertyValueException(name, value);
+      if (name.isTerminal()) {
+        if ("mira".equals(value.toString()))
+          setUpdateRule(new MiraUpdateRule());
+        else if ("perceptron".equals(value.toString()))
+          setUpdateRule(new PerceptronUpdateRule());
+        else throw new IllegalPropertyValueException(name, value);
+      } else
+        updateRule.setProperty(name.getTail(),value);
     } else if ("average".equals(name.getHead())) {
       setAveraging((Boolean) value);
     } else if ("loss".equals(name.getHead())) {

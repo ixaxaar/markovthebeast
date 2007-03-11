@@ -1,9 +1,6 @@
 package thebeast.pml.training;
 
-import thebeast.pml.SparseVector;
-import thebeast.pml.Evaluation;
-import thebeast.pml.Weights;
-import thebeast.pml.FeatureVector;
+import thebeast.pml.*;
 
 import java.util.List;
 
@@ -13,7 +10,7 @@ import java.util.List;
  *
  * @author Sebastian Riedel
  */
-public interface UpdateRule {
+public interface UpdateRule extends HasProperties {
   public void endEpoch();
 
   public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights);

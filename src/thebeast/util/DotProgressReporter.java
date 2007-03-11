@@ -30,6 +30,11 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     stopWatch.start();
   }
 
+  public void started(String name) {
+    started();
+    out.println("Started " + name + ":");
+  }
+
   public void progressed() {
     if (count % dotInterval == dotInterval - 1) out.print(".");
     if (count % chunkInterval == chunkInterval - 1) out.print(" ");
@@ -53,6 +58,10 @@ public class DotProgressReporter implements PerformanceProgressReporter {
   }
 
   public void finished() {
+    if (count == 0){
+      out.println("No instances processed.");
+      return;
+    }
     long time = stopWatch.stopAndContinue();
     out.println();
     out.printf("%-20s%-6d\n", "Processed:", count);

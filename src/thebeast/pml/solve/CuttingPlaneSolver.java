@@ -51,6 +51,7 @@ public class CuttingPlaneSolver implements Solver {
     extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
+    atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
   }
 
 
@@ -120,6 +121,7 @@ public class CuttingPlaneSolver implements Solver {
     updated = false;
     //this.atoms.clear(model.getHiddenPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
+    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());    
   }
 
   /**

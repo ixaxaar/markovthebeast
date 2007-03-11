@@ -16,7 +16,7 @@ parser code {:
 
 terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
-terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST, INDEX;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST, INDEX, GLOBAL;
 terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
@@ -101,6 +101,8 @@ statement ::= createType:s
               {: RESULT = new ParserImport(s.substring(1,s.length()-1)); :}
             | HIDDEN COLON lowercasecommalist:a
               {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.HIDDEN,a); :}
+            | GLOBAL COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.GLOBAL,a); :}
             | OBSERVED COLON lowercasecommalist:a
               {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.OBSERVED,a); :}
             | INSPECT LOWERCASEID:id
@@ -117,6 +119,8 @@ statement ::= createType:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
             | LOAD name:n FROM STRING:s
               {: RESULT = new ParserLoad(n, null, s.substring(1,s.length()-1)); :}
+            | LOAD GLOBAL FROM STRING:s
+              {: RESULT = new ParserLoad(new ParserName("global",null), null, s.substring(1,s.length()-1)); :}
             | LOAD name:n FROM LOWERCASEID:m STRING:s
               {: RESULT = new ParserLoad(n, m, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s

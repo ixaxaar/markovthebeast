@@ -5,10 +5,11 @@ include "corpora/train.np.goldtags.train.pml";
 include "conll00.pml";
 include "chunking.pml";
 include "tagging.pml";
+include "global.pml";
 
 include "pos-unigram.pml";
 include "pos-unknowns.pml";
-//include "pos-pos.pml";
+include "pos-pos.pml";
 //include "chunk-bigram.pml";
 //include "chunk-phrase.pml";
 include "chunk-pos.pml";
@@ -23,15 +24,18 @@ hidden: chunk, pos;
 
 set instancesCacheSize = 3;
 
+load global from "global.txt";
+
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-50) to ram;
+save corpus (0-100) to ram;
 
 //set collector.all.w_word = true;
-//set collector.all.w_pos_pos = true;
+//set collector.all.w_pos_2 = true;
+//set collector.all.w_pos_3 = true;
 
 collect;
 
@@ -48,11 +52,12 @@ save corpus to instances "/tmp/chunk.inst.dmp";
 //set learner.solver.ilp.solver = "lpsolve";
 set learner.solver.ilp.solver = "osi";
 set learner.solver.ilp.solver.implementation = "clp";
-set learner.solver.maxIterations = 2;
+set learner.solver.maxIterations = 6;
 set learner.solver.integer = false;
 set learner.solver.deterministicFirst = true;
 set learner.update = "mira";
-set learner.maxCandidates = 10;
+set learner.update.signs = true;
+set learner.maxCandidates = 100;
 set learner.loss = "avgF1";
 set learner.profile = true;
 
@@ -60,7 +65,7 @@ set learner.profile = true;
 
 //set learner.solver = "cut";
 
-//learn for 1 epochs;
+//learn for 10 epochs;
 
 //print learner.profiler;
 

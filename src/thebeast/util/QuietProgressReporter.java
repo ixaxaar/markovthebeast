@@ -8,6 +8,10 @@ public class QuietProgressReporter implements PerformanceProgressReporter {
 
   }
 
+  public void started(String name) {
+
+  }
+
   public void progressed() {
 
   }

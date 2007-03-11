@@ -107,7 +107,7 @@ public class QP {
 
 
   /**
-   * Minimizes 0.5 ||x||^2 with constraints <a_i,x> >= b_i and bounds lb_j <= x_j <= ub_j using
+   * Minimizes 0.5 ||x||^2 with constraints a_i^T x >= b_i and bounds lb_j <= x_j <= ub_j using
    * Herman and Lent, "A family of iterative quadratic optimization algorithms for pairs of Bayesian
    * analysis of image reconstruction". Found in Yair Censor, "row-action methids for huge and sparse
    * systems and their applications". We use cyclic control here (rows are processed one by one and once
@@ -120,19 +120,42 @@ public class QP {
    * @return an array with x
    */
   public static double[] art2(double[][] a, double[] b, double[] lb, double[] ub) {
+    double eps = 0.00000001;
+    int maxIterations = 100;
+    double[] norms = new double[a.length];
+    int nonZeroCount = 0;
+    //precalcute norms of rows
+    for (int i = 0; i < a.length; ++i){
+      norms[i] = dotProduct(a[i], a[i]);
+      //System.out.println("n: " + norms[i]);
+      if (norms[i] > eps || norms[i] < -eps) ++nonZeroCount;
+    }
+    //remove zero rows
+    int m = nonZeroCount;
     int n = lb.length;
-    int m = a.length;
+    if (m == 0) return new double[n];
+    double[][] newA = new double[m][];
+    double[] newB = new double[m];
+    double[] newNorms = new double[m];
+    int dst = 0;
+    for (int i = 0; i < a.length; ++i)
+      if (norms[i] > eps || norms[i] < -eps) {
+        newA[dst] = a[i];
+        newB[dst] = b[i];
+        newNorms[dst] = norms[i];
+        ++dst;
+      }
+    a = newA;
+    b = newB;
+    norms = newNorms;
+
     double[] x_hat = new double[n];
     double[] x = new double[n];
     double[] z = new double[m];
-    double eps = 0.00000001;
-    int maxIterations = 100;
     double c;
-    double[] norms = new double[m];
-    for (int i = 0; i < m; ++i)
-      norms[i] = dotProduct(a[i], a[i]);
 
     double lastNorm = 0;
+    //iterate
     for (int i = 0; i < maxIterations; ++i) {
       int i_k = i % m;
       for (int t = 0; t < n; ++t) {
@@ -147,7 +170,8 @@ public class QP {
       }
       z[i_k] -= c;
       if (i % m == m -1){
-        double norm = dotProduct(x,x);
+        double norm = dotProduct(x_hat,x_hat);
+        //System.out.println("norm: " + norm);
         if (Math.abs(norm - lastNorm) < eps) break;
         lastNorm = norm;
       }

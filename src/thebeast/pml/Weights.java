@@ -17,10 +17,7 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.function.WeightFunction;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A Weights object corresponds to a collection of mappings for a set of weight functions. Each weight function maps its
@@ -486,7 +483,8 @@ public class Weights {
   }
 
 
-  public int[] intersectIndices(int[] ... indices){
+  public synchronized int[] intersectIndices(int[] ... indices){
+    //System.out.println("before intersect:" + countTrue());
     initTmps();
     int size = 0;
     for (int[] indexArray : indices){
@@ -494,14 +492,16 @@ public class Weights {
         if (!tmpSet[index]){
           tmpIndicesList[size] = index;
           tmpIndices[index] = size;
-          tmpSet[size] = true;
+          tmpSet[index] = true;
           ++size;
         }
       }
     }
     int[] result = new int[size];
     System.arraycopy(tmpIndicesList, 0, result, 0, size);
+    //System.out.println("size(intersect) = " + size);
     clearTmps(size);
+    //System.out.println("after intersect:" + countTrue());
     return result;
   }
 
@@ -519,7 +519,9 @@ public class Weights {
       values[i] = weights.doubleValue(index);
       rebased[i] = tmpIndices[index];
     }
+    //System.out.println("base.length = " + base.length);
     clearTmps(base.length);
+    //System.out.println("after sub:" + countTrue());
     return new SparseVector(rebased, values);
   }
 
@@ -533,6 +535,7 @@ public class Weights {
 
   public synchronized List<SparseVector> add(SparseVector lhs, double scale, List<SparseVector> rhs) {
     initTmps();
+    //Arrays.fill(tmpSet,0,2000,false);
     ArrayList<SparseVector> result = new ArrayList<SparseVector>(rhs.size());
     double[] lhsValues = lhs.getValueArray();
     int[] lhsIndices = lhs.getIndexArray();
@@ -545,6 +548,7 @@ public class Weights {
 
     ArrayList<int[]> indexArrays = new ArrayList<int[]>(rhs.size());
 
+    //System.out.println("s1:" + size);
     for (SparseVector vector : rhs) {
       int[] indices = vector.getIndexArray();
       indexArrays.add(indices);
@@ -556,6 +560,7 @@ public class Weights {
         }
       }
     }
+    //System.out.println("s2:" + size);
 
     int[] baseIndices = new int[size];
     System.arraycopy(tmpIndicesList, 0, baseIndices, 0, size);
@@ -572,19 +577,35 @@ public class Weights {
       System.arraycopy(baseLhs, 0, dst, 0, size);
       for (int j = 0; j < indices.length; ++j) {
         int index = indices[j];
-        dst[tmpIndices[index]] += scale * values[j];
+        int rebased = tmpIndices[index];
+        if (rebased > dst.length){
+          System.out.println("size = " + size);
+          System.out.println("j = " + j);
+          System.out.println("index = " + index);
+          System.out.println("rebased = " + rebased);
+        }
+        dst[rebased] += scale * values[j];
       }
       result.add(new SparseVector(baseIndices, dst));
     }
-
+    //System.out.println("size = " + size);
     clearTmps(size);
+    //System.out.println("after add:" + countTrue());
     return result;
 
   }
 
   private void clearTmps(int size) {
-    for (int index = 0; index < size; ++index)
+    for (int index = 0; index < size ; ++index) {
       tmpSet[tmpIndicesList[index]] = false;
+    }
+  }
+
+  private int countTrue(){
+    int count = 0;
+    for (int i = 0; i < tmpSet.length;++i)
+      if (tmpSet[i]) ++count;
+    return count;
   }
 
 }

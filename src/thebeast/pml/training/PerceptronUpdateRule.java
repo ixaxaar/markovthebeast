@@ -3,6 +3,7 @@ package thebeast.pml.training;
 import thebeast.pml.SparseVector;
 import thebeast.pml.Weights;
 import thebeast.pml.FeatureVector;
+import thebeast.pml.PropertyName;
 
 import java.util.List;
 
@@ -32,5 +33,13 @@ public class PerceptronUpdateRule implements UpdateRule {
       if (enforceSigns) weights.add(learningRate, diffNP, false);
       else weights.add(learningRate, diffNP);
     }
+  }
+
+  public void setProperty(PropertyName name, Object value) {
+
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
   }
 }

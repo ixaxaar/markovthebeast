@@ -8,6 +8,9 @@ include "joint.pml";
 
 load corpus from conll00 "corpora/train.conll";
 
+set collector.all.w_word = true;
+//set collector.all.w_pos_pos = true;
+
 collect;
 
 save weights to dump "/tmp/blank.weights.dmp";

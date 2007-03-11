@@ -96,7 +96,9 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   public void load(RelationVariable variable, InputStream inputStream) throws IOException {
     MemRelationVariable var = (MemRelationVariable) variable;
     MemRelationType type = (MemRelationType) var.type();
+    var.own();
     type.loadFromRows(inputStream, var.getContainerChunk(), var.getPointer());
+
   }
 
 

@@ -15,6 +15,9 @@ import thebeast.nod.variable.RelationVariable;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
@@ -196,9 +199,18 @@ public class LocalFeatures implements HasProperties{
     return result.toString();
   }
 
-  private String toVerboseString(RelationValue relation, UserPredicate predicate) {
+  private String toVerboseString(RelationValue relation, final UserPredicate predicate) {
     StringBuffer result = new StringBuffer();
-    for (TupleValue tuple : relation) {
+    ArrayList<TupleValue> sorted = new ArrayList<TupleValue>(relation.size());
+    for (TupleValue tuple : relation) sorted.add(tuple);
+    Collections.sort(sorted, new Comparator<TupleValue>() {
+      public int compare(TupleValue o1, TupleValue o2) {
+        double weightDelta = weights.getWeight(o1.intElement(predicate.getArity()).getInt()) -
+                weights.getWeight(o2.intElement(predicate.getArity()).getInt());
+        return weightDelta < 0 ? 1 : weightDelta > 0 ? -1 : 0;
+      }
+    });
+    for (TupleValue tuple : sorted) {
       int index = 0;
       result.append("for ").append(predicate.getName()).append("(");
       for (Value value : tuple.values()) {

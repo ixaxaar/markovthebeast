@@ -16,10 +16,14 @@ load instances from dump "/tmp/instances.dmp";
 set learner.solver.ilp.solver = "osi";
 set learner.solver.ilp.solver.implementation = "clp";
 set learner.solver.maxIterations = 2;
+set learner.solver.integer = false;
+set learner.solver.deterministicFirst = true;
 set learner.update = "mira";
-set learner.maxCandidates = 2;
-set learner.average = true;
+set learner.update.signs = true;
+set learner.maxCandidates = 10;
+set learner.loss = "avgF1";
+set learner.profile = true;
 
-learn for 5 epochs;
+learn for 10 epochs;
 
 save weights to dump "/tmp/weights.dmp";
