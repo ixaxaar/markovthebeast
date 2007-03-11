@@ -80,7 +80,8 @@ public class LocalFeatureExtractor {
   }
 
   public void extract(GroundAtoms groundAtoms, LocalFeatures features) {
-    atoms.load(groundAtoms);
+    atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    atoms.load(groundAtoms, model.getInstancePredicates());
     //this.features.load(features);
     features.clear();
     for (UserPredicate pred : queries.keySet()) {

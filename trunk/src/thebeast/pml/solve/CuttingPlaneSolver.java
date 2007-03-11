@@ -1,13 +1,11 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
-import thebeast.pml.formula.FactorFormula;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
