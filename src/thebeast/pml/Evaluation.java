@@ -154,6 +154,18 @@ public class Evaluation {
     return avg / model.getHiddenPredicates().size();
   }
 
+  public int getNumErrors(UserPredicate pred){
+    return getFalseNegatives().getGroundAtomsOf(pred).size() + getFalsePositives().getGroundAtomsOf(pred).size();
+  }
+
+  public double getAverageNumErrors(){
+    double avg = 0;
+    for (UserPredicate pred : model.getHiddenPredicates()){
+      avg += getNumErrors(pred);
+    }
+    return avg / model.getHiddenPredicates().size();
+  }
+
   public int getNumErrors(){
     return getFalseNegativesCount() + getFalsePositivesCount();
   }

@@ -42,9 +42,19 @@ public class MemUpdater {
         if (condition.intData[0] == 1) {
           for (int arg = 0; arg < argVectors.length; ++arg)
             MemEvaluator.evaluate(args[arg], chunks, rows, tmp, argVectors[arg]);
-          System.arraycopy(tmp.intData, 0, chunk.intData, pointer.xInt, dim.xInt);
-          System.arraycopy(tmp.doubleData, 0, chunk.doubleData, pointer.xDouble, dim.xDouble);
-          System.arraycopy(tmp.chunkData, 0, chunk.chunkData, pointer.xChunk, dim.xChunk);
+          for (MemPointer argPointer : argPointers) {
+            switch (argPointer.type) {
+              case INT:
+                chunk.intData[pointer.xInt + argPointer.pointer] = tmp.intData[argPointer.pointer];
+                break;
+              case DOUBLE:
+                chunk.doubleData[pointer.xDouble + argPointer.pointer] = tmp.doubleData[argPointer.pointer];
+                break;
+              case CHUNK:
+                chunk.chunkData[pointer.xChunk + argPointer.pointer] = tmp.chunkData[argPointer.pointer];
+                break;
+            }
+          }
         }
         pointer.xInt += dim.xInt;
         pointer.xDouble += dim.xDouble;

@@ -24,6 +24,9 @@ public interface StatementFactory {
 
   RelationUpdate createRelationUpdate(RelationVariable variable, BoolExpression where, List<AttributeAssign> assigns);
 
+  RelationUpdate createRelationUpdate(RelationVariable variable, BoolExpression where, AttributeAssign ... assigns);
+
+
   RelationUpdate createRelationUpdate(RelationVariable variable, AttributeAssign assign);
 
 
