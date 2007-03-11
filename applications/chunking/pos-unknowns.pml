@@ -1,3 +1,12 @@
+/*
+//generic feature: if rare, what rough kind of tag will it be
+weight w_coarse: VeryCoarse -> Double;
+factor:
+  for Int i, Pos p, Int c, VeryCoarse v
+  if verycoarse(p,v) & count(i,c) //& c < 5
+  add [pos(i,p)] * w_coarse(v);
+*/
+
 //features for unknown words
 weight w_case: Case x Pos -> Double;
 factor:

@@ -237,8 +237,8 @@ public class GroundFormulas {
    * @param solution the ground atoms we look for groundformulas in.
    */
   public void extract(GroundAtoms solution) {
-
-    this.groundAtoms.load(solution);
+    this.groundAtoms.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+    this.groundAtoms.load(solution, model.getInstancePredicates());
     for (FactorFormula factorFormula : model.getFactorFormulas()) {
       if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
@@ -321,7 +321,8 @@ public class GroundFormulas {
    * @param formulas the formulas to find ground formulas for.
    */
   public void update(GroundAtoms solution, Collection<FactorFormula> formulas) {
-    this.groundAtoms.load(solution);
+    this.groundAtoms.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+    this.groundAtoms.load(solution, model.getInstancePredicates());
     //System.out.println(this.groundAtoms);
     for (FactorFormula factorFormula : formulas) {
       if (factorFormula.isAcyclicityConstraint()) {

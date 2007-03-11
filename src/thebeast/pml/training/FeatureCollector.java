@@ -116,9 +116,10 @@ public class FeatureCollector implements HasProperties {
       }
     progressReporter.finished();
 
+    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
     progressReporter.started("Collecting Features");
     while (corpus.hasNext()) {
-      this.atoms.load(corpus.next());
+      this.atoms.load(corpus.next(), model.getInstancePredicates());
       for (FactorFormula factor : inserts.keySet()) {
         if (!done.contains(factor.getWeightFunction()))
           interpreter.interpret(inserts.get(factor));
