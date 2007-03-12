@@ -18,9 +18,13 @@ import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.CategoricalConstant;
 import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
+import thebeast.pml.training.PerceptronUpdateRule;
+import thebeast.pml.training.TrainingInstances;
 import thebeast.pml.solve.ILPSolverLpSolve;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.ILPSolver;
+import thebeast.util.QuietProgressReporter;
+import thebeast.util.TreeProfiler;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -902,8 +906,8 @@ public class TestTheBeast extends TestCase {
     ilp.build(formulas, theManLikesTheBoat, scores);
 
     System.out.println(ilp);
-    System.out.println(ilp.indexToString(0));
-    System.out.println(ilp.indexToString(1));
+    System.out.println(ilp.indexToVariableString(0));
+    System.out.println(ilp.indexToVariableString(1));
     System.out.println(ilp.toLpSolveFormat());
 
     GroundAtoms solution = signature.createGroundAtoms();
@@ -977,12 +981,13 @@ public class TestTheBeast extends TestCase {
 
     //local.extract(theManLikesTheBoat);
 
-    features = solution.extract(local).getFree();
+    FeatureVector extracted = solution.extract(local);
+    features = extracted.getFree();
     System.out.println(features.getValuesRelation().value());
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
-    assertTrue(features.contains(4, -1.0));
-    assertEquals(3, features.size());
+    assertTrue(extracted.getNonnegative().contains(4, -1.0));
+    assertEquals(2, features.size());
 
   }
 
@@ -1013,12 +1018,13 @@ public class TestTheBeast extends TestCase {
     Model model = signature.createModel();
     model.addFactorFormula(factor);
     model.addHiddenPredicate(phrase);
+    model.addObservedPredicate(token);
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
     formulas.extract(theManLikesTheBoat);
     System.out.println(formulas);
-    assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
     assertTrue(formulas.getFalseGroundFormulas(factor).contains(2));
+    assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
 
@@ -1115,6 +1121,7 @@ public class TestTheBeast extends TestCase {
     Model model = signature.createModel();
     model.addFactorFormula(factor);
     model.addHiddenPredicate(phrase);
+    model.addObservedPredicate(token);
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
     formulas.extract(theManLikesTheBoat);
@@ -1254,7 +1261,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(weights.getIndex(weightFunction3, "NP", "VP", "S") != -1);
   }
 
-  public void testOnlineLearner() {
+  public void testOnlineLearner() throws IOException {
     GroundAtoms instance = signature.createGroundAtoms();
     GroundAtomCollection tokens = instance.getGroundAtomsOf(token);
     tokens.addGroundAtom(0, "the", "DT");
@@ -1281,9 +1288,19 @@ public class TestTheBeast extends TestCase {
 
     OnlineLearner learner = new OnlineLearner(model, weights);
     learner.setNumEpochs(1);
-    learner.setSolver(new CuttingPlaneSolver());
-    learner.learn(corpus);
+    CuttingPlaneSolver cpSolver = new CuttingPlaneSolver();
+    learner.setSolver(cpSolver);
+    cpSolver.setILPSolver(new ILPSolverLpSolve());
+    learner.setUpdateRule(new PerceptronUpdateRule());
+    learner.setMaxCandidates(1);
+    File file = new File(toString());
+    file.delete();
+    TrainingInstances instances =
+            new TrainingInstances(file, new LocalFeatureExtractor(model, weights),corpus,
+                    1000000,new QuietProgressReporter());
+    learner.learn(instances);
 
+    //learner.learn(corpus);
     assertEquals(2.0, weights.getWeight(weightFunction1, "DT", "NP"));
     assertEquals(1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
     assertEquals(2.0, weights.getWeight(weightFunction2, "NP"));
@@ -1300,16 +1317,21 @@ public class TestTheBeast extends TestCase {
     System.out.println(solver.getBestFormulas());
 
     //now use the new weights to train on
-    learner.learn(corpus);
+
+    learner.setProfiler(new TreeProfiler());
+    learner.learn(instances);
+    System.out.println(learner.getProfiler());
+    //learner.learn(corpus);
     System.out.println(weights.getWeights().value());
 
     assertEquals(-3.0, weights.getWeight(weightFunction1, "DT", "NP"));
     assertEquals(-1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
     assertEquals(-3.0, weights.getWeight(weightFunction2, "NP"));
     assertEquals(0.0, weights.getWeight(weightFunction2, "VP"));
-    //unfortunate: the solver turns the S phrases on (even while having a zero score).  
-    assertEquals(0.0, weights.getWeight(weightFunction3, "NP", "VP", "S"));
+    //unfortunate: the solver turns the S phrases on (even while having a zero score). Now it does!  
+    assertEquals(3.0, weights.getWeight(weightFunction3, "NP", "VP", "S"));
 
+    file.delete();
   }
 
   public void testAcyclicity() {

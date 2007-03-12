@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class MemHeading implements Heading {
 
-  private LinkedList<Attribute> attributes = new LinkedList<Attribute>();
+  private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
   private HashMap<String, Type> types = new HashMap<String, Type>();
   private HashMap<String, Attribute> name2attribute = new HashMap<String, Attribute>();
 
@@ -30,7 +30,7 @@ public class MemHeading implements Heading {
   private int numIntCols, numDoubleCols, numChunkCols;
 
   public MemHeading(List<Pair<String, Type>> attributes) {
-    attributes = new LinkedList<Pair<String, Type>>(attributes);
+    attributes = new ArrayList<Pair<String, Type>>(attributes);
     Collections.sort(attributes, new AttComp1());
     for (Pair<String, Type> attribute : attributes) {
       MemAttribute att = new MemAttribute(attribute);

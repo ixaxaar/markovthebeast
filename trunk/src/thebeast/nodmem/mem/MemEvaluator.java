@@ -239,7 +239,11 @@ public class MemEvaluator {
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
           for (int col = 0; col < argChunk.numChunkCols; ++col)
-            returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
+            if (returnChunk.chunkData[argPointerVec.xChunk + col] == null)
+              returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
+            else
+              returnChunk.chunkData[argPointerVec.xChunk + col].copyFrom(argChunk.chunkData[col]);
+
           ++returnChunk.size;
           //System.arraycopy(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
           break;
@@ -255,7 +259,10 @@ public class MemEvaluator {
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
           for (int col = 0; col < chunkSize; ++col)
-            returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
+            if (returnChunk.chunkData[argPointerVec.xChunk + col] == null)
+              returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
+            else
+              returnChunk.chunkData[argPointerVec.xChunk + col].copyFrom(argChunk.chunkData[col]);
           returnChunk.size += argChunk.size;
           break;
         case TUPLE_SELECTOR:

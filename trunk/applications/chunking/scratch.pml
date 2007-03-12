@@ -22,7 +22,7 @@ observed:
 
 hidden: chunk, pos;
 
-set instancesCacheSize = 3;
+set instancesCacheSize = 20;
 
 //load global from "global.txt";
 
@@ -31,12 +31,14 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-100) to ram;
+save corpus (0-10) to ram;
 
 //set collector.all.w_word = true;
 //set collector.all.w_pos_2 = true;
 //set collector.all.w_pos_3 = true;
-set collector.all.w_forbid = true;
+set collector.all.w_forbid_1 = true;
+set collector.all.w_forbid_2 = true;
+//set collector.all.ch_word_3 = true;
 
 collect;
 
@@ -63,7 +65,7 @@ set learner.maxCandidates = 100;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-//learn for 2 epochs;
+learn for 5 epochs;
 
 //set learner.solver = "cut";
 
