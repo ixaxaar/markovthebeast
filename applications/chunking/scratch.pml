@@ -65,7 +65,7 @@ set learner.maxCandidates = 100;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-learn for 5 epochs;
+//learn for 5 epochs;
 
 //set learner.solver = "cut";
 
