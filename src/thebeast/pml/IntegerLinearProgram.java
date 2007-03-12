@@ -423,7 +423,7 @@ public class IntegerLinearProgram implements HasProperties {
     if (value.size() == 0) return "No Fractionals.";
     for (TupleValue var : value) {
       Formatter formatter = new Formatter();
-      result.append(formatter.format("%-12s\t", indexToString(var.intElement("index").getInt())));
+      result.append(formatter.format("%-12s\t", indexToVariableString(var.intElement("index").getInt())));
       result.append(var.doubleElement("value")).append("\n");
     }
     return result.toString();
@@ -453,6 +453,49 @@ public class IntegerLinearProgram implements HasProperties {
   }
 
   /**
+   * Returns a string for introspection of this ilp.
+   *
+   * @param vars        the variables to print out (a relation)
+   * @param constraints the constraints to print out (a relation).
+   * @return ilp in verbose format
+   */
+  public String toVerboseFormat(RelationVariable vars, RelationVariable constraints) {
+    StringBuffer result = new StringBuffer();
+
+    result.append("max: ");
+    int index = 0;
+    for (TupleValue var : vars.value()) {
+      double weight = var.doubleElement("weight").getDouble();
+      if (weight != 0.0) {
+        if (index++ > 0) result.append(" + ");
+        result.append(weight).append(" ");
+        result.append(indexToVariableString(var.intElement("index").getInt())).append("\n");
+      }
+    }
+
+    result.append(";\n\n");
+    for (TupleValue tuple : constraints.value()) {
+      double lb = tuple.doubleElement("lb").getDouble();
+      double ub = tuple.doubleElement("ub").getDouble();
+      index = 0;
+      for (TupleValue value : tuple.relationElement("values")) {
+        if (index++ > 0) result.append(" + ");
+        result.append(value.doubleElement("weight")).append(" ");
+        result.append(indexToVariableString(value.intElement("index").getInt()));
+      }
+      if (lb == Double.NEGATIVE_INFINITY) {
+        result.append(" <= ").append(ub).append(";\n");
+      } else if (ub == Double.POSITIVE_INFINITY) {
+        result.append(" >= ").append(lb).append(";\n");
+      } else if (ub == lb) {
+        result.append(" = ").append(lb).append(";\n");
+      }
+    }
+    return result.toString();
+  }
+
+
+  /**
    * Returns a representation of this ILP in LpSolve ("lp") format. This method should mostly be called for debugging
    * purposes (it is not very optimized).
    *
@@ -470,7 +513,7 @@ public class IntegerLinearProgram implements HasProperties {
       if (weight != 0.0) {
         if (index++ > 0) result.append(" + ");
         result.append(weight).append(" ");
-        result.append(indexToString(var.intElement("index").getInt()));
+        result.append(indexToVariableString(var.intElement("index").getInt())).append("\n");
       }
     }
 
@@ -482,7 +525,7 @@ public class IntegerLinearProgram implements HasProperties {
       for (TupleValue value : tuple.relationElement("values")) {
         if (index++ > 0) result.append(" + ");
         result.append(value.doubleElement("weight")).append(" ");
-        result.append(indexToString(value.intElement("index").getInt()));
+        result.append(indexToVariableString(value.intElement("index").getInt()));
       }
       if (lb == Double.NEGATIVE_INFINITY) {
         result.append(" <= ").append(ub).append(";\n");
@@ -501,7 +544,7 @@ public class IntegerLinearProgram implements HasProperties {
    * @param index the index of the variable.
    * @return a string representation with predicate name and arguments.
    */
-  public String indexToString(int index) {
+  public String indexToVariableString(int index) {
     for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
       builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
       RelationValue result = interpreter.evaluateRelation(builder.getRelation());
@@ -530,6 +573,48 @@ public class IntegerLinearProgram implements HasProperties {
     return "NOT AVAILABLE";
   }
 
+  /**
+   * Returns a string representation of the variable with the given index.
+   *
+   * @param index   the index of the variable.
+   * @param weights the weights to get the feature strings from.
+   * @return a string representation with predicate name and arguments.
+   */
+  public String indexToPredicateString(int index, Weights weights) {
+    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
+      builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
+      RelationValue result = interpreter.evaluateRelation(builder.getRelation());
+      if (result.size() == 1) {
+        StringBuffer buffer = new StringBuffer(entry.getKey().getName());
+        int argIndex = 0;
+        buffer.append("(");
+        for (Value value : result.iterator().next().values())
+          if (argIndex++ < entry.getKey().getArity())
+            buffer.append(",").append(value.toString());
+          else
+            break;
+        buffer.append(")");
+        return buffer.toString();
+      }
+    }
+    for (Map.Entry<FactorFormula, RelationVariable> entry : groundFormula2index.entrySet()) {
+      if (entry.getKey().isParametrized()) {
+        builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
+        RelationValue result = interpreter.evaluateRelation(builder.getRelation());
+        if (result.size() == 1) {
+          StringBuffer buffer = new StringBuffer(entry.getKey().getName());
+          TupleValue tuple = result.iterator().next();
+          weights.getFeatureString(tuple.intElement(tuple.size() - 1).getInt());
+          for (int i = 1; i < tuple.size() - 1; ++i)
+            buffer.append("_").append(tuple.element(i).toString());
+          return buffer.toString();
+        }
+      }
+    }
+    return "NOT AVAILABLE";
+  }
+
+
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead()))
       if (name.isTerminal()) {
@@ -553,4 +638,12 @@ public class IntegerLinearProgram implements HasProperties {
       return getVariableString(fractionals.value());
     return null;
   }
+
+  public String allConstraintsFor(UserPredicate predicate, Object... args) {
+    StringBuffer result = new StringBuffer();
+
+
+    return "";
+  }
+
 }

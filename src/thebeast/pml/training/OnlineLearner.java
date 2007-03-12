@@ -281,7 +281,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //extract features (or load)
     profiler.start("extract");
-    List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();
+    List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();                                
     List<GroundFormulas> candidateFormulas = solver.getCandidateFormulas();
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());

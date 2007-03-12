@@ -28,9 +28,16 @@ public final class MemChunk extends MemHolder {
 
   public void copyFrom(MemChunk other) {
     if (other.size > capacity) increaseCapacity(other.size - capacity);
-    System.arraycopy(other.intData, 0, intData, 0, other.size * other.numIntCols);
-    System.arraycopy(other.doubleData, 0, doubleData, 0, other.size * other.numDoubleCols);
-    System.arraycopy(other.chunkData, 0, chunkData, 0, other.size * other.numChunkCols);
+    if (intData != null&& other.intData != null)
+      System.arraycopy(other.intData, 0, intData, 0, other.size * other.numIntCols);
+    if (doubleData != null && other.doubleData != null)
+      System.arraycopy(other.doubleData, 0, doubleData, 0, other.size * other.numDoubleCols);
+    if (chunkData != null && other.chunkData!=null)
+      for (int i = 0; i < other.size * other.numChunkCols; ++i)
+        if (chunkData[i] == null)
+          chunkData[i] = other.chunkData[i].copy();
+        else
+          chunkData[i].copyFrom(other.chunkData[i]);
     size = other.size;
   }
 

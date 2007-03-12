@@ -39,6 +39,9 @@ public class CuttingPlaneSolver implements Solver {
     ilpSolver = new ILPSolverOsi();
   }
 
+
+
+
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
@@ -321,6 +324,11 @@ public class CuttingPlaneSolver implements Solver {
       setDeterministicFirst((Boolean) value);
     if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
+  }
+
+
+  public IntegerLinearProgram getIlp() {
+    return ilp;
   }
 
   public Object getProperty(PropertyName name) {

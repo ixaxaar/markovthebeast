@@ -11,18 +11,25 @@ factor:
   add [pos(b-1,p1) & pos(e+1,p2) => chunk(b,e,c)] * w_propose_2(p1,p2,c);
 
 
+//some pos tags can't appear in chunks
 weight w_forbid_1: Pos x Chunk -> Double-;
 factor:
   for Int b, Int e, Int m, Pos p, Chunk c
-  if b < m & m < e
+  if b <= m & m <= e
   add [pos(m,p) & chunk(b,e,c)] * w_forbid_1(p,c);
 
+//some pos tag binary subsequences can't appear in chunks
 weight w_forbid_2: Pos x Pos x Chunk -> Double-;
 factor:
   for Int b, Int e, Int m1, Int m2, Pos p1, Pos p2, Chunk c
-  if b < m1 & m1 < m2 & m2 < e
+  if b <= m1 & m1 < m2 & m2 <= e
   add [pos(m1,p1) & pos(m2,p2) & chunk(b,e,c)] * w_forbid_2(p1,p2,c);
 
+//some pos tags can't be chunks themselves
+weight w_forbid_3: Pos x Chunk -> Double-;
+factor:
+  for Int b, Pos p, Chunk c
+  add [pos(b,p) & chunk(b,b,c)] * w_forbid_3(p,c);
 
 /*
 weight w_chunkpos_1: Pos x Pos x Pos x Chunk -> Double+;

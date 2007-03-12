@@ -12,7 +12,6 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.util.StatementBuilder;
 import thebeast.nod.variable.VariableFactory;
 import thebeast.nodmem.MemNoDServer;
-import thebeast.util.Pair;
 
 import java.util.LinkedList;
 
@@ -163,7 +162,7 @@ public abstract class NoDTest extends TestCase {
 
   private void createRelationTypes() {
     tokenRelationType = typeFactory.createRelationType(tokenHeading);
-    featureRelationType = typeFactory.createRelationType(featureHeading, wordAtBeginAttribute, labelAttribute);
+    featureRelationType = typeFactory.createRelationType(featureHeading);
   }
 
   private void createTupleTypes() {
@@ -171,10 +170,10 @@ public abstract class NoDTest extends TestCase {
   }
 
   private void createHeadings() {
-    LinkedList<Pair<String, Type>> attributes = new LinkedList<Pair<String, Type>>();
-    attributes.add(new Pair<String, Type>("position", positionType));
-    attributes.add(new Pair<String, Type>("word", wordType));
-    tokenHeading = typeFactory.createHeading(attributes);
+    LinkedList<Attribute> attributes = new LinkedList<Attribute>();
+    attributes.add(typeFactory.createAttribute("position",positionType));
+    attributes.add(typeFactory.createAttribute("word",wordType));
+    tokenHeading = typeFactory.createHeadingFromAttributes(attributes);
 
     LinkedList<Attribute> attributes2 = new LinkedList<Attribute>();
     attributes2.add(wordAtBeginAttribute);

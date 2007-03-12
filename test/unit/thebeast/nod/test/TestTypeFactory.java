@@ -32,19 +32,6 @@ public class TestTypeFactory extends NoDTest {
         assertEquals(type, typeFactory.categoricalType(wordTypeID));
     }
 
-    public void testCreateHeading(){
-        LinkedList<Pair<String, Type>> attributes = new LinkedList<Pair<String, Type>>();
-        attributes.add(new Pair<String, Type>("position", positionType));
-        attributes.add(new Pair<String, Type>("word",wordType));
-        Heading heading = typeFactory.createHeading(attributes);
-        assertEquals(positionType, heading.getType("position"));
-        assertEquals(wordType, heading.getType("word"));
-        assertEquals(2, heading.attributes().size());
-        assertEquals(positionID,heading.attributes().get(0).name());
-        assertEquals(wordID,heading.attributes().get(1).name());
-
-    }
-
     public void testCreateTupleType(){
         TupleType type = typeFactory.createTupleType(tokenHeading);
         assertEquals(tokenHeading, type.heading());

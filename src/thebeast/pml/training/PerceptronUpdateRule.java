@@ -14,7 +14,7 @@ public class PerceptronUpdateRule implements UpdateRule {
 
   private double learningRate = 1.0;
   private double decay = 1.0;
-  private boolean enforceSigns = true;
+  private boolean enforceSigns = false;
 
   public void endEpoch() {
     learningRate *= decay;

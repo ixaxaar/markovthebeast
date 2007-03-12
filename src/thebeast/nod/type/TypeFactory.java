@@ -24,8 +24,6 @@ public interface TypeFactory {
 
   CategoricalType createCategoricalType(Name name, List<String> representations);
 
-  Heading createHeading(List<Pair<String, Type>> attributes);
-
   Heading createHeadingFromAttributes(List<Attribute> attributes);
 
   Heading createHeading(Attribute ... attributes);
@@ -33,8 +31,6 @@ public interface TypeFactory {
   TupleType createTupleType(Heading heading);
 
   RelationType createRelationType(Heading heading);
-
-  RelationType createRelationType(Heading heading, Attribute... primaryKey);
 
   Attribute createAttribute(String name, Type type);
 

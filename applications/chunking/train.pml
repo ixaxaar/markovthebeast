@@ -9,7 +9,8 @@ set instancesCacheSize = 3;
 
 load corpus from conll00 "corpora/train.conll";
 
-load weights from dump "/tmp/blank.weights.dmp";
+//load weights from dump "/tmp/blank.weights.dmp";
+load weights from dump "/tmp/weights.dmp";
 
 load instances from dump "/tmp/instances.dmp";
 
@@ -21,7 +22,7 @@ set learner.solver.deterministicFirst = true;
 set learner.update = "mira";
 set learner.update.signs = true;
 set learner.maxCandidates = 10;
-set learner.loss = "avgF1";
+set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
 learn for 10 epochs;

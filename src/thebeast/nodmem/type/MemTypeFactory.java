@@ -1,14 +1,13 @@
 package thebeast.nodmem.type;
 
-import thebeast.nod.type.*;
 import thebeast.nod.identifier.Name;
-import thebeast.util.Pair;
+import thebeast.nod.type.*;
 import thebeast.nodmem.identifier.MemName;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Sebastian Riedel
@@ -20,6 +19,10 @@ public class MemTypeFactory implements TypeFactory {
   private IntType intType = new MemIntType(new MemName("int"), Integer.MIN_VALUE, Integer.MAX_VALUE);
   private DoubleType doubleType = new MemDoubleType(new MemName("double"), Double.MIN_VALUE, Double.MAX_VALUE);
   private BoolType boolType = MemBoolType.BOOL;
+  private HashMap<Heading,TupleType> tupleTypes = new HashMap<Heading, TupleType>();
+  private HashMap<Heading,RelationType> relationTypes = new HashMap<Heading, RelationType>();
+  private HashMap<List<Attribute>, Heading> headings = new HashMap<List<Attribute>, Heading>();
+  private HashMap<Attribute, Attribute> attributes = new HashMap<Attribute, Attribute>();
 
   public IntType intType() {
     return intType;
@@ -65,11 +68,11 @@ public class MemTypeFactory implements TypeFactory {
     types.add(type);
     return type;
   }
-  public Heading createHeading(List<Pair<String, Type>> attributes) {
-    return new MemHeading(attributes);
-  }
 
   public Heading createHeadingFromAttributes(List<Attribute> attributes) {
+    Heading heading = headings.get(attributes);
+    if (heading != null) return heading;
+    headings.put(attributes, heading);
     return new MemHeading(attributes, 1);
   }
 
@@ -78,28 +81,28 @@ public class MemTypeFactory implements TypeFactory {
   }
 
   public TupleType createTupleType(Heading heading) {
+    MemTupleType old = (MemTupleType) tupleTypes.get(heading);
+    if (old!=null) return old;
     MemTupleType type = new MemTupleType((MemHeading) heading);
     types.add(type);
+    tupleTypes.put(heading, type);
     return type;
   }
 
   public RelationType createRelationType(Heading heading) {
-    return new MemRelationType((MemHeading) heading);
-  }
-
-  public RelationType createRelationType(Heading heading, Attribute... primaryKey) {
-    MemKeyAttributes attributes = new MemKeyAttributes((MemHeading) heading, Arrays.asList(primaryKey));
-    LinkedList<KeyAttributes> candidates = new LinkedList<KeyAttributes>();
-    candidates.add(attributes);
-    return new MemRelationType((MemHeading) heading, candidates);
-  }
-
-  public RelationType createRelationType(Heading heading, List<KeyAttributes> candidateKeys) {
-    return new MemRelationType((MemHeading) heading, candidateKeys);
+    RelationType type = relationTypes.get(heading);
+    if (type != null) return type;
+    MemRelationType memRelationType = new MemRelationType((MemHeading) heading);
+    relationTypes.put(heading,memRelationType);
+    return memRelationType;
   }
 
   public Attribute createAttribute(String name, Type type) {
-    return new MemAttribute(name, type);
+    MemAttribute attribute = new MemAttribute(name, type);
+    Attribute old = attributes.get(attribute);
+    if (old != null) return old;
+    attributes.put(attribute, attribute);
+    return attribute;
   }
 
 

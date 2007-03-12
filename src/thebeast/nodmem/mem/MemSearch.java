@@ -78,13 +78,15 @@ public final class MemSearch {
             MemEvaluator.evaluate(action.functions[0], chunks, currentRows, valid, zero);
             if (valid.intData[0] == 1) {
               //System.out.println("Written");
+              int oldSize = dst.size;
               if (dst.capacity == dst.size)
                 dst.increaseCapacity(CAPACITY_INCREMENTS);
               MemEvaluator.evaluate(action.functions[1], chunks, currentRows, dst, dstPointer);
+              int delta = dst.size - oldSize;
               //++dst.size;
-              dstPointer.xInt += dst.numIntCols;
-              dstPointer.xDouble += dst.numDoubleCols;
-              dstPointer.xChunk += dst.numChunkCols;
+              dstPointer.xInt += delta * dst.numIntCols;
+              dstPointer.xDouble += delta * dst.numDoubleCols;
+              dstPointer.xChunk += delta * dst.numChunkCols;
             }
             --currentChunk;
             continue main;

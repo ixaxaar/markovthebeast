@@ -148,6 +148,11 @@ public class QueryGenerator {
             public void visitWeightFunction(WeightFunction weightFunction) {
               context.prefixes.add("weights");
               context.relations.add(weights.getRelation(weightFunction));
+//              ExpressionBuilder exprBuilder = TheBeast.getInstance().getNodServer().expressionBuilder();
+//              exprBuilder.expr(weights.getRelation(weightFunction)).from("weights");
+//              exprBuilder.expr(weights.getWeights()).intAttribute("weights","index").doubleArrayElement();
+//              exprBuilder.num(0.0).inequality();
+//              context.conditions.add(exprBuilder.getBool());
             }
           });
         }
@@ -176,12 +181,12 @@ public class QueryGenerator {
       formula = new Conjunction(implication.getPremise(), implication.getConclusion());
     } else if (factorFormula.getFormula() instanceof Conjunction) {
       formula = factorFormula.getFormula();
-    } else if (factorFormula.getFormula() instanceof Disjunction){
+    } else if (factorFormula.getFormula() instanceof Disjunction) {
       formula = factorFormula.getFormula();
     }
 
     BooleanFormula both = factorFormula.getCondition() == null ?
-            formula : 
+            formula :
             new Conjunction(formula, factorFormula.getCondition());
     //Conjunction both = new Conjunction(factorFormula.getFormula(), factorFormula.getCondition());
 
@@ -475,6 +480,10 @@ public class QueryGenerator {
     final ExpressionBuilder constraintBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
     constraintBuilder.expr(this.groundFormulas.getExplicitGroundFormulas(this.formula)).from("formulas");
+    if (formula.isParametrized()) {
+      constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();
+      constraintBuilder.num(0.0).inequality().where();
+    }
     int varIndex = 0;
     for (Variable var : this.formula.getQuantification().getVariables()) {
       var2expr.put(var, factory.createAttribute("formulas", this.formula.getQuantification().getAttribute(varIndex++)));
@@ -880,7 +889,7 @@ public class QueryGenerator {
     double scale = disjunction ? 1.0 : -1.0;
     builder.id("index").expr(f).id("weight").num(-1.0 * scale).tuple(2);
     for (int i = 0; i < size; ++i) {
-      builder.id("index").expr(variables[i]).id("weight").num(scale *(signs[i] ? 1.0 : -1.0)).tuple(2);
+      builder.id("index").expr(variables[i]).id("weight").num(scale * (signs[i] ? 1.0 : -1.0)).tuple(2);
     }
     builder.relation(size + 1);
     builder.tuple(3);

@@ -163,14 +163,18 @@ public class FeatureCollector implements HasProperties {
 
 
   public void setCollectAll(WeightFunction function, boolean collectAll){
+    if (function == null) throw new IllegalArgumentException("function must not be null!");
     if (collectAll) this.collectAll.add(function);
     else this.collectAll.remove(function);
   }
 
   public void setProperty(PropertyName name, Object value) {
 
-    if (name.getHead().equals("all"))
-      setCollectAll(model.getSignature().getWeightFunction(name.getTail().getHead()),(Boolean)value);
+    if (name.getHead().equals("all")) {
+      WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
+      if (weightFunction == null) throw new NoSuchPropertyException(name);
+      setCollectAll(weightFunction,(Boolean)value);
+    }
   }
 
 
