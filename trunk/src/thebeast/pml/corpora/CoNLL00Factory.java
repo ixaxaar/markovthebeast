@@ -50,8 +50,6 @@ public class CoNLL00Factory implements CorpusFactory {
     UserPredicate cap = (UserPredicate) signature.getPredicate("case");
     UserPredicate isNumber = (UserPredicate) signature.getPredicate("cardinal");
     UserPredicate chunk = (UserPredicate) signature.getPredicate("chunk");
-    UserPredicate count = signature.getUserPredicate("count");
-    UserPredicate highestFreq = signature.getUserPredicate("highestfreq");
 
     AttributeExtractor words = new AttributeExtractor(word, 2);
     words.addLineNrArg(0);
@@ -60,19 +58,6 @@ public class CoNLL00Factory implements CorpusFactory {
     AttributeExtractor hyphens = new AttributeExtractor(hyphen, 2);
     hyphens.addLineNrArg(0);
     hyphens.addMapping(0, 1, new HasSubstring("-"));
-
-    Counter<String> counter = null;
-    try {
-      counter = Counter.loadFromFile(new File("/tmp/counts"));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    AttributeExtractor counts = new AttributeExtractor(count, 2);
-    counts.addLineNrArg(0);
-    counts.addMapping(0, 1, new Count(counter));
-
-    PhraseStatistics freqs = new PhraseStatistics(0, highestFreq,
-            new PhraseStatistics.HighestFrequency(counter));
 
     AttributeExtractor prefixes1 = new AttributeExtractor(prefix1, 2);
     prefixes1.addLineNrArg(0);
@@ -132,12 +117,10 @@ public class CoNLL00Factory implements CorpusFactory {
     corpus.addExtractor(postfixes4);
     corpus.addExtractor(words);
     corpus.addExtractor(hyphens);
-    corpus.addExtractor(counts);
     corpus.addExtractor(postags);
     corpus.addExtractor(cases);
     corpus.addExtractor(numbers);
     corpus.addExtractor(chunks);
-    corpus.addExtractor(freqs);
 
     corpus.addWriter(word, new TokenFeatureWriter(0, 0, 0));
     corpus.addWriter(word, new TokenFeatureWriter(1, 0, 1, new Dequote()));

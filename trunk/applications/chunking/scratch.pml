@@ -22,22 +22,35 @@ observed:
 
 hidden: chunk, pos;
 
-global: cpos, verycoarse;
+global: cpos, verycoarse, rare;
 
 set instancesCacheSize = 20;
 
 load global from "global.txt";
+load global.rare from "corpora/rare.txt";
 
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-5) to ram;
+save corpus (0-50) to ram;
 
-set collector.all.w_word = true;
-set collector.all.w_word_m1 = true;
-set collector.all.w_word_p1 = true;
+set collector.all.w_case = true;
+set collector.all.w_hyphen = true;
+set collector.all.w_cardinal = true;
+set collector.all.w_prefix1 = true;
+set collector.all.w_prefix2 = true;
+set collector.all.w_prefix3 = true;
+set collector.all.w_prefix4 = true;
+set collector.all.w_postfix1 = true;
+set collector.all.w_postfix2 = true;
+set collector.all.w_postfix3 = true;
+set collector.all.w_postfix4 = true;
+
+//set collector.all.w_word = true;
+//set collector.all.w_word_m1 = true;
+//set collector.all.w_word_p1 = true;
 set collector.all.w_pos_1 = true;
 //set collector.all.w_pos_2 = true;
 //set collector.all.w_pos_3 = true;
@@ -70,7 +83,7 @@ set learner.maxCandidates = 100;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-learn for 1 epochs;
+//learn for 10 epochs;
 
 //set learner.solver = "cut";
 

@@ -396,7 +396,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     update();
     try {
       if ("global".equals(parserLoad.target.head)) {
-        model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
+        if (parserLoad.target.tail == null)
+          model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
+        else {
+          UserPredicate predicate = signature.getUserPredicate(parserLoad.target.tail.head);
+          model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)), predicate);
+
+        }
         out.println("Global atoms loaded.");
         //System.out.println(model.getGlobalAtoms());
       } else if ("instances".equals(parserLoad.target.head)) {

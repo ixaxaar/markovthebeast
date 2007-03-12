@@ -119,8 +119,6 @@ statement ::= createType:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
             | LOAD name:n FROM STRING:s
               {: RESULT = new ParserLoad(n, null, s.substring(1,s.length()-1)); :}
-            | LOAD GLOBAL FROM STRING:s
-              {: RESULT = new ParserLoad(new ParserName("global",null), null, s.substring(1,s.length()-1)); :}
             | LOAD name:n FROM LOWERCASEID:m STRING:s
               {: RESULT = new ParserLoad(n, m, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s
@@ -284,6 +282,10 @@ name ::=
     {: RESULT = new ParserName("weights",null); :}
   | WEIGHTS DOT name:t
     {: RESULT = new ParserName("weights",t); :}
+  | GLOBAL
+    {: RESULT = new ParserName("global",null); :}
+  | GLOBAL DOT name:t
+    {: RESULT = new ParserName("global",t); :}
   | SCORES
     {: RESULT = new ParserName("scores",null); :}
   | SCORES DOT name:t

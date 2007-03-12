@@ -30,15 +30,19 @@ public class Counter<T> extends HashMap<T, Integer> {
     return result;
   }
 
-  public void save(OutputStream outputStream) throws FileNotFoundException {
-    PrintStream out = new PrintStream(outputStream);
+  public List<Map.Entry<T,Integer>> sorted(final boolean descending){
     ArrayList<Map.Entry<T,Integer>> sorted = new ArrayList<Map.Entry<T, Integer>>(entrySet());
     Collections.sort(sorted, new Comparator<Map.Entry<T,Integer>>(){
       public int compare(Map.Entry<T, Integer> o1, Map.Entry<T, Integer> o2) {
-        return o2.getValue() - o1.getValue();
+        return (descending ? 1 : -1) *( o2.getValue() - o1.getValue());
       }
     });
-    for (Map.Entry<T,Integer> entry : sorted){
+    return sorted;    
+  }
+
+  public void save(OutputStream outputStream) throws FileNotFoundException {
+    PrintStream out = new PrintStream(outputStream);
+    for (Map.Entry<T,Integer> entry : sorted(true)){
       out.println(entry.getKey() + "\t" + entry.getValue());
     }
   }
