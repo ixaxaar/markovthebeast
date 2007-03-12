@@ -5,7 +5,7 @@ include "corpora/train.np.goldtags.train.pml";
 include "conll00.pml";
 include "chunking.pml";
 include "tagging.pml";
-//include "global.pml";
+include "global.pml";
 
 include "pos-unigram.pml";
 include "pos-unknowns.pml";
@@ -22,18 +22,23 @@ observed:
 
 hidden: chunk, pos;
 
+global: cpos, verycoarse;
+
 set instancesCacheSize = 20;
 
-//load global from "global.txt";
+load global from "global.txt";
 
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-10) to ram;
+save corpus (0-5) to ram;
 
-//set collector.all.w_word = true;
+set collector.all.w_word = true;
+set collector.all.w_word_m1 = true;
+set collector.all.w_word_p1 = true;
+set collector.all.w_pos_1 = true;
 //set collector.all.w_pos_2 = true;
 //set collector.all.w_pos_3 = true;
 set collector.all.w_forbid_1 = true;
@@ -65,7 +70,7 @@ set learner.maxCandidates = 100;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-//learn for 5 epochs;
+learn for 1 epochs;
 
 //set learner.solver = "cut";
 

@@ -42,6 +42,7 @@
 "NNS"     N
 "DT"      D
 "WRB"     WR
+
 >verycoarse
 "``"      O
 "JJS"     J
@@ -55,6 +56,7 @@
 "JJ"      J
 "RBS"     O
 "NNP"     N
+"NNPS"    N
 "VBG"     V
 "PRP"     O
 "VB"      V
@@ -86,3 +88,4 @@
 "NNS"     N
 "DT"      O
 "WRB"     O
+"SYM"     O

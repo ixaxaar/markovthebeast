@@ -169,6 +169,7 @@ public final class MemChunk extends MemHolder {
 
   public void increaseCapacity(int howMuch) {
     if (howMuch < 0) return;
+    //System.out.print("");    
     capacity += howMuch;
     int[] newIntData = new int[capacity * numIntCols];
     System.arraycopy(intData, 0, newIntData, 0, intData.length);
@@ -328,6 +329,7 @@ public final class MemChunk extends MemHolder {
   }
 
   public void own() {
+    //System.out.print("!");
     int[] newIntData = new int[capacity * numIntCols];
     System.arraycopy(intData, 0, newIntData, 0, intData.length);
     intData = newIntData;
