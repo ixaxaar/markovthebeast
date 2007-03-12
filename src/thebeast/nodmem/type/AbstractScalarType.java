@@ -9,6 +9,7 @@ import thebeast.nod.type.ScalarType;
 public abstract class AbstractScalarType extends AbstractMemType implements ScalarType {
 
   protected Name name;
+ 
 
   protected AbstractScalarType(Name name, DataType dataType) {
     super(dataType);

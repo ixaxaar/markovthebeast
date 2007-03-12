@@ -148,6 +148,32 @@ public class GroundAtoms implements Dumpable, SignatureListener {
   }
 
   /**
+   * Load a set of ground atoms from the given input stream.
+   *
+   * @param is        input stream with PML data format
+   * @param predicate the predicate for which we want to load ground atoms.
+   * @throws IOException in case something I/O-ish goes wrong.
+   */
+  public void load(InputStream is, UserPredicate predicate) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+      line = line.trim();
+      if (line.length() > 1 && line.charAt(0) == '>') {
+        String pred = line.substring(1);
+        UserPredicate userPredicate = (UserPredicate) signature.getPredicate(pred);
+        if (userPredicate.equals(predicate)) {
+          StringBuffer buffer = new StringBuffer();
+          for (line = reader.readLine(); line != null && !line.equals("") && !line.startsWith(">"); line = reader.readLine())
+            buffer.append(line).append("\n");
+          GroundAtomCollection atoms = getGroundAtomsOf(userPredicate);
+          atoms.load(buffer.toString());
+          return;
+        }
+      }
+    }
+  }
+
+  /**
    * Determines whether the ground atom collections for the specified predicates are all empty
    *
    * @param predicates a collection of ground atoms
@@ -225,16 +251,17 @@ public class GroundAtoms implements Dumpable, SignatureListener {
   }
 
   /**
-   * Called when the signature has added a predicate. Will ensure that this object is consistent with the
-   * update signature.
+   * Called when the signature has added a predicate. Will ensure that this object is consistent with the update
+   * signature.
+   *
    * @param predicate the predicate which has been added.
    */
   public void predicateAdded(UserPredicate predicate) {
-    atoms.put(predicate, new GroundAtomCollection(predicate));    
+    atoms.put(predicate, new GroundAtomCollection(predicate));
   }
-  
-  public void detach(){
-	  signature.removeSignatureListener(this);
+
+  public void detach() {
+    signature.removeSignatureListener(this);
   }
-  
+
 }

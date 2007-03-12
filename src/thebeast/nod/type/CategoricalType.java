@@ -9,6 +9,9 @@ import java.util.List;
  */
 public interface CategoricalType extends ScalarType {
 
+
+  public static final String UNKNOWN_REP = "UNKNOWN";
+
   List<CategoricalValue> values();
 
   CategoricalValue value(String representation);

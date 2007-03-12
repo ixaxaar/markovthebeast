@@ -26,7 +26,6 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   private ArrayList<String> representations;
   private HashMap<String, Integer> indices;
   private boolean unknowns;
-  private static final String UNKNOWN_REP = "-N/A-";
 
   public MemCategoricalType(Name name, boolean unknowns, List<String> representations) {
     super(name, DataType.INT);
