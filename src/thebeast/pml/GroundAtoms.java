@@ -127,7 +127,8 @@ public class GroundAtoms implements Dumpable, SignatureListener {
     StringBuffer buffer = new StringBuffer();
     String pred = null;
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-      if (line.charAt(0) == '>') {
+      line = line.trim();
+      if (line.length() > 1 && line.charAt(0) == '>') {
         if (pred != null) {
           UserPredicate userPredicate = (UserPredicate) signature.getPredicate(pred);
           if (userPredicate == null)
@@ -138,7 +139,7 @@ public class GroundAtoms implements Dumpable, SignatureListener {
         pred = line.substring(1);
         buffer.setLength(0);
 
-      } else if (!line.trim().equals("")) {
+      } else if (!line.equals("")) {
         buffer.append(line).append("\n");
       }
     }

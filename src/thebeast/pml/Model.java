@@ -68,8 +68,17 @@ public class Model {
    * @param predicate the predicate to be defined as global.
    */
   public void addGlobalPredicate(UserPredicate predicate) {
-    globalPreds.add(predicate);
-    Collections.sort(globalPreds);
+    if (globalAtoms != null) {
+      GroundAtoms newGlobal = signature.createGroundAtoms();
+      newGlobal.load(globalAtoms, getGlobalPredicates());
+      globalPreds.add(predicate);
+      Collections.sort(globalPreds);
+      globalAtoms = newGlobal;
+    } else {
+      globalPreds.add(predicate);
+      Collections.sort(globalPreds);      
+    }
+
   }
 
 
@@ -163,8 +172,6 @@ public class Model {
   public void validateModel() {
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
-    HashSet<UserPredicate> hiddenSet = new HashSet<UserPredicate>(hidden);
-    HashSet<UserPredicate> observationSet = new HashSet<UserPredicate>(observed);
   }
 
 

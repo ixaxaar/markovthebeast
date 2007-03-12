@@ -10,6 +10,13 @@ factor:
   if e < b + 6 & e > b
   add [pos(b-1,p1) & pos(e+1,p2) => chunk(b,e,c)] * w_propose_2(p1,p2,c);
 
+/*
+weight w_propose_3: Pos x Pos x Int xChunk -> Double+;
+factor:
+  for Int b, Int e, Pos p1, Pos p2, Chunk c
+  if e < b + 6 & e > b
+  add [pos(b-1,p1) & pos(e+1,p2) => chunk(b,e,c)] * w_propose_3(p1,p2,e-b);
+*/
 
 //some pos tags can't appear in chunks
 weight w_forbid_1: Pos x Chunk -> Double-;

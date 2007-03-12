@@ -9,4 +9,3 @@ type VeryCoarse:
 predicate cpos: Pos x Cpos;
 predicate verycoarse: Pos x VeryCoarse; 
 
-global: cpos, verycoarse;

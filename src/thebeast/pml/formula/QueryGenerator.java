@@ -61,7 +61,7 @@ public class QueryGenerator {
 
     BooleanFormula condition = factorFormula.getCondition();
     BooleanFormula both = condition == null ?
-            factorFormula.getFormula() : new Conjunction(condition, factorFormula.getFormula());
+            factorFormula.getFormula() : new Conjunction(factorFormula.getFormula(),condition);
     processGlobalFormula(both, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
