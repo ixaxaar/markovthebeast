@@ -399,8 +399,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
         out.println("Global atoms loaded.");
         //System.out.println(model.getGlobalAtoms());
-      }
-      else if ("instances".equals(parserLoad.target.head)) {
+      } else if ("instances".equals(parserLoad.target.head)) {
         instances = new TrainingInstances(model, new File(filename(parserLoad.file)), defaultTrainingCacheSize);
         out.println(instances.size() + " instances loaded.");
       } else if ("weights".equals(parserLoad.target.head)) {
@@ -421,14 +420,14 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void update() {
     if (signatureUpdated) {
       guess = signature.createGroundAtoms();
-      guess.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+      guess.load(model.getGlobalAtoms(), model.getGlobalPredicates());
       gold = signature.createGroundAtoms();
-      gold.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+      gold.load(model.getGlobalAtoms(), model.getGlobalPredicates());
       //solution = new Solution(model, weights);
       signatureUpdated = false;
     }
     if (modelUpdated) {
-      if (model.getHiddenPredicates().size() ==0)
+      if (model.getHiddenPredicates().size() == 0)
         throw new ShellException("There are no hidden predicates defined.");
       weights = signature.createWeights();
       scores = new Scores(model, weights);
@@ -482,7 +481,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         weights.save(out);
       else {
         WeightFunction function = (WeightFunction) signature.getFunction(parserPrint.name.tail.head);
-        weights.save(function, out);
+        if (parserPrint.name.tail.arguments != null) {
+          out.println(weights.getWeights(function, parserPrint.name.tail.arguments.toArray()));
+        } else {
+          weights.save(function, out);
+        }
       }
     } else if ("memory".equals(parserPrint.name.head)) {
       out.printf("%-20s%8.3fmb\n", "Total memory:", Runtime.getRuntime().totalMemory() / 1024 / 1024.0);
@@ -640,9 +643,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitTest(ParserTest parserTest) {
     Corpus dst = null;
     if (parserTest.mode.equals("ram")) {
-      dst = new RandomAccessCorpus(signature,1000);
+      dst = new RandomAccessCorpus(signature, 1000);
     } else {
-      File file =  new File(parserTest.file);
+      File file = new File(parserTest.file);
       file.delete();
       dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
     }

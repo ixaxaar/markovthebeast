@@ -15,6 +15,7 @@ import thebeast.nod.variable.DoubleVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.function.WeightFunction;
+import thebeast.pml.predicate.Predicate;
 
 import java.io.*;
 import java.util.*;
@@ -25,7 +26,7 @@ import java.util.*;
  * arguments. <p/> The Weights class members which are No-D Database variables are ment to be used directly in
  * algorithms, thus they're relatively exposed. This is by design.
  */
-public class Weights {
+public class Weights implements HasProperties {
 
   private Signature signature;
   private IntVariable counter;
@@ -388,6 +389,29 @@ public class Weights {
     }
   }
 
+  public RelationValue getWeights(WeightFunction function, Object... args) {
+    builder.expr(getRelation(function)).from("args");
+    int defined = 0;
+    for (int i = 0; i < args.length; ++i) {
+      if (args[i] != null) {
+        Attribute attribute = function.getAttributeForArg(i);
+        builder.attribute("args",attribute).value(attribute.type(), args[i]).equality();
+        ++defined;
+      }
+    }
+    builder.and(defined).where();
+    for (int argIndex = 0; argIndex < function.getArity(); ++argIndex) {
+      builder.id(function.getColumnName(argIndex));
+      builder.attribute("args", function.getAttributeForArg(argIndex));
+    }
+    builder.id("weight");
+    builder.expr(weights).intAttribute("args", "index").doubleArrayElement();
+    builder.tuple(function.getArity() + 1).select().query();
+    
+    return interpreter.evaluateRelation(builder.getRelation());
+
+  }
+
   /**
    * Loads the weighs from an input stream in PML weight format.
    *
@@ -483,13 +507,13 @@ public class Weights {
   }
 
 
-  public synchronized int[] intersectIndices(int[] ... indices){
+  public synchronized int[] intersectIndices(int[]... indices) {
     //System.out.println("before intersect:" + countTrue());
     initTmps();
     int size = 0;
-    for (int[] indexArray : indices){
-      for (int index : indexArray){
-        if (!tmpSet[index]){
+    for (int[] indexArray : indices) {
+      for (int index : indexArray) {
+        if (!tmpSet[index]) {
           tmpIndicesList[size] = index;
           tmpIndices[index] = size;
           tmpSet[index] = true;
@@ -514,8 +538,8 @@ public class Weights {
 
     double[] values = new double[indices.length];
     int[] rebased = new int[indices.length];
-    for (int i = 0; i < indices.length;++i){
-      int index = indices[i];      
+    for (int i = 0; i < indices.length; ++i) {
+      int index = indices[i];
       values[i] = weights.doubleValue(index);
       rebased[i] = tmpIndices[index];
     }
@@ -578,7 +602,7 @@ public class Weights {
       for (int j = 0; j < indices.length; ++j) {
         int index = indices[j];
         int rebased = tmpIndices[index];
-        if (rebased > dst.length){
+        if (rebased > dst.length) {
           System.out.println("size = " + size);
           System.out.println("j = " + j);
           System.out.println("index = " + index);
@@ -596,16 +620,23 @@ public class Weights {
   }
 
   private void clearTmps(int size) {
-    for (int index = 0; index < size ; ++index) {
+    for (int index = 0; index < size; ++index) {
       tmpSet[tmpIndicesList[index]] = false;
     }
   }
 
-  private int countTrue(){
+  private int countTrue() {
     int count = 0;
-    for (int i = 0; i < tmpSet.length;++i)
+    for (int i = 0; i < tmpSet.length; ++i)
       if (tmpSet[i]) ++count;
     return count;
   }
 
+  public void setProperty(PropertyName name, Object value) {
+
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
+  }
 }
