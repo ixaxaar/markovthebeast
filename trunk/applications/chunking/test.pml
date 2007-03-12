@@ -18,6 +18,6 @@ load weights from dump "/tmp/weights.dmp";
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;
 set solver.deterministicFirst = false;
-set learner.solver.maxIterations = 10;
+set solver.maxIterations = 20;
 
 test to ram;

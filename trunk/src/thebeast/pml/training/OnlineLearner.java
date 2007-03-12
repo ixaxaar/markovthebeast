@@ -236,7 +236,7 @@ public class OnlineLearner implements Learner, HasProperties {
     setUpAverage();
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
-      progressReporter.started();
+      progressReporter.started("Epoch " + epoch);
       for (TrainingInstance instance : instances) {
         learn(instance);
       }

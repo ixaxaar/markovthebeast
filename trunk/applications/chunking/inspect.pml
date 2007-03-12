@@ -3,7 +3,11 @@ include "corpora/train.types.pml";
 include "conll00.pml";
 include "chunking.pml";
 include "tagging.pml";
+include "global.pml";
 include "joint.pml";
+
+load global from "global.txt";
+load global.rare from "corpora/rare.txt";
 
 set instancesCacheSize = 3;
 
@@ -16,4 +20,4 @@ save corpus (0-100) to ram;
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;
 set solver.deterministicFirst = false;
-set learner.solver.maxIterations = 10;
+set solver.maxIterations = 10;
