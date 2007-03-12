@@ -480,10 +480,14 @@ public class QueryGenerator {
     final ExpressionBuilder constraintBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
     constraintBuilder.expr(this.groundFormulas.getExplicitGroundFormulas(this.formula)).from("formulas");
-    if (formula.isParametrized()) {
-      constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();
-      constraintBuilder.num(0.0).inequality().where();
-    }
+//    if (formula.isParametrized()) {
+//      double eps = 0.000000001;
+//      constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();
+//      constraintBuilder.num(eps).doubleGreaterThan();
+//      constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();
+//      constraintBuilder.num(-eps).doubleLessThan();
+//      constraintBuilder.or(2).where();
+//    }
     int varIndex = 0;
     for (Variable var : this.formula.getQuantification().getVariables()) {
       var2expr.put(var, factory.createAttribute("formulas", this.formula.getQuantification().getAttribute(varIndex++)));
