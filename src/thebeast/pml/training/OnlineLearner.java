@@ -304,6 +304,7 @@ public class OnlineLearner implements Learner, HasProperties {
     updateRule.update(gold, candidates, losses, this.weights);
     profiler.end();
 
+    System.out.println(losses);
     updateAverage();
 
     progressReporter.progressed(losses.get(0), losses.size());
