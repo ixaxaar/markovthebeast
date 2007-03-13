@@ -297,7 +297,7 @@ public class Weights implements HasProperties {
           if (index++ > 0) buffer.append(", ");
           buffer.append(value);
         }
-        buffer.append(") = " + weights.doubleValue(featureIndex));
+        buffer.append(")[").append(weights.doubleValue(featureIndex)).append("]");
 
         return buffer.toString();
       }

@@ -9,13 +9,17 @@ include "joint.pml";
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
 
+
 set instancesCacheSize = 3;
 
 load corpus from conll00 "corpora/test.conll";
 
+save corpus (0-100) to ram;
+
+next; print atoms.rare;
+
 load weights from dump "/tmp/weights.dmp";
 
-save corpus (0-100) to ram;
 
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;

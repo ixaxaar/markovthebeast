@@ -113,6 +113,10 @@ public class Scores {
     return interpreter.evaluateDouble(builder.getDouble()).getDouble();
   }
 
+  public Weights getWeights() {
+    return weights;
+  }
+
   public void addScore(UserPredicate predicate, double score, Object... terms) {
     Object[] args = new Object[terms.length + 1];
     int index = 0;

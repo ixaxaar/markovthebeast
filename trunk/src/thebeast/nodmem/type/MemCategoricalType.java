@@ -25,12 +25,17 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
 
   private ArrayList<String> representations;
   private HashMap<String, Integer> indices;
+  private HashMap<Integer, String> unknownIndices;
+  private HashMap<String, Integer> unknownWords;
+  private int unknownCount;
   private boolean unknowns;
 
   public MemCategoricalType(Name name, boolean unknowns, List<String> representations) {
     super(name, DataType.INT);
     setNumIntCols(1);
     this.representations = new ArrayList<String>(representations);
+    this.unknownIndices = new HashMap<Integer, String>();
+    this.unknownWords = new HashMap<String, Integer>();
     indices = new HashMap<String, Integer>();
     int index = 0;
     for (String rep : representations)
@@ -59,8 +64,23 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     MemChunk chunk = new MemChunk(1, 1, 1, 0, 0);
     Integer integer = indices.get(representation);
     if (integer == null && !unknowns) throw new NoDValueNotInTypeException(this, representation);
-    chunk.intData[0] = integer == null ? -1 : integer;
+    chunk.intData[0] = integer == null ? unknownIndex(representation) : integer;
     return new MemCategorical(chunk, 0, this);
+  }
+
+  private String unknownWord(int index){
+    String rep = unknownIndices.get(index);
+    return rep == null ? UNKNOWN_REP : "UNKNOWN:" + rep;
+  }
+
+  private int unknownIndex(String rep){
+    Integer index = unknownWords.get(rep);
+    if (index == null){
+      int result = - unknownWords.size() - 1;
+      unknownWords.put(rep,result);
+      return result;
+    } else
+      return index;
   }
 
   public CategoricalValue value(int index) {
@@ -92,7 +112,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     Integer integer = indices.get(s);
     if (!unknowns && integer == null)
       throw new RuntimeException(this + " has no value " + s);
-    dst.intData[ptr.xInt] = integer == null ? -1 : integer;
+    dst.intData[ptr.xInt] = integer == null ? unknownIndex(s): integer;
   }
 
 }

@@ -58,6 +58,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private LocalFeatures features;
   private TrainingInstances instances;
 
+  private GroundAtomsPrinter printer = new SentencePrinter();
+
   private boolean signatureUpdated = false;
   private boolean modelUpdated = true;
   private boolean weightsUpdated = false;
@@ -459,7 +461,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitPrint(ParserPrint parserPrint) {
     if ("atoms".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
-        out.print(guess);
+        printer.print(guess,out); 
       else {
         UserPredicate predicate = (UserPredicate) signature.getPredicate(parserPrint.name.tail.head);
         out.print(guess.getGroundAtomsOf(predicate));
