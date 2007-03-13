@@ -30,6 +30,7 @@ public class GroundFormulas {
 
   private HashMap<FactorFormula, RelationVariable>
           falseGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
+          allExplicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           explicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           trueGroundFormulas = new HashMap<FactorFormula, RelationVariable>();
   private Model model;
