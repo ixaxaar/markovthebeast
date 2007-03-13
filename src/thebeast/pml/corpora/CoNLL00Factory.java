@@ -2,10 +2,8 @@ package thebeast.pml.corpora;
 
 import thebeast.pml.Signature;
 import thebeast.pml.UserPredicate;
-import thebeast.util.Counter;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Sebastian Riedel

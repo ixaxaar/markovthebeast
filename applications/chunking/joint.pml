@@ -10,4 +10,4 @@ observed:
 
 hidden: chunk, pos;
 
-global: cpos, verycoarse;
+global: cpos, verycoarse, rare;

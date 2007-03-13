@@ -908,7 +908,11 @@ public class TestTheBeast extends TestCase {
     System.out.println(ilp);
     System.out.println(ilp.indexToVariableString(0));
     System.out.println(ilp.indexToVariableString(1));
+    System.out.println(ilp.indexToPredicateString(1));
+    System.out.println(ilp.indexToPredicateString(0));
+    System.out.println(ilp.getVariableIndex(phrase,0,1,"NP"));
     System.out.println(ilp.toLpSolveFormat());
+    System.out.println(ilp.allConstraintsFor(phrase,0,1,"NP"));
 
     GroundAtoms solution = signature.createGroundAtoms();
     //these should be removed (the solver gives them a zero value

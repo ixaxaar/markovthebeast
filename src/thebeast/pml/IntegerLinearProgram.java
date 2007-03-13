@@ -576,11 +576,10 @@ public class IntegerLinearProgram implements HasProperties {
   /**
    * Returns a string representation of the variable with the given index.
    *
-   * @param index   the index of the variable.
-   * @param weights the weights to get the feature strings from.
+   * @param index the index of the variable.
    * @return a string representation with predicate name and arguments.
    */
-  public String indexToPredicateString(int index, Weights weights) {
+  public String indexToPredicateString(int index) {
     for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
       builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
       RelationValue result = interpreter.evaluateRelation(builder.getRelation());
@@ -588,26 +587,25 @@ public class IntegerLinearProgram implements HasProperties {
         StringBuffer buffer = new StringBuffer(entry.getKey().getName());
         int argIndex = 0;
         buffer.append("(");
-        for (Value value : result.iterator().next().values())
+        for (Value value : result.iterator().next().values()) {
+          if (argIndex > 0 && argIndex < entry.getKey().getArity()) buffer.append(",");
           if (argIndex++ < entry.getKey().getArity())
-            buffer.append(",").append(value.toString());
+            buffer.append(value.toString());
           else
             break;
+        }
         buffer.append(")");
         return buffer.toString();
       }
     }
     for (Map.Entry<FactorFormula, RelationVariable> entry : groundFormula2index.entrySet()) {
       if (entry.getKey().isParametrized()) {
+        //builder.expr(scores.getWeights().getRelation(entry.getKey().getWeightFunction())).from;
         builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
         RelationValue result = interpreter.evaluateRelation(builder.getRelation());
         if (result.size() == 1) {
-          StringBuffer buffer = new StringBuffer(entry.getKey().getName());
-          TupleValue tuple = result.iterator().next();
-          weights.getFeatureString(tuple.intElement(tuple.size() - 1).getInt());
-          for (int i = 1; i < tuple.size() - 1; ++i)
-            buffer.append("_").append(tuple.element(i).toString());
-          return buffer.toString();
+          return entry.getKey().getWeightFunction().getName();
+
         }
       }
     }
@@ -630,6 +628,10 @@ public class IntegerLinearProgram implements HasProperties {
   }
 
   public Object getProperty(PropertyName name) {
+    if ("constraints".equals(name.getHead())) {
+      UserPredicate predicate = model.getSignature().getUserPredicate(name.getTail().getHead());
+      return allConstraintsFor(predicate, name.getTail().getArguments().toArray());
+    }
     if ("result".equals(name.getHead()))
       return getResultString();
     if ("solver".equals(name.getHead()))
@@ -639,11 +641,43 @@ public class IntegerLinearProgram implements HasProperties {
     return null;
   }
 
+  public int getVariableIndex(UserPredicate predicate, Object... args) {
+    builder.expr(groundAtom2index.get(predicate));
+    for (int i = 0; i < predicate.getArity(); ++i) {
+      builder.id(predicate.getColumnName(i)).value(predicate.getHeading().attributes().get(i).type(), args[i]);
+    }
+    builder.tupleForIds().id("index").num(-1).id("score").num(0.0).tupleForIds().get().intExtractComponent("index");
+    return interpreter.evaluateInt(builder.getInt()).getInt();
+  }
+
   public String allConstraintsFor(UserPredicate predicate, Object... args) {
     StringBuffer result = new StringBuffer();
-
-
-    return "";
+    int varIndex = getVariableIndex(predicate, args);
+    for (TupleValue constraint : constraints.value()) {
+      StringBuffer constraintBuffer = new StringBuffer();
+      boolean hasVariable = false;
+      int elementNr = 0;
+      for (TupleValue element : constraint.relationElement("values")) {
+        if (elementNr++ > 0) constraintBuffer.append(" + ");
+        int index = element.intElement("index").getInt();
+        if (index == varIndex) {
+          hasVariable = true;
+        }
+        constraintBuffer.append(element.doubleElement("weight")).append(" ");
+        constraintBuffer.append(indexToPredicateString(index));
+      }
+      double lb = constraint.doubleElement("lb").getDouble();
+      double ub = constraint.doubleElement("ub").getDouble();
+      if (lb == Double.NEGATIVE_INFINITY) {
+        constraintBuffer.append(" <= ").append(ub).append(";\n");
+      } else if (ub == Double.POSITIVE_INFINITY) {
+        constraintBuffer.append(" >= ").append(lb).append(";\n");
+      } else if (ub == lb) {
+        constraintBuffer.append(" = ").append(lb).append(";\n");
+      }
+      if (hasVariable) result.append(constraintBuffer);
+    }
+    return result.toString();
   }
 
 }

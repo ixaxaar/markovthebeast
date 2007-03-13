@@ -12,6 +12,7 @@ load global.rare from "corpora/rare.txt";
 
 load corpus from conll00 "corpora/train.conll";
 
+/*
 set collector.all.w_case = true;
 set collector.all.w_hyphen = true;
 set collector.all.w_cardinal = true;
@@ -34,7 +35,7 @@ set collector.all.w_pos_2 = true;
 set collector.all.w_pos_3 = true;
 set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
-
+*/
 collect;
 
 //save weights to dump "/tmp/blank.weights.dmp";
