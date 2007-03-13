@@ -8,11 +8,13 @@ factor:
 
 */
 
+/*
 weight w_pos_1 : VeryCoarse -> Double;
 factor:
   for Int i, Pos p, VeryCoarse v
   if verycoarse(p,v) & word(i,_)
   add [pos(i,p)] * w_pos_1(v);
+*/
 
 weight w_pos_2 : Pos x Pos -> Double-;
 factor:

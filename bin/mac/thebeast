@@ -6,4 +6,4 @@ classpath=${dir}/classes/production:${dir}/lib/JSAP-2.1.jar:${dir}/lib/lpsolve55
 
 export DYLD_LIBRARY_PATH=${scriptdir}
 
-java -cp ${classpath} -Dhome=${PWD} -Xmx800m thebeast.pml.TheBeast $@ 
+java -cp ${classpath} -Dhome=${PWD} -Xmx1g thebeast.pml.TheBeast $@ 

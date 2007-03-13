@@ -15,6 +15,7 @@ public class RareWordsFinder {
     int maxCount = Integer.valueOf(args[1]);
     Counter<String> counter = TabTokenCounter.count(System.in, column);
     System.out.println(">rare");
+    System.out.println("UNKNOWN");
     for (Map.Entry<String,Integer> entry : counter.entrySet()){
       if (entry.getValue() < maxCount) System.out.println("\"" + entry.getKey() + "\"");
     }

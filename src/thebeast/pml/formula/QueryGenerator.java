@@ -135,6 +135,7 @@ public class QueryGenerator {
       int index = 0;
       for (Variable var : factorFormula.getQuantification().getVariables()) {
         Term term = context.var2term.get(var);
+        if (term == null) throw new RuntimeException(var + " is unbound in " + factorFormula);
         Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
         context.selectBuilder.id("var" + index++).expr(expression);
       }
