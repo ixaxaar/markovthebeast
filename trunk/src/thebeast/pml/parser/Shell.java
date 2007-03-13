@@ -400,6 +400,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
         else {
           UserPredicate predicate = signature.getUserPredicate(parserLoad.target.tail.head);
+          if (!model.getGlobalPredicates().contains(predicate))
+            throw new RuntimeException(predicate + " is not a global predicate. Use \"global: "
+                    + predicate.getName() + "\"");
           model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)), predicate);
 
         }

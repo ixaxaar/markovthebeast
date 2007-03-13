@@ -123,6 +123,7 @@ public class MemRelationType extends AbstractMemType implements RelationType {
       current.add(getDim());
       ++dst.size;
     }
+    dst.unify();
   }
 
 
