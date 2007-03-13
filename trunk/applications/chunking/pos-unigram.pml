@@ -7,8 +7,8 @@ factor:
 //local word unigram based factors
 weight w_word: Word x Pos -> Double;
 factor:
-  for Int i, Pos p, Word w_i, Int c
-  if word(i,w_i) & count(i,c) & c >= 5
+  for Int i, Pos p, Word w_i
+  if word(i,w_i) & !rare(w_i)
   add [pos(i,p)] * w_word(w_i,p);
 
 weight w_word_m1: Word x Pos -> Double;
