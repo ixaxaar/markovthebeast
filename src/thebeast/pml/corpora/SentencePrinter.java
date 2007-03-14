@@ -47,7 +47,7 @@ public class SentencePrinter implements GroundAtomsPrinter {
       ++column;
     }
 
-    table.write(out, 0);
+    table.write(out, 0, true);
 
   }
 }

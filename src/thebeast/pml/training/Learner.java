@@ -8,12 +8,6 @@ import thebeast.pml.Weights;
  * @author Sebastian Riedel
  */
 public interface Learner {
-  /**
-   * Update the weights given the model and corpus.
-   *
-   * @param corpus  the corpus to train on.
-   */
-  void learn(Corpus corpus);
 
   /**
    * Update the weights given the model and a some training instances.

@@ -3,7 +3,6 @@ package thebeast.pml.training;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.pml.*;
-import thebeast.pml.corpora.Corpus;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
@@ -117,19 +116,6 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
-  public void learn(Corpus corpus) {
-    setUpAverage();
-    for (int epoch = 0; epoch < numEpochs; ++epoch) {
-      progressReporter.started();
-      for (GroundAtoms data : corpus) {
-        learn(data);
-      }
-      updateRule.endEpoch();
-      progressReporter.finished();
-    }
-    finalizeAverage();
-  }
-
   private void finalizeAverage() {
     if (averaging && average != null) {
       interpreter.scale(average, 1.0 / count);
@@ -163,46 +149,6 @@ public class OnlineLearner implements Learner, HasProperties {
     this.profiler = profiler;
     solver.setProfiler(profiler);
     if (solution != null) solution.setProfiler(profiler);
-  }
-
-  public void learn(GroundAtoms data) {
-    //load the instance from the corpus into our local variable
-    goldAtoms.load(data);
-
-    //either load the feature vector or extract it
-    extractor.extract(goldAtoms, features);
-    //features.extract(instance);
-
-    //System.out.println(features);
-
-    //use the feature vector and weight to score ground atoms
-    scores.score(features, this.weights);
-
-    //System.out.println(features.toVerboseString());
-    System.out.println(scores);
-    //use the scores to solve the model
-    solver.setObservation(goldAtoms);
-    solver.setScores(scores);
-    solver.solve();
-    solution.getGroundAtoms().load(solver.getBestAtoms());
-
-    //evaluate the guess vs the gold.
-    evaluation.evaluate(goldAtoms, solution.getGroundAtoms());
-
-    //extract features
-    guess.load(solution.extract(features));
-
-    goldGroundFormulas.extract(goldAtoms);
-    goldSolution.load(goldAtoms, goldGroundFormulas);
-    gold.load(goldSolution.extract());
-
-    //update the weights
-    //updateRule.update(gold, c, evaluation, this.weights);
-
-    updateAverage();
-
-    progressReporter.progressed(
-            0.0, 0);
   }
 
   private void updateAverage() {

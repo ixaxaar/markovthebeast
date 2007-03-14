@@ -478,12 +478,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.println(evaluation);
     } else if ("formulas".equals(parserPrint.name.head)) {
       GroundFormulas formulas = new GroundFormulas(model, weights);
-      formulas.extract(guess);
+      formulas.update(guess);
       out.println(formulas);
     } else if ("gold".equals(parserPrint.name.head)) {
       if ("formulas".equals(parserPrint.name.tail.head)) {
         GroundFormulas formulas = new GroundFormulas(model, weights);
-        formulas.extract(gold);
+        formulas.update(gold);
         out.println(formulas);
       } else if ("atoms".equals(parserPrint.name.tail.head))
         out.println(gold);
@@ -808,15 +808,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         learner.setNumEpochs(oldNumEpochs);
       }
     } else {
-      int instance = 1;
-      jump(1);
-      learner.learn(gold);
-      while (iterator.hasNext() && instance < parserLearn.instances) {
-        jump(1);
-        learner.learn(gold);
-        ++instance;
-      }
-      out.println("Learned from " + instance + " instances.");
+      out.println("Not implemented.");
     }
     //learner.endEpoch();
   }

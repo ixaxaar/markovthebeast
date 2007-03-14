@@ -34,8 +34,9 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-5) to ram;
+save corpus (0-50) to ram;
 
+/*
 set collector.all.w_case = true;
 set collector.all.w_hyphen = true;
 set collector.all.w_cardinal = true;
@@ -47,7 +48,7 @@ set collector.all.w_postfix1 = true;
 set collector.all.w_postfix2 = true;
 set collector.all.w_postfix3 = true;
 set collector.all.w_postfix4 = true;
-
+*/
 //set collector.all.w_word = true;
 //set collector.all.w_word_m1 = true;
 //set collector.all.w_word_p1 = true;
@@ -85,7 +86,7 @@ set learner.maxCandidates = 100;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-//learn for 10 epochs;
+//learn for 2 epochs;
 
 //set learner.solver = "cut";
 

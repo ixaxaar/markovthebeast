@@ -19,7 +19,7 @@ public class MemInserter {
           dst.increaseCapacity(dst.size + src.size);
         System.arraycopy(src.intData, pointer.xInt, dst.intData, dstPointer.xInt, dst.numIntCols);
         System.arraycopy(src.doubleData, pointer.xDouble, dst.doubleData, dstPointer.xDouble, dst.numDoubleCols);
-        System.arraycopy(src.chunkData, pointer.xChunk, dst.chunkData, dstPointer.xChunk, dst.numChunkCols);
+        MemChunk.copyChunks(src.chunkData, pointer.xChunk, dst.chunkData, dstPointer.xChunk, dst.numChunkCols);
         ++dst.size;
         dstPointer.xInt += dst.numIntCols;
         dstPointer.xDouble += dst.numDoubleCols;
@@ -37,7 +37,7 @@ public class MemInserter {
     }
     System.arraycopy(src.intData, 0, dst.intData, dst.size * dst.numIntCols, src.size * src.numIntCols);
     System.arraycopy(src.doubleData, 0, dst.doubleData, dst.size * dst.numDoubleCols, src.size * src.numDoubleCols);
-    System.arraycopy(src.chunkData, 0, dst.chunkData, dst.size * dst.numChunkCols, src.size * src.numChunkCols);
+    MemChunk.copyChunks(src.chunkData, 0, dst.chunkData, dst.size * dst.numChunkCols, src.size * src.numChunkCols);
     dst.size += src.size;
   }
 

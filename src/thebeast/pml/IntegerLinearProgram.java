@@ -77,6 +77,7 @@ public class IntegerLinearProgram implements HasProperties {
   private static Heading resultHeading;
   private static Heading valuesHeading;
   private static Heading indexHeading;
+  private int newConstraintCount;
 
 
   static {
@@ -273,6 +274,7 @@ public class IntegerLinearProgram implements HasProperties {
   }
 
   public boolean changed() {
+    //return newConstraintCount > 0 || newFractionals;
     return newConstraints.value().size() > 0 || newFractionals;
   }
 
@@ -337,19 +339,33 @@ public class IntegerLinearProgram implements HasProperties {
     this.formulas.load(formulas);
     //this.scores.load(scores);
     this.atoms.load(atoms);
-    interpreter.clear(newConstraints);
+    newConstraintCount = 0;
 //    System.out.println(atoms);
 //    System.out.println(formulas);
+    interpreter.clear(newConstraints);
     for (FactorFormula formula : formula2query.keySet()) {
       //System.out.println(formula);
       interpreter.interpret(newConstraintsInserts.get(formula));
+      newConstraintCount += newConstraints.value().size();
+      //interpreter.interpret(constraintsInserts.get(formula));
+//      System.out.println(formula);
 //      System.out.println(toLpSolveFormat(newVars, newConstraints));
-      interpreter.interpret(constraintsInserts.get(formula));
+//      System.out.println(toLpSolveFormat(vars, constraints));
+
 //      RelationExpression query = formula2query.get(formula);
 //      builder.expr(query);
 //      builder.expr(constraints);
 //      interpreter.insert(newConstraints, builder.relationMinus().getRelation());
 //      interpreter.insert(constraints, newConstraints);
+    }
+    //System.out.println("Updating ...");
+    for (FactorFormula formula : formula2query.keySet()){
+      //System.out.println(formula);
+      //System.out.println("Before insertion");
+      //System.out.println(toLpSolveFormat(newVars, constraints));
+      interpreter.interpret(constraintsInserts.get(formula));
+      //System.out.println("After insertion");
+      //System.out.println(toLpSolveFormat(newVars, constraints));
     }
     //System.out.println(constraints.value());
     interpreter.clear(newVars);
