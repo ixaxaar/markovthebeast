@@ -35,6 +35,8 @@ set collector.all.w_pos_3 = true;
 set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
 
+set collector.init = -2.0;
+
 collect;
 
 //save weights to dump "/tmp/blank.weights.dmp";

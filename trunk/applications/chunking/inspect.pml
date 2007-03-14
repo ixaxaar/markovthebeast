@@ -16,8 +16,6 @@ load corpus from conll00 "corpora/test.conll";
 
 save corpus (0-100) to ram;
 
-next; print atoms.rare;
-
 load weights from dump "/tmp/weights.dmp";
 
 

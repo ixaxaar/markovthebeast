@@ -48,6 +48,8 @@ public class FeatureCollector implements HasProperties {
   private HashSet<WeightFunction>
           collectAll = new HashSet<WeightFunction>();
 
+  private double initialWeight;
+
 
   /**
    * Creates a new FeatureCollector for a given model
@@ -81,9 +83,20 @@ public class FeatureCollector implements HasProperties {
 
   }
 
+
+  public double getInitialWeight() {
+    return initialWeight;
+  }
+
+  public void setInitialWeight(double initialWeight) {
+    this.initialWeight = initialWeight;
+  }
+
   public void collect(Corpus corpus) {
     collect(corpus.iterator());
   }
+
+
 
   /**
    * Collects a set of weight function arguments which later learners then can learn the weights for.
@@ -132,7 +145,7 @@ public class FeatureCollector implements HasProperties {
     }
     int newFeatures = counter.value().getInt() - weights.getFeatureCounter().value().getInt();
     interpreter.assign(weights.getFeatureCounter(), counter);
-    interpreter.append(weights.getWeights(), newFeatures, 0.0);
+    interpreter.append(weights.getWeights(), newFeatures, initialWeight);
     progressReporter.finished();
   }
 
@@ -174,6 +187,9 @@ public class FeatureCollector implements HasProperties {
       WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
       if (weightFunction == null) throw new NoSuchPropertyException(name);
       setCollectAll(weightFunction,(Boolean)value);
+    }
+    else if (name.getHead().equals("init")){
+      setInitialWeight((Double)value);
     }
   }
 

@@ -10,7 +10,7 @@ include "global.pml";
 include "pos-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
-include "chunk-bigram.pml";
+//include "chunk-bigram.pml";
 //include "chunk-phrase.pml";
 include "chunk-pos.pml";
 //include "chunk-chunk.pml";
@@ -28,7 +28,7 @@ set instancesCacheSize = 20;
 
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
-
+                                                                                                                                                                   
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
@@ -60,6 +60,8 @@ set collector.all.w_postfix4 = true;
 set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
 //set collector.all.ch_word_3 = true;
+
+set collector.init = -1.0;
 
 collect;
 

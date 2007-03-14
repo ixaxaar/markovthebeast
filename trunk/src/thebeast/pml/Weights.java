@@ -5,6 +5,7 @@ import thebeast.nod.FileSource;
 import thebeast.nod.NoDServer;
 import thebeast.nod.expression.DoubleExpression;
 import thebeast.nod.expression.Expression;
+import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.util.ExpressionBuilder;
@@ -407,8 +408,10 @@ public class Weights implements HasProperties {
     builder.id("weight");
     builder.expr(weights).intAttribute("args", "index").doubleArrayElement();
     builder.tuple(function.getArity() + 1).select().query();
-    
-    return interpreter.evaluateRelation(builder.getRelation());
+
+    RelationExpression query = builder.getRelation();
+    System.out.println(query);
+    return interpreter.evaluateRelation(query);
 
   }
 
