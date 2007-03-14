@@ -120,7 +120,7 @@ public class Solution {
   }
 
   public void updateGroundFormulas() {
-    groundFormulas.extract(groundAtoms);
+    groundFormulas.update(groundAtoms);
     groundFormulasNeedUpdate = false;
   }
 

@@ -28,11 +28,11 @@ public final class MemChunk extends MemHolder {
 
   public void copyFrom(MemChunk other) {
     if (other.size > capacity) increaseCapacity(other.size - capacity);
-    if (intData != null&& other.intData != null)
+    if (intData != null && other.intData != null)
       System.arraycopy(other.intData, 0, intData, 0, other.size * other.numIntCols);
     if (doubleData != null && other.doubleData != null)
       System.arraycopy(other.doubleData, 0, doubleData, 0, other.size * other.numDoubleCols);
-    if (chunkData != null && other.chunkData!=null)
+    if (chunkData != null && other.chunkData != null)
       for (int i = 0; i < other.size * other.numChunkCols; ++i)
         if (chunkData[i] == null)
           chunkData[i] = other.chunkData[i].copy();
@@ -278,7 +278,7 @@ public final class MemChunk extends MemHolder {
       if (other.doubleData[i] != doubleData[i]) return false;
     int chunkLength = size * numChunkCols;
     for (int i = 0; i < chunkLength; ++i)
-      if (other.chunkData[i] != chunkData[i]) return false;
+      if (!other.chunkData[i].equals(chunkData[i])) return false;
     return true;
   }
 
@@ -324,7 +324,7 @@ public final class MemChunk extends MemHolder {
     if (doubleData != null)
       System.arraycopy(doubleData, 0, result.doubleData, 0, size * numDoubleCols);
     if (chunkData != null)
-      System.arraycopy(chunkData, 0, result.chunkData, 0, size * numChunkCols);
+      MemChunk.copyChunks(chunkData, 0, result.chunkData, 0, size * numChunkCols);
     return result;
   }
 
@@ -337,7 +337,7 @@ public final class MemChunk extends MemHolder {
     System.arraycopy(doubleData, 0, newDoubleData, 0, doubleData.length);
     doubleData = newDoubleData;
     MemChunk[] newChunkData = new MemChunk[capacity * numChunkCols];
-    System.arraycopy(chunkData, 0, newChunkData, 0, chunkData.length);
+    MemChunk.copyChunks(chunkData, 0, newChunkData, 0, chunkData.length);
     chunkData = newChunkData;
 
     rowIndexedSoFar = 0;
@@ -357,7 +357,7 @@ public final class MemChunk extends MemHolder {
       if (found == -1) {
         System.arraycopy(intData, ptr.xInt, result.intData, dst.xInt, numIntCols);
         System.arraycopy(doubleData, ptr.xDouble, result.doubleData, dst.xDouble, numDoubleCols);
-        System.arraycopy(chunkData, ptr.xChunk, result.chunkData, dst.xChunk, numChunkCols);
+        MemChunk.copyChunks(chunkData, ptr.xChunk, result.chunkData, dst.xChunk, numChunkCols);
         dst.add(numIntCols, numDoubleCols, numChunkCols);
         ++result.size;
       }
@@ -486,4 +486,23 @@ public final class MemChunk extends MemHolder {
   public String toString() {
     return "size: " + size;
   }
+
+  public static void copyChunks(MemChunk[] src, int fromSrc, MemChunk[] dst, int fromDst, int howmany) {
+    int srcI = fromSrc;
+    int dstI = fromDst;
+    int max = fromSrc + howmany;
+    for (; srcI < max; ++srcI, ++dstI) {
+      if (src[srcI] == null) {
+        if (dst[dstI] !=  null)
+          dst[dstI].size = 0;
+      } else {
+        if (dst[dstI] == null) {
+          dst[dstI] = src[srcI].copy();
+        } else
+          dst[dstI].copyFrom(src[srcI]);
+      }
+    }
+
+  }
+
 }

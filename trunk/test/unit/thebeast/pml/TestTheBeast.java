@@ -734,7 +734,7 @@ public class TestTheBeast extends TestCase {
     phrases.addGroundAtom(2, 4, "VP");
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
     System.out.println(formulas.getFalseGroundFormulas(np_vp_s).value());
 
     RelationVariable falseFormulas = formulas.getFalseGroundFormulas(np_vp_s);
@@ -796,7 +796,7 @@ public class TestTheBeast extends TestCase {
     phrases.addGroundAtom(2, 4, "VP");
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
 
     System.out.println(scores.getScoreRelation(phrase).value());
 
@@ -823,9 +823,9 @@ public class TestTheBeast extends TestCase {
     phrases.addGroundAtom(2, 4, "VP");
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
 
-    System.out.println(formulas.getExplicitGroundFormulas(np_vp_s).value());
+    System.out.println(formulas.getNewGroundFormulas(np_vp_s).value());
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
     ilp.build(formulas, theManLikesTheBoat, scores);
@@ -871,7 +871,7 @@ public class TestTheBeast extends TestCase {
     phrases.addGroundAtom(2, 4, "VP");
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
 
     Scores scores = new Scores(model, weights);
     scores.score(features, weights);
@@ -900,7 +900,7 @@ public class TestTheBeast extends TestCase {
     //scores.addScore(phrase, 0.5, 2, 4, "VP");
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
     ilp.build(formulas, theManLikesTheBoat, scores);
@@ -1025,7 +1025,7 @@ public class TestTheBeast extends TestCase {
     model.addObservedPredicate(token);
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
     System.out.println(formulas);
     assertTrue(formulas.getFalseGroundFormulas(factor).contains(2));
     assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
@@ -1068,7 +1068,7 @@ public class TestTheBeast extends TestCase {
     model.addHiddenPredicate(phrase);
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
     System.out.println(formulas);
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
@@ -1089,7 +1089,7 @@ public class TestTheBeast extends TestCase {
     phraseAtoms.addGroundAtom(3, 4, "VP");
     phraseAtoms.addGroundAtom(4, 3, "VP");
 
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
     System.out.println(formulas);
     //ilp.init(scores);
     ilp.update(formulas, theManLikesTheBoat);
@@ -1128,7 +1128,7 @@ public class TestTheBeast extends TestCase {
     model.addObservedPredicate(token);
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(theManLikesTheBoat);
+    formulas.update(theManLikesTheBoat);
     System.out.println(formulas);
     assertEquals(1, formulas.getFalseGroundFormulas(factor).value().size());
     assertTrue(formulas.getFalseGroundFormulas(factor).contains(2));
@@ -1182,7 +1182,7 @@ public class TestTheBeast extends TestCase {
     model.addHiddenPredicate(phrase);
 
     GroundFormulas groundFormulas = new GroundFormulas(model, weights);
-    groundFormulas.extract(theManLikesTheBoat);
+    groundFormulas.update(theManLikesTheBoat);
 
     System.out.println(groundFormulas);
     RelationVariable trueFormulas = groundFormulas.getTrueGroundFormulas(formula);
@@ -1365,7 +1365,7 @@ public class TestTheBeast extends TestCase {
 
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
-    formulas.extract(sentence);
+    formulas.update(sentence);
     System.out.println(formulas);
 
     RelationVariable cycles = formulas.getCycles(link);

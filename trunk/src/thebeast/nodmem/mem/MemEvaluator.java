@@ -59,7 +59,7 @@ public class MemEvaluator {
         case COPY:
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
-          System.arraycopy(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
+          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
           break;
         case INT_ADD:
           returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] + argChunk.intData[1];
@@ -238,14 +238,8 @@ public class MemEvaluator {
           argChunk = argChunk.chunkData[0];
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
-          for (int col = 0; col < argChunk.numChunkCols; ++col)
-            if (returnChunk.chunkData[argPointerVec.xChunk + col] == null)
-              returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
-            else
-              returnChunk.chunkData[argPointerVec.xChunk + col].copyFrom(argChunk.chunkData[col]);
-
+          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
           ++returnChunk.size;
-          //System.arraycopy(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
           break;
         case RELATION_COPY:
           argChunk = argChunk.chunkData[0];
@@ -258,11 +252,7 @@ public class MemEvaluator {
             returnChunk.increaseCapacity(argChunk.size);
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
-          for (int col = 0; col < chunkSize; ++col)
-            if (returnChunk.chunkData[argPointerVec.xChunk + col] == null)
-              returnChunk.chunkData[argPointerVec.xChunk + col] = argChunk.chunkData[col].copy();
-            else
-              returnChunk.chunkData[argPointerVec.xChunk + col].copyFrom(argChunk.chunkData[col]);
+          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);
           returnChunk.size += argChunk.size;
           break;
         case TUPLE_SELECTOR:
@@ -273,7 +263,7 @@ public class MemEvaluator {
           }
           System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
           System.arraycopy(argChunk.doubleData, 0, result.doubleData, 0, argChunk.doubleData.length);
-          System.arraycopy(argChunk.chunkData, 0, result.chunkData, 0, argChunk.chunkData.length);
+          MemChunk.copyChunks(argChunk.chunkData, 0, result.chunkData, 0, argChunk.chunkData.length);
           break;
         case TUPLE_FROM:
           result = returnChunk.chunkData[argPointerVec.xChunk];
@@ -284,7 +274,7 @@ public class MemEvaluator {
           }
           System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].numIntCols);
           System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].numDoubleCols);
-          System.arraycopy(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].numChunkCols);
+          MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].numChunkCols);
           break;
         case CONTAINS:
           MemChunk relation = argChunk.chunkData[0];
@@ -315,7 +305,7 @@ public class MemEvaluator {
             System.arraycopy(tuple.doubleData, 0, result.doubleData, i * tuple.numDoubleCols, tuple.doubleData.length);
 //            for (int col = 0; col < tuple.numChunkCols; ++col)
 //              result.chunkData[i * tuple.numChunkCols + col] = tuple.chunkData[col].copy();
-            System.arraycopy(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
+            MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
           }
           result.unify();
           break;
@@ -344,7 +334,7 @@ public class MemEvaluator {
           }
           System.arraycopy(f.argHolder.intData, 0, result.intData, 0, f.argHolder.intData.length);
           System.arraycopy(f.argHolder.doubleData, 0, result.doubleData, 0, f.argHolder.doubleData.length);
-          System.arraycopy(f.argHolder.chunkData, 0, result.chunkData, 0, f.argHolder.chunkData.length);
+          MemChunk.copyChunks(f.argHolder.chunkData, 0, result.chunkData, 0, f.argHolder.chunkData.length);
           break;
         case GROUP:
           result = returnChunk.chunkData[argPointerVec.xChunk];
@@ -573,7 +563,7 @@ public class MemEvaluator {
         System.arraycopy(lhs.intData, lhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
         System.arraycopy(lhs.doubleData, lhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
         if (lhs.chunkData != null)
-          System.arraycopy(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+          MemChunk.copyChunks(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
         int count = index.get(lhs, lhsPtr, cols, 0, rows);
         if (count == 1) {
           dst.doubleData[dstPtr.xDouble + add.valueAtt] +=
@@ -596,7 +586,7 @@ public class MemEvaluator {
           System.arraycopy(rhs.intData, rhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
           System.arraycopy(rhs.doubleData, rhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
           if (rhs.chunkData != null)
-            System.arraycopy(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+            MemChunk.copyChunks(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
           dst.doubleData[dstPtr.xDouble + add.valueAtt] *= scale;
           dstPtr.add(dim);
           ++dst.size;

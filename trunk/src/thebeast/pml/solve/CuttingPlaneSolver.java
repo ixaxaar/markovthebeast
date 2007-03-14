@@ -165,6 +165,8 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
+    formulas.init();
+
     profiler.start("solve");
 
     candidateAtoms.clear();

@@ -28,6 +28,7 @@ factor:
 
 
 
+
 /*
 weight w_pos_2 : Pos x Pos -> Double-;
 factor:

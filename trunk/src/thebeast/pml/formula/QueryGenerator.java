@@ -480,7 +480,7 @@ public class QueryGenerator {
     final ExpressionBuilder varSetBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final ExpressionBuilder constraintBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
-    constraintBuilder.expr(this.groundFormulas.getExplicitGroundFormulas(this.formula)).from("formulas");
+    constraintBuilder.expr(this.groundFormulas.getNewGroundFormulas(this.formula)).from("formulas");
     if (formula.isParametrized()) {
       double eps = 1E-10;
       constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();

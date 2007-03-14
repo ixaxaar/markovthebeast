@@ -27,10 +27,12 @@ public class ColumnTable {
     }
   }
 
-  public void write(PrintStream os, int firstLine) {
+  public void write(PrintStream os, int firstLine, boolean withLineNrs) {
 
     for (int i = firstLine; i < rows.size(); ++i) {
       HashMap<Integer, String> row = rows.get(i);
+      if (withLineNrs)
+        os.printf("%-3d", i);
       for (int j = 0; j < columns; ++j) {
         if (j > 0) os.print("\t");
         String value = row.get(j);
