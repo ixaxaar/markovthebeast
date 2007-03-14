@@ -27,7 +27,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   private HashMap<String, Integer> indices;
   private HashMap<Integer, String> unknownIndices;
   private HashMap<String, Integer> unknownWords;
-  private int unknownCount;
+  private boolean storeUnknowns = false;
   private boolean unknowns;
 
   public MemCategoricalType(Name name, boolean unknowns, List<String> representations) {
@@ -44,7 +44,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   }
 
   public String representation(int index) {
-    if (unknowns && index == -1) return UNKNOWN_REP;
+    if (unknowns && index < 0) return unknownWord(index);
     return representations.get(index);
   }
 
@@ -69,18 +69,21 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   }
 
   private String unknownWord(int index){
-    String rep = unknownIndices.get(index);
-    return rep == null ? UNKNOWN_REP : "UNKNOWN:" + rep;
+    return UNKNOWN_REP;
+//    String rep = unknownIndices.get(index);
+//    return rep == null ? UNKNOWN_REP : "U:" + rep;
   }
 
   private int unknownIndex(String rep){
-    Integer index = unknownWords.get(rep);
-    if (index == null){
-      int result = - unknownWords.size() - 1;
-      unknownWords.put(rep,result);
-      return result;
-    } else
-      return index;
+    return -1;
+//    Integer index = unknownWords.get(rep);
+//    if (index == null){
+//      int result = - unknownWords.size() - 1;
+//      unknownWords.put(rep,result);
+//      unknownIndices.put(result,rep);
+//      return result;
+//    } else
+//      return index;
   }
 
   public CategoricalValue value(int index) {
@@ -91,7 +94,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
 
   public int index(String represenation) {
     Integer index = indices.get(represenation);
-    return index == null ? -1 : index;
+    return index == null ? unknownIndex(represenation) : index;
   }
 
   public boolean unknowns() {
@@ -112,7 +115,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     Integer integer = indices.get(s);
     if (!unknowns && integer == null)
       throw new RuntimeException(this + " has no value " + s);
-    dst.intData[ptr.xInt] = integer == null ? unknownIndex(s): integer;
+    dst.intData[ptr.xInt] = integer == null ? -1 : integer;
   }
 
 }

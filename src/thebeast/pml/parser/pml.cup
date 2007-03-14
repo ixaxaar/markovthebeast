@@ -173,14 +173,8 @@ statement ::= createType:s
               {: RESULT = new ParserShift(-Integer.valueOf(n)); :}
             | JUMP
               {: RESULT = new ParserShift(1); :}
-            | SET name:p ASSIGN NUMBER:n
-              {: RESULT = new ParserSet(p, Integer.valueOf(n)); :}
-            | SET name:n ASSIGN TRUE
-              {: RESULT = new ParserSet(n, true); :}
-            | SET name:n ASSIGN FALSE
-              {: RESULT = new ParserSet(n, false); :}
-            | SET name:n ASSIGN STRING:s
-              {: RESULT = new ParserSet(n, s.substring(1,s.length()-1)); :}
+            | SET name:p ASSIGN object:o
+              {: RESULT = new ParserSet(p, o); :}
             | CLEAR ATOMS
               {: RESULT = new ParserClear("atoms"); :}
             | CLEAR SCORES
@@ -241,10 +235,18 @@ tuple ::=
 object ::=
     NUMBER:n
     {: RESULT = new Integer(n); :}
+  | DOUBLE:d
+    {: RESULT = d; :}
+  | MINUS DOUBLE:d
+    {: RESULT = -1 * d; :}
   | STRING:s
     {: RESULT = s.substring(1,s.length()-1); :}
   | TIMES
     {: RESULT = null; :}
+  | TRUE
+    {: RESULT = true; :}
+  | FALSE
+    {: RESULT = false; :}
   ;
 
 markers ::=

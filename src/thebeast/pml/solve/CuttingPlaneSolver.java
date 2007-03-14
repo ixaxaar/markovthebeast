@@ -148,9 +148,13 @@ public class CuttingPlaneSolver implements Solver {
     formulas.update(atoms);
     profiler.end();
 
+    //System.out.println(formulas);
+
     profiler.start("ilp.update");
     ilp.update(formulas, atoms);
     profiler.end();
+
+    //System.out.println(ilp.toLpSolveFormat());
 
     updated = true;
 

@@ -164,7 +164,7 @@ private Symbol symbol(int type, Object value) {
 
 <YYINITIAL> [\"][^\"]*[\"] { return symbol(sym.STRING, yytext()); }
 
-<YYINITIAL> [\'][^\"]*[\'] { return symbol(sym.STRING, "\"\"" + yytext().substring(1, yytext().length()-1) + "\"\""); }
+<YYINITIAL> [\'][^\']*[\'] { return symbol(sym.STRING, "\"\"" + yytext().substring(1, yytext().length()-1) + "\"\""); }
 
 <YYINITIAL> [ \t\r\n\f] { /* ignore white space. */ }
 
