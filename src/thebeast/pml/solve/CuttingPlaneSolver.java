@@ -199,8 +199,8 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.println(ilp.toLpSolveFormat());
     
     profiler.start("iterations");
-    System.out.print(formulas.size() + " -> ");
-    System.out.println(ilp.getNumRows());
+    //System.out.print(formulas.size() + " -> ");
+    //System.out.println(ilp.getNumRows());
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
@@ -210,7 +210,7 @@ public class CuttingPlaneSolver implements Solver {
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
       if (enforceIntegers && !ilp.changed() && ilp.isFractional()){
-        System.out.println("fractional");
+        //System.out.println("fractional");
         ilp.enforceIntegerSolution();
       }
 //      if (iteration == 1){
