@@ -35,17 +35,18 @@ factor:
   if e < 6 & e > 0
   add [pos(0,p1) & pos(e,p2) & pos(e+1,p3)  => chunk(0,e,c)] * w_propose_3_d(p1,p2,p3,c,e);
 
+weight w_propose_4_d: Pos x Chunk x Int -> Double+;
+factor:
+  for Int e, Pos p1, Chunk c
+  if e < 6 & e >= 0
+  add [pos(e+1,p1) => chunk(0,e,c)] * w_propose_4_d(p1,c, e);
+
 weight w_propose_4: Pos x Chunk -> Double+;
 factor:
   for Int e, Pos p1, Chunk c
   if e < 6 & e >= 0
   add [pos(e+1,p1) => chunk(0,e,c)] * w_propose_4(p1,c);
 
-weight w_propose_4_d: Pos x Chunk x Int -> Double+;
-factor:
-  for Int e, Pos p1, Chunk c
-  if e < 6 & e >= 0
-  add [pos(e+1,p1) => chunk(0,e,c)] * w_propose_4_d(p1,c, e);
 
 //explicit rules
 weight w_propose_5: Pos x Pos x Pos x Chunk -> Double+;

@@ -1,6 +1,7 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
+import thebeast.pml.corpora.SentencePrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
@@ -198,8 +199,8 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.println(ilp.toLpSolveFormat());
     
     profiler.start("iterations");
-    //System.out.print(formulas.size() + " -> ");
-    //System.out.println(ilp.getNumRows());
+    System.out.print(formulas.size() + " -> ");
+    System.out.println(ilp.getNumRows());
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
@@ -212,10 +213,14 @@ public class CuttingPlaneSolver implements Solver {
         System.out.println("fractional");
         ilp.enforceIntegerSolution();
       }
-      //System.out.print(formulas.size() + " -> ");
-      //System.out.println(ilp.getNumRows());
+//      if (iteration == 1){
+//        System.out.print(formulas.size() + " -> ");
+//        System.out.println(ilp.getNumRows());
+//        new SentencePrinter().print(atoms,System.out);
+//        System.out.println(formulas);
+//      }
     }
-    System.out.print(iteration);
+    //System.out.print(iteration);
     profiler.end();
 
     done = ilp.changed();

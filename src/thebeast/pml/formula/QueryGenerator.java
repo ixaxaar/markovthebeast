@@ -61,7 +61,7 @@ public class QueryGenerator {
 
     BooleanFormula condition = factorFormula.getCondition();
     BooleanFormula both = condition == null ?
-            factorFormula.getFormula() : new Conjunction(factorFormula.getFormula(),condition);
+            factorFormula.getFormula() : new Conjunction(factorFormula.getFormula(), condition);
     processGlobalFormula(both, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -125,11 +125,14 @@ public class QueryGenerator {
       final ConjunctionProcessor.Context context = new ConjunctionProcessor.Context();
       conjunctions.add(context);
 
-      //we process the weights first
+      //we process the weights
       processWeightForGlobal(context, factorFormula.getWeight());
 
       //process the condition conjunction
       conjunctionProcessor.processConjunction(context, conjunction);
+
+      //process the variables unresolved in the weight
+      //processRemainingUnresolved(context);
 
       //now add the quantification variables as attributes
       int index = 0;
@@ -148,7 +151,18 @@ public class QueryGenerator {
           functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor() {
             public void visitWeightFunction(WeightFunction weightFunction) {
               context.prefixes.add("weights");
-              context.relations.add(weights.getRelation(weightFunction));
+              RelationVariable weightsVar = weights.getRelation(weightFunction);
+              context.relations.add(weightsVar);
+              for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
+                exprBuilder.attribute("weights", weightsVar.type().heading().attribute(entry.getKey()));
+                Term resolved = termResolver.resolve(entry.getValue(), context.var2term);
+                if (!termResolver.allResolved())
+                  throw new RuntimeException("Arguments of the weight function must all be bound but " + entry.getValue() +
+                          " is not");
+                Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+                exprBuilder.expr(expr).equality();
+                context.conditions.add(exprBuilder.getBool());
+              }
 //              ExpressionBuilder exprBuilder = TheBeast.getInstance().getNodServer().expressionBuilder();
 //              exprBuilder.expr(weights.getRelation(weightFunction)).from("weights");
 //              exprBuilder.expr(weights.getWeights()).intAttribute("weights","index").doubleArrayElement();
@@ -289,6 +303,12 @@ public class QueryGenerator {
 
     WeightFunction weightFunction = (WeightFunction) weightOfArg.getFunction();
     //process the arguments of the hidden atom which were unbound
+    processRemainingUnresolved(context);
+    context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
+    //context.selectBuilder.id("score").doubleValue(0.0);
+  }
+
+  private void processRemainingUnresolved(ConjunctionProcessor.Context context) {
     for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
       Term resolved = termResolver.resolve(entry.getValue(), context.var2term);
       if (!termResolver.allResolved())
@@ -297,8 +317,6 @@ public class QueryGenerator {
       Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
       context.selectBuilder.id(entry.getKey()).expr(expr);
     }
-    context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
-    //context.selectBuilder.id("score").doubleValue(0.0);
   }
 
   private void processWeightForGlobal(final ConjunctionProcessor.Context context, Term weight) {
@@ -411,7 +429,7 @@ public class QueryGenerator {
       Term resolved = termResolver.resolve(arg, context.var2term);
       //if there is more than one unbound variable we leave things as they are.
       if (termResolver.getUnresolved().size() == 0) {
-
+        //throw new RuntimeException("No unresolved variable for " + arg + " in " + weightOfArg);
       }
       if (termResolver.getUnresolved().size() == 1) {
         String varName = prefix + "_" + weightFunction.getColumnName(argIndex);
@@ -419,7 +437,12 @@ public class QueryGenerator {
         context.var2expr.put(artificial, factory.createAttribute(prefix, weightFunction.getAttributeForArg(argIndex)));
         Variable toResolve = termResolver.getUnresolved().get(0);
         Term inverted = inverter.invert(resolved, artificial, toResolve);
-        context.var2term.put(toResolve, inverted);
+        if (inverted.equals(resolved)) {
+          context.remainingHiddenArgs.put(weightFunction.getColumnName(argIndex), resolved);
+        } else
+          context.var2term.put(toResolve, inverted);
+      } else {
+        context.remainingHiddenArgs.put(weightFunction.getColumnName(argIndex), resolved);
       }
       ++argIndex;
     }

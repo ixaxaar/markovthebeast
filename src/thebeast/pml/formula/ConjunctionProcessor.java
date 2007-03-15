@@ -34,7 +34,7 @@ public class ConjunctionProcessor {
     public LinkedList<String> prefixes = new LinkedList<String>();
     public ExpressionBuilder selectBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     public HashMap<String, Term> remainingHiddenArgs = new HashMap<String, Term>();
-
+    
     public Context() {
     }
 

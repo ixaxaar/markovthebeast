@@ -1,3 +1,55 @@
+# False groundings of: FOR Int e, Pos p1, Chunk c:  IF e < 6 & e >= 0  ADD [pos((e + 1), p1) => chunk(0, e, c)] * w_propose_4_d(p1, c, e)
+index          var0           var1           var2
+
+1223581        2              "DT"           NP
+1223587        1              "DT"           NP
+
+# False groundings of: FOR Int i, Pos p1, Pos p2, Pos p3, Chunk c:  ADD [pos((i - 1), p1) & pos(i, p2) & pos((i + 1), p3) => chunk(i, i, c)] * w_propose_5(p1, p2, p3, c)
+index          var0           var1           var2           var3           var4
+
+982516         10             "IN"           "JJ"           "IN"           NP
+982631         19             "VB"           "NNS"          "."            NP
+982613         4              "NNS"          "WDT"          "MD"           NP
+
+# False groundings of: FOR Int i, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c:  ADD [pos(i, p1) & pos((i + 1), p2) & pos((i + 2), p3) & pos((i + 3), p4) => chunk((i + 1), (i + 2), c)] * w_propose_6(p1, p2, p3, p4, c)
+index          var0           var1           var2           var3           var4           var5
+
+1222836        11             "IN"           "DT"           "NN"           "MD"           NP
+
+# True groundings of: FOR Int b, Int e, Int m, Pos p, Chunk c:  IF b <= m & m <= e  ADD [pos(m, p) & chunk(b, e, c)] * w_forbid_1(p, c)
+index          var0           var1           var2           var3           var4
+
+436754         7              8              8              "NNS"          NP
+436732         10             13             12             "DT"           NP
+436750         10             13             13             "NN"           NP
+436776         18             19             18             "VB"           NP
+436740         7              8              7              "JJ"           NP
+436740         10             13             10             "JJ"           NP
+436738         10             13             11             "IN"           NP
+436780         16             16             16             "VBG"          NP
+436754         18             19             19             "NNS"          NP
+
+# True groundings of: FOR Int b, Int e, Int m1, Int m2, Pos p1, Pos p2, Chunk c:  IF b <= m1 & m1 < m2 & m2 <= e  ADD [pos(m1, p1) & pos(m2, p2) & chunk(b, e, c)] * w_forbid_2(p1, p2, c)
+index          var0           var1           var2           var3           var4           var5           var6
+
+433912         10             13             12             13             "DT"           "NN"           NP
+435808         18             19             18             19             "VB"           "NNS"          NP
+434260         7              8              7              8              "JJ"           "NNS"          NP
+434238         10             13             10             12             "JJ"           "DT"           NP
+434256         10             13             10             13             "JJ"           "NN"           NP
+434244         10             13             10             11             "JJ"           "IN"           NP
+434152         10             13             11             12             "IN"           "DT"           NP
+434170         10             13             11             13             "IN"           "NN"           NP
+
+# True groundings of: FOR Int b, Pos p, Chunk c:  ADD [pos(b, p) & chunk(b, b, c)] * w_forbid_3(p, c)
+index          var0           var1           var2
+
+1195066        16             "VBG"          NP
+
+
+
+
+
 00122.26526.44332.32322.66326. 62616.664 22.62226.36335.63266.
 00122.26526.44332.32322.66326. 62616.665 32.62226.36345.63266.
 00122.23524.46222.32354.64336. 66303.262
