@@ -287,9 +287,27 @@ public class GroundFormulas {
   public void init(){
     for (RelationVariable var : allExplicitGroundFormulas.values())
       interpreter.clear(var);
+    for (RelationVariable var : explicitGroundFormulas.values())
+      interpreter.clear(var);
+    for (RelationVariable var : tmpExplicitGroundFormulas.values())
+      interpreter.clear(var);
+    for (RelationVariable var : trueGroundFormulas.values())
+      interpreter.clear(var);
+    for (RelationVariable var : falseGroundFormulas.values())
+      interpreter.clear(var);
+    groundAtoms.clear(model.getHiddenPredicates());
+    groundAtoms.clear(model.getObservedPredicates());
+    groundAtoms.clear(model.getGlobalPredicates());
+    buildQueries();
 
   }
 
+  public int size(){
+    int size = 0;
+    for (RelationVariable var : allExplicitGroundFormulas.values())
+      size += var.value().size();
+    return size;
+  }
 
   public void updateDeterministic(GroundAtoms solution){
     clear();

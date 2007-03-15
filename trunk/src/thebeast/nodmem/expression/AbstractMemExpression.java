@@ -55,6 +55,8 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
       dependendIndices.clear();
       function = compiler.compile(this);
     }
+//    else
+//      function.clear();
     for (MemHashIndex depIndex : dependendIndices)
       depIndex.update();
     return function;

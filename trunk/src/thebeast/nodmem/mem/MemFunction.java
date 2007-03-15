@@ -488,4 +488,21 @@ public final class MemFunction {
   public MemDim getReturnDim() {
     return returnDim;
   }
+
+  public void clear(){
+    if (argHolder != null && argHolder.chunkData != null){
+      for (MemChunk chunk : argHolder.chunkData){
+        if (chunk!=null){
+          chunk.clear();
+        }
+      }
+    }
+    for (MemFunction arg : arguments)
+      arg.clear();
+    if (searchChunkFunction != null) searchChunkFunction.clear();
+    if (searchVarFunction != null) searchVarFunction.clear();
+    if (tmpFunction != null) tmpFunction.clear();
+    if (backoffFunction != null) backoffFunction.clear();
+  }
+
 }

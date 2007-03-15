@@ -61,7 +61,7 @@ set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
 //set collector.all.ch_word_3 = true;
 
-set collector.init = -1.0;
+//set collector.init = -1.0;
 
 collect;
 
@@ -87,8 +87,9 @@ set learner.maxCandidates = 100;
 //set learner.loss = "avgF1";
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
+//set learner.penalizeGold = true;
 
-//learn for 2 epochs;
+learn for 4 epochs;
 
 //set learner.solver = "cut";
 

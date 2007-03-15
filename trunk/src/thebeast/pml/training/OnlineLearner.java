@@ -311,7 +311,7 @@ public class OnlineLearner implements Learner, HasProperties {
         updateRule.setProperty(name.getTail(),value);
     } else if ("average".equals(name.getHead())) {
       setAveraging((Boolean) value);
-    } else if ("penalize".equals(name.getHead())) {
+    } else if ("penalizeGold".equals(name.getHead())) {
       setPenalizeGold((Boolean) value);
     } else if ("loss".equals(name.getHead())) {
       if (value.equals("avgF1"))
