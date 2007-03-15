@@ -348,8 +348,11 @@ public class MemEvaluator {
                   MemMath.indexSum(argChunk.chunkData[0], argChunk.chunkData[1], f.indexAttribute, f.scaleAttribute);
           break;
         case OPERATOR_INV:
-          for (int i = 0; i < f.opArgFunctions.length; ++i)
+          for (int i = 0; i < f.opArgFunctions.length; ++i){
+            //f.opArgFunctions[i].clear();
             evaluate(f.opArgFunctions[i], chunks, rows, f.opArgs[i], f.opArgVecs[i]);
+          }
+          //f.opResultFunction.clear();
           evaluate(f.opResultFunction, null, null, returnChunk, argPointerVec);
           break;
         case GET:

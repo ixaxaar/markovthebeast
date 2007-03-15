@@ -1062,7 +1062,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   }
 
 
-  private class IndexRequirementsExtractor extends AbstractExpressionVisitor {
+  private class IndexRequirementsExtractor extends DepthFirstExpressionVisitor {
 
     HashMultiMap<AttributeExpression, AttributeExpression>
             requirements = new HashMultiMap<AttributeExpression, AttributeExpression>();
@@ -1122,7 +1122,10 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     }
 
 
-   
+    public void visitBinaryExpression(BinaryExpression binaryExpression) {
+      if (validating && !valid) return;
+      super.visitBinaryExpression(binaryExpression);    
+    }
 
     public void visitEquality(Equality equality) {
       if (validating && !valid) return;

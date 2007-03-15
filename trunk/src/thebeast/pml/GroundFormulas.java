@@ -298,7 +298,7 @@ public class GroundFormulas {
     groundAtoms.clear(model.getHiddenPredicates());
     groundAtoms.clear(model.getObservedPredicates());
     groundAtoms.clear(model.getGlobalPredicates());
-    buildQueries();
+    //buildQueries();
 
   }
 

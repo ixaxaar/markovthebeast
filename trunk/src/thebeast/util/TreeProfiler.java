@@ -114,34 +114,38 @@ public class TreeProfiler implements Profiler {
   @SuppressWarnings({"UnusedAssignment", "UnusedDeclaration"})
   public static void main(String[] args) {
     TreeProfiler profiler = new TreeProfiler();
+    Op op = new Op();
     profiler.start("test");
-    for (int i = 0; i < 10000; ++i) {
-      profiler.start("inner");
-      profiler.start("post", 0);
-      int counter = 0;
-      for (int j = 0; j < 400; ++j)
-        counter++;
-      profiler.end();
-      profiler.start("pre", 1);
-      for (int j = 0; j < 400; ++j)
-        ++counter; 
-      profiler.end();
-      profiler.start("array", 1);
-      for (int j = 0; j < 400; ++j){
-        int array[] = new int[20];
-      }
-      profiler.end();
-      if (i % 2 == 0) {
-        profiler.start("add", 2);
-        counter += 1;
-        profiler.end();
-      }
-      profiler.end();
-    }
+
+    int result;
+    int maxIterations = 200000000;
+    profiler.start("static");
+    for (int i = 0; i < maxIterations; ++i)
+      result = op(i,i);
+    profiler.end();
+    profiler.start("inline");
+    for (int i = 0; i < maxIterations; ++i)
+      result = i + i;
+    profiler.end();
+    profiler.start("virtual");
+    for (int i = 0; i < maxIterations; ++i)
+      result = op.add(i,i);
+    profiler.end();
+
+
     profiler.end();
     System.out.println(profiler);
 
   }
 
+  private static class Op {
+    int add(int arg1, int arg2){
+      return arg1 + arg2;
+    }
+  }
+
+  private static int op(int arg1, int arg2){
+    return arg1 + arg2;
+  }
 
 }

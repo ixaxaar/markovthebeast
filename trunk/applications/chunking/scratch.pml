@@ -89,7 +89,7 @@ set learner.loss = "avgNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
 
-learn for 2 epochs;
+//learn for 2 epochs;
 
 //set learner.solver = "cut";
 

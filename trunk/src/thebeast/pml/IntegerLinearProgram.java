@@ -131,8 +131,9 @@ public class IntegerLinearProgram implements HasProperties {
     atoms = model.getSignature().createGroundAtoms();
     fractionals = interpreter.createRelationVariable(resultHeading);
     builder.expr(result);
-    builder.doubleAttribute("value").num(0.0).doubleGreaterThan();
-    builder.doubleAttribute("value").num(1.0).doubleLessThan().and(2).restrict();
+    double eps = 1E-10;
+    builder.doubleAttribute("value").num(0.0 + eps).doubleGreaterThan();
+    builder.doubleAttribute("value").num(1.0 - eps).doubleLessThan().and(2).restrict();
     findFractionals = builder.getRelation();
 
     QueryGenerator generator = new QueryGenerator(weights, atoms);
