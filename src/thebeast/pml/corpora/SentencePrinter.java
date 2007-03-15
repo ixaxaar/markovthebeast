@@ -21,12 +21,12 @@ public class SentencePrinter implements GroundAtomsPrinter {
     ColumnTable table = new ColumnTable();
     int column = 0;
     for (GroundAtom atom : atoms.getGroundAtomsOf(word))
-      table.set(((IntConstant) atom.getArguments().get(0)).getInteger(), column,
+      table.add(((IntConstant) atom.getArguments().get(0)).getInteger(), column,
               atom.getArguments().get(1).toString());
     ++column;
     if (pos != null) {
       for (GroundAtom atom : atoms.getGroundAtomsOf(pos))
-        table.set(((IntConstant) atom.getArguments().get(0)).getInteger(), column,
+        table.add(((IntConstant) atom.getArguments().get(0)).getInteger(), column,
                 atom.getArguments().get(1).toString());
       ++column;
     }
@@ -37,10 +37,10 @@ public class SentencePrinter implements GroundAtomsPrinter {
         int end = ((IntConstant) atom.getArguments().get(1)).getInteger();
         String label = atom.getArguments().get(2).toString();
         if (begin == end) {
-          table.set(begin, column, label);
+          table.add(begin, column, label);
         } else {
-          table.set(begin, column, "B-" + label);
-          table.set(end, column, "E-" + label);
+          table.add(begin, column, "B-" + label);
+          table.add(end, column, "E-" + label);
         }
       }
 
