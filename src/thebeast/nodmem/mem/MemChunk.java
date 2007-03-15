@@ -39,6 +39,12 @@ public final class MemChunk extends MemHolder {
         else
           chunkData[i].copyFrom(other.chunkData[i]);
     size = other.size;
+    rowIndexedSoFar = 0;
+    if (indices != null) for (MemChunkMultiIndex index : indices)
+      if (index != null) {
+        index.indexedSoFar = 0;
+        index.clearMemory();
+      }
   }
 
   public void serialize(MemSerializer serializer) {
@@ -503,6 +509,21 @@ public final class MemChunk extends MemHolder {
       }
     }
 
+  }
+
+  public void clear(){
+    rowIndexedSoFar = 0;
+    if (rowIndex != null)
+      rowIndex.clear();
+    if (indices != null){
+      for (MemChunkMultiIndex index : indices) {
+        if (index != null) {
+          index.indexedSoFar = 0;
+          index.clear();
+        }
+      }
+    }
+    size =0;
   }
 
 }

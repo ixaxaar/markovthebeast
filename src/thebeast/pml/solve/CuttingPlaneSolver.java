@@ -122,7 +122,8 @@ public class CuttingPlaneSolver implements Solver {
     updated = false;
     //this.atoms.clear(model.getHiddenPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
-    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());    
+    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    this.atoms.clear(model.getHiddenPredicates());
   }
 
   /**
@@ -169,8 +170,11 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
-    formulas.init();
-
+    //formulas.init();
+    formulas = new GroundFormulas(model, weights);    
+    ilp = new IntegerLinearProgram(model,weights, ilpSolver);
+    //System.out.println(formulas);
+    //formulas = new GroundFormulas(model, weights);
     profiler.start("solve");
 
     candidateAtoms.clear();
@@ -186,7 +190,11 @@ public class CuttingPlaneSolver implements Solver {
       candidateFormulas.add(new GroundFormulas(formulas));
     }
 
+    //System.out.println(ilp.toLpSolveFormat());
+    
     profiler.start("iterations");
+    //System.out.print(formulas.size() + " -> ");
+    //System.out.println(ilp.getNumRows());
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
@@ -195,8 +203,12 @@ public class CuttingPlaneSolver implements Solver {
       update();
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
-      if (enforceIntegers && !ilp.changed() && ilp.isFractional())
+      if (enforceIntegers && !ilp.changed() && ilp.isFractional()){
+        System.out.println("fractional");
         ilp.enforceIntegerSolution();
+      }
+      //System.out.print(formulas.size() + " -> ");
+      //System.out.println(ilp.getNumRows());
     }
     profiler.end();
 

@@ -251,11 +251,16 @@ public class IntegerLinearProgram implements HasProperties {
     clear();
   }
 
+  public int getNumRows(){
+    return constraints.value().size();
+  }
+
   private void clear() {
     interpreter.clear(constraints);
     interpreter.clear(newConstraints);
     interpreter.clear(vars);
     interpreter.clear(newVars);
+    interpreter.clear(fractionals);
     interpreter.assign(varCount, builder.num(0).getInt());
     for (RelationVariable var : groundAtom2index.values())
       interpreter.clear(var);

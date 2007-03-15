@@ -12,10 +12,6 @@ public final class MemSearch {
   public static void search(MemSearchPlan plan, MemChunk[] chunks, MemChunk variables, MemChunk dst, int dstRow) {
     for (MemChunk chunk : chunks) if(chunk.size==0) return;
     final int chunkCount = chunks.length;
-    final MemChunkMultiIndex[] indices = new MemChunkMultiIndex[chunkCount];
-//    for (int i = 0; i < chunks.length; ++i)
-//      indices[i] = chunks[i].indices[plan.indicesToUse[i]];
-
     int[] currentPointers = plan.currentPointers;
     int[] currentSizes = plan.currentSizes;
     int[] currentRows = plan.currentRows;

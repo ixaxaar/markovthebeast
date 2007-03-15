@@ -228,9 +228,10 @@ public class MemEvaluator {
             result = new MemChunk(0, 1, f.plan.resultDim);
             returnChunk.chunkData[argPointerVec.xChunk] = result;
           }
-          result.size = 0;
-          result.rowIndexedSoFar = 0;
-          result.rowIndex.clear();
+          result.clear();
+//          result.size = 0;
+//          result.rowIndexedSoFar = 0;
+//          result.rowIndex.clear();
           MemSearch.search(f.plan, f.searchChunkFunction.argHolder.chunkData,
                   null, result, 0);
           break;
