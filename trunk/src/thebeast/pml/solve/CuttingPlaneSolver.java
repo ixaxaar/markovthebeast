@@ -121,9 +121,11 @@ public class CuttingPlaneSolver implements Solver {
     initSet = false;
     updated = false;
     //this.atoms.clear(model.getHiddenPredicates());
+    this.atoms.clear(model.getHiddenPredicates());
+    this.atoms.clear(model.getInstancePredicates());
+    this.atoms.clear(model.getGlobalPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
     this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
-    this.atoms.clear(model.getHiddenPredicates());
   }
 
   /**
@@ -170,9 +172,12 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
-    //formulas.init();
-    formulas = new GroundFormulas(model, weights);    
-    ilp = new IntegerLinearProgram(model,weights, ilpSolver);
+    //atoms = model.getSignature().createGroundAtoms();
+    //atoms.clear(model.getGlobalPredicates());
+    formulas.init();
+    //formulas = new GroundFormulas(model, weights);
+    //ilp = new IntegerLinearProgram(model,weights, ilpSolver);
+
     //System.out.println(formulas);
     //formulas = new GroundFormulas(model, weights);
     profiler.start("solve");
@@ -210,6 +215,7 @@ public class CuttingPlaneSolver implements Solver {
       //System.out.print(formulas.size() + " -> ");
       //System.out.println(ilp.getNumRows());
     }
+    System.out.print(iteration);
     profiler.end();
 
     done = ilp.changed();
