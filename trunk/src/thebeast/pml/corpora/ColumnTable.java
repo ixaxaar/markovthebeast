@@ -12,7 +12,7 @@ public class ColumnTable {
 
   private int columns = 0;
 
-  public void set(int line, int column, String value) {
+  public void add(int line, int column, String value) {
     if (column >= columns)
       columns = column + 1;
     HashMap<Integer, String> row = rows.get(line);
@@ -20,7 +20,9 @@ public class ColumnTable {
       row = new HashMap<Integer, String>();
       rows.put(line, row);
     }
-    row.put(column, value);
+    String old = row.get(column);
+    row.put(column, old == null ? value : old + "_" + value);
+
     Integer maxSize = maxStringLength.get(column);
     if (maxSize == null || maxSize < value.length()){
       maxStringLength.put(column, value.length());
