@@ -18,13 +18,16 @@ import java.util.List;
 public class CuttingPlaneSolver implements Solver {
 
   private IntegerLinearProgram ilp;
+  private IntegerLinearProgram firstIlp;
   private GroundFormulas formulas;
+  private GroundFormulas firstFormulas;
   private int maxIterations = 10;
   private Model model;
   private LocalFeatures features;
   private LocalFeatureExtractor extractor;
   private Scores scores;
   private GroundAtoms atoms;
+  private GroundAtoms closure;
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated, deterministicFirst;
@@ -47,12 +50,15 @@ public class CuttingPlaneSolver implements Solver {
     this.model = model;
     this.weights = weights;
     ilp = new IntegerLinearProgram(model, weights, ilpSolver);
+    firstIlp = new IntegerLinearProgram(model, weights, ilpSolver);
     ilp.setProfiler(profiler);
     formulas = new GroundFormulas(model, weights);
+    firstFormulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
     extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
+    closure = model.getSignature().createGroundAtoms();
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
   }
 
@@ -141,6 +147,7 @@ public class CuttingPlaneSolver implements Solver {
     this.scores.load(scores);
     //ilp = new IntegerLinearProgram(model, weights, ilpSolver);
     ilp.init(this.scores);
+    firstIlp.init(this.scores);
     scoresSet = true;
   }
 
@@ -176,6 +183,7 @@ public class CuttingPlaneSolver implements Solver {
     //atoms = model.getSignature().createGroundAtoms();
     //atoms.clear(model.getGlobalPredicates());
     formulas.init();
+    firstFormulas.init();
     //formulas = new GroundFormulas(model, weights);
     //ilp = new IntegerLinearProgram(model,weights, ilpSolver);
 
@@ -187,6 +195,8 @@ public class CuttingPlaneSolver implements Solver {
     candidateFormulas.clear();
     iteration = 0;
     if (!scoresSet) score();
+    ilp.setClosure(scores.getClosure());
+    firstIlp.setClosure(scores.getClosure());
     if (!initSet) initSolution();
     if (deterministicFirst) {
       deterministicFirst();      
@@ -196,6 +206,7 @@ public class CuttingPlaneSolver implements Solver {
       candidateFormulas.add(new GroundFormulas(formulas));
     }
 
+    new SentencePrinter().print(atoms, System.out);
     //System.out.println(ilp.toLpSolveFormat());
     
     profiler.start("iterations");
@@ -204,6 +215,8 @@ public class CuttingPlaneSolver implements Solver {
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
+      new SentencePrinter().print(atoms, System.out);
+      
       profiler.end();
       ++iteration;
       update();
@@ -230,31 +243,32 @@ public class CuttingPlaneSolver implements Solver {
 
   private void deterministicFirst() {
     profiler.start("deterministic");
+    new SentencePrinter().print(atoms, System.out);
+    
+    firstFormulas.update(atoms);
+    //add greedy solution to candidates
+    candidateAtoms.add(new GroundAtoms(atoms));
+    candidateFormulas.add(new GroundFormulas(formulas));
+    //update the ilp (but only with hard constraints)
+    firstIlp.update(firstFormulas, atoms, model.getDeterministicFormulas());
+    if (firstIlp.changed()){
+      //some constraints were violated -> lets solve
+      firstIlp.solve(atoms);
+      //create a new set of ground formulas and a new ilp
+      update();
+      //add the first solution which takes constraints into account
+      candidateAtoms.add(0, new GroundAtoms(atoms));
+      candidateFormulas.add(0, new GroundFormulas(formulas));
+    } else{
+      //formulas.update(atoms, model.getNondeterministicFormulas());
+      ilp.update(firstFormulas, atoms);
+    }
 
-    profiler.start("update det");
     formulas.updateDeterministic(atoms);
     profiler.end();
     //System.out.println(formulas);
 
-    profiler.start("update det ilp");
-    ilp.update(formulas,atoms);
-    profiler.end();
 
-    profiler.start("load");
-    candidateAtoms.add(new GroundAtoms(atoms));
-    candidateFormulas.add(new GroundFormulas(formulas));
-    profiler.end();
-
-    if (ilp.changed()){
-      ilp.solve(atoms);
-      update();
-      candidateAtoms.add(0, new GroundAtoms(atoms));
-      candidateFormulas.add(0, new GroundFormulas(formulas));
-    } else{
-      formulas.update(atoms, model.getNondeterministicFormulas());
-      ilp.update(formulas, atoms);
-    }
-    profiler.end();
   }
 
   /**

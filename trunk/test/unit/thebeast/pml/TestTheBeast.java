@@ -646,6 +646,11 @@ public class TestTheBeast extends TestCase {
     assertEquals(17, grouped.value().size());
     assertTrue(grouped.contains(0, 1, "NP", new Object[]{new Object[]{0}, new Object[]{2}}));
 
+    //test closure
+    GroundAtoms closure = features.getClosure();
+    assertEquals(17,closure.getGroundAtomsOf(phrase).size());
+    System.out.println(closure);
+
   }
 
   public void testScores() {
@@ -725,6 +730,23 @@ public class TestTheBeast extends TestCase {
     assertTrue(result.getValuesRelation().contains(0, 10.0));
     assertTrue(result.getValuesRelation().contains(1, 5.0));
     assertTrue(result.getValuesRelation().contains(2, 6.0));
+
+  }
+
+  public void testSparseVectorAddInPlace() {
+    SparseVector arg1 = new SparseVector();
+    arg1.addValue(0, 10.0);
+    arg1.addValue(1, 1.0);
+    SparseVector result = new SparseVector();
+    result.addValue(1, 2.0);
+    result.addValue(2, 3.0);
+    result.addInPlace(2.0, arg1);
+
+
+    System.out.println(result.getValuesRelation().value());
+    assertTrue(result.getValuesRelation().contains(0, 20.0));
+    assertTrue(result.getValuesRelation().contains(1, 4.0));
+    assertTrue(result.getValuesRelation().contains(2, 3.0));
 
   }
 

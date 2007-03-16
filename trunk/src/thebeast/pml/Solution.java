@@ -192,6 +192,8 @@ public class Solution {
       interpreter.assign(var, localJoin.get(pred));
       profiler.end();
 
+
+      //System.out.println(var.value());
       //System.out.println(tmpFeaturesPerPred.get(pred).value());
 
 //
@@ -203,10 +205,14 @@ public class Solution {
       SparseVector tmp = new SparseVector();
       profiler.start("collect");
       interpreter.assign(tmp.getValuesRelation(), localCollectors.get(pred));
+      //System.out.println(tmp.getValuesRelation().value());
       profiler.end();
 
       profiler.start("add");
+      //System.out.println(weights.toString(vector));
       vector.getFree().addInPlace(1.0, tmp);
+      //System.out.println(vector.getFree());
+      //System.out.println(weights.toString(vector));
       profiler.end();
 
       profiler.end();

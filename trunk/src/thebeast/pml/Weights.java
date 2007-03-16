@@ -16,7 +16,6 @@ import thebeast.nod.variable.DoubleVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.function.WeightFunction;
-import thebeast.pml.predicate.Predicate;
 
 import java.io.*;
 import java.util.*;
@@ -628,11 +627,27 @@ public class Weights implements HasProperties {
     }
   }
 
-  private int countTrue() {
-    int count = 0;
-    for (int i = 0; i < tmpSet.length; ++i)
-      if (tmpSet[i]) ++count;
-    return count;
+
+  public String toString(SparseVector vector){
+    int[] indices = vector.getIndexArray();
+    double[] values = vector.getValueArray();
+    StringBuffer buffer = new StringBuffer();
+    for (int i = 0; i < indices.length; ++i){
+      Formatter formatter = new Formatter();
+      formatter.format("%-6d%-50s%5.1f\n", indices[i], getFeatureString(indices[i]), values[i]);
+      buffer.append(formatter.out());
+    }
+    return buffer.toString();
+  }
+
+  public String toString(FeatureVector vector){
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("Free:\n").append(toString(vector.getFree()));
+    buffer.append("NN:\n").append(toString(vector.getNonnegative()));
+    buffer.append("NP:\n").append(toString(vector.getNonpositive()));
+    return buffer.toString();
+
+
   }
 
   public void setProperty(PropertyName name, Object value) {
