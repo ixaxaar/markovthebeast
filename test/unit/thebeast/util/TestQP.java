@@ -37,15 +37,15 @@ public class TestQP extends TestCase {
     double[] a_2 = new double[]{0, 1, 1};
     double[] a_3 = new double[]{0, 0, 1};
     double[][] a = new double[][]{a_1, a_2, a_3};
-    double[] b = new double[]{1, 1, 1};
+    double[] b = new double[]{1, 1, -1};
     System.out.println(Arrays.toString(QP.runHildreth(a,b)));
   }
 
   public void testNegativity() {
     double[][] a = new double[3][];
-    a[0] = new double[]{1.0, 0, 0};
+    a[0] = new double[]{-1.0, 0,   0};
     a[1] = new double[]{0.0, 1.0, 0};
-    a[2] = new double[]{0.0, 0, -1.0};
+    a[2] = new double[]{0.0, 0,   1.0};
     double[] b = new double[]{1, 1, 1};
     double[] alpha = QP.runHildreth(a, b);
     System.out.println(Arrays.toString(alpha));

@@ -3,6 +3,7 @@ package thebeast.pml.training;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.pml.*;
+import thebeast.pml.corpora.SentencePrinter;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
@@ -231,15 +232,18 @@ public class OnlineLearner implements Learner, HasProperties {
     List<GroundFormulas> candidateFormulas = solver.getCandidateFormulas();
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
+
+    new SentencePrinter().print(goldAtoms, System.out);    
+    System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
       GroundAtoms guessAtoms = candidateAtoms.get(i);
       solution.getGroundAtoms().load((guessAtoms));
       solution.getGroundFormulas().load(candidateFormulas.get(i));
       FeatureVector features = solution.extract(this.features);
-      if (solution.getGroundFormulas().isDeterministic())
-        features.loadSigned(gold);
       candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, guessAtoms));
+      new SentencePrinter().print(guessAtoms, System.out);
+      System.out.println("Guess " + i + ": " + weights.toString(features));
     }
 
     //guess.load(solution.extract(features));

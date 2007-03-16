@@ -21,10 +21,12 @@ public class ConjunctionProcessor {
   private FormulaResolver formulaResolver = new FormulaResolver();
   private TermInverter inverter = new TermInverter();
   private NoDExpressionGenerator exprGenerator = new NoDExpressionGenerator();
-  private GroundAtoms groundAtoms;
+  private GroundAtoms groundAtoms, closure;
+  private SignedAtom hidden;
   private Weights weights;
   private ExpressionFactory factory;
   private FormulaBuilder builder;
+
 
   public static class Context {
     public LinkedList<BoolExpression> conditions = new LinkedList<BoolExpression>();
@@ -53,6 +55,16 @@ public class ConjunctionProcessor {
 
   }
 
+  public ConjunctionProcessor(Weights weights, GroundAtoms groundAtoms, GroundAtoms closure, SignedAtom hidden) {
+    this.weights = weights;
+    this.groundAtoms = groundAtoms;
+    this.builder = new FormulaBuilder(weights.getSignature());
+    factory = TheBeast.getInstance().getNodServer().expressionFactory();
+    this.hidden = hidden;
+    this.closure = closure;
+  }
+
+
   public void resolveBruteForce(final Context context, List<SignedAtom> conjunction) {
     UnresolvedVariableCollector finalCollector = new UnresolvedVariableCollector();
     finalCollector.bind(context.var2expr.keySet());
@@ -73,6 +85,39 @@ public class ConjunctionProcessor {
       finalCollector.bind(finalCollector.getUnresolved());
       finalCollector.getUnresolved().clear();
     }
+
+  }
+
+  public void processWithClosure(final Context context, GroundAtoms closure, SignedAtom atom){
+    if (!atom.isTrue()) throw new RuntimeException("Can't process negated atoms here");
+    PredicateAtom predicateAtom = (PredicateAtom) atom.getAtom();
+    UserPredicate userPredicate = (UserPredicate) predicateAtom.getPredicate();
+    int argIndex = 0;
+    String prefix = predicateAtom.getPredicate().getName() + "_closure";
+    for (Term arg : predicateAtom.getArguments()) {
+       if (arg instanceof DontCare) {
+         ++argIndex;
+         continue;
+       }
+       String varName = prefix + "_" + userPredicate.getColumnName(argIndex);
+       Variable artificial = new Variable(arg.getType(), varName);
+       context.var2expr.put(artificial, factory.createAttribute(prefix, userPredicate.getAttribute(argIndex)));
+       Term resolved = termResolver.resolve(arg, context.var2term);
+       if (termResolver.getUnresolved().size() == 0) {
+         builder.var(artificial).term(resolved).equality();
+         context.conditions.add((BoolExpression) exprGenerator.convertFormula(
+                 builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
+       } else if (termResolver.getUnresolved().size() == 1) {
+         Variable toResolve = termResolver.getUnresolved().get(0);
+         Term inverted = inverter.invert(resolved, artificial, toResolve);
+         context.var2term.put(toResolve, inverted);
+       } else {
+           throw new RuntimeException("Seems like we really can't resolve " + atom);
+       }
+       ++argIndex;
+     }
+     context.prefixes.add(prefix);
+     context.relations.add(closure.getGroundAtomsOf(userPredicate).getRelationVariable());
 
   }
 

@@ -22,10 +22,7 @@ import thebeast.pml.solve.ILPSolverOsi;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Sebastian Riedel
@@ -55,7 +52,7 @@ public class IntegerLinearProgram implements HasProperties {
   private IntVariable varCount;
   private IntVariable lastVarCount;
   private GroundFormulas formulas;
-  private GroundAtoms solution, atoms;
+  private GroundAtoms solution, atoms, closure;
   private Scores scores;
   private Model model;
   private RelationVariable fractionals;
@@ -129,6 +126,7 @@ public class IntegerLinearProgram implements HasProperties {
     interpreter.addIndex(newVars, "index", Index.Type.HASH, "index");
     solution = model.getSignature().createGroundAtoms();
     atoms = model.getSignature().createGroundAtoms();
+    closure = model.getSignature().createGroundAtoms();
     fractionals = interpreter.createRelationVariable(resultHeading);
     builder.expr(result);
     double eps = 1E-10;
@@ -137,6 +135,7 @@ public class IntegerLinearProgram implements HasProperties {
     findFractionals = builder.getRelation();
 
     QueryGenerator generator = new QueryGenerator(weights, atoms);
+    generator.setClosure(closure);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingILP());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
@@ -205,6 +204,10 @@ public class IntegerLinearProgram implements HasProperties {
 
   }
 
+
+  public void setClosure(GroundAtoms closure){
+    this.closure.load(closure);
+  }
 
   public RelationVariable getNewConstraints() {
     return newConstraints;
@@ -341,6 +344,12 @@ public class IntegerLinearProgram implements HasProperties {
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms) {
+    update(formulas,atoms, formula2query.keySet());
+  }
+  
+  public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors){
+
+
     interpreter.assign(lastVarCount, varCount);
     this.formulas.load(formulas);
     //this.scores.load(scores);
@@ -349,7 +358,7 @@ public class IntegerLinearProgram implements HasProperties {
 //    System.out.println(atoms);
 //    System.out.println(formulas);
     interpreter.clear(newConstraints);
-    for (FactorFormula formula : formula2query.keySet()) {
+    for (FactorFormula formula : factors) {
       //System.out.println(formula);
       interpreter.interpret(newConstraintsInserts.get(formula));
       newConstraintCount += newConstraints.value().size();
@@ -365,7 +374,7 @@ public class IntegerLinearProgram implements HasProperties {
 //      interpreter.insert(constraints, newConstraints);
     }
     //System.out.println("Updating ...");
-    for (FactorFormula formula : formula2query.keySet()){
+    for (FactorFormula formula : factors){
       //System.out.println(formula);
       //System.out.println("Before insertion");
       //System.out.println(toLpSolveFormat(newVars, constraints));

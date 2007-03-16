@@ -11,6 +11,8 @@ factor:
   if word(i,w_i) & !rare(w_i)
   add [pos(i,p)] * w_word(w_i,p);
 
+/*
+
 weight w_word_m1: Word x Pos -> Double;
 factor:
   for Int i, Pos p, Word w_i_m1
@@ -35,3 +37,4 @@ factor:
   if word(i,_) & word(i+2,w_i_p2)
   add [pos(i,p)] * w_word_p2(w_i_p2,p);
 
+*/

@@ -1,13 +1,13 @@
 package thebeast.pml;
 
-import thebeast.nod.expression.RelationExpression;
-import thebeast.nod.expression.Summarize;
 import thebeast.nod.expression.BoolExpression;
 import thebeast.nod.expression.DoubleExpression;
+import thebeast.nod.expression.RelationExpression;
+import thebeast.nod.expression.Summarize;
+import thebeast.nod.statement.AttributeAssign;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.statement.RelationUpdate;
 import thebeast.nod.statement.StatementFactory;
-import thebeast.nod.statement.AttributeAssign;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
@@ -15,7 +15,6 @@ import thebeast.nod.variable.RelationVariable;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A Scores object contains a score for each ground atom (explicitely or implicitely by not storing scores equal to
@@ -45,17 +44,15 @@ public class Scores {
           penalizeCorrects = new HashMap<UserPredicate, RelationUpdate>(),
           encourageInCorrects = new HashMap<UserPredicate, RelationUpdate>();
 
-  private GroundAtoms gold;
+  private GroundAtoms gold, closure;
 
   public Scores(Model model, Weights weights) {
-//    if (model.getHiddenPredicates().isEmpty())
-//      throw new RuntimeException("It doesn't make sense to create a Scores" +
-//              " object for a model with no hidden predicates");
     this.model = model;
     this.weights = weights;
     this.signature = model.getSignature();
     localFeatures = new LocalFeatures(model, weights);
     gold = signature.createGroundAtoms();
+    closure = signature.createGroundAtoms();
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable scores = interpreter.createRelationVariable(predicate.getHeadingForScore());
@@ -228,6 +225,7 @@ public class Scores {
   public void load(Scores scores) {
     for (UserPredicate predicate : atomScores.keySet())
       interpreter.assign(getScoreRelation(predicate), scores.getScoreRelation(predicate));
+    closure.load(scores.getClosure());
   }
 
   public RelationVariable getScoreRelation(UserPredicate predicate) {
@@ -240,6 +238,7 @@ public class Scores {
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       interpreter.assign(atomScores.get(predicate), queries.get(predicate));
     }
+    closure.load(localFeatures.getClosure());
   }
 
   public void scoreWithGroups(LocalFeatures features) {
@@ -247,6 +246,11 @@ public class Scores {
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       interpreter.assign(atomScores.get(predicate), sums.get(predicate));
     }
+    closure.load(features.getClosure());
+  }
+
+  public GroundAtoms getClosure() {
+    return closure;
   }
 
   public void clear() {
@@ -265,5 +269,7 @@ public class Scores {
       interpreter.interpret(update);
     }
   }
+
+
 
 }

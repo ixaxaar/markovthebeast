@@ -13,6 +13,7 @@ public class CardinalityConstraint extends Atom {
   private Quantification quantification;
   private BooleanFormula formula;
   private boolean sign = true;
+  private boolean useClosure = true;
 
 
   public CardinalityConstraint(Term lowerBound, Quantification quantification,
@@ -55,6 +56,10 @@ public class CardinalityConstraint extends Atom {
 
   public Term getLowerBound() {
     return lowerBound;
+  }
+
+  public boolean useClosure() {
+    return useClosure;
   }
 
   public Quantification getQuantification() {

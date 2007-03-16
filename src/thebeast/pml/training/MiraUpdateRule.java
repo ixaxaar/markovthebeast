@@ -76,6 +76,9 @@ public class MiraUpdateRule implements UpdateRule {
 
     for (int candidateIndex = 0; candidateIndex < candidates.size(); ++candidateIndex) {
       SparseVector diffVector = diffVectors.get(candidateIndex);
+      System.out.println("Diff " + candidateIndex);
+      System.out.println(weights.toString(diffVector));
+
       diffs[candidateIndex] = diffVector;
       double diffScore = weights.dotProduct(diffVector);
       double loss = losses.get(candidateIndex);

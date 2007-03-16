@@ -41,7 +41,7 @@ public class QueryGenerator {
   private ExpressionBuilder exprBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private LinkedList<ConjunctionProcessor.Context> conjunctions;
-
+  private GroundAtoms closure;
 
   public QueryGenerator() {
     factory = TheBeast.getInstance().getNodServer().expressionFactory();
@@ -53,6 +53,10 @@ public class QueryGenerator {
     this.groundAtoms = groundAtoms;
   }
 
+
+  public void setClosure(GroundAtoms closure) {
+    this.closure = closure;
+  }
 
   public RelationExpression generateGlobalTrueQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
     this.groundAtoms = groundAtoms;
@@ -715,7 +719,6 @@ public class QueryGenerator {
               dnf + " coming from this " + formula);
     List<SignedAtom> conjunction = dnf.getConjunction(0);
 
-    ConjunctionProcessor processor = new ConjunctionProcessor(weights, groundAtoms);
 
 
     UnresolvedVariableCollector collector = new UnresolvedVariableCollector();
@@ -753,11 +756,18 @@ public class QueryGenerator {
     if (hidden == null) throw new RuntimeException("Exactly one atom in the cardinality formula should be hidden");
     conjunction.remove(hidden);
 
+    ConjunctionProcessor processor = new ConjunctionProcessor(weights, groundAtoms);
+    
     processor.processConjunction(context, conjunction);
 
     ArrayList<SignedAtom> hiddenList = new ArrayList<SignedAtom>();
     hiddenList.add(hidden);
-    processor.resolveBruteForce(context, hiddenList);
+    //processor.resolveBruteForce(context, hiddenList);
+    if (constraint.useClosure())
+      processor.processWithClosure(context, closure, hidden);
+    else
+      processor.resolveBruteForce(context, hiddenList);
+
 
     //find the hidden ground atom
     context.selectBuilder.id("index");

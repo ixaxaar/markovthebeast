@@ -23,18 +23,20 @@ import java.util.Comparator;
  * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
  * for all possible ground atoms (and thus for scoring the ground atom).
  */
-public class LocalFeatures implements HasProperties{
+public class LocalFeatures implements HasProperties {
 
   private HashMap<UserPredicate, RelationVariable>
           grouped = new HashMap<UserPredicate, RelationVariable>();
   private HashMap<UserPredicate, RelationVariable>
           features = new HashMap<UserPredicate, RelationVariable>();
   private HashMap<UserPredicate, RelationExpression>
-          groupExpressions = new HashMap<UserPredicate, RelationExpression>();
+          groupExpressions = new HashMap<UserPredicate, RelationExpression>(),
+          closures = new HashMap<UserPredicate, RelationExpression>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
   private Model model;
   private Weights weights;
+
 
   public LocalFeatures(Model model, Weights weights) {
     this.weights = weights;
@@ -44,7 +46,7 @@ public class LocalFeatures implements HasProperties{
       RelationVariable var = interpreter.createRelationVariable(pred.getHeadingForFeatures());
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
-      for (String attributeName : pred.getHeading().getAttributeNames()){
+      for (String attributeName : pred.getHeading().getAttributeNames()) {
         interpreter.addIndex(var, attributeName, Index.Type.HASH, attributeName);
       }
       RelationVariable group = interpreter.createRelationVariable(pred.getHeadingGroupedFeatures());
@@ -52,6 +54,14 @@ public class LocalFeatures implements HasProperties{
       interpreter.addIndex(group, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
       builder.expr(var).group("features", "index");
       groupExpressions.put(pred, builder.getRelation());
+
+      builder.expr(group).from("grouped");
+      for (Attribute attribute : pred.getHeading().attributes()) {
+        builder.id(attribute.name()).attribute("grouped", attribute);
+      }
+      builder.tupleForIds().select().query();
+      closures.put(pred, builder.getRelation());
+
     }
   }
 
@@ -69,10 +79,8 @@ public class LocalFeatures implements HasProperties{
 
 
   /**
-   * Call this method if you have made changes to the ungrouped
-   * tables of these features (i.e. the tables in which we have
-   * a row for each ground atom and each feature index active
-   * for this ground atom).
+   * Call this method if you have made changes to the ungrouped tables of these features (i.e. the tables in which we
+   * have a row for each ground atom and each feature index active for this ground atom).
    */
   public void invalidate() {
     for (UserPredicate pred : features.keySet()) {
@@ -244,19 +252,37 @@ public class LocalFeatures implements HasProperties{
 
   }
 
+  /**
+   * Removes all features.
+   */
   public void clear() {
     for (RelationVariable var : features.values())
       interpreter.clear(var);
   }
 
+  /**
+   * Determines all hidden ground atoms which have active features
+   *
+   * @return all ground atoms with active features.
+   */
+  public GroundAtoms getClosure() {
+    GroundAtoms closure = model.getSignature().createGroundAtoms();
+    for (UserPredicate pred : model.getHiddenPredicates()) {
+      interpreter.assign(closure.getGroundAtomsOf(pred).getRelationVariable(), closures.get(pred));
+    }
+    return closure;
+  }
+
+
   public void setProperty(PropertyName name, Object value) {
 
   }
 
+
   public Object getProperty(PropertyName name) {
     UserPredicate pred = model.getSignature().getUserPredicate(name.getHead());
-    if (name.hasArguments()){
-      return toVerboseString(pred,name.getArguments().toArray(new Object[0]));
+    if (name.hasArguments()) {
+      return toVerboseString(pred, name.getArguments().toArray(new Object[0]));
     }
     return toVerboseString(features.get(pred).value(), pred);
   }
