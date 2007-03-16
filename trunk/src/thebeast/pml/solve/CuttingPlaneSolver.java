@@ -198,15 +198,16 @@ public class CuttingPlaneSolver implements Solver {
     ilp.setClosure(scores.getClosure());
     firstIlp.setClosure(scores.getClosure());
     if (!initSet) initSolution();
+    //new SentencePrinter().print(atoms, System.out);
+
     if (deterministicFirst) {
       deterministicFirst();      
     } else {
       update();
-      candidateAtoms.add(new GroundAtoms(atoms));
-      candidateFormulas.add(new GroundFormulas(formulas));
+      addCandidate();
     }
 
-    new SentencePrinter().print(atoms, System.out);
+    //new SentencePrinter().print(atoms, System.out);
     //System.out.println(ilp.toLpSolveFormat());
     
     profiler.start("iterations");
@@ -215,13 +216,12 @@ public class CuttingPlaneSolver implements Solver {
     while (ilp.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
-      new SentencePrinter().print(atoms, System.out);
+      //new SentencePrinter().print(atoms, System.out);
       
       profiler.end();
       ++iteration;
       update();
-      candidateAtoms.add(0, new GroundAtoms(atoms));
-      candidateFormulas.add(0, new GroundFormulas(formulas));
+      addCandidate();
       if (enforceIntegers && !ilp.changed() && ilp.isFractional()){
         //System.out.println("fractional");
         ilp.enforceIntegerSolution();
@@ -241,30 +241,34 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
   }
 
+  private void addCandidate() {
+    candidateAtoms.add(0, new GroundAtoms(atoms));
+    candidateFormulas.add(0, new GroundFormulas(formulas));
+  }
+
   private void deterministicFirst() {
     profiler.start("deterministic");
-    new SentencePrinter().print(atoms, System.out);
+    //new SentencePrinter().print(atoms, System.out);
     
-    firstFormulas.update(atoms);
+    formulas.update(atoms);
     //add greedy solution to candidates
-    candidateAtoms.add(new GroundAtoms(atoms));
-    candidateFormulas.add(new GroundFormulas(formulas));
+    addCandidate();
     //update the ilp (but only with hard constraints)
-    firstIlp.update(firstFormulas, atoms, model.getDeterministicFormulas());
-    if (firstIlp.changed()){
+    ilp.update(formulas, atoms, model.getDeterministicFormulas());
+    //System.out.println(ilp.toLpSolveFormat());
+    if (ilp.changed()){
       //some constraints were violated -> lets solve
-      firstIlp.solve(atoms);
+      ilp.solve(atoms);
+      //ilp.update(formulas,atoms,model.getNondeterministicFormulas());
       //create a new set of ground formulas and a new ilp
       update();
       //add the first solution which takes constraints into account
-      candidateAtoms.add(0, new GroundAtoms(atoms));
-      candidateFormulas.add(0, new GroundFormulas(formulas));
+      addCandidate();
     } else{
       //formulas.update(atoms, model.getNondeterministicFormulas());
-      ilp.update(firstFormulas, atoms);
+      ilp.update(formulas, atoms);
     }
 
-    formulas.updateDeterministic(atoms);
     profiler.end();
     //System.out.println(formulas);
 

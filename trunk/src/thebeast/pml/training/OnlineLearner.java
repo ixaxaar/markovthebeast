@@ -41,8 +41,10 @@ public class OnlineLearner implements Learner, HasProperties {
   private int maxCandidates = 1000;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
+  private boolean takeInitialSolution = false;
 
   private int numEpochs;
+  private int maxViolations;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -198,8 +200,8 @@ public class OnlineLearner implements Learner, HasProperties {
   private void learn(TrainingInstance data) {
     //load the instance from the corpus into our local variable
     profiler.start("learn one");
-    goldAtoms.load(model.getGlobalAtoms(),model.getGlobalPredicates());
-    goldAtoms.load(data.getData(),model.getInstancePredicates());
+    goldAtoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    goldAtoms.load(data.getData(), model.getInstancePredicates());
 
     //either load the feature vector or extract it
     features.load(data.getFeatures());
@@ -228,23 +230,34 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //extract features (or load)
     profiler.start("extract");
-    List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();                                
+    List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();
     List<GroundFormulas> candidateFormulas = solver.getCandidateFormulas();
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
+    List<Integer> violations = new ArrayList<Integer>(candidateAtoms.size());
+    double avgViolations = 0;
 
-    new SentencePrinter().print(goldAtoms, System.out);    
-    System.out.println("Gold:" + weights.toString(gold));
+    //new SentencePrinter().print(goldAtoms, System.out);
+    //System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
-      GroundAtoms guessAtoms = candidateAtoms.get(i);
-      solution.getGroundAtoms().load((guessAtoms));
-      solution.getGroundFormulas().load(candidateFormulas.get(i));
-      FeatureVector features = solution.extract(this.features);
-      candidates.add(features);
-      losses.add(lossFunction.loss(goldAtoms, guessAtoms));
-      new SentencePrinter().print(guessAtoms, System.out);
-      System.out.println("Guess " + i + ": " + weights.toString(features));
+      int violationCount = candidateFormulas.get(i).getViolationCount();
+      avgViolations += violationCount;
+      maxViolations = 1;
+      if (violationCount < maxViolations || takeInitialSolution && i == candidateAtoms.size()-1) {
+        violations.add(violationCount);
+        //System.out.print(violationCount + " ");
+        GroundAtoms guessAtoms = candidateAtoms.get(i);
+        solution.getGroundAtoms().load((guessAtoms));
+        solution.getGroundFormulas().load(candidateFormulas.get(i));
+        FeatureVector features = solution.extract(this.features);
+        candidates.add(features);
+        losses.add(lossFunction.loss(goldAtoms, guessAtoms));
+        //new SentencePrinter().print(guessAtoms, System.out);
+        //System.out.println("Guess " + i + ": " + weights.toString(features));
+      }
     }
+    avgViolations /= candidates.size();
+
 
     //guess.load(solution.extract(features));
     profiler.end();
@@ -286,6 +299,15 @@ public class OnlineLearner implements Learner, HasProperties {
     this.penalizeGold = penalizeGold;
   }
 
+
+  public int getMaxViolations() {
+    return maxViolations;
+  }
+
+  public void setMaxViolations(int maxViolations) {
+    this.maxViolations = maxViolations;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
       if (!name.isTerminal())
@@ -302,6 +324,8 @@ public class OnlineLearner implements Learner, HasProperties {
 
     } else if ("maxCandidates".equals(name.getHead())) {
       setMaxCandidates((Integer) value);
+    } else if ("maxViolations".equals(name.getHead())) {
+      setMaxViolations((Integer) value);
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
     } else if ("update".equals(name.getHead())) {
@@ -312,7 +336,7 @@ public class OnlineLearner implements Learner, HasProperties {
           setUpdateRule(new PerceptronUpdateRule());
         else throw new IllegalPropertyValueException(name, value);
       } else
-        updateRule.setProperty(name.getTail(),value);
+        updateRule.setProperty(name.getTail(), value);
     } else if ("average".equals(name.getHead())) {
       setAveraging((Boolean) value);
     } else if ("penalizeGold".equals(name.getHead())) {

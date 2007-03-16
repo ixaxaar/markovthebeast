@@ -24,13 +24,21 @@ public final class OsiSolverJNI implements OsiSolver {
   }
 
   public enum Implementation {
-    CBC, CLP, CPLEX
+    CBC, CLP, CPLEX, UNKNOWN
+  }
+
+
+  public long getPointer() {
+    return pointer;
+  }
+
+  public static OsiSolverJNI create(long pointer){
+    return new OsiSolverJNI(pointer, Implementation.UNKNOWN);
   }
 
   public synchronized static OsiSolverJNI create(Implementation implementation) {
     OsiSolverJNI solver = new OsiSolverJNI(createImplementation(implementation.ordinal()),implementation);
     instances.add(solver);
-
     return solver;
   }
 
