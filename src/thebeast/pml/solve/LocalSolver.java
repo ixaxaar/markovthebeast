@@ -105,6 +105,14 @@ public class LocalSolver implements Solver {
     return formulas;
   }
 
+  public GroundAtoms getGreedyAtoms() {
+    return atoms;
+  }
+
+  public GroundFormulas getGreedyFormulas() {
+    return formulas;
+  }
+
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
   }

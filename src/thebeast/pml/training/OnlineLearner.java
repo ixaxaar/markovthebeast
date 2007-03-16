@@ -3,7 +3,6 @@ package thebeast.pml.training;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.pml.*;
-import thebeast.pml.corpora.SentencePrinter;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
@@ -41,7 +40,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int maxCandidates = 1000;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
-  private boolean takeInitialSolution = false;
+  private boolean useGreedy = false;
 
   private int numEpochs;
   private int maxViolations;
@@ -144,6 +143,14 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
+  public boolean isUseGreedy() {
+    return useGreedy;
+  }
+
+  public void setUseGreedy(boolean useGreedy) {
+    this.useGreedy = useGreedy;
+  }
+
   public Profiler getProfiler() {
     return profiler;
   }
@@ -235,15 +242,23 @@ public class OnlineLearner implements Learner, HasProperties {
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
     List<Integer> violations = new ArrayList<Integer>(candidateAtoms.size());
-    double avgViolations = 0;
+
+    if (useGreedy){
+      solution.getGroundAtoms().load(solver.getGreedyAtoms());
+      solution.getGroundFormulas().load(solver.getGreedyFormulas());
+      FeatureVector features = solution.extract(this.features);
+      features.getNonnegative().load(gold.getNonnegative());
+      features.getNonpositive().load(gold.getNonpositive());
+      candidates.add(features);
+      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
+     }
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
       int violationCount = candidateFormulas.get(i).getViolationCount();
-      avgViolations += violationCount;
       maxViolations = 1;
-      if (violationCount < maxViolations || takeInitialSolution && i == candidateAtoms.size()-1) {
+      if (violationCount < maxViolations) {
         violations.add(violationCount);
         //System.out.print(violationCount + " ");
         GroundAtoms guessAtoms = candidateAtoms.get(i);
@@ -256,7 +271,6 @@ public class OnlineLearner implements Learner, HasProperties {
         //System.out.println("Guess " + i + ": " + weights.toString(features));
       }
     }
-    avgViolations /= candidates.size();
 
 
     //guess.load(solution.extract(features));
@@ -341,6 +355,8 @@ public class OnlineLearner implements Learner, HasProperties {
       setAveraging((Boolean) value);
     } else if ("penalizeGold".equals(name.getHead())) {
       setPenalizeGold((Boolean) value);
+    } else if ("useGreedy".equals(name.getHead())) {
+      setUseGreedy((Boolean) value);
     } else if ("loss".equals(name.getHead())) {
       if (value.equals("avgF1"))
         setLossFunction(new AverageF1Loss(model));
