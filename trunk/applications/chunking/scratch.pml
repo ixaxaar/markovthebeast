@@ -90,6 +90,7 @@ set learner.loss = "avgNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
 set learner.maxViolations = 5;
+//set learner.useGreedy = true;
 
 //learn for 2 epochs;
 

@@ -1,7 +1,6 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
-import thebeast.pml.corpora.SentencePrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
@@ -27,13 +26,16 @@ public class CuttingPlaneSolver implements Solver {
   private LocalFeatureExtractor extractor;
   private Scores scores;
   private GroundAtoms atoms;
-  private GroundAtoms closure;
+  private GroundAtoms greedyAtoms;
+  private GroundFormulas greedyFormulas;
+
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated, deterministicFirst;
   public ILPSolver ilpSolver;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
+
 
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
   private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
@@ -58,7 +60,6 @@ public class CuttingPlaneSolver implements Solver {
     extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
-    closure = model.getSignature().createGroundAtoms();
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
   }
 
@@ -114,6 +115,15 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setILPSolver(ILPSolver solver) {
     ilp.setSolver(solver);
+  }
+
+
+  public GroundAtoms getGreedyAtoms() {
+    return greedyAtoms;
+  }
+
+  public GroundFormulas getGreedyFormulas() {
+    return greedyFormulas;
   }
 
   /**
@@ -204,7 +214,7 @@ public class CuttingPlaneSolver implements Solver {
       deterministicFirst();      
     } else {
       update();
-      addCandidate();
+      setGreedy();
     }
 
     //new SentencePrinter().print(atoms, System.out);
@@ -246,13 +256,20 @@ public class CuttingPlaneSolver implements Solver {
     candidateFormulas.add(0, new GroundFormulas(formulas));
   }
 
+  private void setGreedy(){
+    greedyAtoms = new GroundAtoms(atoms);
+    greedyFormulas = new GroundFormulas(formulas);
+
+  }
+
   private void deterministicFirst() {
     profiler.start("deterministic");
     //new SentencePrinter().print(atoms, System.out);
     
     formulas.update(atoms);
     //add greedy solution to candidates
-    addCandidate();
+    setGreedy();
+    //addCandidate();
     //update the ilp (but only with hard constraints)
     ilp.update(formulas, atoms, model.getDeterministicFormulas());
     //System.out.println(ilp.toLpSolveFormat());

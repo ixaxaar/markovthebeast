@@ -21,6 +21,10 @@ public interface Solver extends HasProperties {
 
   GroundFormulas getBestFormulas();
 
+  GroundAtoms getGreedyAtoms();
+
+  GroundFormulas getGreedyFormulas();
+
   List<GroundAtoms> getCandidateAtoms();
 
   List<GroundFormulas> getCandidateFormulas();

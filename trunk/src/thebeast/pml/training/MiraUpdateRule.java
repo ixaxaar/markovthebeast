@@ -50,6 +50,8 @@ public class MiraUpdateRule implements UpdateRule {
     }
     List<SparseVector> diffVectors = weights.add(gold.getAll(), -1.0, allVectors);
 
+    //System.out.println(weights.toString(diffVectors.get(0)));
+
     int nnCount = 0;
     int npCount = 0;
 
