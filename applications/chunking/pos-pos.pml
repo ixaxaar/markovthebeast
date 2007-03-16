@@ -29,12 +29,14 @@ factor:
 
 */
 
+/*
 weight w_pos_5 : Pos x Pos  -> Double+;
 factor:
   for Int i, Pos p_1, Pos p_2
   if word(i,_)
   add [pos(i-1,p_1) => pos(i,p_2)] * w_pos_5(p_1,p_2);
 
+*/
 /*
 weight w_pos_4 : Pos x Pos x Pos -> Double+;
 factor:

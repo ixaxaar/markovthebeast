@@ -59,6 +59,11 @@ factor:
   for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c
   add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) => chunk(i+1,i+2,c)] * w_propose_6(p1,p2,p3,p4,c);
 
+weight w_propose_7: Pos x Pos x Pos x Pos x Chunk -> Double+;
+factor:
+  for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c
+  add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) => chunk(i+1,i+2,c)] * w_propose_6(p1,p2,p3,p4,c);
+
 //some pos tags can't appear in chunks
 weight w_forbid_1: Pos x Chunk -> Double-;
 factor:

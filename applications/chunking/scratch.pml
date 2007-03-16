@@ -12,7 +12,7 @@ include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
 //include "chunk-phrase.pml";
-//include "chunk-pos.pml";
+include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
@@ -34,7 +34,7 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-1) to ram;
+save corpus (0-50) to ram;
 
 /*
 set collector.all.w_case = true;
@@ -62,7 +62,7 @@ set collector.all.w_forbid_2 = true;
 //set collector.all.ch_word_3 = true;
 */
 //set collector.init = -100.0;
-set collector.all.w_pos_2 = true;
+//set collector.all.w_pos_2 = true;
 
 collect;
 
@@ -77,18 +77,19 @@ save corpus to instances "/tmp/chunk.inst.dmp";
 //set learner.solver = "local";
 
 set learner.solver.ilp.solver = "lpsolve";
-//set learner.solver.ilp.solver = "osi";
-//set learner.solver.ilp.solver.implementation = "clp";
-set learner.solver.maxIterations = 20;
+//set learner.solver.ilp.solver = "cbc";
+//set learner.solver.ilp.solver.implementation = "cbc";
+set learner.solver.maxIterations = 10;
 set learner.solver.integer = true;
 set learner.solver.deterministicFirst = true;
 set learner.update = "mira";
 set learner.update.signs = true;
-set learner.maxCandidates = 1;
+set learner.maxCandidates = 20;
 //set learner.loss = "avgF1";
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
+set learner.maxViolations = 5;
 
 //learn for 2 epochs;
 

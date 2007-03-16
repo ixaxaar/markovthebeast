@@ -242,7 +242,8 @@ public class GroundFormulas {
   }
 
   public RelationVariable getNewGroundFormulas(FactorFormula formula) {
-    return explicitGroundFormulas.get(formula);
+    return tmpExplicitGroundFormulas.get(formula);
+    //return explicitGroundFormulas.get(formula);
   }
 
   public boolean hasChanged() {
@@ -319,6 +320,15 @@ public class GroundFormulas {
     return isDeterministic;
   }
 
+  public int getViolationCount(){
+    int count = 0;
+    for (FactorFormula formula : model.getDeterministicFormulas()) {
+      count += explicitGroundFormulas.get(formula).value().size();
+    }
+    return count;
+  }
+
+
   /**
    * Find violated/true ground formulas for the specified quantified formulas within the
    * given solution
@@ -350,7 +360,7 @@ public class GroundFormulas {
         }
         //System.out.println(factorFormula);
         //System.out.println(both.value());
-        RelationVariable newFormulas = getNewGroundFormulas(factorFormula);
+        RelationVariable newFormulas = explicitGroundFormulas.get(factorFormula);
         interpreter.assign(newFormulas, minusOld.get(factorFormula));
         //System.out.println(newFormulas.value());
         interpreter.insert(allExplicitGroundFormulas.get(factorFormula), newFormulas);

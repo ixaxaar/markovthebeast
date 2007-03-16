@@ -19,6 +19,7 @@ import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.solve.ILPSolver;
 import thebeast.pml.solve.ILPSolverLpSolve;
 import thebeast.pml.solve.ILPSolverOsi;
+import thebeast.pml.solve.ILPSolverCbc;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
@@ -652,6 +653,8 @@ public class IntegerLinearProgram implements HasProperties {
           solver = new ILPSolverLpSolve();
         else if ("osi".equals(type))
           solver = new ILPSolverOsi();
+        else if ("cbc".equals(type))
+          solver = new ILPSolverCbc();
         else
           throw new IllegalPropertyValueException(name, value);
       } else
