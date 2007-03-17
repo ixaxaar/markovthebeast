@@ -25,6 +25,7 @@ public class FactorFormula {
   private BooleanFormula formula;
   private Term weight;
   private String name;
+  private String toString;
 
   private Heading headingSolution;
 
@@ -70,6 +71,9 @@ public class FactorFormula {
 
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
 
+    toString = (quantification.getVariables().size() > 0  ? "FOR " + quantification : "")
+            + (condition != null ? " IF " + condition + " ": "") +
+            (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 
   }
 
@@ -112,10 +116,7 @@ public class FactorFormula {
   }
 
   public String toString(){
-    return (quantification.getVariables().size() > 0  ? "FOR " + quantification : "")
-            + (condition != null ? " IF " + condition + " ": "") +
-            (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
-
+    return toString;
   }
 
   public Heading getSolutionHeading() {

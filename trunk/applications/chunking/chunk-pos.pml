@@ -1,8 +1,10 @@
+/*
 weight w_propose_1: Pos x Pos x Pos x Pos x Chunk -> Double+;
 factor:
   for Int b, Int e, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c
   if e < b + 6 & e > b
   add [pos(b-1,p1) & pos(b,p2) & pos(e,p3) & pos(e+1,p4) => chunk(b,e,c)] * w_propose_1(p1,p2,p3,p4,c);
+*/
 
 weight w_propose_1_d: Pos x Pos x Pos x Pos x Chunk x Int -> Double+;
 factor:
@@ -10,6 +12,7 @@ factor:
   if e < b + 6 & e > b
   add [pos(b-1,p1) & pos(b,p2) & pos(e,p3) & pos(e+1,p4) => chunk(b,e,c)] * w_propose_1_d(p1,p2,p3,p4,c, e-b);
 
+/*
 weight w_propose_2: Pos x Pos x Chunk -> Double+;
 factor:
   for Int b, Int e, Pos p1, Pos p2, Chunk c
@@ -22,6 +25,7 @@ factor:
   if e < b + 6 & e >= b
   add [pos(b-1,p1) & pos(e+1,p2) => chunk(b,e,c)] * w_propose_2_d(p1,p2,c, e-b);
 
+*/
 //pos_0, pos_e, pos_e+1 for chunk(0,e)
 weight w_propose_3: Pos x Pos x Pos x Chunk -> Double+;
 factor:
@@ -35,6 +39,20 @@ factor:
   if e < 6 & e > 0
   add [pos(0,p1) & pos(e,p2) & pos(e+1,p3)  => chunk(0,e,c)] * w_propose_3_d(p1,p2,p3,c,e);
 
+weight w_pepep1: Pos x Pos x Chunk -> Double+;
+factor:
+  for  Int e, Pos p1, Pos p2, Chunk c
+  if e < 6 & e >= 0
+  add [pos(e,p1) & pos(e+1,p2)  => chunk(0,e,c)] * w_pepep1(p1,p2,c);
+
+weight w_pepep1_d: Pos x Pos x Chunk x Int -> Double+;
+factor:
+  for  Int e, Pos p1, Pos p2, Chunk c
+  if e < 6 & e >= 0
+  add [pos(e,p1) & pos(e+1,p2)  => chunk(0,e,c)] * w_pepep1_d(p1,p2,c,e);
+
+
+/*
 weight w_propose_4_d: Pos x Chunk x Int -> Double+;
 factor:
   for Int e, Pos p1, Chunk c
@@ -47,8 +65,10 @@ factor:
   if e < 6 & e >= 0
   add [pos(e+1,p1) => chunk(0,e,c)] * w_propose_4(p1,c);
 
+*/
 
-//explicit rules
+
+//explicit rules with boundaries
 weight w_propose_5: Pos x Pos x Pos x Chunk -> Double+;
 factor:
   for Int i, Pos p1, Pos p2, Pos p3, Chunk c
@@ -59,10 +79,17 @@ factor:
   for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c
   add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) => chunk(i+1,i+2,c)] * w_propose_6(p1,p2,p3,p4,c);
 
-weight w_propose_7: Pos x Pos x Pos x Pos x Chunk -> Double+;
+weight w_propose_7: Pos x Pos x Pos x Pos x Pos x Chunk -> Double+;
 factor:
-  for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Chunk c
-  add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) => chunk(i+1,i+2,c)] * w_propose_6(p1,p2,p3,p4,c);
+  for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Pos p5, Chunk c
+  add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) & pos(i+4,p5)
+          => chunk(i+1,i+3,c)] * w_propose_7(p1,p2,p3,p4,p5,c);
+
+weight w_propose_8: Pos x Pos x Pos x Pos x Pos x Pos x Chunk -> Double+;
+factor:
+  for Int i, Pos p1, Pos p2, Pos p3, Pos p4, Pos p5, Pos p5, Pos p6, Chunk c
+  add [pos(i,p1) & pos(i+1,p2) & pos(i+2,p3) & pos(i+3,p4) & pos(i+4,p5) & pos(i+5,p6)
+          => chunk(i+1,i+2,c)] * w_propose_8(p1,p2,p3,p4,p5,p6,c);
 
 //some pos tags can't appear in chunks
 weight w_forbid_1: Pos x Chunk -> Double-;
@@ -74,9 +101,9 @@ factor:
 //some pos tag binary subsequences can't appear in chunks
 weight w_forbid_2: Pos x Pos x Chunk -> Double-;
 factor:
-  for Int b, Int e, Int m1, Int m2, Pos p1, Pos p2, Chunk c
-  if b <= m1 & m1 < m2 & m2 <= e
-  add [pos(m1,p1) & pos(m2,p2) & chunk(b,e,c)] * w_forbid_2(p1,p2,c);
+  for Int b, Int e, Int m, Pos p1, Pos p2, Chunk c
+  if b <= m & m <= e
+  add [pos(m,p1) & pos(m+1,p2) & chunk(b,e,c)] * w_forbid_2(p1,p2,c);
 
 //some pos tags can't be chunks themselves
 weight w_forbid_3: Pos x Chunk -> Double-;

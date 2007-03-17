@@ -231,6 +231,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //evaluate the guess vs the gold.
     profiler.start("evaluate");
     evaluation.evaluate(goldAtoms, solver.getBestAtoms());
+    double loss = lossFunction.loss(goldAtoms, solver.getBestAtoms());
     profiler.end();
 
     gold.load(data.getGold());
@@ -241,7 +242,6 @@ public class OnlineLearner implements Learner, HasProperties {
     List<GroundFormulas> candidateFormulas = solver.getCandidateFormulas();
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
-    List<Integer> violations = new ArrayList<Integer>(candidateAtoms.size());
 
     if (useGreedy){
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
@@ -259,7 +259,6 @@ public class OnlineLearner implements Learner, HasProperties {
       int violationCount = candidateFormulas.get(i).getViolationCount();
       maxViolations = 1;
       if (violationCount < maxViolations) {
-        violations.add(violationCount);
         //System.out.print(violationCount + " ");
         GroundAtoms guessAtoms = candidateAtoms.get(i);
         solution.getGroundAtoms().load((guessAtoms));
@@ -278,13 +277,13 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //update the weights
     profiler.start("update");
-    updateRule.update(gold, candidates, losses, this.weights);
+    if (candidates.size() > 0) updateRule.update(gold, candidates, losses, this.weights);
     profiler.end();
 
     //System.out.println(losses);
     updateAverage();
 
-    progressReporter.progressed(losses.get(0), losses.size());
+    progressReporter.progressed(loss, solver.getIterationCount());
 
 //    for (UserPredicate pred : model.getHiddenPredicates()) {
 //      System.out.println(goldAtoms.getGroundAtomsOf(pred));

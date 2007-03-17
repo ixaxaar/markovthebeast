@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_delete
 
 /*
  * Class:     thebeast_osi_CbcModel
+ * Method:    setMaximumSeconds
+ * Signature: (DJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_setMaximumSeconds
+  (JNIEnv *, jobject, jdouble, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
  * Method:    setLogLevel
  * Signature: (IJ)V
  */

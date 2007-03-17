@@ -67,9 +67,14 @@ public class CbcModel {
     delete(pointer); 
   }
 
-
-
   private native void delete(long ptr);
+
+  public void setMaximumSeconds(double seconds){
+    setMaximumSeconds(seconds,pointer);
+  }
+
+  private native void setMaximumSeconds(double seconds, long pointer);
+
 
   public void setLogLevel(int level){
     setLogLevel(level,pointer);  
