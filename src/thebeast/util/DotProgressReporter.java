@@ -14,7 +14,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
   private StopWatch stopWatch = new StopWatch();
   private double loss;
   private boolean performanceAvailable;
-  private int candidates;
+  private int iterationCount;
 
   public DotProgressReporter(PrintStream out, int stepsPerDot, int dotsPerChunk, int chunksPerLine) {
     this.out = out;
@@ -26,7 +26,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
   public void started() {
     count = 0;
     loss =  0;
-    candidates = 0;
+    iterationCount = 0;
     stopWatch.start();
   }
 
@@ -41,7 +41,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     if (count % lineInterval == lineInterval - 1) {
       out.printf("%6d", count + 1);
       if (performanceAvailable){
-        out.printf(" %3.2f %3.2f\n", loss / count, (double)candidates / count);
+        out.printf(" %3.2f %3.2f\n", loss / count, (double) iterationCount / count);
       } else {
         out.println();
       }
@@ -50,10 +50,10 @@ public class DotProgressReporter implements PerformanceProgressReporter {
 
   }
 
-  public void progressed(double loss, int candidateCount) {
+  public void progressed(double loss, int iterationCount) {
     performanceAvailable = true;
     this.loss += loss;
-    this.candidates += candidateCount;
+    this.iterationCount += iterationCount;
     progressed();
   }
 
@@ -69,7 +69,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     out.printf("%-20s%-6d\n", "Avg. time(in ms):", time/count);
     if (performanceAvailable){
       out.printf("%-20s%-6.2f\n", "Loss: ", loss / count);
-      out.printf("%-20s%-6.2f\n", "Candidates: ", (double) candidates / count);
+      out.printf("%-20s%-6.2f\n", "Iterations: ", (double) iterationCount / count);
     }
   }
 }

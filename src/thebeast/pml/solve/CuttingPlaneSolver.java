@@ -1,6 +1,7 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
+import thebeast.pml.corpora.SentencePrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
@@ -8,6 +9,9 @@ import thebeast.util.TreeProfiler;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
@@ -36,7 +40,8 @@ public class CuttingPlaneSolver implements Solver {
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
-
+  private boolean printHistory= false;
+    
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
   private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
 
@@ -111,6 +116,7 @@ public class CuttingPlaneSolver implements Solver {
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
     if (ilp != null) ilp.setProfiler(profiler);
+    if (formulas != null) formulas.setProfiler(profiler);
   }
 
   public void setILPSolver(ILPSolver solver) {
@@ -192,6 +198,8 @@ public class CuttingPlaneSolver implements Solver {
   public void solve(int maxIterations) {
     //atoms = model.getSignature().createGroundAtoms();
     //atoms.clear(model.getGlobalPredicates());
+    //System.out.println("==============================================");
+
     formulas.init();
     firstFormulas.init();
     //formulas = new GroundFormulas(model, weights);
@@ -210,8 +218,11 @@ public class CuttingPlaneSolver implements Solver {
     if (!initSet) initSolution();
     //new SentencePrinter().print(atoms, System.out);
 
+
+
     if (deterministicFirst) {
-      deterministicFirst();      
+      deterministicFirst();
+      //new SentencePrinter().print(atoms, System.out);
     } else {
       update();
       setGreedy();
@@ -227,7 +238,7 @@ public class CuttingPlaneSolver implements Solver {
       profiler.start("ilp.solve");
       ilp.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);
-      
+
       profiler.end();
       ++iteration;
       update();
@@ -249,6 +260,8 @@ public class CuttingPlaneSolver implements Solver {
     done = ilp.changed();
 
     profiler.end();
+
+    if (printHistory) printHistory();
   }
 
   private void addCandidate() {
@@ -404,6 +417,8 @@ public class CuttingPlaneSolver implements Solver {
     }
     if ("scores".equals(name.getHead()))
       return scores;
+    if ("history".equals(name.getHead()))
+      return getHistoryString();
     if ("formulas".equals(name.getHead()))
       return formulas;
     if ("features".equals(name.getHead()))
@@ -416,4 +431,32 @@ public class CuttingPlaneSolver implements Solver {
   public IntegerLinearProgram getILP() {
     return ilp;
   }
+
+  public void printHistory(){
+    printHistory(System.out);
+  }
+
+  public String getHistoryString(){
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    PrintStream out = new PrintStream(bos);
+    printHistory(out);
+    return bos.toString();
+  }
+
+  public void printHistory(PrintStream out){
+    out.println("=======================================");
+    SentencePrinter printer = new SentencePrinter();
+    printer.print(greedyAtoms, out);
+    GroundAtoms last = greedyAtoms;
+    ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());
+    Evaluation evaluation = new Evaluation(model);
+    while (iter.hasPrevious()){
+      GroundAtoms current = iter.previous();
+      evaluation.evaluate(current,last);
+      out.println(evaluation);
+      printer.print(current,out);
+      last = current;
+    }
+  }
+
 }

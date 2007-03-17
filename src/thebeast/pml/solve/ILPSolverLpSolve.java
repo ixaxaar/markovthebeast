@@ -26,6 +26,8 @@ public class ILPSolverLpSolve implements ILPSolver {
   private boolean verbose = false;
   private Profiler profiler = new NullProfiler();
   private boolean writeLp = false;
+  private long timeout = 1000;
+  private int bbDepthLimit = 3;
 
   public void init() {
     try {
@@ -98,6 +100,8 @@ public class ILPSolverLpSolve implements ILPSolver {
     try {
       if (writeLp) solver.writeLp("/tmp/debug.lp");
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
+      solver.setBbDepthlimit(bbDepthLimit);
+      solver.setTimeout(timeout);
       solver.solve();
       double[] solution = new double[numCols];
       solver.getVariables(solution);
@@ -128,8 +132,29 @@ public class ILPSolverLpSolve implements ILPSolver {
     return null;
   }
 
+
+  public long getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(long timeout) {
+    this.timeout = timeout;
+  }
+
+  public int getBbDepthLimit() {
+    return bbDepthLimit;
+  }
+
+  public void setBbDepthLimit(int bbDepthLimit) {
+    this.bbDepthLimit = bbDepthLimit;
+  }
+
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("verbose"))
+    if (name.getHead().equals("timeout"))
+      setTimeout((Integer)value);
+    else if (name.getHead().equals("bbDepthLimit"))
+      setBbDepthLimit((Integer)value);
+    else if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
   }
 

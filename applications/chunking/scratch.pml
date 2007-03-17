@@ -34,7 +34,7 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-50) to ram;
+save corpus (0-100) to ram;
 
 /*
 set collector.all.w_case = true;
@@ -63,6 +63,8 @@ set collector.all.w_forbid_2 = true;
 */
 //set collector.init = -100.0;
 //set collector.all.w_pos_2 = true;
+set collector.all.w_forbid_1 = true;
+set collector.all.w_forbid_2 = true;
 
 collect;
 
@@ -81,18 +83,18 @@ set learner.solver.ilp.solver = "lpsolve";
 //set learner.solver.ilp.solver.implementation = "cbc";
 set learner.solver.maxIterations = 10;
 set learner.solver.integer = true;
-set learner.solver.deterministicFirst = true;
+set learner.solver.deterministicFirst = false;
 set learner.update = "mira";
 set learner.update.signs = true;
-set learner.maxCandidates = 20;
+set learner.maxCandidates = 10;
 //set learner.loss = "avgF1";
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
-set learner.maxViolations = 5;
+set learner.maxViolations = 1;
 //set learner.useGreedy = true;
 
-//learn for 2 epochs;
+learn for 5 epochs;
 
 //set learner.solver = "cut";
 
@@ -104,7 +106,7 @@ set learner.maxViolations = 5;
 
 //save corpus (0-100) to ram;
 
-//set solver.ilp.solver = "lpsolve";
+set solver.ilp.solver = "lpsolve";
 //set solver.integer = true;
 //set solver.deterministicFirst = true;
 //set learner.solver.maxIterations = 10;

@@ -117,6 +117,10 @@ public class LocalSolver implements Solver {
     this.profiler = profiler;
   }
 
+  public int getIterationCount() {
+    return 1;
+  }
+
 
   public List<GroundAtoms> getCandidateAtoms() {
     return Collections.singletonList(atoms);

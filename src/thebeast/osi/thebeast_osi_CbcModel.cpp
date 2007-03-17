@@ -125,6 +125,15 @@ JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_resetToReferenceSolver
   model->resetToReferenceSolver();    
 }
 
-
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    setMaximumSeconds
+ * Signature: (DJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_setMaximumSeconds
+  (JNIEnv *, jobject, jdouble seconds, jlong ptr){
+  CbcModel* model = (CbcModel*) ptr;
+  model->setMaximumSeconds((double)seconds);  
+}
 
 

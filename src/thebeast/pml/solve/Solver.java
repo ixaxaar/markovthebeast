@@ -30,4 +30,6 @@ public interface Solver extends HasProperties {
   List<GroundFormulas> getCandidateFormulas();
 
   void setProfiler(Profiler profiler);
+
+  int getIterationCount();  
 }

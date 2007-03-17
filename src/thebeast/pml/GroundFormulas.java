@@ -10,6 +10,8 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +56,8 @@ public class GroundFormulas {
           cycles = new HashMap<UserPredicate, RelationVariable>();
 
   private boolean isDeterministic;
+
+  private Profiler profiler = new NullProfiler();
 
 
   /**
@@ -147,6 +151,15 @@ public class GroundFormulas {
       }
 
     }
+  }
+
+
+  public Profiler getProfiler() {
+    return profiler;
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
   }
 
   private void addIndices(Weights weights, WeightFunction weightFunction, RelationExpression query) {
@@ -341,11 +354,13 @@ public class GroundFormulas {
     this.groundAtoms.load(solution, model.getInstancePredicates());
     //System.out.println(this.groundAtoms);
     for (FactorFormula factorFormula : formulas) {
+      String name = factorFormula.toString();
       if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
       } else if (!factorFormula.isLocal()) {
-        //RelationVariable both = getExplicitGroundFormulas(factorFormula);
+        profiler.start("..." + name.substring(name.length()- 30));
+              //RelationVariable both = getExplicitGroundFormulas(factorFormula);
         RelationVariable both = tmpExplicitGroundFormulas.get(factorFormula);
         interpreter.clear(both);
         if (!factorFormula.getWeight().isNonNegative()) {
@@ -360,11 +375,12 @@ public class GroundFormulas {
         }
         //System.out.println(factorFormula);
         //System.out.println(both.value());
-        RelationVariable newFormulas = explicitGroundFormulas.get(factorFormula);
-        interpreter.assign(newFormulas, minusOld.get(factorFormula));
+        //RelationVariable newFormulas = explicitGroundFormulas.get(factorFormula);
+        //interpreter.assign(newFormulas, minusOld.get(factorFormula));
         //System.out.println(newFormulas.value());
-        interpreter.insert(allExplicitGroundFormulas.get(factorFormula), newFormulas);
+        //interpreter.insert(allExplicitGroundFormulas.get(factorFormula), newFormulas);
         //System.out.println(allExplicitGroundFormulas.get(factorFormula).value());
+        profiler.end();
       }
     }
   }
