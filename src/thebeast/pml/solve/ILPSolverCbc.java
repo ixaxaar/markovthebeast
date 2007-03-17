@@ -33,8 +33,16 @@ public class ILPSolverCbc implements ILPSolver {
 
   public ILPSolverCbc(OsiSolverJNI solver) {
     model = new CbcModel(solver);
-    model.setLogLevel(0);
+    //model.setLogLevel(3);
     this.solver = model.referenceSolver();
+    //model.addCglProbing(true, 1, 5, 10, 1000, 50, 500, 200, 3);
+    //model.addCglGomory(300);
+    //model.addCglKnapsackCover();
+    //model.addCglMixedIntegerRounding2();
+    //model.addCglFlowCover();
+    //model.addCglClique(false, false);
+    //model.addCglRedsplit(200);
+    //model.setAllowablePercentageGap(5);
   }
 
 
@@ -158,16 +166,10 @@ public class ILPSolverCbc implements ILPSolver {
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
-    else if ("implementation".equals(name.getHead())) {
-      String impl = (String) value;
-      solver.delete();
-      if ("cbc".equals(impl)) {
-        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
-      } else if ("clp".equals(impl))
-        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
-      else
-        throw new IllegalPropertyValueException(name, value);
-    } else throw new NoSuchPropertyException(name);
+    else if (name.getHead().equals("gap"))
+      model.setAllowablePercentageGap((Double) value);
+    else if (name.getHead().equals("maxNodes"))
+      model.setMaximumNodes((Integer) value);
   }
 
   public void setProperty(String name, Object value) {

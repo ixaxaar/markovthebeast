@@ -87,6 +87,94 @@ JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_setMaximumSeconds
 JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_setLogLevel
   (JNIEnv *, jobject, jint, jlong);
 
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglProbing
+ * Signature: (ZIIIIIIIIJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglProbing
+  (JNIEnv *, jobject, jboolean, jint, jint, jint, jint, jint, jint, jint, jint, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglGomory
+ * Signature: (IJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglGomory
+  (JNIEnv *, jobject, jint, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglKnapsackCover
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglKnapsackCover
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglRedsplit
+ * Signature: (IJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglRedsplit
+  (JNIEnv *, jobject, jint, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglClique
+ * Signature: (ZZJ)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglClique
+  (JNIEnv *, jobject, jboolean, jboolean, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglMixedIntegerRounding2
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglMixedIntegerRounding2
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    addCglFlowCover
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_thebeast_osi_CbcModel_addCglFlowCover
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    setAllowableGap
+ * Signature: (DJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_thebeast_osi_CbcModel_setAllowableGap
+  (JNIEnv *, jobject, jdouble, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    setAllowableFractionGap
+ * Signature: (DJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_thebeast_osi_CbcModel_setAllowableFractionGap
+  (JNIEnv *, jobject, jdouble, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    setAllowablePercentageGap
+ * Signature: (DJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_thebeast_osi_CbcModel_setAllowablePercentageGap
+  (JNIEnv *, jobject, jdouble, jlong);
+
+/*
+ * Class:     thebeast_osi_CbcModel
+ * Method:    setMaximumNodes
+ * Signature: (IJ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_thebeast_osi_CbcModel_setMaximumNodes
+  (JNIEnv *, jclass, jint, jlong);
+
 #ifdef __cplusplus
 }
 #endif

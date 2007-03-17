@@ -80,6 +80,8 @@ save corpus to instances "/tmp/chunk.inst.dmp";
 
 set learner.solver.ilp.solver = "lpsolve";
 //set learner.solver.ilp.solver = "cbc";
+//set learner.solver.ilp.solver.maxNodes = 4;
+//set learner.solver.ilp.solver.gap = 20.0;
 //set learner.solver.ilp.solver.implementation = "cbc";
 set learner.solver.maxIterations = 10;
 set learner.solver.integer = true;

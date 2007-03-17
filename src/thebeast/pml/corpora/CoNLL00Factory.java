@@ -48,6 +48,7 @@ public class CoNLL00Factory implements CorpusFactory {
     UserPredicate cap = (UserPredicate) signature.getPredicate("case");
     UserPredicate isNumber = (UserPredicate) signature.getPredicate("cardinal");
     UserPredicate chunk = (UserPredicate) signature.getPredicate("chunk");
+//    UserPredicate maybeNer = (UserPredicate) signature.getPredicate("maybeNer");
 
     AttributeExtractor words = new AttributeExtractor(word, 2);
     words.addLineNrArg(0);
@@ -103,7 +104,10 @@ public class CoNLL00Factory implements CorpusFactory {
     postags.addMapping(1, 1, new Quote());
 
     BIOExtractor chunks = new BIOExtractor(2, chunk);
-    
+
+//    PhraseStatistics statistics = new PhraseStatistics(0, maybeNer,
+//            new PhraseStatistics.LooksLikeNER(), new PhraseStatistics.AsString());
+
     TabFormatCorpus corpus = new TabFormatCorpus(signature, file);
     corpus.addExtractor(prefixes1);
     corpus.addExtractor(postfixes1);
@@ -119,6 +123,7 @@ public class CoNLL00Factory implements CorpusFactory {
     corpus.addExtractor(cases);
     corpus.addExtractor(numbers);
     corpus.addExtractor(chunks);
+    //corpus.addExtractor(statistics);
 
     corpus.addWriter(word, new TokenFeatureWriter(0, 0, 0));
     corpus.addWriter(word, new TokenFeatureWriter(1, 0, 1, new Dequote()));
