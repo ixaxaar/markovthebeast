@@ -6,10 +6,7 @@ import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
 
@@ -40,17 +37,17 @@ public class CuttingPlaneSolver implements Solver {
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
-  private boolean printHistory= false;
-    
+  private boolean printHistory = false;
+
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
   private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
+  private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
+  private Stack<GroundFormulas> holderFormulas = new Stack<GroundFormulas>();
 
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
     ilpSolver = new ILPSolverOsi();
   }
-
-
 
 
   public void configure(Model model, Weights weights) {
@@ -65,6 +62,8 @@ public class CuttingPlaneSolver implements Solver {
     extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
+    greedyAtoms = model.getSignature().createGroundAtoms();
+    greedyFormulas = new GroundFormulas(model, weights);
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
   }
 
@@ -209,6 +208,8 @@ public class CuttingPlaneSolver implements Solver {
     //formulas = new GroundFormulas(model, weights);
     profiler.start("solve");
 
+    holderAtoms.addAll(candidateAtoms);
+    holderFormulas.addAll(candidateFormulas);
     candidateAtoms.clear();
     candidateFormulas.clear();
     iteration = 0;
@@ -217,7 +218,6 @@ public class CuttingPlaneSolver implements Solver {
     firstIlp.setClosure(scores.getClosure());
     if (!initSet) initSolution();
     //new SentencePrinter().print(atoms, System.out);
-
 
 
     if (deterministicFirst) {
@@ -230,7 +230,7 @@ public class CuttingPlaneSolver implements Solver {
 
     //new SentencePrinter().print(atoms, System.out);
     //System.out.println(ilp.toLpSolveFormat());
-    
+
     profiler.start("iterations");
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
@@ -243,7 +243,7 @@ public class CuttingPlaneSolver implements Solver {
       ++iteration;
       update();
       addCandidate();
-      if (enforceIntegers && !ilp.changed() && ilp.isFractional()){
+      if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
         //System.out.println("fractional");
         ilp.enforceIntegerSolution();
       }
@@ -265,20 +265,29 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void addCandidate() {
-    candidateAtoms.add(0, new GroundAtoms(atoms));
-    candidateFormulas.add(0, new GroundFormulas(formulas));
+    if (holderAtoms.isEmpty()) {
+      candidateAtoms.add(0, new GroundAtoms(atoms));
+      candidateFormulas.add(0, new GroundFormulas(formulas));
+    } else {
+      GroundAtoms atomsToAdd = holderAtoms.pop();
+      GroundFormulas formulasToAdd = holderFormulas.pop();
+      atomsToAdd.load(atoms);
+      formulasToAdd.load(formulas);
+      candidateAtoms.add(0, atomsToAdd);
+      candidateFormulas.add(0, formulasToAdd);
+    }
   }
 
-  private void setGreedy(){
-    greedyAtoms = new GroundAtoms(atoms);
-    greedyFormulas = new GroundFormulas(formulas);
+  private void setGreedy() {
+    greedyAtoms.load(atoms);
+    greedyFormulas.load(formulas);
 
   }
 
   private void deterministicFirst() {
     profiler.start("deterministic");
     //new SentencePrinter().print(atoms, System.out);
-    
+
     formulas.update(atoms);
     //add greedy solution to candidates
     setGreedy();
@@ -286,7 +295,7 @@ public class CuttingPlaneSolver implements Solver {
     //update the ilp (but only with hard constraints)
     ilp.update(formulas, atoms, model.getDeterministicFormulas());
     //System.out.println(ilp.toLpSolveFormat());
-    if (ilp.changed()){
+    if (ilp.changed()) {
       //some constraints were violated -> lets solve
       ilp.solve(atoms);
       //ilp.update(formulas,atoms,model.getNondeterministicFormulas());
@@ -294,7 +303,7 @@ public class CuttingPlaneSolver implements Solver {
       update();
       //add the first solution which takes constraints into account
       addCandidate();
-    } else{
+    } else {
       //formulas.update(atoms, model.getNondeterministicFormulas());
       ilp.update(formulas, atoms);
     }
@@ -359,6 +368,14 @@ public class CuttingPlaneSolver implements Solver {
     return formulas;
   }
 
+  /**
+   * The solver remembers all partial solutions on the way to its final solution. They can be accessed
+   * using this method. Note: The solver owns all ground atoms returned by this method and will
+   * overwrite them in the next solve-call. If you need these atoms permanently you need to create a
+   * copy of them.
+   *
+   * @return the list of solutions generated "on the way";
+   */
   public List<GroundAtoms> getCandidateAtoms() {
     return new ArrayList<GroundAtoms>(candidateAtoms);
   }
@@ -422,7 +439,7 @@ public class CuttingPlaneSolver implements Solver {
     if ("formulas".equals(name.getHead()))
       return formulas;
     if ("features".equals(name.getHead()))
-      return PropertyName.getProperty(features,name.getTail());
+      return PropertyName.getProperty(features, name.getTail());
     if ("profiler".equals(name.getHead()))
       return profiler;
     return null;
@@ -432,29 +449,29 @@ public class CuttingPlaneSolver implements Solver {
     return ilp;
   }
 
-  public void printHistory(){
+  public void printHistory() {
     printHistory(System.out);
   }
 
-  public String getHistoryString(){
+  public String getHistoryString() {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bos);
     printHistory(out);
     return bos.toString();
   }
 
-  public void printHistory(PrintStream out){
+  public void printHistory(PrintStream out) {
     out.println("=======================================");
     SentencePrinter printer = new SentencePrinter();
     printer.print(greedyAtoms, out);
     GroundAtoms last = greedyAtoms;
     ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());
     Evaluation evaluation = new Evaluation(model);
-    while (iter.hasPrevious()){
+    while (iter.hasPrevious()) {
       GroundAtoms current = iter.previous();
-      evaluation.evaluate(current,last);
+      evaluation.evaluate(current, last);
       out.println(evaluation);
-      printer.print(current,out);
+      printer.print(current, out);
       last = current;
     }
   }

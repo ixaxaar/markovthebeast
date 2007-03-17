@@ -251,6 +251,7 @@ public class MemEvaluator {
                   argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
                   argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length)
             returnChunk.increaseCapacity(argChunk.size);
+//          returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
           System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
           System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
           MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);
@@ -296,7 +297,9 @@ public class MemEvaluator {
             result = new MemChunk(neededSize, neededSize, first.numIntCols, first.numDoubleCols, first.numChunkCols);
             returnChunk.chunkData[argPointerVec.xChunk] = result;
           } else if (result.capacity < neededSize) {
-            result.increaseCapacity(neededSize - result.chunkData.length);
+
+            int increment = neededSize - result.chunkData.length;
+            result.increaseCapacity(increment > result.capacity ? increment : result.capacity);
           }
           result.size = neededSize;
           MemChunk[] tuples = f.argHolder.chunkData;

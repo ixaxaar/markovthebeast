@@ -359,10 +359,13 @@ public class IntegerLinearProgram implements HasProperties {
 //    System.out.println(atoms);
 //    System.out.println(formulas);
     interpreter.clear(newConstraints);
+    profiler.start("find new constraints");
     for (FactorFormula formula : factors) {
       //System.out.println(formula);
+      profiler.start(formula.toString().substring(formula.toString().length()-20));
       interpreter.interpret(newConstraintsInserts.get(formula));
       newConstraintCount += newConstraints.value().size();
+      profiler.end();
       //interpreter.interpret(constraintsInserts.get(formula));
 //      System.out.println(formula);
 //      System.out.println(toLpSolveFormat(newVars, newConstraints));
@@ -375,6 +378,8 @@ public class IntegerLinearProgram implements HasProperties {
 //      interpreter.insert(constraints, newConstraints);
     }
     //System.out.println("Updating ...");
+    profiler.end();
+    profiler.start("insert constraints");
     for (FactorFormula formula : factors){
       //System.out.println(formula);
       //System.out.println("Before insertion");
@@ -383,6 +388,7 @@ public class IntegerLinearProgram implements HasProperties {
       //System.out.println("After insertion");
       //System.out.println(toLpSolveFormat(newVars, constraints));
     }
+    profiler.end();    
     //System.out.println(constraints.value());
     interpreter.clear(newVars);
     //get the new variables
