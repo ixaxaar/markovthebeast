@@ -341,6 +341,17 @@ public class Weights implements HasProperties {
   }
 
   /**
+   * Returns a deep copy of this object.
+   *
+   * @return a deep copy of this object.
+   */
+  public Weights copy() {
+    Weights copy = new Weights(signature);
+    copy.load(this);
+    return copy;
+  }
+
+  /**
    * Calculate the dot product.
    *
    * @param vector a sparse vector with indices < number of weights.
@@ -395,7 +406,7 @@ public class Weights implements HasProperties {
     for (int i = 0; i < args.length; ++i) {
       if (args[i] != null) {
         Attribute attribute = function.getAttributeForArg(i);
-        builder.attribute("args",attribute).value(attribute.type(), args[i]).equality();
+        builder.attribute("args", attribute).value(attribute.type(), args[i]).equality();
         ++defined;
       }
     }
@@ -628,11 +639,11 @@ public class Weights implements HasProperties {
   }
 
 
-  public String toString(SparseVector vector){
+  public String toString(SparseVector vector) {
     int[] indices = vector.getIndexArray();
     double[] values = vector.getValueArray();
     StringBuffer buffer = new StringBuffer();
-    for (int i = 0; i < indices.length; ++i){
+    for (int i = 0; i < indices.length; ++i) {
       Formatter formatter = new Formatter();
       formatter.format("%-6d%-50s%5.1f\n", indices[i], getFeatureString(indices[i]), values[i]);
       buffer.append(formatter.out());
@@ -640,7 +651,7 @@ public class Weights implements HasProperties {
     return buffer.toString();
   }
 
-  public String toString(FeatureVector vector){
+  public String toString(FeatureVector vector) {
     StringBuffer buffer = new StringBuffer();
     buffer.append("Free:\n").append(toString(vector.getFree()));
     buffer.append("NN:\n").append(toString(vector.getNonnegative()));

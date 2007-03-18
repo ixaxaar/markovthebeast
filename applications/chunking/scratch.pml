@@ -11,7 +11,7 @@ include "pos-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
-//include "chunk-phrase.pml";
+include "chunk-phrase.pml";
 include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 

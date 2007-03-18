@@ -2,6 +2,7 @@ package thebeast.pml.training;
 
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
+import thebeast.nod.FileSink;
 import thebeast.pml.*;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
@@ -10,6 +11,8 @@ import thebeast.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Sebastian Riedel
@@ -41,6 +44,8 @@ public class OnlineLearner implements Learner, HasProperties {
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
   private boolean useGreedy = false;
+  private boolean saveAfterEpoch = true;
+  private String savePrefix = "/tmp/epoch_";
 
   private int numEpochs;
   private int maxViolations;
@@ -118,7 +123,7 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
-  private void finalizeAverage() {
+  private void finalizeAverage(Weights weights) {
     if (averaging && average != null) {
       interpreter.scale(average, 1.0 / count);
       interpreter.assign(weights.getWeights(), average);
@@ -199,9 +204,28 @@ public class OnlineLearner implements Learner, HasProperties {
       updateRule.endEpoch();
       progressReporter.finished();
       profiler.end();
+      if (saveAfterEpoch) saveCurrentWeights(epoch);
     }
-    finalizeAverage();
+    finalizeAverage(weights);
     profiler.end();
+  }
+
+  private void saveCurrentWeights(int epoch) {
+    try {
+      File file = new File(savePrefix + epoch + ".dmp");
+      file.delete();
+      FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
+      if (averaging) {
+        Weights copy = weights.copy();
+        finalizeAverage(weights);
+        copy.write(sink);
+      } else {
+        weights.write(sink);
+      }
+      sink.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void learn(TrainingInstance data) {
@@ -243,7 +267,7 @@ public class OnlineLearner implements Learner, HasProperties {
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
 
-    if (useGreedy){
+    if (useGreedy) {
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
       solution.getGroundFormulas().load(solver.getGreedyFormulas());
       FeatureVector features = solution.extract(this.features);
@@ -251,7 +275,7 @@ public class OnlineLearner implements Learner, HasProperties {
       features.getNonpositive().load(gold.getNonpositive());
       candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
-     }
+    }
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
@@ -270,7 +294,6 @@ public class OnlineLearner implements Learner, HasProperties {
         //System.out.println("Guess " + i + ": " + weights.toString(features));
       }
     }
-
 
     //guess.load(solution.extract(features));
     profiler.end();
