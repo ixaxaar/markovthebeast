@@ -33,7 +33,7 @@ set learner.maxViolations = 1;
 set learner.loss = "avgNumErrors";
 set learner.profile = true;
 
-learn for 10 epochs;
+learn for 40 epochs;
 
 save weights to dump "/tmp/weights.dmp";
 

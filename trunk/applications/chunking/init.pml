@@ -40,6 +40,10 @@ set collector.init = -2.0;
 */
 set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
+//set collector.all.w_forbid_3 = true;
+set collector.all.w_forbid_4 = true;
+set collector.all.w_forbid_5 = true;
+set collector.all.w_forbid_6 = true;
 
 
 collect;

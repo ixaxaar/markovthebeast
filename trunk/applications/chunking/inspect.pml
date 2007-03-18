@@ -17,9 +17,11 @@ load corpus from conll00 "corpora/test.conll";
 save corpus (0-100) to ram;
 
 load weights from dump "/tmp/weights.dmp";
+//load weights from dump "/tmp/epoch_30.dmp";
 
 
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;
+set solver.bbDepthLimit = 10;
 set solver.deterministicFirst = false;
 set solver.maxIterations = 10;
