@@ -29,7 +29,7 @@ public class FormulaCopyVisitor implements BooleanFormulaVisitor, TermVisitor {
                 cardinalityConstraint.getLowerBound(),
                 cardinalityConstraint.getQuantification(),
                 formula, 
-                cardinalityConstraint.getUpperBound());
+                cardinalityConstraint.getUpperBound(),cardinalityConstraint.useClosure());
       }
     });
   }

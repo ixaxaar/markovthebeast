@@ -1026,7 +1026,7 @@ public class TestTheBeast extends TestCase {
     builder.var("i").dontCare().term("VBZ").atom(token).condition();
     builder.var(Type.INT, "j").quantify();
     builder.var("i").var("j").term("VP").atom(phrase).var("j").dontCare().dontCare().atom(token).and(2).cardinality();
-    builder.term(1).upperBound().cardinalityConstraint().formula();
+    builder.term(1).upperBound().cardinalityConstraint(false).formula();
     builder.term(Double.POSITIVE_INFINITY).weight();
 
     FactorFormula factor = builder.produceFactorFormula();
@@ -1129,7 +1129,7 @@ public class TestTheBeast extends TestCase {
     builder.var("i").dontCare().term("VBZ").atom(token).condition();
     builder.var(Type.INT, "j").quantify();
     builder.var("i").var("j").term("VP").atom(phrase).var("j").dontCare().dontCare().atom(token).and(2).cardinality();
-    builder.term(1).lowerBound().cardinalityConstraint().formula();
+    builder.term(1).lowerBound().cardinalityConstraint(false).formula();
     builder.term(Double.POSITIVE_INFINITY).weight();
 
     FactorFormula factor = builder.produceFactorFormula();
@@ -1157,9 +1157,13 @@ public class TestTheBeast extends TestCase {
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
 
-    ilp.build(formulas, theManLikesTheBoat, scores);
+    ilp.init(scores);
+    ilp.update(formulas, theManLikesTheBoat);
 
     assertEquals(1, ilp.getConstraints().value().size());
+    System.out.println(ilp.getConstraints().value());
+    
+
     assertTrue(ilp.getConstraints().contains(1.0, Double.POSITIVE_INFINITY, new Object[]{
             new Object[]{0, 1.0},
             new Object[]{1, 1.0},
@@ -1169,7 +1173,6 @@ public class TestTheBeast extends TestCase {
 
     assertEquals(5, ilp.getVars().value().size());
 
-    System.out.println(ilp.getConstraints().value());
 
     RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
 
@@ -1319,6 +1322,7 @@ public class TestTheBeast extends TestCase {
     cpSolver.setILPSolver(new ILPSolverLpSolve());
     learner.setUpdateRule(new PerceptronUpdateRule());
     learner.setMaxCandidates(1);
+    learner.setUseGreedy(true);
     File file = new File(toString());
     file.delete();
     TrainingInstances instances =
@@ -1327,6 +1331,7 @@ public class TestTheBeast extends TestCase {
     learner.learn(instances);
 
     //learner.learn(corpus);
+    weights.save(System.out);
     assertEquals(2.0, weights.getWeight(weightFunction1, "DT", "NP"));
     assertEquals(1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
     assertEquals(2.0, weights.getWeight(weightFunction2, "NP"));

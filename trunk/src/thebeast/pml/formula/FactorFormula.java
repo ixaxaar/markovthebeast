@@ -119,6 +119,10 @@ public class FactorFormula {
     return toString;
   }
 
+  public String toShortString(){
+    return toString.length() > 20 ? toString.substring(toString.length()-20) : toString;
+  }
+
   public Heading getSolutionHeading() {
     return headingSolution;
   }

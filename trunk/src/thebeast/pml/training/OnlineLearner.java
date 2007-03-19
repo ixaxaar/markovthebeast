@@ -271,8 +271,8 @@ public class OnlineLearner implements Learner, HasProperties {
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
       solution.getGroundFormulas().load(solver.getGreedyFormulas());
       FeatureVector features = solution.extract(this.features);
-      features.getNonnegative().load(gold.getNonnegative());
-      features.getNonpositive().load(gold.getNonpositive());
+      //features.getNonnegative().load(gold.getNonnegative());
+      //features.getNonpositive().load(gold.getNonpositive());
       candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
     }
