@@ -336,7 +336,7 @@ public class GroundFormulas {
   public int getViolationCount(){
     int count = 0;
     for (FactorFormula formula : model.getDeterministicFormulas()) {
-      count += explicitGroundFormulas.get(formula).value().size();
+      count += tmpExplicitGroundFormulas.get(formula).value().size();
     }
     return count;
   }

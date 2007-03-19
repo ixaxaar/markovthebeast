@@ -50,7 +50,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     return function;
   }
 
-   public MemFunction compile(AbstractMemExpression expr, AbstractMemExpression root) {
+  public MemFunction compile(AbstractMemExpression expr, AbstractMemExpression root) {
     this.root = root;
     prefix2heading.clear();
     prefix2index.clear();
@@ -165,8 +165,12 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
     //todo: if function is a TUPLE_SELECTOR we can replace it with a COPY function
     //else we need a TUPLE_EXPAND
-    MemFunction select = new MemFunction(MemFunction.Type.TUPLE_COPY,
-            new MemChunk(1, 1, 0, 0, 1), new MemVector[]{new MemVector(0, 0, 0)}, function);
+    MemFunction select;
+//    if (function.type == MemFunction.Type.TUPLE_SELECTOR) {
+//      select = new MemFunction(new MemChunk(function.argHolder.getDim()),function.argPointersVec, function.arguments);
+//    } else
+    select = new MemFunction(MemFunction.Type.TUPLE_COPY,
+              new MemChunk(1, 1, 0, 0, 1), new MemVector[]{new MemVector(0, 0, 0)}, function);
 
 
     if (validation == null)
@@ -311,11 +315,9 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemFunction functionRhs = function;
     if (lhs.type() instanceof IntType || lhs.type() instanceof CategoricalType) {
       function = new MemFunction(MemFunction.Type.INT_EQUAL, functionLhs, functionRhs);
-    }
-    else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
+    } else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
       function = new MemFunction(MemFunction.Type.CHUNK_EQUAL, functionLhs, functionRhs);
-    }
-    else if (lhs.type() instanceof DoubleType) {
+    } else if (lhs.type() instanceof DoubleType) {
       function = new MemFunction(MemFunction.Type.DOUBLE_EQUAL, functionLhs, functionRhs);
     }
   }
@@ -333,11 +335,9 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemFunction functionRhs = function;
     if (lhs.type() instanceof IntType || lhs.type() instanceof CategoricalType) {
       function = new MemFunction(MemFunction.Type.INT_NOTEQUAL, functionLhs, functionRhs);
-    }
-    else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
+    } else if (lhs.type() instanceof RelationType || lhs.type() instanceof TupleType) {
       function = new MemFunction(MemFunction.Type.CHUNK_NOTEQUAL, functionLhs, functionRhs);
-    }
-    else if (lhs.type() instanceof DoubleType) {
+    } else if (lhs.type() instanceof DoubleType) {
       function = new MemFunction(MemFunction.Type.DOUBLE_NOTEQUAL, functionLhs, functionRhs);
     }
 
@@ -365,7 +365,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     int chunkIndex = prefix2index.get(att.prefix());
     MemHeading heading = prefix2heading.get(att.prefix());
     MemPointer pointer = heading.pointerForAttribute(intAttribute.attribute().name());
-    if (pointer  == null)
+    if (pointer == null)
       throw new RuntimeException(heading + " has no " + intAttribute.attribute().name() + " attribute");
     function = new MemFunction(chunkIndex, pointer);
   }
@@ -537,7 +537,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     int indexCol = heading.pointerForAttribute(indexedSum.indexAttribute()).pointer;
     int scaleCol = indexedSum.scaleAttribute() == null ? -1 :
             heading.pointerForAttribute(indexedSum.scaleAttribute()).pointer;
-    function = new MemFunction(indexCol,scaleCol, array, indexRelation);
+    function = new MemFunction(indexCol, scaleCol, array, indexRelation);
   }
 
   public void visitDoubleAdd(DoubleAdd doubleAdd) {
@@ -819,7 +819,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     }
     MemExpressionCompiler compiler = new MemExpressionCompiler();
     //intOperatorInvocation.operator().result().acceptExpressionVisitor(this);
-    MemFunction result = compiler.compile((AbstractMemExpression) intOperatorInvocation.operator().result(),root);
+    MemFunction result = compiler.compile((AbstractMemExpression) intOperatorInvocation.operator().result(), root);
     function = new MemFunction(argFunctions, argVectors, argChunks, result);
   }
 
@@ -912,11 +912,11 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     String lhsIndexName = lhsIndices.getMostCovering(sparseAdd.indexAttribute());
     String rhsIndexName = rhsIndices.getMostCovering(sparseAdd.indexAttribute());
 
-    if (lhsIndexName != null){
+    if (lhsIndexName != null) {
       MemHashIndex memIndex = (MemHashIndex) lhsIndices.getIndex(lhsIndexName);
       root.addDependendIndex(memIndex);
     }
-    if (rhsIndexName != null){
+    if (rhsIndexName != null) {
       MemHashIndex memIndex = (MemHashIndex) rhsIndices.getIndex(rhsIndexName);
       root.addDependendIndex(memIndex);
     }
@@ -928,15 +928,19 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     int indexAtt = heading.pointerForAttribute(sparseAdd.indexAttribute()).pointer;
     int valueAtt = heading.pointerForAttribute(sparseAdd.valueAttribute()).pointer;
 
-    function = new MemFunction(indexAtt,valueAtt,lhsIndex ,rhsIndex,lhs, scale, rhs);
+    function = new MemFunction(indexAtt, valueAtt, lhsIndex, rhsIndex, lhs, scale, rhs);
   }
 
-  private MemSummarizer.Spec convertSpec(Summarize.Spec spec){
+  private MemSummarizer.Spec convertSpec(Summarize.Spec spec) {
     switch (spec) {
-      case DOUBLE_COUNT: return MemSummarizer.Spec.DOUBLE_COUNT;
-      case INT_COUNT: return MemSummarizer.Spec.INT_COUNT;
-      case DOUBLE_SUM: return MemSummarizer.Spec.DOUBLE_SUM;
-      case INT_SUM: return MemSummarizer.Spec.INT_SUM;
+      case DOUBLE_COUNT:
+        return MemSummarizer.Spec.DOUBLE_COUNT;
+      case INT_COUNT:
+        return MemSummarizer.Spec.INT_COUNT;
+      case DOUBLE_SUM:
+        return MemSummarizer.Spec.DOUBLE_SUM;
+      case INT_SUM:
+        return MemSummarizer.Spec.INT_SUM;
     }
     return null;
   }
@@ -952,8 +956,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
     HashMap<String, Summarize.Spec> specs = new HashMap<String, Summarize.Spec>();
     builder.clear();
-    for (int i = 0; i < summarize.add().size();++i){
-      specs.put(summarize.as().get(i),summarize.specs().get(i));
+    for (int i = 0; i < summarize.add().size(); ++i) {
+      specs.put(summarize.as().get(i), summarize.specs().get(i));
       builder.id(summarize.as().get(i)).expr(summarize.add().get(i));
     }
     builder.tupleForIds().getExpression().acceptExpressionVisitor(this);
@@ -962,7 +966,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     int index = 0;
     ArrayList<String> sortedBy = new ArrayList<String>(summarize.by());
     Collections.sort(sortedBy);
-    for (String by : sortedBy){
+    for (String by : sortedBy) {
       key2resultPts[index] = headingResult.pointerForAttribute(by);
       key2originalPts[index++] = headingOriginal.pointerForAttribute(by);
     }
@@ -973,12 +977,14 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     Collections.sort(sortedAs);
     HashMap<Integer, Summarize.Spec> intSpecMap = new HashMap<Integer, Summarize.Spec>();
     HashMap<Integer, Summarize.Spec> doubleSpecMap = new HashMap<Integer, Summarize.Spec>();
-    for (String as : sortedAs){
+    for (String as : sortedAs) {
       MemPointer ptr = headingResult.pointerForAttribute(as);
-      switch (ptr.type){
-        case INT: intSpecMap.put(ptr.pointer,specs.get(as));
+      switch (ptr.type) {
+        case INT:
+          intSpecMap.put(ptr.pointer, specs.get(as));
           break;
-        case DOUBLE: doubleSpecMap.put(ptr.pointer,specs.get(as));
+        case DOUBLE:
+          doubleSpecMap.put(ptr.pointer, specs.get(as));
           break;
       }
       tmp2resultPts[index++] = ptr;
@@ -1002,10 +1008,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemFunction relFunction = function;
 
 
-    function = new MemFunction(key2original,key2result, tmp2result,
-            intSpecs, doubleSpecs, chunkSpecs, tmpFunction,relFunction, headingResult.getDim());
-
-
+    function = new MemFunction(key2original, key2result, tmp2result,
+            intSpecs, doubleSpecs, chunkSpecs, tmpFunction, relFunction, headingResult.getDim());
 
 
   }
@@ -1015,14 +1019,14 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemDim returnDim = heading.getDim();
     MemFunction[] args = new MemFunction[union.arguments().size()];
     MemVector[] argPointers = new MemVector[args.length];
-    MemChunk argHolder = new MemChunk(1,1,0,0,args.length);
+    MemChunk argHolder = new MemChunk(1, 1, 0, 0, args.length);
     int index = 0;
-    for (RelationExpression expr : union.arguments()){
+    for (RelationExpression expr : union.arguments()) {
       expr.acceptExpressionVisitor(this);
-      argPointers[index] = new MemVector(0,0,index);
+      argPointers[index] = new MemVector(0, 0, index);
       args[index++] = function;
     }
-    function = new MemFunction(MemFunction.Type.UNION, returnDim, argHolder, argPointers, args);    
+    function = new MemFunction(MemFunction.Type.UNION, returnDim, argHolder, argPointers, args);
   }
 
   public void visitIntBin(IntBins intBins) {
@@ -1041,8 +1045,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     indexCollector.grouped().acceptExpressionVisitor(this);
     MemFunction grouped = function;
     function = new MemFunction(MemFunction.Type.INDEX_COLLECTOR,
-            new MemChunk(1,1,0,0,1),new MemVector[]{MemVector.ZERO},grouped);
-    function.index = new MemChunkIndex(0,new MemDim(1,0,0));
+            new MemChunk(1, 1, 0, 0, 1), new MemVector[]{MemVector.ZERO}, grouped);
+    function.index = new MemChunkIndex(0, new MemDim(1, 0, 0));
     function.groupAtt = groupAttribute;
   }
 
@@ -1113,7 +1117,6 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     }
 
 
-
     public void visitAttribute(AttributeExpression attribute) {
       if (validating && !valid) return;
       if (validating && prefix2index.get(attribute.prefix()) > currentIndex) {
@@ -1124,7 +1127,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
       if (validating && !valid) return;
-      super.visitBinaryExpression(binaryExpression);    
+      super.visitBinaryExpression(binaryExpression);
     }
 
     public void visitEquality(Equality equality) {

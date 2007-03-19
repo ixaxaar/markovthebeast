@@ -57,306 +57,161 @@ public class MemEvaluator {
         case VOID:
           break;
         case COPY:
-          System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
-          System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
-          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
+          copy(argChunk, returnChunk, argPointerVec);
           break;
         case INT_ADD:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] + argChunk.intData[1];
+          int_add(argChunk, returnChunk, argPointerVec);
           break;
         case INT_MINUS:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] - argChunk.intData[1];
+          int_minus(argChunk, returnChunk, argPointerVec);
           break;
         case INT_CONSTANT:
-          returnChunk.intData[argPointerVec.xInt] = f.constantInt;
+          int_constant(f, returnChunk, argPointerVec);
           break;
         case INT_VARIABLE:
-          returnChunk.intData[argPointerVec.xInt] = f.varChunk.intData[f.varPointer.xInt];
+          int_variable(f, returnChunk, argPointerVec);
           break;
         case INT_POST_INC:
-          returnChunk.intData[argPointerVec.xInt] = f.varChunk.intData[f.varPointer.xInt]++;
+          int_post_inc(f, returnChunk, argPointerVec);
           break;
         case INT_EQUAL:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] == argChunk.intData[1] ? 1 : 0;
+          int_equal(argChunk, returnChunk, argPointerVec);
           break;
         case INT_NOTEQUAL:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] != argChunk.intData[1] ? 1 : 0;
+          int_notequal(argChunk, returnChunk, argPointerVec);
           break;
         case INT_LEQ:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] <= argChunk.intData[1] ? 1 : 0;
+          int_leq(argChunk, returnChunk, argPointerVec);
           break;
         case INT_GEQ:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] >= argChunk.intData[1] ? 1 : 0;
+          int_geq(argChunk, returnChunk, argPointerVec);
           break;
         case INT_LESSTHAN:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] < argChunk.intData[1] ? 1 : 0;
+          int_lessthan(argChunk, returnChunk, argPointerVec);
           break;
         case INT_GREATERTHAN:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] > argChunk.intData[1] ? 1 : 0;
+          int_greaterthan(argChunk, returnChunk, argPointerVec);
           break;
         case INT_ATTRIBUTE:
-          MemChunk chunk = chunks[f.chunkIndex];
-          returnChunk.intData[argPointerVec.xInt] =
-                  chunk.intData[rows[f.chunkIndex] * chunk.numIntCols + f.attributeIndex];
+          int_attribute(chunks, f, rows, returnChunk, argPointerVec);
+          MemChunk chunk;
           break;
         case INT_EXTRACT:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.chunkData[0].intData[f.attributeIndex];
+          int_extract(argChunk, f, returnChunk, argPointerVec);
           break;
         case INT_BINS:
-          bins:
-          {
-            int value = argChunk.intData[0];
-            boolean positive = value >= 0;
-            if (!positive) value = -value;
-            for (int i = 0; i < f.bins.length; ++i)
-              if (value <= f.bins[i]) {
-                returnChunk.intData[argPointerVec.xInt] = positive ? i : -i;
-                break bins;
-              }
-            returnChunk.intData[argPointerVec.xInt] = positive ? f.bins.length : -f.bins.length;
-          }
+          int_bins(argChunk, f, returnChunk, argPointerVec);
           break;
         case RELATION_MINUS:
-          returnChunk.chunkData[argPointerVec.xChunk] = argChunk.chunkData[0].minus(argChunk.chunkData[1]);
+          relation_minus(argChunk, returnChunk, argPointerVec);
           break;
         case UNION:
-          int maxSize = 0;
-          for (int i = 0; i < argChunk.numChunkCols; ++i) maxSize += argChunk.chunkData[i].size;
-          dst = returnChunk.chunkData[argPointerVec.xChunk];
-          if (dst == null) {
-            dst = new MemChunk(0, maxSize, f.returnDim);
-            returnChunk.chunkData[argPointerVec.xChunk] = dst;
-          } else {
-            dst.size = 0;
-            if (dst.capacity < maxSize) dst.increaseCapacity(maxSize - dst.capacity);
-          }
-          for (int i = 0; i < argChunk.numChunkCols; ++i)
-            MemInserter.append(argChunk.chunkData[i], dst);
-          dst.unify();
+          union(argChunk, returnChunk, argPointerVec, f);
           break;
         case COUNT:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.chunkData[0].size;
+          count(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_EQUAL:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] == argChunk.doubleData[1] ? 1 : 0;
+          double_equal(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_NOTEQUAL:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] != argChunk.doubleData[1] ? 1 : 0;
+          double_notequal(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_ADD:
-          returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] + argChunk.doubleData[1];
+          double_add(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_MINUS:
-          returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] - argChunk.doubleData[1];
+          double_minus(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_TIMES:
-          returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] * argChunk.doubleData[1];
+          double_times(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_CAST:
-          returnChunk.doubleData[argPointerVec.xDouble] = argChunk.intData[0];
+          double_cast(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_ATTRIBUTE:
-          chunk = chunks[f.chunkIndex];
-          returnChunk.doubleData[argPointerVec.xDouble] =
-                  chunk.doubleData[rows[f.chunkIndex] * chunk.numDoubleCols + f.attributeIndex];
+          double_attribute(chunks, f, rows, returnChunk, argPointerVec);
           break;
         case DOUBLE_CONSTANT:
-          returnChunk.doubleData[argPointerVec.xDouble] = f.constantDouble;
+          double_constant(f, returnChunk, argPointerVec);
           break;
         case DOUBLE_VARIABLE:
-          returnChunk.doubleData[argPointerVec.xDouble] = f.varChunk.doubleData[f.varPointer.xDouble];
+          double_variable(f, returnChunk, argPointerVec);
           break;
         case DOUBLE_EXTRACT:
-          returnChunk.doubleData[argPointerVec.xDouble] = argChunk.chunkData[0].doubleData[f.attributeIndex];
+          double_extract(argChunk, f, returnChunk, argPointerVec);
           break;
         case DOUBLE_GT:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] > argChunk.doubleData[1] ? 1 : 0;
+          double_gt(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_LT:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] < argChunk.doubleData[1] ? 1 : 0;
+          double_lt(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_LEQ:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] <= argChunk.doubleData[1] ? 1 : 0;
+          double_leq(argChunk, returnChunk, argPointerVec);
           break;
         case DOUBLE_GEQ:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] >= argChunk.doubleData[1] ? 1 : 0;
+          double_geq(argChunk, returnChunk, argPointerVec);
           break;
         case CHUNK_CONSTANT:
-          returnChunk.chunkData[argPointerVec.xChunk] = f.constantChunk;
+          chunk_constant(f, returnChunk, argPointerVec);
           break;
         case CHUNK_EQUAL:
-          returnChunk.intData[0] = argChunk.chunkData[0].equals(argChunk.chunkData[1]) ? 1 : 0;
+          chunk_equal(argChunk, returnChunk);
           break;
         case CHUNK_NOTEQUAL:
-          returnChunk.intData[0] = !argChunk.chunkData[0].equals(argChunk.chunkData[1]) ? 1 : 0;
+          chunk_notequal(argChunk, returnChunk);
           break;
         case CHUNK_VARIABLE:
-          returnChunk.chunkData[argPointerVec.xChunk] = f.varChunk.chunkData[f.varPointer.xChunk];
+          chunk_variable(f, returnChunk, argPointerVec);
           break;
         case CHUNK_ATTRIBUTE:
-          chunk = chunks[f.chunkIndex];
-          returnChunk.chunkData[argPointerVec.xChunk] =
-                  chunk.chunkData[rows[f.chunkIndex] * chunk.numChunkCols + f.attributeIndex];
+          chunk_attribute(chunks, f, rows, returnChunk, argPointerVec);
           break;
         case NOT:
-          returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] == 0 ? 1 : 0;
+          not(argChunk, returnChunk, argPointerVec);
           break;
         case AND:
-          boolean and = true;
-          for (int bool : argChunk.intData) {
-            if (bool == 0) {
-              and = false;
-              break;
-            }
-          }
-          returnChunk.intData[argPointerVec.xInt] = and ? 1 : 0;
+          and(argChunk, returnChunk, argPointerVec);
           break;
         case OR:
-          boolean or = false;
-          for (int bool : argChunk.intData) {
-            if (bool == 1) {
-              or = true;
-              break;
-            }
-          }
-          returnChunk.intData[argPointerVec.xInt] = or ? 1 : 0;
+          or(argChunk, returnChunk, argPointerVec);
           break;
         case QUERY:
-          MemEvaluator.evaluate(f.searchChunkFunction, chunks, rows, null, null);
-          MemChunk result = returnChunk.chunkData[argPointerVec.xChunk];
-          if (result == null) {
-            result = new MemChunk(0, 1, f.plan.resultDim);
-            returnChunk.chunkData[argPointerVec.xChunk] = result;
-          }
-          result.clear();
-//          result.size = 0;
-//          result.rowIndexedSoFar = 0;
-//          result.rowIndex.clear();
-          MemSearch.search(f.plan, f.searchChunkFunction.argHolder.chunkData,
-                  null, result, 0);
+          query(f, chunks, rows, returnChunk, argPointerVec);
           break;
         case TUPLE_COPY:
-          argChunk = argChunk.chunkData[0];
-          System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
-          System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
-          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
-          ++returnChunk.size;
+          tuple_copy(argChunk, returnChunk, argPointerVec);
           break;
         case RELATION_COPY:
-          argChunk = argChunk.chunkData[0];
-          int intSize = argChunk.size * argChunk.numIntCols;
-          int doubleSize = argChunk.size * argChunk.numDoubleCols;
-          int chunkSize = argChunk.size * argChunk.numChunkCols;
-          if (argPointerVec.xInt + intSize > returnChunk.intData.length ||
-                  argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
-                  argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length)
-            returnChunk.increaseCapacity(argChunk.size);
-//          returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
-          System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
-          System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
-          MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);
-          returnChunk.size += argChunk.size;
+          relation_copy(argChunk, argPointerVec, returnChunk);
           break;
         case TUPLE_SELECTOR:
-          result = returnChunk.chunkData[argPointerVec.xChunk];
-          if (result == null) {
-            result = new MemChunk(1, 1, f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
-            returnChunk.chunkData[argPointerVec.xChunk] = result;
-          }
-          System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
-          System.arraycopy(argChunk.doubleData, 0, result.doubleData, 0, argChunk.doubleData.length);
-          MemChunk.copyChunks(argChunk.chunkData, 0, result.chunkData, 0, argChunk.chunkData.length);
+          tuple_selector(returnChunk, argPointerVec, f, argChunk);
           break;
         case TUPLE_FROM:
-          result = returnChunk.chunkData[argPointerVec.xChunk];
-          if (result == null) {
-            MemChunk src = f.argHolder.chunkData[0];
-            result = new MemChunk(1, 1, src.numIntCols, src.numDoubleCols, src.numChunkCols);
-            returnChunk.chunkData[argPointerVec.xChunk] = result;
-          }
-          System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].numIntCols);
-          System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].numDoubleCols);
-          MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].numChunkCols);
+          tuple_from(returnChunk, argPointerVec, f, argChunk);
           break;
         case CONTAINS:
-          MemChunk relation = argChunk.chunkData[0];
-          MemChunk tuple = argChunk.chunkData[1];
-          relation.buildRowIndex();
-          MemChunkIndex index = relation.rowIndex;
-          returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.allCols) == -1 ? 0 : 1;
+          contains(argChunk, returnChunk);
           break;
         case RELATION_SELECTOR:
-          int neededSize = f.argHolder.chunkData.length;
-          if (neededSize == 0) {
-            returnChunk.chunkData[argPointerVec.xChunk] = new MemChunk(0, 0, f.returnDim);
-            break;
-          }
-          result = returnChunk.chunkData[argPointerVec.xChunk];
-          if (result == null) {
-            MemChunk first = f.argHolder.chunkData[0];
-            result = new MemChunk(neededSize, neededSize, first.numIntCols, first.numDoubleCols, first.numChunkCols);
-            returnChunk.chunkData[argPointerVec.xChunk] = result;
-          } else if (result.capacity < neededSize) {
-
-            int increment = neededSize - result.chunkData.length;
-            result.increaseCapacity(increment > result.capacity ? increment : result.capacity);
-          }
-          result.size = neededSize;
-          MemChunk[] tuples = f.argHolder.chunkData;
-          for (int i = 0; i < tuples.length; ++i) {
-            tuple = tuples[i];
-            System.arraycopy(tuple.intData, 0, result.intData, i * tuple.numIntCols, tuple.intData.length);
-            System.arraycopy(tuple.doubleData, 0, result.doubleData, i * tuple.numDoubleCols, tuple.doubleData.length);
-//            for (int col = 0; col < tuple.numChunkCols; ++col)
-//              result.chunkData[i * tuple.numChunkCols + col] = tuple.chunkData[col].copy();
-            MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
-          }
-          result.unify();
+          relation_selector(f, returnChunk, argPointerVec);
           break;
         case ARRAY_ACCESS_ZERO:
-          int arrayIndex = f.argHolder.intData[0];
-          MemChunk array = f.argHolder.chunkData[0];
-          if (array.numIntCols > 0)
-            returnChunk.intData[argPointerVec.xInt] = array.intData[arrayIndex * array.numIntCols];
-          else if (array.numDoubleCols > 0)
-            returnChunk.doubleData[argPointerVec.xDouble] = arrayIndex != -1 ?
-                    array.doubleData[arrayIndex * array.numDoubleCols] : 0.0;
-          else if (array.numChunkCols > 0)
-            returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.numChunkCols];
+          array_access_zero(f, returnChunk, argPointerVec);
           break;
         case ARRAY_CREATOR:
-          neededSize = f.argHolder.size;
-          if (neededSize == 0) break;
-          result = returnChunk.chunkData[argPointerVec.xChunk];
-          if (result == null) {
-            result = new MemChunk(neededSize, neededSize,
-                    f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
-            returnChunk.chunkData[argPointerVec.xChunk] = result;
-          } else if (result.capacity < neededSize) {
-            result.increaseCapacity(neededSize - result.size);
-            result.size = neededSize;
-          }
-          System.arraycopy(f.argHolder.intData, 0, result.intData, 0, f.argHolder.intData.length);
-          System.arraycopy(f.argHolder.doubleData, 0, result.doubleData, 0, f.argHolder.doubleData.length);
-          MemChunk.copyChunks(f.argHolder.chunkData, 0, result.chunkData, 0, f.argHolder.chunkData.length);
+          array_creator(f, returnChunk, argPointerVec);
           break;
         case GROUP:
-          result = returnChunk.chunkData[argPointerVec.xChunk];
-          MemGrouper.group(f.argHolder.chunkData[0], f.keyCols, f.dstCols, f.groupCols, f.dstGroupCol, result);
+          group(returnChunk, argPointerVec, f);
           break;
         case INDEXED_SUM:
-          if (f.scaleAttribute == -1) returnChunk.doubleData[argPointerVec.xDouble] =
-                  MemMath.indexSum(argChunk.chunkData[0], argChunk.chunkData[1], f.indexAttribute);
-          else returnChunk.doubleData[argPointerVec.xDouble] =
-                  MemMath.indexSum(argChunk.chunkData[0], argChunk.chunkData[1], f.indexAttribute, f.scaleAttribute);
+          indexed_sum(f, argChunk, returnChunk, argPointerVec);
           break;
         case OPERATOR_INV:
-          for (int i = 0; i < f.opArgFunctions.length; ++i){
-            //f.opArgFunctions[i].clear();
-            evaluate(f.opArgFunctions[i], chunks, rows, f.opArgs[i], f.opArgVecs[i]);
-          }
-          //f.opResultFunction.clear();
-          evaluate(f.opResultFunction, null, null, returnChunk, argPointerVec);
+          operator_inv(f, chunks, rows, returnChunk, argPointerVec);
           break;
         case GET:
           get(f, chunks, rows, argChunk, returnChunk, argPointerVec);
@@ -365,30 +220,10 @@ public class MemEvaluator {
           cycles(f, argChunk, returnChunk);
           break;
         case SUMMARIZE:
-          argChunk = argChunk.chunkData[0];
-          MemChunk memChunk = returnChunk.chunkData[argPointerVec.xChunk];
-          if (memChunk == null) {
-            memChunk = new MemChunk(0, 0, f.returnDim);
-            returnChunk.chunkData[argPointerVec.xChunk] = memChunk;
-          }
-          MemSummarizer.summarize(argChunk, f, memChunk);
+          summarize(argChunk, returnChunk, argPointerVec, f);
           break;
         case SPARSE_ADD:
-          MemChunk lhs = argChunk.chunkData[0];
-          double scale = argChunk.doubleData[0];
-          MemChunk rhs = argChunk.chunkData[1];
-          memChunk = returnChunk.chunkData[argPointerVec.xChunk];
-          if (memChunk == null) {
-            memChunk = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
-            returnChunk.chunkData[argPointerVec.xChunk] = memChunk;
-          }
-          if (memChunk == lhs || memChunk == rhs) {
-            MemChunk tmp = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
-            sparseAdd(f, lhs, scale, rhs, tmp);
-            memChunk.copyFrom(tmp);
-          } else {
-            sparseAdd(f, lhs, scale, rhs, memChunk);
-          }
+          sparseAdd(argChunk, returnChunk, argPointerVec, f);
           break;
         case INDEX_COLLECTOR:
           MemMath.collect(argChunk.chunkData[0], f.groupAtt, returnChunk.chunkData[argPointerVec.xChunk], f);
@@ -396,6 +231,400 @@ public class MemEvaluator {
       }
       --stackPointer;
     }
+  }
+
+  private static void sparseAdd(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec, MemFunction f) {
+    MemChunk memChunk;
+    MemChunk lhs = argChunk.chunkData[0];
+    double scale = argChunk.doubleData[0];
+    MemChunk rhs = argChunk.chunkData[1];
+    memChunk = returnChunk.chunkData[argPointerVec.xChunk];
+    if (memChunk == null) {
+      memChunk = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
+      returnChunk.chunkData[argPointerVec.xChunk] = memChunk;
+    }
+    if (memChunk == lhs || memChunk == rhs) {
+      MemChunk tmp = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
+      sparseAdd(f, lhs, scale, rhs, tmp);
+      memChunk.copyFrom(tmp);
+    } else {
+      sparseAdd(f, lhs, scale, rhs, memChunk);
+    }
+  }
+
+  private static void summarize(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec, MemFunction f) {
+    argChunk = argChunk.chunkData[0];
+    MemChunk memChunk = returnChunk.chunkData[argPointerVec.xChunk];
+    if (memChunk == null) {
+      memChunk = new MemChunk(0, 0, f.returnDim);
+      returnChunk.chunkData[argPointerVec.xChunk] = memChunk;
+    }
+    MemSummarizer.summarize(argChunk, f, memChunk);
+  }
+
+  private static void operator_inv(MemFunction f, MemChunk[] chunks, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
+    for (int i = 0; i < f.opArgFunctions.length; ++i){
+      //f.opArgFunctions[i].clear();
+      evaluate(f.opArgFunctions[i], chunks, rows, f.opArgs[i], f.opArgVecs[i]);
+    }
+    //f.opResultFunction.clear();
+    evaluate(f.opResultFunction, null, null, returnChunk, argPointerVec);
+  }
+
+  private static void indexed_sum(MemFunction f, MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    if (f.scaleAttribute == -1) returnChunk.doubleData[argPointerVec.xDouble] =
+            MemMath.indexSum(argChunk.chunkData[0], argChunk.chunkData[1], f.indexAttribute);
+    else returnChunk.doubleData[argPointerVec.xDouble] =
+            MemMath.indexSum(argChunk.chunkData[0], argChunk.chunkData[1], f.indexAttribute, f.scaleAttribute);
+  }
+
+  private static void group(MemChunk returnChunk, MemVector argPointerVec, MemFunction f) {
+    MemChunk result;
+    result = returnChunk.chunkData[argPointerVec.xChunk];
+    MemGrouper.group(f.argHolder.chunkData[0], f.keyCols, f.dstCols, f.groupCols, f.dstGroupCol, result);
+  }
+
+  private static void array_creator(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    int neededSize;
+    MemChunk result;
+    neededSize = f.argHolder.size;
+    if (neededSize == 0) return;
+    result = returnChunk.chunkData[argPointerVec.xChunk];
+    if (result == null) {
+      result = new MemChunk(neededSize, neededSize,
+              f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
+      returnChunk.chunkData[argPointerVec.xChunk] = result;
+    } else if (result.capacity < neededSize) {
+      result.increaseCapacity(neededSize - result.size);
+      result.size = neededSize;
+    }
+    System.arraycopy(f.argHolder.intData, 0, result.intData, 0, f.argHolder.intData.length);
+    System.arraycopy(f.argHolder.doubleData, 0, result.doubleData, 0, f.argHolder.doubleData.length);
+    MemChunk.copyChunks(f.argHolder.chunkData, 0, result.chunkData, 0, f.argHolder.chunkData.length);
+  }
+
+  private static void array_access_zero(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    int arrayIndex = f.argHolder.intData[0];
+    MemChunk array = f.argHolder.chunkData[0];
+    if (array.numIntCols > 0)
+      returnChunk.intData[argPointerVec.xInt] = array.intData[arrayIndex * array.numIntCols];
+    else if (array.numDoubleCols > 0)
+      returnChunk.doubleData[argPointerVec.xDouble] = arrayIndex != -1 ?
+              array.doubleData[arrayIndex * array.numDoubleCols] : 0.0;
+    else if (array.numChunkCols > 0)
+      returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.numChunkCols];
+  }
+
+  private static void relation_selector(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    MemChunk result;
+    MemChunk tuple;
+    int neededSize = f.argHolder.chunkData.length;
+    if (neededSize == 0) {
+      returnChunk.chunkData[argPointerVec.xChunk] = new MemChunk(0, 0, f.returnDim);
+      return;
+    }
+    result = returnChunk.chunkData[argPointerVec.xChunk];
+    if (result == null) {
+      MemChunk first = f.argHolder.chunkData[0];
+      result = new MemChunk(neededSize, neededSize, first.numIntCols, first.numDoubleCols, first.numChunkCols);
+      returnChunk.chunkData[argPointerVec.xChunk] = result;
+    } else if (result.capacity < neededSize) {
+
+      int increment = neededSize - result.chunkData.length;
+      result.increaseCapacity(increment > result.capacity ? increment : result.capacity);
+    }
+    result.size = neededSize;
+    MemChunk[] tuples = f.argHolder.chunkData;
+    for (int i = 0; i < tuples.length; ++i) {
+      tuple = tuples[i];
+      System.arraycopy(tuple.intData, 0, result.intData, i * tuple.numIntCols, tuple.intData.length);
+      System.arraycopy(tuple.doubleData, 0, result.doubleData, i * tuple.numDoubleCols, tuple.doubleData.length);
+//            for (int col = 0; col < tuple.numChunkCols; ++col)
+//              result.chunkData[i * tuple.numChunkCols + col] = tuple.chunkData[col].copy();
+      MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
+    }
+    result.unify();
+  }
+
+  private static void contains(MemChunk argChunk, MemChunk returnChunk) {
+    MemChunk relation = argChunk.chunkData[0];
+    MemChunk tuple = argChunk.chunkData[1];
+    relation.buildRowIndex();
+    MemChunkIndex index = relation.rowIndex;
+    returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.allCols) == -1 ? 0 : 1;
+  }
+
+  private static void tuple_from(MemChunk returnChunk, MemVector argPointerVec, MemFunction f, MemChunk argChunk) {
+    MemChunk result;
+    result = returnChunk.chunkData[argPointerVec.xChunk];
+    if (result == null) {
+      MemChunk src = f.argHolder.chunkData[0];
+      result = new MemChunk(1, 1, src.numIntCols, src.numDoubleCols, src.numChunkCols);
+      returnChunk.chunkData[argPointerVec.xChunk] = result;
+    }
+    System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].numIntCols);
+    System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].numDoubleCols);
+    MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].numChunkCols);
+  }
+
+  private static void tuple_selector(MemChunk returnChunk, MemVector argPointerVec, MemFunction f, MemChunk argChunk) {
+    MemChunk result;
+    result = returnChunk.chunkData[argPointerVec.xChunk];
+    if (result == null) {
+      result = new MemChunk(1, 1, f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
+      returnChunk.chunkData[argPointerVec.xChunk] = result;
+    }
+    System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
+    System.arraycopy(argChunk.doubleData, 0, result.doubleData, 0, argChunk.doubleData.length);
+    MemChunk.copyChunks(argChunk.chunkData, 0, result.chunkData, 0, argChunk.chunkData.length);
+  }
+
+  private static void relation_copy(MemChunk argChunk, MemVector argPointerVec, MemChunk returnChunk) {
+    argChunk = argChunk.chunkData[0];
+    int intSize = argChunk.size * argChunk.numIntCols;
+    int doubleSize = argChunk.size * argChunk.numDoubleCols;
+    int chunkSize = argChunk.size * argChunk.numChunkCols;
+    if (argPointerVec.xInt + intSize > returnChunk.intData.length ||
+            argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
+            argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length)
+      returnChunk.increaseCapacity(argChunk.size);
+//          returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
+    System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
+    System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
+    MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);
+    returnChunk.size += argChunk.size;
+  }
+
+  private static void tuple_copy(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    argChunk = argChunk.chunkData[0];
+    System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
+    System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
+    MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
+    ++returnChunk.size;
+  }
+
+  private static void query(MemFunction f, MemChunk[] chunks, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
+    MemEvaluator.evaluate(f.searchChunkFunction, chunks, rows, null, null);
+    MemChunk result = returnChunk.chunkData[argPointerVec.xChunk];
+    if (result == null) {
+      result = new MemChunk(0, 1, f.plan.resultDim);
+      returnChunk.chunkData[argPointerVec.xChunk] = result;
+    }
+    result.clear();
+//          result.size = 0;
+//          result.rowIndexedSoFar = 0;
+//          result.rowIndex.clear();
+    MemSearch.search(f.plan, f.searchChunkFunction.argHolder.chunkData,
+            null, result, 0);
+  }
+
+  private static void or(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    boolean or = false;
+    for (int bool : argChunk.intData) {
+      if (bool == 1) {
+        or = true;
+        break;
+      }
+    }
+    returnChunk.intData[argPointerVec.xInt] = or ? 1 : 0;
+  }
+
+  private static void and(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    boolean and = true;
+    for (int bool : argChunk.intData) {
+      if (bool == 0) {
+        and = false;
+        break;
+      }
+    }
+    returnChunk.intData[argPointerVec.xInt] = and ? 1 : 0;
+  }
+
+  private static void not(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] == 0 ? 1 : 0;
+  }
+
+  private static void chunk_attribute(MemChunk[] chunks, MemFunction f, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
+    MemChunk chunk;
+    chunk = chunks[f.chunkIndex];
+    returnChunk.chunkData[argPointerVec.xChunk] =
+            chunk.chunkData[rows[f.chunkIndex] * chunk.numChunkCols + f.attributeIndex];
+  }
+
+  private static void chunk_variable(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.chunkData[argPointerVec.xChunk] = f.varChunk.chunkData[f.varPointer.xChunk];
+  }
+
+  private static void chunk_notequal(MemChunk argChunk, MemChunk returnChunk) {
+    returnChunk.intData[0] = !argChunk.chunkData[0].equals(argChunk.chunkData[1]) ? 1 : 0;
+  }
+
+  private static void chunk_equal(MemChunk argChunk, MemChunk returnChunk) {
+    returnChunk.intData[0] = argChunk.chunkData[0].equals(argChunk.chunkData[1]) ? 1 : 0;
+  }
+
+  private static void chunk_constant(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.chunkData[argPointerVec.xChunk] = f.constantChunk;
+  }
+
+  private static void double_geq(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] >= argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void double_leq(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] <= argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void double_lt(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] < argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void double_gt(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] > argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void double_extract(MemChunk argChunk, MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.chunkData[0].doubleData[f.attributeIndex];
+  }
+
+  private static void double_variable(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = f.varChunk.doubleData[f.varPointer.xDouble];
+  }
+
+  private static void double_constant(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = f.constantDouble;
+  }
+
+  private static void double_attribute(MemChunk[] chunks, MemFunction f, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
+    MemChunk chunk;
+    chunk = chunks[f.chunkIndex];
+    returnChunk.doubleData[argPointerVec.xDouble] =
+            chunk.doubleData[rows[f.chunkIndex] * chunk.numDoubleCols + f.attributeIndex];
+  }
+
+  private static void double_cast(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.intData[0];
+  }
+
+  private static void double_times(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] * argChunk.doubleData[1];
+  }
+
+  private static void double_minus(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] - argChunk.doubleData[1];
+  }
+
+  private static void double_add(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] + argChunk.doubleData[1];
+  }
+
+  private static void double_notequal(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] != argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void double_equal(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.doubleData[0] == argChunk.doubleData[1] ? 1 : 0;
+  }
+
+  private static void count(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.chunkData[0].size;
+  }
+
+  private static void union(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec, MemFunction f) {
+    MemChunk dst;
+    int maxSize = 0;
+    for (int i = 0; i < argChunk.numChunkCols; ++i) maxSize += argChunk.chunkData[i].size;
+    dst = returnChunk.chunkData[argPointerVec.xChunk];
+    if (dst == null) {
+      dst = new MemChunk(0, maxSize, f.returnDim);
+      returnChunk.chunkData[argPointerVec.xChunk] = dst;
+    } else {
+      dst.size = 0;
+      if (dst.capacity < maxSize) dst.increaseCapacity(maxSize - dst.capacity);
+    }
+    for (int i = 0; i < argChunk.numChunkCols; ++i)
+      MemInserter.append(argChunk.chunkData[i], dst);
+    dst.unify();
+  }
+
+  private static void relation_minus(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.chunkData[argPointerVec.xChunk] = argChunk.chunkData[0].minus(argChunk.chunkData[1]);
+  }
+
+  private static void int_bins(MemChunk argChunk, MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    bins:
+          {
+            int value = argChunk.intData[0];
+      boolean positive = value >= 0;
+      if (!positive) value = -value;
+      for (int i = 0; i < f.bins.length; ++i)
+        if (value <= f.bins[i]) {
+          returnChunk.intData[argPointerVec.xInt] = positive ? i : -i;
+          break bins;
+        }
+      returnChunk.intData[argPointerVec.xInt] = positive ? f.bins.length : -f.bins.length;
+    }
+  }
+
+  private static void int_extract(MemChunk argChunk, MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.chunkData[0].intData[f.attributeIndex];
+  }
+
+  private static void int_attribute(MemChunk[] chunks, MemFunction f, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
+    MemChunk chunk = chunks[f.chunkIndex];
+    returnChunk.intData[argPointerVec.xInt] =
+            chunk.intData[rows[f.chunkIndex] * chunk.numIntCols + f.attributeIndex];
+  }
+
+  private static void int_greaterthan(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] > argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_lessthan(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] < argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_geq(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] >= argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_leq(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] <= argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_notequal(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] != argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_equal(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] == argChunk.intData[1] ? 1 : 0;
+  }
+
+  private static void int_post_inc(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = f.varChunk.intData[f.varPointer.xInt]++;
+  }
+
+  private static void int_variable(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = f.varChunk.intData[f.varPointer.xInt];
+  }
+
+  private static void int_constant(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = f.constantInt;
+  }
+
+  private static void int_minus(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] - argChunk.intData[1];
+  }
+
+  private static void int_add(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] + argChunk.intData[1];
+  }
+
+  private static void copy(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, argChunk.intData.length);
+    System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
+    MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
+    ++returnChunk.size;
   }
 
   private static void cycles(MemFunction f, MemChunk argChunk, MemChunk returnChunk) {

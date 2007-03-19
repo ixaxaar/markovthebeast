@@ -37,6 +37,9 @@ public class CuttingPlaneSolver implements Solver {
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
+  private int maxViolationsForNonDeterministic = 1;
+  private boolean alternating = false;
+
   private boolean printHistory = false;
 
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
@@ -187,6 +190,36 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
   }
 
+  private void updateAlternating() {
+    profiler.start("update");
+
+    profiler.start("det formulas");
+    formulas.update(atoms, model.getDeterministicFormulas());
+    profiler.end();
+
+    //System.out.print("Iteration " + iteration + ": ");
+    if (!alternating || formulas.getViolationCount() <= maxViolationsForNonDeterministic) {
+      //System.out.println("nondet");
+      profiler.start("nondet formulas");
+      formulas.update(atoms, model.getNondeterministicFormulas());
+      profiler.end();
+    } else {
+      //System.out.println("det");
+    }
+    //System.out.println(formulas);
+
+    profiler.start("ilp.update");
+    ilp.update(formulas, atoms);
+    profiler.end();
+
+    //System.out.println(ilp.toLpSolveFormat());
+
+    updated = true;
+
+    profiler.end();
+  }
+
+
   /**
    * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
    * a initial guess (either from the last time this method was called or through external specification) this
@@ -195,9 +228,10 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
-    //atoms = model.getSignature().createGroundAtoms();
-    //atoms.clear(model.getGlobalPredicates());
-    //System.out.println("==============================================");
+    if (alternating) {
+      solveAlternating(maxIterations);
+      return;
+    }
 
     formulas.init();
     firstFormulas.init();
@@ -244,6 +278,75 @@ public class CuttingPlaneSolver implements Solver {
       update();
       addCandidate();
       if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
+        //System.out.println("fractional");
+        ilp.enforceIntegerSolution();
+      }
+//      if (iteration == 1){
+//        System.out.print(formulas.size() + " -> ");
+//        System.out.println(ilp.getNumRows());
+//        new SentencePrinter().print(atoms,System.out);
+//        System.out.println(formulas);
+//      }
+    }
+    //System.out.print(iteration);
+    profiler.end();
+
+    done = ilp.changed();
+
+    profiler.end();
+
+    if (printHistory) printHistory();
+  }
+
+  /**
+   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
+   * a initial guess (either from the last time this method was called or through external specification) this
+   * guess is used as a starting point. If not a greedy solution is used as a starting point.
+   *
+   * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
+   */
+  public void solveAlternating(int maxIterations) {
+
+    formulas.init();
+    firstFormulas.init();
+    //formulas = new GroundFormulas(model, weights);
+    //ilp = new IntegerLinearProgram(model,weights, ilpSolver);
+
+    //System.out.println(formulas);
+    //formulas = new GroundFormulas(model, weights);
+    profiler.start("solve");
+
+    holderAtoms.addAll(candidateAtoms);
+    holderFormulas.addAll(candidateFormulas);
+    candidateAtoms.clear();
+    candidateFormulas.clear();
+    iteration = 0;
+    if (!scoresSet) score();
+    ilp.setClosure(scores.getClosure());
+    firstIlp.setClosure(scores.getClosure());
+    if (!initSet) initSolution();
+    //new SentencePrinter().print(atoms, System.out);
+
+    updateAlternating();
+    setGreedy();
+
+    //new SentencePrinter().print(atoms, System.out);
+    //System.out.println(ilp.toLpSolveFormat());
+
+    profiler.start("iterations");
+    //System.out.print(formulas.size() + " -> ");
+    //System.out.println(ilp.getNumRows());
+    while (ilp.changed() && iteration < maxIterations) {
+      profiler.start("ilp.solve");
+      ilp.solve(atoms);
+      //new SentencePrinter().print(atoms, System.out);
+
+      profiler.end();
+      ++iteration;
+      updateAlternating();
+      addCandidate();
+      if (enforceIntegers && ilp.isFractional()) {
+      //if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
         //System.out.println("fractional");
         ilp.enforceIntegerSolution();
       }
@@ -407,6 +510,15 @@ public class CuttingPlaneSolver implements Solver {
     this.deterministicFirst = deterministicFirst;
   }
 
+
+  public boolean isAlternating() {
+    return alternating;
+  }
+
+  public void setAlternating(boolean alternating) {
+    this.alternating = alternating;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
       ilp.setProperty(name.getTail(), value);
@@ -414,6 +526,8 @@ public class CuttingPlaneSolver implements Solver {
       setMaxIterations((Integer) value);
     if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
+    if (name.getHead().equals("alternating"))
+      setAlternating((Boolean) value);
     if (name.getHead().equals("deterministicFirst"))
       setDeterministicFirst((Boolean) value);
     if (name.getHead().equals("profile"))
