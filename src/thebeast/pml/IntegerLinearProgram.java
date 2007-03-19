@@ -362,7 +362,7 @@ public class IntegerLinearProgram implements HasProperties {
     profiler.start("find new constraints");
     for (FactorFormula formula : factors) {
       //System.out.println(formula);
-      profiler.start(formula.toString().substring(formula.toString().length()-20));
+      profiler.start(formula.toShortString());
       interpreter.interpret(newConstraintsInserts.get(formula));
       newConstraintCount += newConstraints.value().size();
       profiler.end();

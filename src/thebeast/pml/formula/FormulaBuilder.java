@@ -269,12 +269,12 @@ public class FormulaBuilder {
     return this;
   }
 
-  public FormulaBuilder cardinalityConstraint() {
+  public FormulaBuilder cardinalityConstraint(boolean useClosure) {
     formulaStack.push(new CardinalityConstraint(
             lowerBound == null ? new IntConstant(Integer.MIN_VALUE) : lowerBound,
             popQuantification(),
             count,
-            upperBound == null ? new IntConstant(Integer.MAX_VALUE) : upperBound));
+            upperBound == null ? new IntConstant(Integer.MAX_VALUE) : upperBound,useClosure));
     return this;
   }
 

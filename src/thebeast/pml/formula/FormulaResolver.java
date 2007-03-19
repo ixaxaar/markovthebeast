@@ -55,7 +55,7 @@ public class FormulaResolver extends FormulaCopyVisitor {
                 cardinalityConstraint.getLowerBound(),
                 cardinalityConstraint.getQuantification(),
                 formula,
-                cardinalityConstraint.getUpperBound());
+                cardinalityConstraint.getUpperBound(),cardinalityConstraint.useClosure());
         var2term = old;
       }
     });

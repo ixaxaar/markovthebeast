@@ -17,21 +17,23 @@ public class CardinalityConstraint extends Atom {
 
 
   public CardinalityConstraint(Term lowerBound, Quantification quantification,
-                               BooleanFormula formula, Term upperBound) {
+                               BooleanFormula formula, Term upperBound, boolean useClosure) {
     this.lowerBound = lowerBound;
     this.quantification = quantification;
     this.formula = formula;
     this.upperBound = upperBound;
+    this.useClosure = useClosure;
   }
 
 
   public CardinalityConstraint(boolean sign, Term lowerBound, Quantification quantification,
-                               BooleanFormula formula, Term upperBound) {
+                               BooleanFormula formula, Term upperBound, boolean useClosure) {
     this.sign = sign;
     this.lowerBound = lowerBound;
     this.quantification = quantification;
     this.formula = formula;
     this.upperBound = upperBound;
+    this.useClosure = useClosure;
   }
 
   public CardinalityConstraint(boolean sign, CardinalityConstraint original){
