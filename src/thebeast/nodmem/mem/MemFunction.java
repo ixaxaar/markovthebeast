@@ -65,8 +65,8 @@ public final class MemFunction {
     buildStacks();
   }
 
-  MemFunction[] arguments = new MemFunction[0];
-  MemChunk argHolder;
+  public MemFunction[] arguments = new MemFunction[0];
+  public MemChunk argHolder;
   MemChunk constantChunk;
   int constantInt;
   double constantDouble;
@@ -78,8 +78,8 @@ public final class MemFunction {
   MemFunction searchVarFunction, searchChunkFunction;
 
   int[] indicesToUse;
-  MemVector[] argPointersVec;
-  Type type;
+  public MemVector[] argPointersVec;
+  public Type type;
   int maxStackDepth = 1;
   MemDim returnDim;
 

@@ -5,7 +5,7 @@ chunk features (pos):
 
 chunk features (pos):
 
-+ POS|POS ... POS|POS
++ POS|POS ... POS|POS  until length 6
 
 + |POS POS|
 + |POS POS POS|
