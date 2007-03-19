@@ -267,7 +267,7 @@ public class OnlineLearner implements Learner, HasProperties {
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
 
-    if (useGreedy) {
+    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations) {
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
       solution.getGroundFormulas().load(solver.getGreedyFormulas());
       FeatureVector features = solution.extract(this.features);
@@ -279,7 +279,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
-    for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
+    for (int i = 0; i < candidateAtoms.size() && i <= maxCandidates; ++i) {
       int violationCount = candidateFormulas.get(i).getViolationCount();
       maxViolations = 1;
       if (violationCount < maxViolations) {
