@@ -4,6 +4,7 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.nod.FileSink;
 import thebeast.pml.*;
+import thebeast.pml.corpora.SentencePrinter;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
@@ -49,6 +50,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
   private int numEpochs;
   private int maxViolations;
+  private int instanceNr;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -198,8 +200,10 @@ public class OnlineLearner implements Learner, HasProperties {
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
       progressReporter.started("Epoch " + epoch);
+      instanceNr = 0;
       for (TrainingInstance instance : instances) {
         learn(instance);
+        ++instanceNr;
       }
       updateRule.endEpoch();
       progressReporter.finished();
@@ -285,6 +289,9 @@ public class OnlineLearner implements Learner, HasProperties {
       if (violationCount < maxViolations) {
         //System.out.print(violationCount + " ");
         GroundAtoms guessAtoms = candidateAtoms.get(i);
+//        if (instanceNr == 0){
+//          new SentencePrinter().print(guessAtoms, System.out);
+//        }
         solution.getGroundAtoms().load((guessAtoms));
         solution.getGroundFormulas().load(candidateFormulas.get(i));
         FeatureVector features = solution.extract(this.features);
@@ -384,6 +391,8 @@ public class OnlineLearner implements Learner, HasProperties {
         setLossFunction(new AverageF1Loss(model));
       else if (value.equals("avgNumErrors"))
         setLossFunction(new AverageNumErrors(model));
+      else if (value.equals("globalNumErrors"))
+        setLossFunction(new GlobalNumErrors(model));
       else if (value.equals("globalF1"))
         setLossFunction(new GlobalF1Loss(model));
       else

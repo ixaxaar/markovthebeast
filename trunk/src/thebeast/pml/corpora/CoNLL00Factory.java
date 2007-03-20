@@ -16,7 +16,7 @@ public class CoNLL00Factory implements CorpusFactory {
 
 
   static {
-    GENERATOR.addTokenCollector(0, "Word", true, new Quote());
+    GENERATOR.addTokenCollector(0, "Word", true, new Quote(), "START");
     GENERATOR.addTokenCollector(0, "Hyphen", true, new HasSubstring("-"));
     GENERATOR.addTokenCollector(0, "Prefix1", true, new Pipeline(new Prefix(1), new Quote()));
     GENERATOR.addTokenCollector(0, "Postfix1", true, new Pipeline(new Postfix(1), new Quote()));
@@ -28,7 +28,7 @@ public class CoNLL00Factory implements CorpusFactory {
     GENERATOR.addTokenCollector(0, "Postfix4", true, new Pipeline(new Postfix(4), new Quote()));
     GENERATOR.addTokenCollector(0, "Case", true, new Case());
     GENERATOR.addTokenCollector(0, "Cardinal", true, new IsNumber());
-    GENERATOR.addTokenCollector(1, "Pos", true, new Quote());
+    GENERATOR.addTokenCollector(1, "Pos", true, new Quote(), "START");
     GENERATOR.addTokenCollector(2, "Chunk", true, new BIOLabel());
   }
 
@@ -124,6 +124,10 @@ public class CoNLL00Factory implements CorpusFactory {
     corpus.addExtractor(numbers);
     corpus.addExtractor(chunks);
     //corpus.addExtractor(statistics);
+
+    corpus.addConstantAtom(word, -1, "START");
+    corpus.addConstantAtom(pos, -1, "START");
+
 
     corpus.addWriter(word, new TokenFeatureWriter(0, 0, 0));
     corpus.addWriter(word, new TokenFeatureWriter(1, 0, 1, new Dequote()));

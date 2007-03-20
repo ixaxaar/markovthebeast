@@ -8,12 +8,12 @@ include "tagging.pml";
 include "global.pml";
 
 include "pos-unigram.pml";
-include "pos-brill.pml";
+//include "pos-brill.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
 //include "chunk-phrase.pml";
-//include "chunk-pos.pml";
+include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
@@ -28,7 +28,7 @@ global: cpos, verycoarse, rare, brill;
 set instancesCacheSize = 20;
 
 load global from "global.txt";
-load global.brill from "brill.txt";
+//load global.brill from "brill.txt";
 load global.rare from "corpora/rare.txt";
 
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
@@ -65,8 +65,8 @@ set collector.all.w_forbid_2 = true;
 */
 //set collector.init = -100.0;
 //set collector.all.w_pos_2 = true;
-//set collector.all.w_forbid_1 = true;
-//set collector.all.w_forbid_2 = true;
+set collector.all.w_forbid_1 = true;
+set collector.all.w_forbid_2 = true;
 
 collect;
 
@@ -89,16 +89,18 @@ set learner.solver.maxIterations = 10;
 set learner.solver.integer = true;
 set learner.solver.deterministicFirst = false;
 set learner.update = "mira";
-set learner.update.signs = true;
+set learner.update.signs = false;
 set learner.maxCandidates = 10;
 //set learner.loss = "avgF1";
-set learner.loss = "avgNumErrors";
+set learner.loss = "globalNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
-set learner.maxViolations = 1;
+set learner.maxViolations = 0;
 //set learner.useGreedy = true;
 
 //next; print atoms.brill;
+
+next; print atoms;
 
 //learn for 1 epochs;
 
