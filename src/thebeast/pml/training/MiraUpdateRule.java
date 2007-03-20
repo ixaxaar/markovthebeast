@@ -24,10 +24,12 @@ public class MiraUpdateRule implements UpdateRule {
   //private int[] mapping;
   //private Weights weights;
 
+  private int epoch = 0;
+
   private static Profiler profiler = new TreeProfiler();
 
   public void endEpoch() {
-
+    epoch = 0;
   }
 
 
@@ -78,8 +80,10 @@ public class MiraUpdateRule implements UpdateRule {
 
     for (int candidateIndex = 0; candidateIndex < candidates.size(); ++candidateIndex) {
       SparseVector diffVector = diffVectors.get(candidateIndex);
-      //System.out.println("Diff " + candidateIndex);
-      //System.out.println(weights.toString(diffVector));
+//      if (epoch == 0){
+//        System.out.println("Diff " + candidateIndex);
+//        System.out.println(weights.toString(diffVector));
+//      }
 
       diffs[candidateIndex] = diffVector;
       double diffScore = weights.dotProduct(diffVector);
@@ -130,6 +134,7 @@ public class MiraUpdateRule implements UpdateRule {
       profiler.end();
     }
 
+    ++epoch;
   }
 
   public void setProperty(PropertyName name, Object value) {

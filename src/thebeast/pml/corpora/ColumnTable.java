@@ -11,10 +11,17 @@ public class ColumnTable {
   private HashMap<Integer,Integer> maxStringLength = new HashMap<Integer, Integer>();
 
   private int columns = 0;
+  private int min = 0;
+  private int max = 0;
 
   public void add(int line, int column, String value) {
     if (column >= columns)
       columns = column + 1;
+    if (line < min)
+      min = line;
+    if (line > max)
+      max = line;
+
     HashMap<Integer, String> row = rows.get(line);
     if (row == null) {
       row = new HashMap<Integer, String>();
@@ -31,7 +38,7 @@ public class ColumnTable {
 
   public void write(PrintStream os, int firstLine, boolean withLineNrs) {
 
-    for (int i = firstLine; i < rows.size(); ++i) {
+    for (int i = firstLine + min; i <= max; ++i) {
       HashMap<Integer, String> row = rows.get(i);
       if (withLineNrs)
         os.printf("%-3d", i);

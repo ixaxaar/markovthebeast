@@ -30,10 +30,10 @@ set learner.update.signs = true;
 set learner.maxCandidates = 10;
 set learner.average = true;
 set learner.maxViolations = 1;
-set learner.loss = "avgNumErrors";
+set learner.loss = "globalNumErrors";
 set learner.profile = true;
 
-learn for 40 epochs;
+learn for 60 epochs;
 
 save weights to dump "/tmp/weights.dmp";
 
