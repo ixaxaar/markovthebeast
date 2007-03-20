@@ -8,11 +8,12 @@ include "tagging.pml";
 include "global.pml";
 
 include "pos-unigram.pml";
+include "pos-brill.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
-include "chunk-phrase.pml";
-include "chunk-pos.pml";
+//include "chunk-phrase.pml";
+//include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
@@ -22,13 +23,14 @@ observed:
 
 hidden: chunk, pos;
 
-global: cpos, verycoarse, rare;
+global: cpos, verycoarse, rare, brill;
 
 set instancesCacheSize = 20;
 
 load global from "global.txt";
+load global.brill from "brill.txt";
 load global.rare from "corpora/rare.txt";
-                                                                                                                                                                   
+
 load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
@@ -63,8 +65,8 @@ set collector.all.w_forbid_2 = true;
 */
 //set collector.init = -100.0;
 //set collector.all.w_pos_2 = true;
-set collector.all.w_forbid_1 = true;
-set collector.all.w_forbid_2 = true;
+//set collector.all.w_forbid_1 = true;
+//set collector.all.w_forbid_2 = true;
 
 collect;
 
@@ -96,7 +98,9 @@ set learner.profile = true;
 set learner.maxViolations = 1;
 //set learner.useGreedy = true;
 
-learn for 5 epochs;
+//next; print atoms.brill;
+
+//learn for 1 epochs;
 
 //set learner.solver = "cut";
 

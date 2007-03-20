@@ -233,6 +233,11 @@ public class CuttingPlaneSolver implements Solver {
       return;
     }
 
+    /*
+    UserPredicate brill = model.getSignature().getUserPredicate("brill");
+    System.out.println("atoms.getGroundAtomsOf(brill).containsAtom(\"of\",\"IN\") = " + atoms.getGroundAtomsOf(brill).containsAtom("\"of\"", "\"IN\""));
+    */
+
     formulas.init();
     firstFormulas.init();
     //formulas = new GroundFormulas(model, weights);

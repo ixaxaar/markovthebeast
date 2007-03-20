@@ -68,13 +68,13 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     return new MemCategorical(chunk, 0, this);
   }
 
-  private String unknownWord(int index){
+  private String unknownWord(int index) {
     return UNKNOWN_REP;
 //    String rep = unknownIndices.get(index);
 //    return rep == null ? UNKNOWN_REP : "U:" + rep;
   }
 
-  private int unknownIndex(String rep){
+  private int unknownIndex(String rep) {
     return -1;
 //    Integer index = unknownWords.get(rep);
 //    if (index == null){
@@ -113,6 +113,15 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     src.nextToken();
     String s = src.ttype == '"' || src.ttype == '\'' ? "\"" + src.sval + "\"" : src.sval;
     Integer integer = indices.get(s);
+    System.out.println(name + " " + s);
+    if (!unknowns && integer == null)
+      throw new RuntimeException(this + " has no value " + s);
+    dst.intData[ptr.xInt] = integer == null ? -1 : integer;
+  }
+
+  public void load(String s, MemChunk dst, MemVector ptr) throws IOException {
+    Integer integer = indices.get(s);
+    //System.out.println(name + " " + s);
     if (!unknowns && integer == null)
       throw new RuntimeException(this + " has no value " + s);
     dst.intData[ptr.xInt] = integer == null ? -1 : integer;

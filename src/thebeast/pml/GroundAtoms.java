@@ -163,8 +163,11 @@ public class GroundAtoms implements Dumpable, SignatureListener {
         UserPredicate userPredicate = (UserPredicate) signature.getPredicate(pred);
         if (userPredicate.equals(predicate)) {
           StringBuffer buffer = new StringBuffer();
-          for (line = reader.readLine(); line != null && !line.equals("") && !line.startsWith(">"); line = reader.readLine())
+          int lineNr = 0;
+          for (line = reader.readLine(); line != null && !line.equals("") && !line.startsWith(">"); line = reader.readLine()){
             buffer.append(line).append("\n");
+            //System.out.println(lineNr++ + ":" + line);
+          }
           GroundAtomCollection atoms = getGroundAtomsOf(userPredicate);
           atoms.load(buffer.toString());
           return;

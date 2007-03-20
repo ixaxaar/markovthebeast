@@ -90,5 +90,10 @@ public class MemIntType extends AbstractScalarType implements IntType, Iterable<
     src.nextToken();
     dst.intData[ptr.xInt] = (int) src.nval;
   }
+
+
+  public void load(String src, MemChunk dst, MemVector ptr) throws IOException {
+    dst.intData[ptr.xInt] = Integer.valueOf(src);
+  }
 }
 
