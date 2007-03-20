@@ -49,4 +49,8 @@ public class MemBoolType extends AbstractScalarType implements BoolType {
     src.nextToken();
     dst.intData[ptr.xInt] = src.sval.equals("true") ? 1 : 0;
   }
+
+   public void load(String src, MemChunk dst, MemVector ptr) throws IOException {
+    dst.intData[ptr.xInt] = src.equals("true") ? 1 : 0;
+  }
 }

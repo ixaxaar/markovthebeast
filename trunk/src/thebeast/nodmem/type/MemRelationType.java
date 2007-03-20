@@ -4,13 +4,13 @@ import thebeast.nod.type.*;
 import thebeast.nod.value.Value;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.mem.MemPointer;
-import thebeast.nodmem.value.MemRelation;
 import thebeast.nodmem.value.AbstractMemValue;
+import thebeast.nodmem.value.MemRelation;
 
-import java.util.List;
-import java.util.LinkedList;
 import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Sebastian Riedel
@@ -91,39 +91,69 @@ public class MemRelationType extends AbstractMemType implements RelationType {
     //actually we need the inside chunk
     dst = dst.chunkData[ptr.xChunk];
     dst.size = 0;
-    BufferedReader r = new BufferedReader(new InputStreamReader(is));
-    r.mark(3);
-    int first = r.read();
-    if (first == '#'){
-      String line = r.readLine().trim();
-      int length = Integer.valueOf(line);
-      if (dst.capacity < length) dst.increaseCapacity(length - dst.capacity);
-    } else {
-      r.reset();
-    }
-    StreamTokenizer tokenizer = new StreamTokenizer(r);
-    tokenizer.parseNumbers();
-    tokenizer.quoteChar('"');
-    tokenizer.quoteChar('\'');
-    tokenizer.whitespaceChars(' ',' ');
-    tokenizer.whitespaceChars('\t','\t');
-    tokenizer.whitespaceChars('\n','\n');
-    MemVector current = new MemVector(ptr);
-    int line = 0;
-    while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
-      if (line++ >= dst.capacity) dst.increaseCapacity(40);
-      tokenizer.pushBack();
+//    BufferedReader r = new BufferedReader(new InputStreamReader(is));
+//    r.mark(3);
+//    int first = r.read();
+//    if (first == '#') {
+//      String line = r.readLine().trim();
+//      int length = Integer.valueOf(line);
+//      if (dst.capacity < length) dst.increaseCapacity(length - dst.capacity);
+//    } else {
+//      r.reset();
+//    }
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    int lineNr = 0;
+    MemVector current = new MemVector(ptr);    
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+      StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
+      //String[] split = line.split(" \t");
+      if (lineNr++ >= dst.capacity) dst.increaseCapacity(40);
       int index = 0;
       for (Attribute attribute : heading.attributes()) {
         AbstractMemType type = (AbstractMemType) attribute.type();
         MemVector local = new MemVector(current);
         local.add(heading.pointerForIndex(index++));
-        type.load(tokenizer, dst, local);
+        type.load(tokenizer.nextToken(), dst, local);
       }
       current.add(getDim());
       ++dst.size;
+
     }
     dst.unify();
+
+//    StreamTokenizer tokenizer = new StreamTokenizer(r);
+//
+//    //tokenizer.resetSyntax();
+//    tokenizer.parseNumbers();
+//    tokenizer.wordChars('"', '"');
+//    tokenizer.wordChars('\'', '\'');
+//    //tokenizer.quoteChar('"');
+//    //tokenizer.quoteChar('\'');
+//    tokenizer.whitespaceChars(' ', ' ');
+//    tokenizer.whitespaceChars('\t', '\t');
+//    tokenizer.whitespaceChars('\n', '\n');
+//    //tokenizer.eolIsSignificant(false);
+//    MemVector current = new MemVector(ptr);
+//    int line = 0;
+//    while (tokenizer.nextToken() != StreamTokenizer.TT_EOF)
+//
+//    {
+//      if (line++ >= dst.capacity) dst.increaseCapacity(40);
+//      tokenizer.pushBack();
+//      int index = 0;
+//      System.out.print(line + " ");
+//      for (Attribute attribute : heading.attributes()) {
+//        AbstractMemType type = (AbstractMemType) attribute.type();
+//        MemVector local = new MemVector(current);
+//        local.add(heading.pointerForIndex(index++));
+//        type.load(tokenizer, dst, local);
+//      }
+//      current.add(getDim());
+//      ++dst.size;
+//    }
+//    //System.out.println(dst.size);
+//    dst.unify();
+    //System.out.println(dst.size);
   }
 
 

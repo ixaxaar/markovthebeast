@@ -21,6 +21,11 @@ public abstract class AbstractMemType implements Type {
 
   }
 
+  public void load(String src, MemChunk dst, MemVector ptr) throws IOException {
+
+  }
+
+
   public enum DataType {
     INT, DOUBLE, CHUNK
   }

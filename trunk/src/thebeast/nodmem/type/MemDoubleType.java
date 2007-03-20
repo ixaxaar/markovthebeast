@@ -64,4 +64,8 @@ public class MemDoubleType extends AbstractScalarType implements DoubleType {
     src.nextToken();
     dst.doubleData[ptr.xDouble] = src.nval;
   }
+
+   public void load(String src, MemChunk dst, MemVector ptr) throws IOException {
+    dst.doubleData[ptr.xDouble] = Double.valueOf(src);
+  }
 }
