@@ -42,6 +42,7 @@
 "NNS"     N
 "DT"      D
 "WRB"     WR
+START	  START
 
 >verycoarse
 "``"      O
