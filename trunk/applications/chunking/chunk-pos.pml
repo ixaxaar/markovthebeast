@@ -60,55 +60,55 @@ factor:
 */
 //coarse pos
 
-//CPOS|POS|CPOS
-weight w_boundary_1_cpos: Cpos x Pos x Cpos x Chunk -> Double+;
+//CPOS|CPOS|CPOS
+weight w_boundary_1_cpos: Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Cpos cp1, Cpos cp3, Chunk c
-  if cpos(p1,cp1) & cpos(p3,cp3)
+  for Int b, Pos p1, Pos p2, Pos p3, Cpos cp1, Cpos cp2, Cpos cp3, Chunk c
+  if cpos(p1,cp1) & cpos(p2, cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+1,p3) => chunk(b,b,c)] *
-    w_boundary_1_cpos(cp1,p2,cp3,c);
+    w_boundary_1_cpos(cp1,cp2,cp3,c);
 
-//CPOS|POS POS|CPOS
-weight w_boundary_2_cpos: Cpos x Pos x Pos x Cpos x Chunk -> Double+;
+
+//CPOS|CPOS CPOS|CPOS
+weight w_boundary_2_cpos: Cpos x Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c
-  if cpos(p1,cp1) & cpos(p4,cp4)
+  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c, Cpos cp2, Cpos cp3
+  if cpos(p1,cp1) & cpos(p4,cp4) & cpos(p2,cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+1,p3) & pos(b+2,p4) => chunk(b,b+1,c)] *
-    w_boundary_2_cpos(cp1,p2,p3,cp4,c);
+    w_boundary_2_cpos(cp1,cp2,cp3,cp4,c);
 
 
-//CPOS|POS _ POS|CPOS
-weight w_boundary_3_cpos: Cpos x Pos x Pos x Cpos x Chunk -> Double+;
+//CPOS|CPOS _ CPOS|CPOS
+weight w_boundary_3_cpos: Cpos x Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c
-  if cpos(p1,cp1) & cpos(p4,cp4)
+  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c, Cpos cp2, Cpos cp3
+  if cpos(p1,cp1) & cpos(p4,cp4) & cpos(p2,cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+2,p3) & pos(b+3,p4) => chunk(b,b+2,c)] *
-    w_boundary_3_cpos(cp1,p2,p3,cp4,c);
+    w_boundary_3_cpos(cp1,cp2,cp3,cp4,c);
 
-//CPOS|POS _ _ POS|CPOS
-weight w_boundary_4_cpos: Cpos x Pos x Pos x Cpos x Chunk -> Double+;
+//CPOS|CPOS _ _ CPOS|CPOS
+weight w_boundary_4_cpos: Cpos x Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c
-  if cpos(p1,cp1) & cpos(p4,cp4)
+  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c, Cpos cp2, Cpos cp3
+  if cpos(p1,cp1) & cpos(p4,cp4) & cpos(p2,cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+3,p3) & pos(b+4,p4) => chunk(b,b+3,c)] *
-    w_boundary_4_cpos(cp1,p2,p3,cp4,c);
+    w_boundary_4_cpos(cp1,cp2,cp3,cp4,c);
 
-//CPOS|POS _ _ _ POS|CPOS
-weight w_boundary_5_cpos: Cpos x Pos x Pos x Cpos x Chunk -> Double+;
+//CPOS|CPOS _ _ _ CPOS|CPOS
+weight w_boundary_5_cpos: Cpos x Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c
-  if cpos(p1,cp1) & cpos(p4,cp4)
+  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c, Cpos cp2, Cpos cp3
+  if cpos(p1,cp1) & cpos(p4,cp4) & cpos(p2,cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+4,p3) & pos(b+5,p4) => chunk(b,b+4,c)] *
-    w_boundary_5_cpos(cp1,p2,p3,cp4,c);
+    w_boundary_5_cpos(cp1,cp2,cp3,cp4,c);
 
-//CPOS|POS _ _ _ _ POS|CPOS
-weight w_boundary_6_cpos: Cpos x Pos x Pos x Cpos x Chunk -> Double+;
+//CPOS|CPOS _ _ _ _ CPOS|CPOS
+weight w_boundary_6_cpos: Cpos x Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
-  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c
-  if cpos(p1,cp1) & cpos(p4,cp4)
+  for Int b, Pos p1, Pos p2, Pos p3, Pos p4, Cpos cp1, Cpos cp4, Chunk c, Cpos cp2, Cpos cp3
+  if cpos(p1,cp1) & cpos(p4,cp4) & cpos(p2,cp2) & cpos(p3,cp3)
   add [pos(b-1,p1) & pos(b,p2) & pos(b+5,p3) & pos(b+6,p4) => chunk(b,b+5,c)] *
-    w_boundary_6_cpos(cp1,p2,p3,cp4,c);
-
+    w_boundary_6_cpos(cp1,cp2,cp3,cp4,c);
 
 
 /*
