@@ -84,8 +84,10 @@ public class QueryGenerator {
     BooleanFormula condition = factorFormula.getCondition();
 
     BooleanFormula negated = new Not(factorFormula.getFormula());
+    //todo: to decide whether condition or formula comes first we need to see if we can use the formula to bind free variables.
     BooleanFormula both = condition == null ?
-            negated : new Conjunction(condition, negated);
+            negated : factorFormula.getFormula() instanceof CardinalityConstraint ?
+            new Conjunction(condition,negated) : new Conjunction(negated,condition);
     processGlobalFormula(both, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -230,7 +232,8 @@ public class QueryGenerator {
       for (Term term : weight.getArguments()) {
         Term resolved = resolver.resolve(term, conjunctionContext.var2term);
         if (resolver.getUnresolved().size() > 0)
-          throw new RuntimeException("During collection all terms in the weight function application must be bound");
+          throw new RuntimeException("During collection all terms in the weight function application must be bound" +
+                  " but this is not the case for " + factorFormula);
         Expression expr = generator.convertTerm(resolved, groundAtoms, weights,
                 conjunctionContext.var2expr, conjunctionContext.var2term);
         conjunctionContext.selectBuilder.id(function.getColumnName(argIndex++)).expr(expr);

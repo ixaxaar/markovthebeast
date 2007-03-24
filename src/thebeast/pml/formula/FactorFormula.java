@@ -120,7 +120,7 @@ public class FactorFormula {
   }
 
   public String toShortString(){
-    return toString.length() > 20 ? toString.substring(toString.length()-20) : toString;
+    return toString.length() > 30 ? toString.substring(toString.length()-30) : toString;
   }
 
   public Heading getSolutionHeading() {

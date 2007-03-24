@@ -12,12 +12,12 @@ load global.rare from "corpora/rare.txt";
 
 set instancesCacheSize = 3;
 
-load corpus from conll00 "corpora/test.conll";
+load corpus from conll00 "corpora/train.conll";
 
 save corpus (0-100) to ram;
 
-load weights from dump "/tmp/weights.dmp";
-//load weights from dump "/tmp/epoch_30.dmp";
+//load weights from dump "/tmp/weights.dmp";
+load weights from dump "/tmp/epoch_30.dmp";
 
 
 set solver.ilp.solver = "lpsolve";
