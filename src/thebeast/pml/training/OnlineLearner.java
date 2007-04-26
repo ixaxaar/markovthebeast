@@ -285,7 +285,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < candidateAtoms.size() && i <= maxCandidates; ++i) {
       int violationCount = candidateFormulas.get(i).getViolationCount();
-      maxViolations = 1;
+      //maxViolations = 1;
       if (violationCount < maxViolations) {
         //System.out.print(violationCount + " ");
         GroundAtoms guessAtoms = candidateAtoms.get(i);

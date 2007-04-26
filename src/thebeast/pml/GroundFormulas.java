@@ -9,6 +9,7 @@ import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
+import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.function.WeightFunction;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
@@ -298,7 +299,7 @@ public class GroundFormulas {
     isDeterministic = false;
   }
 
-  public void init(){
+  public void init() {
     for (RelationVariable var : allExplicitGroundFormulas.values())
       interpreter.clear(var);
     for (RelationVariable var : explicitGroundFormulas.values())
@@ -316,16 +317,16 @@ public class GroundFormulas {
 
   }
 
-  public int size(){
+  public int size() {
     int size = 0;
     for (RelationVariable var : allExplicitGroundFormulas.values())
       size += var.value().size();
     return size;
   }
 
-  public void updateDeterministic(GroundAtoms solution){
+  public void updateDeterministic(GroundAtoms solution) {
     clear();
-    update(solution,model.getDeterministicFormulas());
+    update(solution, model.getDeterministicFormulas());
     isDeterministic = true;
   }
 
@@ -333,10 +334,14 @@ public class GroundFormulas {
     return isDeterministic;
   }
 
-  public int getViolationCount(){
+  public int getViolationCount() {
     int count = 0;
     for (FactorFormula formula : model.getDeterministicFormulas()) {
-      count += tmpExplicitGroundFormulas.get(formula).value().size();
+      if (formula.getFormula() instanceof AcyclicityConstraint) {
+        AcyclicityConstraint acyclicityConstraint = (AcyclicityConstraint) formula.getFormula();
+        count += cycles.get(acyclicityConstraint.getPredicate()).value().size();
+      } else
+        count += tmpExplicitGroundFormulas.get(formula).value().size();
     }
     return count;
   }
@@ -350,7 +355,7 @@ public class GroundFormulas {
    * @param formulas the formulas to find ground formulas for.
    */
   public void update(GroundAtoms solution, Collection<FactorFormula> formulas) {
-    this.groundAtoms.load(model.getGlobalAtoms(),model.getGlobalPredicates());
+    this.groundAtoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
     this.groundAtoms.load(solution, model.getInstancePredicates());
     //System.out.println(this.groundAtoms);
     for (FactorFormula factorFormula : formulas) {
@@ -359,8 +364,8 @@ public class GroundFormulas {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
       } else if (!factorFormula.isLocal()) {
-        profiler.start("..." + name.substring(name.length()- 30));
-              //RelationVariable both = getExplicitGroundFormulas(factorFormula);
+        profiler.start("..." + name.substring(name.length() - 30));
+        //RelationVariable both = getExplicitGroundFormulas(factorFormula);
         RelationVariable both = tmpExplicitGroundFormulas.get(factorFormula);
         interpreter.clear(both);
         if (!factorFormula.getWeight().isNonNegative()) {
@@ -385,7 +390,7 @@ public class GroundFormulas {
     }
   }
 
-  public RelationVariable getAllGroundFormulas(FactorFormula formula){
+  public RelationVariable getAllGroundFormulas(FactorFormula formula) {
     return allExplicitGroundFormulas.get(formula);
   }
 
