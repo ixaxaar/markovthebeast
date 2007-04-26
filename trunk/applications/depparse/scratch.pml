@@ -3,7 +3,7 @@
 
 include "corpora/english_ptb_train.1of2.pml";
 include "conll06.pml";
-include "proj.pml";
+include "nonproj.pml";
 
 hidden: link, dep;
 observed: word, pos, cpos, prefix;
@@ -23,11 +23,25 @@ load weights from dump "/tmp/weights.blank.dmp";
 save corpus to instances "/tmp/instances.dmp";
 load instances from dump "/tmp/instances.dmp";
 
-set learner.average = true;
-set learner.solver.maxIterations = 0;
-learn for 2 epochs;
-set learner.solver.maxIterations = 4;
-learn for 6 epochs;
+set learner.solver.ilp.solver = "lpsolve";
+//set learner.solver.ilp.solver = "cbc";
+//set learner.solver.ilp.solver.maxNodes = 4;
+//set learner.solver.ilp.solver.gap = 20.0;
+//set learner.solver.ilp.solver.implementation = "cbc";
+set learner.solver.maxIterations = 10;
+set learner.solver.integer = false;
+set learner.solver.deterministicFirst = false;
+set learner.update = "mira";
+set learner.update.signs = false;
+set learner.maxCandidates = 10;
+set learner.loss = "avgF1";
+//set learner.loss = "globalNumErrors";
+set learner.profile = true;
+//set learner.penalizeGold = true;
+set learner.maxViolations = 1000;
+set learner.useGreedy = true;
+
+learn for 4 epochs;
 
 print learner.profiler;
 //print weights.pos;
