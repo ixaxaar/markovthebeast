@@ -23,6 +23,7 @@ import thebeast.pml.training.TrainingInstances;
 import thebeast.pml.solve.ILPSolverLpSolve;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.ILPSolver;
+import thebeast.pml.solve.IntegerLinearProgram;
 import thebeast.util.QuietProgressReporter;
 import thebeast.util.TreeProfiler;
 
@@ -1317,9 +1318,9 @@ public class TestTheBeast extends TestCase {
 
     OnlineLearner learner = new OnlineLearner(model, weights);
     learner.setNumEpochs(1);
-    CuttingPlaneSolver cpSolver = new CuttingPlaneSolver();
+    IntegerLinearProgram ilp = new IntegerLinearProgram(new ILPSolverLpSolve());
+    CuttingPlaneSolver cpSolver = new CuttingPlaneSolver(ilp);
     learner.setSolver(cpSolver);
-    cpSolver.setILPSolver(new ILPSolverLpSolve());
     learner.setUpdateRule(new PerceptronUpdateRule());
     learner.setMaxCandidates(1);
     learner.setUseGreedy(true);

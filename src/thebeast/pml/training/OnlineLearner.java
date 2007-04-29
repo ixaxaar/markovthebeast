@@ -49,7 +49,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private String savePrefix = "/tmp/epoch_";
 
   private int numEpochs;
-  private int maxViolations;
+  private int maxViolations = Integer.MAX_VALUE;
   private int instanceNr;
 
   public OnlineLearner(Model model, Weights weights) {

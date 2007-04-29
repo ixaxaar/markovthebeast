@@ -21,7 +21,7 @@ terminal String LOWERCASEID, UPPERCASEID;
 terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
 terminal PLUS, MINUS, TIMES;
-terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER, GEQ, LEQ;
+terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER, GEQ, GEQCLOSURE, LEQ;
 terminal EXCL;
 terminal TILDE, HASH, AT;
 terminal EQUIVALENCE, AND, IMPLIES, DOUBLEAND, DOUBLEBAR;
@@ -342,6 +342,8 @@ formula ::=
     {: RESULT = new ParserCardinalityConstraint(new ParserIntConstant(Integer.MIN_VALUE),q,f,ub); :}
   | BAR quantification:q COLON formula:f BAR GEQ term:lb
     {: RESULT = new ParserCardinalityConstraint(lb, q, f, new ParserIntConstant(Integer.MAX_VALUE)); :}
+  | BAR quantification:q COLON formula:f BAR GEQCLOSURE term:lb
+    {: RESULT = new ParserCardinalityConstraint(lb, q, f, new ParserIntConstant(Integer.MAX_VALUE), true); :}
   | LOWERCASEID:pred ACYCLIC
     {: RESULT = new ParserAcyclicityConstraint(pred); :}
   | term:lhs LESSTHAN term:rhs

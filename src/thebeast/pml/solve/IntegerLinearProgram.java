@@ -1,4 +1,4 @@
-package thebeast.pml;
+package thebeast.pml.solve;
 
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Insert;
@@ -20,6 +20,7 @@ import thebeast.pml.solve.ILPSolver;
 import thebeast.pml.solve.ILPSolverLpSolve;
 import thebeast.pml.solve.ILPSolverOsi;
 import thebeast.pml.solve.ILPSolverCbc;
+import thebeast.pml.*;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
@@ -28,7 +29,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class IntegerLinearProgram implements HasProperties {
+public class IntegerLinearProgram implements PropositionalModel {
 
   private RelationVariable
           constraints, newConstraints, vars, newVars, result;
@@ -112,6 +113,14 @@ public class IntegerLinearProgram implements HasProperties {
 
   public IntegerLinearProgram(Model model, Weights weights, ILPSolver solver) {
     this.solver = solver;
+    configure(model, weights);
+  }
+
+  public IntegerLinearProgram(ILPSolver solver) {
+    this.solver = solver;
+  }
+
+  public void configure(Model model, Weights weights) {
     this.model = model;
     varCount = interpreter.createIntVariable(builder.num(0).getInt());
     lastVarCount = interpreter.createIntVariable(builder.num(0).getInt());
@@ -201,8 +210,6 @@ public class IntegerLinearProgram implements HasProperties {
         }
       }
     }
-
-
   }
 
 
@@ -434,16 +441,17 @@ public class IntegerLinearProgram implements HasProperties {
 
 
   public String toString() {
-    StringBuffer buffer = new StringBuffer();
-    for (UserPredicate pred : groundAtom2index.keySet())
-      buffer.append(pred.getName()).append(":\n").append(groundAtom2index.get(pred).value());
-
-    buffer.append("Variables:\n");
-    buffer.append(vars.value());
-    buffer.append("Constraints:\n");
-    buffer.append(constraints.value());
-
-    return buffer.toString();
+    return toLpSolveFormat();
+//    StringBuffer buffer = new StringBuffer();
+//    for (UserPredicate pred : groundAtom2index.keySet())
+//      buffer.append(pred.getName()).append(":\n").append(groundAtom2index.get(pred).value());
+//
+//    buffer.append("Variables:\n");
+//    buffer.append(vars.value());
+//    buffer.append("Constraints:\n");
+//    buffer.append(constraints.value());
+//
+//    return buffer.toString();
   }
 
 
@@ -480,7 +488,7 @@ public class IntegerLinearProgram implements HasProperties {
 
 
   /**
-   * Calling this method will guarantee that when {@link thebeast.pml.IntegerLinearProgram#solve(GroundAtoms)} is called
+   * Calling this method will guarantee that when {@link IntegerLinearProgram#solve(GroundAtoms)} is called
    * the next time the solution will be integer.
    */
   public void enforceIntegerSolution() {

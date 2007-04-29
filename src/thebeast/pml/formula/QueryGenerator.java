@@ -7,6 +7,7 @@ import thebeast.nod.type.TupleType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.*;
 import thebeast.pml.*;
+import thebeast.pml.solve.IntegerLinearProgram;
 import thebeast.pml.predicate.*;
 import thebeast.pml.function.*;
 import thebeast.pml.term.*;

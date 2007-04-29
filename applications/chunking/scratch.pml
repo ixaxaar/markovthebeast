@@ -12,13 +12,13 @@ include "pos-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
-//include "chunk-phrase.pml";
-include "chunk-pos.pml";
+include "chunk-phrase.pml";
+//include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
 observed:
-  word, case, cardinal, hyphen, count, highestfreq,
+  word, case, cardinal, hyphen, count, highestfreq, firstname, lastname, orgname, company, placename, stopword,
   prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4;
 
 hidden: chunk, pos;
@@ -36,7 +36,7 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-100) to ram;
+save corpus (0-10) to ram;
 
 /*
 set collector.all.w_case = true;
@@ -65,8 +65,8 @@ set collector.all.w_forbid_2 = true;
 */
 //set collector.init = -100.0;
 //set collector.all.w_pos_2 = true;
-set collector.all.w_forbid_1 = true;
-set collector.all.w_forbid_2 = true;
+//set collector.all.w_forbid_1 = true;
+//set collector.all.w_forbid_2 = true;
 
 collect;
 
@@ -85,8 +85,8 @@ set learner.solver.ilp.solver = "lpsolve";
 //set learner.solver.ilp.solver.maxNodes = 4;
 //set learner.solver.ilp.solver.gap = 20.0;
 //set learner.solver.ilp.solver.implementation = "cbc";
-set learner.solver.maxIterations = 10;
-set learner.solver.integer = true;
+set learner.solver.maxIterations = 5;
+set learner.solver.integer = false;
 set learner.solver.deterministicFirst = false;
 set learner.update = "mira";
 set learner.update.signs = false;
@@ -95,14 +95,14 @@ set learner.maxCandidates = 10;
 set learner.loss = "globalNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
-set learner.maxViolations = 0;
-//set learner.useGreedy = true;
+//set learner.maxViolations = 100;
+set learner.useGreedy = true;
 
 //next; print atoms.brill;
 
-next; print atoms;
+//next; print atoms;
 
-//learn for 1 epochs;
+learn for 10 epochs;
 
 //set learner.solver = "cut";
 

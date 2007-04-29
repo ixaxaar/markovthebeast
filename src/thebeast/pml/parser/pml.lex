@@ -102,6 +102,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> ">" { return symbol(sym.GREATER); }
 <YYINITIAL> "<=" { return symbol(sym.LEQ); }
 <YYINITIAL> ">=" { return symbol(sym.GEQ); }
+<YYINITIAL> "*>=" { return symbol(sym.GEQCLOSURE); }
 <YYINITIAL> "->" { return symbol(sym.ARROW); }
 <YYINITIAL> "~>" { return symbol(sym.CURLYARROW); }
 <YYINITIAL> "let" { return symbol(sym.LET); }

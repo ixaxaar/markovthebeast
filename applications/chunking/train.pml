@@ -32,7 +32,7 @@ set learner.average = true;
 set learner.maxViolations = 1;
 set learner.loss = "globalNumErrors";
 set learner.profile = true;
-set learner.
+//set learner.
 
 learn for 60 epochs;
 
