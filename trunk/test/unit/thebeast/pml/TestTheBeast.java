@@ -423,7 +423,7 @@ public class TestTheBeast extends TestCase {
 
     assertTrue(indices.contains(4));
     assertFalse(indices.contains(5));
-    assertEquals(5,indices.size());
+    assertEquals(5, indices.size());
     System.out.println(indices);
 
   }
@@ -640,7 +640,7 @@ public class TestTheBeast extends TestCase {
     assertTrue(features.containsFeature(phrase, 0, 0, 1, "NP"));
     assertTrue(features.containsFeature(phrase, 2, 0, 1, "NP"));
     System.out.println(features.toVerboseString());
-    System.out.println(features.toVerboseString(phrase, 0,1, "NP"));
+    System.out.println(features.toVerboseString(phrase, 0, 1, "NP"));
     //features.invalidate();
     RelationVariable grouped = features.getGroupedRelation(phrase);
     System.out.println(grouped.value());
@@ -649,7 +649,7 @@ public class TestTheBeast extends TestCase {
 
     //test closure
     GroundAtoms closure = features.getClosure();
-    assertEquals(17,closure.getGroundAtomsOf(phrase).size());
+    assertEquals(17, closure.getGroundAtomsOf(phrase).size());
     System.out.println(closure);
 
   }
@@ -676,9 +676,9 @@ public class TestTheBeast extends TestCase {
     assertEquals(0.0, byGrouping.getScore(phrase, 2, 3, "VP"));
 
     GroundAtoms gold = signature.createGroundAtoms();
-    gold.getGroundAtomsOf(phrase).addGroundAtom(0,1,"NP");
-    gold.getGroundAtomsOf(phrase).addGroundAtom(3,4,"NP");
-    gold.getGroundAtomsOf(phrase).addGroundAtom(2,4,"VP");
+    gold.getGroundAtomsOf(phrase).addGroundAtom(0, 1, "NP");
+    gold.getGroundAtomsOf(phrase).addGroundAtom(3, 4, "NP");
+    gold.getGroundAtomsOf(phrase).addGroundAtom(2, 4, "VP");
 
     byGrouping.penalize(gold);
     assertEquals(8.0, byGrouping.getScore(phrase, 0, 0, "NP"));
@@ -933,9 +933,9 @@ public class TestTheBeast extends TestCase {
     System.out.println(ilp.indexToVariableString(1));
     System.out.println(ilp.indexToPredicateString(1));
     System.out.println(ilp.indexToPredicateString(0));
-    System.out.println(ilp.getVariableIndex(phrase,0,1,"NP"));
+    System.out.println(ilp.getVariableIndex(phrase, 0, 1, "NP"));
     System.out.println(ilp.toLpSolveFormat());
-    System.out.println(ilp.allConstraintsFor(phrase,0,1,"NP"));
+    System.out.println(ilp.allConstraintsFor(phrase, 0, 1, "NP"));
 
     GroundAtoms solution = signature.createGroundAtoms();
     //these should be removed (the solver gives them a zero value
@@ -1163,7 +1163,7 @@ public class TestTheBeast extends TestCase {
 
     assertEquals(1, ilp.getConstraints().value().size());
     System.out.println(ilp.getConstraints().value());
-    
+
 
     assertTrue(ilp.getConstraints().contains(1.0, Double.POSITIVE_INFINITY, new Object[]{
             new Object[]{0, 1.0},
@@ -1326,9 +1326,8 @@ public class TestTheBeast extends TestCase {
     learner.setUseGreedy(true);
     File file = new File(toString());
     file.delete();
-    TrainingInstances instances =
-            new TrainingInstances(file, new LocalFeatureExtractor(model, weights),corpus,
-                    1000000,new QuietProgressReporter());
+    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), corpus,
+            1000000, new QuietProgressReporter());
     learner.learn(instances);
 
     //learner.learn(corpus);
