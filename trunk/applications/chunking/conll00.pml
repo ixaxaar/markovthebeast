@@ -16,5 +16,15 @@ predicate postfix3:  Int x Postfix3;
 predicate prefix4:   Int x Prefix4;
 predicate postfix4:  Int x Postfix4;
 
+type Inset : Yes,No;
+
+predicate name: Int x Inset;
+predicate firstname: Int x Inset;
+predicate lastname: Int x Inset;
+predicate orgname: Int x Inset;
+predicate placename: Int x Inset;
+predicate company: Int x Inset;
+predicate stopword: Int x Inset;
+
 index: chunk(*,*,_);
 index: highestfreq(*,*,_);

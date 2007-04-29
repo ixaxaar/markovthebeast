@@ -17,8 +17,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class CuttingPlaneSolver implements Solver {
 
-  private IntegerLinearProgram ilp;
-  private IntegerLinearProgram firstIlp;
+  private PropositionalModel propositionalModel;
   private GroundFormulas formulas;
   private GroundFormulas firstFormulas;
   private int maxIterations = 10;
@@ -33,7 +32,6 @@ public class CuttingPlaneSolver implements Solver {
   private Weights weights;
   private int iteration;
   private boolean done, scoresSet, initSet, updated, deterministicFirst;
-  public ILPSolver ilpSolver;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
@@ -49,16 +47,20 @@ public class CuttingPlaneSolver implements Solver {
 
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
-    ilpSolver = new ILPSolverOsi();
+    this(new IntegerLinearProgram(new ILPSolverLpSolve()));
   }
 
+
+
+  public CuttingPlaneSolver(PropositionalModel propositionalModel) {
+    this.propositionalModel = propositionalModel;
+    propositionalModel.setProfiler(profiler);
+  }
 
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
-    ilp = new IntegerLinearProgram(model, weights, ilpSolver);
-    firstIlp = new IntegerLinearProgram(model, weights, ilpSolver);
-    ilp.setProfiler(profiler);
+    propositionalModel.configure(model,weights);
     formulas = new GroundFormulas(model, weights);
     firstFormulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
@@ -117,12 +119,13 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
-    if (ilp != null) ilp.setProfiler(profiler);
+    if (propositionalModel != null) propositionalModel.setProfiler(profiler);
     if (formulas != null) formulas.setProfiler(profiler);
   }
 
-  public void setILPSolver(ILPSolver solver) {
-    ilp.setSolver(solver);
+
+  public void setPropositionalModel(PropositionalModel propositionalModel) {
+    this.propositionalModel = propositionalModel;
   }
 
 
@@ -164,8 +167,7 @@ public class CuttingPlaneSolver implements Solver {
     done = false;
     this.scores.load(scores);
     //ilp = new IntegerLinearProgram(model, weights, ilpSolver);
-    ilp.init(this.scores);
-    firstIlp.init(this.scores);
+    propositionalModel.init(this.scores);
     scoresSet = true;
   }
 
@@ -180,7 +182,7 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.println(formulas);
 
     profiler.start("ilp.update");
-    ilp.update(formulas, atoms);
+    propositionalModel.update(formulas, atoms);
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
@@ -209,7 +211,7 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.println(formulas);
 
     profiler.start("ilp.update");
-    ilp.update(formulas, atoms);
+    propositionalModel.update(formulas, atoms);
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
@@ -253,8 +255,7 @@ public class CuttingPlaneSolver implements Solver {
     candidateFormulas.clear();
     iteration = 0;
     if (!scoresSet) score();
-    ilp.setClosure(scores.getClosure());
-    firstIlp.setClosure(scores.getClosure());
+    propositionalModel.setClosure(scores.getClosure());
     if (!initSet) initSolution();
     //new SentencePrinter().print(atoms, System.out);
 
@@ -273,18 +274,18 @@ public class CuttingPlaneSolver implements Solver {
     profiler.start("iterations");
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
-    while (ilp.changed() && iteration < maxIterations) {
+    while (propositionalModel.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
-      ilp.solve(atoms);
+      propositionalModel.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);
 
       profiler.end();
       ++iteration;
       update();
       addCandidate();
-      if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
+      if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         //System.out.println("fractional");
-        ilp.enforceIntegerSolution();
+        propositionalModel.enforceIntegerSolution();
       }
 //      if (iteration == 1){
 //        System.out.print(formulas.size() + " -> ");
@@ -296,11 +297,13 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.print(iteration);
     profiler.end();
 
-    done = ilp.changed();
+    done = propositionalModel.changed();
 
     profiler.end();
 
     if (printHistory) printHistory();
+
+    //System.out.println(ilp.toLpSolveFormat());
   }
 
   /**
@@ -308,9 +311,13 @@ public class CuttingPlaneSolver implements Solver {
    * a initial guess (either from the last time this method was called or through external specification) this
    * guess is used as a starting point. If not a greedy solution is used as a starting point.
    *
+   * <p>This version only adds global features/soft constraints if no hard constraints (==less than maxViolationsForNonDeterministic)
+   * are violated in the current solution.
+   *
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solveAlternating(int maxIterations) {
+    //todo: factorize this! use the solve method and parametrize the update function to use
 
     formulas.init();
     firstFormulas.init();
@@ -327,8 +334,7 @@ public class CuttingPlaneSolver implements Solver {
     candidateFormulas.clear();
     iteration = 0;
     if (!scoresSet) score();
-    ilp.setClosure(scores.getClosure());
-    firstIlp.setClosure(scores.getClosure());
+    propositionalModel.setClosure(scores.getClosure());
     if (!initSet) initSolution();
     //new SentencePrinter().print(atoms, System.out);
 
@@ -341,19 +347,19 @@ public class CuttingPlaneSolver implements Solver {
     profiler.start("iterations");
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
-    while (ilp.changed() && iteration < maxIterations) {
+    while (propositionalModel.changed() && iteration < maxIterations) {
       profiler.start("ilp.solve");
-      ilp.solve(atoms);
+      propositionalModel.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);
 
       profiler.end();
       ++iteration;
       updateAlternating();
       addCandidate();
-      if (enforceIntegers && ilp.isFractional()) {
+      if (enforceIntegers && propositionalModel.isFractional()) {
       //if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
         //System.out.println("fractional");
-        ilp.enforceIntegerSolution();
+        propositionalModel.enforceIntegerSolution();
       }
 //      if (iteration == 1){
 //        System.out.print(formulas.size() + " -> ");
@@ -365,7 +371,7 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.print(iteration);
     profiler.end();
 
-    done = ilp.changed();
+    done = propositionalModel.changed();
 
     profiler.end();
 
@@ -401,11 +407,11 @@ public class CuttingPlaneSolver implements Solver {
     setGreedy();
     //addCandidate();
     //update the ilp (but only with hard constraints)
-    ilp.update(formulas, atoms, model.getDeterministicFormulas());
+    propositionalModel.update(formulas, atoms, model.getDeterministicFormulas());
     //System.out.println(ilp.toLpSolveFormat());
-    if (ilp.changed()) {
+    if (propositionalModel.changed()) {
       //some constraints were violated -> lets solve
-      ilp.solve(atoms);
+      propositionalModel.solve(atoms);
       //ilp.update(formulas,atoms,model.getNondeterministicFormulas());
       //create a new set of ground formulas and a new ilp
       update();
@@ -413,7 +419,7 @@ public class CuttingPlaneSolver implements Solver {
       addCandidate();
     } else {
       //formulas.update(atoms, model.getNondeterministicFormulas());
-      ilp.update(formulas, atoms);
+      propositionalModel.update(formulas, atoms);
     }
 
     profiler.end();
@@ -457,16 +463,11 @@ public class CuttingPlaneSolver implements Solver {
     scores.score(features, weights);
     profiler.end();
     profiler.start("ilp.init");
-    ilp.init(scores);
+    propositionalModel.init(scores);
     profiler.end();
     scoresSet = true;
     profiler.end();
   }
-
-  public ILPSolver getILPSolver() {
-    return ilp.getSolver();
-  }
-
 
   public GroundAtoms getBestAtoms() {
     return atoms;
@@ -526,7 +527,7 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("ilp"))
-      ilp.setProperty(name.getTail(), value);
+      propositionalModel.setProperty(name.getTail(), value);
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     if (name.getHead().equals("integer"))
@@ -540,16 +541,16 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  public IntegerLinearProgram getIlp() {
-    return ilp;
+  public PropositionalModel getPropositionalModel() {
+    return propositionalModel;
   }
 
   public Object getProperty(PropertyName name) {
     if (name.getHead().equals("ilp")) {
       if (name.getTail() == null)
-        return ilp.toLpSolveFormat();
+        return propositionalModel.toString();
       else
-        return ilp.getProperty(name.getTail());
+        return propositionalModel.getProperty(name.getTail());
     }
     if ("scores".equals(name.getHead()))
       return scores;
@@ -564,10 +565,7 @@ public class CuttingPlaneSolver implements Solver {
     return null;
   }
 
-  public IntegerLinearProgram getILP() {
-    return ilp;
-  }
-
+ 
   public void printHistory() {
     printHistory(System.out);
   }

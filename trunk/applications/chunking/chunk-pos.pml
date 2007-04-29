@@ -59,7 +59,7 @@ factor:
   add [pos(b-1,p1) & pos(b,p2) & pos(b+6,p3) & pos(b+7,p4) => chunk(b,b+6,c)] * w_boundary_7(p1,p2,p3,p4,c);
 */
 //coarse pos
-
+/*
 //CPOS|CPOS|CPOS
 weight w_boundary_1_cpos: Cpos x Cpos x Cpos x Chunk -> Double+;
 factor:
@@ -110,7 +110,7 @@ factor:
   add [pos(b-1,p1) & pos(b,p2) & pos(b+5,p3) & pos(b+6,p4) => chunk(b,b+5,c)] *
     w_boundary_6_cpos(cp1,cp2,cp3,cp4,c);
 
-
+*/
 /*
 //|POS|
 weight w_inside: Pos x Chunk -> Double+;
@@ -180,6 +180,7 @@ factor:
 */
 //Features that forbid certain pos tags in chunks.
 
+/*
 //some pos tags can't appear inside chunks
 //|+ POS +|
 weight w_forbid_1: Pos x Chunk -> Double-;

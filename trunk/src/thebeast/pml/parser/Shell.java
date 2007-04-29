@@ -902,7 +902,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     parserCardinalityConstraint.upperBound.acceptParserTermVisitor(this);
     typeContext.pop();
     Term ub = term;
-    formula = new CardinalityConstraint(lb, quantification, formula, ub,true);
+    //formula = new CardinalityConstraint(lb, quantification, formula, ub,true);
+    formula = new CardinalityConstraint(lb, quantification, formula, ub,parserCardinalityConstraint.useClosure);
   }
 
   public void visitComparison(ParserComparison parserComparison) {

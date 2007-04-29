@@ -8,5 +8,5 @@ public interface HasProperties {
   void setProperty(PropertyName name, Object value);
   Object getProperty(PropertyName name);
 
- 
+
 }
