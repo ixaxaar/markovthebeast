@@ -1,11 +1,7 @@
 types from conll00 "corpora/train.conll";
 types to "corpora/train.types.pml";
 
-include "conll00.pml";
-include "chunking.pml";
-include "tagging.pml";
-include "global.pml";
-include "joint.pml";
+include "model.pml";
 
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
@@ -41,6 +37,7 @@ set collector.init = -2.0;
 set collector.all.w_forbid_1 = true;
 set collector.all.w_forbid_2 = true;
 //set collector.all.w_forbid_3 = true;
+//set collector.all.w_forbid_3 = true;
 //set collector.all.w_forbid_4 = true;
 //set collector.all.w_forbid_5 = true;
 //set collector.all.w_forbid_6 = true;
@@ -51,6 +48,6 @@ set collector.all.w_pos_3 = true;
 collect;
 
 //save weights to dump "/tmp/blank.weights.dmp";
-save weights to dump "/tmp/weights.dmp";
+save weights to dump "/tmp/chunking.blank.weights.dmp";
 
 save corpus to instances "/tmp/instances.dmp";

@@ -12,7 +12,7 @@ load global.rare from "corpora/rare.txt";
 
 set instancesCacheSize = 3;
 
-load corpus from conll00 "corpora/train.conll";
+load corpus from conll00 "corpora/test.conll";
 
 save corpus (0-100) to ram;
 
