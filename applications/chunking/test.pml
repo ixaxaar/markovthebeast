@@ -1,10 +1,6 @@
 include "corpora/train.types.pml";
 
-include "conll00.pml";
-include "chunking.pml";
-include "tagging.pml";
-include "global.pml";
-include "joint.pml";
+include "model.pml";
 
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
