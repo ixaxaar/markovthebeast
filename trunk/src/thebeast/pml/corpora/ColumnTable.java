@@ -45,7 +45,9 @@ public class ColumnTable {
       for (int j = 0; j < columns; ++j) {
         if (j > 0) os.print("\t");
         String value = row.get(j);
-        os.printf("%-"+ (maxStringLength.get(j) + 2) + "s", value != null ? value : "_");
+        Integer integer = maxStringLength.get(j);
+        int maxStringLength = integer == null ? 1 : integer;
+        os.printf("%-"+ (maxStringLength + 2) + "s", value != null ? value : "_");
       }
       os.println();
     }
