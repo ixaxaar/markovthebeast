@@ -6,7 +6,7 @@ include "model.pml";
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
 
-load corpus from conll00 "corpora/train.conll";
+load corpus from conll00noisy "corpora/train.conll";
 
 /*
 set collector.all.w_case = true;
@@ -34,15 +34,15 @@ set collector.all.w_forbid_2 = true;
 
 set collector.init = -2.0;
 */
-set collector.all.w_forbid_1 = true;
-set collector.all.w_forbid_2 = true;
+//set collector.all.w_forbid_1 = true;
+//set collector.all.w_forbid_2 = true;
 //set collector.all.w_forbid_3 = true;
 //set collector.all.w_forbid_3 = true;
 //set collector.all.w_forbid_4 = true;
 //set collector.all.w_forbid_5 = true;
 //set collector.all.w_forbid_6 = true;
-set collector.all.w_pos_2 = true;
-set collector.all.w_pos_3 = true;
+//set collector.all.w_pos_2 = true;
+//set collector.all.w_pos_3 = true;
 
 
 collect;
