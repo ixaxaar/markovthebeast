@@ -18,6 +18,17 @@ public class CoNLL00Factory implements CorpusFactory {
           GENERATOR = new TabFormatCorpus.Generator();
 
 
+  private boolean useNoisyPos = false;
+
+
+  public CoNLL00Factory(boolean useNoisyPos) {
+    this.useNoisyPos = useNoisyPos;
+  }
+
+
+  public CoNLL00Factory() {
+  }
+
   static {
     GENERATOR.addTokenCollector(0, "Word", true, new Quote(), "START");
     GENERATOR.addTokenCollector(0, "Hyphen", true, new HasSubstring("-"));
@@ -41,6 +52,7 @@ public class CoNLL00Factory implements CorpusFactory {
 
       UserPredicate word = (UserPredicate) signature.getPredicate("word");
       UserPredicate pos = (UserPredicate) signature.getPredicate("pos");
+      UserPredicate noisypos = (UserPredicate) signature.getPredicate("noisypos");
       UserPredicate hyphen = (UserPredicate) signature.getPredicate("hyphen");
       UserPredicate firstname = (UserPredicate) signature.getPredicate("firstname");
       UserPredicate lastname = (UserPredicate) signature.getPredicate("lastname");
@@ -77,7 +89,7 @@ public class CoNLL00Factory implements CorpusFactory {
               new InSet(stopwordSet, false));
 
 
-      AttributeExtractor names = new AttributeExtractor(firstname, 2);
+      AttributeExtractor names = new AttributeExtractor(name, 2);
       names.addLineNrArg(0);
       names.addMapping(0, 1,
               new InSet(InSet.loadSet(new FileInputStream(dir + "lists/names"), false, stopwordSet), false));
@@ -156,6 +168,11 @@ public class CoNLL00Factory implements CorpusFactory {
       postags.addLineNrArg(0);
       postags.addMapping(1, 1, new Quote());
 
+      AttributeExtractor noisypostags = new AttributeExtractor(noisypos, 2);
+      noisypostags.addLineNrArg(0);
+      noisypostags.addMapping(3, 1, new Quote());
+
+
       BIOExtractor chunks = new BIOExtractor(2, chunk);
 
 //    PhraseStatistics statistics = new PhraseStatistics(0, maybeNer,
@@ -183,6 +200,8 @@ public class CoNLL00Factory implements CorpusFactory {
       corpus.addExtractor(companynames);
       corpus.addExtractor(placenames);
       corpus.addExtractor(stopwords);
+
+      if (useNoisyPos) corpus.addExtractor(noisypostags);
 
       //corpus.addExtractor(statistics);
 

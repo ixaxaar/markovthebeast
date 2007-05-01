@@ -12,14 +12,16 @@ include "pos-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
+include "chunk-phrase-noisypos.pml";
 include "chunk-phrase.pml";
+include "chunk-pos-forbid.pml";
 //include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
 observed:
   word, case, cardinal, hyphen, count, highestfreq, firstname, lastname, orgname, company, placename, stopword,
-  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4;
+  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos;
 
 hidden: chunk, pos;
 
@@ -31,7 +33,8 @@ load global from "global.txt";
 //load global.brill from "brill.txt";
 load global.rare from "corpora/rare.txt";
 
-load corpus from conll00 "corpora/train.np.goldtags.train.txt";
+//load corpus from conll00noisy "corpora/train.np.goldtags.train.txt";
+load corpus from conll00noisy "corpora/train.np.both.1000.txt";
 //save corpus to dump "/tmp/corpus.dmp";
 //load corpus from dump "/tmp/corpus.dmp";
 
@@ -65,8 +68,8 @@ set collector.all.w_forbid_2 = true;
 */
 //set collector.init = -100.0;
 //set collector.all.w_pos_2 = true;
-//set collector.all.w_forbid_1 = true;
-//set collector.all.w_forbid_2 = true;
+set collector.all.w_forbid_1 = true;
+set collector.all.w_forbid_2 = true;
 
 collect;
 
@@ -102,7 +105,7 @@ set learner.useGreedy = true;
 
 //next; print atoms;
 
-learn for 10 epochs;
+//learn for 10 epochs;
 
 //set learner.solver = "cut";
 

@@ -1070,6 +1070,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerCorpusFactory("conll06", new CoNLL06Factory());
     registerTypeGenerator("conll06", CoNLL06Factory.GENERATOR);
     registerCorpusFactory("conll00", new CoNLL00Factory());
+    registerCorpusFactory("conll00noisy", new CoNLL00Factory(true));
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
   }
 
