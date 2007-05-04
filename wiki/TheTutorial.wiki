@@ -30,6 +30,53 @@ predicate slot: Int x Slot;
 predicate word: Int x Word;
 }}}
 
+== Defining the Model ==
+{{{
+hidden: slot;
+observed: word;
+}}}
+
+== Local Features ==
+
+
+== Load corpus ==
+
+{{{
+load corpus from "corpus1.txt";
+}}}
+
+== check data ==
+
+{{{
+print atoms.slot;
+}}}
+
+== Collect Features ==
+
+{{{
+collect;
+}}}
+
+== Learn ==
+
+{{{
+save corpus to instances "/tmp/instances.dmp";
+}}}
+{{{
+set learner.update = "mira";
+set learner.loss = "avgF1";
+set learner.loss = "globalNumErrors";
+}}}
+
+{{{
+learn for 10 epochs;
+}}}
+
+
+
+
+
+
 Add your content here.  Format your content with:
   * Text in *bold* or _italic_
   * Headings, paragraphs, and lists
