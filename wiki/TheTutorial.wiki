@@ -72,7 +72,16 @@ set learner.loss = "globalNumErrors";
 learn for 10 epochs;
 }}}
 
+{{{
+save weights to dump "/tmp/weights.dmp";
+}}}
 
+== Testing ==
+{{{
+load weights from dump "/tmp/weights.dmp";
+load corpus from "/tmp/testcorpus.txt";
+test to "/tmp/output.txt";
+}}}
 
 
 
