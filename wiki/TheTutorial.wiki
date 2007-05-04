@@ -10,22 +10,25 @@ Go to "Source" and use svn for now
 
 = compile =
 
+{{{
 ant -f thebeast.xml
+}}}
 
+{{{
 bin/linux/thebeast 
-
+}}}
 = Defining a model =
 
 == Types ==
-
+{{{
 type Slot: From_loc, "to_loc";
 type Word: ... "a", "man";
-
+}}}
 == Predicates ==
-
+{{{
 predicate slot: Int x Slot;
 predicate word: Int x Word;
-
+}}}
 
 Add your content here.  Format your content with:
   * Text in *bold* or _italic_
