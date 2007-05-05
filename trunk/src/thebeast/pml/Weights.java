@@ -657,10 +657,12 @@ public class Weights implements HasProperties {
     buffer.append("NN:\n").append(toString(vector.getNonnegative()));
     buffer.append("NP:\n").append(toString(vector.getNonpositive()));
     return buffer.toString();
-
-
   }
 
+  public int[] getIndices(WeightFunction function){
+    return relations.get(function).getIntColumn("index");   
+  }
+  
   public void setProperty(PropertyName name, Object value) {
 
   }

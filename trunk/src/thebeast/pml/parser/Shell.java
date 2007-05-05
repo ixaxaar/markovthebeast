@@ -565,7 +565,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if ("dump".equals(parserLoadCorpus.factory)) {
       corpus = new DumpedCorpus(signature, new File(parserLoadCorpus.file), defaultCorpusCacheSize);
       //iterator = corpus.iterator();
-    } else if (parserLoadCorpus.factory != null) {
+    } else {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
       corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
       if (parserLoadCorpus.from != -1) {
@@ -575,13 +575,15 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         for (int i = parserLoadCorpus.from; i < parserLoadCorpus.to; ++i) corpus.add(instance.next());
       }
     }
-    out.println("Corpus loaded using the " + parserLoadCorpus.factory + " factory.");
+    out.println("Corpus loaded" + (parserLoadCorpus.factory == null ? "." :
+            "using the " + parserLoadCorpus.factory + " factory."));
   }
 
 
   public void visitSaveCorpus(ParserSaveCorpus parserSaveCorpus) {
     update();
     try {
+      if (corpus == null) throw new ShellException("No corpus loaded yet, can't be saved to ram");
       if ("dump".equals(parserSaveCorpus.factory)) {
         File file = new File(parserSaveCorpus.file);
         file.delete();
@@ -1066,6 +1068,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void initCorpusTools() {
     registerCorpusFactory("ram", RandomAccessCorpus.FACTORY);
     registerCorpusFactory("malt", new MALTFactory());
+    registerCorpusFactory(null, new TextFileCorpus.Factory());
     registerTypeGenerator("malt", MALTFactory.GENERATOR);
     registerCorpusFactory("conll06", new CoNLL06Factory());
     registerTypeGenerator("conll06", CoNLL06Factory.GENERATOR);
