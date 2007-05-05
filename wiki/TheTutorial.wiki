@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This is a thebeast tutorial.
+This is a thebeast tutorial. We use a semantic tagger as example application.
 
 = Download =
 
@@ -47,6 +47,8 @@ load corpus from "corpus1.txt";
 
 == check data ==
 
+
+= Learning =
 {{{
 print atoms.slot;
 }}}
@@ -76,12 +78,18 @@ learn for 10 epochs;
 save weights to dump "/tmp/weights.dmp";
 }}}
 
-== Testing ==
+= Testing =
 {{{
 load weights from dump "/tmp/weights.dmp";
 load corpus from "/tmp/testcorpus.txt";
 test to "/tmp/output.txt";
 }}}
+
+== Inspecting the results ==
+
+= Extending the model =
+
+
 
 
 
