@@ -32,7 +32,7 @@ on linux machines and
 bin/mac/thebeast 
 }}}
 
-on the mac.
+on macs.
 
 = Defining a model =
 
@@ -86,8 +86,9 @@ observed: word;
 3 To_Loc
 3 City_Name
 
-
 }}}
+
+the `>>` starts a new database/sentence, the `>predicate-name` a table with true ground atoms for the given predicate.
 == Load corpus ==
 
 {{{
