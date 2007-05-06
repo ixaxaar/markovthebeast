@@ -20,7 +20,7 @@ ant -f thebeast.xml
 
 to compile the source. 
 
-TheBeast can be started by calling 
+`thebeast` can be started by calling 
 
 {{{
 bin/linux/thebeast 
