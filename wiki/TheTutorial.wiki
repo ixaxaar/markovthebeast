@@ -4,19 +4,36 @@
 
 This is a thebeast tutorial. We use a semantic tagger as example application.
 
-= Download =
+= Installation =
+
+== Download ==
 
 Go to "Source" and use svn for now
 
-= compile =
+== compile ==
+
+cd into the thebeast directory and call
 
 {{{
 ant -f thebeast.xml
 }}}
 
+to compile the source. 
+
+TheBeast can be started by calling 
+
 {{{
 bin/linux/thebeast 
 }}}
+
+on linux machines and
+
+{{{
+bin/mac/thebeast 
+}}}
+
+on the mac.
+
 = Defining a model =
 
 == Types ==
@@ -47,6 +64,24 @@ load corpus from "corpus1.txt";
 
 == check data ==
 
+So far we have loaded the corpus, but not into RAM. It will be streamed from files in a sequential manner when we learn or test our model. To inspect the corpus it needs to be loaded into ram by 
+{{{
+save corpus to ram;
+}}} 
+
+Now you can move around the corpus using 
+{{{
+next;
+}}}
+and 
+{{{
+prev
+}}}
+and 
+{{{
+print atoms.words;
+}}}
+to print all words of the current sentence/database.
 
 = Learning =
 {{{
