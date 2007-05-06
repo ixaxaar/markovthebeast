@@ -53,8 +53,30 @@ hidden: slot;
 observed: word;
 }}}
 
-== Local Features ==
+== Local Formulas/Features ==
+The weight function (maps different feature instantiations to weights)
+{{{
+weight w_word: Word x Slot -> Double;
+}}}
+The formula/factor/feature for the current word
+{{{
+factor: for Int t, Word w, Slot s if word(t,w) add [slot(t,s)] * w_word(w,s);
+}}}
 
+While factors can share weights (untested) we usually have one unique weight function for each factor. If we want to take the next word into account, we need to define a new weight function:
+{{{
+weight w_word_p1: Word x Slot -> Double;
+}}}
+and a new formula
+{{{
+factor: for Int t, Word w, Slot s if word(t+1,w) add [slot(t,s)] * w_word_p1(w,s);
+}}}
+
+
+
+{{{
+factor: for Int t, Word w, Slot s if word(t+1,w) add [slot(t,s)] * w_word_p1(w,s);
+}}}
 
 = Loading Data =
 
