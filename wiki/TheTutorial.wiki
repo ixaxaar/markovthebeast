@@ -73,11 +73,6 @@ factor: for Int t, Word w, Slot s if word(t+1,w) add [slot(t,s)] * w_word_p1(w,s
 }}}
 
 
-
-{{{
-factor: for Int t, Word w, Slot s if word(t+1,w) add [slot(t,s)] * w_word_p1(w,s);
-}}}
-
 = Loading Data =
 
 == File Format ==
