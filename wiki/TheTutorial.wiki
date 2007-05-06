@@ -56,6 +56,38 @@ observed: word;
 == Local Features ==
 
 
+= Loading Data =
+
+== File Format ==
+{{{
+>>
+>word
+0 "from"
+1 "NewYork"
+2 "to"
+3 "Chicago"
+
+>slot
+1 From_Loc
+1 City_Name
+3 To_Loc
+3 City_Name
+
+>>
+>word
+0 "from"
+1 "Chicago"
+2 "to"
+3 "NewYork"
+
+>slot
+1 From_Loc
+1 City_Name
+3 To_Loc
+3 City_Name
+
+
+}}}
 == Load corpus ==
 
 {{{
