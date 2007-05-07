@@ -10,7 +10,8 @@ weight w_word_i: Word x Int x Int x Chunk -> Double;
 factor:
   for Int b, Int e, Int i, Chunk c, Word w_i
   if word(b,_) & word(e,_) & word(i,w_i) & b <= i & i <= e
-  add [chunk(b,e,c)] * w_word_i(w_i, i - b, bins(0,1,2,3,4,5,10,e-b),c);
+  add [chunk(b,e,c)] * w_word_i(w_i, i - b, 0,c);
+  //add [chunk(b,e,c)] * w_word_i(w_i, i - b, bins(0,1,2,3,4,5,10,e-b),c);
 
 weight w_bi_word: Word x Word x Int x Chunk -> Double;
 factor:

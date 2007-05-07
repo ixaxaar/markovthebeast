@@ -59,6 +59,24 @@ public class QueryGenerator {
     this.closure = closure;
   }
 
+  public RelationExpression generateGlobalAllQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
+    this.groundAtoms = groundAtoms;
+    this.weights = w;
+    builder = new FormulaBuilder(groundAtoms.getSignature());
+
+    BooleanFormula condition = factorFormula.getCondition();
+    
+    processGlobalFormula(condition, factorFormula);
+    //if there is just one conjunction we don't need a union.
+    LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
+    for (ConjunctionProcessor.Context context : conjunctions) {
+      BoolExpression where = factory.createAnd(context.conditions);
+      rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
+    }
+    return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
+  }
+
+
   public RelationExpression generateGlobalTrueQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
     this.groundAtoms = groundAtoms;
     this.weights = w;
@@ -88,7 +106,7 @@ public class QueryGenerator {
     //todo: to decide whether condition or formula comes first we need to see if we can use the formula to bind free variables.
     BooleanFormula both = condition == null ?
             negated : factorFormula.getFormula() instanceof CardinalityConstraint ?
-            new Conjunction(condition,negated) : new Conjunction(negated,condition);
+            new Conjunction(condition, negated) : new Conjunction(negated, condition);
     processGlobalFormula(both, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -724,7 +742,6 @@ public class QueryGenerator {
     List<SignedAtom> conjunction = dnf.getConjunction(0);
 
 
-
     UnresolvedVariableCollector collector = new UnresolvedVariableCollector();
     collector.bind(quantification.getVariables());
 
@@ -761,7 +778,7 @@ public class QueryGenerator {
     conjunction.remove(hidden);
 
     ConjunctionProcessor processor = new ConjunctionProcessor(weights, groundAtoms);
-    
+
     processor.processConjunction(context, conjunction);
 
     ArrayList<SignedAtom> hiddenList = new ArrayList<SignedAtom>();
@@ -771,7 +788,6 @@ public class QueryGenerator {
       processor.processWithClosure(context, closure, hidden);
     else
       processor.resolveBruteForce(context, hiddenList);
-
 
     //find the hidden ground atom
     context.selectBuilder.id("index");

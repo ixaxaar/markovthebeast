@@ -7,16 +7,16 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.function.WeightFunction;
-import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.util.Profiler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Collection;
 
 /**
  * A FormulaStates object is container with
@@ -34,7 +34,7 @@ public class GroundFormulas {
   private HashMap<FactorFormula, RelationVariable>
           falseGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           allExplicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
-          tmpExplicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
+          groundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           explicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           trueGroundFormulas = new HashMap<FactorFormula, RelationVariable>();
   private Model model;
@@ -46,6 +46,7 @@ public class GroundFormulas {
   private HashMap<FactorFormula, RelationExpression>
           trueQueries = new HashMap<FactorFormula, RelationExpression>(),
           falseQueries = new HashMap<FactorFormula, RelationExpression>(),
+          allQueries = new HashMap<FactorFormula, RelationExpression>(),
           minusOld = new HashMap<FactorFormula, RelationExpression>();
   private GroundAtoms groundAtoms;
 
@@ -59,6 +60,8 @@ public class GroundFormulas {
   private boolean isDeterministic;
 
   private Profiler profiler = new NullProfiler();
+
+  private boolean firstUpdate = true;
 
 
   /**
@@ -80,11 +83,11 @@ public class GroundFormulas {
                   interpreter.createRelationVariable(formulas.getNewGroundFormulas(formula)));
           allExplicitGroundFormulas.put(formula,
                   interpreter.createRelationVariable(formulas.allExplicitGroundFormulas.get(formula)));
-          tmpExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          if (!formula.getWeight().isNonNegative())
+          groundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
+          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
             trueGroundFormulas.put(formula,
                     interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
-          if (!formula.getWeight().isNonPositive())
+          else if (formula.getWeight().isNonNegative())
             falseGroundFormulas.put(formula,
                     interpreter.createRelationVariable(formulas.getFalseGroundFormulas(formula)));
         }
@@ -110,10 +113,10 @@ public class GroundFormulas {
         } else {
           allExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           explicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          tmpExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          if (!formula.getWeight().isNonNegative())
+          groundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
+          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
             trueGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          if (!formula.getWeight().isNonPositive())
+          else if (formula.getWeight().isNonNegative())
             falseGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
         }
       }
@@ -133,21 +136,34 @@ public class GroundFormulas {
         cycleQueries.put(formula.getAcyclicityConstraint().getPredicate(),
                 generator.generateCycleQuery(groundAtoms, formula.getAcyclicityConstraint()));
       } else if (!formula.isLocal()) {
-        builder.expr(tmpExplicitGroundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
+        builder.expr(groundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
         minusOld.put(formula, builder.getRelation());
-        if (!formula.getWeight().isNonNegative()) {
+        if (formula.getWeight().isNonPositive()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
           if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
-        if (!formula.getWeight().isNonPositive()) {
+        else if (formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
           if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
+        }
+        else {
+          RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
+          trueQueries.put(formula, query);
+          if (formula.isParametrized()) {
+            addIndices(this.weights, formula.getWeightFunction(), query);
+          }
+          query = generator.generateGlobalAllQuery(formula, groundAtoms, this.weights);
+          allQueries.put(formula, query);
+          if (formula.isParametrized()) {
+            addIndices(this.weights, formula.getWeightFunction(), query);
+          }
+
         }
       }
 
@@ -227,9 +243,9 @@ public class GroundFormulas {
 
   public void load(GroundFormulas formulas, Collection<FactorFormula> factors) {
     for (FactorFormula formula : factors) {
-      if (!formula.getWeight().isNonNegative())
+      if (formula.getWeight().isNonPositive())
         interpreter.assign(getTrueGroundFormulas(formula), formulas.getTrueGroundFormulas(formula));
-      else if (!formula.getWeight().isNonPositive())
+      else if (formula.getWeight().isNonNegative())
         interpreter.assign(getFalseGroundFormulas(formula), formulas.getFalseGroundFormulas(formula));
       else if (formula.isAcyclicityConstraint()) {
         UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
@@ -256,7 +272,7 @@ public class GroundFormulas {
   }
 
   public RelationVariable getNewGroundFormulas(FactorFormula formula) {
-    return tmpExplicitGroundFormulas.get(formula);
+    return groundFormulas.get(formula);
     //return explicitGroundFormulas.get(formula);
   }
 
@@ -273,14 +289,14 @@ public class GroundFormulas {
         continue;
       }
       //result.append(getExplicitGroundFormulas(formula).value().toString());
-      if (!formula.getWeight().isNonPositive()) {
+      if (formula.getWeight().isNonNegative()) {
         result.append("# False groundings of: ").append(formula.toString()).append("\n");
         result.append(getFalseGroundFormulas(formula).value().toString());
 //        result.append("# All groundings:\n");
 //        result.append(getExplicitGroundFormulas(formula).value().toString());
         result.append("\n");
       }
-      if (!formula.getWeight().isNonNegative()) {
+      if (formula.getWeight().isNonPositive()) {
         result.append("# True groundings of: ").append(formula.toString()).append("\n");
         result.append(getTrueGroundFormulas(formula).value().toString());
         result.append("\n");
@@ -300,11 +316,12 @@ public class GroundFormulas {
   }
 
   public void init() {
+    firstUpdate = true;
     for (RelationVariable var : allExplicitGroundFormulas.values())
       interpreter.clear(var);
     for (RelationVariable var : explicitGroundFormulas.values())
       interpreter.clear(var);
-    for (RelationVariable var : tmpExplicitGroundFormulas.values())
+    for (RelationVariable var : groundFormulas.values())
       interpreter.clear(var);
     for (RelationVariable var : trueGroundFormulas.values())
       interpreter.clear(var);
@@ -341,7 +358,7 @@ public class GroundFormulas {
         AcyclicityConstraint acyclicityConstraint = (AcyclicityConstraint) formula.getFormula();
         count += cycles.get(acyclicityConstraint.getPredicate()).value().size();
       } else
-        count += tmpExplicitGroundFormulas.get(formula).value().size();
+        count += groundFormulas.get(formula).value().size();
     }
     return count;
   }
@@ -366,17 +383,23 @@ public class GroundFormulas {
       } else if (!factorFormula.isLocal()) {
         profiler.start("..." + name.substring(name.length() - 30));
         //RelationVariable both = getExplicitGroundFormulas(factorFormula);
-        RelationVariable both = tmpExplicitGroundFormulas.get(factorFormula);
+        RelationVariable both = groundFormulas.get(factorFormula);
         interpreter.clear(both);
-        if (!factorFormula.getWeight().isNonNegative()) {
+        if (factorFormula.getWeight().isNonPositive()) {
           RelationVariable relation = getTrueGroundFormulas(factorFormula);
           interpreter.assign(relation, trueQueries.get(factorFormula));
           interpreter.assign(both, relation);
         }
-        if (!factorFormula.getWeight().isNonPositive()) {
+        else if (factorFormula.getWeight().isNonNegative()) {
           RelationVariable relation = getFalseGroundFormulas(factorFormula);
           interpreter.assign(relation, falseQueries.get(factorFormula));
           interpreter.insert(both, relation);
+        }
+        else if (firstUpdate) {
+          RelationVariable relation = getTrueGroundFormulas(factorFormula);
+          interpreter.assign(relation, trueQueries.get(factorFormula));
+          interpreter.assign(both, allQueries.get(factorFormula));
+          firstUpdate = false;
         }
         //System.out.println(factorFormula);
         //System.out.println(both.value());
@@ -403,7 +426,7 @@ public class GroundFormulas {
       interpreter.clear(var);
     for (RelationVariable var : explicitGroundFormulas.values())
       interpreter.clear(var);
-    for (RelationVariable var : tmpExplicitGroundFormulas.values())
+    for (RelationVariable var : groundFormulas.values())
       interpreter.clear(var);
 
   }

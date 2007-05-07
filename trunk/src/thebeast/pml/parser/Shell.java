@@ -576,7 +576,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
     }
     out.println("Corpus loaded" + (parserLoadCorpus.factory == null ? "." :
-            "using the " + parserLoadCorpus.factory + " factory."));
+            " using the " + parserLoadCorpus.factory + " factory."));
   }
 
 
