@@ -136,7 +136,7 @@ public class GroundAtoms implements Dumpable, SignatureListener {
           GroundAtomCollection atoms = getGroundAtomsOf(userPredicate);
           atoms.load(buffer.toString());
         }
-        pred = line.substring(1);
+        pred = line.substring(1).trim();
         buffer.setLength(0);
 
       } else if (!line.equals("")) {

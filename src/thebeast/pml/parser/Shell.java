@@ -438,6 +438,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       signatureUpdated = false;
     }
     if (modelUpdated) {
+      model.validateModel();
       if (model.getHiddenPredicates().size() == 0)
         throw new ShellException("There are no hidden predicates defined.");
       weights = signature.createWeights();

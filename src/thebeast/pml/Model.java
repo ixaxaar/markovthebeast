@@ -194,13 +194,19 @@ public class Model {
     return npLocalWeightFunctions;
   }
 
-   public List<WeightFunction> getLocalWeightFunctions() {
+  public List<WeightFunction> getLocalWeightFunctions() {
     return localWeightFunctions;
   }
 
-  public void validateModel() {
+  public void validateModel() throws InvalidModelException {
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
+    for (FactorFormula formula : localFactorFormulas) {
+      if (!hidden.contains(formula.getLocalPredicate()))
+        throw new InvalidModelException(formula.getLocalPredicate() + " is not defined as hidden but appears " +
+                "as if it was hidden in " + formula);
+
+    }
   }
 
 
