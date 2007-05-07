@@ -1,6 +1,7 @@
 package thebeast.pml;
 
 import thebeast.pml.formula.FactorFormula;
+import thebeast.pml.function.WeightFunction;
 
 import java.util.*;
 
@@ -25,6 +26,11 @@ public class Model {
           globalFactorFormulas = new LinkedList<FactorFormula>();
 
   private GroundAtoms globalAtoms;
+
+  private LinkedList<WeightFunction>
+          localWeightFunctions = new LinkedList<WeightFunction>(),
+          nnLocalWeightFunctions = new LinkedList<WeightFunction>(),
+          npLocalWeightFunctions = new LinkedList<WeightFunction>();
 
   /**
    * Creates a new Model with the given signature, i.e. it only contains predicates and functions which are described in
@@ -76,7 +82,7 @@ public class Model {
       globalAtoms = newGlobal;
     } else {
       globalPreds.add(predicate);
-      Collections.sort(globalPreds);      
+      Collections.sort(globalPreds);
     }
 
   }
@@ -101,6 +107,15 @@ public class Model {
     factorFormulas.add(factorFormula);
     if (factorFormula.isLocal()) {
       localFactorFormulas.add(factorFormula);
+      if (factorFormula.isParametrized()) {
+        WeightFunction function = factorFormula.getWeightFunction();
+        if (factorFormula.getWeight().isNonNegative())
+          nnLocalWeightFunctions.add(function);
+        else if (factorFormula.getWeight().isNonPositive())
+          npLocalWeightFunctions.add(function);
+        else
+          localWeightFunctions.add(function);
+      }
     } else {
       globalFactorFormulas.add(factorFormula);
     }
@@ -108,6 +123,7 @@ public class Model {
       deterministicFormulas.add(factorFormula);
     } else
       nondeterministicFormulas.add(factorFormula);
+
   }
 
   /**
@@ -167,6 +183,19 @@ public class Model {
     if (globalAtoms == null)
       globalAtoms = signature.createGroundAtoms();
     return globalAtoms;
+  }
+
+
+  public List<WeightFunction> getLocalNonnegativeWeightFunctions() {
+    return nnLocalWeightFunctions;
+  }
+
+  public List<WeightFunction> getLocalNonpositiveWeightFunctions() {
+    return npLocalWeightFunctions;
+  }
+
+   public List<WeightFunction> getLocalWeightFunctions() {
+    return localWeightFunctions;
   }
 
   public void validateModel() {

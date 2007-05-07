@@ -39,14 +39,18 @@ public class MiraUpdateRule implements UpdateRule {
     ArrayList<SparseVector> allVectors = new ArrayList<SparseVector>(candidates.size());
     int[][] nnIndices = new int[candidates.size() + 1][];
     int[][] npIndices = new int[candidates.size() + 1][];
-    nnIndices[0] = gold.getNonnegative().getIndexArray();
-    npIndices[0] = gold.getNonpositive().getIndexArray();
+    nnIndices[0] = weights.unionIndices(gold.getNonnegative().getIndexArray(), gold.getLocalNonnegativeIndices());
+    npIndices[0] = weights.unionIndices(gold.getNonpositive().getIndexArray(), gold.getLocalNonpositiveIndices());
+    //System.out.println(Arrays.toString(gold.getLocalNonpositiveIndices()));
     int c = 1;
     for (FeatureVector candidate : candidates) {
       allVectors.add(candidate.getAll());
       if (enforceSigns) {
-        nnIndices[c] = candidate.getNonnegative().getIndexArray();
-        npIndices[c] = candidate.getNonpositive().getIndexArray();
+        nnIndices[c] = weights.unionIndices(candidate.getNonnegative().getIndexArray(),
+                candidate.getLocalNonnegativeIndices());
+        //System.out.println(Arrays.toString(candidate.getLocalNonpositiveIndices()));
+        npIndices[c] = weights.unionIndices(candidate.getNonpositive().getIndexArray(),
+                candidate.getLocalNonpositiveIndices());
       }
       ++c;
     }
@@ -65,8 +69,8 @@ public class MiraUpdateRule implements UpdateRule {
 
     if (enforceSigns) {
       base = diffVectors.get(0).getIndexArray();
-      int[] nnAllIndices = weights.intersectIndices(nnIndices);
-      int[] npAllIndices = weights.intersectIndices(npIndices);
+      int[] nnAllIndices = weights.unionIndices(nnIndices);
+      int[] npAllIndices = weights.unionIndices(npIndices);
       nnOld = weights.getSubWeights(base, nnAllIndices);
       npOld = weights.getSubWeights(base, npAllIndices);
       nnCount = nnAllIndices.length;

@@ -174,6 +174,7 @@ public class Solution {
           vector.getFree().addInPlace(1.0,tmp);
       }
     }
+    vector.setSignedLocalweights(model,weights);
     profiler.end();
     return vector;
   }
@@ -235,6 +236,7 @@ public class Solution {
         //result.addInPlace(1.0, tmp);
       }
     }
+    vector.setSignedLocalweights(model, weights);
     profiler.end();
     return vector;
   }

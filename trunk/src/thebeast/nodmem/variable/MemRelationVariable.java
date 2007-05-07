@@ -9,9 +9,9 @@ import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.mem.MemChunk;
-import thebeast.nodmem.mem.MemVector;
-import thebeast.nodmem.mem.MemPointer;
 import thebeast.nodmem.mem.MemDim;
+import thebeast.nodmem.mem.MemPointer;
+import thebeast.nodmem.mem.MemVector;
 import thebeast.nodmem.statement.IndexInformation;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemRelationType;
@@ -208,7 +208,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     int newSize = ints.length / target.numIntCols;
     if (target.capacity < newSize) target.increaseCapacity(newSize - target.capacity);
     System.arraycopy(ints, 0, target.intData, 0, ints.length);
-    System.arraycopy(doubles, 0, target.doubleData, 0, doubles.length);
+    if (doubles != null) System.arraycopy(doubles, 0, target.doubleData, 0, doubles.length);
     target.size = newSize;
     invalidate();
   }

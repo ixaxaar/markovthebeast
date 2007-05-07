@@ -520,7 +520,13 @@ public class Weights implements HasProperties {
   }
 
 
-  public synchronized int[] intersectIndices(int[]... indices) {
+  /**
+   * Finds the union of the provided index arrays and returns it.
+   *
+   * @param indices a set of index arrays which must contain indices in the range [0,#weights-1].
+   * @return a new index array only containing all indices contained in the provided index arrays.
+   */
+  public synchronized int[] unionIndices(int[]... indices) {
     //System.out.println("before intersect:" + countTrue());
     initTmps();
     int size = 0;
@@ -539,6 +545,31 @@ public class Weights implements HasProperties {
     //System.out.println("size(intersect) = " + size);
     clearTmps(size);
     //System.out.println("after intersect:" + countTrue());
+    return result;
+  }
+
+
+  public synchronized int[] intersectIndices(int[] indices1, int[] indices2) {
+    initTmps();
+    int size = 0;
+    for (int index : indices1) {
+      tmpSet[index] = true;
+    }
+    for (int index : indices2) {
+      if (tmpSet[index]){
+        tmpIndicesList[size] = index;
+        tmpIndices[index] = size;
+        ++size;
+      }
+    }
+    int[] result = new int[size];
+    System.arraycopy(tmpIndicesList, 0, result, 0, size);
+
+    //first indices
+    clearTmps(size);
+    for (int index : indices1) {
+      tmpSet[index] = false;
+    }
     return result;
   }
 
@@ -659,13 +690,46 @@ public class Weights implements HasProperties {
     return buffer.toString();
   }
 
-  public int[] getIndices(WeightFunction function){
-    return relations.get(function).getIntColumn("index");   
+  /**
+   * Return an array of indices of the weight functions weights
+   *
+   * @param function the weight function
+   * @return an array of indices (in unspecified order).
+   */
+  public int[] getIndices(WeightFunction function) {
+    return relations.get(function).getIntColumn("index");
   }
-  
+
+  /**
+   * Builds an array with the indices of all weights the provided
+   * weight functions define.
+   *
+   * @param functions a collections of weight functions.
+   * @return an array of all weight indices of the weight functions (in unspecified order).
+   */
+  public int[] getIndices(Collection<WeightFunction> functions) {
+    int[][] tmp = new int[functions.size()][];
+    int i = 0;
+    int count = 0;
+    for (WeightFunction function : functions) {
+      tmp[i] = getIndices(function);
+      count += tmp[i].length;
+      ++i;
+    }
+    int[] result = new int[count];
+    i = 0;
+    for (int[] array : tmp) {
+      System.arraycopy(array, 0, result, i, array.length);
+      i += array.length;
+    }
+    return result;
+  }
+
+
   public void setProperty(PropertyName name, Object value) {
 
   }
+
 
   public Object getProperty(PropertyName name) {
     return null;
