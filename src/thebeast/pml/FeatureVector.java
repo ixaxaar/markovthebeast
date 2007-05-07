@@ -2,6 +2,11 @@ package thebeast.pml;
 
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.statement.Interpreter;
+import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.type.Heading;
+import thebeast.nod.type.Attribute;
+import thebeast.nod.type.TypeFactory;
 
 import java.io.IOException;
 
@@ -13,10 +18,23 @@ public class FeatureVector {
 
   private SparseVector free, nonnegative, nonpositive;
 
+  private RelationVariable localNNIndices,localNPIndices;
+
+  private static Heading indexHeading;
+
+  static {
+    TypeFactory typeFactory = TheBeast.getInstance().getNodServer().typeFactory();
+    Attribute index = typeFactory.createAttribute("index",typeFactory.intType());
+    indexHeading = typeFactory.createHeading(index);
+  }
+
   public FeatureVector() {
     free = new SparseVector();
     nonnegative = new SparseVector();
     nonpositive = new SparseVector();
+    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    localNNIndices = interpreter.createRelationVariable(indexHeading);
+    localNPIndices = interpreter.createRelationVariable(indexHeading);
   }
 
   public SparseVector getFree() {
@@ -31,16 +49,37 @@ public class FeatureVector {
     return nonpositive;
   }
 
+  public void setSignedLocalweights(Model model, Weights weights){
+    int[] localWeights = getFree().getIndexArray();
+    localNNIndices.assignByArray(
+            weights.intersectIndices(weights.getIndices(model.getLocalNonnegativeWeightFunctions()),localWeights),null);
+    localNPIndices.assignByArray(
+            weights.intersectIndices(weights.getIndices(model.getLocalNonpositiveWeightFunctions()),localWeights),null);
+  }
+
+  public int[] getLocalNonnegativeIndices() {
+    return localNNIndices.getIntColumn("index");
+  }
+
+  public int[] getLocalNonpositiveIndices() {
+    return localNPIndices.getIntColumn("index");
+  }
+
   public void write(FileSink sink) throws IOException {
     free.write(sink);
     nonnegative.write(sink);
     nonpositive.write(sink);
+    sink.write(localNNIndices);
+    sink.write(localNPIndices);
   }
 
   public void read(FileSource source) throws IOException {
     free.read(source);
     nonnegative.read(source);
     nonpositive.read(source);
+    source.read(localNNIndices);
+    source.read(localNPIndices);
+
   }
 
   public int getMemoryUsage(){
@@ -51,6 +90,9 @@ public class FeatureVector {
     free.load(vector.getFree());
     nonnegative.load(vector.getNonnegative());
     nonpositive.load(vector.getNonpositive());
+    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    interpreter.assign(localNNIndices,vector.localNNIndices);
+    interpreter.assign(localNPIndices,vector.localNPIndices);
   }
 
   public SparseVector getAll(){

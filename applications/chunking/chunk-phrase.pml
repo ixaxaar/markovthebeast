@@ -36,6 +36,7 @@ factor:
   if word(b,_) & word(e,_) & e >= b & word(e+1,w)
   add [chunk(b,e,c)] * w_after_word(w,bins(0,1,2,3,4,5,10,e-b),c);
 
+/*
 //case features
 weight w_case_i: Case x Int x Int x Chunk -> Double;
 factor:
@@ -480,3 +481,5 @@ factor:
   for Int b, Int e, Chunk c, Prefix3 w
   if prefix3(b,_) & prefix3(e,_) & e >= b & prefix3(e+1,w)
   add [chunk(b,e,c)] * w_after_prefix3(w,bins(0,1,2,3,4,5,10,e-b),c);
+
+*/

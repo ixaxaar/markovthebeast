@@ -52,8 +52,8 @@ public class FactorFormula {
     this.weight = weight;
     this.name = name;
 
-    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
-      throw new RuntimeException("We don't support local features with non-free weights.");
+//    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
+//      throw new RuntimeException("We don't support local features with non-free weights.");
 
     LinkedList<Attribute> varAttributes = new LinkedList<Attribute>();
     int index = 0;
@@ -136,6 +136,10 @@ public class FactorFormula {
   }
 
 
+  /**
+   * Returns true iff this formula has a weight function.
+   * @return true iff this formula has a weight function.
+   */
   public boolean isParametrized() {
     return weight instanceof FunctionApplication &&
             ((FunctionApplication)weight).getFunction() instanceof WeightFunction;

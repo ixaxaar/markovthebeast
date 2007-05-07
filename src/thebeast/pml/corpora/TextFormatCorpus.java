@@ -70,7 +70,7 @@ public abstract class TextFormatCorpus extends AbstractCollection<GroundAtoms> i
       if (!sizeKnown) size = 0;
       this.reader = reader;
       //look for the first ">>";
-      try {
+      try {                                                                                       
         String line;
         for (line = reader.readLine(); line != null; line = reader.readLine()) {
           if (line.startsWith(">>")) break;
@@ -90,7 +90,7 @@ public abstract class TextFormatCorpus extends AbstractCollection<GroundAtoms> i
 
     private void update() {
       StringBuffer buffer = new StringBuffer();
-      try {
+      try {                          
         String line;
         for (line = reader.readLine(); line != null; line = reader.readLine()) {
           if (line.startsWith(">>")) break;

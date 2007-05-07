@@ -191,7 +191,7 @@ public class OnlineLearner implements Learner, HasProperties {
     goldGroundFormulas = new GroundFormulas(model, weights);
     goldSolution = new Solution(model, weights);
     solver.configure(model, weights);
-    lossFunction = new GlobalF1Loss(model);
+    lossFunction = new GlobalNumErrors(model);
   }
 
   public void learn(TrainingInstances instances) {
