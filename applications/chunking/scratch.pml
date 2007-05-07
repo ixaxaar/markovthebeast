@@ -48,7 +48,7 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-10) to ram;
+save corpus (0-100) to ram;
 
 /*
 set collector.all.w_case = true;

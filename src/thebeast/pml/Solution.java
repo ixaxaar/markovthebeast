@@ -70,12 +70,13 @@ public class Solution {
     }
     for (FactorFormula factorFormula : model.getGlobalFactorFormulas()) {
       if (factorFormula.isParametrized()) {
-        if (!factorFormula.getWeight().isNonPositive()) {
+        if (factorFormula.getWeight().isNonNegative()) {
           builder.expr(groundFormulas.getFalseGroundFormulas(factorFormula));
           builder.by("index").num(-1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalFalseSummarizer.put(factorFormula, builder.getRelation());
         }
-        if (!factorFormula.getWeight().isNonNegative()) {
+        else {
+//        if (factorFormula.getWeight().isNonPositive()) {
           builder.expr(groundFormulas.getTrueGroundFormulas(factorFormula));
           builder.by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalTrueSummarizer.put(factorFormula, builder.getRelation());
@@ -162,10 +163,11 @@ public class Solution {
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
-        if (!formula.getWeight().isNonNegative())
-          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
-        if (!formula.getWeight().isNonPositive())
+        if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
+        else
+        //if (formula.getWeight().isNonPositive())
+          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (formula.getWeight().isNonNegative())
           vector.getNonnegative().addInPlace(1.0,tmp);
         else if (formula.getWeight().isNonPositive())
@@ -223,10 +225,11 @@ public class Solution {
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
       if (formula.isParametrized()) {
-        if (!formula.getWeight().isNonNegative())
-          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
-        if (!formula.getWeight().isNonPositive())
+        if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
+        else
+        //if (formula.getWeight().isNonPositive())
+          interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (formula.getWeight().isNonNegative())
           vector.getNonnegative().addInPlace(1.0,tmp);
         else if (formula.getWeight().isNonPositive())
