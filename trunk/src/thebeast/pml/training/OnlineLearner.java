@@ -4,7 +4,6 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.nod.FileSink;
 import thebeast.pml.*;
-import thebeast.pml.corpora.SentencePrinter;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
