@@ -2,7 +2,11 @@
 
 = Introduction =
 
-This is a thebeast tutorial. We use a semantic tagger as example application.
+This is a thebeast tutorial. We use a semantic tagger as example application. The task is to label words with semantic slots and types. For example we want to get a tagging such as
+
+Show me all flights from Hamburg,,FROMLOC,, to Chicago,,TOLOC,,
+
+
 
 = Installation =
 
