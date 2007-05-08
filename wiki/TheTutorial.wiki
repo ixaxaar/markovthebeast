@@ -10,8 +10,12 @@ Often a system needs more information than this. We may also be interested in th
 
 Show me all flights from Hamburg,,FROM_LOC & CITY_NAME,, to Chicago,,TO_LOC & CITY_NAME,,
  
+In fact, there can be several slots per token.
 
+Note that using a simple classifier or (single layer) sequential model would be problematic here: it either had to pick always just exactly one slot type or create all possible type combinations and introduce these as new classes. While the first solution will never be able to predict more than one slot type, the second will run into sparsity problems. Finally, we could define a set of binary classifiers, one for each type, but this modelling would not be able to exploit the fact that there are dependencies between the slot types. 
 
+In PML this task can be easily modeled using a predicate `slot` that relates each token with a set of slot types. Using formulas we can then also define dependencies between slot types of the same token or even different tokens.
+ 
 = Installation =
 
 == Download ==
