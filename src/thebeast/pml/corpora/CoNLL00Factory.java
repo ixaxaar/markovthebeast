@@ -17,6 +17,9 @@ public class CoNLL00Factory implements CorpusFactory {
   public static final TabFormatCorpus.Generator
           GENERATOR = new TabFormatCorpus.Generator();
 
+  public static final TabFormatCorpus.Generator
+          GENERATOR_NOISYPOS = new TabFormatCorpus.Generator();
+
 
   private boolean useNoisyPos = false;
 
@@ -44,6 +47,23 @@ public class CoNLL00Factory implements CorpusFactory {
     GENERATOR.addTokenCollector(0, "Cardinal", true, new IsNumber());
     GENERATOR.addTokenCollector(1, "Pos", true, new Quote(), "START");
     GENERATOR.addTokenCollector(2, "Chunk", true, new BIOLabel());
+
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Word", true, new Quote(), "START");
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Hyphen", true, new HasSubstring("-"));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Prefix1", true, new Pipeline(new Prefix(1), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Postfix1", true, new Pipeline(new Postfix(1), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Prefix2", true, new Pipeline(new Prefix(2), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Postfix2", true, new Pipeline(new Postfix(2), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Prefix3", true, new Pipeline(new Prefix(3), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Postfix3", true, new Pipeline(new Postfix(3), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Prefix4", true, new Pipeline(new Prefix(4), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Postfix4", true, new Pipeline(new Postfix(4), new Quote()));
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Case", true, new Case());
+    GENERATOR_NOISYPOS.addTokenCollector(0, "Cardinal", true, new IsNumber());
+    GENERATOR_NOISYPOS.addTokenCollector(1, "Pos", true, new Quote(), "START");
+    GENERATOR_NOISYPOS.addTokenCollector(3, "Noisycpos", true, new Pipeline(new Prefix(1), new Quote()), "START");
+    GENERATOR_NOISYPOS.addTokenCollector(2, "Chunk", true, new BIOLabel());
+
   }
 
   public Corpus createCorpus(Signature signature, File file) {
@@ -53,6 +73,7 @@ public class CoNLL00Factory implements CorpusFactory {
       UserPredicate word = (UserPredicate) signature.getPredicate("word");
       UserPredicate pos = (UserPredicate) signature.getPredicate("pos");
       UserPredicate noisypos = (UserPredicate) signature.getPredicate("noisypos");
+      UserPredicate noisycpos = (UserPredicate) signature.getPredicate("noisycpos");
       UserPredicate hyphen = (UserPredicate) signature.getPredicate("hyphen");
       UserPredicate firstname = (UserPredicate) signature.getPredicate("firstname");
       UserPredicate lastname = (UserPredicate) signature.getPredicate("lastname");
@@ -172,6 +193,9 @@ public class CoNLL00Factory implements CorpusFactory {
       noisypostags.addLineNrArg(0);
       noisypostags.addMapping(3, 1, new Quote());
 
+      AttributeExtractor noisycpostags = new AttributeExtractor(noisycpos, 2);
+      noisycpostags.addLineNrArg(0);
+      noisycpostags.addMapping(3, 1, new Pipeline(new Prefix(1), new Quote()));      
 
       BIOExtractor chunks = new BIOExtractor(2, chunk);
 
@@ -201,7 +225,10 @@ public class CoNLL00Factory implements CorpusFactory {
       corpus.addExtractor(placenames);
       corpus.addExtractor(stopwords);
 
-      if (useNoisyPos) corpus.addExtractor(noisypostags);
+      if (useNoisyPos) {
+        corpus.addExtractor(noisypostags);
+        corpus.addExtractor(noisycpostags);
+      }
 
       //corpus.addExtractor(statistics);
 

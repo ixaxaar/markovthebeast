@@ -1,3 +1,10 @@
+//bias feature
+weight w_bias: Chunk -> Double-;
+factor:
+  for Int b, Int e, Chunk c
+  if word(b,_) & word(e,_) & e >= b
+  add [chunk(b,e,c)] * w_bias(c);
+
 //length feature
 weight w_length: Int x Chunk -> Double;
 factor:
@@ -10,8 +17,8 @@ weight w_word_i: Word x Int x Int x Chunk -> Double;
 factor:
   for Int b, Int e, Int i, Chunk c, Word w_i
   if word(b,_) & word(e,_) & word(i,w_i) & b <= i & i <= e
-  add [chunk(b,e,c)] * w_word_i(w_i, i - b, 0,c);
-  //add [chunk(b,e,c)] * w_word_i(w_i, i - b, bins(0,1,2,3,4,5,10,e-b),c);
+  //add [chunk(b,e,c)] * w_word_i(w_i, i - b, 0,c);
+  add [chunk(b,e,c)] * w_word_i(w_i, i - b, bins(0,1,2,3,4,5,10,e-b),c);
 
 weight w_bi_word: Word x Word x Int x Chunk -> Double;
 factor:
@@ -37,7 +44,6 @@ factor:
   if word(b,_) & word(e,_) & e >= b & word(e+1,w)
   add [chunk(b,e,c)] * w_after_word(w,bins(0,1,2,3,4,5,10,e-b),c);
 
-/*
 //case features
 weight w_case_i: Case x Int x Int x Chunk -> Double;
 factor:
@@ -482,5 +488,3 @@ factor:
   for Int b, Int e, Chunk c, Prefix3 w
   if prefix3(b,_) & prefix3(e,_) & e >= b & prefix3(e+1,w)
   add [chunk(b,e,c)] * w_after_prefix3(w,bins(0,1,2,3,4,5,10,e-b),c);
-
-*/

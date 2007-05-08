@@ -1,4 +1,4 @@
-//types from conll00 "corpora/train.np.goldtags.train.txt";
+//types from conll00noisy "corpora/train.np.both.1000.txt";
 //types to "corpora/train.np.goldtags.train.pml";
 include "corpora/train.np.goldtags.train.pml";
                                                                     
@@ -18,19 +18,14 @@ include "chunk-phrase.pml";
 //include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
-//bias feature
-weight w_bias: Chunk -> Double-;
-factor:
-  for Int b, Int e, Chunk c
-  if word(b,_) & word(e,_) & e >= b
-  add [chunk(b,e,c)] * w_bias(c);
+
 
 
 
 
 observed:
   word, case, cardinal, hyphen, count, highestfreq, firstname, lastname, orgname, company, placename, stopword,
-  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos;
+  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos, noisycpos;
 
 hidden: chunk, pos;
 

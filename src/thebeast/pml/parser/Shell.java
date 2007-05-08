@@ -1076,6 +1076,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerCorpusFactory("conll00", new CoNLL00Factory());
     registerCorpusFactory("conll00noisy", new CoNLL00Factory(true));
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
+    registerTypeGenerator("conll00noisy", CoNLL00Factory.GENERATOR_NOISYPOS);
   }
 
   public static interface PropertySetter {
