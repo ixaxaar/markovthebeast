@@ -16,7 +16,7 @@ include "chunk-phrase-noisypos.pml";
 
 observed:
   word, case, cardinal, hyphen, count, highestfreq, firstname, lastname, orgname, company, placename, stopword,
-  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos;
+  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos, noisycpos;
 
 //hidden: chunk, pos;
 hidden: chunk;

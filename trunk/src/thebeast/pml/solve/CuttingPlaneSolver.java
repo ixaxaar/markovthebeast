@@ -269,7 +269,8 @@ public class CuttingPlaneSolver implements Solver {
     }
 
     //new SentencePrinter().print(atoms, System.out);
-    //System.out.println(ilp.toLpSolveFormat());
+//    System.out.println("Iteration " + iteration);
+//    System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
 
     profiler.start("iterations");
     //System.out.print(formulas.size() + " -> ");
@@ -282,6 +283,8 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       ++iteration;
       update();
+//      System.out.println("Iteration " + iteration);
+//      System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
       addCandidate();
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         //System.out.println("fractional");

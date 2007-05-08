@@ -1,4 +1,4 @@
-types from conll00 "corpora/train.conll";
+types from conll00noisy "corpora/train.conll";
 types to "corpora/train.types.pml";
 
 include "model.pml";

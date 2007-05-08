@@ -5,6 +5,7 @@ predicate case:        Int x Case;
 predicate cardinal:    Int x Cardinal;
 predicate pos:         Int x Pos;
 predicate noisypos:    Int x Pos;
+predicate noisycpos:   Int x Noisycpos;
 predicate chunk:       Int x Int x Chunk;
 predicate highestfreq: Int x Int x Int;
 

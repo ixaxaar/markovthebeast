@@ -44,7 +44,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int maxCandidates = 1000;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
-  private boolean useGreedy = false;
+  private boolean useGreedy = true;
   private boolean saveAfterEpoch = true;
   private String savePrefix = "/tmp/epoch_";
 
@@ -185,7 +185,7 @@ public class OnlineLearner implements Learner, HasProperties {
     features = new LocalFeatures(model, weights);
     extractor = new LocalFeatureExtractor(model, weights);
     evaluation = new Evaluation(model);
-    updateRule = new PerceptronUpdateRule();
+    updateRule = new MiraUpdateRule();
     guess = new FeatureVector();
     gold = new FeatureVector();
     goldGroundFormulas = new GroundFormulas(model, weights);
@@ -203,6 +203,8 @@ public class OnlineLearner implements Learner, HasProperties {
       instanceNr = 0;
       for (TrainingInstance instance : instances) {
         learn(instance);
+//        if (instanceNr >= 550 && instanceNr <= 560)
+//          ((CuttingPlaneSolver)solver).printHistory(System.out);
         ++instanceNr;
       }
       updateRule.endEpoch();
