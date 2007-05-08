@@ -134,9 +134,7 @@ print atoms.words;
 to print all words of the current sentence/database.
 
 = Learning =
-{{{
-print atoms.slot;
-}}}
+
 
 == Collect Features ==
 
