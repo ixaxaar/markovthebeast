@@ -1,7 +1,7 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
-import thebeast.pml.corpora.SentencePrinter;
+import thebeast.pml.corpora.CoNLL00SentencePrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
@@ -582,7 +582,7 @@ public class CuttingPlaneSolver implements Solver {
 
   public void printHistory(PrintStream out) {
     out.println("=======================================");
-    SentencePrinter printer = new SentencePrinter();
+    CoNLL00SentencePrinter printer = new CoNLL00SentencePrinter();
     printer.print(greedyAtoms, out);
     GroundAtoms last = greedyAtoms;
     ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());

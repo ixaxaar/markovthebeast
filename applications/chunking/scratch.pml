@@ -1,6 +1,6 @@
-//types from conll00noisy "corpora/train.np.both.1000.txt";
-//types to "corpora/train.np.goldtags.train.pml";
-include "corpora/train.np.goldtags.train.pml";
+types from conll00noisy "corpora/train.np.both.1000.txt";
+types to "corpora/train.np.goldtags.train.pml";
+//include "corpora/train.np.goldtags.train.pml";
                                                                     
 include "conll00.pml";
 include "chunking.pml";
@@ -12,7 +12,7 @@ include "pos-unigram.pml";
 include "pos-unknowns.pml";
 include "pos-pos.pml";
 //include "chunk-bigram.pml";
-include "chunk-phrase-noisypos.pml";
+//include "chunk-phrase-noisypos.pml";
 include "chunk-phrase.pml";
 //include "chunk-pos-forbid.pml";
 //include "chunk-pos.pml";
@@ -25,7 +25,7 @@ include "chunk-phrase.pml";
 
 observed:
   word, case, cardinal, hyphen, count, highestfreq, firstname, lastname, orgname, company, placename, stopword,
-  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4, noisypos, noisycpos;
+  prefix1, prefix2, prefix3, prefix4, postfix1, postfix2, postfix3, postfix4;
 
 hidden: chunk, pos;
 
@@ -43,7 +43,7 @@ load corpus from conll00 "corpora/train.np.goldtags.train.txt";
 //load corpus from dump "/tmp/corpus.dmp";
 
 
-save corpus (0-100) to ram;
+save corpus (0-5) to ram;
 
 /*
 set collector.all.w_case = true;

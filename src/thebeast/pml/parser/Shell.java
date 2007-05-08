@@ -58,7 +58,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private LocalFeatures features;
   private TrainingInstances instances;
 
-  private GroundAtomsPrinter printer = new SentencePrinter();
+  private GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
 
   private boolean signatureUpdated = false;
   private boolean modelUpdated = true;
@@ -76,6 +76,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private int defaultCorpusCacheSize = 20 * 1024 * 1024;
   private int defaultTrainingCacheSize = 100 * 1024 * 1024;
+
+  private HashMap<String,GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
 
 
   public Shell() {
@@ -656,7 +658,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitTest(ParserTest parserTest) {
     Corpus dst = null;
-    if (parserTest.mode.equals("ram")) {
+    if ("ram".equals(parserTest.mode)) {
       dst = new RandomAccessCorpus(signature, 1000);
     } else {
       File file = new File(parserTest.file);
@@ -828,6 +830,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("collector".equals(parserSet.propertyName.head))
       collector.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+    else if ("printer".equals(parserSet.propertyName.head))
+      printer = printers.get(parserSet.value.toString());
     else
       throw new RuntimeException("There is no property named " + parserSet.propertyName);
 
@@ -1067,9 +1071,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void initCorpusTools() {
+    registerCorpusFactory(null, new TextFileCorpus.Factory());
     registerCorpusFactory("ram", RandomAccessCorpus.FACTORY);
     registerCorpusFactory("malt", new MALTFactory());
-    registerCorpusFactory(null, new TextFileCorpus.Factory());
     registerTypeGenerator("malt", MALTFactory.GENERATOR);
     registerCorpusFactory("conll06", new CoNLL06Factory());
     registerTypeGenerator("conll06", CoNLL06Factory.GENERATOR);
@@ -1077,6 +1081,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerCorpusFactory("conll00noisy", new CoNLL00Factory(true));
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
     registerTypeGenerator("conll00noisy", CoNLL00Factory.GENERATOR_NOISYPOS);
+    registerPrinter("conll00", new CoNLL00SentencePrinter());
+    registerPrinter("default", new DefaultPrinter() );
+  }
+
+  public void registerPrinter(String name, GroundAtomsPrinter printer){
+    printers.put(name,printer);
   }
 
   public static interface PropertySetter {

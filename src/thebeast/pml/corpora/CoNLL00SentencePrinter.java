@@ -10,8 +10,7 @@ import java.io.PrintStream;
 /**
  * @author Sebastian Riedel
  */
-public class SentencePrinter implements GroundAtomsPrinter {
-
+public class CoNLL00SentencePrinter implements GroundAtomsPrinter {
 
   public void print(GroundAtoms atoms, PrintStream out) {
     UserPredicate word = atoms.getSignature().getUserPredicate("word");
