@@ -8,7 +8,7 @@ Show me all flights from Hamburg,,FROM_LOC,, to Chicago,,TO_LOC,,
 
 Often a system needs more information than this. We may also be interested in the fact that both Hamburg and Chicago are city names. So in fact we are looking for the following labeling:
 
-Show me all flights from Hamburg,,FROM_LOC&CITY_NAME,, to Chicago,,TO_LOC&CITY_NAME,,
+Show me all flights from Hamburg,,FROM_LOC & CITY_NAME,, to Chicago,,TO_LOC & CITY_NAME,,
  
 
 
