@@ -9,17 +9,18 @@ include "global.pml";
 
 include "pos-unigram.pml";
 //include "pos-brill.pml";
-include "pos-unknowns.pml";
-include "pos-pos.pml";
+//include "pos-unknowns.pml";
+//include "pos-pos.pml";
 //include "chunk-bigram.pml";
 //include "chunk-phrase-noisypos.pml";
-include "chunk-phrase.pml";
+//include "chunk-phrase.pml";
 //include "chunk-pos-forbid.pml";
 //include "chunk-pos.pml";
 //include "chunk-chunk.pml";
 
 
-
+weight w : Double;
+factor: for Int t if word(t,_) add [pos(t,"DT")] * w;
 
 
 

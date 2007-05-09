@@ -197,7 +197,11 @@ createPredicate ::= PREDICATE LOWERCASEID:id COLON argtypes:l
 
 
 createWeightFunction ::= WEIGHT LOWERCASEID:id COLON argtypes:l ARROW UPPERCASEID:r
-               {: RESULT = new ParserCreateWeightFunction(id,l,r); :};
+               {: RESULT = new ParserCreateWeightFunction(id,l,r); :}
+             | WEIGHT LOWERCASEID:id COLON UPPERCASEID:r
+               {: RESULT = new ParserCreateWeightFunction(id,new LinkedList<String>(),r); :}
+
+               ;
 
 createWeightFunction ::= WEIGHT LOWERCASEID:id COLON argtypes:l ARROW UPPERCASEID:r PLUS
                {: RESULT = new ParserCreateWeightFunction(id,l,r+"+"); :};

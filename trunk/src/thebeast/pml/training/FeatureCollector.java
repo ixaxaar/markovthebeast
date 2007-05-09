@@ -111,7 +111,10 @@ public class FeatureCollector implements HasProperties {
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.isParametrized()) {
         WeightFunction function = factor.getWeightFunction();
-        if ( collectAll.contains(function)) {
+        if (function.getArity() == 0){
+          weights.addWeight(function,0.0);  
+        }
+        else if (collectAll.contains(function)) {
           Heading heading = function.getHeading();
           for (Attribute attribute : heading.attributes()) {
             builder.allConstants((CategoricalType) attribute.type()).from(attribute.name());

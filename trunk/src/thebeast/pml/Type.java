@@ -89,6 +89,13 @@ public class Type {
     return false;
   }
 
+  public boolean inherits(Type superType){
+    if (this.equals(superType)) return true;
+    if (superType.getTypeClass() == Class.DOUBLE &&
+            (getTypeClass() == Class.POSITIVE_DOUBLE || getTypeClass() == Class.POSITIVE_DOUBLE))
+      return true;
+    return false;
+  }
 
   public Constant toConstant(Value value) {
     switch (typeClass) {
