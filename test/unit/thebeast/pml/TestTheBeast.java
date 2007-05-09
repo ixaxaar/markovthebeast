@@ -359,6 +359,13 @@ public class TestTheBeast extends TestCase {
     assertEquals(2, weights.getFeatureCount());
   }
 
+  public void testWeightFunctionZeroArity(){
+    WeightFunction function = signature.createWeightFunction("w");
+    Weights weights = signature.createWeights();
+    weights.addWeight(function,1.5);
+    assertEquals(1.5, weights.getWeight(function));
+  }
+
   public void testSaveWeight() throws IOException {
     Weights weights = signature.createWeights();
     weights.addWeight(weightFunction1, 1.5, "DT", "NP");

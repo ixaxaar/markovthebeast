@@ -77,7 +77,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private int defaultCorpusCacheSize = 20 * 1024 * 1024;
   private int defaultTrainingCacheSize = 100 * 1024 * 1024;
 
-  private HashMap<String,GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
+  private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
 
 
   public Shell() {
@@ -296,7 +296,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     BooleanFormula condition = formula;
     parserFactorFormula.formula.acceptParserFormulaVisitor(this);
     BooleanFormula formula = this.formula;
+    typeContext.push(Type.DOUBLE);
     parserFactorFormula.weight.acceptParserTermVisitor(this);
+    typeContext.pop();
     Term weight = term;
     FactorFormula factorFormula = new FactorFormula(quantification, condition, formula, weight);
     model.addFactorFormula(factorFormula);
@@ -464,7 +466,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitPrint(ParserPrint parserPrint) {
     if ("atoms".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
-        printer.print(guess,out); 
+        printer.print(guess, out);
       else {
         UserPredicate predicate = (UserPredicate) signature.getPredicate(parserPrint.name.tail.head);
         out.print(guess.getGroundAtomsOf(predicate));
@@ -910,7 +912,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     typeContext.pop();
     Term ub = term;
     //formula = new CardinalityConstraint(lb, quantification, formula, ub,true);
-    formula = new CardinalityConstraint(lb, quantification, formula, ub,parserCardinalityConstraint.useClosure);
+    formula = new CardinalityConstraint(lb, quantification, formula, ub, parserCardinalityConstraint.useClosure);
   }
 
   public void visitComparison(ParserComparison parserComparison) {
@@ -1016,8 +1018,20 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitVariable(ParserVariable parserVariable) {
     term = resolve(parserVariable.name);
-    if (term == null) throw new RuntimeException(parserVariable.name + " was not quantified in " + rootFactor);
-    typeCheck();
+    WeightFunction function = signature.getWeightFunction(parserVariable.name);
+    if (term != null && function != null)
+      throw new ShellException("We don't like this ambiguity: " + parserVariable.name + " is both a variable " +
+              "and a (zero-arity) weight function. Why we could resolve this in a clever manner, we refrain from doing so " +
+              "to make sure you know what you're doing.");
+    if (term == null) {
+      if (function == null)
+        throw new RuntimeException(parserVariable.name + " was not quantified in " + rootFactor);
+      LinkedList<Term> args = new LinkedList<Term>();
+      term = new FunctionApplication(function, args);
+      typeCheck();
+    } else
+      typeCheck();
+
   }
 
   public void visitBins(ParserBins parserBins) {
@@ -1040,11 +1054,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void typeCheck() {
-    if (!typeContext.isEmpty() && !term.getType().equals(typeContext.peek()))
+    if (!typeContext.isEmpty() && !term.getType().inherits(typeContext.peek()))
       throw new RuntimeException("Variable " + term + " must be of type " + typeContext.peek() + " in " +
               rootFactor);
   }
-
+  
   /**
    * Gets a factory which can build corpora. We provide a few built-in factories but user defined ones can be added (and
    * then used from within the interpreter).
@@ -1082,11 +1096,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
     registerTypeGenerator("conll00noisy", CoNLL00Factory.GENERATOR_NOISYPOS);
     registerPrinter("conll00", new CoNLL00SentencePrinter());
-    registerPrinter("default", new DefaultPrinter() );
+    registerPrinter("default", new DefaultPrinter());
   }
 
-  public void registerPrinter(String name, GroundAtomsPrinter printer){
-    printers.put(name,printer);
+  public void registerPrinter(String name, GroundAtomsPrinter printer) {
+    printers.put(name, printer);
   }
 
   public static interface PropertySetter {
