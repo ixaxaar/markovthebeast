@@ -1,6 +1,8 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.corpora.CoNLL00SentencePrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
@@ -40,6 +42,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private boolean printHistory = false;
 
+
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
   private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
   private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
@@ -56,6 +59,8 @@ public class CuttingPlaneSolver implements Solver {
     this.propositionalModel = propositionalModel;
     propositionalModel.setProfiler(profiler);
   }
+
+
 
   public void configure(Model model, Weights weights) {
     this.model = model;

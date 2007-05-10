@@ -1,4 +1,4 @@
-package thebeast.pml.solve;
+package thebeast.pml.solve.ilp;
 
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Insert;
@@ -16,10 +16,11 @@ import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.pml.solve.ILPSolver;
-import thebeast.pml.solve.ILPSolverLpSolve;
-import thebeast.pml.solve.ILPSolverOsi;
-import thebeast.pml.solve.ILPSolverCbc;
+import thebeast.pml.solve.ilp.ILPSolver;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.ILPSolverOsi;
+import thebeast.pml.solve.ilp.ILPSolverCbc;
+import thebeast.pml.solve.PropositionalModel;
 import thebeast.pml.*;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
@@ -71,6 +72,8 @@ public class IntegerLinearProgram implements PropositionalModel {
   private ILPSolver solver;
 
 
+  private boolean initIntegers = false;
+
   private static Heading constraintHeading;
   private static Heading varHeading;
   private static Heading resultHeading;
@@ -118,6 +121,15 @@ public class IntegerLinearProgram implements PropositionalModel {
 
   public IntegerLinearProgram(ILPSolver solver) {
     this.solver = solver;
+  }
+
+
+  public boolean isInitIntegers() {
+    return initIntegers;
+  }
+
+  public void setInitIntegers(boolean initIntegers) {
+    this.initIntegers = initIntegers;
   }
 
   public void configure(Model model, Weights weights) {
@@ -307,6 +319,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   public void solve(GroundAtoms solution) {
     profiler.start("add to ilp", 0);
     solver.add(newVars, newConstraints);
+    if (initIntegers) solver.addIntegerConstraints(newVars);
     profiler.end();
     profiler.start("solve", 1);
     RelationVariable result = solver.solve();
@@ -660,6 +673,8 @@ public class IntegerLinearProgram implements PropositionalModel {
 
 
   public void setProperty(PropertyName name, Object value) {
+    if (name.getHead().equals("initInteger"))
+      setInitIntegers((Boolean) value);    
     if ("solver".equals(name.getHead()))
       if (name.isTerminal()) {
         String type = (String) value;

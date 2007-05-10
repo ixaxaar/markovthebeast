@@ -1,4 +1,4 @@
-package thebeast.pml.solve;
+package thebeast.pml.solve.ilp;
 
 import thebeast.nod.variable.RelationVariable;
 import thebeast.util.Profiler;
