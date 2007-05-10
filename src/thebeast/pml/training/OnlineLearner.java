@@ -205,6 +205,8 @@ public class OnlineLearner implements Learner, HasProperties {
 //        if (instanceNr >= 550 && instanceNr <= 560)
 //          ((CuttingPlaneSolver)solver).printHistory(System.out);
         ++instanceNr;
+//        if (instanceNr % 100 == 99)
+//          System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
       }
       updateRule.endEpoch();
       progressReporter.finished();
@@ -272,19 +274,10 @@ public class OnlineLearner implements Learner, HasProperties {
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
 
-    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations) {
-      solution.getGroundAtoms().load(solver.getGreedyAtoms());
-      solution.getGroundFormulas().load(solver.getGreedyFormulas());
-      FeatureVector features = solution.extract(this.features);
-      //features.getNonnegative().load(gold.getNonnegative());
-      //features.getNonpositive().load(gold.getNonpositive());
-      candidates.add(features);
-      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
-    }
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
-    for (int i = 0; i < candidateAtoms.size() && i <= maxCandidates; ++i) {
+    for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
       int violationCount = candidateFormulas.get(i).getViolationCount();
       //maxViolations = 1;
       if (violationCount < maxViolations) {
@@ -302,6 +295,18 @@ public class OnlineLearner implements Learner, HasProperties {
         //System.out.println("Guess " + i + ": " + weights.toString(features));
       }
     }
+
+    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations
+            && candidates.size() < maxCandidates) {
+      solution.getGroundAtoms().load(solver.getGreedyAtoms());
+      solution.getGroundFormulas().load(solver.getGreedyFormulas());
+      FeatureVector features = solution.extract(this.features);
+      //features.getNonnegative().load(gold.getNonnegative());
+      //features.getNonpositive().load(gold.getNonpositive());
+      candidates.add(features);
+      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
+    }
+    
 
     //guess.load(solution.extract(features));
     profiler.end();

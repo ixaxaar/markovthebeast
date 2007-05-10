@@ -39,6 +39,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private int maxViolationsForNonDeterministic = 1;
   private boolean alternating = false;
+  private long timeout = 10000;
 
   private boolean printHistory = false;
 
@@ -235,6 +236,8 @@ public class CuttingPlaneSolver implements Solver {
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
   public void solve(int maxIterations) {
+
+    long start = System.currentTimeMillis();
     if (alternating) {
       solveAlternating(maxIterations);
       return;
@@ -281,6 +284,10 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
     while (propositionalModel.changed() && iteration < maxIterations) {
+      if (System.currentTimeMillis() - start > timeout){
+        System.out.println("timeout");
+        break;
+      }
       profiler.start("ilp.solve");
       propositionalModel.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);

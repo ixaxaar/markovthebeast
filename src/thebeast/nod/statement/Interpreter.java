@@ -114,4 +114,6 @@ public interface Interpreter {
   void scale(ArrayVariable arrayVariable, double scale);
 
   void append(RelationVariable relVar, RelationExpression expression);
+
+  String getMemoryString();
 }
