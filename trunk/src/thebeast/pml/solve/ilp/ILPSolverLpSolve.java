@@ -31,6 +31,8 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public void init() {
     try {
+      if (solver != null)
+        solver.deleteLp();
       solver = LpSolve.makeLp(0, 0);
       solver.setMaxim();
       //solver.setBbDepthlimit(3);

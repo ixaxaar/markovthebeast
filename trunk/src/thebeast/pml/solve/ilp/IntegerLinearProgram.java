@@ -673,7 +673,7 @@ public class IntegerLinearProgram implements PropositionalModel {
 
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("initInteger"))
+    if (name.getHead().equals("initIntegers"))
       setInitIntegers((Boolean) value);    
     if ("solver".equals(name.getHead()))
       if (name.isTerminal()) {

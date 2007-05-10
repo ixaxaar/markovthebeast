@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.ref.WeakReference;
+import java.lang.ref.ReferenceQueue;
 
 /**
  * @author Sebastian Riedel
@@ -22,8 +24,16 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
   protected static final MemExpressionCompiler compiler = new MemExpressionCompiler();
   private LinkedList<MemHashIndex> dependendIndices = new LinkedList<MemHashIndex>();
 
+  private static LinkedList<WeakReference<Expression>> references = new LinkedList<WeakReference<Expression>>();
+  private static ReferenceQueue<Expression> queue = new ReferenceQueue<Expression>();
+
   protected AbstractMemExpression(T type) {
     this.type = type;
+    references.add(new WeakReference<Expression>(this, queue));
+  }
+
+  public static List<WeakReference<Expression>> references(){
+    return references;    
   }
 
   public T type() {

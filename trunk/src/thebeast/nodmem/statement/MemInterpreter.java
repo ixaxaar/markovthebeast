@@ -17,10 +17,9 @@ import thebeast.nodmem.variable.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 
 /**
  * @author Sebastian Riedel
@@ -30,6 +29,11 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   private MemStatementFactory factory = new MemStatementFactory();
   private MemTypeFactory typeFactory;
   private MemNoDServer server;
+
+  private ReferenceQueue<RelationVariable> relVarReferenceQueue = new ReferenceQueue<RelationVariable>();
+  private LinkedList<WeakReference<RelationVariable>>
+          relVarReferences = new LinkedList<WeakReference<RelationVariable>>();
+  private int relVarCount = 0;
 
   public MemInterpreter(MemNoDServer server) {
     typeFactory = (MemTypeFactory) server.typeFactory();
@@ -144,16 +148,20 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   public RelationVariable createRelationVariable(RelationExpression expr) {
     MemRelationVariable var = new MemRelationVariable(server, expr.type());
+    relVarReferences.add(new WeakReference<RelationVariable>(var, relVarReferenceQueue));
     interpret(factory.createAssign(var, expr));
     return var;
   }
 
   public RelationVariable createRelationVariable(Heading heading) {
-    return new MemRelationVariable(server, new MemRelationType((MemHeading) heading));
+    MemRelationVariable memRelationVariable = new MemRelationVariable(server, new MemRelationType((MemHeading) heading));
+    relVarReferences.add(new WeakReference<RelationVariable>(memRelationVariable, relVarReferenceQueue));
+    return memRelationVariable;
   }
 
   public CategoricalVariable createCategoricalVariable(CategoricalExpression categorical) {
     MemCategoricalVariable var = new MemCategoricalVariable(server, categorical.type(), new MemChunk(1, 1, 1, 0, 0));
+    ++relVarCount;
     interpret(factory.createAssign(var, categorical));
     return var;
   }
@@ -454,6 +462,42 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       throw new IllegalArgumentException("Can't append other types then ints, doubles and categoricals with this method");
     chunk.size += howmany;
     var.invalidate();
+  }
+
+  public String getMemoryString(){
+    int gced = 0;
+    int alive = 0;
+    int totalRowCount = 0;
+    for (WeakReference<RelationVariable> ref : relVarReferences){
+      if (ref.isEnqueued())
+        ++gced;
+      else {
+        totalRowCount += ref.get().value().size();
+        ++alive;
+      }
+    }
+
+    Formatter formatter = new Formatter();
+    formatter.format("%-30s%-7d\n","RelVars instantiated", relVarReferences.size());
+    formatter.format("%-30s%-7d\n","RelVars gced", gced);
+    formatter.format("%-30s%-7d\n","RelVars alive", alive);
+    formatter.format("%-30s%-7d\n","RelVars total row count", totalRowCount);
+    formatter.format("%-30s%-7f\n","RelVars avg row count", (double) totalRowCount / (double) alive);
+
+    gced = 0;
+    alive = 0;
+    for (WeakReference<Expression> ref : AbstractMemExpression.references()){
+      if (ref.isEnqueued())
+        ++gced;
+      else {
+        ++alive;
+      }
+    }
+    formatter.format("%-30s%-7d\n","Expressions instantiated", AbstractMemExpression.references().size());
+    formatter.format("%-30s%-7d\n","Expressions gced", gced);
+    formatter.format("%-30s%-7d\n","Expressions alive", alive);
+
+    return formatter.toString();
   }
 
 

@@ -13,7 +13,7 @@ load corpus from conll00noisy "corpora/test.conll";
 save corpus (0-100) to ram;
 
 //load weights from dump "/tmp/weights.dmp";
-load weights from dump "/tmp/epoch_10.dmp";
+load weights from dump "/tmp/epoch_4.dmp";
 
 set solver.ilp.solver = "lpsolve";
 set solver.integer = true;
