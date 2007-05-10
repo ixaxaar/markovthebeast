@@ -20,10 +20,10 @@ import thebeast.pml.training.FeatureCollector;
 import thebeast.pml.training.OnlineLearner;
 import thebeast.pml.training.PerceptronUpdateRule;
 import thebeast.pml.training.TrainingInstances;
-import thebeast.pml.solve.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.CuttingPlaneSolver;
-import thebeast.pml.solve.ILPSolver;
-import thebeast.pml.solve.IntegerLinearProgram;
+import thebeast.pml.solve.ilp.ILPSolver;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.util.QuietProgressReporter;
 import thebeast.util.TreeProfiler;
 

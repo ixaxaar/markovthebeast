@@ -1,24 +1,38 @@
-package thebeast.pml.solve;
+package thebeast.pml.solve.weightedsat;
 
 import thebeast.pml.*;
+import thebeast.pml.solve.PropositionalModel;
+import thebeast.pml.term.Constant;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.CNF;
 import thebeast.util.Profiler;
+import thebeast.nod.variable.Variable;
 
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @author Sebastian Riedel
  */
 public class WeightedSatProblem implements PropositionalModel {
 
-  private class Clause {
-    CNF cnf;
-    Variable[] variables;
+  private Model model;
+
+  public static class Grounding {
+    private HashMap<Variable, Constant> mapping;
+    public CNF cnf;
   }
 
-  private class Variable {
+  public static class Clause {
+    public ArrayList<Node> nodes;
+    public boolean state;
+    public double score;
+  }
 
+  public static class Node {
+    public ArrayList<Clause> clauses;
+    public boolean state;
   }
 
   public void init(Scores scores) {
@@ -34,11 +48,11 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms) {
-
+    update(formulas,atoms,model.getFactorFormulas());
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
-
+    
   }
 
   public boolean changed() {

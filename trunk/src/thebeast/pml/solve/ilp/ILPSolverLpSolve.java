@@ -1,4 +1,4 @@
-package thebeast.pml.solve;
+package thebeast.pml.solve.ilp;
 
 import lpsolve.LpSolve;
 import lpsolve.LpSolveException;
@@ -10,7 +10,7 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
 import thebeast.pml.TheBeast;
-import thebeast.pml.solve.IntegerLinearProgram;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.PropertyName;
 
 /**

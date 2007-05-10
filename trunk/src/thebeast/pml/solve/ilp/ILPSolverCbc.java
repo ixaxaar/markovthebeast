@@ -1,24 +1,26 @@
-package thebeast.pml.solve;
+package thebeast.pml.solve.ilp;
 
+import thebeast.osi.OsiSolverJNI;
+import thebeast.osi.OsiSolver;
+import thebeast.osi.CbcModel;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.RelationValue;
+import thebeast.pml.*;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
-import thebeast.osi.OsiSolver;
-import thebeast.osi.OsiSolverJNI;
-import thebeast.pml.*;
 
 import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
  */
-public class ILPSolverOsi implements ILPSolver {
+public class ILPSolverCbc implements ILPSolver {
 
-  private OsiSolverJNI solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
+  private OsiSolverJNI solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
+  private CbcModel model;
   private int numRows, numCols;
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -28,8 +30,36 @@ public class ILPSolverOsi implements ILPSolver {
   private boolean writeLp = false;
   private boolean hasIntegerConstraints = false;
 
+
+  public ILPSolverCbc(OsiSolverJNI solver) {
+    model = new CbcModel(solver);
+    //model.setLogLevel(3);
+    this.solver = model.referenceSolver();
+    //model.addCglProbing(true, 1, 5, 10, 1000, 50, 500, 200, 3);
+    //model.addCglGomory(300);
+    //model.addCglKnapsackCover();
+    //model.addCglMixedIntegerRounding2();
+    //model.addCglFlowCover();
+    //model.addCglClique(false, false);
+    //model.addCglRedsplit(200);
+    //model.setAllowablePercentageGap(5);
+  }
+
+
+  public ILPSolverCbc() {
+    this(OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP));
+  }
+
   public void init() {
+
+//    if (model != null){
+//      //model.delete();
+//    }
     solver.reset();
+    //solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
+    //model = new CbcModel(solver);
+    //solver = model.solver();
+
     //solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
     solver.setObjSense(-1);
     solver.setHintParam(OsiSolver.OsiHintParam.OsiDoReducePrint, true, OsiSolver.OsiHintStrength.OsiHintTry);
@@ -101,14 +131,13 @@ public class ILPSolverOsi implements ILPSolver {
   }
 
   public RelationVariable solve() {
-    solver.setLogLevel(0);
-    if (hasIntegerConstraints)
-      solver.branchAndBound();
-    else
-      solver.resolve();
+    model.resetToReferenceSolver();
+    model.setLogLevel(0);
+    double[] solution;
+    model.branchAndBound();
+    solution = model.bestSolution();
     //solver.branchAndBound();
     //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
-    double[] solution = solver.getColSolution();
     int[] indices = new int[numCols];
     for (int index = 0; index < solution.length; ++index) {
       indices[index] = index;
@@ -116,6 +145,7 @@ public class ILPSolverOsi implements ILPSolver {
     //RelationVariable variable = interpreter.createRelationVariable(builder.getRelation());
     RelationVariable variable = interpreter.createRelationVariable(IntegerLinearProgram.getResultHeading());
     variable.assignByArray(indices, solution);
+    //System.out.print("!");
     return variable;
 
   }
@@ -136,17 +166,10 @@ public class ILPSolverOsi implements ILPSolver {
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
-    else if ("implementation".equals(name.getHead())){
-      String impl = (String) value;
-      solver.delete();
-      if ("cbc".equals(impl)){
-        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CBC);
-      } else if ("clp".equals(impl))
-        solver = OsiSolverJNI.create(OsiSolverJNI.Implementation.CLP);
-      else
-        throw new IllegalPropertyValueException(name, value);
-    }
-    else throw new NoSuchPropertyException(name);
+    else if (name.getHead().equals("gap"))
+      model.setAllowablePercentageGap((Double) value);
+    else if (name.getHead().equals("maxNodes"))
+      model.setMaximumNodes((Integer) value);
   }
 
   public void setProperty(String name, Object value) {
