@@ -422,6 +422,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(filename(parserLoad.file)), 1024);
           weights.read(source);
           weightsUpdated = true;
+        }
+        if (null == parserLoad.mode) {
+          weights.load(new FileInputStream(filename(parserLoad.file)));
         } else {
           throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
         }
@@ -1058,7 +1061,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       throw new RuntimeException("Variable " + term + " must be of type " + typeContext.peek() + " in " +
               rootFactor);
   }
-  
+
   /**
    * Gets a factory which can build corpora. We provide a few built-in factories but user defined ones can be added (and
    * then used from within the interpreter).
