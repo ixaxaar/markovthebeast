@@ -4,6 +4,7 @@ import thebeast.nod.expression.*;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.RelationType;
 import thebeast.nod.type.TupleType;
+import thebeast.nod.type.CategoricalType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.*;
 import thebeast.pml.*;
@@ -65,7 +66,7 @@ public class QueryGenerator {
     builder = new FormulaBuilder(groundAtoms.getSignature());
 
     BooleanFormula condition = factorFormula.getCondition();
-    
+
     processGlobalFormula(condition, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -282,19 +283,30 @@ public class QueryGenerator {
 
     builder = new FormulaBuilder(observation.getSignature());
 
-    DNF dnf = dnfGenerator.convertToDNF(factorFormula.getCondition());
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();
 
-    ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
+    if (factorFormula.getCondition() != null) {
+      DNF dnf = dnfGenerator.convertToDNF(factorFormula.getCondition());
 
-    for (List<SignedAtom> conjunction : dnf.getConjunctions()) {
-      //create conjunction context
+      ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
+
+      for (List<SignedAtom> conjunction : dnf.getConjunctions()) {
+        //create conjunction context
+        ConjunctionProcessor.Context conjunctionContext = new ConjunctionProcessor.Context();
+        conjunctions.add(conjunctionContext);
+        //process the condition conjunction
+        conjunctionProcessor.processConjunction(conjunctionContext, conjunction);
+        //processConjunction(conjunctionContext, conjunction);
+        //process the single hidden atom
+        processHiddenAtom(conjunctionContext, (Atom) factorFormula.getFormula());
+        //now process the weight part.
+        processWeightForLocal(conjunctionContext, factorFormula.getWeight());
+        //make a tuple using all added columns
+        conjunctionContext.selectBuilder.tuple();
+      }
+    } else {
       ConjunctionProcessor.Context conjunctionContext = new ConjunctionProcessor.Context();
       conjunctions.add(conjunctionContext);
-      //process the condition conjunction
-      conjunctionProcessor.processConjunction(conjunctionContext, conjunction);
-      //processConjunction(conjunctionContext, conjunction);
-      //process the single hidden atom
       processHiddenAtom(conjunctionContext, (Atom) factorFormula.getFormula());
       //now process the weight part.
       processWeightForLocal(conjunctionContext, factorFormula.getWeight());
@@ -310,6 +322,7 @@ public class QueryGenerator {
       rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
     }
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
+
 
   }
 
@@ -336,12 +349,26 @@ public class QueryGenerator {
 
   private void processRemainingUnresolved(ConjunctionProcessor.Context context) {
     for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
-      Term resolved = termResolver.resolve(entry.getValue(), context.var2term);
-      if (!termResolver.allResolved())
-        throw new RuntimeException("Arguments of the hidden atom must all be bound but " + entry.getValue() +
-                " is not");
-      Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
-      context.selectBuilder.id(entry.getKey()).expr(expr);
+      Term term = entry.getValue();
+      Term resolved = termResolver.resolve(term, context.var2term);
+      if (!termResolver.allResolved()) {
+        if (term.getType().getTypeClass() != Type.Class.CATEGORICAL &&
+                term.getType().getTypeClass() != Type.Class.CATEGORICAL_UNKNOWN)
+          throw new RuntimeException("Arguments of the hidden atom must all be bound but " + term +
+                  " is not");
+        else {
+          String prefix = "all_" + term.toString();
+          RelationExpression allConstants = exprBuilder.allConstants((CategoricalType) term.getType().getNodType()).getRelation();
+          context.prefixes.add(prefix);
+          context.relations.add(allConstants);
+          context.selectBuilder.expr(allConstants);
+          context.selectBuilder.from(prefix);
+          context.selectBuilder.id(entry.getKey()).categoricalAttribute(prefix,"value");
+        }
+      } else {
+        Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+        context.selectBuilder.id(entry.getKey()).expr(expr);
+      }
     }
   }
 

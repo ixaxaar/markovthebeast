@@ -432,77 +432,61 @@ public class Weights implements HasProperties {
    * @throws java.io.IOException if I/O goes wrong.
    */
   public void load(InputStream is) throws IOException {
-    StreamTokenizer tokenizer = new StreamTokenizer(new InputStreamReader(is));
-    tokenizer.parseNumbers();
-    tokenizer.quoteChar('"');
-    tokenizer.quoteChar('\'');
-    tokenizer.whitespaceChars(' ', ' ');
-    tokenizer.whitespaceChars('\t', '\t');
-    tokenizer.whitespaceChars('\n', '\n');
     WeightFunction weightFunction = null;
     int arity = -1;
     boolean inWeights = false;
     ExpressionBuilder argBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     ExpressionBuilder weightBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     int index = 0;
-    int col = 0;
     int rows = 0;
-    while (tokenizer.nextToken() != StreamTokenizer.TT_EOF) {
-      if (tokenizer.ttype == '>') {
-        tokenizer.nextToken();
-        String token = tokenizer.sval;
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+      line = line.trim();
+      if ("".equals(line) || line.startsWith("//")) continue;
+      if (line.startsWith(">")) {
+        String functionName = line.substring(1).trim();
         if (inWeights) {
           argBuilder.relation(rows);
           interpreter.assign(relations.get(weightFunction), argBuilder.getRelation());
         }
-        weightFunction = (WeightFunction) signature.getFunction(token);
+        weightFunction = (WeightFunction) signature.getFunction(functionName);
         if (weightFunction == null)
-          throw new RuntimeException("Function " + token + " does not exist in this signature!");
+          throw new RuntimeException("Function " + functionName + " does not exist in this signature!");
         arity = weightFunction.getArgumentTypes().size();
         rows = 0;
         inWeights = true;
-      } else if (tokenizer.ttype != StreamTokenizer.TT_NUMBER && tokenizer.sval.trim().length() == 0) {
-        if (inWeights) {
-          argBuilder.relation(rows);
-          interpreter.assign(relations.get(weightFunction), argBuilder.getRelation());
-        }
-        inWeights = false;
       } else {
         if (inWeights) {
-          if (col < arity) {
+          StringTokenizer tokenizer = new StringTokenizer(line, "[ \t]");
+          for (int col = 0; col < arity; ++col) {
+            String token = tokenizer.nextToken();
             thebeast.nod.type.Type type = weightFunction.getAttributeForArg(col).type();
             argBuilder.id(weightFunction.getColumnName(col));
             switch (weightFunction.getArgumentTypes().get(col).getTypeClass()) {
               case CATEGORICAL_UNKNOWN:
               case CATEGORICAL:
-                Object value = tokenizer.ttype == '"' ?
-                        tokenizer.sval.substring(1, tokenizer.sval.length() - 1) :
-                        tokenizer.sval;
-                argBuilder.value(type, value);
+                argBuilder.value(type, (Object) token);
                 break;
               case NEGATIVE_DOUBLE:
               case POSITIVE_DOUBLE:
               case DOUBLE:
-                argBuilder.value(type, tokenizer.nval);
+                argBuilder.value(type, Double.parseDouble(token));
                 break;
               case NEGATIVE_INT:
               case POSITIVE_INT:
               case INT:
-                argBuilder.value(type, (int) tokenizer.nval);
+                argBuilder.value(type, Integer.parseInt(token));
                 break;
             }
-            ++col;
-          } else {
-            double weight = tokenizer.nval;
-            weightBuilder.doubleValue(weight);
-            argBuilder.id("index").integer(index++);
-            argBuilder.tuple(arity + 1);
-            col = 0;
-            ++rows;
           }
+          double weight = Double.parseDouble(tokenizer.nextToken());
+          weightBuilder.doubleValue(weight);
+          argBuilder.id("index").integer(index++);
+          argBuilder.tuple(arity + 1);
+          ++rows;
         }
-      }
 
+      }
     }
     if (inWeights) {
       argBuilder.relation(rows);
@@ -556,7 +540,7 @@ public class Weights implements HasProperties {
       tmpSet[index] = true;
     }
     for (int index : indices2) {
-      if (tmpSet[index]){
+      if (tmpSet[index]) {
         tmpIndicesList[size] = index;
         tmpIndices[index] = size;
         ++size;
