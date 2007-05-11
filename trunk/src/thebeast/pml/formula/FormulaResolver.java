@@ -58,6 +58,10 @@ public class FormulaResolver extends FormulaCopyVisitor {
                 cardinalityConstraint.getUpperBound(),cardinalityConstraint.useClosure());
         var2term = old;
       }
+
+      public void visitTrue(True aTrue) {
+
+      }
     });
   }
   public void visitIntConstant(IntConstant intConstant) {

@@ -1,6 +1,7 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
+import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.corpora.CoNLL00SentencePrinter;
@@ -49,6 +50,8 @@ public class CuttingPlaneSolver implements Solver {
   private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
   private Stack<GroundFormulas> holderFormulas = new Stack<GroundFormulas>();
 
+  private HashSet<FactorFormula> groundAll = new HashSet<FactorFormula>();
+
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
     this(new IntegerLinearProgram(new ILPSolverLpSolve()));
@@ -61,7 +64,18 @@ public class CuttingPlaneSolver implements Solver {
     propositionalModel.setProfiler(profiler);
   }
 
+  public void setFullyGround(FactorFormula formula, boolean fullyGround){
+    if (formula == null) throw new RuntimeException("formula must not be null");
+    groundAll.add(formula);
+    formulas.setFullyGround(formula, fullyGround);
+    firstFormulas.setFullyGround(formula, fullyGround);
+    
+  }
 
+  public void setFullyGroundAll(boolean fullyGroundAll){
+    for (FactorFormula formula : model.getGlobalFactorFormulas())
+      setFullyGround(formula, fullyGroundAll);
+  }
 
   public void configure(Model model, Weights weights) {
     this.model = model;
@@ -278,16 +292,16 @@ public class CuttingPlaneSolver implements Solver {
 
     //new SentencePrinter().print(atoms, System.out);
 //    System.out.println("Iteration " + iteration);
-//    System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
+    //System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
 
     profiler.start("iterations");
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
     while (propositionalModel.changed() && iteration < maxIterations) {
-      if (System.currentTimeMillis() - start > timeout){
-        System.out.println("timeout");
-        break;
-      }
+//      if (System.currentTimeMillis() - start > timeout){
+//        System.out.println("timeout");
+//        break;
+//      }
       profiler.start("ilp.solve");
       propositionalModel.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);
@@ -296,7 +310,7 @@ public class CuttingPlaneSolver implements Solver {
       ++iteration;
       update();
 //      System.out.println("Iteration " + iteration);
-//      System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
+      //System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
       addCandidate();
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         //System.out.println("fractional");

@@ -78,4 +78,8 @@ public class FormulaDepthFirstVisitor implements BooleanFormulaVisitor, TermVisi
     cardinalityConstraint.getUpperBound().acceptTermVisitor(FormulaDepthFirstVisitor.this);
     cardinalityConstraint.getFormula().acceptBooleanFormulaVisitor(FormulaDepthFirstVisitor.this);
   }
+
+  public void visitTrue(True aTrue) {
+
+  }
 }

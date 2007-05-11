@@ -31,6 +31,10 @@ public class FormulaCopyVisitor implements BooleanFormulaVisitor, TermVisitor {
                 formula, 
                 cardinalityConstraint.getUpperBound(),cardinalityConstraint.useClosure());
       }
+
+      public void visitTrue(True aTrue) {
+        formula = aTrue;
+      }
     });
   }
 

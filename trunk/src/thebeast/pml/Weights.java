@@ -201,6 +201,10 @@ public class Weights implements HasProperties {
     builder.clear();
   }
 
+  public void addWeight(String weightFunction, double weight, Object ... arguments){
+    addWeight(signature.getWeightFunction(weightFunction),weight,arguments );
+  }
+
   /**
    * Returns the weight of the given args via the given function. If no mapping is defined, 0.0 is returned.
    *

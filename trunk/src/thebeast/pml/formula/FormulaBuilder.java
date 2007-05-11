@@ -31,6 +31,8 @@ public class FormulaBuilder {
 
   private LinkedList<Variable> vars = new LinkedList<Variable>();
 
+  private int formulaCount = 0;
+
   public FormulaBuilder(Signature signature) {
     this.signature = signature;
   }
@@ -118,6 +120,9 @@ public class FormulaBuilder {
   }
 
   public FormulaBuilder condition() {
+    if (formulaStack.size() > 1)
+      throw new RuntimeException("There is more than one formula on the stack -- " +
+              "do you really want " + formulaStack.peek() + " to be the condition");
     condition = formulaStack.pop();
     return this;
   }
@@ -128,6 +133,9 @@ public class FormulaBuilder {
   }
 
   public FormulaBuilder formula() {
+    if (formulaStack.size() > 1)
+      throw new RuntimeException("There is more than one formula on the stack -- " +
+              "do you really want " + formulaStack.peek() + " to be the formula");
     formula = formulaStack.pop();
     return this;
   }
@@ -139,6 +147,14 @@ public class FormulaBuilder {
     name2var.put(name, var);
     return this;
   }
+
+  public FormulaBuilder var(String type, String name) {
+    Variable var = new Variable(signature.getType(type), name);
+    vars.add(var);
+    name2var.put(name, var);
+    return this;
+  }
+
 
   public FormulaBuilder var(String name) {
     Variable var = name2var.get(name);
@@ -167,13 +183,17 @@ public class FormulaBuilder {
     return quantification;
   }
 
-  public FactorFormula produceFactorFormula() {
-    FactorFormula factorFormula = new FactorFormula(popQuantification(), condition, formula,
+  public FactorFormula produceFactorFormula(String name) {
+    FactorFormula factorFormula = new FactorFormula(name, popQuantification(), condition, formula,
             weight == null ? new DoubleConstant(Double.POSITIVE_INFINITY) : weight );
     condition = null;
     formula = null;
     weight = null;
     return factorFormula;
+  }
+
+  public FactorFormula produceFactorFormula() {
+    return produceFactorFormula("@formula" + formulaCount++);
   }
 
   public BooleanFormula getFormula() {

@@ -209,7 +209,15 @@ public class Signature {
 		return createPredicate(name, Arrays.asList(argumentTypes));
 	}
 
-	/**
+  public UserPredicate createPredicate(String name, String... argumentTypes) {
+    LinkedList<Type> types = new LinkedList<Type>();
+    for (String type : argumentTypes)
+      types.add(getType(type));
+    return createPredicate(name, types);
+  }
+
+
+  /**
 	 * Get the predicate with a given name
 	 * 
 	 * @param name

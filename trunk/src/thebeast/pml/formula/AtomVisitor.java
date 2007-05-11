@@ -7,4 +7,6 @@ public interface AtomVisitor {
   void visitPredicateAtom(PredicateAtom predicateAtom);
 
   void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint);
+
+  void visitTrue(True aTrue);
 }

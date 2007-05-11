@@ -11,4 +11,8 @@ public class AbstractAtomVisitor implements AtomVisitor {
   public void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint) {
 
   }
+
+  public void visitTrue(True aTrue) {
+
+  }
 }

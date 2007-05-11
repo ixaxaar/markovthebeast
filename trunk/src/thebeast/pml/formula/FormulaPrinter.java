@@ -2,7 +2,6 @@ package thebeast.pml.formula;
 
 import thebeast.pml.UserPredicate;
 import thebeast.pml.predicate.*;
-import thebeast.pml.term.IntConstant;
 import thebeast.pml.term.Term;
 import thebeast.pml.term.TermPrinter;
 
@@ -112,6 +111,10 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
           out.print(" <= ");
           ub.acceptTermVisitor(termPrinter);
         }
+      }
+
+      public void visitTrue(True aTrue) {
+        out.print(true);
       }
     });
   }

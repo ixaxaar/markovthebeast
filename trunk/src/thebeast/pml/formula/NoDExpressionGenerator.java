@@ -144,6 +144,11 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         }
 
       }
+
+      public void visitTrue(True aTrue) {
+        builder.bool(true);
+      }
+
     });
   }
 
@@ -231,6 +236,7 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
             acyclicityConstraint.getPredicate().getAttribute(1).name());
     builder.count().num(0).equality();
   }
+
 
   public void visitVariable(Variable variable) {
     Expression expression = var2expr.get(variable);
