@@ -201,7 +201,11 @@ public class ConjunctionProcessor {
             public void visitPredicate(Predicate predicate) {
               BooleanFormula resolved = formulaResolver.resolve(atom, context.var2term);
               if (resolved == null) {
+                if (triedOnce.contains(signedAtom)) {
+                  throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                }
                 atoms.add(signedAtom);
+                triedOnce.add(signedAtom);
                 return;
               }
               context.conditions.add((BoolExpression) exprGenerator.convertFormula(
@@ -251,6 +255,10 @@ public class ConjunctionProcessor {
             atoms.add(signedAtom);
             triedOnce.add(signedAtom);
           }
+        }
+
+        public void visitTrue(True aTrue) {
+
         }
       });
       ++atomIndex;

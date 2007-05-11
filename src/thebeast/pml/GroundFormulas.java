@@ -11,6 +11,7 @@ import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
+import thebeast.pml.term.Term;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
@@ -62,6 +63,8 @@ public class GroundFormulas {
   private Profiler profiler = new NullProfiler();
 
   private boolean firstUpdate = true;
+
+  private HashSet<FactorFormula> groundAll = new HashSet<FactorFormula>();
 
 
   /**
@@ -138,38 +141,47 @@ public class GroundFormulas {
       } else if (!formula.isLocal()) {
         builder.expr(groundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
         minusOld.put(formula, builder.getRelation());
-        if (formula.getWeight().isNonPositive()) {
+        if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
           if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
-        }
-        else if (formula.getWeight().isNonNegative()) {
+        } else if (formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
           if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
-        else {
-          RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
-          trueQueries.put(formula, query);
-          if (formula.isParametrized()) {
-            addIndices(this.weights, formula.getWeightFunction(), query);
-          }
-          query = generator.generateGlobalAllQuery(formula, groundAtoms, this.weights);
+        try {
+          RelationExpression query = generator.generateGlobalAllQuery(formula, groundAtoms, this.weights);
           allQueries.put(formula, query);
           if (formula.isParametrized()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
-
+        } catch (RuntimeException e) {
+          if (formula.getWeight().isFree()) throw e;
+          //might happen for signed formulas and as long we don't need to fully ground them things are fine.
         }
+
       }
 
     }
   }
 
+
+  /**
+   * Formulas that are set to "ground all" will be fully grounded with the first update call, independently
+   * of the formulas weight sign (if any).
+   *
+   * @param formula     the formula to fully ground (or not)
+   * @param fullyGround true iff the formula should be fully grounded
+   */
+  public void setFullyGround(FactorFormula formula, boolean fullyGround) {
+    if (fullyGround) groundAll.add(formula);
+    else groundAll.remove(formula);
+  }
 
   public Profiler getProfiler() {
     return profiler;
@@ -385,21 +397,20 @@ public class GroundFormulas {
         //RelationVariable both = getExplicitGroundFormulas(factorFormula);
         RelationVariable both = groundFormulas.get(factorFormula);
         interpreter.clear(both);
-        if (factorFormula.getWeight().isNonPositive()) {
-          RelationVariable relation = getTrueGroundFormulas(factorFormula);
+        boolean fullyGround = groundAll.contains(factorFormula);
+        RelationVariable relation = null;
+        Term weight = factorFormula.getWeight();
+        if (weight.isNonPositive() || !weight.isNonNegative()) {
+          relation = getTrueGroundFormulas(factorFormula);
           interpreter.assign(relation, trueQueries.get(factorFormula));
-          interpreter.assign(both, relation);
-        }
-        else if (factorFormula.getWeight().isNonNegative()) {
-          RelationVariable relation = getFalseGroundFormulas(factorFormula);
+        } else {
+          relation = getFalseGroundFormulas(factorFormula);
           interpreter.assign(relation, falseQueries.get(factorFormula));
-          interpreter.insert(both, relation);
         }
-        else if (firstUpdate) {
-          RelationVariable relation = getTrueGroundFormulas(factorFormula);
-          interpreter.assign(relation, trueQueries.get(factorFormula));
+        if (firstUpdate && (weight.isFree() || fullyGround)) {
           interpreter.assign(both, allQueries.get(factorFormula));
-          firstUpdate = false;
+        } else {
+          interpreter.assign(both, relation);
         }
         //System.out.println(factorFormula);
         //System.out.println(both.value());
@@ -411,6 +422,7 @@ public class GroundFormulas {
         profiler.end();
       }
     }
+    firstUpdate = false;
   }
 
   public RelationVariable getAllGroundFormulas(FactorFormula formula) {

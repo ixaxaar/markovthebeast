@@ -67,6 +67,8 @@ public class QueryGenerator {
 
     BooleanFormula condition = factorFormula.getCondition();
 
+    if (condition == null) condition = new True();
+
     processGlobalFormula(condition, factorFormula);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -164,9 +166,21 @@ public class QueryGenerator {
       int index = 0;
       for (Variable var : factorFormula.getQuantification().getVariables()) {
         Term term = context.var2term.get(var);
-        if (term == null) throw new RuntimeException(var + " is unbound in " + factorFormula);
-        Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
-        context.selectBuilder.id("var" + index++).expr(expression);
+        if (term == null)
+          if (var.getType().isNumeric()) throw new RuntimeException(var + " is unbound in " + factorFormula);
+          else {
+            exprBuilder.allConstants((CategoricalType) var.getType().getNodType());
+            RelationExpression allConstants = exprBuilder.getRelation();
+            String prefix = var.getName();
+            context.selectBuilder.expr(allConstants).from(prefix);
+            context.prefixes.add(prefix);
+            context.relations.add(allConstants);
+            context.selectBuilder.id("var" + index++).categoricalAttribute(prefix,"value");
+          }
+        else {
+          Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
+          context.selectBuilder.id("var" + index++).expr(expression);
+        }
       }
 
       context.selectBuilder.tupleForIds();
@@ -363,7 +377,7 @@ public class QueryGenerator {
           context.relations.add(allConstants);
           context.selectBuilder.expr(allConstants);
           context.selectBuilder.from(prefix);
-          context.selectBuilder.id(entry.getKey()).categoricalAttribute(prefix,"value");
+          context.selectBuilder.id(entry.getKey()).categoricalAttribute(prefix, "value");
         }
       } else {
         Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
@@ -525,6 +539,10 @@ public class QueryGenerator {
       public void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint) {
 
       }
+
+      public void visitTrue(True aTrue) {
+
+      }
     });
   }
 
@@ -665,6 +683,10 @@ public class QueryGenerator {
           //todo: take care of the sign
           //and the cardinality constraint
           //add 
+        }
+
+        public void visitTrue(True aTrue) {
+
         }
       });
     }

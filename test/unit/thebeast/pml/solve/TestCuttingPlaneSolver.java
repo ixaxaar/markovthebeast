@@ -1,0 +1,196 @@
+package thebeast.pml.solve;
+
+import junit.framework.TestCase;
+import thebeast.pml.*;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.formula.FormulaBuilder;
+
+/**
+ * @author Sebastian Riedel
+ */
+public class TestCuttingPlaneSolver extends TestCase {
+  private Signature erSig;
+  private Model erModel;
+  private GroundAtoms erAtoms;
+
+  protected void setUp(){
+    erSig = TheBeast.getInstance().createSignature();
+    erSig.createType("Bib",false, "Bib1", "Bib2", "Bib3", "Bib4");
+    erSig.createType("Title",false, "Cut and Price", "Cut", "Price", "Max Walk Sat");
+
+    erSig.createPredicate("title", "Bib", "Title");
+    erSig.createPredicate("similarTitle", "Title", "Title");
+    erSig.createPredicate("sameTitle", "Title", "Title");
+    erSig.createPredicate("sameBib", "Bib","Bib");
+
+    erSig.createWeightFunction("w_titlebib",true);
+    erSig.createWeightFunction("w_similarTitle");
+    erSig.createWeightFunction("w_bibPrior");
+
+    erModel = erSig.createModel();
+    erModel.addHiddenPredicate(erSig.getUserPredicate("sameBib"));
+    erModel.addHiddenPredicate(erSig.getUserPredicate("sameTitle"));
+    erModel.addObservedPredicate(erSig.getUserPredicate("title"));
+    erModel.addObservedPredicate(erSig.getUserPredicate("similarTitle"));
+
+    FormulaBuilder builder = new FormulaBuilder(erSig);
+
+    //Transitivity
+    builder.var("Bib", "b1").var("Bib", "b2").var("Bib", "b3").quantify();
+    builder.var("b1").var("b2").atom("sameBib").
+            var("b2").var("b3").atom("sameBib").and(2).
+            var("b1").var("b3").atom("sameBib").implies().formula();
+    builder.term(Double.POSITIVE_INFINITY).weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula("transitivity"));
+
+    //Reflexity
+    builder.var("Bib", "b1").var("Bib", "b2").quantify();
+    builder.var("b1").var("b2").atom("sameBib").
+            var("b2").var("b1").atom("sameBib").implies().formula();
+    builder.term(Double.POSITIVE_INFINITY).weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula("reflexity"));
+
+    //sameTitle(t1,t2) => sameBib(b1,b2)
+    builder.var("Title","t1").var("Title","t2").var("Bib","b1").var("Bib","b2").quantify().
+            var("b1").var("t1").atom("title").var("b2").var("t2").atom("title").and(2).condition().
+            var("t1").var("t2").atom("sameTitle").var("b1").var("b2").atom("sameBib").implies().formula().
+            apply("w_titlebib").weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula("sameTitle"));
+
+    //similarTitle(t1,t2) => sameTitle(t1,t2)
+    builder.var("Title","t1").var("Title","t2").quantify().
+            var("t1").var("t2").atom("similarTitle").condition().
+            var("t1").var("t2").atom("sameTitle").formula().
+            apply("w_similarTitle").weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula());
+
+    builder.var("Bib","b1").var("Bib","b2").quantify().
+            var("b1").var("b2").atom("sameBib").formula().
+            apply("w_bibPrior").weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula());
+
+    erAtoms = erSig.createGroundAtoms();
+    erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib1", "Cut and Price");
+    erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib2", "Cut");
+    erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib3", "Price");
+    erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib4", "Max Walk Sat");
+
+    erAtoms.getGroundAtomsOf("similarTitle").addGroundAtom("Cut and Price","Cut");
+    erAtoms.getGroundAtomsOf("similarTitle").addGroundAtom("Cut and Price","Price");
+
+  }
+
+  public void testSolveInitInteger(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
+    ilp.setInitIntegers(true);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.solve();
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+
+  }
+
+  public void testSolveIncrementalIntegers(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.setEnforceIntegers(true);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    assertEquals(3, cuttingPlaneSolver.getIterationCount());
+
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+  public void testSolveFullyGroundSome(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setFullyGround(erModel.getFactorFormula("transitivity"), true);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.setEnforceIntegers(true);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    assertEquals(2, cuttingPlaneSolver.getIterationCount());
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+  public void testSolveFullyGroundAll(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
+    ilp.setInitIntegers(true);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setFullyGround(erModel.getFactorFormula("transitivity"), true);
+    cuttingPlaneSolver.setFullyGround(erModel.getFactorFormula("reflexity"),true);
+    cuttingPlaneSolver.setFullyGround(erModel.getFactorFormula("sameTitle"),true);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    assertEquals(1, cuttingPlaneSolver.getIterationCount());
+
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+
+
+  private void validateSolution(GroundAtoms atoms) {
+    GroundAtomCollection sameBib = atoms.getGroundAtomsOf("sameBib");
+
+    assertTrue(sameBib.containsAtom("Bib1","Bib2"));
+    assertTrue(sameBib.containsAtom("Bib2","Bib1"));
+    assertTrue(sameBib.containsAtom("Bib1","Bib3"));
+    assertTrue(sameBib.containsAtom("Bib3","Bib1"));
+    assertTrue(sameBib.containsAtom("Bib2","Bib3"));
+    assertTrue(sameBib.containsAtom("Bib3","Bib2"));
+    assertTrue(sameBib.containsAtom("Bib1","Bib1"));
+    assertTrue(sameBib.containsAtom("Bib2","Bib2"));
+    assertTrue(sameBib.containsAtom("Bib3","Bib3"));
+
+    assertEquals(sameBib.size(), 9);
+
+    GroundAtomCollection sameTitle = atoms.getGroundAtomsOf("sameTitle");
+    assertTrue(sameTitle.containsAtom("Cut and Price","Cut"));
+    assertTrue(sameTitle.containsAtom("Cut and Price","Price"));
+    assertEquals(sameTitle.size(), 2);
+  }
+
+}

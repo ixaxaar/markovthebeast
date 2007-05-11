@@ -79,6 +79,15 @@ public class GroundAtoms implements Dumpable, SignatureListener {
     return atoms.get(predicate);
   }
 
+  /**
+   * Returns a collection of true ground atoms for the given predicate
+   *
+   * @param predicate the name of the predicate we want to know the true ground atoms for.
+   * @return a collection of ground atoms.
+   */
+  public GroundAtomCollection getGroundAtomsOf(String predicate) {
+    return atoms.get(signature.getUserPredicate(predicate));
+  }
 
   /**
    * Creates a deep copy of these atoms. Note that this does not mean an actual copy is going on unless the copy will be

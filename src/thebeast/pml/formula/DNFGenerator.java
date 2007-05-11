@@ -90,6 +90,8 @@ public class DNFGenerator implements BooleanFormulaVisitor {
     new Disjunction(args).acceptBooleanFormulaVisitor(this);
   }
 
+
+
   public void visitNot(Not not) {
     //not.getArgument().acceptBooleanFormulaVisitor(this);
     formula = not.getArgument();

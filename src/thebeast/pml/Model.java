@@ -32,6 +32,8 @@ public class Model {
           nnLocalWeightFunctions = new LinkedList<WeightFunction>(),
           npLocalWeightFunctions = new LinkedList<WeightFunction>();
 
+  private HashMap<String, FactorFormula> name2formula = new HashMap<String, FactorFormula>();
+
   /**
    * Creates a new Model with the given signature, i.e. it only contains predicates and functions which are described in
    * the signature object.
@@ -99,12 +101,23 @@ public class Model {
   }
 
   /**
+   * Gets the formula with a given name
+   *
+   * @param name the name of the formula to return
+   * @return the formula in this model with the specified name.
+   */
+  public FactorFormula getFactorFormula(String name) {
+    return name2formula.get(name);
+  }
+
+  /**
    * Adds a factor formula to this model.
    *
    * @param factorFormula the formula to add.
    */
   public void addFactorFormula(FactorFormula factorFormula) {
     factorFormulas.add(factorFormula);
+    name2formula.put(factorFormula.getName(), factorFormula);
     if (factorFormula.isLocal()) {
       localFactorFormulas.add(factorFormula);
       if (factorFormula.isParametrized()) {

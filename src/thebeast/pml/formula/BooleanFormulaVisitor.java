@@ -15,4 +15,5 @@ public interface BooleanFormulaVisitor {
   void visitNot(Not not);
 
   void visitAcyclicityConstraint(AcyclicityConstraint acyclicityConstraint);
+
 }
