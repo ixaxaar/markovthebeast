@@ -159,7 +159,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     generator.setClosure(closure);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingILP());
+      RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
       interpreter.addIndex(variables, "index", Index.Type.HASH, "index");
       groundAtom2index.put(predicate, variables);
