@@ -224,12 +224,12 @@ public class UserPredicate extends Predicate {
   }
 
   /**
-   * A heading for storing ground atoms of this predicate together with a ilp variable index and a score.
+   * A heading for storing ground atoms of this predicate together with a index ("index") and a score ("score").
    *
    * @return a relation heading with attributes corresponding to the ground arguments of the predicate, a ground atom
    *         score and an index.
    */
-  public Heading getHeadingILP() {
+  public Heading getHeadingArgsIndexScore() {
     return headingTmpScores;
   }
 

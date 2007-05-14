@@ -54,6 +54,10 @@ public class MemArray extends AbstractMemValue<ArrayType> implements ArrayValue 
     return (CategoricalValue) element(index);
   }
 
+  public BoolValue boolElement(int index) {
+    return (BoolValue) element(index);
+  }
+
   public DoubleValue doubleElement(int index) {
     return (DoubleValue) element(index);
   }

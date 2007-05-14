@@ -30,6 +30,8 @@ public interface TypeFactory {
 
   TupleType createTupleType(Heading heading);
 
+  ArrayType createArrayType(Type instanceType);
+
   RelationType createRelationType(Heading heading);
 
   Attribute createAttribute(String name, Type type);
