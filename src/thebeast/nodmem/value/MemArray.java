@@ -19,7 +19,7 @@ public class MemArray extends AbstractMemValue<ArrayType> implements ArrayValue 
   private MemVector pointer;
   private AbstractMemType instanceType;
   private MemArrayType arrayType = (MemArrayType) type;
-  private MemDim dim = arrayType.getDim();
+  private MemDim dim = ((AbstractMemType)arrayType.instanceType()).getDim();
 
   public MemArray(MemChunk chunk, MemVector pointer, MemArrayType type) {
     super(type);

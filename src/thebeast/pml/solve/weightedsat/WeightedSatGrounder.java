@@ -44,8 +44,6 @@ public class WeightedSatGrounder {
     CNFGenerator cnfGenerator = new CNFGenerator();
     CNF cnf = cnfGenerator.convertToCNF(booleanFormula);
     RelationVariable groundFormulas = formulas.getNewGroundFormulas(formula);
-    DoubleExpression weight = formula.isDeterministic() ?
-            builder.num(20.0).getDouble() : getFormulaWeight(wsp.getWeights());
     Quantification quantification = formula.getQuantification();
 
     //create the variable mapping
@@ -59,10 +57,15 @@ public class WeightedSatGrounder {
 
     //set from table and prefix
     builder.expr(groundFormulas).from("formulas");
+
+    //get the weight
+    DoubleExpression weight = formula.isDeterministic() ?
+            builder.num(20.0).getDouble() : getFormulaWeight(builder, wsp.getWeights());
+
     builder.id("weight").expr(weight);
     builder.id("signs").expr(disjunctionSigns);
     builder.id("atoms").expr(disjunctionAtoms);
-    builder.tuple(3).select();
+    builder.tuple(3).select().query();
 
     return builder.getRelation();
   }
@@ -73,15 +76,14 @@ public class WeightedSatGrounder {
     term2expr = new HashMap<Variable, Expression>();
     int varIndex = 0;
     for (Variable var : quantification.getVariables()){
-      Attribute attribute = quantification.getAttribute(varIndex);
-      Expression expression = builder.attribute(attribute.name(), attribute).getExpression();
+      Attribute attribute = quantification.getAttribute(varIndex++);
+      Expression expression = builder.attribute("formulas", attribute).getExpression();
       term2expr.put(var, expression);
     }
     return term2expr;
   }
 
-  private DoubleExpression getFormulaWeight(Weights weights){
-    ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
+  private DoubleExpression getFormulaWeight(ExpressionBuilder builder, Weights weights){
     builder.expr(weights.getWeights());
     builder.intAttribute("formulas","index").doubleArrayElement();
     return builder.getDouble();
@@ -93,20 +95,21 @@ public class WeightedSatGrounder {
       throw new RuntimeException("Can only get atom indices for user predicates");
     UserPredicate pred = (UserPredicate) atom.getPredicate();
     ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
-    builder.expr(wsp.getAtoms(pred));
+    builder.expr(wsp.getMapping(pred));
     NoDExpressionGenerator gen = new NoDExpressionGenerator();
     for (int arg = 0; arg < pred.getArity(); ++arg){
       Expression expr = gen.convertTerm(atom.getArguments().get(arg),null,null,term2expr, null);
       builder.id(pred.getColumnName(arg)).expr(expr);
     }
     builder.tupleForIds();
-    builder.id("index").expr(wsp.getAtomCounter()).intPostInc().tupleForIds();
+    builder.id("index").expr(wsp.getAtomCounter()).intPostInc();
     builder.id("score").expr(scores.getScoreRelation(pred));
     for (int arg = 0; arg < pred.getArity(); ++arg){
       Expression expr = gen.convertTerm(atom.getArguments().get(arg),null,null,term2expr, null);
       builder.id(pred.getColumnName(arg)).expr(expr);
     }
-    builder.tuple(pred.getArity()).id("score").num(0.0).tuple(1).get().doubleExtractComponent("score");
+    builder.tuple(pred.getArity()).id("score").num(0.0).tuple(1);
+    builder.get().doubleExtractComponent("score").tuple(2);
     builder.getPut().intExtractComponent("index");
     return builder.getInt();
   }

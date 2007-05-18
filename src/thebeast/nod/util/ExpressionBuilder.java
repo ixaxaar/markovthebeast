@@ -304,7 +304,10 @@ public class ExpressionBuilder {
   public ExpressionBuilder intAttribute(String prefix, String name) {
     IntType type = typeFactory.intType();
     Attribute attr = typeFactory.createAttribute(name, type);
-    Attribute attribute = prefix2rel.get(prefix).type().heading().attribute(name);
+    RelationExpression relationExpression = prefix2rel.get(prefix);
+    if (relationExpression==null)
+      throw new RuntimeException("The prefix " + prefix + " has not been defined!");
+    Attribute attribute = relationExpression.type().heading().attribute(name);
     if (attribute == null)
       throw new RuntimeException(prefix + " does not have a " + name + " attribute!");
     if (!(attribute.type() instanceof IntType))

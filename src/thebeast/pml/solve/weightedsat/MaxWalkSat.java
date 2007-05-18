@@ -9,25 +9,32 @@ import java.util.*;
  */
 public class MaxWalkSat implements WeightedSatSolver {
 
-  private static Random random = new Random(1);
+  private Random random = new Random();
   private Clause[] clauses = new Clause[0];
+  private Clause[] unsatisfiedClauses = new Clause[0];
   private Atom[] atoms = new Atom[0];
   private int atomCount;
   private int clauseCount;
+  private int unsatisfiedClauseCount;
   private boolean[] best;
   private double bestScore;
   private double currentScore;
   private double greedy = 0.5;
+  private int maxFlips = 100;
+  private int maxRestarts = 1;
+  private boolean randomizeStates;
+  private double target = Double.POSITIVE_INFINITY;
+  private boolean pickFromUnsatisfied = true;
 
 
   class Atom {
     final ArrayList<NodeClauseRelation> clauses = new ArrayList<NodeClauseRelation>();
     boolean state;
-    double cost;
+    int index;
 
-    public Atom(boolean state, double cost) {
+    public Atom(boolean state, int index) {
       this.state = state;
-      this.cost = cost;
+      this.index = index;
     }
   }
 
@@ -57,6 +64,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     }
   }
 
+
   class Clause {
     NodeClauseRelation[] nodes;
     boolean[][] signs;
@@ -65,10 +73,39 @@ public class MaxWalkSat implements WeightedSatSolver {
     double cost;
     boolean state;
 
-    public String toString(){
+    public String toString() {
       Formatter formatter = new Formatter();
-      formatter.format("%6s %2d %6.2f %s",state,trueDisjunctionCount, cost, Arrays.toString(trueLiteralCounts));
+      formatter.format("%6s %2d %6.2f %s", state, trueDisjunctionCount, cost, Arrays.toString(trueLiteralCounts));
+      for (int disjunction = 0; disjunction < signs.length; ++disjunction){
+        HashMap<Integer,Integer> map = new HashMap<Integer, Integer>();
+        for (NodeClauseRelation rel : nodes){
+          for (int i = 0; i < rel.containingDisjunctions.length;++i){
+            if (rel.containingDisjunctions[i]==disjunction) {
+              map.put(rel.positions[i],rel.atom.index);
+              break;
+            }
+          }
+        }
+        for (int atom = 0; atom < signs[disjunction].length;++atom){
+          formatter.format("%2s", signs[disjunction][atom]? "" : "!");
+          formatter.format("%-1d", map.get(atom));
+        }
+
+      }
+
       return formatter.toString();
+    }
+
+    Clause(int atomIndex, double cost){
+      signs = new boolean[][]{{!pickFromUnsatisfied || cost > 0}};
+      if (pickFromUnsatisfied && cost < 0)
+        cost = -cost;
+      trueLiteralCounts = new int[signs.length];
+      this.cost = cost;
+      MaxWalkSat.Atom atom = atoms[atomIndex];
+      NodeClauseRelation rel = new NodeClauseRelation(this, atom,new int[]{0}, new int[]{0});
+      nodes = new NodeClauseRelation[]{rel};
+      atom.clauses.add(rel);
     }
 
     Clause(WeightedSatClause clause) {
@@ -103,8 +140,27 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   }
 
+
+  public boolean isRandomizeStates() {
+    return randomizeStates;
+  }
+
+  public void setRandomizeStates(boolean randomizeStates) {
+    this.randomizeStates = randomizeStates;
+  }
+
+
+  public int getMaxRestarts() {
+    return maxRestarts;
+  }
+
+  public void setMaxRestarts(int maxRestarts) {
+    this.maxRestarts = maxRestarts;
+  }
+
+
   private static double calculateDeltaCost(Atom atom) {
-    double delta = atom.state ? -atom.cost : atom.cost;
+    double delta = 0;
     main:
     for (NodeClauseRelation rel : atom.clauses) {
       rel.changedClauseState = false;
@@ -146,28 +202,50 @@ public class MaxWalkSat implements WeightedSatSolver {
     return delta;
   }
 
+
   private static DeltaScoredAtom findHighestDeltaNode(Clause clause) {
+
     double maxDelta = Double.NEGATIVE_INFINITY;
     Atom result = null;
     for (NodeClauseRelation rel : clause.nodes) {
       double delta = calculateDeltaCost(rel.atom);
+//      if (clause.signs[0].length == 3){
+        System.out.printf("%-3d%-6s%-5f ", rel.atom.index, rel.atom.state, delta);
+//      }
       if (delta > maxDelta) {
         maxDelta = delta;
         result = rel.atom;
       }
     }
+    System.out.println("");
     return new DeltaScoredAtom(result, maxDelta);
   }
 
-  private static Atom pickRandomNode(Clause clause) {
+  private static Atom pickRandomNode(Random random, Clause clause) {
     int number = Math.abs(random.nextInt()) % clause.nodes.length;
     return clause.nodes[number].atom;
   }
 
-  private static MaxWalkSat.Clause pickRandomClause(Clause[] clauses) {
-    int number = Math.abs(random.nextInt()) % clauses.length;
+  private static MaxWalkSat.Clause pickRandomClause(Random random, Clause[] clauses, int clauseCount) {
+    int number = Math.abs(random.nextInt()) % clauseCount;
     return clauses[number];
   }
+
+
+  private static Atom pickRandomNode(Random random, Atom[] atoms, int atomCount) {
+    int number = Math.abs(random.nextInt()) % atomCount;
+    return atoms[number];
+  }
+
+  private void updateUnsatisfiedClauses(){
+    unsatisfiedClauseCount = 0;
+    for (int i = 0; i < clauseCount; ++i){
+      if (!clauses[i].state) {
+        unsatisfiedClauses[unsatisfiedClauseCount++] = clauses[i];
+      }
+    }
+  }
+
 
   private static void flipNode(Atom atom) {
     atom.state = !atom.state;
@@ -178,7 +256,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         int oldCount = rel.clause.trueLiteralCounts[disjunction];
         int newCount = oldCount + (atom.state == rel.clause.signs[disjunction][rel.positions[i]] ? 1 : -1);
         rel.clause.trueLiteralCounts[disjunction] = newCount;
-        if (oldCount == 1 && newCount ==0) --rel.clause.trueDisjunctionCount;
+        if (oldCount == 1 && newCount == 0) --rel.clause.trueDisjunctionCount;
         else if (oldCount == 0 && newCount == 1) ++rel.clause.trueDisjunctionCount;
       }
     }
@@ -190,75 +268,174 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   public void addAtoms(boolean states[], double[] scores) {
-    if (atoms.length < atomCount + states.length) {
-      Atom[] newAtoms = new Atom[atomCount + states.length];
-      System.arraycopy(atoms, 0, newAtoms, 0, atoms.length);
-      atoms = newAtoms;
-      best = new boolean[atomCount + states.length];
-    }
+    increaseAtomCapacity(states.length);
+    increaseClauseCapacity(states.length);
     for (int i = 0; i < states.length; ++i) {
       Atom atom = atoms[atomCount];
       if (atom == null) {
-        atom = new Atom(states[i], scores[i]);
+        atom = new Atom(states[i],atomCount);
         atoms[atomCount] = atom;
       } else {
         atom.clauses.clear();
-        atom.cost = scores[i];
         atom.state = states[i];
       }
+      if (scores[i] != 0.0)
+        clauses[clauseCount++] = new Clause(atomCount,scores[i]);
       ++atomCount;
     }
   }
 
-  public void addClauses(WeightedSatClause ... clausesToAdd) {
-    if (clauses.length < clauseCount + clausesToAdd.length) {
-      Clause[] newClauses = new Clause[clauseCount + clausesToAdd.length];
-      System.arraycopy(clauses, 0, newClauses, 0, clauseCount);
-      clauses = newClauses;
+  private void increaseAtomCapacity(int howmuch) {
+    if (atoms.length < atomCount + howmuch) {
+      Atom[] newAtoms = new Atom[atomCount + howmuch];
+      System.arraycopy(atoms, 0, newAtoms, 0, atoms.length);
+      atoms = newAtoms;
+      best = new boolean[atomCount + howmuch];
     }
+  }
+
+  public void addClauses(WeightedSatClause... clausesToAdd) {
+    increaseClauseCapacity(clausesToAdd.length);
     for (int i = 0; i < clausesToAdd.length; ++i) {
-      clauses[clauseCount] = new Clause(clausesToAdd[i]);
+      Clause clause = normalize(clausesToAdd[i]);
+      if (clause == null) continue;
+      clauses[clauseCount] = clause;
       ++clauseCount;
     }
 
   }
 
-  public boolean[] solve() {
-    syncClauses();
-    int maxFlips = 100;
-    double target = 100;
-    double score = 0;
-    bestScore = 0;
-    fill(atoms, best);
-    for (int flip = 0; flip < maxFlips && score < target; ++flip) {
-      MaxWalkSat.Clause clause = pickRandomClause(clauses);
-      double uniform = random.nextDouble();
-      Atom atom;
-      double delta;
-      if (uniform > this.greedy) {
-        atom = pickRandomNode(clause);
-        delta = calculateDeltaCost(atom);
-      } else {
-        DeltaScoredAtom deltaScoredAtom = findHighestDeltaNode(clause);
-        atom = deltaScoredAtom.atom;
-        delta = deltaScoredAtom.delta;
-      }
-      flipNode(atom);
-      score += delta;
-      if (score > bestScore) {
-        fill(atoms, best);
-        bestScore = score;
-      }
-      //printState(uniform > this.greedy, score,atoms, atomCount);
-      //for (int i = 0; i < clauseCount; ++i) System.out.println(clauses[i]);
+  private void increaseClauseCapacity(int howmuch) {
+    if (clauses.length < clauseCount + howmuch) {
+      Clause[] newClauses = new Clause[clauseCount + howmuch];
+      System.arraycopy(clauses, 0, newClauses, 0, clauseCount);
+      clauses = newClauses;
+      unsatisfiedClauses = new Clause[clauseCount + howmuch];
     }
+  }
+
+
+  public Clause normalize(WeightedSatClause clause) {
+    int newDisjunctionCount = 0;
+    boolean[][] newDisjunctionSigns = new boolean[clause.signs.length][];
+    int[][] newDisjunctionAtoms = new int[clause.signs.length][];
+
+    for (int disjunction = 0; disjunction < clause.signs.length; ++disjunction) {
+      int[] atoms = clause.atoms[disjunction];
+      boolean[] signs = clause.signs[disjunction];
+      int length = atoms.length;
+      boolean[] toSkip = new boolean[length];
+      int toSkipCount = 0;
+      boolean alwaysTrue = false;
+      outer:
+      for (int i = 0; i < length; ++i)
+        for (int j = i + 1; j < length; ++j) {
+          if (atoms[i] == atoms[j]) {
+            if (signs[i] == signs[j]) {
+              ++toSkipCount;
+              toSkip[i] = true;
+              continue outer;
+            } else {
+              alwaysTrue = true;
+              break outer;
+            }
+          }
+        }
+      if (alwaysTrue) continue;
+      int newLength = length - toSkipCount;
+      int[] newAtoms = new int[newLength];
+      boolean[] newSigns = new boolean[newLength];
+      int pointer = 0;
+      for (int i = 0; i < length; ++i) {
+        if (!toSkip[i]) {
+          newAtoms[pointer] = atoms[i];
+          newSigns[pointer] = signs[i];
+          ++pointer;
+        }
+      }
+      newDisjunctionAtoms[newDisjunctionCount] = newAtoms;
+      newDisjunctionSigns[newDisjunctionCount] = newSigns;
+      ++newDisjunctionCount;
+
+    }
+    if (newDisjunctionCount == 0) return null;
+    int[][] newAtoms = new int[newDisjunctionCount][];
+    boolean[][] newSigns = new boolean[newDisjunctionCount][];
+    System.arraycopy(newDisjunctionAtoms, 0, newAtoms, 0, newDisjunctionCount);
+    System.arraycopy(newDisjunctionSigns, 0, newSigns, 0, newDisjunctionCount);
+    return new Clause(new WeightedSatClause(clause.score, newAtoms, newSigns));
+  }
+
+  public int getMaxFlips() {
+    return maxFlips;
+  }
+
+  public void setMaxFlips(int maxFlips) {
+    this.maxFlips = maxFlips;
+  }
+
+  public void setSeed(long seed) {
+    random = new Random(seed);
+  }
+
+
+  public double getTarget() {
+    return target;
+  }
+
+  public void setTarget(double target) {
+    this.target = target;
+  }
+
+  public boolean[] solve() {
+    bestScore = Double.NEGATIVE_INFINITY;
+    for (int run = 0; run < maxRestarts && bestScore < target; ++run) {
+      if (randomizeStates) randomizeNodeStates();
+      syncClauses();
+      double score = getScore();
+      for (int flip = 0; flip < maxFlips && bestScore < target; ++flip) {
+        MaxWalkSat.Clause clause;
+        if (pickFromUnsatisfied){
+          updateUnsatisfiedClauses();
+          if (unsatisfiedClauseCount == 0) return best;
+          clause = pickRandomClause(random, unsatisfiedClauses, unsatisfiedClauseCount);
+        } else
+          clause = pickRandomClause(random, clauses, clauseCount);
+        System.out.println(clause);
+        double uniform = random.nextDouble();
+        Atom atom;
+        double delta;
+        if (uniform > this.greedy) {
+          atom = pickRandomNode(random, clause);
+          delta = calculateDeltaCost(atom);
+        } else {
+          DeltaScoredAtom deltaScoredAtom = findHighestDeltaNode(clause);
+          atom = deltaScoredAtom.atom;
+          delta = deltaScoredAtom.delta;
+        }
+        System.out.println("Changed: " + atom.index);
+        flipNode(atom);
+        score += delta;
+        if (score > bestScore) {
+          fill(atoms, best);
+          bestScore = score;
+        }
+        printState(uniform > this.greedy, score,atoms, atomCount);
+        //for (int i = 0; i < clauseCount; ++i) System.out.println(clauses[i]);
+      }
+    }
+    System.out.println(bestScore);
     return best;
   }
 
-  private static void printState(boolean uniform, double score, Atom[] atoms, int atomCount){
-    System.out.printf("%-8s%10f ",uniform ? "uniform" : "greedy" ,score);
+  public double getBestScore() {
+    return bestScore;
+  }
+
+  private static void printState(boolean uniform, double score, Atom[] atoms, int atomCount) {
+    System.out.printf("%-8s%10f ", uniform ? "uniform" : "greedy", score);
     for (int i = 0; i < atomCount; ++i)
-      System.out.printf("%-6s",atoms[i].state);
+      System.out.printf("%-3s", atoms[i].state ? "1" : "0");
     System.out.println();
   }
 
@@ -276,7 +453,8 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   private void syncClauses() {
-    for (Clause clause : clauses) {
+    for (int clauseNr = 0; clauseNr < clauseCount; ++clauseNr) {
+      Clause clause = clauses[clauseNr];
       for (int i = 0; i < clause.signs.length; ++i)
         clause.trueLiteralCounts[i] = 0;
       for (NodeClauseRelation rel : clause.nodes) {
@@ -302,6 +480,22 @@ public class MaxWalkSat implements WeightedSatSolver {
     for (int i = 0; i < result.length; ++i)
       result[i] = atoms[i].state;
     return result;
+  }
+
+
+  public boolean isPickFromUnsatisfied() {
+    return pickFromUnsatisfied;
+  }
+
+  public void setPickFromUnsatisfied(boolean pickFromUnsatisfied) {
+    this.pickFromUnsatisfied = pickFromUnsatisfied;
+  }
+
+  public double getScore() {
+    double sum = 0;
+    for (int i = 0; i < clauseCount; ++i)
+      if (clauses[i].state) sum += clauses[i].cost;
+    return sum;
   }
 
 

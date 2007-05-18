@@ -237,7 +237,7 @@ public class UserPredicate extends Predicate {
     return scoreAttribute;
   }
 
-  public static Attribute getFeatureIndexAttribute() {
+  public static Attribute getHeadingArgsIndex() {
     return indexAttribute;
   }
 

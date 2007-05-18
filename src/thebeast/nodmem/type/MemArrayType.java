@@ -5,6 +5,8 @@ import thebeast.nod.type.TypeVisitor;
 import thebeast.nod.type.Type;
 import thebeast.nod.value.Value;
 import thebeast.nodmem.value.AbstractMemValue;
+import thebeast.nodmem.value.MemTuple;
+import thebeast.nodmem.value.MemArray;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
 
@@ -16,7 +18,9 @@ public class MemArrayType extends AbstractMemType implements ArrayType {
   private Type instanceType;
 
   public MemArrayType(Type instanceType) {
-    super(DataType.CHUNK, ((AbstractMemType)instanceType).getDim());
+    //super(DataType.CHUNK, 0,0,1);
+    setNumChunkCols(1);
+    //super(DataType.CHUNK, ((AbstractMemType)instanceType).getDim());
     this.instanceType = instanceType;
   }
 
@@ -25,7 +29,7 @@ public class MemArrayType extends AbstractMemType implements ArrayType {
   }
 
   public AbstractMemValue valueFromChunk(MemChunk chunk, MemVector pointer) {
-    return null;
+    return new MemArray(chunk.chunkData[pointer.xChunk], new MemVector(), this);
   }
 
   public void acceptTypeVisitor(TypeVisitor visitor) {
