@@ -48,7 +48,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private String savePrefix = "/tmp/epoch_";
 
   private int numEpochs;
-  private int maxViolations = Integer.MAX_VALUE;
+  private int maxViolations = 1;//Integer.MAX_VALUE;
   private int instanceNr;
 
   public OnlineLearner(Model model, Weights weights) {
@@ -211,6 +211,7 @@ public class OnlineLearner implements Learner, HasProperties {
       updateRule.endEpoch();
       progressReporter.finished();
       profiler.end();
+      //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
       if (saveAfterEpoch) saveCurrentWeights(epoch);
     }
     finalizeAverage(weights);
@@ -274,7 +275,6 @@ public class OnlineLearner implements Learner, HasProperties {
     List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
     List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
 
-
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
@@ -306,7 +306,6 @@ public class OnlineLearner implements Learner, HasProperties {
       candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
     }
-    
 
     //guess.load(solution.extract(features));
     profiler.end();
