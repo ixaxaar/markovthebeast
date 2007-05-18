@@ -469,11 +469,13 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     int gced = 0;
     int alive = 0;
     int totalRowCount = 0;
+    int totalCapacity = 0;
     for (WeakReference<RelationVariable> ref : relVarReferences){
       if (ref.isEnqueued())
         ++gced;
       else {
         totalRowCount += ref.get().value().size();
+        totalCapacity += ((MemRelationVariable)ref.get()).getContainerChunk().chunkData[0].capacity;
         ++alive;
       }
     }
@@ -484,6 +486,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     formatter.format("%-30s%-7d\n","RelVars alive", alive);
     formatter.format("%-30s%-7d\n","RelVars total row count", totalRowCount);
     formatter.format("%-30s%-7f\n","RelVars avg row count", (double) totalRowCount / (double) alive);
+    formatter.format("%-30s%-7d\n","RelVars total capacity", totalRowCount);
+    formatter.format("%-30s%-7f\n","RelVars avg capacity", (double) totalCapacity / (double) alive);
 
     gced = 0;
     alive = 0;
