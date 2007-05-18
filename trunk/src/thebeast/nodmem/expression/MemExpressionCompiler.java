@@ -412,7 +412,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   }
 
   public void visitArrayCreator(ArrayCreator arrayCreator) {
-    MemArrayType type = (MemArrayType) arrayCreator.type();
+    AbstractMemType type = (AbstractMemType) arrayCreator.type().instanceType();
     int size = arrayCreator.elements().size();
     MemDim dim = type.getDim();
     MemFunction[] functions = new MemFunction[size];
@@ -492,7 +492,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
   public void visitCategoricalAttribute(CategoricalAttribute categoricalAttribute) {
     MemCategoricalAttribute att = (MemCategoricalAttribute) categoricalAttribute;
-    int chunkIndex = prefix2index.get(att.prefix());
+    Integer chunkIndex = prefix2index.get(att.prefix());
+    if (chunkIndex == null) throw new RuntimeException(att.prefix() + " has not been defined!");
     MemHeading heading = prefix2heading.get(att.prefix());
     MemPointer pointer = heading.pointerForAttribute(categoricalAttribute.attribute().name());
     function = new MemFunction(chunkIndex, pointer);

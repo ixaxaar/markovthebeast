@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 import thebeast.pml.*;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.weightedsat.WeightedSatProblem;
+import thebeast.pml.solve.weightedsat.MaxWalkSat;
 import thebeast.pml.formula.FormulaBuilder;
 
 /**
@@ -27,6 +29,7 @@ public class TestCuttingPlaneSolver extends TestCase {
     erSig.createWeightFunction("w_titlebib",true);
     erSig.createWeightFunction("w_similarTitle");
     erSig.createWeightFunction("w_bibPrior");
+    erSig.createWeightFunction("w_titlePrior");
 
     erModel = erSig.createModel();
     erModel.addHiddenPredicate(erSig.getUserPredicate("sameBib"));
@@ -75,6 +78,12 @@ public class TestCuttingPlaneSolver extends TestCase {
 
     erModel.addFactorFormula(builder.produceFactorFormula());
 
+    builder.var("Title","t1").var("Title","t2").quantify().
+            var("t1").var("t2").atom("sameTitle").formula().
+            apply("w_titlePrior").weight();
+
+    erModel.addFactorFormula(builder.produceFactorFormula());
+
     erAtoms = erSig.createGroundAtoms();
     erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib1", "Cut and Price");
     erAtoms.getGroundAtomsOf("title").addGroundAtom("Bib2", "Cut");
@@ -108,6 +117,8 @@ public class TestCuttingPlaneSolver extends TestCase {
     Weights erWeights = erSig.createWeights();
     erWeights.addWeight("w_titlebib",2.0);
     erWeights.addWeight("w_similarTitle",2.0);
+    erWeights.addWeight("w_bibPrior",-0.01);
+    erWeights.addWeight("w_titlePrior",-0.01);
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
 
@@ -125,10 +136,75 @@ public class TestCuttingPlaneSolver extends TestCase {
 
   }
 
+  public void testSolveWithMaxWalkSat(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+    erWeights.addWeight("w_bibPrior",-0.01);
+    erWeights.addWeight("w_titlePrior",-0.01);
+                                                       
+    MaxWalkSat maxWalkSat = new MaxWalkSat();
+    maxWalkSat.setSeed(1);
+    maxWalkSat.setMaxRestarts(1);
+    maxWalkSat.setMaxFlips(1000);
+    WeightedSatProblem wsp = new WeightedSatProblem(maxWalkSat);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(wsp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.setEnforceIntegers(true);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(wsp.getMapping(erSig.getUserPredicate("sameBib")).value());
+    System.out.println(wsp.getMapping(erSig.getUserPredicate("sameTitle")).value());
+
+
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    //assertEquals(3, cuttingPlaneSolver.getIterationCount());
+
+
+    //validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+  public void testSolveWithMaxWalkSatFullyGroundAll(){
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib",2.0);
+    erWeights.addWeight("w_similarTitle",2.0);
+    //erWeights.addWeight("w_bibPrior",-0.0001);
+    //erWeights.addWeight("w_titlePrior",-0.001);
+
+    MaxWalkSat maxWalkSat = new MaxWalkSat();
+    //maxWalkSat.setSeed(1);
+    maxWalkSat.setRandomizeStates(true);
+    maxWalkSat.setMaxRestarts(4);
+    maxWalkSat.setMaxFlips(100000);
+    WeightedSatProblem wsp = new WeightedSatProblem(maxWalkSat);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(wsp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.setFullyGroundAll(true);
+    cuttingPlaneSolver.setEnforceIntegers(true);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    //assertEquals(1, cuttingPlaneSolver.getIterationCount());
+
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+
   public void testSolveFullyGroundSome(){
     Weights erWeights = erSig.createWeights();
     erWeights.addWeight("w_titlebib",2.0);
     erWeights.addWeight("w_similarTitle",2.0);
+    erWeights.addWeight("w_bibPrior",-0.01);
+    erWeights.addWeight("w_titlePrior",-0.01);
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
 
@@ -150,6 +226,9 @@ public class TestCuttingPlaneSolver extends TestCase {
     Weights erWeights = erSig.createWeights();
     erWeights.addWeight("w_titlebib",2.0);
     erWeights.addWeight("w_similarTitle",2.0);
+    erWeights.addWeight("w_bibPrior",-0.01);
+    erWeights.addWeight("w_titlePrior",-0.01);
+
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(erModel,erWeights, new ILPSolverLpSolve());
     ilp.setInitIntegers(true);

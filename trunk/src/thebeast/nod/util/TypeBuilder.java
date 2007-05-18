@@ -69,7 +69,7 @@ public class TypeBuilder {
 
   private Heading createHeading(int howMany) {
     ArrayList<Attribute> attributes = new ArrayList<Attribute>(howMany);
-    for (int i = 0; i < howMany; ++howMany) {
+    for (int i = 0; i < howMany; ++i) {
       attributes.add(attributeStack.pop());
     }
     return factory.createHeadingFromAttributes(attributes);

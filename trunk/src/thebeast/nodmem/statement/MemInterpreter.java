@@ -385,8 +385,9 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       result = new MemChunk(0, 0, ((AbstractMemType) var.type().instanceType()).getDim());
       var.getContainerChunk().chunkData[var.getPointer().xChunk] = result;
     }
+    //int size = arrayAppend.expression().
     MemChunk buffer = new MemChunk(1, new int[0], new double[0], new MemChunk[]{
-            new MemChunk(0, 0, result.getDim())});
+            new MemChunk(0, 0, ((AbstractMemType)var.type().instanceType()).getDim())});
     MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
     MemInserter.append(buffer.chunkData[0], result);
     var.invalidate();

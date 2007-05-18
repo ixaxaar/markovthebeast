@@ -55,37 +55,24 @@ public class TabularValuePrinter implements ValueVisitor {
     }
   }
 
-  public void visitCategorical
-          (CategoricalValue
-                  categoricalValue) {
+  public void visitCategorical(CategoricalValue categoricalValue) {
     out.printf("%-15s", categoricalValue.representation());
   }
 
-  public void visitArray
-          (ArrayValue
-                  arrayValue) {
-    for (Value tupleValue : arrayValue) {
-      tupleValue.acceptValueVisitor(this);
-      out.println();
-    }
+  public void visitArray(ArrayValue arrayValue) {
+    out.printf("%-15s", LineValuePrinter.toString(arrayValue));
   }
 
-  public void visitInt
-          (IntValue
-                  intValue) {
+  public void visitInt(IntValue intValue) {
     out.printf("%-15d", intValue.getInt());
   }
 
-  public void visitDouble
-          (DoubleValue
-                  doubleValue) {
+  public void visitDouble(DoubleValue doubleValue) {
     if (cutoffDoubles) out.printf("%-15f", doubleValue.getDouble());
     else out.print(doubleValue.getDouble());
   }
 
-  public void visitBool
-          (BoolValue
-                  boolValue) {
+  public void visitBool(BoolValue boolValue) {
     out.printf("%-6s", boolValue.getBool());
   }
 

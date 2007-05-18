@@ -13,4 +13,10 @@ public class WeightedSatClause {
     this.signs = signs;
     this.score = score;
   }
+
+  public WeightedSatClause normalize(){
+    
+    return null;
+  }
+
 }

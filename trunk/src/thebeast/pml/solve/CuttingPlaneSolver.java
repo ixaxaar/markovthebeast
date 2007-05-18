@@ -4,7 +4,11 @@ import thebeast.pml.*;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.weightedsat.WeightedSatProblem;
+import thebeast.pml.solve.weightedsat.MaxWalkSat;
 import thebeast.pml.corpora.CoNLL00SentencePrinter;
+import thebeast.pml.corpora.GroundAtomsPrinter;
+import thebeast.pml.corpora.SemtagPrinter;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
@@ -66,7 +70,10 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setFullyGround(FactorFormula formula, boolean fullyGround){
     if (formula == null) throw new RuntimeException("formula must not be null");
-    groundAll.add(formula);
+    if (fullyGround)
+      groundAll.add(formula);
+    else
+      groundAll.remove(formula);
     formulas.setFullyGround(formula, fullyGround);
     firstFormulas.setFullyGround(formula, fullyGround);
     
@@ -555,8 +562,17 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("ilp"))
+    if (name.getHead().equals("model")){
+      if (name.isTerminal()){
+        if ("ilp".equals(value))
+          propositionalModel = new IntegerLinearProgram(new ILPSolverLpSolve());
+        else if ("sat".equals(value))
+          propositionalModel = new WeightedSatProblem(new MaxWalkSat());
+      }  else
+
       propositionalModel.setProperty(name.getTail(), value);
+
+    }
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     if (name.getHead().equals("integer"))
@@ -608,7 +624,9 @@ public class CuttingPlaneSolver implements Solver {
 
   public void printHistory(PrintStream out) {
     out.println("=======================================");
-    CoNLL00SentencePrinter printer = new CoNLL00SentencePrinter();
+
+    //GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
+    GroundAtomsPrinter printer = new SemtagPrinter();
     printer.print(greedyAtoms, out);
     GroundAtoms last = greedyAtoms;
     ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());

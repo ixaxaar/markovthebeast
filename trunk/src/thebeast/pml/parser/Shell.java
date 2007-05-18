@@ -423,7 +423,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           weights.read(source);
           weightsUpdated = true;
         }
-        if (null == parserLoad.mode) {
+        else if (null == parserLoad.mode) {
           weights.load(new FileInputStream(filename(parserLoad.file)));
         } else {
           throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
@@ -1099,6 +1099,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
     registerTypeGenerator("conll00noisy", CoNLL00Factory.GENERATOR_NOISYPOS);
     registerPrinter("conll00", new CoNLL00SentencePrinter());
+    registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("default", new DefaultPrinter());
   }
 

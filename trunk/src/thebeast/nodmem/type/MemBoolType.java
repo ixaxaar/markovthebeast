@@ -22,8 +22,8 @@ public class MemBoolType extends AbstractScalarType implements BoolType {
   public static final MemBoolType BOOL = new MemBoolType(new MemName("bool"));
 
   public MemBoolType(Name name) {
-    super(name, DataType.DOUBLE);
-    setNumDoubleCols(1);
+    super(name, DataType.INT);
+    setNumIntCols(1);
   }
 
   public void acceptTypeVisitor(TypeVisitor visitor) {
