@@ -69,12 +69,20 @@ predicate slot: Int x Slot;
 predicate word: Int x Word;
 }}}
 
-Note that `Int` represents a built-in integer type. 
+Note that `Int` represents a built-in integer type.
 
 = Defining the Model =
+
+First we define which predicates are query or hidden predicates and which predicates are observed. In this task the only hidden predicate is `slot`, `word` is a observed predicate. We define this fact via
+
 {{{
 hidden: slot;
 observed: word;
+}}}
+
+note that you can define more than one hidden or observed predicate by simply enumerating them in a comma-separated list
+{{{
+observed: word, pos;
 }}}
 
 == Local Formulas/Features ==
