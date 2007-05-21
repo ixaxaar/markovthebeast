@@ -54,6 +54,17 @@ public class MemArray extends AbstractMemValue<ArrayType> implements ArrayValue 
     return (CategoricalValue) element(index);
   }
 
+  public double dotProduct(int[] indices, double[] values) {
+    double[] array = chunk.doubleData;
+    double result = 0;
+    for (int i = 0; i < indices.length; ++i){
+      int index = indices[i];
+      double value = values[i];
+      result += array[index] * value;
+    }
+    return result;
+  }
+
   public BoolValue boolElement(int index) {
     return (BoolValue) element(index);
   }

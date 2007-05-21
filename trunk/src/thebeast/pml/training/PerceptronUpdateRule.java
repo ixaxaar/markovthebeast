@@ -24,12 +24,12 @@ public class PerceptronUpdateRule implements UpdateRule {
     double scale = 1.0 / candidates.size();
     for (FeatureVector guess : candidates) {
       //FeatureVector guess = candidates.get(candidates.size() - 1);
-      SparseVector diffFree = gold.getFree().add(-scale, guess.getFree());
+      SparseVector diffFree = gold.getLocal().add(-scale, guess.getLocal());
       weights.add(learningRate, diffFree);
-      SparseVector diffNN = gold.getNonnegative().add(-scale, guess.getNonnegative());
+      SparseVector diffNN = gold.getFalseVector().add(-scale, guess.getFalseVector());
       if (enforceSigns) weights.add(learningRate, diffNN, true);
       else weights.add(learningRate, diffNN);
-      SparseVector diffNP = gold.getNonpositive().add(-scale, guess.getNonpositive());
+      SparseVector diffNP = gold.getTrueVector().add(-scale, guess.getTrueVector());
       if (enforceSigns) weights.add(learningRate, diffNP, false);
       else weights.add(learningRate, diffNP);
     }

@@ -4,6 +4,7 @@ import thebeast.pml.*;
 import thebeast.pml.solve.PropositionalModel;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.Index;
@@ -30,6 +31,7 @@ public class WeightedSatProblem implements PropositionalModel {
   private WeightedSatSolver solver;
   private Scores scores;
   private Weights weights;
+  private Profiler profiler = new NullProfiler();
 
   private int oldNumAtoms;
 
@@ -93,7 +95,7 @@ public class WeightedSatProblem implements PropositionalModel {
     return mappings.get(userPredicate);
   }
 
-  public RelationVariable getNewMapping(UserPredicate pred){
+  public RelationVariable getNewMapping(UserPredicate pred) {
     return newMappings.get(pred);
   }
 
@@ -110,23 +112,28 @@ public class WeightedSatProblem implements PropositionalModel {
   public void init(Scores scores) {
     this.scores.load(scores);
     solver.init();
+    clear();
   }
 
   public void solve(GroundAtoms solution) {
     this.solution.load(solution);
+    profiler.start("Update solver");
     updateSolver();
+    profiler.end().start("Solve");
     boolean[] result = solver.solve();
-    System.out.println(Arrays.toString(result));
+    profiler.end().start("Extract result");
+    //System.out.println(Arrays.toString(result));
     fillTrueFalseTables(result);
     //System.out.println(trueAtoms.value());
     //System.out.println(falseAtoms.value());
-    for (UserPredicate pred : model.getHiddenPredicates()){
+    for (UserPredicate pred : model.getHiddenPredicates()) {
       RelationVariable target = solution.getGroundAtomsOf(pred).getRelationVariable();
       interpreter.assign(target, removeFalseAtoms.get(pred));
       interpreter.insert(target, addTrueAtoms.get(pred));
     }
+    profiler.end();
     //System.out.println(solution);
-    
+
   }
 
   public boolean isFractional() {
@@ -137,7 +144,22 @@ public class WeightedSatProblem implements PropositionalModel {
     update(formulas, atoms, model.getGlobalFactorFormulas());
     //System.out.println(formulas);
     //System.out.println(toString());
-    
+
+  }
+
+  private void clear() {
+    interpreter.assign(atomCounter, builder.num(0).getInt());
+    interpreter.clear(clauses);
+    interpreter.clear(newClauses);
+    interpreter.clear(groundedClauses);
+    interpreter.clear(oldAtomCosts);
+    interpreter.clear(atomCosts);
+    for (UserPredicate pred : model.getHiddenPredicates()) {
+      //interpreter.insert(this.mappings.get(pred), newMappings.get(pred));
+      interpreter.clear(mappings.get(pred));
+    }
+
+
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
@@ -155,11 +177,11 @@ public class WeightedSatProblem implements PropositionalModel {
     interpreter.clear(atomCosts);
     for (UserPredicate pred : model.getHiddenPredicates()) {
       //interpreter.insert(this.mappings.get(pred), newMappings.get(pred));
-      interpreter.insert(atomCosts, scoresAndIndices.get(pred));   
+      interpreter.insert(atomCosts, scoresAndIndices.get(pred));
     }
 //    System.out.println("atomcosts");
 //    System.out.println(atomCosts.value());
-    interpreter.assign(newAtomCosts,newAtomCostsQuery);
+    interpreter.assign(newAtomCosts, newAtomCostsQuery);
 //    System.out.println("newatomcosts");
 //    System.out.println(newAtomCosts.value());
     changed = clauses.value().size() > oldNumClauses || atomCounter.value().getInt() > oldNumAtoms;
@@ -225,28 +247,28 @@ public class WeightedSatProblem implements PropositionalModel {
       //remove wrong solutions
       builder.expr(solution.getGroundAtomsOf(pred).getRelationVariable());
       builder.expr(mapping).from("mapping").expr(falseAtoms).from("falseAtoms");
-      builder.intAttribute("mapping","index").intAttribute("falseAtoms","index").equality().where();
-      for (int i = 0; i < pred.getArity(); ++i){
-        builder.id(pred.getColumnName(i)).attribute("mapping",pred.getAttribute(i));
+      builder.intAttribute("mapping", "index").intAttribute("falseAtoms", "index").equality().where();
+      for (int i = 0; i < pred.getArity(); ++i) {
+        builder.id(pred.getColumnName(i)).attribute("mapping", pred.getAttribute(i));
       }
       builder.tuple(pred.getArity()).select().query();
       builder.relationMinus();
-      removeFalseAtoms.put(pred,builder.getRelation());
+      removeFalseAtoms.put(pred, builder.getRelation());
 
       //a query that produces a table with atoms to add
       builder.expr(mapping).from("mapping").expr(trueAtoms).from("trueAtoms");
-      builder.intAttribute("mapping","index").intAttribute("trueAtoms","index").equality().where();
-      for (int i = 0; i < pred.getArity(); ++i){
-        builder.id(pred.getColumnName(i)).attribute("mapping",pred.getAttribute(i));
+      builder.intAttribute("mapping", "index").intAttribute("trueAtoms", "index").equality().where();
+      for (int i = 0; i < pred.getArity(); ++i) {
+        builder.id(pred.getColumnName(i)).attribute("mapping", pred.getAttribute(i));
       }
       builder.tuple(pred.getArity()).select().query();
-      addTrueAtoms.put(pred,builder.getRelation());
+      addTrueAtoms.put(pred, builder.getRelation());
 
       //a query that selects the scores and indices from the mapping
       builder.expr(mapping).from("mapping").
-              id("index").intAttribute("mapping","index").
-              id("score").doubleAttribute("mapping","score").tupleForIds().select().query();
-      scoresAndIndices.put(pred,builder.getRelation());
+              id("index").intAttribute("mapping", "index").
+              id("score").doubleAttribute("mapping", "score").tupleForIds().select().query();
+      scoresAndIndices.put(pred, builder.getRelation());
 
 
     }
@@ -266,7 +288,13 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void setProperty(PropertyName name, Object value) {
-
+    if (name.getHead().equals("solver")) {
+      if (name.isTerminal())
+        if ("maxwalksat".equals(value))
+          solver = new MaxWalkSat();
+        else
+          solver.setProperty(name.getTail(), value);
+    }
   }
 
   public Object getProperty(PropertyName name) {
@@ -274,7 +302,7 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void setProfiler(Profiler profiler) {
-
+    this.profiler = profiler;
   }
 
   private static WeightedSatClause toClause(TupleValue tuple) {
@@ -304,7 +332,7 @@ public class WeightedSatProblem implements PropositionalModel {
     int[] indices = newAtomCosts.getIntColumn("index");
     double[] ordered = new double[scores.length];
     for (int i = 0; i < scores.length; ++i)
-      ordered[indices[i]-oldNumAtoms] = scores[i];
+      ordered[indices[i] - oldNumAtoms] = scores[i];
     boolean[] states = new boolean[howMany];
     solver.addAtoms(states, ordered);
 
@@ -333,13 +361,13 @@ public class WeightedSatProblem implements PropositionalModel {
     return weights;
   }
 
-  public String toString(){
+  public String toString() {
     StringBuffer result = new StringBuffer();
     //result.append(groundedClauses.value());
     //result.append(newClauses.value());
     result.append(clauses.value());
     result.append(atomCosts.value());
-    for (UserPredicate pred : model.getHiddenPredicates()){
+    for (UserPredicate pred : model.getHiddenPredicates()) {
       result.append(mappings.get(pred).value());
     }
     return result.toString();

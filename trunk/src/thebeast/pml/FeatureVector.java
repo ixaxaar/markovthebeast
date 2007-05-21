@@ -37,20 +37,20 @@ public class FeatureVector {
     localNPIndices = interpreter.createRelationVariable(indexHeading);
   }
 
-  public SparseVector getFree() {
+  public SparseVector getLocal() {
     return free;
   }
 
-  public SparseVector getNonnegative() {
+  public SparseVector getFalseVector() {
     return nonnegative;
   }
 
-  public SparseVector getNonpositive() {
+  public SparseVector getTrueVector() {
     return nonpositive;
   }
 
   public void setSignedLocalweights(Model model, Weights weights){
-    int[] localWeights = getFree().getIndexArray();
+    int[] localWeights = getLocal().getIndexArray();
     localNNIndices.assignByArray(
             weights.intersectIndices(weights.getIndices(model.getLocalNonnegativeWeightFunctions()),localWeights),null);
     localNPIndices.assignByArray(
@@ -87,9 +87,9 @@ public class FeatureVector {
   }
 
   public void load(FeatureVector vector){
-    free.load(vector.getFree());
-    nonnegative.load(vector.getNonnegative());
-    nonpositive.load(vector.getNonpositive());
+    free.load(vector.getLocal());
+    nonnegative.load(vector.getFalseVector());
+    nonpositive.load(vector.getTrueVector());
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
     interpreter.assign(localNNIndices,vector.localNNIndices);
     interpreter.assign(localNPIndices,vector.localNPIndices);

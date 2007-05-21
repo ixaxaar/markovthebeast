@@ -114,7 +114,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       functions[index] = function;
       ++index;
     }
-    function = new MemFunction(MemFunction.Type.RELATION_SELECTOR, dim, argHolder, argPointers, functions);
+    function = new MemFunction(relationSelector.unify() ? MemFunction.Type.RELATION_SELECTOR :
+            MemFunction.Type.RELATION_SELECTOR_NO_UNIFY, dim, argHolder, argPointers, functions);
   }
 
   public void visitJoin(Join join) {

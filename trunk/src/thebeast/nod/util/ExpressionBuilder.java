@@ -235,7 +235,11 @@ public class ExpressionBuilder {
     return relation(expressionStack.size());
   }
 
-  public ExpressionBuilder relation(int howMany) {
+  public ExpressionBuilder relation(int howmany){
+    return relation(howmany,true);
+  }
+
+  public ExpressionBuilder relation(int howMany, boolean unify) {
     LinkedList<TupleExpression> tuples = new LinkedList<TupleExpression>();
     for (int i = 0; i < howMany; ++i) {
       Expression expr = expressionStack.pop();
@@ -246,7 +250,7 @@ public class ExpressionBuilder {
       tuples.addFirst(tuple);
     }
     expressionStack.push(expressionFactory.createRelationSelectorInvocation(
-            tuples.get(0).type().heading(), tuples));
+            tuples.get(0).type().heading(), tuples,unify));
     return this;
   }
 

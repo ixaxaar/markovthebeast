@@ -670,7 +670,7 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
     exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
     exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
-    exprBuilder.relation();
+    exprBuilder.relation(4,true);
     RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
     assertEquals(3, var.value().size());
     HashSet<Integer> ints = new HashSet<Integer>();

@@ -8,5 +8,5 @@ public interface Profiler {
 
   void start(String operation, int order);
 
-  void end();
+  Profiler end();
 }

@@ -99,10 +99,11 @@ public class TreeProfiler implements Profiler {
     current = node;
   }
 
-  public void end() {
+  public Profiler end() {
     current.totalTime += System.currentTimeMillis() - current.startedAt;
     ++current.count;
     current = current.parent;
+    return this;
   }
 
   public String toString() {

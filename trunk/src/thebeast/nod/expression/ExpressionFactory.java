@@ -136,5 +136,7 @@ public interface ExpressionFactory {
                                       String indexAttribute, String valueAttribute);
 
   IntGEQ createIntGEQ(IntExpression lhs, IntExpression rhs);
+
+  RelationSelector createRelationSelectorInvocation(Heading heading, List<TupleExpression> tuples, boolean unify);
 }
 

@@ -12,8 +12,8 @@ public class NullProfiler implements Profiler {
 
   }
 
-  public void end() {
-
+  public Profiler end() {
+    return this;
   }
 
 

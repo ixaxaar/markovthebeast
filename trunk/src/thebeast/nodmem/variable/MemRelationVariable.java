@@ -226,7 +226,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
 
   public void invalidate() {
     chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;
-    chunk.chunkData[pointer.xChunk].rowIndex.clear();
+    if (chunk.chunkData[pointer.xChunk].rowIndex != null) chunk.chunkData[pointer.xChunk].rowIndex.clear();
     indexInformation().invalidateIndices();
   }
 }

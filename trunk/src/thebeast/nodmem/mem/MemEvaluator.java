@@ -94,7 +94,6 @@ public class MemEvaluator {
           break;
         case INT_ATTRIBUTE:
           int_attribute(chunks, f, rows, returnChunk, argPointerVec);
-          MemChunk chunk;
           break;
         case INT_EXTRACT:
           int_extract(argChunk, f, returnChunk, argPointerVec);
@@ -196,7 +195,10 @@ public class MemEvaluator {
           contains(argChunk, returnChunk);
           break;
         case RELATION_SELECTOR:
-          relation_selector(f, returnChunk, argPointerVec);
+          relation_selector(f, returnChunk, argPointerVec, true);
+          break;
+        case RELATION_SELECTOR_NO_UNIFY:
+          relation_selector(f, returnChunk, argPointerVec, false);
           break;
         case ARRAY_ACCESS_ZERO:
           array_access_zero(f, returnChunk, argPointerVec);
@@ -315,7 +317,7 @@ public class MemEvaluator {
       returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.numChunkCols];
   }
 
-  private static void relation_selector(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
+  private static void relation_selector(MemFunction f, MemChunk returnChunk, MemVector argPointerVec, boolean unify) {
     MemChunk result;
     MemChunk tuple;
     int neededSize = f.argHolder.chunkData.length;
@@ -331,6 +333,7 @@ public class MemEvaluator {
     } else if (result.capacity < neededSize) {
 
       int increment = neededSize - result.chunkData.length;
+      //System.out.print("+");
       result.increaseCapacity(increment > result.capacity ? increment : result.capacity);
     }
     result.size = neededSize;
@@ -343,7 +346,7 @@ public class MemEvaluator {
 //              result.chunkData[i * tuple.numChunkCols + col] = tuple.chunkData[col].copy();
       MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
     }
-    result.unify();
+    if (unify) result.unify();
   }
 
   private static void contains(MemChunk argChunk, MemChunk returnChunk) {
@@ -351,6 +354,9 @@ public class MemEvaluator {
     MemChunk tuple = argChunk.chunkData[1];
     relation.buildRowIndex();
     MemChunkIndex index = relation.rowIndex;
+    if (tuple.allCols == null)
+      tuple.allCols = new MemColumnSelector(tuple.numIntCols,tuple.numDoubleCols, tuple.numChunkCols);
+
     returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.allCols) == -1 ? 0 : 1;
   }
 
@@ -384,11 +390,15 @@ public class MemEvaluator {
     int intSize = argChunk.size * argChunk.numIntCols;
     int doubleSize = argChunk.size * argChunk.numDoubleCols;
     int chunkSize = argChunk.size * argChunk.numChunkCols;
+    //if (returnChunk.size % 10000 == 999) System.out.println(returnChunk.capacity);
+    //System.out.print(".");
     if (argPointerVec.xInt + intSize > returnChunk.intData.length ||
             argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
-            argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length)
-      returnChunk.increaseCapacity(argChunk.size);
-//          returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
+            argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length) {
+//      returnChunk.increaseCapacity(argChunk.size);
+          returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
+      //System.out.println(returnChunk.capacity);
+    }
     System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
     System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
     MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);

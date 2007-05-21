@@ -47,6 +47,9 @@ public class IntegerLinearProgram implements PropositionalModel {
   private HashMap<FactorFormula, Insert>
           newConstraintsInserts = new HashMap<FactorFormula, Insert>(),
           constraintsInserts = new HashMap<FactorFormula, Insert>();
+  private Insert insertNewConstraintsIntoOld;
+
+
   private HashMap<UserPredicate, RelationExpression>
           addTrueGroundAtoms = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
@@ -222,6 +225,8 @@ public class IntegerLinearProgram implements PropositionalModel {
         }
       }
     }
+    insertNewConstraintsIntoOld = factory.createInsert(constraints, newConstraints);
+
   }
 
 
@@ -400,15 +405,17 @@ public class IntegerLinearProgram implements PropositionalModel {
     //System.out.println("Updating ...");
     profiler.end();
     profiler.start("insert constraints");
-    for (FactorFormula formula : factors){
-      //System.out.println(formula);
-      //System.out.println("Before insertion");
-      //System.out.println(toLpSolveFormat(newVars, constraints));
-      interpreter.interpret(constraintsInserts.get(formula));
-      //System.out.println("After insertion");
-      //System.out.println(toLpSolveFormat(newVars, constraints));
-    }
-    profiler.end();    
+//    for (FactorFormula formula : factors){
+//      //System.out.println(formula);
+//      //System.out.println("Before insertion");
+//      //System.out.println(toLpSolveFormat(newVars, constraints));
+//      interpreter.interpret(constraintsInserts.get(formula));
+//      //System.out.println("After insertion");
+//      //System.out.println(toLpSolveFormat(newVars, constraints));
+//    }
+    interpreter.append(constraints,newConstraints);
+    //interpreter.interpret(insertNewConstraintsIntoOld);
+    profiler.end();
     //System.out.println(constraints.value());
     interpreter.clear(newVars);
     //get the new variables
