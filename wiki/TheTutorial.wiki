@@ -46,20 +46,32 @@ bin/mac/thebeast
 
 on macs.
 
-= Defining a model =
+= Defining the Signature =
+
+First we need to define the signature of our model. A signature consists of a set of types and predicates over these types. 
 
 == Types ==
+
+To define a type we write the following:
 {{{
-type Slot: From_loc, "to_loc";
+type Slot: From_loc, To_loc;
 type Word: ... "a", "man";
 }}}
+The first row shows a type (the Slot type) that uses capitalized constants (`From_loc`). Note that `from_loc` (with lower case intial"f") will result in a syntax error, because lowercased strings are reserved for predicates and functions.
+
+The second row shows the Word type. It uses string literals in quotes in order to represent lower case words. Also not the `...`! This is a keyword that indicates that the type is "open-ended"; that is, we might encounter strings not defined here. For these we won't be able to learn any parameters, however, we also won't generate an error message if we see them.
+
 == Predicates ==
+Based on these types we are now ready to define some predicates. In our example we define the slot and the word as follows:
+
 {{{
 predicate slot: Int x Slot;
 predicate word: Int x Word;
 }}}
 
-== Defining the Model ==
+Note that `Int` represents a built-in integer type. 
+
+= Defining the Model =
 {{{
 hidden: slot;
 observed: word;
