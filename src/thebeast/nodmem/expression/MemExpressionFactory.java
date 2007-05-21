@@ -20,8 +20,13 @@ public class MemExpressionFactory implements ExpressionFactory {
   }
 
   public RelationSelector createRelationSelectorInvocation(Heading heading, List<TupleExpression> tuples) {
-    return new MemRelationSelector(heading, tuples);
+    return new MemRelationSelector(heading, tuples,true);
   }
+
+  public RelationSelector createRelationSelectorInvocation(Heading heading, List<TupleExpression> tuples, boolean unify) {
+     return new MemRelationSelector(heading, tuples,unify);
+   }
+
 
   public VariableReference<RelationType> createRelationVariableReference(RelationType type, Identifier name) {
     return new MemVariableReference<RelationType>(type, name);

@@ -105,6 +105,7 @@ public final class MemChunk extends MemHolder {
 
 
   public static void serialize(MemChunk chunk, MemSerializer serializer, boolean dumpIndices) throws IOException {
+    //if (dumpIndices && chunk.rowIndex == null) chunk.buildRowIndex();
     MemChunkIndex rowIndex = dumpIndices ? chunk.rowIndex : null;
     int rowIndexedSoFar = dumpIndices ? chunk.rowIndexedSoFar : 0;
     serializer.writeInts(chunk.numIntCols, chunk.numDoubleCols, chunk.numChunkCols, rowIndexedSoFar);
@@ -135,14 +136,14 @@ public final class MemChunk extends MemHolder {
 
   public MemChunk(int size, int capacity, MemDim dim) {
     this(size, capacity, dim.xInt, dim.xDouble, dim.xChunk);
-    rowIndex = new MemChunkIndex(capacity == 0 ? 1 : capacity, dim);
+    //rowIndex = new MemChunkIndex(capacity == 0 ? 1 : capacity, dim);
     allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
   public MemChunk(MemDim dim) {
     this(1, 1, dim.xInt, dim.xDouble, dim.xChunk);
-    rowIndex = new MemChunkIndex(10, dim);
-    allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //rowIndex = new MemChunkIndex(10, dim);
+    //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
 
@@ -155,8 +156,8 @@ public final class MemChunk extends MemHolder {
     this.intData = intData;
     this.doubleData = doubleData;
     this.chunkData = chunkData;
-    rowIndex = new MemChunkIndex(10, new MemDim(numIntCols, numDoubleCols, numChunkCols));
-    allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //rowIndex = new MemChunkIndex(10, new MemDim(numIntCols, numDoubleCols, numChunkCols));
+    //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
   public MemChunk(int numRows, int capacity, int numIntCols, int numDoubleCols, int numChunkCols) {
@@ -169,8 +170,8 @@ public final class MemChunk extends MemHolder {
     intData = new int[capacity * numIntCols];
     doubleData = new double[capacity * numDoubleCols];
     chunkData = new MemChunk[capacity * numChunkCols];
-    rowIndex = new MemChunkIndex(capacity, new MemDim(numIntCols, numDoubleCols, numChunkCols));
-    allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //rowIndex = new MemChunkIndex(capacity, new MemDim(numIntCols, numDoubleCols, numChunkCols));
+    //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
   public void increaseCapacity(int howMuch) {
@@ -186,8 +187,8 @@ public final class MemChunk extends MemHolder {
     MemChunk[] newChunkData = new MemChunk[capacity * numChunkCols];
     System.arraycopy(chunkData, 0, newChunkData, 0, chunkData.length);
     chunkData = newChunkData;
-    rowIndex.increaseCapacity(howMuch);
-    allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    if (rowIndex != null) rowIndex.increaseCapacity(howMuch);
+    //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
   }
 
   public void compactify() {
@@ -197,11 +198,13 @@ public final class MemChunk extends MemHolder {
 
   public void buildRowIndex() {
     if (rowIndex == null)
-      rowIndex = new MemChunkIndex(size, new MemDim(numIntCols, numDoubleCols, numChunkCols));
+      rowIndex = new MemChunkIndex(size > 0 ? size : 1, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     MemVector pointer = new MemVector(rowIndexedSoFar, getDim());
     if (rowIndex.getLoadFactor() > MAXLOADFACTOR) {
       rowIndex.increaseCapacity((size - rowIndex.getCapacity()));
     }
+    if (allCols == null)
+      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);
     for (int row = rowIndexedSoFar; row < size; ++row) {
       rowIndex.put(this, pointer, allCols, row, false);
       pointer.xInt += numIntCols;
@@ -214,6 +217,10 @@ public final class MemChunk extends MemHolder {
   public void unify() {
     MemVector srcPointer = new MemVector(rowIndexedSoFar, numIntCols, numDoubleCols, numChunkCols);
     MemVector dstPointer = new MemVector(rowIndexedSoFar, numIntCols, numDoubleCols, numChunkCols);
+    if (rowIndex == null)
+      rowIndex = new MemChunkIndex(size > 0 ? size : 1, new MemDim(numIntCols, numDoubleCols, numChunkCols));
+    if (allCols == null)
+      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);    
     int dstRow = rowIndexedSoFar;
     for (int row = rowIndexedSoFar; row < size; ++row) {
       int old = rowIndex.put(this, srcPointer, allCols, row, false);
@@ -355,7 +362,10 @@ public final class MemChunk extends MemHolder {
     MemChunk result = new MemChunk(0, size, numIntCols, numDoubleCols, numChunkCols);
     other.buildRowIndex();
     MemVector ptr = new MemVector();
+    if (other.rowIndex == null) other.buildRowIndex();
     MemChunkIndex index = other.rowIndex;
+    if (allCols == null)
+      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);    
     MemColumnSelector cols = allCols;
     MemVector dst = new MemVector();
     for (int row = 0; row < size; ++row) {

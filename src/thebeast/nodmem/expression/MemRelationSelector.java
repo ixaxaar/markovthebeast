@@ -18,9 +18,12 @@ public class MemRelationSelector extends AbstractMemExpression<RelationType> imp
 
   private ArrayList<TupleExpression> tuples;
 
-  public MemRelationSelector(Heading heading, List<TupleExpression> tuples) {
+  private boolean unify;
+
+  public MemRelationSelector(Heading heading, List<TupleExpression> tuples, boolean unify) {
     super(new MemRelationType((MemHeading) (heading == null ? tuples.get(0).type().heading() : heading)));
     this.tuples = new ArrayList<TupleExpression>(tuples);
+    this.unify=unify;
   }
 
   public void acceptExpressionVisitor(ExpressionVisitor visitor) {
@@ -33,6 +36,10 @@ public class MemRelationSelector extends AbstractMemExpression<RelationType> imp
 
   public List<TupleExpression> tupleExpressions() {
     return tuples;
+  }
+
+  public boolean unify() {
+    return unify;
   }
 
   public boolean equals(Object o) {

@@ -672,9 +672,9 @@ public class Weights implements HasProperties {
 
   public String toString(FeatureVector vector) {
     StringBuffer buffer = new StringBuffer();
-    buffer.append("Free:\n").append(toString(vector.getFree()));
-    buffer.append("NN:\n").append(toString(vector.getNonnegative()));
-    buffer.append("NP:\n").append(toString(vector.getNonpositive()));
+    buffer.append("Free:\n").append(toString(vector.getLocal()));
+    buffer.append("NN:\n").append(toString(vector.getFalseVector()));
+    buffer.append("NP:\n").append(toString(vector.getTrueVector()));
     return buffer.toString();
   }
 
@@ -713,6 +713,18 @@ public class Weights implements HasProperties {
     return result;
   }
 
+
+  public double score(SparseVector vector){
+    return weights.value().dotProduct(vector.getIndexArray(), vector.getValueArray());
+  }
+
+  public double score(FeatureVector vector){
+    double result = 0;
+    result += score(vector.getLocal());
+    result += score(vector.getTrueVector());
+    result -= score(vector.getFalseVector());
+    return result;  
+  }
 
   public void setProperty(PropertyName name, Object value) {
 

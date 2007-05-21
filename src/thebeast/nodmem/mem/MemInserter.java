@@ -8,10 +8,12 @@ public class MemInserter {
   public static void insert(MemChunk src, MemChunk dst) {
     //assuming src is unique
     MemVector pointer = new MemVector();
+    dst.buildRowIndex();
     MemChunkIndex index = dst.rowIndex;
     //System.out.println("index.getLoadFactor() = " + index.getLoadFactor());;
-    dst.buildRowIndex();
     MemVector dstPointer = new MemVector(dst.size, dst.getDim());
+    if (src.allCols == null)
+      src.allCols = new MemColumnSelector(src.numIntCols,src.numDoubleCols, src.numChunkCols);
     for (int row = 0; row < src.size; ++row) {
       int old = index.get(src, pointer, src.allCols);
       if (old == -1) {

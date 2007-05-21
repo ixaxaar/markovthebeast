@@ -998,7 +998,7 @@ public class QueryGenerator {
     for (int i = 0; i < size; ++i) {
       builder.id("index").expr(variables[i]).id("weight").num(scale * (signs[i] ? 1.0 : -1.0)).tuple(2);
     }
-    builder.relation(size + 1);
+    builder.relation(size + 1, false);
     builder.tuple(3);
     //the 'small' constraints
     for (int i = 0; i < size; ++i) {
@@ -1007,7 +1007,7 @@ public class QueryGenerator {
       builder.id("values");
       builder.id("index").expr(f).id("weight").num(scale).tuple(2);
       builder.id("index").expr(variables[i]).id("weight").num(signs[i] ? -scale : scale).tuple(2);
-      builder.relation(2);
+      builder.relation(2, false);
       builder.tuple(3);
     }
     builder.relation(size + 1);
@@ -1034,9 +1034,9 @@ public class QueryGenerator {
     for (int i = 0; i < size; ++i) {
       builder.id("index").expr(variables[i]).id("weight").num(signs[i] ? 1.0 : -1.0).tuple(2);
     }
-    builder.relation(size);
+    builder.relation(size, false);
     builder.tuple(3);
-    builder.relation(1);
+    builder.relation(1,false);
     LinkedList<IntVariable> all = new LinkedList<IntVariable>();
     for (IntVariable v : variables) all.add(v);
     return factory.createOperator("constraints", all, builder.getRelation());

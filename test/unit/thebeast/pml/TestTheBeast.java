@@ -1002,11 +1002,11 @@ public class TestTheBeast extends TestCase {
     solution.updateGroundFormulas();
 
     FeatureVector vector = solution.extract();
-    SparseVector features = vector.getFree();
+    SparseVector features = vector.getLocal();
     System.out.println(features.getValuesRelation().value());
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
-    assertTrue(vector.getNonnegative().contains(4, -1.0));
+    assertTrue(vector.getFalseVector().contains(4, -1.0));
     assertEquals(2, features.size());
 
     LocalFeatures local = new LocalFeatures(model, weights);
@@ -1016,11 +1016,11 @@ public class TestTheBeast extends TestCase {
     //local.extract(theManLikesTheBoat);
 
     FeatureVector extracted = solution.extract(local);
-    features = extracted.getFree();
+    features = extracted.getLocal();
     System.out.println(features.getValuesRelation().value());
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
-    assertTrue(extracted.getNonnegative().contains(4, -1.0));
+    assertTrue(extracted.getFalseVector().contains(4, -1.0));
     assertEquals(2, features.size());
 
   }

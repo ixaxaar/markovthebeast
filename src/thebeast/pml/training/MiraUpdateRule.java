@@ -10,7 +10,6 @@ import thebeast.util.TreeProfiler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 
 /**
  * Update weights according to (Single-best) MIRA as presented in McDonald et al. 2005.
@@ -39,17 +38,17 @@ public class MiraUpdateRule implements UpdateRule {
     ArrayList<SparseVector> allVectors = new ArrayList<SparseVector>(candidates.size());
     int[][] nnIndices = new int[candidates.size() + 1][];
     int[][] npIndices = new int[candidates.size() + 1][];
-    nnIndices[0] = weights.unionIndices(gold.getNonnegative().getIndexArray(), gold.getLocalNonnegativeIndices());
-    npIndices[0] = weights.unionIndices(gold.getNonpositive().getIndexArray(), gold.getLocalNonpositiveIndices());
+    nnIndices[0] = weights.unionIndices(gold.getFalseVector().getIndexArray(), gold.getLocalNonnegativeIndices());
+    npIndices[0] = weights.unionIndices(gold.getTrueVector().getIndexArray(), gold.getLocalNonpositiveIndices());
     //System.out.println(Arrays.toString(gold.getLocalNonpositiveIndices()));
     int c = 1;
     for (FeatureVector candidate : candidates) {
       allVectors.add(candidate.getAll());
       if (enforceSigns) {
-        nnIndices[c] = weights.unionIndices(candidate.getNonnegative().getIndexArray(),
+        nnIndices[c] = weights.unionIndices(candidate.getFalseVector().getIndexArray(),
                 candidate.getLocalNonnegativeIndices());
         //System.out.println(Arrays.toString(candidate.getLocalNonpositiveIndices()));
-        npIndices[c] = weights.unionIndices(candidate.getNonpositive().getIndexArray(),
+        npIndices[c] = weights.unionIndices(candidate.getTrueVector().getIndexArray(),
                 candidate.getLocalNonpositiveIndices());
       }
       ++c;

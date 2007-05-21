@@ -153,7 +153,7 @@ public class Solution {
       profiler.end();
 
       profiler.start("add");
-      vector.getFree().addInPlace(1.0,tmp);
+      vector.getLocal().addInPlace(1.0,tmp);
       profiler.end();
 
       profiler.end();
@@ -169,11 +169,11 @@ public class Solution {
         //if (formula.getWeight().isNonPositive())
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (formula.getWeight().isNonNegative())
-          vector.getNonnegative().addInPlace(1.0,tmp);
+          vector.getFalseVector().addInPlace(1.0,tmp);
         else if (formula.getWeight().isNonPositive())
-          vector.getNonpositive().addInPlace(1.0,tmp);
+          vector.getTrueVector().addInPlace(1.0,tmp);
         else
-          vector.getFree().addInPlace(1.0,tmp);
+          vector.getLocal().addInPlace(1.0,tmp);
       }
     }
     vector.setSignedLocalweights(model,weights);
@@ -213,7 +213,7 @@ public class Solution {
 
       profiler.start("add");
       //System.out.println(weights.toString(vector));
-      vector.getFree().addInPlace(1.0, tmp);
+      vector.getLocal().addInPlace(1.0, tmp);
       //System.out.println(vector.getFree());
       //System.out.println(weights.toString(vector));
       profiler.end();
@@ -231,11 +231,11 @@ public class Solution {
         //if (formula.getWeight().isNonPositive())
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
         if (formula.getWeight().isNonNegative())
-          vector.getNonnegative().addInPlace(1.0,tmp);
+          vector.getFalseVector().addInPlace(1.0,tmp);
         else if (formula.getWeight().isNonPositive())
-          vector.getNonpositive().addInPlace(1.0,tmp);
+          vector.getTrueVector().addInPlace(1.0,tmp);
         else
-          vector.getFree().addInPlace(1.0,tmp);
+          vector.getLocal().addInPlace(1.0,tmp);
         //result.addInPlace(1.0, tmp);
       }
     }

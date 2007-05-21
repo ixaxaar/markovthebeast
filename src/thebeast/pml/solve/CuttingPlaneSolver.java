@@ -62,13 +62,12 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-
   public CuttingPlaneSolver(PropositionalModel propositionalModel) {
     this.propositionalModel = propositionalModel;
     propositionalModel.setProfiler(profiler);
   }
 
-  public void setFullyGround(FactorFormula formula, boolean fullyGround){
+  public void setFullyGround(FactorFormula formula, boolean fullyGround) {
     if (formula == null) throw new RuntimeException("formula must not be null");
     if (fullyGround)
       groundAll.add(formula);
@@ -76,10 +75,10 @@ public class CuttingPlaneSolver implements Solver {
       groundAll.remove(formula);
     formulas.setFullyGround(formula, fullyGround);
     firstFormulas.setFullyGround(formula, fullyGround);
-    
+
   }
 
-  public void setFullyGroundAll(boolean fullyGroundAll){
+  public void setFullyGroundAll(boolean fullyGroundAll) {
     for (FactorFormula formula : model.getGlobalFactorFormulas())
       setFullyGround(formula, fullyGroundAll);
   }
@@ -87,7 +86,7 @@ public class CuttingPlaneSolver implements Solver {
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
-    propositionalModel.configure(model,weights);
+    propositionalModel.configure(model, weights);
     formulas = new GroundFormulas(model, weights);
     firstFormulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
@@ -153,6 +152,7 @@ public class CuttingPlaneSolver implements Solver {
 
   public void setPropositionalModel(PropositionalModel propositionalModel) {
     this.propositionalModel = propositionalModel;
+    propositionalModel.configure(model, weights);
   }
 
 
@@ -203,12 +203,14 @@ public class CuttingPlaneSolver implements Solver {
     profiler.start("update");
 
     profiler.start("formulas");
+    //System.out.println("Grounding");
     formulas.update(atoms);
     profiler.end();
 
     //System.out.println(formulas);
 
     profiler.start("ilp.update");
+    //System.out.println("Transfer");
     propositionalModel.update(formulas, atoms);
     profiler.end();
 
@@ -310,6 +312,7 @@ public class CuttingPlaneSolver implements Solver {
 //        break;
 //      }
       profiler.start("ilp.solve");
+      //System.out.println("Solving...");
       propositionalModel.solve(atoms);
       //new SentencePrinter().print(atoms, System.out);
 
@@ -346,7 +349,7 @@ public class CuttingPlaneSolver implements Solver {
    * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
    * a initial guess (either from the last time this method was called or through external specification) this
    * guess is used as a starting point. If not a greedy solution is used as a starting point.
-   *
+   * <p/>
    * <p>This version only adds global features/soft constraints if no hard constraints (==less than maxViolationsForNonDeterministic)
    * are violated in the current solution.
    *
@@ -393,7 +396,7 @@ public class CuttingPlaneSolver implements Solver {
       updateAlternating();
       addCandidate();
       if (enforceIntegers && propositionalModel.isFractional()) {
-      //if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
+        //if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
         //System.out.println("fractional");
         propositionalModel.enforceIntegerSolution();
       }
@@ -562,21 +565,22 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("model")){
-      if (name.isTerminal()){
+    if (name.getHead().equals("model")) {
+      if (name.isTerminal()) {
         if ("ilp".equals(value))
-          propositionalModel = new IntegerLinearProgram(new ILPSolverLpSolve());
+          setPropositionalModel(new IntegerLinearProgram(new ILPSolverLpSolve()));
         else if ("sat".equals(value))
-          propositionalModel = new WeightedSatProblem(new MaxWalkSat());
-      }  else
-
-      propositionalModel.setProperty(name.getTail(), value);
+          setPropositionalModel(new WeightedSatProblem(new MaxWalkSat()));
+      } else
+        propositionalModel.setProperty(name.getTail(), value);
 
     }
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
+    if (name.getHead().equals("groundAll"))
+      setFullyGroundAll((Boolean) value);
     if (name.getHead().equals("alternating"))
       setAlternating((Boolean) value);
     if (name.getHead().equals("deterministicFirst"))
@@ -610,7 +614,7 @@ public class CuttingPlaneSolver implements Solver {
     return null;
   }
 
- 
+
   public void printHistory() {
     printHistory(System.out);
   }

@@ -295,11 +295,17 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       MemChunk buffer = memInsert.getBuffer();
       buffer.chunkData[0].size = 0;
       buffer.chunkData[0].rowIndexedSoFar = 0;
-      buffer.chunkData[0].rowIndex.clear();
+      if (buffer.chunkData[0].rowIndex != null) buffer.chunkData[0].rowIndex.clear();
       AbstractMemExpression expr = (AbstractMemExpression) insert.relationExp();
       MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
       src = buffer.chunkData[0];
     }
+    //MemInserter.
+//    System.out.println("src.byteSize() = " + src.byteSize());
+//    System.out.println("src.size = " + src.size);
+//    System.out.println("result.size = " + result.size);
+//    System.out.println("result.capacity = " + result.capacity);
+    //MemInserter.append(src,result);
     MemInserter.insert(src, result);
     //var.invalidate();
   }
@@ -317,7 +323,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       MemChunk buffer = append.getBuffer();
       buffer.chunkData[0].size = 0;
       buffer.chunkData[0].rowIndexedSoFar = 0;
-      buffer.chunkData[0].rowIndex.clear();
+      if (buffer.chunkData[0].rowIndex != null) buffer.chunkData[0].rowIndex.clear();
       AbstractMemExpression expr = (AbstractMemExpression) relationAppend.relationExp();
       MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
       src = buffer.chunkData[0];

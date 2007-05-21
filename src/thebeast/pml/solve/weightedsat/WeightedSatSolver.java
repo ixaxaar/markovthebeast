@@ -1,9 +1,11 @@
 package thebeast.pml.solve.weightedsat;
 
+import thebeast.pml.HasProperties;
+
 /**
  * @author Sebastian Riedel
  */
-public interface WeightedSatSolver {
+public interface WeightedSatSolver extends HasProperties {
 
   void init();
 

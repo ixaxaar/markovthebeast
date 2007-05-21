@@ -19,6 +19,8 @@ public interface ArrayValue extends Iterable<Value>, Value<ArrayType> {
 
   CategoricalValue categoricalElement(int index);
 
+  double dotProduct(int[] indices, double[] values);
+
 
   BoolValue boolElement(int index);
 }

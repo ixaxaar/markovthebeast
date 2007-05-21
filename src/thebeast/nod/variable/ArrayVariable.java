@@ -13,4 +13,5 @@ public interface ArrayVariable extends Variable<ArrayValue,ArrayType>, ArrayExpr
   int byteSize();
 
   double doubleValue(int index);
+
 }

@@ -1,5 +1,6 @@
 package thebeast.pml.solve.weightedsat;
 
+import thebeast.pml.PropertyName;
 import thebeast.util.HashMultiMap;
 
 import java.util.*;
@@ -18,14 +19,55 @@ public class MaxWalkSat implements WeightedSatSolver {
   private int unsatisfiedClauseCount;
   private boolean[] best;
   private double bestScore;
-  private double currentScore;
   private double greedy = 0.5;
-  private int maxFlips = 100;
+  private int maxFlips = 1000;
   private int maxRestarts = 1;
-  private boolean randomizeStates;
+  private boolean
+          initRandom = true,
+          updateRandom = false;
   private double target = Double.POSITIVE_INFINITY;
   private boolean pickFromUnsatisfied = true;
+  private long timeOut = Long.MAX_VALUE;
+  private int calls;
 
+  public void setProperty(PropertyName name, Object value) {
+    if ("maxFlips".equals(name.getHead()))
+      setMaxFlips((Integer)value);
+    else if ("seed".equals(name.getHead()))
+      setSeed((Integer)value);
+    else if ("initRandom".equals(name.getHead()))
+      setInitRandom((Boolean)value);
+    else if ("updateRandom".equals(name.getHead()))
+      setInitRandom((Boolean)value);
+    else if ("maxRestarts".equals(name.getHead()))
+      setMaxRestarts((Integer)value);
+    else if ("timeout".equals(name.getHead()))
+      setTimeOut((Integer)value);
+    else if ("pickFromUnsatisfied".equals(name.getHead()))
+      setPickFromUnsatisfied((Boolean)value);
+  }
+
+
+  public boolean isUpdateRandom() {
+    return updateRandom;
+  }
+
+  public void setUpdateRandom(boolean updateRandom) {
+    this.updateRandom = updateRandom;
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
+  }
+
+
+  public long getTimeOut() {
+    return timeOut;
+  }
+
+  public void setTimeOut(long timeOut) {
+    this.timeOut = timeOut;
+  }
 
   class Atom {
     final ArrayList<NodeClauseRelation> clauses = new ArrayList<NodeClauseRelation>();
@@ -141,12 +183,12 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
 
-  public boolean isRandomizeStates() {
-    return randomizeStates;
+  public boolean isInitRandom() {
+    return initRandom;
   }
 
-  public void setRandomizeStates(boolean randomizeStates) {
-    this.randomizeStates = randomizeStates;
+  public void setInitRandom(boolean initRandom) {
+    this.initRandom = initRandom;
   }
 
 
@@ -210,14 +252,14 @@ public class MaxWalkSat implements WeightedSatSolver {
     for (NodeClauseRelation rel : clause.nodes) {
       double delta = calculateDeltaCost(rel.atom);
 //      if (clause.signs[0].length == 3){
-        System.out.printf("%-3d%-6s%-5f ", rel.atom.index, rel.atom.state, delta);
+        //System.out.printf("%-3d%-6s%-5f ", rel.atom.index, rel.atom.state, delta);
 //      }
       if (delta > maxDelta) {
         maxDelta = delta;
         result = rel.atom;
       }
     }
-    System.out.println("");
+    //System.out.println("");
     return new DeltaScoredAtom(result, maxDelta);
   }
 
@@ -231,11 +273,6 @@ public class MaxWalkSat implements WeightedSatSolver {
     return clauses[number];
   }
 
-
-  private static Atom pickRandomNode(Random random, Atom[] atoms, int atomCount) {
-    int number = Math.abs(random.nextInt()) % atomCount;
-    return atoms[number];
-  }
 
   private void updateUnsatisfiedClauses(){
     unsatisfiedClauseCount = 0;
@@ -265,6 +302,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   public void init() {
     atomCount = 0;
     clauseCount = 0;
+    calls = 0;
   }
 
   public void addAtoms(boolean states[], double[] scores) {
@@ -296,8 +334,8 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public void addClauses(WeightedSatClause... clausesToAdd) {
     increaseClauseCapacity(clausesToAdd.length);
-    for (int i = 0; i < clausesToAdd.length; ++i) {
-      Clause clause = normalize(clausesToAdd[i]);
+    for (WeightedSatClause aClausesToAdd : clausesToAdd) {
+      Clause clause = normalize(aClausesToAdd);
       if (clause == null) continue;
       clauses[clauseCount] = clause;
       ++clauseCount;
@@ -389,11 +427,12 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public boolean[] solve() {
     bestScore = Double.NEGATIVE_INFINITY;
-    for (int run = 0; run < maxRestarts && bestScore < target; ++run) {
-      if (randomizeStates) randomizeNodeStates();
+    long time = System.currentTimeMillis();
+    for (int run = 0; run < maxRestarts && bestScore < target && System.currentTimeMillis() - time < timeOut; ++run) {
+      if (calls == 0 && initRandom || calls > 0 && updateRandom) randomizeNodeStates();
       syncClauses();
       double score = getScore();
-      for (int flip = 0; flip < maxFlips && bestScore < target; ++flip) {
+      for (int flip = 0; flip < maxFlips && bestScore < target && System.currentTimeMillis() - time < timeOut; ++flip) {
         MaxWalkSat.Clause clause;
         if (pickFromUnsatisfied){
           updateUnsatisfiedClauses();
@@ -401,7 +440,7 @@ public class MaxWalkSat implements WeightedSatSolver {
           clause = pickRandomClause(random, unsatisfiedClauses, unsatisfiedClauseCount);
         } else
           clause = pickRandomClause(random, clauses, clauseCount);
-        System.out.println(clause);
+        //System.out.println(clause);
         double uniform = random.nextDouble();
         Atom atom;
         double delta;
@@ -413,18 +452,19 @@ public class MaxWalkSat implements WeightedSatSolver {
           atom = deltaScoredAtom.atom;
           delta = deltaScoredAtom.delta;
         }
-        System.out.println("Changed: " + atom.index);
+        ///System.out.println("Changed: " + atom.index);
         flipNode(atom);
         score += delta;
         if (score > bestScore) {
           fill(atoms, best);
           bestScore = score;
         }
-        printState(uniform > this.greedy, score,atoms, atomCount);
+        //printState(uniform > this.greedy, score,atoms, atomCount);
         //for (int i = 0; i < clauseCount; ++i) System.out.println(clauses[i]);
       }
     }
     System.out.println(bestScore);
+    ++calls;
     return best;
   }
 
@@ -495,6 +535,15 @@ public class MaxWalkSat implements WeightedSatSolver {
     double sum = 0;
     for (int i = 0; i < clauseCount; ++i)
       if (clauses[i].state) sum += clauses[i].cost;
+    return sum;
+  }
+
+  public double getNormalizedScore() {
+    double sum = 0;
+    for (int i = 0; i < clauseCount; ++i)
+      if (clauses[i].signs.length == 1 && clauses[i].signs[0].length == 1)
+        sum += clauses[i].signs[0][0] ? clauses[i].cost : - clauses[i].cost;
+      else if (!clauses[i].state) sum -= clauses[i].cost;
     return sum;
   }
 
