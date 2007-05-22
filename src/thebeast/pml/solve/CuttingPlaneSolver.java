@@ -660,4 +660,8 @@ public class CuttingPlaneSolver implements Solver {
     }
   }
 
+
+  public LocalFeatures getLocalFeatures() {
+    return features;
+  }
 }
