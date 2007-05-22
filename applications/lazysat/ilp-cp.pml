@@ -1,8 +1,8 @@
 //include "corpora/bibserv/bibserv.types.pml";
 //include "corpora/bibserv/bibserv.predicates.pml";
 
-include "/tmp/bibserv/bibserv.100.4.db.types.pml";
-include "/tmp/bibserv/bibserv.100.4.db.predicates.pml";
+include "ilp-cp.types.pml";
+include "ilp-cp.predicates.pml";
 
 
 include "bibserv.factors.pml";
@@ -14,29 +14,29 @@ observed: venue, title, author,
   venueScore100, venueScore80, venueScore60, venueScore40, venueScore20, venueScore0;
 
 //load corpus from "corpora/bibserv/bibserv.150.1.crp";
-load corpus from "/tmp/bibserv/bibserv.100.4.db.atoms";
+load corpus from "ilp-cp.atoms";
 
 save corpus to ram;
 
 load weights from "bibserv.weights";
-set solver.profile = true;
 
 
 next;
 
+set solver.profile = true;
 set solver.model.initIntegers = true;
 solve;
 
 print history;
 print solver.profiler;
 
-set solver.profile = true;
-set solver.model.initIntegers = false;
-set solver.integer = true;
-solve;
+//set solver.profile = true;
+//set solver.model.initIntegers = false;
+//set solver.integer = true;
+//solve;
 
-print history;
-print solver.profiler;
+//print history;
+//print solver.profiler;
 
 
 
