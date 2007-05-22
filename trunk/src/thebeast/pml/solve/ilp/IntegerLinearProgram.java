@@ -284,6 +284,10 @@ public class IntegerLinearProgram implements PropositionalModel {
     return constraints.value().size();
   }
 
+  public int getNumCols(){
+    return vars.value().size();
+  }
+
   private void clear() {
     interpreter.clear(constraints);
     interpreter.clear(newConstraints);
@@ -335,6 +339,8 @@ public class IntegerLinearProgram implements PropositionalModel {
     profiler.end();
     newFractionals = false;
     findFractionals();
+
+    //System.out.printf("%5d%5d\n",getNumRows(),getNumCols());
   }
 
   private void findFractionals() {
