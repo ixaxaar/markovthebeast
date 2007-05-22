@@ -50,7 +50,7 @@ factor:
 weight w_authorScore60: Double;
 factor:
   for Author a1, Author a2 if author(_,a1) & author(_,a2) & authorScore60(a1,a2)
-  add [sameAuthor(a1,a2) * w_authorScore60;
+  add [sameAuthor(a1,a2)] * w_authorScore60;
 
 weight w_authorScore40: Double;
 factor:

@@ -14,8 +14,8 @@ load weights from dump "/tmp/chunking.blank.weights.dmp";
 
 load instances from dump "/tmp/instances.dmp";
 
-set learner.solver.ilp.solver = "lpsolve";
-//set learner.solver.ilp.solver.implementation = "clp";
+set learner.solver.ilp.solver = "osi";
+set learner.solver.ilp.solver.implementation = "clp";
 //set learner.solver.ilp.solver.timeout = 100;
 //set learner.solver.ilp.solver.bbDepthLimit = 5;
 //set learner.solver.ilp.solver.implementation = "clp";

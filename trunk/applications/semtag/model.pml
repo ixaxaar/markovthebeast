@@ -78,6 +78,25 @@ set collector.all.w_forbid3 = true;
 weight w_imply1: Slot x Slot -> Double+;
 factor: for Int t, Slot s1, Slot s2 if word(t,_) & s1 != s2 add[slot(t,s1) => slot(t,s2)] * w_imply1(s1,s2);
 
+weight w_imply1_word: Slot x Slot x Word -> Double+;
+factor:
+  for Int t, Slot s1, Slot s2, Word w
+  if word(t,w) & s1 != s2
+  add[slot(t,s1) => slot(t,s2)] * w_imply1_word(s1,s2,w);
+
+weight w_imply1_word_p1: Slot x Slot x Word -> Double+;
+factor:
+  for Int t, Slot s1, Slot s2, Word w
+  if word(t,_) & word(t+1,w) & s1 != s2
+  add[slot(t,s1) => slot(t,s2)] * w_imply1_word_p1(s1,s2,w);
+
+weight w_imply1_word_n1: Slot x Slot x Word -> Double+;
+factor:
+  for Int t, Slot s1, Slot s2, Word w
+  if word(t,_) & word(t-1,w) & s1 != s2
+  add[slot(t,s1) => slot(t,s2)] * w_imply1_word_n1(s1,s2,w);
+
+
 /*
 weight w_implyFROMLOC: Slot -> Double+;
 factor: for Int t, Slot s1 if word(t,_) & s1 != "FROMLOC" add[slot(t,"FROMLOC") => slot(t,s1)] * w_implyFROMLOC(s1);

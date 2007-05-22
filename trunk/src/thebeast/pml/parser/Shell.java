@@ -475,6 +475,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       }
     } else if ("scores".equals(parserPrint.name.head)) {
       out.println(scores);
+    } else if ("history".equals(parserPrint.name.head)) {
+      printHistory();
     } else if ("solver".equals(parserPrint.name.head)) {
       out.println(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("learner".equals(parserPrint.name.head)) {
@@ -1128,6 +1130,20 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public static interface PropertySetter {
     void set(ParserName name, ParserTerm term);
+  }
+
+  private void printHistory(){
+    Solution solution = new Solution(model, weights);
+    Evaluation evaluation = new Evaluation(model);
+    out.printf("%-10s%-10s%-10s\n", "Iter.", "F1", "Score");
+    for (int i = 0; i < 30; ++i) out.print("-");
+    out.println();
+    for (int i = 0; i < solver.getCandidateAtoms().size(); ++i){
+      solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));
+      FeatureVector vector = solution.extract();
+      evaluation.evaluate(gold, solution.getGroundAtoms());
+      out.printf("%-10d%-10.2f%-10.2f\n", i, evaluation.getF1(), weights.score(vector));
+    }
   }
 
 

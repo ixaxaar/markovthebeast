@@ -722,7 +722,7 @@ public class Weights implements HasProperties {
     double result = 0;
     result += score(vector.getLocal());
     result += score(vector.getTrueVector());
-    result -= score(vector.getFalseVector());
+    result += score(vector.getFalseVector());
     return result;  
   }
 

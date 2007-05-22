@@ -1,5 +1,7 @@
 package thebeast.util;
 
+import thebeast.pml.PropertyName;
+
 import java.util.*;
 
 /**
@@ -11,6 +13,15 @@ public class TreeProfiler implements Profiler {
 
   private ProfileNode root = new ProfileNode("root", null);
   private ProfileNode current = root;
+
+  public void setProperty(PropertyName name, Object value) {
+    if (name.getHead().equals("reset") && (Boolean)value)
+      root = new ProfileNode("root", null);
+  }
+
+  public Object getProperty(PropertyName name) {
+    return null;
+  }
 
   private class ProfileNode implements Comparable<ProfileNode> {
     int count;

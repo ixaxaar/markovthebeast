@@ -589,6 +589,9 @@ public class CuttingPlaneSolver implements Solver {
       setDeterministicFirst((Boolean) value);
     if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
+    if (name.getHead().equals("profiler"))
+      if (!name.isTerminal())
+        profiler.setProperty(name.getTail(), value);
   }
 
 
