@@ -1,8 +1,8 @@
 //include "corpora/bibserv/bibserv.types.pml";
 //include "corpora/bibserv/bibserv.predicates.pml";
 
-include "ilp-cp.types.pml";
-include "ilp-cp.predicates.pml";
+include "link.types.pml";
+include "link.predicates.pml";
 
 
 include "bibserv.factors.pml";
@@ -14,7 +14,7 @@ observed: venue, title, author,
   venueScore100, venueScore80, venueScore60, venueScore40, venueScore20, venueScore0;
 
 //load corpus from "corpora/bibserv/bibserv.150.1.crp";
-load corpus from "ilp-cp.atoms";
+load corpus from "link.atoms";
 
 save corpus to ram;
 
