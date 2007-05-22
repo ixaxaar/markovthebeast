@@ -175,6 +175,8 @@ public class CuttingPlaneSolver implements Solver {
     scoresSet = false;
     initSet = false;
     updated = false;
+//    ((ILPSolverLpSolve)((IntegerLinearProgram)propositionalModel).getSolver()).delete();
+//    propositionalModel = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
     //this.atoms.clear(model.getHiddenPredicates());
     this.atoms.clear(model.getHiddenPredicates());
     this.atoms.clear(model.getInstancePredicates());
@@ -307,10 +309,10 @@ public class CuttingPlaneSolver implements Solver {
     //System.out.print(formulas.size() + " -> ");
     //System.out.println(ilp.getNumRows());
     while (propositionalModel.changed() && iteration < maxIterations) {
-//      if (System.currentTimeMillis() - start > timeout){
-//        System.out.println("timeout");
-//        break;
-//      }
+      if (System.currentTimeMillis() - start > timeout){
+        System.out.println("timeout");
+        break;
+      }
       profiler.start("ilp.solve");
       //System.out.println("Solving...");
       propositionalModel.solve(atoms);

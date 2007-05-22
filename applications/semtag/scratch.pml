@@ -1,6 +1,6 @@
 include "model.pml";
 
-load corpus from "corpora/atis_2_3.train.data";
+load corpus from "corpora/train.data";
 save corpus (0-100) to ram;
 
 collect;

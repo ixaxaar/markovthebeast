@@ -463,7 +463,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         //for (int i = 0; i < clauseCount; ++i) System.out.println(clauses[i]);
       }
     }
-    System.out.println(bestScore);
+    //System.out.println(bestScore);
     ++calls;
     return best;
   }

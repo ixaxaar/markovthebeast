@@ -1,10 +1,16 @@
 package thebeast.nodmem.mem;
 
+import thebeast.nod.expression.Expression;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.lang.ref.WeakReference;
+import java.lang.ref.ReferenceQueue;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Sebastian Riedel
@@ -23,6 +29,15 @@ public final class MemChunk extends MemHolder {
   public int rowIndexedSoFar = 0;
 
   private static final double MAXLOADFACTOR = 3.0;
+
+  private static LinkedList<WeakReference<MemChunk>> references = new LinkedList<WeakReference<MemChunk>>();
+  private static ReferenceQueue<MemChunk> queue = new ReferenceQueue<MemChunk>();
+
+  public static List<WeakReference<MemChunk>> references(){
+    return references;
+  }
+
+
 
   //private static final int INCREMENTSCALE = 1;
 
@@ -138,12 +153,14 @@ public final class MemChunk extends MemHolder {
     this(size, capacity, dim.xInt, dim.xDouble, dim.xChunk);
     //rowIndex = new MemChunkIndex(capacity == 0 ? 1 : capacity, dim);
     allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //references.add(new WeakReference<MemChunk>(this, queue));
   }
 
   public MemChunk(MemDim dim) {
     this(1, 1, dim.xInt, dim.xDouble, dim.xChunk);
     //rowIndex = new MemChunkIndex(10, dim);
     //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //references.add(new WeakReference<MemChunk>(this, queue));
   }
 
 
@@ -158,6 +175,7 @@ public final class MemChunk extends MemHolder {
     this.chunkData = chunkData;
     //rowIndex = new MemChunkIndex(10, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //references.add(new WeakReference<MemChunk>(this, queue));
   }
 
   public MemChunk(int numRows, int capacity, int numIntCols, int numDoubleCols, int numChunkCols) {
@@ -172,6 +190,7 @@ public final class MemChunk extends MemHolder {
     chunkData = new MemChunk[capacity * numChunkCols];
     //rowIndex = new MemChunkIndex(capacity, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //references.add(new WeakReference<MemChunk>(this, queue));
   }
 
   public void increaseCapacity(int howMuch) {

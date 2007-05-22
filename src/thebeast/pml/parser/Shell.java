@@ -75,7 +75,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private FeatureCollector collector;
 
   private int defaultCorpusCacheSize = 20 * 1024 * 1024;
-  private int defaultTrainingCacheSize = 100 * 1024 * 1024;
+  private int defaultTrainingCacheSize = 10 * 1024 * 1024;
 
   private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
 
@@ -422,8 +422,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(filename(parserLoad.file)), 1024);
           weights.read(source);
           weightsUpdated = true;
-        }
-        else if (null == parserLoad.mode) {
+        } else if (null == parserLoad.mode) {
           weights.load(new FileInputStream(filename(parserLoad.file)));
         } else {
           throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
@@ -919,10 +918,30 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitComparison(ParserComparison parserComparison) {
-    parserComparison.lhs.acceptParserTermVisitor(this);
-    Term lhs = term;
-    parserComparison.rhs.acceptParserTermVisitor(this);
-    Term rhs = term;
+    Term lhs, rhs;
+    if (parserComparison.type == ParserComparison.Type.NEQ) {
+      if (parserComparison.lhs instanceof ParserNamedConstant) {
+        parserComparison.rhs.acceptParserTermVisitor(this);
+        rhs = term;
+        typeContext.push(rhs.getType());
+        parserComparison.lhs.acceptParserTermVisitor(this);
+        typeContext.pop();
+        lhs = term;
+      } else {
+        parserComparison.lhs.acceptParserTermVisitor(this);
+        lhs = term;
+        typeContext.push(lhs.getType());
+        parserComparison.rhs.acceptParserTermVisitor(this);
+        typeContext.pop();
+        rhs = term;
+
+      }
+    } else {
+      parserComparison.lhs.acceptParserTermVisitor(this);
+      lhs = term;
+      parserComparison.rhs.acceptParserTermVisitor(this);
+      rhs = term;
+    }
     switch (parserComparison.type) {
       case NEQ:
         formula = new PredicateAtom(signature.createNotEquals(Type.INT), lhs, rhs);

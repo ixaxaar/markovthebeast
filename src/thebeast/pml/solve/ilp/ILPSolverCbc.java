@@ -35,6 +35,7 @@ public class ILPSolverCbc implements ILPSolver {
     model = new CbcModel(solver);
     //model.setLogLevel(3);
     this.solver = model.referenceSolver();
+    model.setMaximumSeconds(10);
     //model.addCglProbing(true, 1, 5, 10, 1000, 50, 500, 200, 3);
     //model.addCglGomory(300);
     //model.addCglKnapsackCover();

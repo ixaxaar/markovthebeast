@@ -7,6 +7,8 @@ import thebeast.pml.*;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.util.*;
 
 import java.util.ArrayList;
@@ -206,7 +208,12 @@ public class OnlineLearner implements Learner, HasProperties {
 //          ((CuttingPlaneSolver)solver).printHistory(System.out);
         ++instanceNr;
 //        if (instanceNr % 100 == 99)
-//          System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
+//          System.out.println(instances.getUsedMemory());
+        //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
+        //((ILPSolverLpSolve)((IntegerLinearProgram)((CuttingPlaneSolver)solver).getPropositionalModel()).getSolver()).delete();
+//        solver = new CuttingPlaneSolver(new IntegerLinearProgram(model,weights, new ILPSolverLpSolve()));
+//        solver.configure(model,weights);
+
       }
       updateRule.endEpoch();
       progressReporter.finished();

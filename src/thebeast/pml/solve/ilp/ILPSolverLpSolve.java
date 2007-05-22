@@ -25,7 +25,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private boolean enforceInteger = false;
   private boolean verbose = false;
   private Profiler profiler = new NullProfiler();
-  private boolean writeLp = true;
+  private boolean writeLp = false;
   private long timeout = 1000;
   private int bbDepthLimit = 3;
 
@@ -41,6 +41,14 @@ public class ILPSolverLpSolve implements ILPSolver {
       solver.setVerbose(verbose ? 4 : 0);
     } catch (LpSolveException e) {
       e.printStackTrace();
+    }
+  }
+
+  public void delete(){
+    if (solver!=null) {
+
+      solver.deleteLp();
+      solver = null;
     }
   }
 

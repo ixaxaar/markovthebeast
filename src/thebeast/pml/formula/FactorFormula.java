@@ -162,4 +162,15 @@ public class FactorFormula {
     return (WeightFunction) ((FunctionApplication)weight).getFunction();
   }
 
+  /**
+   * Determines whether this factor formula uses a weight function or some static
+   * term (say some external scores)
+   * @return true iff this factor formula uses a weight function.
+   */
+  public boolean usesWeightFunction(){
+    return weight instanceof FunctionApplication &&
+            ((FunctionApplication)weight).getFunction() instanceof WeightFunction;
+  }
+
+
 }

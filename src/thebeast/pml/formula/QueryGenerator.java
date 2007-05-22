@@ -342,6 +342,7 @@ public class QueryGenerator {
 
 
   private void processWeightForLocal(ConjunctionProcessor.Context context, Term weight) {
+
     if (!(weight instanceof FunctionApplication))
       throw new RuntimeException("Weight term must be the application of a weight function but it's not even a " +
               "function application");
