@@ -1144,6 +1144,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       evaluation.evaluate(gold, solution.getGroundAtoms());
       out.printf("%-10d%-10.2f%-10.2f\n", i, evaluation.getF1(), weights.score(vector));
     }
+    solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
+    FeatureVector vector = solution.extract();
+    evaluation.evaluate(gold, solution.getGroundAtoms());
+    out.printf("%-10d%-10.2f%-10.2f\n", solver.getCandidateAtoms().size(), evaluation.getF1(), weights.score(vector));
   }
 
 

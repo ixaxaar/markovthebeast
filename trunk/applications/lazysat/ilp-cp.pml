@@ -25,6 +25,7 @@ next;
 
 set solver.profile = true;
 set solver.model.initIntegers = true;
+set solver.timeout =  
 solve;
 
 print history;

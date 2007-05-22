@@ -44,7 +44,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private int maxViolationsForNonDeterministic = 1;
   private boolean alternating = false;
-  private long timeout = 10000;
+  private long timeout = Long.MAX_VALUE; //10000;
 
   private boolean printHistory = false;
 
@@ -566,6 +566,15 @@ public class CuttingPlaneSolver implements Solver {
     this.alternating = alternating;
   }
 
+
+  public long getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(long timeout) {
+    this.timeout = timeout;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("model")) {
       if (name.isTerminal()) {
@@ -579,6 +588,8 @@ public class CuttingPlaneSolver implements Solver {
     }
     if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
+    if (name.getHead().equals("timeout"))
+      setTimeout((Integer) value);
     if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
     if (name.getHead().equals("groundAll"))
