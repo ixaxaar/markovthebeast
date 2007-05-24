@@ -98,6 +98,65 @@ public class QueryGenerator {
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
   }
 
+  public RelationExpression generateAuxiliaryQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
+    this.groundAtoms = groundAtoms;
+    this.weights = w;
+    builder = new FormulaBuilder(groundAtoms.getSignature());
+
+    PredicateAtom atom;
+    BooleanFormula both;
+    if (factorFormula.getFormula() instanceof Implication) {
+      Implication implication = (Implication) factorFormula.getFormula();
+      atom = (PredicateAtom) implication.getConclusion();
+
+      BooleanFormula condition = factorFormula.getCondition();
+      both = condition == null ?
+              implication.getPremise() : new Conjunction(implication.getPremise(), condition);
+    } else if (factorFormula.getFormula() instanceof PredicateAtom){
+      atom = (PredicateAtom) factorFormula.getFormula();
+      both = factorFormula.getCondition();
+    } else {
+      throw new RuntimeException(factorFormula + " is not a valid auxilary generator");
+    }
+    UserPredicate predicate = (UserPredicate) atom.getPredicate();
+    DNF dnf = DNFGenerator.generateDNF(both);
+    conjunctions = new LinkedList<ConjunctionProcessor.Context>();
+    ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
+
+
+    for (List<SignedAtom> conjunction : dnf.getConjunctions()) {
+
+      //create conjunction context
+      final ConjunctionProcessor.Context context = new ConjunctionProcessor.Context();
+      conjunctions.add(context);
+
+//      //we process the weights
+//      processWeightForGlobal(context, factorFormula.getWeight());
+
+      //process the condition conjunction
+      conjunctionProcessor.processConjunction(context, conjunction);
+
+      //now add the auxilary atom argument terms to the select statement
+      for (int i = 0; i < predicate.getArity(); ++i) {
+        Term term = termResolver.resolve(atom.getArguments().get(i),context.var2term);
+        Expression expression = exprGenerator.convertTerm(term,
+                groundAtoms, weights, context.var2expr, context.var2term);
+
+        context.selectBuilder.id(predicate.getColumnName(i)).expr(expression);
+      }
+      context.selectBuilder.tupleForIds();
+    }
+
+    //if there is just one conjunction we don't need a union.
+    LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
+    for (ConjunctionProcessor.Context context : conjunctions) {
+      BoolExpression where = factory.createAnd(context.conditions);
+      rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
+    }
+    return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
+  }
+
+
   public RelationExpression generateGlobalFalseQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
     this.groundAtoms = groundAtoms;
     this.weights = w;
@@ -175,7 +234,7 @@ public class QueryGenerator {
             context.selectBuilder.expr(allConstants).from(prefix);
             context.prefixes.add(prefix);
             context.relations.add(allConstants);
-            context.selectBuilder.id("var" + index++).categoricalAttribute(prefix,"value");
+            context.selectBuilder.id("var" + index++).categoricalAttribute(prefix, "value");
           }
         else {
           Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
@@ -1037,7 +1096,7 @@ public class QueryGenerator {
     }
     builder.relation(size, false);
     builder.tuple(3);
-    builder.relation(1,false);
+    builder.relation(1, false);
     LinkedList<IntVariable> all = new LinkedList<IntVariable>();
     for (IntVariable v : variables) all.add(v);
     return factory.createOperator("constraints", all, builder.getRelation());

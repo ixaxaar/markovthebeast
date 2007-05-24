@@ -40,8 +40,8 @@ public class FactorFormula {
   }
 
   public FactorFormula(Quantification quantification, BooleanFormula condition,
-                       BooleanFormula formula, Term weight){
-    this("formula",quantification, condition, formula, weight);
+                       BooleanFormula formula, Term weight) {
+    this("formula", quantification, condition, formula, weight);
   }
 
   public FactorFormula(String name, Quantification quantification, BooleanFormula condition,
@@ -57,7 +57,7 @@ public class FactorFormula {
 
     LinkedList<Attribute> varAttributes = new LinkedList<Attribute>();
     int index = 0;
-    for (Variable var : quantification.getVariables()){
+    for (Variable var : quantification.getVariables()) {
       varAttributes.add(factory.createAttribute("var" + index++, var.getType().getNodType()));
     }
 
@@ -71,13 +71,13 @@ public class FactorFormula {
 
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
 
-    toString = (quantification.getVariables().size() > 0  ? "FOR " + quantification : "")
-            + (condition != null ? " IF " + condition + " ": "") +
+    toString = (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
+            + (condition != null ? " IF " + condition + " " : "") +
             (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 
   }
 
-  public boolean isLocal(){
+  public boolean isLocal() {
     return formula instanceof PredicateAtom;
   }
 
@@ -87,7 +87,7 @@ public class FactorFormula {
     return constant.getValue() == Double.POSITIVE_INFINITY || constant.getValue() == Double.NEGATIVE_INFINITY;
   }
 
-  public boolean isAcyclicityConstraint(){
+  public boolean isAcyclicityConstraint() {
     return formula instanceof AcyclicityConstraint;
   }
 
@@ -95,11 +95,11 @@ public class FactorFormula {
     return quantification;
   }
 
-  public UserPredicate getLocalPredicate(){
-    return (UserPredicate) ((PredicateAtom)formula).getPredicate();
+  public UserPredicate getLocalPredicate() {
+    return (UserPredicate) ((PredicateAtom) formula).getPredicate();
   }
 
-  public AcyclicityConstraint getAcyclicityConstraint(){
+  public AcyclicityConstraint getAcyclicityConstraint() {
     return (AcyclicityConstraint) formula;
   }
 
@@ -115,12 +115,12 @@ public class FactorFormula {
     return weight;
   }
 
-  public String toString(){
+  public String toString() {
     return toString;
   }
 
-  public String toShortString(){
-    return toString.length() > 30 ? toString.substring(toString.length()-30) : toString;
+  public String toShortString() {
+    return toString.length() > 30 ? toString.substring(toString.length() - 30) : toString;
   }
 
   public Heading getSolutionHeading() {
@@ -138,15 +138,17 @@ public class FactorFormula {
 
   /**
    * Returns true iff this formula has a weight function.
+   *
    * @return true iff this formula has a weight function.
    */
   public boolean isParametrized() {
     return weight instanceof FunctionApplication &&
-            ((FunctionApplication)weight).getFunction() instanceof WeightFunction;
+            ((FunctionApplication) weight).getFunction() instanceof WeightFunction;
   }
 
   /**
    * returs the name of this formula
+   *
    * @return the name of this formula or null if it's an anonymous formula.
    */
   public String getName() {
@@ -156,20 +158,33 @@ public class FactorFormula {
   /**
    * Return the weight function for this factors weight term in case it's a parametrized
    * factor with a function application weight term.
+   *
    * @return the weight function of the weight term (if this is a parametrized factor).
    */
-  public WeightFunction getWeightFunction(){
-    return (WeightFunction) ((FunctionApplication)weight).getFunction();
+  public WeightFunction getWeightFunction() {
+    return (WeightFunction) ((FunctionApplication) weight).getFunction();
+  }
+
+  /**
+   * If this a generator formula for auxilaries this method returns the target user predicate
+   * this formula generates ground atoms for.
+   *
+   * @return the user predicate this generator generate ground atoms for.
+   */
+  public UserPredicate getGeneratorTarget() {
+    Implication implication = (Implication) formula;
+    return (UserPredicate) ((PredicateAtom)implication.getConclusion()).getPredicate();
   }
 
   /**
    * Determines whether this factor formula uses a weight function or some static
    * term (say some external scores)
+   *
    * @return true iff this factor formula uses a weight function.
    */
-  public boolean usesWeightFunction(){
+  public boolean usesWeightFunction() {
     return weight instanceof FunctionApplication &&
-            ((FunctionApplication)weight).getFunction() instanceof WeightFunction;
+            ((FunctionApplication) weight).getFunction() instanceof WeightFunction;
   }
 
 

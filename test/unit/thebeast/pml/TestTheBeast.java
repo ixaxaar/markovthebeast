@@ -258,6 +258,57 @@ public class TestTheBeast extends TestCase {
     System.out.println(corpus.get(1));
   }
 
+
+  public void testLoadAuxiliaryCorpora() {
+
+    String corpusTxt = "" +
+            ">>\n" +
+            ">token\n" +
+            "0 the DT\n" +
+            "1 man NN\n" +
+            "2 \"likes\" VBZ\n" +
+            "3 the DT\n" +
+            "4 boat NN\n" +
+            ">phrase\n" +
+            "0 1 NP\n" +
+            ">>\n" +
+            ">token\n" +
+            "0 the DT\n" +
+            "1 man NN\n" +
+            "2 \"likes\" VBZ\n" +
+            "3 the DT\n" +
+            "4 boat NN\n" +
+            ">phrase\n" +
+            "0 1 NP\n" +
+            "2 4 VP\n";
+
+    UserPredicate twoPhrases = signature.createPredicate("twoPhrases", "Int", "Int", "Int", "Label", "Label");
+    model.addAuxilaryPredicate(twoPhrases);
+
+    builder.var("Int","b").var("Int","m").var("Int","e").var("Label","p1").var("Label","p2").quantify();
+    builder.var("b").var("m").term(1).minus().var("p1").atom("phrase");
+    builder.var("m").var("e").var("p2").atom("phrase").and(2);
+    builder.var("b").var("m").var("e").var("p1").var("p2").atom("twoPhrases").implies().formula();
+    builder.term(Double.POSITIVE_INFINITY).weight();
+
+    FactorFormula generator = builder.produceFactorFormula("generator");
+    model.addFactorFormula(generator);
+
+    ByteArrayCorpus bytes = new ByteArrayCorpus(signature, corpusTxt.getBytes());
+    AugmentedCorpus augmented = new AugmentedCorpus(model, bytes);
+    SequentialAccessCorpus corpus = new SequentialAccessCorpus(augmented);
+    assertEquals(2, corpus.size());
+    assertEquals(1, corpus.get(0).getGroundAtomsOf(phrase).size());
+    assertEquals(5, corpus.get(0).getGroundAtomsOf(token).size());
+    assertEquals(2, corpus.get(1).getGroundAtomsOf(phrase).size());
+    assertEquals(5, corpus.get(1).getGroundAtomsOf(token).size());
+    GroundAtomCollection twoPhrasesAtoms = corpus.get(1).getGroundAtomsOf(twoPhrases);
+    assertEquals(1, twoPhrasesAtoms.size());
+    assertTrue(twoPhrasesAtoms.containsAtom(0,2,4,"NP","VP"));
+    System.out.println(corpus.get(0));
+    System.out.println(corpus.get(1));
+  }
+
   public void testLoadCoNLL() {
 
     String corpusTxt = "" +
@@ -359,10 +410,10 @@ public class TestTheBeast extends TestCase {
     assertEquals(2, weights.getFeatureCount());
   }
 
-  public void testWeightFunctionZeroArity(){
+  public void testWeightFunctionZeroArity() {
     WeightFunction function = signature.createWeightFunction("w");
     Weights weights = signature.createWeights();
-    weights.addWeight(function,1.5);
+    weights.addWeight(function, 1.5);
     assertEquals(1.5, weights.getWeight(function));
   }
 

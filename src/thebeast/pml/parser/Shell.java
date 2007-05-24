@@ -359,6 +359,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         case GLOBAL:
           model.addGlobalPredicate(predicate);
           break;
+        case AUXILIARY:
+          model.addAuxilaryPredicate(predicate);
+          break;
       }
     }
     if (printModelChanges) out.println(" added to the model.");
@@ -577,6 +580,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     } else {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
       corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
+      corpus = new AugmentedCorpus(model,corpus);
       if (parserLoadCorpus.from != -1) {
         Iterator<GroundAtoms> instance = corpus.iterator();
         corpus = new RandomAccessCorpus(signature, parserLoadCorpus.to - parserLoadCorpus.from);

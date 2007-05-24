@@ -1,3 +1,17 @@
+class Runtime {
+  - Corpus (for training and testing)
+  - RamCorpus (for inspection)
+  - Learner
+  - Solver
+  - Feature Collector
+  - Current
+    - index in ram corpus
+    - gold atoms
+    - guess atoms
+
+}
+
+
 chunk features (pos):
 
  |WORD| (word is not rare)

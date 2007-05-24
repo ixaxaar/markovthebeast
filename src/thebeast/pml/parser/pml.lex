@@ -31,6 +31,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "index" { return symbol(sym.INDEX); }
 <YYINITIAL> "..." { return symbol(sym.ELLIPSIS); }
 <YYINITIAL> "hidden" { return symbol(sym.HIDDEN); }
+<YYINITIAL> "auxiliary" { return symbol(sym.AUXILIARY); }
 <YYINITIAL> "acyclic" { return symbol(sym.ACYCLIC); }
 <YYINITIAL> "factor" { return symbol(sym.FACTOR); }
 <YYINITIAL> "bins" { return symbol(sym.BINS); }

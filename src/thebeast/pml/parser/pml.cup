@@ -18,7 +18,7 @@ terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GO
 terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
 terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST, INDEX, GLOBAL, ESCAPEQUOTE;
 terminal String LOWERCASEID, UPPERCASEID;
-terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED;
+terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED, AUXILIARY;
 terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
 terminal PLUS, MINUS, TIMES;
 terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER, GEQ, GEQCLOSURE, LEQ;
@@ -101,6 +101,8 @@ statement ::= createType:s
               {: RESULT = new ParserImport(s.substring(1,s.length()-1)); :}
             | HIDDEN COLON lowercasecommalist:a
               {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.HIDDEN,a); :}
+            | AUXILIARY COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.AUXILIARY,a); :}
             | GLOBAL COLON lowercasecommalist:a
               {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.GLOBAL,a); :}
             | OBSERVED COLON lowercasecommalist:a
