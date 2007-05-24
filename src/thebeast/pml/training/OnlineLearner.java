@@ -255,7 +255,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //use the feature vector and weight to score ground atoms
     profiler.start("score");
     //scores.score(features, this.weights);
-    scores.scoreWithGroups(features);
+    scores.scoreWithGroups(features, data.getData());
     if (penalizeGold)
       scores.penalize(goldAtoms);
     profiler.end();

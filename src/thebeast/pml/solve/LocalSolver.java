@@ -90,7 +90,7 @@ public class LocalSolver implements Solver {
     extractor.extract(atoms, features);
     profiler.end();
     profiler.start("score");
-    scores.score(features, weights);
+    scores.score(features, atoms);
     profiler.end();
     scoresSet = true;
     profiler.end();

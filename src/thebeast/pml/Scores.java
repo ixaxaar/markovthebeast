@@ -12,6 +12,10 @@ import thebeast.nod.type.Attribute;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.variable.IntVariable;
+import thebeast.pml.formula.FactorFormula;
+import thebeast.pml.formula.QueryGenerator;
+import thebeast.util.HashMultiMap;
 
 import java.io.*;
 import java.util.HashMap;
@@ -29,6 +33,14 @@ public class Scores {
   private Signature signature;
 
   private HashMap<UserPredicate, RelationVariable>
+          directScoreTables = new HashMap<UserPredicate, RelationVariable>();
+
+  private HashMultiMap<UserPredicate, RelationExpression>
+          directScoreQueries = new HashMultiMap<UserPredicate, RelationExpression>();
+
+  private IntVariable directScoreIndex;
+
+  private HashMap<UserPredicate, RelationVariable>
           atomScores = new HashMap<UserPredicate, RelationVariable>();
 
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
@@ -39,12 +51,14 @@ public class Scores {
           queries = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
           sums = new HashMap<UserPredicate, RelationExpression>();
+  private HashMap<UserPredicate, RelationExpression>
+          directScoreSums = new HashMap<UserPredicate, RelationExpression>();
 
   private HashMap<UserPredicate, RelationUpdate>
           penalizeCorrects = new HashMap<UserPredicate, RelationUpdate>(),
           encourageInCorrects = new HashMap<UserPredicate, RelationUpdate>();
 
-  private GroundAtoms gold, closure;
+  private GroundAtoms gold, closure, localAtoms;
 
   public Scores(Model model, Weights weights) {
     this.model = model;
@@ -52,9 +66,14 @@ public class Scores {
     this.signature = model.getSignature();
     localFeatures = new LocalFeatures(model, weights);
     gold = signature.createGroundAtoms();
+    localAtoms = signature.createGroundAtoms();
     closure = signature.createGroundAtoms();
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    directScoreIndex = interpreter.createIntVariable(builder.num(weights.getFeatureCount()).getInt());
     for (UserPredicate predicate : model.getHiddenPredicates()) {
+
+      RelationVariable directScoreTable = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
+      directScoreTables.put(predicate, directScoreTable);
       RelationVariable scores = interpreter.createRelationVariable(predicate.getHeadingForScore());
       atomScores.put(predicate, scores);
       interpreter.addIndex(scores, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
@@ -66,17 +85,27 @@ public class Scores {
       builder.summarizeAs("score", Summarize.Spec.DOUBLE_SUM).summarize();
       queries.put(predicate, builder.getRelation());
 
+      //for direct scores
+      builder.expr(directScoreTable);
+      for (int i = 0; i < predicate.getArgumentTypes().size(); ++i) {
+        builder.by(predicate.getColumnName(i));
+      }
+      builder.doubleAttribute("score");
+      builder.summarizeAs("score", Summarize.Spec.DOUBLE_SUM).summarize();
+      directScoreSums.put(predicate, builder.getRelation());
+
+      //for grouped features
       builder.expr(localFeatures.getGroupedRelation(predicate)).from("features");
-      for (Attribute attribute : predicate.getHeading().attributes()){
-        builder.id(attribute.name()).attribute("features",attribute);
+      for (Attribute attribute : predicate.getHeading().attributes()) {
+        builder.id(attribute.name()).attribute("features", attribute);
       }
       builder.id("score");
       builder.expr(weights.getWeights());
-      builder.attribute("features",UserPredicate.getFeatureIndicesAttribute());
+      builder.attribute("features", UserPredicate.getFeatureIndicesAttribute());
       builder.indexedSum("index");
       builder.tuple(predicate.getArity() + 1);
       builder.select().query();
-      sums.put(predicate,builder.getRelation());
+      sums.put(predicate, builder.getRelation());
 
       //for add losses
       builder.expr(gold.getGroundAtomsOf(predicate).getRelationVariable());
@@ -88,14 +117,20 @@ public class Scores {
       StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
       DoubleExpression minus1 = builder.doubleAttribute("score").num(-1.0).doubleAdd().getDouble();
       AttributeAssign substract = statementFactory.createAttributeAssign("score", minus1);
-      RelationUpdate penalize = statementFactory.createRelationUpdate(scores,whereGold,substract);
-      penalizeCorrects.put(predicate,penalize);
+      RelationUpdate penalize = statementFactory.createRelationUpdate(scores, whereGold, substract);
+      penalizeCorrects.put(predicate, penalize);
 
       BoolExpression whereNotGold = builder.expr(whereGold).not().getBool();
       DoubleExpression plus1 = builder.doubleAttribute("score").num(1.0).doubleAdd().getDouble();
       AttributeAssign add = statementFactory.createAttributeAssign("score", plus1);
-      RelationUpdate encourage = statementFactory.createRelationUpdate(scores, whereNotGold,add);
-      encourageInCorrects.put(predicate,encourage);
+      RelationUpdate encourage = statementFactory.createRelationUpdate(scores, whereNotGold, add);
+      encourageInCorrects.put(predicate, encourage);
+    }
+
+    QueryGenerator generator = new QueryGenerator();
+    for (FactorFormula formula : model.getDirectScoreFormulas()) {
+      RelationExpression expr = generator.generateDirectLocalScoreQuery(formula, directScoreIndex, localAtoms, weights);
+      directScoreQueries.add(formula.getLocalPredicate(), expr);
     }
   }
 
@@ -233,18 +268,39 @@ public class Scores {
   }
 
 
-  public void score(LocalFeatures features, Weights weight) {
+  public void score(LocalFeatures features, GroundAtoms observation) {
     localFeatures.load(features);
+    interpreter.assign(directScoreIndex, this.weights.getFeatureCounter());
+    localAtoms.load(observation);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      interpreter.assign(atomScores.get(predicate), queries.get(predicate));
+      if (directScoreQueries.containsKey(predicate)) {
+        RelationVariable indexAndScore = directScoreTables.get(predicate);
+        interpreter.clear(indexAndScore);
+        for (RelationExpression query : directScoreQueries.get(predicate)) {
+          interpreter.insert(indexAndScore, query);
+        }
+        interpreter.assign(atomScores.get(predicate), directScoreSums.get(predicate));
+      } else {
+        interpreter.assign(atomScores.get(predicate), queries.get(predicate));
+      }
     }
     closure.load(localFeatures.getClosure());
   }
 
-  public void scoreWithGroups(LocalFeatures features) {
+  public void scoreWithGroups(LocalFeatures features, GroundAtoms observation) {
     localFeatures.load(features);
+    localAtoms.load(observation);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      interpreter.assign(atomScores.get(predicate), sums.get(predicate));
+      if (directScoreQueries.containsKey(predicate)) {
+        RelationVariable indexAndScore = directScoreTables.get(predicate);
+        interpreter.clear(indexAndScore);
+        for (RelationExpression query : directScoreQueries.get(predicate)) {
+          interpreter.insert(indexAndScore, query);
+        }
+        interpreter.assign(atomScores.get(predicate), directScoreSums.get(predicate));
+      } else {
+        interpreter.assign(atomScores.get(predicate), sums.get(predicate));
+      }
     }
     closure.load(features.getClosure());
   }
@@ -259,17 +315,16 @@ public class Scores {
     }
   }
 
-  public void penalize(GroundAtoms gold){
+  public void penalize(GroundAtoms gold) {
     this.gold.load(gold, model.getHiddenPredicates());
     //add 1 to each wrong ground atom, add -1 to each corrent one.
-    for (RelationUpdate update : penalizeCorrects.values()){
+    for (RelationUpdate update : penalizeCorrects.values()) {
       interpreter.interpret(update);
     }
-    for (RelationUpdate update : encourageInCorrects.values()){
+    for (RelationUpdate update : encourageInCorrects.values()) {
       interpreter.interpret(update);
     }
   }
-
 
 
 }

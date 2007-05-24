@@ -144,20 +144,20 @@ public class GroundFormulas {
         if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
-          if (formula.isParametrized()) {
+          if (formula.usesWeights()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         } else if (formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
-          if (formula.isParametrized()) {
+          if (formula.usesWeights()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         }
         try {
           RelationExpression query = generator.generateGlobalAllQuery(formula, groundAtoms, this.weights);
           allQueries.put(formula, query);
-          if (formula.isParametrized()) {
+          if (formula.usesWeights()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
         } catch (RuntimeException e) {

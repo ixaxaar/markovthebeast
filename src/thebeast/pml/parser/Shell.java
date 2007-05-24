@@ -763,7 +763,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void updateScores() {
     if (!scoresAvailable) {
       updateFeatures();
-      scores.score(features, weights);
+      scores.score(features, guess);
       scoresAvailable = true;
     }
   }

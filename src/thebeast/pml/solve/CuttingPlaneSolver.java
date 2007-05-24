@@ -501,7 +501,7 @@ public class CuttingPlaneSolver implements Solver {
     extractor.extract(atoms, features);
     profiler.end();
     profiler.start("score");
-    scores.score(features, weights);
+    scores.score(features, atoms);
     profiler.end();
     profiler.start("ilp.init");
     propositionalModel.init(scores);
