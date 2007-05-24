@@ -399,6 +399,69 @@ public class QueryGenerator {
 
   }
 
+  public RelationExpression generateDirectLocalScoreQuery(FactorFormula factorFormula,
+                                                          IntVariable index,
+                                                          GroundAtoms observation,
+                                                          Weights w) {
+    if (!factorFormula.isLocal()) throw new IllegalArgumentException("Factor formula must be local for " +
+            "generating a local feature query");
+
+    this.groundAtoms = observation;
+    this.weights = w;
+
+    builder = new FormulaBuilder(observation.getSignature());
+
+    conjunctions = new LinkedList<ConjunctionProcessor.Context>();
+
+    if (factorFormula.getCondition() != null) {
+      DNF dnf = dnfGenerator.convertToDNF(factorFormula.getCondition());
+
+      ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
+
+      for (List<SignedAtom> conjunction : dnf.getConjunctions()) {
+        //create conjunction context
+        ConjunctionProcessor.Context context = new ConjunctionProcessor.Context();
+        conjunctions.add(context);
+        //process the condition conjunction
+        conjunctionProcessor.processConjunction(context, conjunction);
+        //processConjunction(conjunctionContext, conjunction);
+        //process the single hidden atom
+        processHiddenAtom(context, (Atom) factorFormula.getFormula());
+        //now process the score term
+        Term term = termResolver.resolve(factorFormula.getWeight(), context.var2term);
+        Expression expr = exprGenerator.convertTerm(term,groundAtoms, weights,context.var2expr, context.var2term);
+        context.selectBuilder.id("score").expr(expr);
+        context.selectBuilder.id("index").expr(index).intPostInc();
+        //make a tuple using all added columns
+        context.selectBuilder.tuple();
+      }
+    } else {
+      ConjunctionProcessor.Context context = new ConjunctionProcessor.Context();
+      conjunctions.add(context);
+      processHiddenAtom(context, (Atom) factorFormula.getFormula());
+      //now process the weight part.
+      //now process the score term
+      Term term = termResolver.resolve(factorFormula.getWeight(), context.var2term);
+      Expression expr = exprGenerator.convertTerm(term,groundAtoms, weights,context.var2expr, context.var2term);
+      context.selectBuilder.id("score").expr(expr);
+      context.selectBuilder.id("index").expr(index).intPostInc();
+      //make a tuple using all added columns
+      context.selectBuilder.tuple();
+    }
+
+    //if there is just one conjunction we don't need a union.
+    LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
+    if (conjunctions.size() == 1) {
+      ConjunctionProcessor.Context context = conjunctions.get(0);
+      BoolExpression where = factory.createAnd(context.conditions);
+      rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
+    }
+    return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
+
+
+  }
+
+
 
   private void processWeightForLocal(ConjunctionProcessor.Context context, Term weight) {
 
@@ -420,6 +483,7 @@ public class QueryGenerator {
     context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
     //context.selectBuilder.id("score").doubleValue(0.0);
   }
+
 
   private void processRemainingUnresolved(ConjunctionProcessor.Context context) {
     for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
@@ -635,7 +699,7 @@ public class QueryGenerator {
     final ExpressionBuilder constraintBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
     constraintBuilder.expr(this.groundFormulas.getNewGroundFormulas(this.formula)).from("formulas");
-    if (formula.isParametrized()) {
+    if (formula.usesWeights()) {
       double eps = 1E-10;
       constraintBuilder.expr(weights.getWeights()).intAttribute("formulas", "index").doubleArrayElement();
       constraintBuilder.num(eps).doubleLessThan();

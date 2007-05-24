@@ -69,7 +69,7 @@ public class Solution {
       localSummarizer.put(factorFormula, builder.getRelation());
     }
     for (FactorFormula factorFormula : model.getGlobalFactorFormulas()) {
-      if (factorFormula.isParametrized()) {
+      if (factorFormula.usesWeights()) {
         if (factorFormula.getWeight().isNonNegative()) {
           builder.expr(groundFormulas.getFalseGroundFormulas(factorFormula));
           builder.by("index").num(-1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
@@ -162,7 +162,7 @@ public class Solution {
     profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
-      if (formula.isParametrized()) {
+      if (formula.usesWeights()) {
         if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         else
@@ -224,7 +224,7 @@ public class Solution {
     profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       SparseVector tmp = new SparseVector();
-      if (formula.isParametrized()) {
+      if (formula.usesWeights()) {
         if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         else

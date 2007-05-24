@@ -18,7 +18,6 @@ import thebeast.pml.function.WeightFunction;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -75,7 +74,7 @@ public class FeatureCollector implements HasProperties {
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
     for (FactorFormula factor : model.getFactorFormulas())
-      if (factor.isParametrized()) {
+      if (factor.usesWeights()) {
         RelationExpression query = generator.generateCollectorQuery(factor, atoms, weights);
         inserts.put(factor, statementFactory.createInsert(weights.getRelation(factor.getWeightFunction()), query));
         updateIndices.put(factor, factory.createAttributeAssign("index", builder.expr(counter).intPostInc().getInt()));
@@ -109,7 +108,7 @@ public class FeatureCollector implements HasProperties {
 
     progressReporter.started("Instantiating Features");
     for (FactorFormula factor : model.getFactorFormulas())
-      if (factor.isParametrized()) {
+      if (factor.usesWeights()) {
         WeightFunction function = factor.getWeightFunction();
         if (function.getArity() == 0){
           weights.addWeight(function,0.0);  

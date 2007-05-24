@@ -671,7 +671,7 @@ public class IntegerLinearProgram implements PropositionalModel {
       }
     }
     for (Map.Entry<FactorFormula, RelationVariable> entry : groundFormula2index.entrySet()) {
-      if (entry.getKey().isParametrized()) {
+      if (entry.getKey().usesWeights()) {
         //builder.expr(scores.getWeights().getRelation(entry.getKey().getWeightFunction())).from;
         builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
         RelationValue result = interpreter.evaluateRelation(builder.getRelation());

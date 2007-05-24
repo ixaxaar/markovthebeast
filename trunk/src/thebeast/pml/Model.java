@@ -28,6 +28,7 @@ public class Model {
           deterministicFormulas = new LinkedList<FactorFormula>(),
           factorFormulas = new LinkedList<FactorFormula>(),
           localFactorFormulas = new LinkedList<FactorFormula>(),
+          directScoreFormulas = new LinkedList<FactorFormula>(),
           globalFactorFormulas = new LinkedList<FactorFormula>();
 
   private GroundAtoms globalAtoms;
@@ -139,7 +140,7 @@ public class Model {
     name2formula.put(factorFormula.getName(), factorFormula);
     if (factorFormula.isLocal()) {
       localFactorFormulas.add(factorFormula);
-      if (factorFormula.isParametrized()) {
+      if (factorFormula.usesWeights()) {
         WeightFunction function = factorFormula.getWeightFunction();
         if (factorFormula.getWeight().isNonNegative())
           nnLocalWeightFunctions.add(function);
@@ -147,6 +148,8 @@ public class Model {
           npLocalWeightFunctions.add(function);
         else
           localWeightFunctions.add(function);
+      } else {
+        directScoreFormulas.add(factorFormula);
       }
     } else {
       globalFactorFormulas.add(factorFormula);
@@ -278,7 +281,18 @@ public class Model {
     return instance;
   }
 
-  public LinkedList<UserPredicate> getAuxiliaryPredicates() {
+  public List<UserPredicate> getAuxiliaryPredicates() {
     return auxiliary;
+  }
+
+  /**
+   * Returns the list of (local) factors that directly generate scores
+   * without using weights.
+   *
+   * @return the list of (local) factors that directly generate scores
+   *         without using weights.
+   */
+  public List<FactorFormula> getDirectScoreFormulas() {
+    return directScoreFormulas;
   }
 }

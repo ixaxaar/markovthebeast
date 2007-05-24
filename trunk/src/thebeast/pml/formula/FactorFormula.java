@@ -13,7 +13,6 @@ import thebeast.pml.term.Variable;
 import thebeast.pml.term.FunctionApplication;
 
 import java.util.LinkedList;
-import java.math.BigInteger;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 16:19:29
@@ -61,7 +60,7 @@ public class FactorFormula {
       varAttributes.add(factory.createAttribute("var" + index++, var.getType().getNodType()));
     }
 
-    if (isParametrized()) varAttributes.add(indexAttribute);
+    if (usesWeights()) varAttributes.add(indexAttribute);
     //varAttributes.add(weightAttribute);
 
     headingSolution = factory.createHeadingFromAttributes(varAttributes);
@@ -137,11 +136,12 @@ public class FactorFormula {
 
 
   /**
-   * Returns true iff this formula has a weight function.
+   * Determines whether this factor formula uses a weight function or some static
+   * term (say some external scores)
    *
-   * @return true iff this formula has a weight function.
+   * @return true iff this factor formula uses a weight function.
    */
-  public boolean isParametrized() {
+  public boolean usesWeights() {
     return weight instanceof FunctionApplication &&
             ((FunctionApplication) weight).getFunction() instanceof WeightFunction;
   }
@@ -173,18 +173,7 @@ public class FactorFormula {
    */
   public UserPredicate getGeneratorTarget() {
     Implication implication = (Implication) formula;
-    return (UserPredicate) ((PredicateAtom)implication.getConclusion()).getPredicate();
-  }
-
-  /**
-   * Determines whether this factor formula uses a weight function or some static
-   * term (say some external scores)
-   *
-   * @return true iff this factor formula uses a weight function.
-   */
-  public boolean usesWeightFunction() {
-    return weight instanceof FunctionApplication &&
-            ((FunctionApplication) weight).getFunction() instanceof WeightFunction;
+    return (UserPredicate) ((PredicateAtom) implication.getConclusion()).getPredicate();
   }
 
 

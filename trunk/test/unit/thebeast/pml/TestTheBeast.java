@@ -131,7 +131,7 @@ public class TestTheBeast extends TestCase {
     extractor.extract(theManLikesTheBoat, features);
 
     scores = new Scores(model, weights);
-    scores.score(features, weights);
+    scores.score(features, theManLikesTheBoat);
 
     interpreter = TheBeast.getInstance().getNodServer().interpreter();
   }
@@ -285,7 +285,7 @@ public class TestTheBeast extends TestCase {
     UserPredicate twoPhrases = signature.createPredicate("twoPhrases", "Int", "Int", "Int", "Label", "Label");
     model.addAuxilaryPredicate(twoPhrases);
 
-    builder.var("Int","b").var("Int","m").var("Int","e").var("Label","p1").var("Label","p2").quantify();
+    builder.var("Int", "b").var("Int", "m").var("Int", "e").var("Label", "p1").var("Label", "p2").quantify();
     builder.var("b").var("m").term(1).minus().var("p1").atom("phrase");
     builder.var("m").var("e").var("p2").atom("phrase").and(2);
     builder.var("b").var("m").var("e").var("p1").var("p2").atom("twoPhrases").implies().formula();
@@ -304,7 +304,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(5, corpus.get(1).getGroundAtomsOf(token).size());
     GroundAtomCollection twoPhrasesAtoms = corpus.get(1).getGroundAtomsOf(twoPhrases);
     assertEquals(1, twoPhrasesAtoms.size());
-    assertTrue(twoPhrasesAtoms.containsAtom(0,2,4,"NP","VP"));
+    assertTrue(twoPhrasesAtoms.containsAtom(0, 2, 4, "NP", "VP"));
     System.out.println(corpus.get(0));
     System.out.println(corpus.get(1));
   }
@@ -712,13 +712,14 @@ public class TestTheBeast extends TestCase {
 
   }
 
+
   public void testScores() {
     LocalFeatures features = new LocalFeatures(model, weights);
     LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
     extractor.extract(theManLikesTheBoat, features);
     System.out.println(features.getRelation(phrase).value().size());
     Scores scores = new Scores(model, weights);
-    scores.score(features, weights);
+    scores.score(features, theManLikesTheBoat);
     RelationVariable var = scores.getScoreRelation(phrase);
     System.out.println(var.value());
     assertEquals(19, var.value().size());
@@ -727,7 +728,7 @@ public class TestTheBeast extends TestCase {
 
     //features.invalidate();
     Scores byGrouping = new Scores(model, weights);
-    byGrouping.scoreWithGroups(features);
+    byGrouping.scoreWithGroups(features, theManLikesTheBoat);
     System.out.println(byGrouping);
     assertEquals(19, byGrouping.getScoreRelation(phrase).value().size());
     assertEquals(7.0, byGrouping.getScore(phrase, 0, 0, "NP"));
@@ -748,12 +749,52 @@ public class TestTheBeast extends TestCase {
 
   }
 
+  public void testDirectScores() throws IOException {
+    UserPredicate directScore = signature.createPredicate("directScore","Int","Int","Label","Double");
+    model.addObservedPredicate(directScore);
+
+    GroundAtoms groundAtoms = signature.createGroundAtoms();
+    groundAtoms.load("" +
+            ">token\n" +
+            "0 the DT\n" +
+            "1 man NN\n" +
+            "2 \"likes\" VBZ\n" +
+            "3 the DT\n" +
+            "4 boat NN\n" +
+            ">directScore\n" +
+            "0 1 NP 0.7\n" +
+            "2 4 VP 0.2\n");
+
+    builder.var("Int","b").var("Int","e").var("Label","l").var("Double","score").quantify();
+    builder.var("b").var("e").var("l").var("score").atom(directScore).condition();
+    builder.var("b").var("e").var("l").atom(phrase).formula();
+    builder.var("score").weight();
+    FactorFormula directScoreFormula = builder.produceFactorFormula();
+    model.addFactorFormula(directScoreFormula);
+
+
+    LocalFeatures features = new LocalFeatures(model, weights);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(groundAtoms, features);
+    System.out.println(features.getRelation(phrase).value().size());
+    Scores scores = new Scores(model, weights);
+    scores.score(features, groundAtoms);
+    System.out.println(scores);
+    RelationVariable var = scores.getScoreRelation(phrase);
+    assertEquals(2, var.value().size());
+    assertEquals(0.7, scores.getScore(phrase, 0, 1, "NP"));
+    assertEquals(0.2, scores.getScore(phrase, 2, 4, "VP"));
+
+
+  }
+
+
   public void testGreedySolve() {
     LocalFeatures features = new LocalFeatures(model, weights);
     LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
     extractor.extract(theManLikesTheBoat, features);
     Scores scores = new Scores(model, weights);
-    scores.score(features, weights);
+    scores.score(features, theManLikesTheBoat);
     GroundAtoms solution = scores.greedySolve(0.0);
     GroundAtomCollection atomCollection = solution.getGroundAtomsOf(phrase);
     System.out.println(atomCollection.getRelationVariable().value());
@@ -955,7 +996,7 @@ public class TestTheBeast extends TestCase {
     formulas.update(theManLikesTheBoat);
 
     Scores scores = new Scores(model, weights);
-    scores.score(features, weights);
+    scores.score(features, theManLikesTheBoat);
     scores.addScore(phrase, 0.5, 2, 4, "VP");
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
