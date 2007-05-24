@@ -61,6 +61,7 @@ non terminal ParserCreatePredicate createPredicate;
 non terminal ParserCreateWeightFunction createWeightFunction;
 non terminal Object object;
 non terminal List<Object> tuple;
+non terminal String factorName;
 
 precedence nonassoc ACYCLIC;
 precedence nonassoc FOR, ADD, IF, LSQPAREN, RSQPAREN;
@@ -343,7 +344,20 @@ factor ::=
     {: RESULT = new ParserFactorFormula(q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
   | FACTOR COLON formula:f
     {: RESULT = new ParserFactorFormula(null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+
+  | FACTOR LOWERCASEID:name COLON FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+    {: RESULT = new ParserFactorFormula(name, q,c,f,w); :}
+  | FACTOR LOWERCASEID:name COLON FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+    {: RESULT = new ParserFactorFormula(name, q,null,f,w); :}
+  | FACTOR LOWERCASEID:name COLON FOR quantification:q IF formula:c COLON formula:f
+    {: RESULT = new ParserFactorFormula(name, q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | FACTOR LOWERCASEID:name COLON FOR quantification:q COLON formula:f
+    {: RESULT = new ParserFactorFormula(name, q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | FACTOR LOWERCASEID:name COLON formula:f
+    {: RESULT = new ParserFactorFormula(name, null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
     ;
+
+
 
 formula ::=
     LOWERCASEID:name LPAREN arguments:args RPAREN
