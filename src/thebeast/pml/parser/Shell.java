@@ -300,7 +300,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     parserFactorFormula.weight.acceptParserTermVisitor(this);
     typeContext.pop();
     Term weight = term;
-    FactorFormula factorFormula = new FactorFormula(quantification, condition, formula, weight);
+    FactorFormula factorFormula = new FactorFormula(parserFactorFormula.name, quantification, condition, formula, weight);
     model.addFactorFormula(factorFormula);
     if (parserFactorFormula.quantification != null)
       popQuantification();

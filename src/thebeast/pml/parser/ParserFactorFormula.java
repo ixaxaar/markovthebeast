@@ -11,6 +11,7 @@ public class ParserFactorFormula extends ParserStatement {
   ParserFormula condition;
   ParserFormula formula;
   List<ParserTyping> quantification;
+  String name;
 
 
   public ParserFactorFormula(List<ParserTyping> quantification, ParserFormula condition,
@@ -22,11 +23,20 @@ public class ParserFactorFormula extends ParserStatement {
   }
 
 
+  public ParserFactorFormula(String name, List<ParserTyping> quantification, ParserFormula condition,
+                             ParserFormula formula, ParserTerm weight) {
+    this.quantification = quantification;
+    this.condition = condition;
+    this.formula = formula;
+    this.weight = weight;
+    this.name = name;
+  }
+
   public String toString() {
     StringBuffer result = new StringBuffer("FOR ");
     int index = 0;
-    for (ParserTyping typing : quantification){
-      if (index ++ > 0) result.append(", ");
+    for (ParserTyping typing : quantification) {
+      if (index++ > 0) result.append(", ");
       result.append(typing);
     }
     if (condition != null) {

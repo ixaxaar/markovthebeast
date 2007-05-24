@@ -49,7 +49,7 @@ public class FactorFormula {
     this.condition = condition;
     this.formula = formula;
     this.weight = weight;
-    this.name = name;
+    this.name = name == null ? "formula" : name;
 
 //    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
 //      throw new RuntimeException("We don't support local features with non-free weights.");
