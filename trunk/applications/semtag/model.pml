@@ -1,5 +1,19 @@
 include "corpora/atis_2_3.dev.types.pml";
-hidden: slot;
+
+predicate slotPair : Int x Slot x Slot;
+predicate possiblePair: Slot x Slot;
+predicate type1 : Slot;
+predicate type2 : Slot;
+
+include "slotpair.pml";
+
+factor: for Int i, Slot s1, Slot s2 if type1(s1) & type2(s2) : slot(i,s1) & slot(i,s2) => slotPair(i,s1,s2);
+factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s1);
+factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s2);
+
+global: type1, type2, possiblePair;
+auxiliary: slotPair;
+hidden: slot, slotPair;
 observed: word, pos;
 
 weight w_bias: Slot -> Double-;
@@ -22,7 +36,7 @@ factor: for Int t, Slot s, POS p if pos(t-1,p) & word(t,_) add [slot(t,s)]*w_pos
 set collector.all.w_pos_p1 = true;
 
 weight w_word_n1: Word x Slot -> Double;
-factor: for Int t, Word w, Slot s if word(t+1,w)& word(t,_)  add [slot(t,s)]*w_word_n1(w,s);
+factor: for Int t, Word w, Slot s if word(t+1,w)& word(t,_) add [slot(t,s)]*w_word_n1(w,s);
 set collector.all.w_word_n1 = true;
 
 
@@ -43,7 +57,6 @@ weight w_word_n2: Word x Slot -> Double;
 factor: for Int t, Word w, Slot s if word(t+2,w) & word(t,_) add [slot(t,s)]*w_word_n2(w,s);
 set collector.all.w_word_n2 = true;
 
-
 weight w_pos_n2: POS x Slot -> Double;
 factor: for Int t, Slot s, POS p if pos(t+2,p) & word(t,_) add [slot(t,s)]*w_pos_n2(p,s);
 set collector.all.w_pos_n2 = true;
@@ -55,6 +68,8 @@ factor: for Int t, Goal g, Word w if word(t,w) add [goal(1,g)]*w_gword(w,g);
 weight w_gpos: POS x Goal -> Double;
 factor: for Int t, Goal g, POS p if pos(t,p) add [goal(1,g)]*w_gpos(p,g);
 */
+
+/*
 
 weight w_forbid1: Slot x Slot -> Double-;
 factor: for Int t, Slot s1, Slot s2 if word(t,_) & s1 != s2 add[slot(t,s1)&slot(t,s2)] * w_forbid1(s1,s2);
@@ -96,6 +111,7 @@ factor:
   if word(t,_) & word(t-1,w) & s1 != s2
   add[slot(t,s1) => slot(t,s2)] * w_imply1_word_n1(s1,s2,w);
 
+*/
 
 /*
 weight w_implyFROMLOC: Slot -> Double+;

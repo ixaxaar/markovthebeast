@@ -50,7 +50,7 @@ public class ConjunctionProcessor {
   public ConjunctionProcessor(Weights weights, GroundAtoms groundAtoms) {
     this.weights = weights;
     this.groundAtoms = groundAtoms;
-    this.builder = new FormulaBuilder(weights.getSignature());
+    this.builder = new FormulaBuilder(groundAtoms.getSignature());
     factory = TheBeast.getInstance().getNodServer().expressionFactory();
 
   }

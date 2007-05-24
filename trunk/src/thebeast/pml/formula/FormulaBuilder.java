@@ -4,6 +4,7 @@ import thebeast.pml.*;
 import thebeast.pml.function.Function;
 import thebeast.pml.function.FunctionTypeException;
 import thebeast.pml.function.IntAdd;
+import thebeast.pml.function.IntMinus;
 import thebeast.pml.predicate.PredicateTypeException;
 import thebeast.pml.predicate.IntLEQ;
 import thebeast.pml.predicate.Predicate;
@@ -246,6 +247,11 @@ public class FormulaBuilder {
     apply(IntAdd.ADD);
     return this;
   }
+
+  public FormulaBuilder minus() {
+      apply(IntMinus.MINUS);
+      return this;
+    }
 
   public FormulaBuilder intLEQ() {
     Term rhs = toTerm(termStack.pop());
