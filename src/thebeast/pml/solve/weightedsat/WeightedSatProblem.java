@@ -18,7 +18,6 @@ import thebeast.nod.value.ArrayValue;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Arrays;
 
 /**
  * A WeightedSatProblem represents a set of weighted clauses in CNF.
@@ -113,6 +112,10 @@ public class WeightedSatProblem implements PropositionalModel {
     this.scores.load(scores);
     solver.init();
     clear();
+  }
+
+  public void buildLocalModel() {
+
   }
 
   public void solve(GroundAtoms solution) {

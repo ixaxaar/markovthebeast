@@ -46,7 +46,7 @@ public class LocalFeatures implements HasProperties {
       RelationVariable var = interpreter.createRelationVariable(pred.getHeadingForFeatures());
       features.put(pred, var);
       interpreter.addIndex(var, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
-      for (String attributeName : pred.getHeading().getAttributeNames()) {
+      if (pred.getArity() > 1) for (String attributeName : pred.getHeading().getAttributeNames()) {
         interpreter.addIndex(var, attributeName, Index.Type.HASH, attributeName);
       }
       RelationVariable group = interpreter.createRelationVariable(pred.getHeadingGroupedFeatures());

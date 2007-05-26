@@ -18,33 +18,6 @@ public class TestExpressionFactory extends NoDTest {
         assertEquals(tokenReference,ref);
     }
 
-    public void testCreateConstant(){
-        CategoricalConstant categoricalConstant =
-                expressionFactory.createCategoricalConstant(wordType, "the");
-        assertEquals("the",categoricalConstant.representation());
-        assertEquals(theConstant,categoricalConstant);
-
-        IntConstant intConstant =
-                expressionFactory.createIntConstant(positionType, 0);
-        assertEquals(positionType.value(0),intConstant.value());
-        assertEquals(zeroConstant,intConstant);
-        
-
-    }
-
-    public void testCreateTupleSelectorInvocation(){
-        LinkedList<TupleComponent> components = new LinkedList<TupleComponent>();
-        TupleComponent c1 = expressionFactory.createTupleComponent("position",zeroConstant);
-        components.add(c1);
-        TupleComponent c2 = expressionFactory.createTupleComponent("word", theConstant);
-        components.add(c2);
-        TupleSelector tupleSelector = expressionFactory.createTupleSelectorInvocation(components);
-        assertEquals(c1, tupleSelector.components().get(0));
-        assertEquals(c2, tupleSelector.components().get(1));
-        assertEquals(2, tupleSelector.components().size());
-        assertEquals(tokenTupleType, tupleSelector.type());
-        assertEquals(token0Expr, tupleSelector);
-    }
 
     public void testCreateRelationSelectorInvocation(){
         LinkedList<TupleExpression> tuples = new LinkedList<TupleExpression>();

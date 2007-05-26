@@ -1139,19 +1139,22 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void printHistory(){
     Solution solution = new Solution(model, weights);
     Evaluation evaluation = new Evaluation(model);
-    out.printf("%-10s%-10s%-10s\n", "Iter.", "F1", "Score");
-    for (int i = 0; i < 30; ++i) out.print("-");
+    out.printf("%-10s%-10s%-10s%10s%10s\n", "Iter.", "F1", "Score", "Violated", "Total");
+    for (int i = 0; i < 40; ++i) out.print("-");
     out.println();
     for (int i = 0; i < solver.getCandidateAtoms().size(); ++i){
       solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
-      out.printf("%-10d%-10.3f%-10.2f\n", i, evaluation.getF1(), weights.score(vector));
+      out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", i, evaluation.getF1(), weights.score(vector),
+              solution.getGroundFormulas().getViolationCount(),solution.getGroundFormulas().getTotalCount());
     }
     solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
     FeatureVector vector = solution.extract(solver.getLocalFeatures());
     evaluation.evaluate(gold, solution.getGroundAtoms());
-    out.printf("%-10d%-10.3f%-10.2f\n", solver.getCandidateAtoms().size(), evaluation.getF1(), weights.score(vector));
+    out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", solver.getCandidateAtoms().size(), evaluation.getF1(),
+            weights.score(vector), solution.getGroundFormulas().getViolationCount(),
+            solution.getGroundFormulas().getTotalCount());
   }
 
 

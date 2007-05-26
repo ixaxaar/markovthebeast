@@ -6,7 +6,6 @@ import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.weightedsat.WeightedSatProblem;
 import thebeast.pml.solve.weightedsat.MaxWalkSat;
-import thebeast.pml.corpora.CoNLL00SentencePrinter;
 import thebeast.pml.corpora.GroundAtomsPrinter;
 import thebeast.pml.corpora.SemtagPrinter;
 import thebeast.util.NullProfiler;
@@ -223,6 +222,29 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
   }
 
+  private void createFullyGroundedFormulas() {
+    profiler.start("update");
+
+    profiler.start("formulas");
+    //System.out.println("Grounding");
+    formulas.update(atoms, groundAll);
+    profiler.end();
+
+    //System.out.println(formulas);
+
+    profiler.start("ilp.update");
+    //System.out.println("Transfer");
+    propositionalModel.update(formulas, atoms);
+    profiler.end();
+
+    //System.out.println(ilp.toLpSolveFormat());
+
+    updated = true;
+
+    profiler.end();
+  }
+
+
   private void updateAlternating() {
     profiler.start("update");
 
@@ -252,6 +274,14 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
   }
 
+  /**
+   * @return true if the solver calculates a first solution purely based on local scores
+   *         by itself or whether this is left to the propositional model.
+   */
+  public boolean doesOwnLocalSearch() {
+    return groundAll.isEmpty();
+  }
+
 
   /**
    * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
@@ -263,23 +293,9 @@ public class CuttingPlaneSolver implements Solver {
   public void solve(int maxIterations) {
 
     long start = System.currentTimeMillis();
-    if (alternating) {
-      solveAlternating(maxIterations);
-      return;
-    }
-
-    /*
-    UserPredicate brill = model.getSignature().getUserPredicate("brill");
-    System.out.println("atoms.getGroundAtomsOf(brill).containsAtom(\"of\",\"IN\") = " + atoms.getGroundAtomsOf(brill).containsAtom("\"of\"", "\"IN\""));
-    */
 
     formulas.init();
     firstFormulas.init();
-    //formulas = new GroundFormulas(model, weights);
-    //ilp = new IntegerLinearProgram(model,weights, ilpSolver);
-
-    //System.out.println(formulas);
-    //formulas = new GroundFormulas(model, weights);
     profiler.start("solve");
 
     holderAtoms.addAll(candidateAtoms);
@@ -289,53 +305,33 @@ public class CuttingPlaneSolver implements Solver {
     iteration = 0;
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
-    if (!initSet) initSolution();
-    //new SentencePrinter().print(atoms, System.out);
 
-
-    if (deterministicFirst) {
-      deterministicFirst();
-      //new SentencePrinter().print(atoms, System.out);
-    } else {
+    if (groundAll.isEmpty()) {
+      if (!initSet) initSolution();
       update();
       setGreedy();
+    } else {
+      atoms.clear(model.getHiddenPredicates());
+      propositionalModel.buildLocalModel();
+      createFullyGroundedFormulas();
     }
 
-    //new SentencePrinter().print(atoms, System.out);
-//    System.out.println("Iteration " + iteration);
-    //System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
-
     profiler.start("iterations");
-    //System.out.print(formulas.size() + " -> ");
-    //System.out.println(ilp.getNumRows());
     while (propositionalModel.changed() && iteration < maxIterations) {
-      if (System.currentTimeMillis() - start > timeout){
+      if (System.currentTimeMillis() - start > timeout) {
         System.out.println("timeout");
         break;
       }
       profiler.start("ilp.solve");
-      //System.out.println("Solving...");
       propositionalModel.solve(atoms);
-      //new SentencePrinter().print(atoms, System.out);
-
       profiler.end();
       ++iteration;
       update();
-//      System.out.println("Iteration " + iteration);
-      //System.out.println(((IntegerLinearProgram)propositionalModel).toLpSolveFormat());
       addCandidate();
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
-        //System.out.println("fractional");
         propositionalModel.enforceIntegerSolution();
       }
-//      if (iteration == 1){
-//        System.out.print(formulas.size() + " -> ");
-//        System.out.println(ilp.getNumRows());
-//        new SentencePrinter().print(atoms,System.out);
-//        System.out.println(formulas);
-//      }
     }
-    //System.out.print(iteration);
     profiler.end();
 
     done = propositionalModel.changed();
@@ -344,7 +340,6 @@ public class CuttingPlaneSolver implements Solver {
 
     if (printHistory) printHistory();
 
-    //System.out.println(ilp.toLpSolveFormat());
   }
 
   /**
@@ -585,22 +580,24 @@ public class CuttingPlaneSolver implements Solver {
       } else
         propositionalModel.setProperty(name.getTail(), value);
 
-    }
-    if (name.getHead().equals("maxIterations"))
+    } else if (name.getHead().equals("ground")) {
+      String factorName = name.getTail().getHead();
+      setFullyGround(model.getFactorFormula(factorName), (Boolean) value);
+    } else if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
-    if (name.getHead().equals("timeout"))
+    else if (name.getHead().equals("timeout"))
       setTimeout((Integer) value);
-    if (name.getHead().equals("integer"))
+    else if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
-    if (name.getHead().equals("groundAll"))
+    else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
-    if (name.getHead().equals("alternating"))
+    else if (name.getHead().equals("alternating"))
       setAlternating((Boolean) value);
-    if (name.getHead().equals("deterministicFirst"))
+    else if (name.getHead().equals("deterministicFirst"))
       setDeterministicFirst((Boolean) value);
-    if (name.getHead().equals("profile"))
+    else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
-    if (name.getHead().equals("profiler"))
+    else if (name.getHead().equals("profiler"))
       if (!name.isTerminal())
         profiler.setProperty(name.getTail(), value);
   }

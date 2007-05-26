@@ -18,6 +18,7 @@ import thebeast.util.Profiler;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * A FormulaStates object is container with
@@ -35,7 +36,7 @@ public class GroundFormulas {
   private HashMap<FactorFormula, RelationVariable>
           falseGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           allExplicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
-          groundFormulas = new HashMap<FactorFormula, RelationVariable>(),
+          newGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           explicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           trueGroundFormulas = new HashMap<FactorFormula, RelationVariable>();
   private Model model;
@@ -86,7 +87,7 @@ public class GroundFormulas {
                   interpreter.createRelationVariable(formulas.getNewGroundFormulas(formula)));
           allExplicitGroundFormulas.put(formula,
                   interpreter.createRelationVariable(formulas.allExplicitGroundFormulas.get(formula)));
-          groundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
+          newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
             trueGroundFormulas.put(formula,
                     interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
@@ -116,7 +117,7 @@ public class GroundFormulas {
         } else {
           allExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           explicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          groundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
+          newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
             trueGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           else if (formula.getWeight().isNonNegative())
@@ -139,7 +140,7 @@ public class GroundFormulas {
         cycleQueries.put(formula.getAcyclicityConstraint().getPredicate(),
                 generator.generateCycleQuery(groundAtoms, formula.getAcyclicityConstraint()));
       } else if (!formula.isLocal()) {
-        builder.expr(groundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
+        builder.expr(newGroundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
         minusOld.put(formula, builder.getRelation());
         if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
@@ -249,6 +250,11 @@ public class GroundFormulas {
   }
 
 
+  /**
+   * Returns the model that the ground formulas in this object come from.
+   *
+   * @return a model.
+   */
   public Model getModel() {
     return model;
   }
@@ -268,6 +274,11 @@ public class GroundFormulas {
     }
   }
 
+  /**
+   * Loads the state of the provided formulas into this object. Must be of the same {@link thebeast.pml.Signature}.
+   *
+   * @param formulas the formulas to load from.
+   */
   public void load(GroundFormulas formulas) {
     isDeterministic = formulas.isDeterministic();
     for (FactorFormula formula : trueGroundFormulas.keySet()) {
@@ -283,14 +294,19 @@ public class GroundFormulas {
       interpreter.assign(getCycles(predicate), formulas.getCycles(predicate));
   }
 
+  /**
+   * Returns the table that contains the ground formulas of the given <code>formula</code>
+   * that have been generated in the most recent call
+   * to {@link thebeast.pml.GroundFormulas#update(GroundAtoms)}.
+   *
+   * @param formula the formula we want the new ground formulas for.
+   * @return a table with new ground formulas of the given formula.
+   */
   public RelationVariable getNewGroundFormulas(FactorFormula formula) {
-    return groundFormulas.get(formula);
+    return newGroundFormulas.get(formula);
     //return explicitGroundFormulas.get(formula);
   }
 
-  public boolean hasChanged() {
-    return false;
-  }
 
   public String toString() {
     StringBuffer result = new StringBuffer();
@@ -333,7 +349,7 @@ public class GroundFormulas {
       interpreter.clear(var);
     for (RelationVariable var : explicitGroundFormulas.values())
       interpreter.clear(var);
-    for (RelationVariable var : groundFormulas.values())
+    for (RelationVariable var : newGroundFormulas.values())
       interpreter.clear(var);
     for (RelationVariable var : trueGroundFormulas.values())
       interpreter.clear(var);
@@ -354,7 +370,7 @@ public class GroundFormulas {
   }
 
   public void updateDeterministic(GroundAtoms solution) {
-    clear();
+    init();
     update(solution, model.getDeterministicFormulas());
     isDeterministic = true;
   }
@@ -363,6 +379,13 @@ public class GroundFormulas {
     return isDeterministic;
   }
 
+  /**
+   * Counts the number of hard constraints that were violated in the last set of ground atoms provided
+   * by {@link thebeast.pml.GroundFormulas#update(GroundAtoms)}.
+   *
+   * @return the number of violated hard constraints after the last call to
+   *         {@link thebeast.pml.GroundFormulas#update(GroundAtoms)} .
+   */
   public int getViolationCount() {
     int count = 0;
     for (FactorFormula formula : model.getDeterministicFormulas()) {
@@ -370,7 +393,20 @@ public class GroundFormulas {
         AcyclicityConstraint acyclicityConstraint = (AcyclicityConstraint) formula.getFormula();
         count += cycles.get(acyclicityConstraint.getPredicate()).value().size();
       } else
-        count += groundFormulas.get(formula).value().size();
+        count += newGroundFormulas.get(formula).value().size();
+    }
+    return count;
+  }
+
+  /**
+   * Counts the number of ground formulas generated since the last call to {@link GroundFormulas#init()}.
+   *
+   * @return the number of ground formulas generated since the last call to {@link GroundFormulas#init()}.
+   */
+  public int getTotalCount() {
+    int count = 0;
+    for (Map.Entry<FactorFormula, RelationVariable> entry : allExplicitGroundFormulas.entrySet()) {
+      count += entry.getValue().value().size();
     }
     return count;
   }
@@ -395,7 +431,7 @@ public class GroundFormulas {
       } else if (!factorFormula.isLocal()) {
         profiler.start("..." + name.substring(name.length() - 30));
         //RelationVariable both = getExplicitGroundFormulas(factorFormula);
-        RelationVariable both = groundFormulas.get(factorFormula);
+        RelationVariable both = newGroundFormulas.get(factorFormula);
         interpreter.clear(both);
         boolean fullyGround = groundAll.contains(factorFormula);
         RelationVariable relation = null;
@@ -425,21 +461,18 @@ public class GroundFormulas {
     firstUpdate = false;
   }
 
+  /**
+   * Returns all ground formulas for the given formula that have been generated since the last
+   * call to {@link GroundFormulas#init()}
+   *
+   * @param formula the (first order) formula we want the ground formulas for.
+   * @return a table with all groundings for the given formula. The format of the table is
+   *         <code>|var_1|var_2|...|var_n|</code> where each <code>var_i</code> refers to the i-ths
+   *         quantification variable in the formula.
+   */
   public RelationVariable getAllGroundFormulas(FactorFormula formula) {
     return allExplicitGroundFormulas.get(formula);
   }
 
-  public void clear() {
-    for (RelationVariable var : cycles.values())
-      interpreter.clear(var);
-    for (RelationVariable var : trueGroundFormulas.values())
-      interpreter.clear(var);
-    for (RelationVariable var : falseGroundFormulas.values())
-      interpreter.clear(var);
-    for (RelationVariable var : explicitGroundFormulas.values())
-      interpreter.clear(var);
-    for (RelationVariable var : groundFormulas.values())
-      interpreter.clear(var);
 
-  }
 }

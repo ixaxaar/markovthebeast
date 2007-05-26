@@ -61,6 +61,7 @@ public class Solution {
     this.weights = weights;
     QueryGenerator queryGenerator = new QueryGenerator(this.weights, groundAtoms);
     for (FactorFormula factorFormula : model.getLocalFactorFormulas()) {
+      if (!factorFormula.usesWeights()) continue;
       localExtractors.put(factorFormula,
               queryGenerator.generateLocalFeatureExtractor(factorFormula, groundAtoms, weights));
       RelationVariable var = interpreter.createRelationVariable(factorFormula.getHeadingIndex());
