@@ -35,11 +35,12 @@ public class IntegerLinearProgram implements PropositionalModel {
   private RelationVariable
           constraints, newConstraints, vars, newVars, result;
   private HashMap<UserPredicate, RelationVariable>
-          groundAtom2index = new HashMap<UserPredicate, RelationVariable>();
+          groundAtom2indexScore = new HashMap<UserPredicate, RelationVariable>();
   private HashMap<FactorFormula, RelationVariable>
           groundFormula2index = new HashMap<FactorFormula, RelationVariable>();
   private HashMap<UserPredicate, RelationExpression>
-          groundAtomGetWeight = new HashMap<UserPredicate, RelationExpression>();
+          groundAtomGetWeight = new HashMap<UserPredicate, RelationExpression>(),
+          groundObjective = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<FactorFormula, RelationExpression>
           groundFormulaGetWeight = new HashMap<FactorFormula, RelationExpression>();
   private HashMap<FactorFormula, RelationExpression>
@@ -63,6 +64,8 @@ public class IntegerLinearProgram implements PropositionalModel {
   private Model model;
   private RelationVariable fractionals;
   private RelationExpression findFractionals;
+
+  private boolean buildLocalModel;
 
   private boolean newFractionals;
 
@@ -165,7 +168,7 @@ public class IntegerLinearProgram implements PropositionalModel {
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
       interpreter.addIndex(variables, "index", Index.Type.HASH, "index");
-      groundAtom2index.put(predicate, variables);
+      groundAtom2indexScore.put(predicate, variables);
       builder.clear();
       builder.expr(variables).from("c");
       builder.expr(lastVarCount).intAttribute("c", "index").intLEQ().where();
@@ -193,6 +196,15 @@ public class IntegerLinearProgram implements PropositionalModel {
       builder.intAttribute("result", "index").intAttribute("vars", "index").equality();
       builder.and(2).where().query().relationMinus();
       removeFalseGroundAtoms.put(predicate, builder.getRelation());
+
+      builder.expr(scores.getScoreRelation(predicate)).from("scores");
+      for (Attribute attribute : predicate.getHeading().attributes()) {
+        builder.id(attribute.name()).attribute("scores", attribute);
+      }
+      builder.id("index").expr(varCount).intPostInc();
+      builder.id("score").doubleAttribute("scores","score");
+      builder.tupleForIds().select().query();
+      groundObjective.put(predicate, builder.getRelation());
 
     }
     for (FactorFormula formula : model.getFactorFormulas()) {
@@ -268,7 +280,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     for (FactorFormula formula : groundFormula2index.keySet()) {
       interpreter.insert(newVars, groundFormulaGetWeight.get(formula));
     }
-    for (UserPredicate predicate : groundAtom2index.keySet()) {
+    for (UserPredicate predicate : groundAtom2indexScore.keySet()) {
       interpreter.insert(newVars, groundAtomGetWeight.get(predicate));
     }
     interpreter.insert(vars, newVars);
@@ -278,6 +290,18 @@ public class IntegerLinearProgram implements PropositionalModel {
     this.scores.load(scores);
     solver.init();
     clear();
+    buildLocalModel = false;
+  }
+
+  public void buildLocalModel(){
+    //interpreter.assign(lastVarCount, varCount);
+    for (UserPredicate predicate : model.getHiddenPredicates()){
+      RelationVariable target = groundAtom2indexScore.get(predicate);
+      interpreter.assign(target, groundObjective.get(predicate));
+      interpreter.insert(newVars, groundAtomGetWeight.get(predicate));
+    }
+    interpreter.insert(vars, newVars);
+    buildLocalModel = true;
   }
 
   public int getNumRows(){
@@ -295,7 +319,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     interpreter.clear(newVars);
     interpreter.clear(fractionals);
     interpreter.assign(varCount, builder.num(0).getInt());
-    for (RelationVariable var : groundAtom2index.values())
+    for (RelationVariable var : groundAtom2indexScore.values())
       interpreter.clear(var);
     for (RelationVariable var : groundFormula2index.values())
       interpreter.clear(var);
@@ -339,8 +363,6 @@ public class IntegerLinearProgram implements PropositionalModel {
     profiler.end();
     newFractionals = false;
     findFractionals();
-
-    //System.out.printf("%5d%5d\n",getNumRows(),getNumCols());
   }
 
   private void findFractionals() {
@@ -397,38 +419,20 @@ public class IntegerLinearProgram implements PropositionalModel {
       interpreter.interpret(newConstraintsInserts.get(formula));
       newConstraintCount += newConstraints.value().size();
       profiler.end();
-      //interpreter.interpret(constraintsInserts.get(formula));
-//      System.out.println(formula);
-//      System.out.println(toLpSolveFormat(newVars, newConstraints));
-//      System.out.println(toLpSolveFormat(vars, constraints));
-
-//      RelationExpression query = formula2query.get(formula);
-//      builder.expr(query);
-//      builder.expr(constraints);
-//      interpreter.insert(newConstraints, builder.relationMinus().getRelation());
-//      interpreter.insert(constraints, newConstraints);
     }
     //System.out.println("Updating ...");
     profiler.end();
     profiler.start("insert constraints");
-//    for (FactorFormula formula : factors){
-//      //System.out.println(formula);
-//      //System.out.println("Before insertion");
-//      //System.out.println(toLpSolveFormat(newVars, constraints));
-//      interpreter.interpret(constraintsInserts.get(formula));
-//      //System.out.println("After insertion");
-//      //System.out.println(toLpSolveFormat(newVars, constraints));
-//    }
     interpreter.append(constraints,newConstraints);
     //interpreter.interpret(insertNewConstraintsIntoOld);
     profiler.end();
     //System.out.println(constraints.value());
-    interpreter.clear(newVars);
+    if (!buildLocalModel) interpreter.clear(newVars); else buildLocalModel = false;
     //get the new variables
     for (FactorFormula formula : groundFormula2index.keySet()) {
       interpreter.insert(newVars, groundFormulaGetWeight.get(formula));
     }
-    for (UserPredicate predicate : groundAtom2index.keySet()) {
+    for (UserPredicate predicate : groundAtom2indexScore.keySet()) {
       interpreter.insert(newVars, groundAtomGetWeight.get(predicate));
     }
     interpreter.insert(vars, newVars);
@@ -436,7 +440,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
   public RelationVariable getGroundAtomIndices(UserPredicate predicate) {
-    return groundAtom2index.get(predicate);
+    return groundAtom2indexScore.get(predicate);
   }
 
 
@@ -617,7 +621,7 @@ public class IntegerLinearProgram implements PropositionalModel {
    * @return a string representation with predicate name and arguments.
    */
   public String indexToVariableString(int index) {
-    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
+    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2indexScore.entrySet()) {
       builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
       RelationValue result = interpreter.evaluateRelation(builder.getRelation());
       if (result.size() == 1) {
@@ -652,7 +656,7 @@ public class IntegerLinearProgram implements PropositionalModel {
    * @return a string representation with predicate name and arguments.
    */
   public String indexToPredicateString(int index) {
-    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2index.entrySet()) {
+    for (Map.Entry<UserPredicate, RelationVariable> entry : groundAtom2indexScore.entrySet()) {
       builder.expr(entry.getValue()).intAttribute("index").num(index).equality().restrict();
       RelationValue result = interpreter.evaluateRelation(builder.getRelation());
       if (result.size() == 1) {
@@ -718,7 +722,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
   public int getVariableIndex(UserPredicate predicate, Object... args) {
-    builder.expr(groundAtom2index.get(predicate));
+    builder.expr(groundAtom2indexScore.get(predicate));
     for (int i = 0; i < predicate.getArity(); ++i) {
       builder.id(predicate.getColumnName(i)).value(predicate.getHeading().attributes().get(i).type(), args[i]);
     }

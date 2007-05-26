@@ -79,7 +79,7 @@ public class LocalSolver implements Solver {
     profiler.start("solve");
     if (!scoresSet) score();
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
-    formulas.clear();
+    formulas.init();
     profiler.end();
   }
 

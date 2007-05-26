@@ -25,7 +25,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private boolean enforceInteger = false;
   private boolean verbose = false;
   private Profiler profiler = new NullProfiler();
-  private boolean writeLp = false;
+  private boolean writeLp = true;
   private long timeout = 1000;
   private int bbDepthLimit = 3;
 
