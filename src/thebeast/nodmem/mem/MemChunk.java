@@ -434,7 +434,7 @@ public final class MemChunk extends MemHolder {
   }
 
   public int byteSize() {
-    int size = 5 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE;
+    int size = 3 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE;
     size += super.byteSize();
     if (rowIndex != null) {
       size += rowIndex.byteSize();
@@ -442,6 +442,12 @@ public final class MemChunk extends MemHolder {
     if (indices != null) for (MemChunkMultiIndex index : indices)
       size += index.byteSize();
     return size;
+  }
+
+  public String toString(){
+    StringBuffer result = new StringBuffer(super.toString());
+    result.append("index bytesize: ").append(rowIndex == null ? "0" : rowIndex.byteSize());
+    return result.toString();
   }
 
   public void sleep(WritableByteChannel channel) throws IOException {
@@ -518,9 +524,6 @@ public final class MemChunk extends MemHolder {
   }
 
 
-  public String toString() {
-    return "size: " + size;
-  }
 
   public static void copyChunks(MemChunk[] src, int fromSrc, MemChunk[] dst, int fromDst, int howmany) {
     int srcI = fromSrc;

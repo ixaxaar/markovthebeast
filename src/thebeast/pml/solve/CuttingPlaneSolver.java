@@ -99,21 +99,19 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * The cutting plane solve might not need as many iterations as specified through
-   * {@link CuttingPlaneSolver#setMaxIterations(int)} or as argument of
-   * {@link CuttingPlaneSolver#solve(int)}. This method returns the actual
-   * number of iterations that were needed.
+   * The cutting plane solve might not need as many iterations as specified through {@link
+   * CuttingPlaneSolver#setMaxIterations(int)} or as argument of {@link CuttingPlaneSolver#solve(int)}. This method
+   * returns the actual number of iterations that were needed.
    *
-   * @return the number of iterations the solver did last time {@link CuttingPlaneSolver#solve(int)} or
-   *         {@link CuttingPlaneSolver#solve()} was called.
+   * @return the number of iterations the solver did last time {@link CuttingPlaneSolver#solve(int)} or {@link
+   *         CuttingPlaneSolver#solve()} was called.
    */
   public int getIterationCount() {
     return iteration;
   }
 
   /**
-   * Return the maximum number of cutting plane iterations. The solver might use less if
-   * feasibility is reached before.
+   * Return the maximum number of cutting plane iterations. The solver might use less if feasibility is reached before.
    *
    * @return the maximum number of cutting plane iterations.
    */
@@ -122,19 +120,19 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Set the maximum number of cutting plane iterations. The solver might use less if
-   * feasibility is reached before.
+   * Set the maximum number of cutting plane iterations. The solver might use less if feasibility is reached before.
    *
    * @param maxIterations the maximum number of cutting plane iterations.
    */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
+    System.out.println("maxIterations = " + this.maxIterations);
   }
 
 
   /**
-   * The solver maintains a profiler that can count the number of (abstract) operations
-   * performed during solving. The default profiler does not do any profiling ({@link NullProfiler}.
+   * The solver maintains a profiler that can count the number of (abstract) operations performed during solving. The
+   * default profiler does not do any profiling ({@link NullProfiler}.
    *
    * @return the profiler this solver is using.
    */
@@ -185,9 +183,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that
-   * these scores will be forgotten once a new observation is specified with
-   * {@link CuttingPlaneSolver#setObservation(GroundAtoms)}.
+   * This method can be used to provide a user-defined set of local scores for hidden ground atoms. Note that these
+   * scores will be forgotten once a new observation is specified with {@link CuttingPlaneSolver#setObservation(GroundAtoms)}.
    *
    * @param scores the scores to use.
    */
@@ -210,7 +207,7 @@ public class CuttingPlaneSolver implements Solver {
 
     //System.out.println(formulas);
 
-    profiler.start("ilp.update");
+    profiler.start("updatemodel");
     //System.out.println("Transfer");
     propositionalModel.update(formulas, atoms);
     profiler.end();
@@ -275,8 +272,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * @return true if the solver calculates a first solution purely based on local scores
-   *         by itself or whether this is left to the propositional model.
+   * @return true if the solver calculates a first solution purely based on local scores by itself or whether this is
+   *         left to the propositional model.
    */
   public boolean doesOwnLocalSearch() {
     return groundAll.isEmpty();
@@ -284,9 +281,9 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
-   * a initial guess (either from the last time this method was called or through external specification) this
-   * guess is used as a starting point. If not a greedy solution is used as a starting point.
+   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has a
+   * initial guess (either from the last time this method was called or through external specification) this guess is
+   * used as a starting point. If not a greedy solution is used as a starting point.
    *
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
@@ -318,12 +315,14 @@ public class CuttingPlaneSolver implements Solver {
 
     profiler.start("iterations");
     while (propositionalModel.changed() && iteration < maxIterations) {
+      //System.out.println(iteration + " of " + maxIterations);
       if (System.currentTimeMillis() - start > timeout) {
         System.out.println("timeout");
         break;
       }
-      profiler.start("ilp.solve");
+      profiler.start("solvemodel");
       propositionalModel.solve(atoms);
+      //System.out.println("solved!");
       profiler.end();
       ++iteration;
       update();
@@ -343,12 +342,11 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has
-   * a initial guess (either from the last time this method was called or through external specification) this
-   * guess is used as a starting point. If not a greedy solution is used as a starting point.
-   * <p/>
-   * <p>This version only adds global features/soft constraints if no hard constraints (==less than maxViolationsForNonDeterministic)
-   * are violated in the current solution.
+   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has a
+   * initial guess (either from the last time this method was called or through external specification) this guess is
+   * used as a starting point. If not a greedy solution is used as a starting point. <p/> <p>This version only adds
+   * global features/soft constraints if no hard constraints (==less than maxViolationsForNonDeterministic) are violated
+   * in the current solution.
    *
    * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
    */
@@ -465,8 +463,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Calls {@link CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by
-   * {@link CuttingPlaneSolver#setMaxIterations(int)}.
+   * Calls {@link CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by {@link
+   * CuttingPlaneSolver#setMaxIterations(int)}.
    */
   public void solve() {
     solve(maxIterations);
@@ -514,10 +512,9 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * The solver remembers all partial solutions on the way to its final solution. They can be accessed
-   * using this method. Note: The solver owns all ground atoms returned by this method and will
-   * overwrite them in the next solve-call. If you need these atoms permanently you need to create a
-   * copy of them.
+   * The solver remembers all partial solutions on the way to its final solution. They can be accessed using this
+   * method. Note: The solver owns all ground atoms returned by this method and will overwrite them in the next
+   * solve-call. If you need these atoms permanently you need to create a copy of them.
    *
    * @return the list of solutions generated "on the way";
    */

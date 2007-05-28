@@ -527,7 +527,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     //solver.configure(model, weights);
     stopWatch.start();
     solver.setObservation(guess);
-    solver.solve(parserSolve.numIterations);
+    if (parserSolve.numIterations == -1)
+      solver.solve();
+    else
+      solver.solve(parserSolve.numIterations); 
     guess.load(solver.getBestAtoms());
     long time = stopWatch.stopAndContinue();
 
@@ -1139,8 +1142,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private void printHistory(){
     Solution solution = new Solution(model, weights);
     Evaluation evaluation = new Evaluation(model);
-    out.printf("%-10s%-10s%-10s%10s%10s\n", "Iter.", "F1", "Score", "Violated", "Total");
-    for (int i = 0; i < 40; ++i) out.print("-");
+    out.printf("%-10s%-10s%-10s%-10s%-10s\n", "Iter.", "F1", "Score", "Violated", "Total");
+    for (int i = 0; i < 50; ++i) out.print("-");
     out.println();
     for (int i = 0; i < solver.getCandidateAtoms().size(); ++i){
       solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));

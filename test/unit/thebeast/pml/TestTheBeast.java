@@ -857,12 +857,15 @@ public class TestTheBeast extends TestCase {
 
     GroundFormulas formulas = new GroundFormulas(model, weights);
     formulas.update(theManLikesTheBoat);
-    System.out.println(formulas.getFalseGroundFormulas(np_vp_s).value());
+    System.out.println(formulas.getNewGroundFormulas(np_vp_s).value());
 
     RelationVariable falseFormulas = formulas.getFalseGroundFormulas(np_vp_s);
     assertEquals(1, falseFormulas.value().size());
     assertTrue(falseFormulas.contains(4, 0, 1, 4, "NP", "VP", "S"));
     //assertTrue(falseFormulas.contains(0, 4, 4, "NP", 1, "S", "VP"));
+    formulas.update(theManLikesTheBoat);
+    System.out.println(formulas.getNewGroundFormulas(np_vp_s).value());
+
 
   }
 

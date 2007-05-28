@@ -16,6 +16,10 @@ import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.ArrayValue;
+import thebeast.nodmem.mem.MemChunk;
+import thebeast.nodmem.mem.MemChunkIndex;
+import thebeast.nodmem.variable.MemRelationVariable;
+import thebeast.nodmem.value.MemTuple;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,7 +58,7 @@ public class WeightedSatProblem implements PropositionalModel {
           removeFalseAtoms = new HashMap<UserPredicate, RelationExpression>(),
           addTrueAtoms = new HashMap<UserPredicate, RelationExpression>();
 
-  private RelationExpression newAtomCostsQuery;
+  private RelationExpression newAtomCostsQuery, newClausesQuery;
 
   private RelationVariable
           clauses, newClauses, groundedClauses,
@@ -185,11 +189,30 @@ public class WeightedSatProblem implements PropositionalModel {
       buildLocalModel = false;
     groundFormulas.load(formulas);
     interpreter.clear(newClauses);
+    interpreter.clear(groundedClauses);
     for (FactorFormula factor : factors) {
-      interpreter.assign(groundedClauses, groundingQueries.get(factor));
-      interpreter.insert(newClauses, newQueries.get(factor));
+      interpreter.append(groundedClauses, groundingQueries.get(factor));
+      //interpreter.append(newClauses, newQueries.get(factor));
+      //interpreter.insert(newClauses, newQueries.get(factor));
+      System.out.println(factor);
+      System.out.println(groundedClauses.value().size());
+      System.out.println((double)Runtime.getRuntime().totalMemory() / 1000000.0);
+      System.out.println("groundedClauses.byteSize() = " + groundedClauses.byteSize());
+      MemChunk memChunk = ((MemRelationVariable) groundedClauses).getContainerChunk().chunkData[0];
+      System.out.println("memChunk.capacity = " + memChunk.capacity);
+      System.out.println("memChunk.size = " + memChunk.size);
+      System.out.println("memChunk.byteSize() = " + memChunk.byteSize());
+      //System.out.println("memChunk.chunkData[0] = " + memChunk.chunkData[0]);
+//      System.out.println("memChunk.chunkData[0].byteSize() = " + memChunk.chunkData[0].byteSize());
+//      System.out.println("memChunk.chunkData[1].byteSize() = " + memChunk.chunkData[1].byteSize());
+      MemTuple value = (MemTuple) groundedClauses.value().iterator().next();
+      MemChunkIndex index = memChunk.rowIndex;
+      if (index !=null) System.out.println(index.byteSize());
     }
-    interpreter.insert(clauses, newClauses);
+    interpreter.assign(newClauses, newClausesQuery);
+    System.out.println("newClauses.byteSize() = " + newClauses.byteSize());
+    interpreter.append(clauses, newClauses);
+    System.out.println("clauses.byteSize() = " + clauses.byteSize());
     interpreter.assign(oldAtomCosts, atomCosts);
     interpreter.clear(atomCosts);
     for (UserPredicate pred : model.getHiddenPredicates()) {
@@ -312,8 +335,9 @@ public class WeightedSatProblem implements PropositionalModel {
 
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, this));
-      newQueries.put(formula, builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation());
+      //newQueries.put(formula, builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation());
     }
+    newClausesQuery = builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation();
 
 
   }
