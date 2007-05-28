@@ -10,5 +10,11 @@ public interface Profiler extends HasProperties {
 
   void start(String operation, int order);
 
+  double getAverageTime(String operation);
+
+  long getTotalTime(String operation);
+
+  double getCalls(String operation);
+
   Profiler end();
 }

@@ -20,11 +20,20 @@ public class TreeProfiler implements Profiler {
   }
 
   public Object getProperty(PropertyName name) {
+    if (name.getHead().equals("calls")){
+      return getCalls(name.getTail().toString());
+    }
+    else if (name.getHead().equals("total")){
+      return getTotalTime(name.getTail().toString());
+    }
+    else if (name.getHead().equals("average")){
+      return getAverageTime(name.getTail().toString());
+    }
     return null;
   }
 
   private class ProfileNode implements Comparable<ProfileNode> {
-    int count;
+    int calls;
     long totalTime;
     long startedAt;
     String name;
@@ -38,7 +47,7 @@ public class TreeProfiler implements Profiler {
     }
 
     public double average() {
-      return (double) totalTime / (double) count;
+      return (double) totalTime / (double) calls;
     }
 
     public ProfileNode(String name, ProfileNode parent, int order) {
@@ -54,6 +63,16 @@ public class TreeProfiler implements Profiler {
         children.put(name, result);
       }
       return result;
+    }
+
+    public ProfileNode getQualifiedNode(String qualifiedName){
+      if (qualifiedName.contains(".")){
+        int index = qualifiedName.indexOf('.');
+        String prefix = qualifiedName.substring(0, index);
+        ProfileNode node = getNode(prefix);
+        return node.getQualifiedNode(qualifiedName.substring(index));
+      } else
+        return getNode(qualifiedName);
     }
 
     public ProfileNode getNode(String name, int order) {
@@ -82,7 +101,7 @@ public class TreeProfiler implements Profiler {
         buffer.append(name).append("\n");
       } else {
         Formatter formatter = new Formatter();
-        formatter.format("%-10s %-3.2fms (%d calls)\n", name, average(), count);
+        formatter.format("%-10s %-3.2fms (%d calls)\n", name, average(), calls);
         buffer.append(formatter.toString());
       }
       for (ProfileNode node : getSortedChildren()) {
@@ -95,7 +114,7 @@ public class TreeProfiler implements Profiler {
     }
 
     public String toString() {
-      return name + ": " + average() + "ms (" + count + " calls)";
+      return name + ": " + average() + "ms (" + calls + " calls)";
     }
 
   }
@@ -104,15 +123,32 @@ public class TreeProfiler implements Profiler {
     start(operation, current.children.size());
   }
 
+
+
   public void start(String operation, int order) {
     ProfileNode node = current.getNode(operation, order);
     node.startedAt = System.currentTimeMillis();
     current = node;
   }
 
+  public double getAverageTime(String operation) {
+    ProfileNode node = root.getQualifiedNode(operation);
+    return node.average();
+  }
+
+  public long getTotalTime(String operation) {
+    ProfileNode node = root.getQualifiedNode(operation);
+    return node.totalTime;
+  }
+
+  public double getCalls(String operation) {
+    ProfileNode node = root.getQualifiedNode(operation);
+    return node.calls;
+  }
+
   public Profiler end() {
     current.totalTime += System.currentTimeMillis() - current.startedAt;
-    ++current.count;
+    ++current.calls;
     current = current.parent;
     return this;
   }
