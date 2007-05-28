@@ -14,6 +14,18 @@ public class NullProfiler implements Profiler {
 
   }
 
+  public double getAverageTime(String operation) {
+    return 0;
+  }
+
+  public long getTotalTime(String operation) {
+    return 0;
+  }
+
+  public double getCalls(String operations) {
+    return 0;
+  }
+
   public Profiler end() {
     return this;
   }

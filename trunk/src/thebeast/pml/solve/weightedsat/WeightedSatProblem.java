@@ -11,6 +11,7 @@ import thebeast.nod.variable.Index;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.Heading;
+import thebeast.nod.type.Attribute;
 import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.TupleValue;
@@ -31,6 +32,7 @@ public class WeightedSatProblem implements PropositionalModel {
   private Scores scores;
   private Weights weights;
   private Profiler profiler = new NullProfiler();
+  private double epsilon = 0.0;
 
   private int oldNumAtoms;
 
@@ -47,6 +49,7 @@ public class WeightedSatProblem implements PropositionalModel {
           newQueries = new HashMap<FactorFormula, RelationExpression>();
 
   private HashMap<UserPredicate, RelationExpression>
+          groundObjective = new HashMap<UserPredicate, RelationExpression>(),
           scoresAndIndices = new HashMap<UserPredicate, RelationExpression>(),
           removeFalseAtoms = new HashMap<UserPredicate, RelationExpression>(),
           addTrueAtoms = new HashMap<UserPredicate, RelationExpression>();
@@ -64,6 +67,7 @@ public class WeightedSatProblem implements PropositionalModel {
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
   private static Heading indexScore_heading;
+  private boolean buildLocalModel = false;
 
   static {
     TypeBuilder typeBuilder = new TypeBuilder(TheBeast.getInstance().getNodServer());
@@ -115,6 +119,14 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void buildLocalModel() {
+    oldNumAtoms = atomCounter.value().getInt();    
+    for (UserPredicate predicate : model.getHiddenPredicates()) {
+      RelationVariable target = mappings.get(predicate);
+      interpreter.assign(target, groundObjective.get(predicate));
+      //interpreter.insert(atomCosts, scoresAndIndices.get(predicate));
+    }
+    //interpreter.assign(newAtomCosts, newAtomCostsQuery);
+    buildLocalModel = true;
 
   }
 
@@ -167,27 +179,33 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
     int oldNumClauses = clauses.value().size();
-    oldNumAtoms = atomCounter.value().getInt();
+    if (!buildLocalModel)
+      oldNumAtoms = atomCounter.value().getInt();
+    else
+      buildLocalModel = false;
     groundFormulas.load(formulas);
     interpreter.clear(newClauses);
     for (FactorFormula factor : factors) {
       interpreter.assign(groundedClauses, groundingQueries.get(factor));
-      //System.out.println("GC:" + groundedClauses.value());
       interpreter.insert(newClauses, newQueries.get(factor));
     }
     interpreter.insert(clauses, newClauses);
     interpreter.assign(oldAtomCosts, atomCosts);
     interpreter.clear(atomCosts);
     for (UserPredicate pred : model.getHiddenPredicates()) {
-      //interpreter.insert(this.mappings.get(pred), newMappings.get(pred));
       interpreter.insert(atomCosts, scoresAndIndices.get(pred));
     }
-//    System.out.println("atomcosts");
-//    System.out.println(atomCosts.value());
     interpreter.assign(newAtomCosts, newAtomCostsQuery);
-//    System.out.println("newatomcosts");
-//    System.out.println(newAtomCosts.value());
-    changed = clauses.value().size() > oldNumClauses || atomCounter.value().getInt() > oldNumAtoms;
+    if (epsilon == 0.0)
+      changed = clauses.value().size() > oldNumClauses || atomCounter.value().getInt() > oldNumAtoms;
+    else {
+      double bound = 0;
+      double[] scores = newAtomCosts.getDoubleColumn("score");
+      for (double score : scores) bound += Math.abs(score);
+      scores = newClauses.getDoubleColumn("score");
+      for (double score : scores) bound += Math.abs(score);
+      changed = bound < epsilon;
+    }
   }
 
   public boolean changed() {
@@ -213,6 +231,7 @@ public class WeightedSatProblem implements PropositionalModel {
     falseAtoms.assignByArray(falseIndices, null);
 
   }
+
 
   public void enforceIntegerSolution() {
 
@@ -272,6 +291,15 @@ public class WeightedSatProblem implements PropositionalModel {
               id("index").intAttribute("mapping", "index").
               id("score").doubleAttribute("mapping", "score").tupleForIds().select().query();
       scoresAndIndices.put(pred, builder.getRelation());
+
+      builder.expr(scores.getScoreRelation(pred)).from("scores");
+      for (Attribute attribute : pred.getHeading().attributes()) {
+        builder.id(attribute.name()).attribute("scores", attribute);
+      }
+      builder.id("index").expr(atomCounter).intPostInc();
+      builder.id("score").doubleAttribute("scores", "score");
+      builder.tupleForIds().select().query();
+      groundObjective.put(pred, builder.getRelation());
 
 
     }

@@ -114,6 +114,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     int trueDisjunctionCount;
     double cost;
     boolean state;
+    int index;
 
     public String toString() {
       Formatter formatter = new Formatter();
@@ -317,6 +318,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         atom.clauses.clear();
         atom.state = states[i];
       }
+      best[atomCount] = states[i];
       if (scores[i] != 0.0)
         clauses[clauseCount++] = new Clause(atomCount,scores[i]);
       ++atomCount;
@@ -328,7 +330,9 @@ public class MaxWalkSat implements WeightedSatSolver {
       Atom[] newAtoms = new Atom[atomCount + howmuch];
       System.arraycopy(atoms, 0, newAtoms, 0, atoms.length);
       atoms = newAtoms;
-      best = new boolean[atomCount + howmuch];
+      boolean[] newBest = new boolean[atomCount + howmuch];
+      if (best != null) System.arraycopy(best, 0, newBest,0,best.length);
+      best = newBest;
     }
   }
 
@@ -338,6 +342,7 @@ public class MaxWalkSat implements WeightedSatSolver {
       Clause clause = normalize(aClausesToAdd);
       if (clause == null) continue;
       clauses[clauseCount] = clause;
+      clause.index = clauseCount;
       ++clauseCount;
     }
 
@@ -430,6 +435,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     long time = System.currentTimeMillis();
     for (int run = 0; run < maxRestarts && bestScore < target && System.currentTimeMillis() - time < timeOut; ++run) {
       if (calls == 0 && initRandom || calls > 0 && updateRandom) randomizeNodeStates();
+      else useBestStateAsInit();
       syncClauses();
       double score = getScore();
       for (int flip = 0; flip < maxFlips && bestScore < target && System.currentTimeMillis() - time < timeOut; ++flip) {
@@ -459,8 +465,11 @@ public class MaxWalkSat implements WeightedSatSolver {
           fill(atoms, best);
           bestScore = score;
         }
-        //printState(uniform > this.greedy, score,atoms, atomCount);
-        //for (int i = 0; i < clauseCount; ++i) System.out.println(clauses[i]);
+//        printState(uniform > this.greedy, score,atoms, atomCount);
+//        for (int i = 0; i < clauseCount; ++i) {
+//          System.out.print(i == clause.index ? ">": " ");
+//          System.out.println(clauses[i]);
+//        }
       }
     }
     //System.out.println(bestScore);
@@ -490,6 +499,11 @@ public class MaxWalkSat implements WeightedSatSolver {
       double uniform = random.nextDouble();
       atom.state = uniform > 0.5;
     }
+  }
+
+  private void useBestStateAsInit(){
+    for (int i =0; i < atomCount; ++i)
+      atoms[i].state = best[i];  
   }
 
   private void syncClauses() {
@@ -548,4 +562,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
 
+  public void setGreedyProbability(double greedy) {
+    this.greedy = greedy;
+  }
 }
