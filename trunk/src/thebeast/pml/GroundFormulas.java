@@ -297,7 +297,8 @@ public class GroundFormulas {
   /**
    * Returns the table that contains the ground formulas of the given <code>formula</code>
    * that have been generated in the most recent call
-   * to {@link thebeast.pml.GroundFormulas#update(GroundAtoms)}.
+   * to {@link thebeast.pml.GroundFormulas#update(GroundAtoms)}. Note that these can overlap with
+   * formulas from the previous call.
    *
    * @param formula the formula we want the new ground formulas for.
    * @return a table with new ground formulas of the given formula.

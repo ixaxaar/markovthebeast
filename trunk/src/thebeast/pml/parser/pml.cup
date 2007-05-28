@@ -159,7 +159,7 @@ statement ::= createType:s
             | SOLVE NUMBER:n
               {: RESULT = new ParserSolve(Integer.valueOf(n)); :}
             | SOLVE
-              {: RESULT = new ParserSolve(100); :}
+              {: RESULT = new ParserSolve(-1); :}
             | GREEDY
               {: RESULT = new ParserGreedy(); :}
             | COLLECT

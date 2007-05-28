@@ -1,6 +1,7 @@
 package thebeast.nodmem.mem;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author Sebastian Riedel
@@ -144,6 +145,20 @@ public class MemHolder {
     }
   }
 
+
+  public String toString(){
+    StringBuffer result = new StringBuffer();
+    result.append("size=").append(size);
+    result.append(" | capacity=").append(capacity);
+    result.append(" | bytesize=").append(byteSize());
+    result.append("\n");
+    if (intData != null) result.append(Arrays.toString(intData)).append("\n");
+    if (doubleData != null) result.append(Arrays.toString(doubleData)).append("\n");
+    if (chunkData != null) for (MemChunk chunk : chunkData)
+      result.append(chunk);
+    result.append("\n");
+    return result.toString();
+  }
 
 }
 
