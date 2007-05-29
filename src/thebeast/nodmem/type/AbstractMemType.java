@@ -15,7 +15,9 @@ import java.io.IOException;
  */
 public abstract class AbstractMemType implements Type {
 
-  private int numIntCols, numDoubleCols, numChunkCols;
+  //private int numIntCols, numDoubleCols, numChunkCols;
+
+  private MemDim dim;
 
   public void load(StreamTokenizer src, MemChunk dst, MemVector ptr) throws IOException {
 
@@ -34,16 +36,12 @@ public abstract class AbstractMemType implements Type {
 
   protected AbstractMemType(DataType dataType, int numIntCols, int numDoubleCols, int numChunkCols) {
     this.dataType = dataType;
-    this.numIntCols = numIntCols;
-    this.numDoubleCols = numDoubleCols;
-    this.numChunkCols = numChunkCols;
+    dim = MemDim.create(numIntCols,numDoubleCols,numChunkCols);
   }
 
   protected AbstractMemType(DataType dataType, MemDim dim) {
     this.dataType = dataType;
-    this.numIntCols = dim.xInt;
-    this.numDoubleCols = dim.xDouble;
-    this.numChunkCols = dim.xChunk;
+    this.dim = dim;
   }
 
 
@@ -59,33 +57,19 @@ public abstract class AbstractMemType implements Type {
     dataType = DataType.CHUNK;
   }
 
-  protected void setNumIntCols(int numIntCols) {
-    this.numIntCols = numIntCols;
+  protected void setDim(int numIntCols, int numDoubleCols, int numChunkCols){
+    dim = MemDim.create(numIntCols,numDoubleCols, numChunkCols);
   }
 
-  protected void setNumDoubleCols(int numDoubleCols) {
-    this.numDoubleCols = numDoubleCols;
-  }
-
-  protected void setNumChunkCols(int numChunkCols) {
-    this.numChunkCols = numChunkCols;
+  protected void setDim(MemDim dim){
+    this.dim = dim;
   }
 
   public MemDim getDim() {
-    return new MemDim(numIntCols, numDoubleCols, numChunkCols);
+    return dim;
   }
 
-  public int getNumIntCols() {
-    return numIntCols;
-  }
-
-  public int getNumDoubleCols() {
-    return numDoubleCols;
-  }
-
-  public int getNumChunkCols() {
-    return numChunkCols;
-  }
+  
 
   public abstract Value emptyValue();
 

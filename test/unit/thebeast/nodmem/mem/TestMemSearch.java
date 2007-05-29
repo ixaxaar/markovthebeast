@@ -22,7 +22,7 @@ public class TestMemSearch extends TestCase {
     table2 = new MemChunk(3, new int[]{3, 4, 2}, new double[0], new MemChunk[0]);
 
     //let's also build an index of table2
-    MemDim dim = new MemDim(1, 0, 0);
+    MemDim dim = MemDim.INT_DIM;
     MemChunkMultiIndex index1 = new MemChunkMultiIndex(3, dim);
     MemColumnSelector cols = new MemColumnSelector(new int[]{0}, new int[0], new int[0]);
     index1.add(table2, new MemVector(0, dim), cols, 0);
@@ -32,7 +32,7 @@ public class TestMemSearch extends TestCase {
     table2.indices = new MemChunkMultiIndex[]{index1};
 
     attr1 = new MemPointer(MemChunk.DataType.INT, 0);
-    attr1Select = new MemFunction(new MemChunk(1, 1, new MemDim(1, 0, 0)), 
+    attr1Select = new MemFunction(new MemChunk(1, 1, MemDim.INT_DIM),
             new MemVector[]{new MemVector(0,0,0)},
             new MemFunction(0, attr1));
 
@@ -56,9 +56,9 @@ public class TestMemSearch extends TestCase {
     MemSearchAction allTable1 = new MemSearchAction(MemSearchAction.Type.ALL);
     MemSearchAction allTable2 = new MemSearchAction(MemSearchAction.Type.ALL);
 
-    MemSearchPlan plan1 = new MemSearchPlan(new MemDim(1,0,0),allTable1, allTable2, equalSelectAttr1);
+    MemSearchPlan plan1 = new MemSearchPlan(MemDim.INT_DIM,allTable1, allTable2, equalSelectAttr1);
 
-    MemChunk dst = new MemChunk(4, 4, new MemDim(1, 0, 0));
+    MemChunk dst = new MemChunk(4, 4, MemDim.INT_DIM);
 
     MemSearch.search(plan1, new MemChunk[]{table1, table2}, null, dst, 0);
 
@@ -67,9 +67,9 @@ public class TestMemSearch extends TestCase {
     assertEquals(2, dst.getSize());
 
 
-    MemSearchPlan plan2 = new MemSearchPlan(new MemDim(1,0,0),allTable1, allTable2, equalPlus1SelectAttr1);
+    MemSearchPlan plan2 = new MemSearchPlan(MemDim.INT_DIM,allTable1, allTable2, equalPlus1SelectAttr1);
 
-    dst = new MemChunk(4, 4, new MemDim(1, 0, 0));
+    dst = new MemChunk(4, 4, MemDim.INT_DIM);
 
     MemSearch.search(plan2, new MemChunk[]{table1, table2}, null, dst, 0);
 
@@ -82,12 +82,12 @@ public class TestMemSearch extends TestCase {
 
     MemFunction query = new MemFunction(plan1,
             new MemFunction(new MemVector[]{new MemVector(0,0,0), new MemVector(0,0,1)},
-                    new MemChunk(1,1,0,0,2),
+                    new MemChunk(1,1,MemDim.CHUNK2_DIM),
                     new MemFunction(table1), new MemFunction(table2)
                     ), null);
 
-    dst = new MemChunk(4, 4, new MemDim(1, 0, 0));
-    MemChunk dstHolder = new MemChunk(1,1,0,0,1);
+    dst = new MemChunk(4, 4, MemDim.INT_DIM);
+    MemChunk dstHolder = new MemChunk(1,1,MemDim.CHUNK_DIM);
     dstHolder.chunkData[0] = dst;
 
     MemEvaluator.evaluate(query,null,null,dstHolder,new MemVector(0,0,0));
@@ -105,10 +105,10 @@ public class TestMemSearch extends TestCase {
     MemSearchAction indexTable2 = new MemSearchAction(MemSearchAction.Type.MULTI_INDEX,
             0, new MemColumnSelector(1,0,0), attr1Select);
 
-    MemSearchPlan plan1 = new MemSearchPlan(new MemDim(1,0,0), allTable1, indexTable2,
+    MemSearchPlan plan1 = new MemSearchPlan(MemDim.INT_DIM, allTable1, indexTable2,
             new MemSearchAction(MemSearchAction.Type.WRITE, attr1Select));
 
-    MemChunk dst = new MemChunk(4, 4, new MemDim(1, 0, 0));
+    MemChunk dst = new MemChunk(4, 4, MemDim.INT_DIM);
 
     MemSearch.search(plan1, new MemChunk[]{table1, table2}, null, dst, 0);
 

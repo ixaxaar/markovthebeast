@@ -8,6 +8,7 @@ import thebeast.nod.value.Value;
 import thebeast.nod.exception.NoDValueNotInTypeException;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.value.MemInt;
 import thebeast.nodmem.value.AbstractMemValue;
 import thebeast.nodmem.identifier.MemName;
@@ -27,7 +28,8 @@ public class MemIntType extends AbstractScalarType implements IntType, Iterable<
 
   public MemIntType(Name name, int from, int to) {
     super(name, DataType.INT);
-    setNumIntCols(1);
+    setDim(1,0,0);
+    //setNumIntCols(1);
     this.to = to;
     this.from = from;
   }
@@ -46,7 +48,7 @@ public class MemIntType extends AbstractScalarType implements IntType, Iterable<
 
   public IntValue value(int value) {
     if (value < from || value >= to) throw new NoDValueNotInTypeException(this, value);
-    MemChunk chunk = new MemChunk(1, 1, 1, 0, 0);
+    MemChunk chunk = new MemChunk(1, 1, MemDim.INT_DIM);
     chunk.intData[0] = value;
     return new MemInt(chunk, 0, this);
   }

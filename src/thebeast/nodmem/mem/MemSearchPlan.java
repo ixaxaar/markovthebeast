@@ -7,7 +7,7 @@ public class MemSearchPlan {
 
   final MemSearchAction[] actions;
   MemDim resultDim;
-  final MemChunk valid = new MemChunk(1,1,1,0,0);
+  final MemChunk valid = new MemChunk(1,1,MemDim.INT_DIM);
   int[] currentPointers;
   int[] currentSizes;
   int[] currentRows;
@@ -33,7 +33,7 @@ public class MemSearchPlan {
 
   public MemSearchPlan(MemSearchAction... actions) {
     this.actions = actions;
-    resultDim = new MemDim(0,0,0);
+    resultDim = MemDim.EMPTY;
   }
 
   

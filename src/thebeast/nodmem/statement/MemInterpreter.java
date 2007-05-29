@@ -107,19 +107,19 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
 
   public DoubleVariable createDoubleVariable(DoubleExpression expr) {
-    MemDoubleVariable var = new MemDoubleVariable(server, MemDoubleType.DOUBLE, new MemChunk(1, 1, 0, 1, 0));
+    MemDoubleVariable var = new MemDoubleVariable(server, MemDoubleType.DOUBLE, new MemChunk(1, 1, MemDim.DOUBLE_DIM));
     interpret(factory.createAssign(var, expr));
     return var;
   }
 
   public IntVariable createIntVariable(IntExpression expr) {
-    MemIntVariable var = new MemIntVariable(server, expr.type(), new MemChunk(1, 1, 1, 0, 0));
+    MemIntVariable var = new MemIntVariable(server, expr.type(), new MemChunk(1, 1, MemDim.INT_DIM));
     interpret(factory.createAssign(var, expr));
     return var;
   }
 
   public IntVariable createIntVariable() {
-    return new MemIntVariable(server, MemIntType.INT, new MemChunk(1, 1, 1, 0, 0));
+    return new MemIntVariable(server, MemIntType.INT, new MemChunk(1, 1, MemDim.INT_DIM));
   }
 
   public TupleVariable createTupleVariable(TupleExpression expr) {
@@ -160,23 +160,23 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public CategoricalVariable createCategoricalVariable(CategoricalExpression categorical) {
-    MemCategoricalVariable var = new MemCategoricalVariable(server, categorical.type(), new MemChunk(1, 1, 1, 0, 0));
+    MemCategoricalVariable var = new MemCategoricalVariable(server, categorical.type(), new MemChunk(1, 1, MemDim.INT_DIM));
     ++relVarCount;
     interpret(factory.createAssign(var, categorical));
     return var;
   }
 
   public CategoricalVariable createCategoricalVariable(CategoricalType type) {
-    return new MemCategoricalVariable(server, type, new MemChunk(1, 1, 1, 0, 0));
+    return new MemCategoricalVariable(server, type, new MemChunk(1, 1, MemDim.INT_DIM));
   }
 
 
   public BoolVariable createBoolVariable() {
-    return new MemBoolVariable(server, typeFactory.boolType(), new MemChunk(1, 1, 1, 0, 0));
+    return new MemBoolVariable(server, typeFactory.boolType(), new MemChunk(1, 1, MemDim.INT_DIM));
   }
 
   public BoolVariable createBoolVariable(BoolExpression expr) {
-    MemBoolVariable var = new MemBoolVariable(server, typeFactory.boolType(), new MemChunk(1, 1, 1, 0, 0));
+    MemBoolVariable var = new MemBoolVariable(server, typeFactory.boolType(), new MemChunk(1, 1, MemDim.INT_DIM));
     assign(var, expr);
     return var;
   }
@@ -192,7 +192,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public DoubleVariable createDoubleVariable() {
-    return new MemDoubleVariable(server, MemDoubleType.DOUBLE, new MemChunk(1, 1, 0, 1, 0));
+    return new MemDoubleVariable(server, MemDoubleType.DOUBLE, new MemChunk(1, 1, MemDim.DOUBLE_DIM));
   }
 
   public void append(ArrayVariable arrayVariable, ArrayExpression expression) {
@@ -211,7 +211,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public void scale(ArrayVariable arrayVariable, DoubleExpression scale) {
-    MemChunk dst = new MemChunk(1, 1, 0, 1, 0);
+    MemChunk dst = new MemChunk(1, 1, MemDim.DOUBLE_DIM);
     MemEvaluator.evaluate(((AbstractMemExpression) scale).compile(), null, null, dst, MemVector.ZERO);
     AbstractMemVariable var = (AbstractMemVariable) arrayVariable;
     MemMath.scale(var.getContainerChunk().chunkData[var.getPointer().xChunk], dst.doubleData[0]);
@@ -414,7 +414,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     int valueCol = heading.pointerForAttribute(arraySparseAdd.valueAttribute()).pointer;
     AbstractMemExpression scale = (AbstractMemExpression) arraySparseAdd.scale();
     AbstractMemExpression sparse = (AbstractMemExpression) arraySparseAdd.sparseVector();
-    MemChunk buffer = new MemChunk(1, 1, 0, 1, 1);
+    MemChunk buffer = new MemChunk(1, 1, MemDim.DOUBLE_CHUNK_DIM);
     MemEvaluator.evaluate(scale.compile(), null, null, buffer, MemVector.ZERO);
     MemEvaluator.evaluate(sparse.compile(), null, null, buffer, MemVector.ZERO);
     switch (arraySparseAdd.sign()) {
@@ -440,7 +440,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemArrayVariable var = (MemArrayVariable) arrayAdd.variable();
     AbstractMemExpression scale = (AbstractMemExpression) arrayAdd.scale();
     AbstractMemExpression arg = (AbstractMemExpression) arrayAdd.argument();
-    MemChunk buffer = new MemChunk(1, 1, 0, 1, 1);
+    MemChunk buffer = new MemChunk(1, 1, MemDim.DOUBLE_CHUNK_DIM);
     MemEvaluator.evaluate(scale.compile(), null, null, buffer, MemVector.ZERO);
     MemEvaluator.evaluate(arg.compile(), null, null, buffer, MemVector.ZERO);
     MemChunk dst = var.getContainerChunk().chunkData[var.getPointer().xChunk];

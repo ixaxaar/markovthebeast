@@ -11,7 +11,7 @@ public final class MemChunkSequentialIndex {
   public int highest, lowest;
 
   public void update(MemChunk chunk, int column) {
-    int numIntCols = chunk.numIntCols;
+    int numIntCols = chunk.dim.xInt;
     int[] tmpValues = new int[chunk.size];
     sortedRows = new int[chunk.size];
     int index = column;
@@ -32,7 +32,7 @@ public final class MemChunkSequentialIndex {
   }
 
   public int getGEQ(int value, MemChunk chunk, int col, int targetCell, int[][] rows){
-    int numIntCols = chunk.numIntCols;
+    int numIntCols = chunk.dim.xInt;
     int row = (value - lowest) * (highest/(sortedRows.length - 1));
     int index = col + sortedRows[row] * numIntCols;
     if (chunk.intData[index] >= value) while (chunk.intData[index] >= value) {

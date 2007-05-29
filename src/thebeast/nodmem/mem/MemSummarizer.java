@@ -55,8 +55,8 @@ public class MemSummarizer {
       } else {
         currentRow = old;
       }
-      int dstInt = currentRow * dst.numIntCols;
-      int dstDouble = currentRow * dst.numDoubleCols;
+      int dstInt = currentRow * dst.dim.xInt;
+      int dstDouble = currentRow * dst.dim.xDouble;
 
       //evaluate tmp function
       MemEvaluator.evaluate(f.tmpFunction, chunks, rows, wrappedTmp, MemVector.ZERO);

@@ -7,6 +7,7 @@ import thebeast.nod.value.BoolValue;
 import thebeast.nod.value.Value;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.value.AbstractMemValue;
 import thebeast.nodmem.value.MemBool;
 import thebeast.nodmem.identifier.MemName;
@@ -23,7 +24,8 @@ public class MemBoolType extends AbstractScalarType implements BoolType {
 
   public MemBoolType(Name name) {
     super(name, DataType.INT);
-    setNumIntCols(1);
+    setDim(1,0,0);
+    //setNumIntCols(1);
   }
 
   public void acceptTypeVisitor(TypeVisitor visitor) {
@@ -32,7 +34,7 @@ public class MemBoolType extends AbstractScalarType implements BoolType {
 
 
   public BoolValue value(boolean value) {
-    MemChunk chunk = new MemChunk(1, 1, 0, 1, 0);
+    MemChunk chunk = new MemChunk(1, 1, MemDim.INT_DIM);
     chunk.intData[0] = value ? 1 : 0;
     return new MemBool(chunk, 0, this);
   }

@@ -49,9 +49,9 @@ public class MemGrouper {
       if (groupCol.capacity <= groupCol.size){
         groupCol.increaseCapacity(10);
       }
-      int dstInt = groupCol.size * groupCol.numIntCols;
-      int dstDouble = groupCol.size * groupCol.numDoubleCols;
-      int dstChunk = groupCol.size * groupCol.numChunkCols;
+      int dstInt = groupCol.size * groupCol.dim.xInt;
+      int dstDouble = groupCol.size * groupCol.dim.xDouble;
+      int dstChunk = groupCol.size * groupCol.dim.xChunk;
 
       for (int xInt : groupedCols.intCols)
         groupCol.intData[dstInt++] = src.intData[srcPointer.xInt + xInt];

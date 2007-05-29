@@ -43,7 +43,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   }
 
   public MemRelationVariable(NoDServer server, RelationType type) {
-    super(server, type, new MemChunk(1, 1, 0, 0, 1));
+    super(server, type, new MemChunk(1, 1, MemDim.CHUNK_DIM));
     chunk.chunkData[0] = new MemChunk(0, 0, ((MemHeading) type.heading()).getDim());
     builder = new ExpressionBuilder(server);
     tupleType = server.typeFactory().createTupleType(type.heading());
@@ -205,7 +205,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
 
   public void assignByArray(int[] ints, double[] doubles) {
     MemChunk target = chunk.chunkData[pointer.xChunk];
-    int newSize = ints.length / target.numIntCols;
+    int newSize = ints.length / target.dim.xInt;
     if (target.capacity < newSize) target.increaseCapacity(newSize - target.capacity);
     System.arraycopy(ints, 0, target.intData, 0, ints.length);
     if (doubles != null) System.arraycopy(doubles, 0, target.doubleData, 0, doubles.length);

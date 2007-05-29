@@ -60,7 +60,7 @@ public final class MemFunction {
     this.type = Type.SUMMARIZE;
     this.argPointersVec = new MemVector[]{new MemVector(0, 0, 0)};
     this.arguments = new MemFunction[]{relFunction};
-    this.argHolder = new MemChunk(1, 1, 0, 0, 1);
+    this.argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     this.returnDim = returnDim;
     buildStacks();
   }
@@ -136,7 +136,7 @@ public final class MemFunction {
     this.cycleFrom = cycleFrom;
     this.cycleTo = cycleTo;
     this.arguments = new MemFunction[]{graphFunction};
-    this.argHolder = new MemChunk(1, 1, 0, 0, 1);
+    this.argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     this.type = Type.CYCLES;
     this.argPointersVec = new MemVector[]{new MemVector(0, 0, 0)};
     buildStacks();
@@ -152,7 +152,7 @@ public final class MemFunction {
     this.type = Type.GET;
     this.arguments = new MemFunction[]{argFunction};
     this.argPointersVec = new MemVector[]{new MemVector(0, 0, 0)};
-    this.argHolder = new MemChunk(1, 1, 0, 0, 1);
+    this.argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     this.getRel = rel;
     this.put = put;
     buildStacks();
@@ -188,12 +188,12 @@ public final class MemFunction {
    */
   public MemFunction(int indexAttribute, int scaleAttribute, MemFunction array, MemFunction indexRelation) {
     type = Type.INDEXED_SUM;
-    argHolder = new MemChunk(1, 1, 0, 0, 2);
+    argHolder = new MemChunk(1, 1, MemDim.CHUNK2_DIM);
     argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)};
     arguments = new MemFunction[]{array, indexRelation};
     this.indexAttribute = indexAttribute;
     this.scaleAttribute = scaleAttribute;
-    returnDim = new MemDim(0, 1, 0);
+    returnDim = MemDim.DOUBLE_DIM;
     buildStacks();
   }
 
@@ -211,8 +211,8 @@ public final class MemFunction {
                      MemColumnSelector groupCols, int dstGroupCol, MemFunction chunkFunction) {
     this.keyCols = keyCols;
     this.groupCols = groupCols;
-    returnDim = new MemDim(0, 0, 1);
-    argHolder = new MemChunk(1, 1, 0, 0, 1);
+    returnDim = MemDim.CHUNK_DIM;
+    argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     type = Type.GROUP;
     arguments = new MemFunction[]{chunkFunction};
     argPointersVec = new MemVector[]{new MemVector()};
@@ -234,7 +234,7 @@ public final class MemFunction {
     arguments = new MemFunction[0];
     indicesToUse = null;
     argPointersVec = null;
-    returnDim = new MemDim(1, 0, 0);
+    returnDim = MemDim.INT_DIM;
     buildStacks();
   }
 
@@ -245,7 +245,7 @@ public final class MemFunction {
     arguments = new MemFunction[0];
     indicesToUse = null;
     argPointersVec = null;
-    returnDim = new MemDim(1, 0, 0);
+    returnDim = MemDim.INT_DIM;
     buildStacks();
   }
 
@@ -277,7 +277,7 @@ public final class MemFunction {
     this.type = Type.VOID;
     this.argHolder = argHolder;
     argPointersVec = pointers;
-    returnDim = new MemDim(0, 0, 0);
+    returnDim = MemDim.EMPTY;
     buildStacks();
   }
 
@@ -295,13 +295,13 @@ public final class MemFunction {
     this.varPointer = pointer;
     switch (type) {
       case INT_VARIABLE:
-        returnDim = new MemDim(1, 0, 0);
+        returnDim = MemDim.INT_DIM;
         break;
       case DOUBLE_VARIABLE:
-        returnDim = new MemDim(0, 1, 0);
+        returnDim = MemDim.DOUBLE_DIM;
         break;
       case CHUNK_VARIABLE:
-        returnDim = new MemDim(0, 0, 1);
+        returnDim = MemDim.CHUNK_DIM;
         break;
     }
     buildStacks();
@@ -310,8 +310,8 @@ public final class MemFunction {
 
   public MemFunction(MemFunction arg, int... bins) {
     this.type = Type.INT_BINS;
-    this.returnDim = new MemDim(1, 0, 0);
-    this.argHolder = new MemChunk(1, 1, 1, 0, 0);
+    this.returnDim = MemDim.INT_DIM;
+    this.argHolder = new MemChunk(1, 1, MemDim.INT_DIM);
     this.arguments = new MemFunction[]{arg};
     this.argPointersVec = new MemVector[]{MemVector.ZERO};
     this.bins = bins;
@@ -337,7 +337,7 @@ public final class MemFunction {
   public MemFunction(int indexAttribute, int valueAttribute, int lhsIndex, int rhsIndex,
                      MemFunction lhs, MemFunction scale, MemFunction rhs) {
     this.type = Type.SPARSE_ADD;
-    this.argHolder = new MemChunk(1, 1, 0, 1, 2);
+    this.argHolder = new MemChunk(1, 1, MemDim.DOUBLE_CHUNK2_DIM);
     this.argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 0), new MemVector(0, 0, 1)};
     this.arguments = new MemFunction[]{lhs, scale, rhs};
     this.indexAtt = indexAttribute;
@@ -415,8 +415,8 @@ public final class MemFunction {
       case INT_EQUAL:
       case INT_NOTEQUAL:
         argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(1, 0, 0)};
-        argHolder = new MemChunk(1, 1, 2, 0, 0);
-        returnDim = new MemDim(1, 0, 0);
+        argHolder = new MemChunk(1, 1, MemDim.INT2_DIM);
+        returnDim = MemDim.INT_DIM;
         indicesToUse = null;
         maxStackDepth = 1 + args[1].maxStackDepth > args[0].maxStackDepth ?
                 1 + args[1].maxStackDepth : args[0].maxStackDepth;
@@ -431,8 +431,8 @@ public final class MemFunction {
       case DOUBLE_EQUAL:
       case DOUBLE_NOTEQUAL:
         argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 1, 0)};
-        argHolder = new MemChunk(1, 1, 0, 2, 0);
-        returnDim = new MemDim(0, 1, 0);
+        argHolder = new MemChunk(1, 1, MemDim.DOUBLE2_DIM);
+        returnDim = MemDim.DOUBLE_DIM;
         indicesToUse = null;
         maxStackDepth = 1 + args[1].maxStackDepth > args[0].maxStackDepth ?
                 1 + args[1].maxStackDepth : args[0].maxStackDepth;
@@ -441,8 +441,8 @@ public final class MemFunction {
       case CHUNK_NOTEQUAL:
       case RELATION_MINUS:
         argPointersVec = new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)};
-        argHolder = new MemChunk(1, 1, 0, 0, 2);
-        returnDim = new MemDim(0, 0, 1);
+        argHolder = new MemChunk(1, 1, MemDim.CHUNK2_DIM);
+        returnDim = MemDim.CHUNK_DIM;
         indicesToUse = null;
         maxStackDepth = 1 + args[1].maxStackDepth > args[0].maxStackDepth ?
                 1 + args[1].maxStackDepth : args[0].maxStackDepth;
@@ -467,15 +467,15 @@ public final class MemFunction {
     switch (attributePointer.type) {
       case INT:
         type = Type.INT_ATTRIBUTE;
-        returnDim = new MemDim(1, 0, 0);
+        returnDim = MemDim.INT_DIM;
         break;
       case DOUBLE:
         type = Type.DOUBLE_ATTRIBUTE;
-        returnDim = new MemDim(0, 1, 0);
+        returnDim = MemDim.DOUBLE_DIM;
         break;
       case CHUNK:
         type = Type.CHUNK_ATTRIBUTE;
-        returnDim = new MemDim(0, 0, 1);
+        returnDim = MemDim.CHUNK_DIM;
         break;
     }
     buildStacks();

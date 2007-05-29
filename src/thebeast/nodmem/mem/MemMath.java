@@ -12,8 +12,8 @@ public class MemMath {
     int valuePtr = valueColumn;
     for (int row = 0; row < sparse.size;++row){
       array.doubleData[sparse.intData[indexPtr]] += scale * sparse.doubleData[valuePtr];
-      indexPtr += sparse.numIntCols;
-      valuePtr += sparse.numDoubleCols;
+      indexPtr += sparse.dim.xInt;
+      valuePtr += sparse.dim.xDouble;
     }
     return result;
   }
@@ -28,8 +28,8 @@ public class MemMath {
       array.doubleData[ptr] += scale * sparse.doubleData[valuePtr];
       if (nonnegative & array.doubleData[ptr] < 0 || !nonnegative & array.doubleData[ptr] > 0)
         array.doubleData[ptr] = 0;        
-      indexPtr += sparse.numIntCols;
-      valuePtr += sparse.numDoubleCols;
+      indexPtr += sparse.dim.xInt;
+      valuePtr += sparse.dim.xDouble;
     }
     return result;
   }
@@ -54,7 +54,7 @@ public class MemMath {
     int relPointer = indexColumn;
     for (int row = 0; row < indexRelation.size;++row){
       result += array.doubleData[indexRelation.intData[relPointer]];
-      relPointer += indexRelation.numIntCols;
+      relPointer += indexRelation.dim.xInt;
     }
     return result;
   }
@@ -66,8 +66,8 @@ public class MemMath {
     for (int row = 0; row < indexRelation.size;++row){
       result += array.doubleData[indexRelation.intData[indexPtr]] * 
               indexRelation.doubleData[scalePtr];
-      indexPtr += indexRelation.numIntCols;
-      scalePtr += indexRelation.numDoubleCols;
+      indexPtr += indexRelation.dim.xInt;
+      scalePtr += indexRelation.dim.xDouble;
     }
     return result;
   }
@@ -107,7 +107,7 @@ public class MemMath {
          
         ++indexPtr.xInt;
       }
-      chunkPtr+=grouped.numChunkCols;
+      chunkPtr+=grouped.dim.xChunk;
     }
     dstSparseVector.size = dstSize; 
   }

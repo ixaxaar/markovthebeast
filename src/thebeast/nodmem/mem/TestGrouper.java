@@ -14,7 +14,7 @@ public class TestGrouper extends TestCase {
             2,2,2
     }, new double[0], new MemChunk[0]);
 
-    MemChunk dst = new MemChunk(0,1,1,0,1);
+    MemChunk dst = new MemChunk(0,1,MemDim.create(1,0,1));
     MemColumnSelector keyCols = new MemColumnSelector(1,0,0);
     MemColumnSelector groupCols = new MemColumnSelector(new int[]{1,2},new int[0], new int[0]);
     MemColumnSelector dstCols = new MemColumnSelector(1,0,0);

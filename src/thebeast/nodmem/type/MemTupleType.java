@@ -20,7 +20,8 @@ public class MemTupleType extends AbstractMemType implements TupleType {
 
   public MemTupleType(MemHeading heading) {
     this.heading = heading;
-    setNumChunkCols(1);
+    setDim(0,0,1);
+    //setNumChunkCols(1);
   }
 
   public void acceptTypeVisitor(TypeVisitor visitor) {
@@ -42,7 +43,7 @@ public class MemTupleType extends AbstractMemType implements TupleType {
 
   public MemTuple emptyTuple() {
     return new MemTuple(
-            new MemChunk(1, 1, heading.getNumIntCols(), heading.getNumDoubleCols(), heading.getNumChunkCols()),
+            new MemChunk(1, 1, heading.getDim()),
             new MemVector(), this);
   }
 

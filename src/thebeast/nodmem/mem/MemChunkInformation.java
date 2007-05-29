@@ -50,5 +50,8 @@ public class MemChunkInformation {
     return info;
   }
 
+  public MemChunkInformation create(MemDim dim){
+    return create(dim.xInt,dim.xDouble, dim.xChunk);
+  }
 
 }

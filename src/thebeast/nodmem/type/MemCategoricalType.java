@@ -8,6 +8,7 @@ import thebeast.nod.value.Value;
 import thebeast.nod.exception.NoDValueNotInTypeException;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.value.MemCategorical;
 import thebeast.nodmem.value.AbstractMemValue;
 
@@ -32,7 +33,8 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
 
   public MemCategoricalType(Name name, boolean unknowns, List<String> representations) {
     super(name, DataType.INT);
-    setNumIntCols(1);
+    setDim(1,0,0);
+    //setNumIntCols(1);
     this.representations = new ArrayList<String>(representations);
     this.unknownIndices = new HashMap<Integer, String>();
     this.unknownWords = new HashMap<String, Integer>();
@@ -61,7 +63,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   }
 
   public CategoricalValue value(String representation) {
-    MemChunk chunk = new MemChunk(1, 1, 1, 0, 0);
+    MemChunk chunk = new MemChunk(1, 1, MemDim.INT_DIM);
     Integer integer = indices.get(representation);
     if (integer == null && !unknowns) throw new NoDValueNotInTypeException(this, representation);
     chunk.intData[0] = integer == null ? unknownIndex(representation) : integer;
@@ -87,7 +89,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   }
 
   public CategoricalValue value(int index) {
-    MemChunk chunk = new MemChunk(1, 1, 1, 0, 0);
+    MemChunk chunk = new MemChunk(1, 1, MemDim.INT_DIM);
     chunk.intData[0] = index;
     return new MemCategorical(chunk, 0, this);
   }
