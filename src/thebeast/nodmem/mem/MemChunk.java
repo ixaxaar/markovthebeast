@@ -22,6 +22,7 @@ public final class MemChunk extends MemHolder {
   public int numIntCols;
   public int numChunkCols;
   public MemColumnSelector allCols;
+  //public MemChunkInformation info;
 
   //these should go to a chunk index information (or rather into higher layers, anyway).
   public MemChunkMultiIndex[] indices;
@@ -33,11 +34,9 @@ public final class MemChunk extends MemHolder {
   private static LinkedList<WeakReference<MemChunk>> references = new LinkedList<WeakReference<MemChunk>>();
   private static ReferenceQueue<MemChunk> queue = new ReferenceQueue<MemChunk>();
 
-  public static List<WeakReference<MemChunk>> references(){
+  public static List<WeakReference<MemChunk>> references() {
     return references;
   }
-
-
 
   //private static final int INCREMENTSCALE = 1;
 
@@ -152,7 +151,7 @@ public final class MemChunk extends MemHolder {
   public MemChunk(int size, int capacity, MemDim dim) {
     this(size, capacity, dim.xInt, dim.xDouble, dim.xChunk);
     //rowIndex = new MemChunkIndex(capacity == 0 ? 1 : capacity, dim);
-    allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
+    //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
     //references.add(new WeakReference<MemChunk>(this, queue));
   }
 
@@ -185,9 +184,9 @@ public final class MemChunk extends MemHolder {
     this.numChunkCols = numChunkCols;
     //numCols = numIntCols + numDoubleCols + numChunkCols;
     this.capacity = capacity;
-    intData = new int[capacity * numIntCols];
-    doubleData = new double[capacity * numDoubleCols];
-    chunkData = new MemChunk[capacity * numChunkCols];
+    if (numIntCols > 0) intData = new int[capacity * numIntCols];
+    if (numDoubleCols > 0) doubleData = new double[capacity * numDoubleCols];
+    if (numChunkCols > 0) chunkData = new MemChunk[capacity * numChunkCols];
     //rowIndex = new MemChunkIndex(capacity, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
     //references.add(new WeakReference<MemChunk>(this, queue));
@@ -198,13 +197,13 @@ public final class MemChunk extends MemHolder {
     //System.out.print("");    
     capacity += howMuch;
     int[] newIntData = new int[capacity * numIntCols];
-    System.arraycopy(intData, 0, newIntData, 0, intData.length);
+    if (intData != null) System.arraycopy(intData, 0, newIntData, 0, intData.length);
     intData = newIntData;
     double[] newDoubleData = new double[capacity * numDoubleCols];
-    System.arraycopy(doubleData, 0, newDoubleData, 0, doubleData.length);
+    if (doubleData != null) System.arraycopy(doubleData, 0, newDoubleData, 0, doubleData.length);
     doubleData = newDoubleData;
     MemChunk[] newChunkData = new MemChunk[capacity * numChunkCols];
-    System.arraycopy(chunkData, 0, newChunkData, 0, chunkData.length);
+    if (chunkData != null) System.arraycopy(chunkData, 0, newChunkData, 0, chunkData.length);
     chunkData = newChunkData;
     if (rowIndex != null) rowIndex.increaseCapacity(howMuch);
     //allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
@@ -223,7 +222,7 @@ public final class MemChunk extends MemHolder {
       rowIndex.increaseCapacity((size - rowIndex.getCapacity()));
     }
     if (allCols == null)
-      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);
+      allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
     for (int row = rowIndexedSoFar; row < size; ++row) {
       rowIndex.put(this, pointer, allCols, row, false);
       pointer.xInt += numIntCols;
@@ -239,7 +238,7 @@ public final class MemChunk extends MemHolder {
     if (rowIndex == null)
       rowIndex = new MemChunkIndex(size > 0 ? size : 1, new MemDim(numIntCols, numDoubleCols, numChunkCols));
     if (allCols == null)
-      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);    
+      allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
     int dstRow = rowIndexedSoFar;
     for (int row = rowIndexedSoFar; row < size; ++row) {
       int old = rowIndex.put(this, srcPointer, allCols, row, false);
@@ -351,11 +350,11 @@ public final class MemChunk extends MemHolder {
 
   public MemChunk copy() {
     MemChunk result = new MemChunk(size, size, numIntCols, numDoubleCols, numChunkCols);
-    if (intData != null)
+    if (intData != null && numIntCols > 0)
       System.arraycopy(intData, 0, result.intData, 0, size * numIntCols);
-    if (doubleData != null)
+    if (doubleData != null && numDoubleCols > 0)
       System.arraycopy(doubleData, 0, result.doubleData, 0, size * numDoubleCols);
-    if (chunkData != null)
+    if (chunkData != null && numChunkCols > 0)
       MemChunk.copyChunks(chunkData, 0, result.chunkData, 0, size * numChunkCols);
     return result;
   }
@@ -363,13 +362,16 @@ public final class MemChunk extends MemHolder {
   public void own() {
     //System.out.print("!");
     int[] newIntData = new int[capacity * numIntCols];
-    System.arraycopy(intData, 0, newIntData, 0, intData.length);
+    if (intData != null)
+      System.arraycopy(intData, 0, newIntData, 0, intData.length);
     intData = newIntData;
     double[] newDoubleData = new double[capacity * numDoubleCols];
-    System.arraycopy(doubleData, 0, newDoubleData, 0, doubleData.length);
+    if (doubleData != null)
+      System.arraycopy(doubleData, 0, newDoubleData, 0, doubleData.length);
     doubleData = newDoubleData;
     MemChunk[] newChunkData = new MemChunk[capacity * numChunkCols];
-    MemChunk.copyChunks(chunkData, 0, newChunkData, 0, chunkData.length);
+    if (chunkData != null)
+      MemChunk.copyChunks(chunkData, 0, newChunkData, 0, chunkData.length);
     chunkData = newChunkData;
 
     rowIndexedSoFar = 0;
@@ -384,15 +386,18 @@ public final class MemChunk extends MemHolder {
     if (other.rowIndex == null) other.buildRowIndex();
     MemChunkIndex index = other.rowIndex;
     if (allCols == null)
-      allCols = new MemColumnSelector(numIntCols,numDoubleCols, numChunkCols);    
+      allCols = new MemColumnSelector(numIntCols, numDoubleCols, numChunkCols);
     MemColumnSelector cols = allCols;
     MemVector dst = new MemVector();
     for (int row = 0; row < size; ++row) {
       int found = index.get(this, ptr, cols);
       if (found == -1) {
-        System.arraycopy(intData, ptr.xInt, result.intData, dst.xInt, numIntCols);
-        System.arraycopy(doubleData, ptr.xDouble, result.doubleData, dst.xDouble, numDoubleCols);
-        MemChunk.copyChunks(chunkData, ptr.xChunk, result.chunkData, dst.xChunk, numChunkCols);
+        if (intData != null && numIntCols > 0)
+          System.arraycopy(intData, ptr.xInt, result.intData, dst.xInt, numIntCols);
+        if (doubleData != null && numDoubleCols > 0)
+          System.arraycopy(doubleData, ptr.xDouble, result.doubleData, dst.xDouble, numDoubleCols);
+        if (chunkData != null && numChunkCols > 0)
+          MemChunk.copyChunks(chunkData, ptr.xChunk, result.chunkData, dst.xChunk, numChunkCols);
         dst.add(numIntCols, numDoubleCols, numChunkCols);
         ++result.size;
       }
@@ -434,7 +439,8 @@ public final class MemChunk extends MemHolder {
   }
 
   public int byteSize() {
-    int size = 3 * INTSIZE + 2 * POINTERSIZE + ARRAYSIZE;
+    int size = 3 * INTSIZE + 2 * POINTERSIZE;
+    if (allCols != null) size += ARRAYSIZE;
     size += super.byteSize();
     if (rowIndex != null) {
       size += rowIndex.byteSize();
@@ -444,7 +450,7 @@ public final class MemChunk extends MemHolder {
     return size;
   }
 
-  public String toString(){
+  public String toString() {
     StringBuffer result = new StringBuffer(super.toString());
     result.append("index bytesize: ").append(rowIndex == null ? "0" : rowIndex.byteSize());
     return result.toString();
@@ -524,14 +530,13 @@ public final class MemChunk extends MemHolder {
   }
 
 
-
   public static void copyChunks(MemChunk[] src, int fromSrc, MemChunk[] dst, int fromDst, int howmany) {
     int srcI = fromSrc;
     int dstI = fromDst;
     int max = fromSrc + howmany;
     for (; srcI < max; ++srcI, ++dstI) {
       if (src[srcI] == null) {
-        if (dst[dstI] !=  null)
+        if (dst[dstI] != null)
           dst[dstI].size = 0;
       } else {
         if (dst[dstI] == null) {
@@ -543,11 +548,11 @@ public final class MemChunk extends MemHolder {
 
   }
 
-  public void clear(){
+  public void clear() {
     rowIndexedSoFar = 0;
     if (rowIndex != null)
       rowIndex.clear();
-    if (indices != null){
+    if (indices != null) {
       for (MemChunkMultiIndex index : indices) {
         if (index != null) {
           index.indexedSoFar = 0;
@@ -555,7 +560,7 @@ public final class MemChunk extends MemHolder {
         }
       }
     }
-    size =0;
+    size = 0;
   }
 
 }

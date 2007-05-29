@@ -1,3 +1,22 @@
+class IntData {
+}
+
+class DoubleData {
+}
+
+class StringData {
+
+}
+
+class Table {
+  int[] intData;
+  String[] stringData;
+  double[] doubleData;
+  
+}
+
+
+
 class Runtime {
   - Corpus (for training and testing)
   - RamCorpus (for inspection)
