@@ -8,6 +8,7 @@ import thebeast.nod.value.Value;
 import thebeast.nod.exception.NoDValueNotInTypeException;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.value.AbstractMemValue;
 import thebeast.nodmem.value.MemDouble;
 import thebeast.nodmem.identifier.MemName;
@@ -27,7 +28,8 @@ public class MemDoubleType extends AbstractScalarType implements DoubleType {
 
   public MemDoubleType(Name name, double from, double to) {
     super(name, DataType.DOUBLE);
-    setNumDoubleCols(1);
+    setDim(0,1,0);
+    //setNumDoubleCols(1);
     this.to = to;
     this.from = from;
   }
@@ -47,7 +49,7 @@ public class MemDoubleType extends AbstractScalarType implements DoubleType {
 
   public DoubleValue value(double value) {
     if (value < from || value >= to) throw new NoDValueNotInTypeException(this, value);
-    MemChunk chunk = new MemChunk(1, 1, 0, 1, 0);
+    MemChunk chunk = new MemChunk(1, 1, MemDim.DOUBLE_DIM);
     chunk.doubleData[0] = value;
     return new MemDouble(chunk, 0, this);
   }

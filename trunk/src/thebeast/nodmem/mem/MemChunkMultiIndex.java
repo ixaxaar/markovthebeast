@@ -180,6 +180,7 @@ public final class MemChunkMultiIndex {
   public void clear() {
     numKeys = 0;
     numUsedIndices = 0;
+    indexedSoFar = 0;
     int i = 0;
     for (MemHolder tuple : tuples) {
       if (tuple != null) {
@@ -357,7 +358,7 @@ public final class MemChunkMultiIndex {
   public static MemChunkMultiIndex deserialize(MemDeserializer deserializer) throws IOException {
     int[] stats = new int[7];
     deserializer.read(stats, 7);
-    MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+    MemChunkMultiIndex index = new MemChunkMultiIndex(stats[0], MemDim.create(stats[1], stats[2], stats[3]));
     index.numKeys = stats[4];
     index.numUsedIndices = stats[5];
     index.indexedSoFar = stats[6];

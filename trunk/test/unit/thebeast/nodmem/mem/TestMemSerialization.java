@@ -55,7 +55,7 @@ public class TestMemSerialization extends TestCase {
     File file = new File("delete-me");
     file.delete();
     MemSerializer serializer = new MemSerializer(new FileOutputStream(file, true).getChannel(), buffer);
-    MemChunkIndex index = new MemChunkIndex(10, new MemDim(1, 1, 1));
+    MemChunkIndex index = new MemChunkIndex(10, MemDim.create(1, 1, 1));
     index.put(new int[]{1}, new double[]{1.0},
             new MemChunk[]{new MemChunk(1, new int[]{1}, new double[]{1.0}, new MemChunk[0])}, 1, true);
     index.put(new int[]{2}, new double[]{1.0},
@@ -95,7 +95,7 @@ public class TestMemSerialization extends TestCase {
     File file = new File("delete-me");
     file.delete();
     MemSerializer serializer = new MemSerializer(new FileOutputStream(file, true).getChannel(), buffer);
-    MemChunkMultiIndex index = new MemChunkMultiIndex(10, new MemDim(1, 1, 1));
+    MemChunkMultiIndex index = new MemChunkMultiIndex(10, MemDim.create(1, 1, 1));
     index.add(new int[]{1}, new double[]{1.0},
             new MemChunk[]{new MemChunk(1, new int[]{1}, new double[]{1.0}, new MemChunk[0])}, 1);
     index.add(new int[]{1}, new double[]{1.0},

@@ -7,6 +7,7 @@ import thebeast.nod.expression.ExpressionVisitor;
 import thebeast.nod.NoDServer;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.value.MemInt;
 
 /**
@@ -15,7 +16,7 @@ import thebeast.nodmem.value.MemInt;
 public class MemIntVariable extends AbstractMemVariable<IntValue, IntType> implements IntVariable {
   protected MemIntVariable(NoDServer server, IntValue value) {
     super(server, value, value.type());
-    chunk = new MemChunk(1,1,1,0,0);
+    chunk = new MemChunk(1,1, MemDim.INT_DIM);
     pointer = new MemVector(0,0,0);
   }
 

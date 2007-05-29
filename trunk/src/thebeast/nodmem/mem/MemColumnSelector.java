@@ -59,7 +59,7 @@ public class MemColumnSelector {
   }
 
   public MemDim getDim(){
-    return new MemDim(intCols.length,doubleCols.length,chunkCols.length);
+    return MemDim.create(intCols.length,doubleCols.length,chunkCols.length);
   }
 
   public int compareTo(MemColumnSelector cols) {

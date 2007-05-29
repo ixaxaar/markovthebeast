@@ -242,11 +242,11 @@ public class MemEvaluator {
     MemChunk rhs = argChunk.chunkData[1];
     memChunk = returnChunk.chunkData[argPointerVec.xChunk];
     if (memChunk == null) {
-      memChunk = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
+      memChunk = new MemChunk(0, 0, lhs.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = memChunk;
     }
     if (memChunk == lhs || memChunk == rhs) {
-      MemChunk tmp = new MemChunk(0, 0, lhs.numIntCols, lhs.numDoubleCols, lhs.numChunkCols);
+      MemChunk tmp = new MemChunk(0, 0, lhs.dim);
       sparseAdd(f, lhs, scale, rhs, tmp);
       memChunk.copyFrom(tmp);
     } else {
@@ -294,7 +294,7 @@ public class MemEvaluator {
     result = returnChunk.chunkData[argPointerVec.xChunk];
     if (result == null) {
       result = new MemChunk(neededSize, neededSize,
-              f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
+              f.argHolder.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     } else if (result.capacity < neededSize) {
       result.increaseCapacity(neededSize - result.size);
@@ -311,13 +311,13 @@ public class MemEvaluator {
   private static void array_access_zero(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
     int arrayIndex = f.argHolder.intData[0];
     MemChunk array = f.argHolder.chunkData[0];
-    if (array.numIntCols > 0)
-      returnChunk.intData[argPointerVec.xInt] = array.intData[arrayIndex * array.numIntCols];
-    else if (array.numDoubleCols > 0)
+    if (array.dim.xInt > 0)
+      returnChunk.intData[argPointerVec.xInt] = array.intData[arrayIndex * array.dim.xInt];
+    else if (array.dim.xDouble > 0)
       returnChunk.doubleData[argPointerVec.xDouble] = arrayIndex != -1 ?
-              array.doubleData[arrayIndex * array.numDoubleCols] : 0.0;
-    else if (array.numChunkCols > 0)
-      returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.numChunkCols];
+              array.doubleData[arrayIndex * array.dim.xDouble] : 0.0;
+    else if (array.dim.xChunk > 0)
+      returnChunk.chunkData[argPointerVec.xChunk] = array.chunkData[arrayIndex * array.dim.xChunk];
   }
 
   private static void relation_selector(MemFunction f, MemChunk returnChunk, MemVector argPointerVec, boolean unify) {
@@ -331,7 +331,7 @@ public class MemEvaluator {
     result = returnChunk.chunkData[argPointerVec.xChunk];
     if (result == null) {
       MemChunk first = f.argHolder.chunkData[0];
-      result = new MemChunk(neededSize, neededSize, first.numIntCols, first.numDoubleCols, first.numChunkCols);
+      result = new MemChunk(neededSize, neededSize, first.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     } else if (result.capacity < neededSize) {
 
@@ -345,13 +345,13 @@ public class MemEvaluator {
     for (int i = 0; i < tuples.length; ++i) {
       tuple = tuples[i];
       if (tuple.intData != null)
-        System.arraycopy(tuple.intData, 0, result.intData, i * tuple.numIntCols, tuple.intData.length);
+        System.arraycopy(tuple.intData, 0, result.intData, i * tuple.dim.xInt, tuple.intData.length);
       if (tuple.doubleData != null)
-        System.arraycopy(tuple.doubleData, 0, result.doubleData, i * tuple.numDoubleCols, tuple.doubleData.length);
-//            for (int col = 0; col < tuple.numChunkCols; ++col)
-//              result.chunkData[i * tuple.numChunkCols + col] = tuple.chunkData[col].copy();
+        System.arraycopy(tuple.doubleData, 0, result.doubleData, i * tuple.dim.xDouble, tuple.doubleData.length);
+//            for (int col = 0; col < tuple.dim.xChunk; ++col)
+//              result.chunkData[i * tuple.dim.xChunk + col] = tuple.chunkData[col].copy();
       if (tuple.chunkData != null)
-        MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.numChunkCols, tuple.chunkData.length);
+        MemChunk.copyChunks(tuple.chunkData, 0, result.chunkData, i * tuple.dim.xChunk, tuple.chunkData.length);
     }
     if (unify) result.unify();
   }
@@ -361,10 +361,8 @@ public class MemEvaluator {
     MemChunk tuple = argChunk.chunkData[1];
     relation.buildRowIndex();
     MemChunkIndex index = relation.rowIndex;
-    if (tuple.allCols == null)
-      tuple.allCols = new MemColumnSelector(tuple.numIntCols, tuple.numDoubleCols, tuple.numChunkCols);
 
-    returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.allCols) == -1 ? 0 : 1;
+    returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.dim.allCols) == -1 ? 0 : 1;
   }
 
   private static void tuple_from(MemChunk returnChunk, MemVector argPointerVec, MemFunction f, MemChunk argChunk) {
@@ -372,22 +370,22 @@ public class MemEvaluator {
     result = returnChunk.chunkData[argPointerVec.xChunk];
     if (result == null) {
       MemChunk src = f.argHolder.chunkData[0];
-      result = new MemChunk(1, 1, src.numIntCols, src.numDoubleCols, src.numChunkCols);
+      result = new MemChunk(1, 1, src.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     }
-    if (argChunk.chunkData[0].intData != null  && argChunk.chunkData[0].numIntCols > 0)
-      System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].numIntCols);
-    if (argChunk.chunkData[0].doubleData != null && argChunk.chunkData[0].numDoubleCols > 0 )
-      System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].numDoubleCols);
-    if (argChunk.chunkData[0].chunkData != null  && argChunk.chunkData[0].numChunkCols > 0)
-      MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].numChunkCols);
+    if (argChunk.chunkData[0].intData != null  && argChunk.chunkData[0].dim.xInt > 0)
+      System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].dim.xInt);
+    if (argChunk.chunkData[0].doubleData != null && argChunk.chunkData[0].dim.xDouble > 0 )
+      System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].dim.xDouble);
+    if (argChunk.chunkData[0].chunkData != null  && argChunk.chunkData[0].dim.xChunk > 0)
+      MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].dim.xChunk);
   }
 
   private static void tuple_selector(MemChunk returnChunk, MemVector argPointerVec, MemFunction f, MemChunk argChunk) {
     MemChunk result;
     result = returnChunk.chunkData[argPointerVec.xChunk];
     if (result == null) {
-      result = new MemChunk(1, 1, f.argHolder.numIntCols, f.argHolder.numDoubleCols, f.argHolder.numChunkCols);
+      result = new MemChunk(1, 1, f.argHolder.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     }
     if (argChunk.intData != null) System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
@@ -399,15 +397,15 @@ public class MemEvaluator {
 
   private static void relation_copy(MemChunk argChunk, MemVector argPointerVec, MemChunk returnChunk) {
     argChunk = argChunk.chunkData[0];
-    int intSize = argChunk.size * argChunk.numIntCols;
-    int doubleSize = argChunk.size * argChunk.numDoubleCols;
-    int chunkSize = argChunk.size * argChunk.numChunkCols;
+    int intSize = argChunk.size * argChunk.dim.xInt;
+    int doubleSize = argChunk.size * argChunk.dim.xDouble;
+    int chunkSize = argChunk.size * argChunk.dim.xChunk;
     //if (returnChunk.size % 10000 == 999) System.out.println(returnChunk.capacity);
     //System.out.print(".");
     if (
-            returnChunk.numIntCols > 0 && argPointerVec.xInt + intSize > returnChunk.intData.length ||
-            returnChunk.numDoubleCols > 0 &&  argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
-            returnChunk.numChunkCols > 0 && argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length) {
+            returnChunk.dim.xInt > 0 && argPointerVec.xInt + intSize > returnChunk.intData.length ||
+            returnChunk.dim.xDouble > 0 &&  argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
+            returnChunk.dim.xChunk > 0 && argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length) {
 //      returnChunk.increaseCapacity(argChunk.size);
       returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
       //System.out.println(returnChunk.capacity);
@@ -477,7 +475,7 @@ public class MemEvaluator {
     MemChunk chunk;
     chunk = chunks[f.chunkIndex];
     returnChunk.chunkData[argPointerVec.xChunk] =
-            chunk.chunkData[rows[f.chunkIndex] * chunk.numChunkCols + f.attributeIndex];
+            chunk.chunkData[rows[f.chunkIndex] * chunk.dim.xChunk + f.attributeIndex];
   }
 
   private static void chunk_variable(MemFunction f, MemChunk returnChunk, MemVector argPointerVec) {
@@ -528,7 +526,7 @@ public class MemEvaluator {
     MemChunk chunk;
     chunk = chunks[f.chunkIndex];
     returnChunk.doubleData[argPointerVec.xDouble] =
-            chunk.doubleData[rows[f.chunkIndex] * chunk.numDoubleCols + f.attributeIndex];
+            chunk.doubleData[rows[f.chunkIndex] * chunk.dim.xDouble + f.attributeIndex];
   }
 
   private static void double_cast(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
@@ -562,7 +560,7 @@ public class MemEvaluator {
   private static void union(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec, MemFunction f) {
     MemChunk dst;
     int maxSize = 0;
-    for (int i = 0; i < argChunk.numChunkCols; ++i) maxSize += argChunk.chunkData[i].size;
+    for (int i = 0; i < argChunk.dim.xChunk; ++i) maxSize += argChunk.chunkData[i].size;
     dst = returnChunk.chunkData[argPointerVec.xChunk];
     if (dst == null) {
       dst = new MemChunk(0, maxSize, f.returnDim);
@@ -571,7 +569,7 @@ public class MemEvaluator {
       dst.size = 0;
       if (dst.capacity < maxSize) dst.increaseCapacity(maxSize - dst.capacity);
     }
-    for (int i = 0; i < argChunk.numChunkCols; ++i)
+    for (int i = 0; i < argChunk.dim.xChunk; ++i)
       MemInserter.append(argChunk.chunkData[i], dst);
     dst.unify();
   }
@@ -602,7 +600,7 @@ public class MemEvaluator {
   private static void int_attribute(MemChunk[] chunks, MemFunction f, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
     MemChunk chunk = chunks[f.chunkIndex];
     returnChunk.intData[argPointerVec.xInt] =
-            chunk.intData[rows[f.chunkIndex] * chunk.numIntCols + f.attributeIndex];
+            chunk.intData[rows[f.chunkIndex] * chunk.dim.xInt + f.attributeIndex];
   }
 
   private static void int_greaterthan(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
@@ -682,7 +680,7 @@ public class MemEvaluator {
         vertex2val.put(toVertex, toValue);
       }
       edge2row.put(new Pair<Integer, Integer>(fromVertex, toVertex), row);
-      xInt += graph.numIntCols;
+      xInt += graph.dim.xInt;
     }
     int[][] intGraph = new int[edge2row.size()][];
     int edgeIndex = 0;
@@ -703,7 +701,7 @@ public class MemEvaluator {
       MemChunk edges = cycleChunk.chunkData[cycleIndex];
       if (edges == null) {
         edges = new MemChunk(cycle.length, cycle.length,
-                graph.numIntCols, graph.numDoubleCols, graph.numChunkCols);
+                graph.dim);
         cycleChunk.chunkData[cycleIndex] = edges;
       }
       if (edges.capacity < cycle.length)
@@ -712,16 +710,16 @@ public class MemEvaluator {
         int row = edge2row.get(new Pair<Integer, Integer>(cycle[vertexIndex],
                 cycle[vertexIndex == cycle.length - 1 ? 0 : vertexIndex + 1]));
         //System.out.print(graph.intData[row * 2] + "-" + graph.intData[row * 2 + 1] + " ");
-        if (graph.intData != null && graph.numIntCols > 0)
-          System.arraycopy(graph.intData, row * graph.numIntCols,
-                  edges.intData, vertexIndex * graph.numIntCols, graph.numIntCols);
-        if (graph.doubleData != null && graph.numDoubleCols > 0)
-          System.arraycopy(graph.doubleData, row * graph.numDoubleCols,
-                  edges.doubleData, vertexIndex * graph.numDoubleCols, graph.numDoubleCols);
-        if (graph.chunkData != null && graph.numChunkCols > 0)
-          for (int chunkIndex = 0; chunkIndex < graph.numChunkCols; ++chunkIndex)
-            edges.chunkData[vertexIndex * graph.numChunkCols + chunkIndex] =
-                    graph.chunkData[row * graph.numChunkCols + chunkIndex].copy();
+        if (graph.intData != null && graph.dim.xInt > 0)
+          System.arraycopy(graph.intData, row * graph.dim.xInt,
+                  edges.intData, vertexIndex * graph.dim.xInt, graph.dim.xInt);
+        if (graph.doubleData != null && graph.dim.xDouble > 0)
+          System.arraycopy(graph.doubleData, row * graph.dim.xDouble,
+                  edges.doubleData, vertexIndex * graph.dim.xDouble, graph.dim.xDouble);
+        if (graph.chunkData != null && graph.dim.xChunk > 0)
+          for (int chunkIndex = 0; chunkIndex < graph.dim.xChunk; ++chunkIndex)
+            edges.chunkData[vertexIndex * graph.dim.xChunk + chunkIndex] =
+                    graph.chunkData[row * graph.dim.xChunk + chunkIndex].copy();
       }
       edges.size = cycle.length;
       //System.out.println("");
@@ -741,14 +739,14 @@ public class MemEvaluator {
       int row;
       main:
       for (row = 0; row < f.getRel.size; ++row) {
-        ptr.xInt = row * chunk.numIntCols;
-        ptr.xDouble = row * chunk.numDoubleCols;
-        ptr.xChunk = row * chunk.numChunkCols;
-        for (int col = 0; col < argChunk.numIntCols; ++col)
+        ptr.xInt = row * chunk.dim.xInt;
+        ptr.xDouble = row * chunk.dim.xDouble;
+        ptr.xChunk = row * chunk.dim.xChunk;
+        for (int col = 0; col < argChunk.dim.xInt; ++col)
           if (chunk.intData[ptr.xInt + f.argCols.intCols[col]] != argChunk.intData[col]) continue main;
-        for (int col = 0; col < argChunk.numDoubleCols; ++col)
+        for (int col = 0; col < argChunk.dim.xDouble; ++col)
           if (chunk.doubleData[ptr.xDouble + f.argCols.doubleCols[col]] != argChunk.doubleData[col]) continue main;
-        for (int col = 0; col < argChunk.numChunkCols; ++col)
+        for (int col = 0; col < argChunk.dim.xChunk; ++col)
           if (chunk.chunkData[ptr.xChunk + f.argCols.chunkCols[col]] != argChunk.chunkData[col]) continue main;
         foundRow = row;
         break;
@@ -761,11 +759,11 @@ public class MemEvaluator {
       for (i = 0; i < size; ++i) {
         int row = searchSpace[0][i];
         ptr = new MemVector(row, dim);
-        for (int col = 0; col < argChunk.numIntCols; ++col)
+        for (int col = 0; col < argChunk.dim.xInt; ++col)
           if (chunk.intData[ptr.xInt + f.argCols.intCols[col]] != argChunk.intData[col]) continue main;
-        for (int col = 0; col < argChunk.numDoubleCols; ++col)
+        for (int col = 0; col < argChunk.dim.xDouble; ++col)
           if (chunk.doubleData[ptr.xDouble + f.argCols.doubleCols[col]] != argChunk.doubleData[col]) continue main;
-        for (int col = 0; col < argChunk.numChunkCols; ++col)
+        for (int col = 0; col < argChunk.dim.xChunk; ++col)
           if (chunk.chunkData[ptr.xChunk + f.argCols.chunkCols[col]] != argChunk.chunkData[col]) continue main;
         foundRow = row;
         break;
@@ -805,8 +803,9 @@ public class MemEvaluator {
       }
     } else {
       if (dst.chunkData[dstVct.xChunk] == null) {
-        dst.chunkData[dstVct.xChunk] = new MemChunk(1, 1, f.resultCols.intCols.length,
+        MemDim chunkDim = MemDim.create(f.resultCols.intCols.length,
                 f.resultCols.doubleCols.length, f.resultCols.chunkCols.length);
+        dst.chunkData[dstVct.xChunk] = new MemChunk(1, 1, chunkDim);
       }
       dst = dst.chunkData[dstVct.xChunk];
       for (int col = 0; col < f.resultCols.intCols.length; ++col)
@@ -831,14 +830,14 @@ public class MemEvaluator {
       int[][] rows = new int[1][];
       MemVector lhsPtr = new MemVector();
       for (int row = 0; row < lhs.size; ++row) {
-        System.arraycopy(lhs.intData, lhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
-        System.arraycopy(lhs.doubleData, lhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
+        System.arraycopy(lhs.intData, lhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.dim.xInt);
+        System.arraycopy(lhs.doubleData, lhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.dim.xDouble);
         if (lhs.chunkData != null)
-          MemChunk.copyChunks(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+          MemChunk.copyChunks(lhs.chunkData, lhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.dim.xChunk);
         int count = index.get(lhs, lhsPtr, cols, 0, rows);
         if (count == 1) {
           dst.doubleData[dstPtr.xDouble + add.valueAtt] +=
-                  scale * rhs.doubleData[rows[0][0] * rhs.numDoubleCols + add.valueAtt];
+                  scale * rhs.doubleData[rows[0][0] * rhs.dim.xDouble + add.valueAtt];
         }
         dstPtr.add(dim);
         lhsPtr.add(dim);
@@ -854,10 +853,10 @@ public class MemEvaluator {
       for (int row = 0; row < rhs.size; ++row) {
         int count = index.get(rhs, rhsPtr, cols, 0, rows);
         if (count == 0) {
-          System.arraycopy(rhs.intData, rhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.numIntCols);
-          System.arraycopy(rhs.doubleData, rhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.numDoubleCols);
+          System.arraycopy(rhs.intData, rhsPtr.xInt, dst.intData, dstPtr.xInt, lhs.dim.xInt);
+          System.arraycopy(rhs.doubleData, rhsPtr.xDouble, dst.doubleData, dstPtr.xDouble, lhs.dim.xDouble);
           if (rhs.chunkData != null)
-            MemChunk.copyChunks(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.numChunkCols);
+            MemChunk.copyChunks(rhs.chunkData, rhsPtr.xChunk, dst.chunkData, dstPtr.xChunk, lhs.dim.xChunk);
           dst.doubleData[dstPtr.xDouble + add.valueAtt] *= scale;
           dstPtr.add(dim);
           ++dst.size;

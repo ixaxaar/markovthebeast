@@ -35,7 +35,7 @@ public class MemUpdater {
         ++rows[0];
       }
     else {
-      MemChunk condition = new MemChunk(1, 1, 1, 0, 0);
+      MemChunk condition = new MemChunk(1, 1, MemDim.INT_DIM);
       MemVector zero = new MemVector(0, 0, 0);
       for (int row = 0; row < chunk.size; ++row) {
         MemEvaluator.evaluate(where, chunks, rows, condition, zero);

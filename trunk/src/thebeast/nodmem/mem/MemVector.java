@@ -106,4 +106,26 @@ public class MemVector {
     this.xDouble = xDouble;
     this.xChunk = xChunk;
   }
+
+
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    MemVector memVector = (MemVector) o;
+
+    if (xChunk != memVector.xChunk) return false;
+    if (xDouble != memVector.xDouble) return false;
+    if (xInt != memVector.xInt) return false;
+
+    return true;
+  }
+
+  public int hashCode() {
+    int result;
+    result = xInt;
+    result = 31 * result + xDouble;
+    result = 31 * result + xChunk;
+    return result;
+  }
 }

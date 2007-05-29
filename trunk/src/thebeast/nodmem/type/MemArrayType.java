@@ -19,7 +19,7 @@ public class MemArrayType extends AbstractMemType implements ArrayType {
 
   public MemArrayType(Type instanceType) {
     //super(DataType.CHUNK, 0,0,1);
-    setNumChunkCols(1);
+    setDim(0,0,1);
     //super(DataType.CHUNK, ((AbstractMemType)instanceType).getDim());
     this.instanceType = instanceType;
   }

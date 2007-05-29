@@ -105,7 +105,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemDim dim = type.getDim();
     MemFunction[] functions = new MemFunction[size];
     MemVector[] argPointers = new MemVector[size];
-    MemChunk argHolder = new MemChunk(1, 1, 0, 0, size);
+    MemDim chunkDim = MemDim.create(0,0,size);
+    MemChunk argHolder = new MemChunk(1, 1, chunkDim);
     int index = 0;
     for (Expression expr : relationSelector.tupleExpressions()) {
       argHolder.chunkData[index] = new MemChunk(1, 1, dim);
@@ -144,7 +145,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       chunkFunctions[index++] = function;
 
     }
-    MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, 0, 0, relationCount), chunkFunctions);
+    MemDim dim = MemDim.create(0,0,relationCount);
+    MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, dim), chunkFunctions);
 
     //get index candidates for equality expressions
     extractor.clear();
@@ -171,7 +173,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 //      select = new MemFunction(new MemChunk(function.argHolder.getDim()),function.argPointersVec, function.arguments);
 //    } else
     select = new MemFunction(MemFunction.Type.TUPLE_COPY,
-              new MemChunk(1, 1, 0, 0, 1), new MemVector[]{new MemVector(0, 0, 0)}, function);
+              new MemChunk(1, 1, MemDim.CHUNK_DIM), new MemVector[]{new MemVector(0, 0, 0)}, function);
 
 
     if (validation == null)
@@ -203,7 +205,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
           List<String> attributes = memIndex.attributes();
           MemFunction[] args = new MemFunction[attributes.size()];
           MemVector[] pointers = new MemVector[attributes.size()];
-          MemDim dim = new MemDim();
+          MemVector dim = new MemVector();
           int attIndex = 0;
           for (String name : attributes) {
             Expression equality = available.get(name);
@@ -222,7 +224,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
 
           MemColumnSelector cols = new MemColumnSelector(dim.xInt, dim.xDouble, dim.xChunk);
-          MemFunction select = new MemFunction(new MemChunk(1, 1, dim), pointers, args);
+          MemFunction select = new MemFunction(new MemChunk(1, 1, MemDim.create(dim)), pointers, args);
           MemSearchAction action = new MemSearchAction(MemSearchAction.Type.MULTI_INDEX,
                   bestIndexId, cols, select);
           actions[relation] = action;
@@ -257,7 +259,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       chunkFunctions[index++] = function;
 
     }
-    MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, 0, 0, relationCount), chunkFunctions);
+    MemDim dim = MemDim.create(0,0,relationCount);
+    MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, dim), chunkFunctions);
 
     //get index candidates for equality expressions
     extractor.clear();
@@ -280,7 +283,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     //todo: if function is a TUPLE_SELECTOR we can replace it with a COPY function
     //else we need a TUPLE_EXPAND
     MemFunction select = new MemFunction(MemFunction.Type.RELATION_COPY,
-            new MemChunk(1, 1, 0, 0, 1), new MemVector[]{new MemVector(0, 0, 0)}, function);
+            new MemChunk(1, 1, MemDim.CHUNK_DIM), new MemVector[]{new MemVector(0, 0, 0)}, function);
 
 
     if (validation == null)
@@ -356,7 +359,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       }
     }
     int size = args.size();
-    MemChunk argHolder = new MemChunk(size, size, 1, 0, 0);
+    MemChunk argHolder = new MemChunk(size, size, MemDim.INT_DIM);
     function = new MemFunction(MemFunction.Type.AND, argHolder,
             argPointers.toArray(new MemVector[size]), args.toArray(new MemFunction[size]));
   }
@@ -408,7 +411,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     contains.tuple().acceptExpressionVisitor(this);
     MemFunction tuple = function;
     //todo: test whether the tuple has all components, just some or none.
-    function = new MemFunction(MemFunction.Type.CONTAINS, new MemChunk(1, 1, 0, 0, 2),
+    function = new MemFunction(MemFunction.Type.CONTAINS, new MemChunk(1, 1, MemDim.CHUNK2_DIM),
             new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)}, relation, tuple);
   }
 
@@ -450,7 +453,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   }
 
   public void visitTupleFrom(TupleFrom tupleFrom) {
-    MemChunk argHolder = new MemChunk(1, 1, 0, 0, 1);
+    MemChunk argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     tupleFrom.relation().acceptExpressionVisitor(this);
     MemFunction relation = function;
     function = new MemFunction(MemFunction.Type.TUPLE_FROM,
@@ -570,7 +573,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   public void visitDoubleCast(DoubleCast doubleCast) {
     doubleCast.intExpression().acceptExpressionVisitor(this);
     MemFunction intFunction = function;
-    function = new MemFunction(MemFunction.Type.DOUBLE_CAST, new MemChunk(1, 1, 1, 0, 0),
+    function = new MemFunction(MemFunction.Type.DOUBLE_CAST, new MemChunk(1, 1, MemDim.INT_DIM),
             new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 1, 0)}, intFunction);
 
   }
@@ -778,14 +781,14 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   public void visitNot(Not not) {
     not.expression().acceptExpressionVisitor(this);
     MemFunction argument = function;
-    MemChunk argHolder = new MemChunk(1, 1, 1, 0, 0);
+    MemChunk argHolder = new MemChunk(1, 1, MemDim.INT_DIM);
     MemVector[] argPointers = new MemVector[]{new MemVector(0, 0, 0)};
     function = new MemFunction(MemFunction.Type.NOT, argHolder, argPointers, argument);
   }
 
   public void visitAllConstants(AllConstants allConstants) {
     int size = allConstants.ofType().values().size();
-    MemChunk all = new MemChunk(size, size, 1, 0, 0);
+    MemChunk all = new MemChunk(size, size, MemDim.INT_DIM);
     for (int i = 0; i < size; ++i) all.intData[i] = i;
     function = new MemFunction(all);
   }
@@ -885,7 +888,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   }
 
   public void visitCount(Count count) {
-    MemChunk argHolder = new MemChunk(1, 1, 0, 0, 1);
+    MemChunk argHolder = new MemChunk(1, 1, MemDim.CHUNK_DIM);
     count.relation().acceptExpressionVisitor(this);
     MemFunction relation = function;
     MemVector[] argVecs = new MemVector[]{new MemVector(0, 0, 0)};
@@ -897,7 +900,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemFunction lhs = function;
     relationMinus.rightHandSide().acceptExpressionVisitor(this);
     MemFunction rhs = function;
-    function = new MemFunction(MemFunction.Type.RELATION_MINUS, new MemChunk(1, 1, 0, 0, 2),
+    function = new MemFunction(MemFunction.Type.RELATION_MINUS, new MemChunk(1, 1, MemDim.CHUNK2_DIM),
             new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)}, lhs, rhs);
   }
 
@@ -1021,7 +1024,8 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemDim returnDim = heading.getDim();
     MemFunction[] args = new MemFunction[union.arguments().size()];
     MemVector[] argPointers = new MemVector[args.length];
-    MemChunk argHolder = new MemChunk(1, 1, 0, 0, args.length);
+    MemDim chunkDim = MemDim.create(0,0,args.length);
+    MemChunk argHolder = new MemChunk(1, 1, chunkDim);
     int index = 0;
     for (RelationExpression expr : union.arguments()) {
       expr.acceptExpressionVisitor(this);
@@ -1047,13 +1051,13 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     indexCollector.grouped().acceptExpressionVisitor(this);
     MemFunction grouped = function;
     function = new MemFunction(MemFunction.Type.INDEX_COLLECTOR,
-            new MemChunk(1, 1, 0, 0, 1), new MemVector[]{MemVector.ZERO}, grouped);
-    function.index = new MemChunkIndex(0, new MemDim(1, 0, 0));
+            new MemChunk(1, 1, MemDim.CHUNK_DIM), new MemVector[]{MemVector.ZERO}, grouped);
+    function.index = new MemChunkIndex(0, MemDim.INT_DIM);
     function.groupAtt = groupAttribute;
   }
 
   public void visitArrayAccess(ArrayAccess arrayAccess) {
-    MemChunk argHolder = new MemChunk(1, 1, 1, 0, 1);
+    MemChunk argHolder = new MemChunk(1, 1, MemDim.INT_CHUNK_DIM);
     arrayAccess.array().acceptExpressionVisitor(this);
     MemFunction array = function;
     arrayAccess.index().acceptExpressionVisitor(this);

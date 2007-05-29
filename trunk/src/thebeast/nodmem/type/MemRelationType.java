@@ -22,19 +22,14 @@ public class MemRelationType extends AbstractMemType implements RelationType {
 
   public MemRelationType(MemHeading heading) {
     this.heading = heading;
-    setNumChunkCols(heading.getNumChunkCols());
-    setNumDoubleCols(heading.getNumDoubleCols());
-    setNumIntCols(heading.getNumIntCols());
-
+    setDim(heading.getDim());
     candidateKeys = new LinkedList<KeyAttributes>();
     candidateKeys.add(new MemKeyAttributes(heading, heading.attributes()));
   }
 
   public MemRelationType(MemHeading heading, List<KeyAttributes> candidates) {
     this.heading = heading;
-    setNumChunkCols(heading.getNumChunkCols());
-    setNumDoubleCols(heading.getNumDoubleCols());
-    setNumIntCols(heading.getNumIntCols());
+    setDim(heading.getDim());
     candidateKeys = new LinkedList<KeyAttributes>(candidates);
   }
 

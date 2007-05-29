@@ -27,7 +27,8 @@ public final class MemSearchAction {
     this.indexNr = indexNr;
     this.functions = functions;
     this.cols = cols;
-    args = new MemChunk(1,1,cols.intCols.length, cols.doubleCols.length, cols.chunkCols.length);
+    MemDim dim = MemDim.create(cols.intCols.length, cols.doubleCols.length, cols.chunkCols.length);
+    args = new MemChunk(1,1, dim);
   }
 
   public MemSearchAction(Type type, MemChunkSequentialIndex index,
@@ -36,7 +37,7 @@ public final class MemSearchAction {
     this.sequentialIndex = index;
     this.col = col;
     this.functions = new MemFunction[]{function};
-    args = new MemChunk(1,1,1,0,0);
+    args = new MemChunk(1,1,MemDim.INT_DIM);
   }
 
 

@@ -32,13 +32,13 @@ public final class MemSearch {
 //    boolean[] incremental = new boolean[chunkCount];
     MemVector zero = new MemVector();
 
-    MemVector dstPointer = new MemVector(dstRow, new MemDim(dst.numIntCols, dst.numDoubleCols, dst.numChunkCols));
+    MemVector dstPointer = new MemVector(dstRow, dst.dim);
     dst.size = dstRow;
 
     int currentChunk = 0;
     MemChunk valid = plan.valid;
 //
-//    MemChunk valid = new MemChunk(1, 1, new MemDim(1, 0, 0));
+//    MemChunk valid = new MemChunk(1, 1, MemDim.INT_DIM);
 
     main:
     do {
@@ -85,9 +85,9 @@ public final class MemSearch {
               MemEvaluator.evaluate(action.functions[1], chunks, currentRows, dst, dstPointer);
               int delta = dst.size - oldSize;
               //++dst.size;
-              dstPointer.xInt += delta * dst.numIntCols;
-              dstPointer.xDouble += delta * dst.numDoubleCols;
-              dstPointer.xChunk += delta * dst.numChunkCols;
+              dstPointer.xInt += delta * dst.dim.xInt;
+              dstPointer.xDouble += delta * dst.dim.xDouble;
+              dstPointer.xChunk += delta * dst.dim.xChunk;
             }
             --currentChunk;
             continue main;
@@ -102,9 +102,9 @@ public final class MemSearch {
             MemEvaluator.evaluate(action.functions[0], chunks, currentRows, dst, dstPointer);
             int diffSize = dst.size - oldSize;
             //++dst.size;
-            dstPointer.xInt += diffSize * dst.numIntCols;
-            dstPointer.xDouble += diffSize * dst.numDoubleCols;
-            dstPointer.xChunk += diffSize * dst.numChunkCols;
+            dstPointer.xInt += diffSize * dst.dim.xInt;
+            dstPointer.xDouble += diffSize * dst.dim.xDouble;
+            dstPointer.xChunk += diffSize * dst.dim.xChunk;
             --currentChunk;
             continue main;
         }
@@ -148,8 +148,8 @@ public final class MemSearch {
       if (i > 0) result.append("| ");
       int[] rows = currentSpaces[i];
       int row = rows != null ? rows[currentPointers[i]] : currentRows[i];
-      for (int k = 0; k < chunks[i].numIntCols; ++k)
-        result.append(chunks[i].intData[row * chunks[i].numIntCols + k]).append(" ");
+      for (int k = 0; k < chunks[i].dim.xInt; ++k)
+        result.append(chunks[i].intData[row * chunks[i].dim.xInt + k]).append(" ");
     }
     return result.toString();
   }

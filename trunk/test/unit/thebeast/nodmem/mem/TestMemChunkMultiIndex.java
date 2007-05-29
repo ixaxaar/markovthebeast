@@ -13,12 +13,12 @@ public class TestMemChunkMultiIndex extends TestCase {
 
 
   protected void setUp() {
-    dim = new MemDim(3, 2, 0);
+    dim = MemDim.create(3, 2, 0);
     data = new MemChunk(3, 3, dim);
     data.intData = new int[]{1, 2, 3, 2, 3, 4, 3, 4, 5};
     data.doubleData = new double[]{1.0, 2.0, 2.0, 3.0, 3.0, 4.0};
     cols = new MemColumnSelector(new int[]{0, 2}, new int[]{0}, new int[0]);
-    index = new MemChunkMultiIndex(2, new MemDim(2,1,0));
+    index = new MemChunkMultiIndex(2, MemDim.create(2,1,0));
 
   }
 

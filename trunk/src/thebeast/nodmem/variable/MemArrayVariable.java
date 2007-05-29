@@ -7,6 +7,7 @@ import thebeast.nod.variable.ArrayVariable;
 import thebeast.nod.NoDServer;
 import thebeast.nodmem.mem.MemChunk;
 import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.MemDim;
 import thebeast.nodmem.type.MemArrayType;
 import thebeast.nodmem.type.AbstractMemType;
 import thebeast.nodmem.value.MemArray;
@@ -17,12 +18,12 @@ import thebeast.nodmem.value.MemArray;
 public class MemArrayVariable extends AbstractMemVariable<ArrayValue, ArrayType> implements ArrayVariable {
 
   public MemArrayVariable(NoDServer server, ArrayType type) {
-    super(server, type, new MemChunk(1, 1, 0, 0, 1));
+    super(server, type, new MemChunk(1, 1, MemDim.CHUNK_DIM));
     chunk.chunkData[0] = new MemChunk(0, 0, ((AbstractMemType) type.instanceType()).getDim());
   }
 
   public MemArrayVariable(NoDServer server, ArrayType type, int size) {
-    super(server, type, new MemChunk(1, 1, 0, 0, 1));
+    super(server, type, new MemChunk(1, 1, MemDim.CHUNK_DIM));
     chunk.chunkData[0] = new MemChunk(size, size, ((AbstractMemType) type.instanceType()).getDim());
   }
 

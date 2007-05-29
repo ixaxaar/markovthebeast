@@ -27,7 +27,9 @@ public class MemHeading implements Heading {
 
   private HashMap<String, Integer> id2index = new HashMap<String, Integer>();
 
-  private int numIntCols, numDoubleCols, numChunkCols;
+  //private int numIntCols, numDoubleCols, numChunkCols;
+
+  private MemDim dim;
 
   public MemHeading(List<Pair<String, Type>> attributes) {
     attributes = new ArrayList<Pair<String, Type>>(attributes);
@@ -137,25 +139,26 @@ public class MemHeading implements Heading {
       pointers.add(pointer);
       id2index.put(attribute.name(), index++);
     }
-    numChunkCols = p.xChunk;
-    numIntCols = p.xInt;
-    numDoubleCols = p.xDouble;
+    dim = MemDim.create(p.xInt, p.xDouble, p.xChunk);
+//    numChunkCols = p.xChunk;
+//    numIntCols = p.xInt;
+//    numDoubleCols = p.xDouble;
   }
 
   public MemDim getDim() {
-    return new MemDim(numIntCols, numDoubleCols, numChunkCols);
+    return dim;
   }
 
   public int getNumIntCols() {
-    return numIntCols;
+    return dim.xInt;
   }
 
   public int getNumDoubleCols() {
-    return numDoubleCols;
+    return dim.xDouble;
   }
 
   public int getNumChunkCols() {
-    return numChunkCols;
+    return dim.xChunk;
   }
 
   public List<Attribute> attributes() {

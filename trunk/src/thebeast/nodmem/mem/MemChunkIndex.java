@@ -268,7 +268,7 @@ public final class MemChunkIndex {
   public static MemChunkIndex deserialize(MemDeserializer deserializer) throws IOException {
     int[] stats = new int[6];
     deserializer.read(stats, 6);
-    MemChunkIndex index = new MemChunkIndex(stats[0], new MemDim(stats[1], stats[2], stats[3]));
+    MemChunkIndex index = new MemChunkIndex(stats[0], MemDim.create(stats[1], stats[2], stats[3]));
     index.numKeys = stats[4];
     index.numUsedIndices = stats[5];
     int[] size = new int[1];
