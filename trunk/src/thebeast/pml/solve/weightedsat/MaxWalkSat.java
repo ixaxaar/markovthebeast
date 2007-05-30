@@ -270,7 +270,11 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   private static MaxWalkSat.Clause pickRandomClause(Random random, Clause[] clauses, int clauseCount) {
-    int number = Math.abs(random.nextInt()) % clauseCount;
+    int nextInt = random.nextInt();
+    int number = Math.abs(nextInt) % clauseCount;
+    System.out.println("nextInt = " + nextInt);
+    //System.out.println("clauseCount = " + clauseCount);
+    //System.out.println("Clause " + number);
     return clauses[number];
   }
 
@@ -419,6 +423,7 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public void setSeed(long seed) {
     random = new Random(seed);
+    System.out.println("Seed: " + seed);
   }
 
 
@@ -431,6 +436,9 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   public boolean[] solve() {
+    //System.out.println("maxFlips = " + maxFlips);
+    //System.out.println(random.);
+    //random.setSeed(0);
     bestScore = Double.NEGATIVE_INFINITY;
     long time = System.currentTimeMillis();
     for (int run = 0; run < maxRestarts && bestScore < target && System.currentTimeMillis() - time < timeOut; ++run) {
@@ -446,7 +454,7 @@ public class MaxWalkSat implements WeightedSatSolver {
           clause = pickRandomClause(random, unsatisfiedClauses, unsatisfiedClauseCount);
         } else
           clause = pickRandomClause(random, clauses, clauseCount);
-        //System.out.println(clause);
+        //System.out.println(clause.index);
         double uniform = random.nextDouble();
         Atom atom;
         double delta;
@@ -465,6 +473,7 @@ public class MaxWalkSat implements WeightedSatSolver {
           fill(atoms, best);
           bestScore = score;
         }
+        //System.out.println(score);
 //        printState(uniform > this.greedy, score,atoms, atomCount);
 //        for (int i = 0; i < clauseCount; ++i) {
 //          System.out.print(i == clause.index ? ">": " ");
@@ -472,7 +481,13 @@ public class MaxWalkSat implements WeightedSatSolver {
 //        }
       }
     }
-    //System.out.println(bestScore);
+//        for (int i = 0; i < clauseCount; ++i) {
+//          System.out.print(i == clause.index ? ">": " ");
+//          System.out.println(clauses[i]);
+//        }
+
+    System.out.println(bestScore);
+    //System.out.println(Arrays.toString(best));
     ++calls;
     return best;
   }
