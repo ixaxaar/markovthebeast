@@ -530,7 +530,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (parserSolve.numIterations == -1)
       solver.solve();
     else
-      solver.solve(parserSolve.numIterations); 
+      solver.solve(parserSolve.numIterations);
     guess.load(solver.getBestAtoms());
     long time = stopWatch.stopAndContinue();
 
@@ -583,7 +583,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     } else {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
       corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
-      corpus = new AugmentedCorpus(model,corpus);
+      corpus = new AugmentedCorpus(model, corpus);
       if (parserLoadCorpus.from != -1) {
         Iterator<GroundAtoms> instance = corpus.iterator();
         corpus = new RandomAccessCorpus(signature, parserLoadCorpus.to - parserLoadCorpus.from);
@@ -1139,18 +1139,18 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     void set(ParserName name, ParserTerm term);
   }
 
-  private void printHistory(){
+  private void printHistory() {
     Solution solution = new Solution(model, weights);
     Evaluation evaluation = new Evaluation(model);
     out.printf("%-10s%-10s%-10s%-10s%-10s\n", "Iter.", "F1", "Score", "Violated", "Total");
     for (int i = 0; i < 50; ++i) out.print("-");
     out.println();
-    for (int i = 0; i < solver.getCandidateAtoms().size(); ++i){
+    for (int i = 0; i < solver.getCandidateAtoms().size(); ++i) {
       solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
       out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", i, evaluation.getF1(), weights.score(vector),
-              solution.getGroundFormulas().getViolationCount(),solver.getCandidateFormulas().get(i).getNewCount());
+              solution.getGroundFormulas().getViolationCount(), solver.getCandidateFormulas().get(i).getNewCount());
       //System.out.println(solver.getCandidateFormulas().get(i));
     }
     solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
