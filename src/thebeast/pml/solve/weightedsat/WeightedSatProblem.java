@@ -123,7 +123,7 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void buildLocalModel() {
-    oldNumAtoms = atomCounter.value().getInt();    
+    oldNumAtoms = atomCounter.value().getInt();
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable target = mappings.get(predicate);
       interpreter.assign(target, groundObjective.get(predicate));
@@ -192,27 +192,29 @@ public class WeightedSatProblem implements PropositionalModel {
     interpreter.clear(groundedClauses);
     for (FactorFormula factor : factors) {
       interpreter.append(groundedClauses, groundingQueries.get(factor));
+      //System.out.println(factor);
       //interpreter.append(newClauses, newQueries.get(factor));
       //interpreter.insert(newClauses, newQueries.get(factor));
-      System.out.println(factor);
-      System.out.println(groundedClauses.value().size());
-      System.out.println((double)Runtime.getRuntime().totalMemory() / 1000000.0);
-      System.out.println("groundedClauses.byteSize() = " + groundedClauses.byteSize());
-      MemChunk memChunk = ((MemRelationVariable) groundedClauses).getContainerChunk().chunkData[0];
-      System.out.println("memChunk.capacity = " + memChunk.capacity);
-      System.out.println("memChunk.size = " + memChunk.size);
-      System.out.println("memChunk.byteSize() = " + memChunk.byteSize());
+//      System.out.println(factor);
+//      System.out.println(groundedClauses.value().size());
+//      System.out.println((double) Runtime.getRuntime().totalMemory() / 1000000.0);
+//      System.out.println("groundedClauses.byteSize() = " + groundedClauses.byteSize());
+//      MemChunk memChunk = ((MemRelationVariable) groundedClauses).getContainerChunk().chunkData[0];
+//      System.out.println("memChunk.capacity = " + memChunk.capacity);
+//      System.out.println("memChunk.size = " + memChunk.size);
+//      System.out.println("memChunk.byteSize() = " + memChunk.byteSize());
       //System.out.println("memChunk.chunkData[0] = " + memChunk.chunkData[0]);
 //      System.out.println("memChunk.chunkData[0].byteSize() = " + memChunk.chunkData[0].byteSize());
 //      System.out.println("memChunk.chunkData[1].byteSize() = " + memChunk.chunkData[1].byteSize());
-      MemTuple value = (MemTuple) groundedClauses.value().iterator().next();
-      MemChunkIndex index = memChunk.rowIndex;
-      if (index !=null) System.out.println(index.byteSize());
+//      MemTuple value = (MemTuple) groundedClauses.value().iterator().next();
+//      MemChunkIndex index = memChunk.rowIndex;
+//      if (index != null) System.out.println(index.byteSize());
     }
     interpreter.assign(newClauses, newClausesQuery);
-    System.out.println("newClauses.byteSize() = " + newClauses.byteSize());
+    //interpreter.
+//    System.out.println("newClauses.byteSize() = " + newClauses.byteSize());
     interpreter.append(clauses, newClauses);
-    System.out.println("clauses.byteSize() = " + clauses.byteSize());
+//    System.out.println("clauses.byteSize() = " + clauses.byteSize());
     interpreter.assign(oldAtomCosts, atomCosts);
     interpreter.clear(atomCosts);
     for (UserPredicate pred : model.getHiddenPredicates()) {
@@ -344,11 +346,11 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("solver")) {
-      if (name.isTerminal())
+      if (name.isTerminal()) {
         if ("maxwalksat".equals(value))
           solver = new MaxWalkSat();
-        else
-          solver.setProperty(name.getTail(), value);
+      } else
+        solver.setProperty(name.getTail(), value);
     }
   }
 

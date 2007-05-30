@@ -26,7 +26,7 @@ public class CuttingPlaneSolver implements Solver {
   private PropositionalModel propositionalModel;
   private GroundFormulas formulas;
   private GroundFormulas firstFormulas;
-  private int maxIterations = 10;
+  private int maxIterations = 100;
   private Model model;
   private LocalFeatures features;
   private LocalFeatureExtractor extractor;
@@ -150,6 +150,7 @@ public class CuttingPlaneSolver implements Solver {
   public void setPropositionalModel(PropositionalModel propositionalModel) {
     this.propositionalModel = propositionalModel;
     propositionalModel.configure(model, weights);
+    propositionalModel.setProfiler(profiler);
   }
 
 
@@ -307,6 +308,7 @@ public class CuttingPlaneSolver implements Solver {
       if (!initSet) initSolution();
       update();
       setGreedy();
+      //System.out.println(atoms.getGroundAtomsOf("sameBib"));
     } else {
       atoms.clear(model.getHiddenPredicates());
       propositionalModel.buildLocalModel();

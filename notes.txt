@@ -1,3 +1,15 @@
+Clause 193
+Clause 164
+Clause 186
+Clause 65
+Clause 85
+Clause 227
+Clause 121
+Clause 27
+Clause 83
+Clause 209
+
+
 class IntData {
 }
 
