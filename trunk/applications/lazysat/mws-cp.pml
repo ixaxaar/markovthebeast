@@ -31,7 +31,7 @@ set solver.model = "sat";
 set solver.model.solver.seed = 1;
 set solver.model.solver.maxRestarts = 1;
 set solver.model.solver.updateRandom = false;
-set solver.model.solver.maxFlips = 1000;
+set solver.model.solver.maxFlips = 100000;
 //set solver.groundAll = true;
 set solver.maxIterations = 100;
 
