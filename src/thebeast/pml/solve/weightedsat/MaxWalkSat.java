@@ -19,6 +19,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   private int atomCount;
   private int clauseCount;
   private int unsatisfiedClauseCount;
+  private int newUnsatisfiedClauseCount;
   private boolean[] best;
   private double bestScore;
   private double greedy = 0.5;
@@ -294,13 +295,38 @@ public class MaxWalkSat implements WeightedSatSolver {
         unsatisfiedClauses[unsatisfiedClauseCount++] = clauses[i];
       }
     }
+    newUnsatisfiedClauseCount = 0;
+  }
+
+  private void updateUnsatisfiedClausesIncrementally(){
+    int index = 0;
+    for (int i = 0; i < unsatisfiedClauseCount; ++i){
+      if (!unsatisfiedClauses[i].state)
+        buffer[index++] = unsatisfiedClauses[i];
+    }
+    for (int i = 0; i < newUnsatisfiedClauseCount; ++i){
+      buffer[index++] = newUnsatisfiedClauses[i];
+    }
+    Clause[] tmp = unsatisfiedClauses;
+    unsatisfiedClauses = buffer;
+    buffer = tmp;
+
+    unsatisfiedClauseCount = index;
+    newUnsatisfiedClauseCount = 0;
+
   }
 
 
-  private static void flipNode(Atom atom) {
+
+  private static int flipNode(Atom atom, Clause[] newUnsatisfiedClauses) {
+    int newUnsatisfiedCount = 0;
     atom.state = !atom.state;
     for (NodeClauseRelation rel : atom.clauses) {
-      if (rel.changedClauseState) rel.clause.state = !rel.clause.state;
+      if (rel.changedClauseState) {
+        rel.clause.state = !rel.clause.state;
+        if (!rel.clause.state)
+          newUnsatisfiedClauses[newUnsatisfiedCount++] = rel.clause;
+      }
       for (int i = 0; i < rel.containingDisjunctions.length; ++i) {
         int disjunction = rel.containingDisjunctions[i];
         int oldCount = rel.clause.trueLiteralCounts[disjunction];
@@ -310,6 +336,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         else if (oldCount == 0 && newCount == 1) ++rel.clause.trueDisjunctionCount;
       }
     }
+    return newUnsatisfiedCount;
   }
 
   public void init() {
@@ -366,6 +393,8 @@ public class MaxWalkSat implements WeightedSatSolver {
       System.arraycopy(clauses, 0, newClauses, 0, clauseCount);
       clauses = newClauses;
       unsatisfiedClauses = new Clause[clauseCount + howmuch];
+      newUnsatisfiedClauses = new Clause[clauseCount + howmuch];
+      buffer = new Clause[clauseCount + howmuch];
     }
   }
 
@@ -431,7 +460,7 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public void setSeed(long seed) {
     random = new Random(seed);
-    System.out.println("Seed: " + seed);
+    //System.out.println("Seed: " + seed);
   }
 
 
@@ -453,12 +482,11 @@ public class MaxWalkSat implements WeightedSatSolver {
       if (calls == 0 && initRandom || calls > 0 && updateRandom) randomizeNodeStates();
       else useBestStateAsInit();
       syncClauses();
+      updateUnsatisfiedClauses();
       double score = getScore();
       for (int flip = 0; flip < maxFlips && bestScore < target && System.currentTimeMillis() - time < timeOut; ++flip) {
         MaxWalkSat.Clause clause;
         if (pickFromUnsatisfied){
-          updateUnsatisfiedClauses();
-          if (unsatisfiedClauseCount == 0) return best;
           clause = pickRandomClause(random, unsatisfiedClauses, unsatisfiedClauseCount);
         } else
           clause = pickRandomClause(random, clauses, clauseCount);
@@ -475,18 +503,25 @@ public class MaxWalkSat implements WeightedSatSolver {
           delta = deltaScoredAtom.delta;
         }
         ///System.out.println("Changed: " + atom.index);
-        flipNode(atom);
+
+
+        newUnsatisfiedClauseCount = flipNode(atom, newUnsatisfiedClauses);
+
         score += delta;
         if (score > bestScore) {
           fill(atoms, best);
           bestScore = score;
         }
-        //System.out.println(score);
+
+        updateUnsatisfiedClausesIncrementally();
 //        printState(uniform > this.greedy, score,atoms, atomCount);
 //        for (int i = 0; i < clauseCount; ++i) {
 //          System.out.print(i == clause.index ? ">": " ");
 //          System.out.println(clauses[i]);
 //        }
+        if (unsatisfiedClauseCount == 0) return best;
+
+        //System.out.println(score);
       }
     }
 //        for (int i = 0; i < clauseCount; ++i) {
