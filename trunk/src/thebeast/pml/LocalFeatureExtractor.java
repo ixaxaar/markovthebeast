@@ -85,7 +85,7 @@ public class LocalFeatureExtractor {
     atoms.load(groundAtoms, model.getInstancePredicates());
     //this.features.load(features);
     features.clear();
-    for (UserPredicate pred : queries.keySet()) {
+    for (UserPredicate pred : model.getHiddenPredicates()) {
 //      for (RelationAppend append : appends.get(pred))
 //        interpreter.interpret(append);
 //      for (Insert insert : inserts.get(pred))
