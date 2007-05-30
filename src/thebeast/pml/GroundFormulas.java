@@ -259,21 +259,6 @@ public class GroundFormulas {
     return model;
   }
 
-  public void load(GroundFormulas formulas, Collection<FactorFormula> factors) {
-    for (FactorFormula formula : factors) {
-      if (formula.getWeight().isNonPositive())
-        interpreter.assign(getTrueGroundFormulas(formula), formulas.getTrueGroundFormulas(formula));
-      else if (formula.getWeight().isNonNegative())
-        interpreter.assign(getFalseGroundFormulas(formula), formulas.getFalseGroundFormulas(formula));
-      else if (formula.isAcyclicityConstraint()) {
-        UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
-        interpreter.assign(getCycles(predicate), formulas.getCycles(predicate));
-      }
-      interpreter.assign(getNewGroundFormulas(formula), formulas.getNewGroundFormulas(formula));
-
-    }
-  }
-
   /**
    * Loads the state of the provided formulas into this object. Must be of the same {@link thebeast.pml.Signature}.
    *
@@ -287,7 +272,7 @@ public class GroundFormulas {
     for (FactorFormula formula : falseGroundFormulas.keySet()) {
       interpreter.assign(getFalseGroundFormulas(formula), formulas.getFalseGroundFormulas(formula));
     }
-    for (FactorFormula formula : explicitGroundFormulas.keySet()) {
+    for (FactorFormula formula : newGroundFormulas.keySet()) {
       interpreter.assign(getNewGroundFormulas(formula), formulas.getNewGroundFormulas(formula));
     }
     for (UserPredicate predicate : cycles.keySet())
@@ -409,6 +394,24 @@ public class GroundFormulas {
     for (Map.Entry<FactorFormula, RelationVariable> entry : allExplicitGroundFormulas.entrySet()) {
       count += entry.getValue().value().size();
     }
+    return count;
+  }
+
+  public int getNewCount(){
+    int count = 0;
+    for (Map.Entry<FactorFormula, RelationVariable> entry : newGroundFormulas.entrySet()) {
+      count += entry.getValue().value().size();
+    }
+
+    return count;
+  }
+
+  public int getFalseCount(){
+    int count = 0;
+    for (Map.Entry<FactorFormula, RelationVariable> entry : falseGroundFormulas.entrySet()) {
+      count += entry.getValue().value().size();
+    }
+
     return count;
   }
 

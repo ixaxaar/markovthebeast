@@ -1150,14 +1150,15 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
       out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", i, evaluation.getF1(), weights.score(vector),
-              solution.getGroundFormulas().getViolationCount(),solution.getGroundFormulas().getTotalCount());
+              solution.getGroundFormulas().getViolationCount(),solver.getCandidateFormulas().get(i).getNewCount());
+      //System.out.println(solver.getCandidateFormulas().get(i));
     }
     solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
     FeatureVector vector = solution.extract(solver.getLocalFeatures());
     evaluation.evaluate(gold, solution.getGroundAtoms());
     out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", solver.getCandidateAtoms().size(), evaluation.getF1(),
             weights.score(vector), solution.getGroundFormulas().getViolationCount(),
-            solution.getGroundFormulas().getTotalCount());
+            solution.getGroundFormulas().getNewCount());
   }
 
 

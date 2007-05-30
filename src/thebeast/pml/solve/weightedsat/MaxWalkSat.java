@@ -272,7 +272,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   private static MaxWalkSat.Clause pickRandomClause(Random random, Clause[] clauses, int clauseCount) {
     int nextInt = random.nextInt();
     int number = Math.abs(nextInt) % clauseCount;
-    System.out.println("nextInt = " + nextInt);
+    //System.out.println("nextInt = " + nextInt);
     //System.out.println("clauseCount = " + clauseCount);
     //System.out.println("Clause " + number);
     return clauses[number];
@@ -486,7 +486,7 @@ public class MaxWalkSat implements WeightedSatSolver {
 //          System.out.println(clauses[i]);
 //        }
 
-    System.out.println(bestScore);
+    //System.out.println(bestScore);
     //System.out.println(Arrays.toString(best));
     ++calls;
     return best;
