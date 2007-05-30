@@ -74,29 +74,33 @@ public class GroundFormulas {
    * @param formulas the formulas to copy.
    */
   public GroundFormulas(GroundFormulas formulas) {
-    this.model = formulas.model;
-    this.weights = formulas.weights;
-    for (FactorFormula formula : model.getFactorFormulas()) {
-      if (!formula.isLocal()) {
-        //Heading heading = formula.isParametrized() ? formula.getSolutionHeading() : formula.get
-        if (formula.isAcyclicityConstraint()) {
-          UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
-          cycles.put(predicate, interpreter.createRelationVariable(formulas.getCycles(predicate)));
-        } else {
-          explicitGroundFormulas.put(formula,
-                  interpreter.createRelationVariable(formulas.getNewGroundFormulas(formula)));
-          allExplicitGroundFormulas.put(formula,
-                  interpreter.createRelationVariable(formulas.allExplicitGroundFormulas.get(formula)));
-          newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
-            trueGroundFormulas.put(formula,
-                    interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
-          else if (formula.getWeight().isNonNegative())
-            falseGroundFormulas.put(formula,
-                    interpreter.createRelationVariable(formulas.getFalseGroundFormulas(formula)));
-        }
-      }
-    }
+    this(formulas.getModel(), formulas.weights);
+    load(formulas);
+    
+    
+//    this.model = formulas.model;
+//    this.weights = formulas.weights;
+//    for (FactorFormula formula : model.getFactorFormulas()) {
+//      if (!formula.isLocal()) {
+//        //Heading heading = formula.isParametrized() ? formula.getSolutionHeading() : formula.get
+//        if (formula.isAcyclicityConstraint()) {
+//          UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
+//          cycles.put(predicate, interpreter.createRelationVariable(formulas.getCycles(predicate)));
+//        } else {
+//          explicitGroundFormulas.put(formula,
+//                  interpreter.createRelationVariable(formulas.getNewGroundFormulas(formula)));
+//          allExplicitGroundFormulas.put(formula,
+//                  interpreter.createRelationVariable(formulas.allExplicitGroundFormulas.get(formula)));
+//          newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
+//          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
+//            trueGroundFormulas.put(formula,
+//                    interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
+//          else if (formula.getWeight().isNonNegative())
+//            falseGroundFormulas.put(formula,
+//                    interpreter.createRelationVariable(formulas.getFalseGroundFormulas(formula)));
+//        }
+//      }
+//    }
   }
 
   /**

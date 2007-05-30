@@ -13,6 +13,8 @@ public class MaxWalkSat implements WeightedSatSolver {
   private Random random = new Random();
   private Clause[] clauses = new Clause[0];
   private Clause[] unsatisfiedClauses = new Clause[0];
+  private Clause[] newUnsatisfiedClauses = new Clause[0];
+  private Clause[] buffer = new Clause[0];
   private Atom[] atoms = new Atom[0];
   private int atomCount;
   private int clauseCount;
@@ -166,7 +168,13 @@ public class MaxWalkSat implements WeightedSatSolver {
       }
       nodes = new NodeClauseRelation[atom2positions.size()];
       int node = 0;
-      for (Atom atom : atom2positions.keySet()) {
+      ArrayList<Atom> sorted = new ArrayList<Atom>(atom2positions.keySet());
+      Collections.sort(sorted, new Comparator<Atom>() {
+        public int compare(Atom o1, Atom o2) {
+          return o1.index - o2.index;
+        }
+      });
+      for (Atom atom : sorted) {
         List<Integer> disjunctions = atom2disjunctions.get(atom);
         List<Integer> positionList = atom2positions.get(atom);
         int[] containingDisjunctions = new int[disjunctions.size()];
