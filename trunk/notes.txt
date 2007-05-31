@@ -1,26 +1,21 @@
+Nips:
 
-nextInt = -1155869325
-nextInt = 1749940626
-nextInt = 1429008869
-nextInt = 26273138
-nextInt = 685382526
-nextInt = -382464772
-nextInt = -369526632
-nextInt = 1262965348
-nextInt = -582126989
-nextInt = -985540886
-nextInt = 673222727
-nextInt = 600276151
-nextInt = -836540342
-nextInt = -634566111
-nextInt = -1266972581
-nextInt = 2069007352
-nextInt = -1672496605
-nextInt = 1177117768
-nextInt = 5577367
-nextInt = 691675816
-nextInt = 2093861056
-nextInt = 559242116
+Core:
+Exact vs Approximate
+- Score + F1: ICP-ILP vs MWS (with good parameters, for datasets 50 - 150?)
+
+ILP Speed vs MWS
+- Speed: Full-MWS vs Full-ILP, MWS vs (I)CP-ILP
+- overhead + iterations separately
+
+ILP Speed: Full vs CP vs ICP
+- Speed (iterations/overhead): CP-ILP vs ILP vs ICP-ILP
+
+
+Add-On:
+- Score + F1: CP-MWS vs MWS (what maxFlip value?)
+- Score + F1: CP-ILP vs CP-MWS
+-
 
 
 class IntData {

@@ -136,11 +136,11 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public void solve(GroundAtoms solution) {
     this.solution.load(solution);
-    profiler.start("Update solver");
+    profiler.start("updatesolver");
     updateSolver();
-    profiler.end().start("Solve");
+    profiler.end().start("solve");
     boolean[] result = solver.solve();
-    profiler.end().start("Extract result");
+    profiler.end().start("extractresult");
     //System.out.println(Arrays.toString(result));
     fillTrueFalseTables(result);
     //System.out.println(trueAtoms.value());
