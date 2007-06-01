@@ -1,8 +1,8 @@
-include "corpora/bibserv/bibserv.50.2.db.types.pml";
-include "corpora/bibserv/bibserv.50.2.db.predicates.pml";
+//include "corpora/bibserv/bibserv.50.2.db.types.pml";
+//include "corpora/bibserv/bibserv.50.2.db.predicates.pml";
 
-//include "link.types.pml";
-//include "link.predicates.pml";
+include "link.types.pml";
+include "link.predicates.pml";
 
 
 include "bibserv.factors.pml";
@@ -13,9 +13,9 @@ observed: venue, title, author,
   authorScore100, authorScore80, authorScore60, authorScore40, authorScore20, authorScore0,
   venueScore100, venueScore80, venueScore60, venueScore40, venueScore20, venueScore0;
 
-load corpus from "corpora/bibserv/bibserv.50.2.db.atoms";
+//load corpus from "corpora/bibserv/bibserv.50.2.db.atoms";
 //load corpus from "corpora/bibserv/bibserv.100.1.crp";
-//load corpus from "link.atoms";
+load corpus from "link.atoms";
 
 save corpus to ram;
 
@@ -31,9 +31,10 @@ set solver.model = "sat";
 set solver.model.solver.seed = 1;
 set solver.model.solver.maxRestarts = 1;
 set solver.model.solver.updateRandom = false;
-set solver.model.solver.maxFlips = 100000;
-set solver.groundAll = true;
-set solver.maxIterations = 1;
+set solver.model.solver.maxFlips = 1000000;
+//set solver.model.singleCallMode = true;
+//set solver.groundAll = true;
+set solver.maxIterations = 100;
 
 
 solve;
