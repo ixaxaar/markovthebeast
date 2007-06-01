@@ -313,6 +313,7 @@ public class CuttingPlaneSolver implements Solver {
       atoms.clear(model.getHiddenPredicates());
       propositionalModel.buildLocalModel();
       createFullyGroundedFormulas();
+      setGreedy();
     }
 
     profiler.start("iterations");
