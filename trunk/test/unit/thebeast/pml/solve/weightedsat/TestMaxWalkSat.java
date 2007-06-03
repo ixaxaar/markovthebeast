@@ -17,7 +17,7 @@ public class TestMaxWalkSat extends TestCase {
     maxWalkSat.setSeed(1);
     maxWalkSat.init();
     maxWalkSat.setPickFromUnsatisfied(false);
-    maxWalkSat.addAtoms(states, scores);
+    maxWalkSat.addAtoms(scores);
     maxWalkSat.addClauses(
             new WeightedSatClause(-30, new int[][]{{0,1}}, new boolean[][]{{true,true}}),
             new WeightedSatClause(2,  new int[][]{{1,2}}, new boolean[][]{{true,true}})
@@ -41,7 +41,7 @@ public class TestMaxWalkSat extends TestCase {
     maxWalkSat.init();
     maxWalkSat.setSeed(0);
     maxWalkSat.setMaxFlips(10);
-    maxWalkSat.addAtoms(states, scores);
+    maxWalkSat.addAtoms(scores);
     maxWalkSat.addClauses(
             new WeightedSatClause(5, new int[][]{{0,0}}, new boolean[][]{{false,false}}),
             new WeightedSatClause(-30, new int[][]{{1,1,1}}, new boolean[][]{{false, false,true}}),

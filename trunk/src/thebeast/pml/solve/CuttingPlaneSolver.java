@@ -608,7 +608,7 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   public Object getProperty(PropertyName name) {
-    if (name.getHead().equals("ilp")) {
+    if (name.getHead().equals("model")) {
       if (name.getTail() == null)
         return propositionalModel.toString();
       else

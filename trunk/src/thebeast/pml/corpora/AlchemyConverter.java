@@ -5,6 +5,7 @@ import thebeast.util.HashMultiMap;
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * @author Sebastian Riedel
@@ -46,6 +47,10 @@ public class AlchemyConverter {
       if ("".equals(line)) continue;
       String[] groundAtomDef = line.split("[(),]");
       String[] predDef = predDefinitions.get(groundAtomDef[0]);
+      if (predDef == null){
+        throw new RuntimeException("Woh, something's fishy with " + groundAtomDef[0]);
+
+      }
       for (int i = 1; i < groundAtomDef.length; ++i){
         HashSet<String> constants = typeConstants.get(predDef[i].trim());
         if (constants == null){

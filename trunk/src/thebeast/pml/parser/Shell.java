@@ -839,6 +839,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       defaultCorpusCacheSize = 1024 * 1024 * (Integer) parserSet.value;
     else if ("solver".equals(parserSet.propertyName.head))
       solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+    else if ("weights".equals(parserSet.propertyName.head))
+      weights.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("learner".equals(parserSet.propertyName.head))
       learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("collector".equals(parserSet.propertyName.head))
