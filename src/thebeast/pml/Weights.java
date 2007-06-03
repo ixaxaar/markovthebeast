@@ -713,7 +713,16 @@ public class Weights implements HasProperties {
     return result;
   }
 
+  public void setAllWeights(double value){
+    weights.fill(value, weights.value().size());
+  }
 
+
+  /**
+   * Calculates dot product of the weifht vector and the given sparse vector
+   * @param vector a sparse vector with indices in the range 0-#weights
+   * @return the dot product of the sparse vector and this weight vector
+   */
   public double score(SparseVector vector){
     return weights.value().dotProduct(vector.getIndexArray(), vector.getValueArray());
   }

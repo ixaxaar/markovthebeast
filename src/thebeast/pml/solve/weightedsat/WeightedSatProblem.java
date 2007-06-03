@@ -16,10 +16,6 @@ import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.ArrayValue;
-import thebeast.nodmem.mem.MemChunk;
-import thebeast.nodmem.mem.MemChunkIndex;
-import thebeast.nodmem.variable.MemRelationVariable;
-import thebeast.nodmem.value.MemTuple;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,12 +44,14 @@ public class WeightedSatProblem implements PropositionalModel {
 
   private GroundFormulas groundFormulas;
   private GroundAtoms solution;
+  private GroundAtoms lastSolution;
 
   private HashMap<FactorFormula, RelationExpression>
           groundingQueries = new HashMap<FactorFormula, RelationExpression>(),
           newQueries = new HashMap<FactorFormula, RelationExpression>();
 
   private HashMap<UserPredicate, RelationExpression>
+          getTrueIndices = new HashMap<UserPredicate, RelationExpression>(),
           groundObjective = new HashMap<UserPredicate, RelationExpression>(),
           scoresAndIndices = new HashMap<UserPredicate, RelationExpression>(),
           removeFalseAtoms = new HashMap<UserPredicate, RelationExpression>(),
@@ -63,7 +61,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
   private RelationVariable
           clauses, newClauses, groundedClauses,
-          newAtomCosts, oldAtomCosts, atomCosts, trueAtoms, falseAtoms;
+          newAtomCosts, oldAtomCosts, atomCosts, trueAtoms, falseAtoms, lastTrueIndices;
 
   boolean changed = false;
 
@@ -141,9 +139,10 @@ public class WeightedSatProblem implements PropositionalModel {
     updateSolver();
     profiler.end().start("solve");
     boolean[] result = solver.solve();
-    profiler.end().start("extractresult");
+    profiler.end().start("filltables");
     //System.out.println(Arrays.toString(result));
     fillTrueFalseTables(result);
+    profiler.end().start("extractresult");
     //System.out.println(trueAtoms.value());
     //System.out.println(falseAtoms.value());
     for (UserPredicate pred : model.getHiddenPredicates()) {
@@ -183,6 +182,7 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
+    lastSolution.load(atoms, model.getHiddenPredicates());
     int oldNumClauses = clauses.value().size();
     if (!buildLocalModel)
       oldNumAtoms = atomCounter.value().getInt();
@@ -270,22 +270,29 @@ public class WeightedSatProblem implements PropositionalModel {
 
     groundFormulas = new GroundFormulas(model, weights);
     solution = model.getSignature().createGroundAtoms();
+    lastSolution = model.getSignature().createGroundAtoms();
     scores = new Scores(model, weights);
 
     clauses = interpreter.createRelationVariable(clause_heading);
     newClauses = interpreter.createRelationVariable(clause_heading);
     groundedClauses = interpreter.createRelationVariable(clause_heading);
     trueAtoms = interpreter.createRelationVariable(index_heading);
+    interpreter.addIndex(trueAtoms,"index", Index.Type.HASH, "index");
     falseAtoms = interpreter.createRelationVariable(index_heading);
+    interpreter.addIndex(falseAtoms,"index", Index.Type.HASH, "index");
     atomCounter = interpreter.createIntVariable();
     atomCosts = interpreter.createRelationVariable(indexScore_heading);
+    interpreter.addIndex(atomCosts,"index", Index.Type.HASH, "index");
     oldAtomCosts = interpreter.createRelationVariable(indexScore_heading);
+    interpreter.addIndex(oldAtomCosts,"index", Index.Type.HASH, "index");
     newAtomCosts = interpreter.createRelationVariable(indexScore_heading);
+    interpreter.addIndex(newAtomCosts,"index", Index.Type.HASH, "index");
     mappings = new HashMap<UserPredicate, RelationVariable>();
-
 
     clauses = interpreter.createRelationVariable(clause_heading);
     groundedClauses = interpreter.createRelationVariable(clause_heading);
+
+    lastTrueIndices = interpreter.createRelationVariable(index_heading);
 
     for (UserPredicate pred : model.getHiddenPredicates()) {
       RelationVariable mapping = interpreter.createRelationVariable(pred.getHeadingArgsIndexScore());
@@ -312,6 +319,18 @@ public class WeightedSatProblem implements PropositionalModel {
       }
       builder.tuple(pred.getArity()).select().query();
       addTrueAtoms.put(pred, builder.getRelation());
+
+      //a query that takes a solution (ground atoms) and creates a list of corresponding indices
+      builder.expr(mapping).from("mapping").
+              expr(lastSolution.getGroundAtomsOf(pred).getRelationVariable()).from("last");
+      for (int i = 0; i < pred.getArity(); ++i) {
+        builder.attribute("mapping",pred.getAttribute(i)).attribute("last",pred.getAttribute(i)).equality();
+      }
+      builder.and(pred.getArity()).where();
+      builder.id("index").intAttribute("mapping","index").tuple(1).select().query();
+      getTrueIndices.put(pred, builder.getRelation());
+
+
 
       //a query that selects the scores and indices from the mapping
       builder.expr(mapping).from("mapping").
@@ -388,14 +407,25 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   private void updateSolver() {
+    interpreter.clear(lastTrueIndices);
+    for (UserPredicate pred: model.getHiddenPredicates()){
+      interpreter.append(lastTrueIndices, getTrueIndices.get(pred));
+    }
+    int[] trueIndices = lastTrueIndices.getIntColumn("index");
+
     int howMany = atomCounter.value().getInt() - oldNumAtoms;
     double[] scores = newAtomCosts.getDoubleColumn("score");
     int[] indices = newAtomCosts.getIntColumn("index");
     double[] ordered = new double[scores.length];
     for (int i = 0; i < scores.length; ++i)
       ordered[indices[i] - oldNumAtoms] = scores[i];
-    boolean[] states = new boolean[howMany];
-    solver.addAtoms(states, ordered);
+    //boolean[] states = new boolean[howMany];
+    boolean[] states = new boolean[atomCounter.value().getInt()];
+    for (int trueIndex : trueIndices)
+      states[trueIndex] = true;
+    //Arrays.fill(states, true);
+    solver.addAtoms(ordered);
+    solver.setStates(states);
 
     WeightedSatClause[] clauses = new WeightedSatClause[newClauses.value().size()];
     int i = 0;

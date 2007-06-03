@@ -1,11 +1,11 @@
 //1.45384 !SameBib(b1,b2)
-weight w_1: Double;
-factor: for Bib b1, Bib b2 add [sameBib(b1,b2)] * w_1;
+weight w_1: Double-;
+factor: for Bib b1, Bib b2 if author(b1,_) & author(b2,_) add [sameBib(b1,b2)] * w_1;
 
 
 // Author(b1,a1) ^ Author(b2,a2) => !SameAuthor(a1,a2)
 //0.331704 !Author(b1,a1) v !Author(b2,a2) v !SameAuthor(a1,a2)
-weight w_2: Double;
+weight w_2: Double-;
 factor: for Author a1, Author a2 if author(_,a1) & author(_,a2) add [sameAuthor(a1,a2)] * w_2;
 
 
@@ -13,12 +13,12 @@ factor: for Author a1, Author a2 if author(_,a1) & author(_,a2) add [sameAuthor(
 
 // Title(b1,t1) ^ Title(b2,t2) => !SameTitle(t1,t2)
 //1.553 !Title(b1,t1) v !Title(b2,t2) v !SameTitle(t1,t2)
-weight w_3: Double;
+weight w_3: Double-;
 factor: for Title t1, Title t2 if title(_,t1) & title(_,t2) add [sameTitle(t1,t2)] * w_3;
 
 // Venue(b1,v1) ^ Venue(b2,v2) => !SameVenue(v1,v2)
 //1.69186 !Venue(b1,v1) v !Venue(b2,v2) v !SameVenue(v1,v2)
-weight w_4: Double;
+weight w_4: Double-;
 factor: for Venue v1, Venue v2 if venue(_,v1) & venue(_,v2) add [sameVenue(v1,v2)] * w_4;
 
 

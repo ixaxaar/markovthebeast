@@ -9,9 +9,11 @@ public interface WeightedSatSolver extends HasProperties {
 
   void init();
 
-  void addAtoms(boolean states[], double[] scores);
+  void addAtoms(double[] scores);
 
   void addClauses(WeightedSatClause ... clausesToAdd);
 
   boolean[] solve();
+
+  void setStates(boolean[] states);
 }

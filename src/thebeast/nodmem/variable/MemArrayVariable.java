@@ -12,6 +12,8 @@ import thebeast.nodmem.type.MemArrayType;
 import thebeast.nodmem.type.AbstractMemType;
 import thebeast.nodmem.value.MemArray;
 
+import java.util.Arrays;
+
 /**
  * @author Sebastian Riedel
  */
@@ -52,5 +54,20 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue, ArrayType>
 
   public double doubleValue(int index) {
     return chunk.chunkData[pointer.xChunk].doubleData[index];
+  }
+
+  public void setDoubleArray(double[] array) {
+    MemChunk memChunk = chunk.chunkData[pointer.xChunk];
+    memChunk.ensureCapacity(array.length);
+    System.arraycopy(array,0,memChunk.doubleData,0,array.length);
+    memChunk.size = array.length;
+  }
+
+  public void fill(double value, int howmany) {
+    MemChunk memChunk = chunk.chunkData[pointer.xChunk];
+    memChunk.ensureCapacity(howmany);
+    Arrays.fill(memChunk.doubleData, 0, howmany, value);
+    memChunk.size = howmany;
+
   }
 }

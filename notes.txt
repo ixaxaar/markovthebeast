@@ -1,3 +1,25 @@
+corpus = conll("$1");
+gold = ram(corpus,1,100);
+guess = solver.solve(gold);
+instances = instances(ram,$2);
+learner.solver.model = sat();
+collector = default();
+
+print learner.solver;
+
+query guess {Int t, Word w: word(t,w)};
+query guess {Word w, Double s: s=w_word(w) & word(_,w)};
+query {Token t, Pos p, Double s: s=<pos(t,p>};
+
+collector.collect(corpus);
+learner.learn(instances);
+
+next(5);
+solver.solve();
+
+
+
+
 Nips:
 
 Core:

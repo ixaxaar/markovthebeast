@@ -200,6 +200,12 @@ public final class MemChunk extends MemHolder {
   }
 
   */
+
+  public void ensureCapacity(int capacity){
+    if (this.capacity >= capacity) return;
+    increaseCapacity(capacity - this.capacity);
+  }
+
   public void increaseCapacity(int howMuch) {
     if (howMuch < 0) return;
     //System.out.print("");    

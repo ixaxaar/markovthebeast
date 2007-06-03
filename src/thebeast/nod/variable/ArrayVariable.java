@@ -14,4 +14,8 @@ public interface ArrayVariable extends Variable<ArrayValue,ArrayType>, ArrayExpr
 
   double doubleValue(int index);
 
+  void setDoubleArray(double[] array);
+
+  void fill(double value, int howmany);
+
 }

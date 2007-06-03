@@ -41,7 +41,7 @@ public class CoraNFold {
     //get record clusters
 
     HashMap<String, String> bib2title = new HashMap<String, String>();
-    HashMap<String, String> bib2author = new HashMap<String, String>();
+    HashMultiMap<String, String> bib2author = new HashMultiMap<String, String>();
     HashMap<String, String> bib2venue = new HashMap<String, String>();
 
     HashMap<String, Cluster> bib2cluster = new HashMap<String, Cluster>();
@@ -84,7 +84,7 @@ public class CoraNFold {
           bib2cluster.put(arg2, cluster);
         }
       } else if (pred.equals("Author")) {
-        bib2author.put(arg1, arg2);
+        bib2author.add(arg1, arg2);
       } else if (pred.equals("Venue")) {
         bib2venue.put(arg1, arg2);
       } else if (pred.equals("Title")) {
@@ -115,20 +115,22 @@ public class CoraNFold {
         LinkedList<String> members = new LinkedList<String>();
         for (Cluster inArea : area) {
           inArea.addAllBibs(members);
-          LinkedList<String> debug= new LinkedList<String>();
-          //inArea.addAllBibs(debug);
+          LinkedList<String> clusterMembers = new LinkedList<String>();
+          inArea.addAllBibs(clusterMembers);
+          for (String bib1 : clusterMembers)
+            for (String bib2 : clusterMembers)
+              buffer.add("SameBib(" + bib1 + "," + bib2 + ")");
           //System.out.println(debug);
         }
         for (String bib1 : members) {
           String title1 = bib2title.get(bib1);
-          String author1 = bib2author.get(bib1);
           String venue1 = bib2venue.get(bib1);
           buffer.add("Title(" + bib1 + "," + title1 + ")");
-          buffer.add("Author(" + bib1 + "," + author1 + ")");
           buffer.add("Venue(" + bib1 + "," + venue1 + ")");
+          for (String author1 : bib2author.get(bib1))
+            buffer.add("Author(" + bib1 + "," + author1 + ")");
           for (String bib2 : members) {
             String title2 = bib2title.get(bib2);
-            String author2 = bib2author.get(bib2);
             String venue2 = bib2venue.get(bib2);
             for (String line : pairs2lines.get(new Pair<String, String>(bib1, bib2)))
               buffer.add(line);
@@ -136,8 +138,10 @@ public class CoraNFold {
               buffer.add(line);
             for (String line : pairs2lines.get(new Pair<String, String>(venue1, venue2)))
               buffer.add(line);
-            for (String line : pairs2lines.get(new Pair<String, String>(author1, author2)))
-              buffer.add(line);
+            for (String author1 : bib2author.get(bib1))
+              for (String author2 : bib2author.get(bib2))
+                for (String line : pairs2lines.get(new Pair<String, String>(author1, author2)))
+                  buffer.add(line);
           }
         }
         ArrayList<String> sorted = new ArrayList<String>(buffer);

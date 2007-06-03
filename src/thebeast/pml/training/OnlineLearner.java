@@ -47,6 +47,8 @@ public class OnlineLearner implements Learner, HasProperties {
   private boolean penalizeGold = false;
   private boolean useGreedy = true;
   private boolean saveAfterEpoch = true;
+  private boolean initializeWeights = false;
+  private double initialWeight = 0;
   private String savePrefix = "/tmp/epoch_";
 
   private int numEpochs;
@@ -198,6 +200,8 @@ public class OnlineLearner implements Learner, HasProperties {
   public void learn(TrainingInstances instances) {
     profiler.start("learn");
     setUpAverage();
+    if (initializeWeights)
+      weights.setAllWeights(initialWeight);
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
       progressReporter.started("Epoch " + epoch);
@@ -398,6 +402,10 @@ public class OnlineLearner implements Learner, HasProperties {
       setPenalizeGold((Boolean) value);
     } else if ("useGreedy".equals(name.getHead())) {
       setUseGreedy((Boolean) value);
+    } else if ("initWeights".equals(name.getHead())) {
+      setInitializeWeights((Boolean) value);
+    } else if ("initWeight".equals(name.getHead())) {
+      setInitialWeight((Double) value);
     } else if ("loss".equals(name.getHead())) {
       if (value.equals("avgF1"))
         setLossFunction(new AverageF1Loss(model));
@@ -412,6 +420,23 @@ public class OnlineLearner implements Learner, HasProperties {
     } else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
 
+  }
+
+
+  public double getInitialWeight() {
+    return initialWeight;
+  }
+
+  public void setInitialWeight(double initialWeight) {
+    this.initialWeight = initialWeight;
+  }
+
+  public boolean isInitializeWeights() {
+    return initializeWeights;
+  }
+
+  public void setInitializeWeights(boolean initializeWeights) {
+    this.initializeWeights = initializeWeights;
   }
 
   public Object getProperty(PropertyName name) {
