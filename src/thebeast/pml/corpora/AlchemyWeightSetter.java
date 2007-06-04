@@ -19,6 +19,7 @@ public class AlchemyWeightSetter {
     Model model = TheBeast.getInstance().loadModel(new FileInputStream(args[1]));
     Weights weights = model.getSignature().createWeights();
 
+    PrintStream oldOut = System.out;
     if (weightFileType.equals("dump")) {
       FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(args[2]), 1024);
       weights.read(source);
