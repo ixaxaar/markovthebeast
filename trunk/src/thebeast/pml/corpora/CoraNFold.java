@@ -107,6 +107,7 @@ public class CoraNFold {
 
 
     ArrayList<ArrayList<String>> textFolds = new ArrayList<ArrayList<String>>(folds);
+    Collections.shuffle(clusters, new Random(0));
     for (Cluster cluster : clusters) {
       area.add(cluster);
       System.out.println(cluster.index);
@@ -155,11 +156,11 @@ public class CoraNFold {
 
     int foldNr = 0;
     for (ArrayList<String> fold : textFolds) {
-      PrintStream out = new PrintStream(prefix + foldNr + "of" + folds + ".fold");
+      PrintStream out = new PrintStream(prefix + foldNr + "of" + folds + ".fold.db");
       for (String line : fold)
         out.println(line);
       out.close();
-      out = new PrintStream(prefix + foldNr + "of" + folds + ".rest");
+      out = new PrintStream(prefix + foldNr + "of" + folds + ".rest.db");
       HashSet<String> buffer = new HashSet<String>();
       for (int i = 0; i < textFolds.size(); ++i) {
         if (i != foldNr)

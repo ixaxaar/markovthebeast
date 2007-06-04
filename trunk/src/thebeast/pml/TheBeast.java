@@ -51,7 +51,7 @@ public class TheBeast {
   public Model loadModel(InputStream inputStream) throws Exception {
     Signature signature = createSignature();
     Model model = signature.createModel();
-    Shell shell = new Shell();
+    Shell shell = new Shell(System.in, System.err, System.err);
     shell.load(inputStream, model);
     return model;
   }
