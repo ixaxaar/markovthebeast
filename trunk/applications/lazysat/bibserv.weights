@@ -75,7 +75,7 @@
 5.6291
 
 //bib->attribute
->w_bibauthor
+//>w_bibauthor
 6.599
 
 >w_bibtitle
@@ -83,8 +83,6 @@
 
 >w_bibvenue
 3.50065
-
-
 
 //direct 
 
