@@ -32,9 +32,6 @@ public class AlchemyEvaluator {
       if (toEval.contains(pred)) guess.add(line);
     }
 
-    HashSet<String> intersection = new HashSet<String>(gold);
-    intersection.retainAll(guess);
-
     HashSet<String> inGoldNotInGuess = new HashSet<String>(gold);
     inGoldNotInGuess.removeAll(guess);
 
