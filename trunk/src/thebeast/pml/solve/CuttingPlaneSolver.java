@@ -46,6 +46,7 @@ public class CuttingPlaneSolver implements Solver {
   private long timeout = Long.MAX_VALUE; //10000;
 
   private boolean printHistory = false;
+  private boolean showIterations = false;
 
 
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
@@ -180,6 +181,7 @@ public class CuttingPlaneSolver implements Solver {
     this.atoms.clear(model.getInstancePredicates());
     this.atoms.clear(model.getGlobalPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
+    //todo: what to do with this?
     //this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
   }
 
@@ -305,6 +307,7 @@ public class CuttingPlaneSolver implements Solver {
     propositionalModel.setClosure(scores.getClosure());
 
     if (groundAll.isEmpty()) {
+      //System.out.println(ground);
       if (!initSet) initSolution();
       update();
       setGreedy();
@@ -316,6 +319,7 @@ public class CuttingPlaneSolver implements Solver {
       setGreedy();
     }
 
+    if (showIterations) System.out.print("+");
     profiler.start("iterations");
     while (propositionalModel.changed() && iteration < maxIterations) {
       //System.out.println(iteration + " of " + maxIterations);
@@ -333,6 +337,7 @@ public class CuttingPlaneSolver implements Solver {
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
       }
+      if (showIterations) System.out.print("+");
     }
     profiler.end();
 

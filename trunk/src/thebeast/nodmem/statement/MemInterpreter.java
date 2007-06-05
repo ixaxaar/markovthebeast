@@ -102,7 +102,6 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemRelationType type = (MemRelationType) var.type();
     var.own();
     type.loadFromRows(inputStream, var.getContainerChunk(), var.getPointer());
-
   }
 
 

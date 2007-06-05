@@ -58,7 +58,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private LocalFeatures features;
   private TrainingInstances instances;
 
-  private GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
+  private GroundAtomsPrinter printer = new DefaultPrinter();//new CoNLL00SentencePrinter();
 
   private boolean signatureUpdated = false;
   private boolean modelUpdated = true;
@@ -1151,16 +1151,35 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
-      out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", i, evaluation.getF1(), weights.score(vector),
+      out.printf("%-10d%-10.3f%-10.4f%-10d%-10d\n", i, evaluation.getF1(), weights.score(vector),
               solution.getGroundFormulas().getViolationCount(), solver.getCandidateFormulas().get(i).getNewCount());
       //System.out.println(solver.getCandidateFormulas().get(i));
     }
     solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
     FeatureVector vector = solution.extract(solver.getLocalFeatures());
     evaluation.evaluate(gold, solution.getGroundAtoms());
-    out.printf("%-10d%-10.3f%-10.2f%-10d%-10d\n", solver.getCandidateAtoms().size(), evaluation.getF1(),
+    out.printf("%-10d%-10.3f%-10.4f%-10d%-10d\n", solver.getCandidateAtoms().size(), evaluation.getF1(),
             weights.score(vector), solution.getGroundFormulas().getViolationCount(),
             solution.getGroundFormulas().getNewCount());
+
+    out.println();
+
+    GroundAtoms bestAtoms = solver.getCandidateAtoms().size() > 0 ?
+            solver.getCandidateAtoms().get(0) : solver.getGreedyAtoms();
+    solution.load(bestAtoms, solver.getCandidateAtoms().size() > 0 ?
+            solver.getCandidateFormulas().get(0) : solver.getGreedyFormulas());
+    evaluation.evaluate(gold, solution.getGroundAtoms());
+    for (UserPredicate pred : model.getHiddenPredicates()){
+      System.out.println(pred.getName());
+      for (int i = 0; i < 20; ++i) out.print("-");
+      out.println();
+      out.printf("%-15s %-5d\n", "Count:", bestAtoms.getGroundAtomsOf(pred).size());
+      out.printf("%-15s %-5.3f\n", "Precision:", evaluation.getPrecision(pred));
+      out.printf("%-15s %-5.3f\n", "Recall:", evaluation.getRecall(pred));
+      out.printf("%-15s %-5.3f\n", "F1:", evaluation.getF1(pred));
+      out.println();
+    }
+
   }
 
 

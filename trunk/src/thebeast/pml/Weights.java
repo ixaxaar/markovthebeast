@@ -149,7 +149,7 @@ public class Weights implements HasProperties {
    * @param os the outputstream to writ to.
    */
   public void save(OutputStream os) {
-    for (WeightFunction function : relations.keySet()) {
+    for (WeightFunction function : signature.getWeightFunctions()) {
       save(function, os);
     }
   }
