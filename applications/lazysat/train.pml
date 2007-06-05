@@ -11,7 +11,7 @@ observed: venue, title, author,
 
 load corpus from "train.atoms";
 
-load weights from "bibserv.weights";
+load weights from "bibserv.withneg.weights";
 
 load instances from dump "/tmp/er.inst.dmp";
 
@@ -41,7 +41,7 @@ set learner.solver.maxIterations = 0;
 
 learn for 5 epochs;
 
-print learner.profiler;
+//print learner.profiler;
 
 set learner.initWeights = false;
 set learner.solver.maxIterations = 5;

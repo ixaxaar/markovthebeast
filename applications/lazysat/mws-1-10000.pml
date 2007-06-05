@@ -36,6 +36,15 @@ set solver.model.singleCallMode = true;
 set solver.groundAll = true;
 set solver.maxIterations = 1;
 
+/*
+set solver.model = "sat";
+set solver.model.solver.seed = 1;
+set solver.model.solver.maxFlips = 10000;
+set solver.model.solver.maxRestarts = 1;
+set solver.groundAll = true;
+set solver.maxIterations = 1;
+set solver.model.singleCallMode = true;
+*/
 
 solve;
 

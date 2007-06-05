@@ -87,16 +87,16 @@
 //direct 
 
 >w_bibauthorScore100
-0.460693
+0.1
 
 >w_bibauthorScore80
-0.743437
+0.1
 
 >w_bibauthorScore60
-0.0910441
+0.1
 
 >w_bibauthorScore40
-0.138149
+0.1
 
 //>w_bibauthorScore20
 //-0.731716
@@ -105,16 +105,16 @@
 //-6.26909
 
 >w_bibtitleScore100
-3.01902
+0.1
 
 >w_bibtitleScore80
-3.18092
+0.1
 
 >w_bibtitleScore60
-2.3661
+0.1
 
 >w_bibtitleScore40
-1.39966
+0.1
 
 //>w_bibtitleScore20
 //-5.03051
@@ -123,13 +123,13 @@
 //-11.5221
 
 >w_bibvenueScore100
-3.34694
+0.1
 
 >w_bibvenueScore80
-2.29871
+0.1
 
 >w_bibvenueScore60
-0.354291
+0.1
 
 //>w_bibvenueScore40
 //-0.355662

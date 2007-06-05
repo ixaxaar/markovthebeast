@@ -3,6 +3,7 @@ package thebeast.pml;
 import thebeast.util.Counter;
 import thebeast.pml.parser.Shell;
 import thebeast.pml.corpora.TextFileCorpus;
+import thebeast.nod.FileSource;
 
 import java.util.Formatter;
 import java.util.Iterator;
@@ -101,44 +102,70 @@ public class CorpusEvaluation {
 
   public String toString() {
     StringBuffer result = new StringBuffer();
+    Formatter formatter = new Formatter(result);
+    result.append("Global").append("\n");
+    for (int i = 0; i < 25; ++i) result.append("-");
+    result.append("\n");
+    formatter.format("%-20s%4.3f\n", "Recall", getRecall());
+    formatter.format("%-20s%4.3f\n", "Precision", getPrecision());
+    formatter.format("%-20s%4.3f\n", "F1", getF1());
+    //result.append(formatter.toString());
     for (UserPredicate pred : model.getHiddenPredicates()) {
       result.append(pred.getName()).append("\n");
       for (int i = 0; i < 25; ++i) result.append("-");
       result.append("\n");
-      Formatter formatter = new Formatter();
       formatter.format("%-20s%4.3f\n", "Recall", getRecall(pred));
       formatter.format("%-20s%4.3f\n", "Precision", getPrecision(pred));
       formatter.format("%-20s%4.3f\n", "F1", getF1(pred));
-      result.append(formatter.toString());
+      //result.append(formatter.toString());
     }
     return result.toString();
   }
 
   public static void main(String[] args) throws Exception {
-    Model model = TheBeast.getInstance().loadModel(new FileInputStream(args[0]));
+    String weightFileType = args[0];
+    Model model = TheBeast.getInstance().loadModel(new FileInputStream(args[1]));
     Weights weights = model.getSignature().createWeights();
-    weights.load(new FileInputStream(args[1]));
-    TextFileCorpus gold = new TextFileCorpus(model.getSignature(), new File(args[2]));
-    TextFileCorpus guess = new TextFileCorpus(model.getSignature(), new File(args[3]));
+    if (weightFileType.equals("dump")) {
+      FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(args[2]), 1024);
+      weights.read(source);
+    } else if (weightFileType.equals("text")) {
+      weights.load(new FileInputStream(args[2]));
+    }
+    TextFileCorpus gold = new TextFileCorpus(model.getSignature(), new File(args[3]));
+    TextFileCorpus guess = new TextFileCorpus(model.getSignature(), new File(args[4]));
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
     Iterator<GroundAtoms> i_guess = guess.iterator();
     Iterator<GroundAtoms> i_gold = gold.iterator();
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
     while (i_guess.hasNext()){
       Evaluation eval = new Evaluation(model);
-      eval.evaluate(i_gold.next(), i_guess.next());
+      GroundAtoms gold_atoms = i_gold.next();
+      GroundAtoms guess_atoms = i_guess.next();
+      guess_atoms.load(gold_atoms, model.getObservedPredicates());
+      eval.evaluate(gold_atoms, guess_atoms);
       corpusEvaluation.add(eval);
       GroundFormulas f_guess = new GroundFormulas(model,weights);
       f_guess.init();
-      f_guess.update(eval.getGuess());
+      f_guess.update(guess_atoms);
       GroundFormulas f_gold = new GroundFormulas(model, weights);
       f_gold.init();
-      f_gold.update(eval.getGold());
+      f_gold.update(gold_atoms);
       Solution s_guess = new Solution(model, weights);
-      s_guess.load(eval.getGuess(),f_guess);
+      s_guess.load(guess_atoms,f_guess);
       Solution s_gold = new Solution(model, weights);
-      s_gold.load(eval.getGold(),f_gold);
-      System.out.println("Gold Score: " + weights.score(s_gold.extract()));
-      System.out.println("Guess Score: " + weights.score(s_guess.extract()));
+      s_gold.load(gold_atoms,f_gold);
+
+      LocalFeatures gold_features = new LocalFeatures(model, weights);
+      LocalFeatures guess_features = new LocalFeatures(model, weights);
+      extractor.extract(gold_atoms, gold_features);
+      extractor.extract(guess_atoms, guess_features);
+
+      FeatureVector gold_vector = s_gold.extract(gold_features);
+      System.out.println("Gold Score: " + weights.score(gold_vector));
+      FeatureVector guess_vector = s_guess.extract(guess_features);
+      System.out.println("Guess Score: " + weights.score(guess_vector));
+      System.out.println("Violations: " + f_guess.getViolationCount());
 
     }
     System.out.println(corpusEvaluation);

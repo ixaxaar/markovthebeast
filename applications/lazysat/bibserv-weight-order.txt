@@ -1,7 +1,7 @@
-w_1
-w_2
-w_3
-w_4
+-w_1
+-w_2
+-w_3
+-w_4
 w_authorScore100
 w_authorScore80
 w_authorScore60
@@ -20,9 +20,9 @@ w_venueScore60
 w_venueScore40
 w_venueScore20
 w_venueScore0
-//w_authorbib
-//w_titlebib
-//w_venuebib
+w_authorbib
+w_titlebib
+w_venuebib
 w_bibauthor
 w_bibtitle
 w_bibvenue

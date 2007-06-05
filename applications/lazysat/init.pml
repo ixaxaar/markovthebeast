@@ -11,7 +11,7 @@ observed: venue, title, author,
 
 load corpus from "train.atoms";
 
-load weights from "bibserv.weights";
+load weights from "bibserv.withneg.weights";
 
 save corpus to instances "/tmp/er.inst.dmp";
 

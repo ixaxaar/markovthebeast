@@ -11,22 +11,32 @@ observed: venue, title, author,
 
 load corpus from "test.atoms";
 
-load weights from "/tmp/er.inst.dmp";
+//load weights from dump "weights/for-fold-7.weights.dmp";
+//load weights from "bibserv.weights";
+load weights from "/tmp/test.weights";
+//load weights from "bibserv.dummy.weights";
+//load weights from dump "weights.dmp";
+//load weights from "/tmp/er.inst.dmp";
 
 
 save corpus to ram;
 next;
 
+/*
 set solver.model = "sat";
-set solver.model.solver.maxFlips = 1000000;
-set solver.maxIterations = 10;
-set solver.model.solver.initRandom = false;
+set solver.model.solver.maxFlips = 100000;
+set solver.maxIterations = 20;
+set solver.model.solver.initRandom = false;                                                               
 set solver.model.solver.updateRandom = false;
 set solver.model.solver.maxRestarts = 1;
 set solver.model.solver.seed = 0;
 set solver.model.solver.greedyProb = 0.9;
+*/
 
 solve;
+
+print eval;
+
 print history;
 print solver.profiler;
 print solver.model.fractionals;
