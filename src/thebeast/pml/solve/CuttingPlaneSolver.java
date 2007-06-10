@@ -75,6 +75,7 @@ public class CuttingPlaneSolver implements Solver {
       groundAll.remove(formula);
     formulas.setFullyGround(formula, fullyGround);
     firstFormulas.setFullyGround(formula, fullyGround);
+    propositionalModel.setFullyGround(formula, fullyGround);
 
   }
 

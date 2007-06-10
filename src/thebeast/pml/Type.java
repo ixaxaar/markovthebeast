@@ -19,6 +19,7 @@ import java.math.BigInteger;
 public class Type {
   public static Type BOOL;
 
+  private static int typeCount = 0;
 
 
   public enum Class {
@@ -58,7 +59,7 @@ public class Type {
     Collections.sort(constants);
     NoDServer nodServer = TheBeast.getInstance().getNodServer();
     this.nodType = nodServer.typeFactory().createCategoricalType(
-            nodServer.identifierFactory().createName(name), withUnknowns, constants);
+            nodServer.identifierFactory().createName(name + typeCount++), withUnknowns, constants);
     this.name = name;
     this.constants = new HashSet<String>(constants);
   }

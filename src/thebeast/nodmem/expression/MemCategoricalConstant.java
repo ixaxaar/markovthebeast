@@ -15,6 +15,8 @@ public class MemCategoricalConstant extends AbstractMemConstant<CategoricalType,
 
   protected MemCategoricalConstant(CategoricalType type, String value) {
     super(type);
+    if (type.index(value)==-1 && !type.unknowns())
+      throw new RuntimeException(value + " is not a member of " + type);
     this.representation = value;
   }
 

@@ -7,6 +7,7 @@ import thebeast.nod.expression.Operator;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.type.RelationType;
+import thebeast.nod.type.CategoricalType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.corpora.*;
@@ -886,15 +887,15 @@ public class TestTheBeast extends TestCase {
     System.out.println(rel.value());
     assertEquals(12, rel.value().size());
     assertTrue(interpreter.evaluateBool(exprBuilder.expr(rel).
-            id("arg_0").integer(0).id("arg_1").integer(0).id("arg_2").categorical("Label", "NP").
+            id("arg_0").integer(0).id("arg_1").integer(0).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
             id("index").integer(0).
             tuple(4).contains().getBool()).getBool());
     assertFalse(interpreter.evaluateBool(exprBuilder.expr(rel).
-            id("arg_0").integer(1).id("arg_1").integer(0).id("arg_2").categorical("Label", "NP").
+            id("arg_0").integer(1).id("arg_1").integer(0).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
             id("index").integer(0).
             tuple(4).contains().getBool()).getBool());
     assertTrue(interpreter.evaluateBool(exprBuilder.expr(rel).
-            id("arg_0").integer(3).id("arg_1").integer(4).id("arg_2").categorical("Label", "NP").
+            id("arg_0").integer(3).id("arg_1").integer(4).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
             id("index").integer(0).id("score").
             tuple(4).contains().getBool()).getBool());
 
@@ -927,7 +928,7 @@ public class TestTheBeast extends TestCase {
 
     QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, null);
-    RelationExpression result = generator.generateConstraintQuery(np_vp_s, formulas, scores, ilp, model);
+    RelationExpression result = generator.generateConstraintQuery(np_vp_s, formulas, false, scores, ilp, model);
     System.out.println(result);
 
     RelationVariable constraints = interpreter.createRelationVariable(result);
@@ -1167,7 +1168,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(ilp.getConstraints().value());
 
-    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
+    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
 
     System.out.println(constraintQuery);
 
@@ -1277,7 +1278,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(5, ilp.getVars().value().size());
 
 
-    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, scores, ilp, model);
+    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
 
     System.out.println(constraintQuery);
 
@@ -1389,7 +1390,7 @@ public class TestTheBeast extends TestCase {
     System.out.println(weights.getRelation(weightFunction2).value());
     assertEquals(6, weights.getFeatureCount());
     assertEquals(0.0, weights.getWeight(weightFunction1, "DT", "NP"));
-    assertEquals(0.0, weights.getWeight(weightFunction1, "NP"));
+    assertEquals(0.0, weights.getWeight(weightFunction2, "NP"));
     assertTrue(weights.getIndex(weightFunction3, "NP", "VP", "S") != -1);
   }
 

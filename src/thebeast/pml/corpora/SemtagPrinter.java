@@ -18,7 +18,7 @@ public class SemtagPrinter implements GroundAtomsPrinter {
     UserPredicate slot = atoms.getSignature().getUserPredicate("slot");
     UserPredicate goal = atoms.getSignature().getUserPredicate("goal");
 
-    out.print(atoms.getGroundAtomsOf(goal).toString());
+    if (goal != null) out.print(atoms.getGroundAtomsOf(goal).toString());
 
     out.println();
 

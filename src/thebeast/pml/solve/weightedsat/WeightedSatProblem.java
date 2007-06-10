@@ -264,6 +264,10 @@ public class WeightedSatProblem implements PropositionalModel {
 
   }
 
+  public void setFullyGround(FactorFormula formula, boolean fullyGround) {
+
+  }
+
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;

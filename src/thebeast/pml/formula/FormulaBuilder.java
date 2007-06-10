@@ -8,6 +8,7 @@ import thebeast.pml.function.IntMinus;
 import thebeast.pml.predicate.PredicateTypeException;
 import thebeast.pml.predicate.IntLEQ;
 import thebeast.pml.predicate.Predicate;
+import thebeast.pml.predicate.IntLT;
 import thebeast.pml.term.*;
 
 import java.util.HashMap;
@@ -264,6 +265,17 @@ public class FormulaBuilder {
     return this;
   }
 
+  public FormulaBuilder intLessThan() {
+    Term rhs = toTerm(termStack.pop());
+    Term lhs = toTerm(termStack.pop());
+    if (!lhs.getType().equals(Type.INT))
+      throw new TypeMismatchException("intLEQ needs an integer lhs", rhs.getType(), lhs.getType());
+    if (!rhs.getType().equals(Type.INT))
+      throw new TypeMismatchException("intLEQ needs an integer rhs", rhs.getType(), lhs.getType());
+    formulaStack.push(new PredicateAtom(IntLT.INT_LT, lhs, rhs));
+    return this;
+  }
+
   public FormulaBuilder clear() {
     formulaStack.clear();
     termStack.clear();
@@ -301,6 +313,8 @@ public class FormulaBuilder {
             popQuantification(),
             count,
             upperBound == null ? new IntConstant(Integer.MAX_VALUE) : upperBound,useClosure));
+    upperBound = null;
+    lowerBound = null;
     return this;
   }
 

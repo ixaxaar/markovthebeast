@@ -86,6 +86,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   private static Heading valuesHeading;
   private static Heading indexHeading;
   private int newConstraintCount;
+  private Weights weights;
 
 
   static {
@@ -140,6 +141,7 @@ public class IntegerLinearProgram implements PropositionalModel {
 
   public void configure(Model model, Weights weights) {
     this.model = model;
+    this.weights = weights;
     varCount = interpreter.createIntVariable(builder.num(0).getInt());
     lastVarCount = interpreter.createIntVariable(builder.num(0).getInt());
     formulas = new GroundFormulas(model, weights);
@@ -162,9 +164,9 @@ public class IntegerLinearProgram implements PropositionalModel {
     builder.doubleAttribute("value").num(1.0 - eps).doubleLessThan().and(2).restrict();
     findFractionals = builder.getRelation();
 
-    QueryGenerator generator = new QueryGenerator(weights, atoms);
-    generator.setClosure(closure);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
+      QueryGenerator generator = new QueryGenerator(weights, atoms);
+      generator.setClosure(closure);
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
       interpreter.addIndex(variables, "index", Index.Type.HASH, "index");
@@ -208,37 +210,43 @@ public class IntegerLinearProgram implements PropositionalModel {
 
     }
     for (FactorFormula formula : model.getFactorFormulas()) {
-      if (!formula.isLocal()) {
-        if (!formula.isAcyclicityConstraint() && !formula.isDeterministic()) {
-          RelationVariable constraintVariables = interpreter.createRelationVariable(formula.getHeadingILP());
-          groundFormula2index.put(formula, constraintVariables);
-          RelationExpression query = generator.generateConstraintQuery(formula, formulas, scores, this, model);
-          formula2query.put(formula, query);
-          builder.expr(query).expr(constraints).relationMinus();
-          Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
-          newConstraintsInserts.put(formula, newConstraintsInsert);
-          Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
-          constraintsInserts.put(formula, constraintsInsert);
-
-          builder.expr(constraintVariables).from("c");
-          builder.expr(lastVarCount).intAttribute("c", "index").intLEQ().where();
-          builder.id("index").intAttribute("c", "index").id("weight").doubleAttribute("c", "weight").tuple(2);
-          builder.select().query();
-          groundFormulaGetWeight.put(formula, builder.getRelation());
-
-        } else {
-          RelationExpression query = generator.generateConstraintQuery(formula, formulas, scores, this, model);
-          formula2query.put(formula, query);
-          builder.expr(query).expr(constraints).relationMinus();
-          Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
-          newConstraintsInserts.put(formula, newConstraintsInsert);
-          Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
-          constraintsInserts.put(formula, constraintsInsert);
-        }
-      }
+      configureFormula(formula,false);
     }
     insertNewConstraintsIntoOld = factory.createInsert(constraints, newConstraints);
 
+  }
+
+  private void configureFormula(FactorFormula formula, boolean fullyGround) {
+    if (!formula.isLocal()) {
+      QueryGenerator generator = new QueryGenerator(this.weights, atoms);
+      generator.setClosure(closure);
+      if (!formula.isAcyclicityConstraint() && !formula.isDeterministic()) {
+        RelationVariable constraintVariables = interpreter.createRelationVariable(formula.getHeadingILP());
+        groundFormula2index.put(formula, constraintVariables);
+        RelationExpression query = generator.generateConstraintQuery(formula, formulas, fullyGround, scores, this, this.model);
+        formula2query.put(formula, query);
+        builder.expr(query).expr(constraints).relationMinus();
+        Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
+        newConstraintsInserts.put(formula, newConstraintsInsert);
+        Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
+        constraintsInserts.put(formula, constraintsInsert);
+
+        builder.expr(constraintVariables).from("c");
+        builder.expr(lastVarCount).intAttribute("c", "index").intLEQ().where();
+        builder.id("index").intAttribute("c", "index").id("weight").doubleAttribute("c", "weight").tuple(2);
+        builder.select().query();
+        groundFormulaGetWeight.put(formula, builder.getRelation());
+
+      } else {
+        RelationExpression query = generator.generateConstraintQuery(formula, formulas, fullyGround, scores, this, this.model);
+        formula2query.put(formula, query);
+        builder.expr(query).expr(constraints).relationMinus();
+        Insert newConstraintsInsert = factory.createInsert(newConstraints, builder.getRelation());
+        newConstraintsInserts.put(formula, newConstraintsInsert);
+        Insert constraintsInsert = factory.createInsert(constraints, newConstraints);
+        constraintsInserts.put(formula, constraintsInsert);
+      }
+    }
   }
 
 
@@ -526,6 +534,10 @@ public class IntegerLinearProgram implements PropositionalModel {
       solver.addIntegerConstraints(fractionals);
       newFractionals = true;
     }
+  }
+
+  public void setFullyGround(FactorFormula formula, boolean fullyGround) {
+    configureFormula(formula, fullyGround);
   }
 
   /**
