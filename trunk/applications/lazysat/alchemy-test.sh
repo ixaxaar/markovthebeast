@@ -18,7 +18,7 @@ echo "Inference"
 ~/opt/alchemy/bin/infer -seed 0 -mwsMaxSteps 10000000 -i $mln -e $db -r $out \
  -q SameBib,SameTitle,SameAuthor,SameVenue -lazy -m > results/$experiment-$i.alchemy.output
 echo "converting to atoms..."
-java -Xmx500m -cp ../../classes/production thebeast.pml.corpora.AlchemyConverter \
+java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyConverter \
   $mln \
   $out \
   $out.types.pml \
