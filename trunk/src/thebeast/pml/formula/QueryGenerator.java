@@ -112,7 +112,7 @@ public class QueryGenerator {
       BooleanFormula condition = factorFormula.getCondition();
       both = condition == null ?
               implication.getPremise() : new Conjunction(implication.getPremise(), condition);
-    } else if (factorFormula.getFormula() instanceof PredicateAtom){
+    } else if (factorFormula.getFormula() instanceof PredicateAtom) {
       atom = (PredicateAtom) factorFormula.getFormula();
       both = factorFormula.getCondition();
     } else {
@@ -138,7 +138,7 @@ public class QueryGenerator {
 
       //now add the auxilary atom argument terms to the select statement
       for (int i = 0; i < predicate.getArity(); ++i) {
-        Term term = termResolver.resolve(atom.getArguments().get(i),context.var2term);
+        Term term = termResolver.resolve(atom.getArguments().get(i), context.var2term);
         Expression expression = exprGenerator.convertTerm(term,
                 groundAtoms, weights, context.var2expr, context.var2term);
 
@@ -429,7 +429,7 @@ public class QueryGenerator {
         processHiddenAtom(context, (Atom) factorFormula.getFormula());
         //now process the score term
         Term term = termResolver.resolve(factorFormula.getWeight(), context.var2term);
-        Expression expr = exprGenerator.convertTerm(term,groundAtoms, weights,context.var2expr, context.var2term);
+        Expression expr = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
         context.selectBuilder.id("score").expr(expr);
         context.selectBuilder.id("index").expr(index).intPostInc();
         //make a tuple using all added columns
@@ -442,7 +442,7 @@ public class QueryGenerator {
       //now process the weight part.
       //now process the score term
       Term term = termResolver.resolve(factorFormula.getWeight(), context.var2term);
-      Expression expr = exprGenerator.convertTerm(term,groundAtoms, weights,context.var2expr, context.var2term);
+      Expression expr = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
       context.selectBuilder.id("score").expr(expr);
       context.selectBuilder.id("index").expr(index).intPostInc();
       //make a tuple using all added columns
@@ -460,7 +460,6 @@ public class QueryGenerator {
 
 
   }
-
 
 
   private void processWeightForLocal(ConjunctionProcessor.Context context, Term weight) {
@@ -671,7 +670,7 @@ public class QueryGenerator {
   }
 
 
-  public RelationExpression generateConstraintQuery(FactorFormula formula, GroundFormulas groundFormulas,
+  public RelationExpression generateConstraintQuery(FactorFormula formula, GroundFormulas groundFormulas, final boolean fullyGround,
                                                     final Scores scores, final IntegerLinearProgram ilp,
                                                     final Model model) {
     this.scores = scores;
@@ -793,7 +792,7 @@ public class QueryGenerator {
                     "yet");
           }
           if (cardinalityConstraint.isLEQ()) {
-            leqQueries.add(createLEQQuery(cardinalityConstraint, var2expr, model));
+            leqQueries.add(createLEQQuery(cardinalityConstraint, var2expr, fullyGround, model));
             upperBounds.add((IntExpression) exprGenerator.convertTerm(cardinalityConstraint.getUpperBound(),
                     groundAtoms, weights, var2expr, null));
             //create a query which selects ilp variable indices
@@ -1014,7 +1013,7 @@ public class QueryGenerator {
   }
 
   public RelationExpression createLEQQuery(CardinalityConstraint constraint,
-                                           Map<Variable, Expression> var2expr,
+                                           Map<Variable, Expression> var2expr, boolean useAll,
                                            final Model model) {
     Quantification quantification = constraint.getQuantification();
     BooleanFormula formula = constraint.getFormula();
@@ -1048,7 +1047,29 @@ public class QueryGenerator {
       context.var2term.put(var, var);
     }
 
+    SignedAtom hidden = null;
+    if (useAll) {
+      for (SignedAtom atom : conjunction) {
+        if (atom.getAtom() instanceof PredicateAtom) {
+          PredicateAtom predicateAtom = (PredicateAtom) atom.getAtom();
+          UserPredicate predicate = (UserPredicate) predicateAtom.getPredicate();
+          if (model.getHiddenPredicates().contains(predicate))
+            hidden = atom;
+        }
+      }
+      conjunction.remove(hidden);
+
+    }
+
     processor.processConjunction(context, conjunction);
+
+    if (useAll) {
+      ArrayList<SignedAtom> hiddenList = new ArrayList<SignedAtom>();
+      hiddenList.add(hidden);
+      //processor.resolveBruteForce(context, hiddenList);
+      processor.resolveBruteForce(context, hiddenList);
+      conjunction.add(hidden);
+    }
 
     //find the hidden ground atom
     context.selectBuilder.id("index");

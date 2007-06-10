@@ -54,10 +54,11 @@ public interface PropositionalModel extends HasProperties, Profilable {
   boolean changed();
 
   /**
-   * Force the model to produce as integer solution.
+   * Force the model to produce integer solution.
    */
   void enforceIntegerSolution();
 
+  void setFullyGround(FactorFormula formula, boolean fullyGround);
 
   void setClosure(GroundAtoms closure);
 
