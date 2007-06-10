@@ -13,6 +13,8 @@ import thebeast.pml.TheBeast;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.PropertyName;
 
+import java.util.Arrays;
+
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
  */
@@ -115,6 +117,9 @@ public class ILPSolverLpSolve implements ILPSolver {
       solver.solve();
       double[] solution = new double[numCols];
       solver.getVariables(solution);
+//      System.out.println(solution[21]);
+//      System.out.println(solution[55]);
+//      System.out.println(solver.getStatustext(solver.getStatus()));
       int[] indices = new int[numCols];
       for (int index = 0; index < solution.length; ++index) {
         indices[index] = index;

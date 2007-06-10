@@ -588,7 +588,10 @@ public class CuttingPlaneSolver implements Solver {
 
     } else if (name.getHead().equals("ground")) {
       String factorName = name.getTail().getHead();
-      setFullyGround(model.getFactorFormula(factorName), (Boolean) value);
+      FactorFormula formula = model.getFactorFormula(factorName);
+      if (formula == null)
+        throw new RuntimeException("There is no factor with name " + name.getTail().getHead());
+      setFullyGround(formula, (Boolean) value);
     } else if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     else if (name.getHead().equals("timeout"))

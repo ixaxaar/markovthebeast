@@ -1,4 +1,4 @@
-package thebeast.pml.corpora;
+package thebeast.util.alchemy;
 
 import thebeast.util.HashMultiMap;
 

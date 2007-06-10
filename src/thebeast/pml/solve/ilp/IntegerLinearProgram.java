@@ -360,10 +360,14 @@ public class IntegerLinearProgram implements PropositionalModel {
   public void solve(GroundAtoms solution) {
     profiler.start("add to ilp", 0);
     solver.add(newVars, newConstraints);
-    if (initIntegers) solver.addIntegerConstraints(newVars);
+    if (initIntegers) {
+      //System.out.println(newVars.value());
+      solver.addIntegerConstraints(newVars);
+    }
     profiler.end();
     profiler.start("solve", 1);
     RelationVariable result = solver.solve();
+//    System.out.println(result.value());
     profiler.end();
     profiler.start("extract", 2);
     interpreter.assign(this.result, result);
@@ -390,7 +394,9 @@ public class IntegerLinearProgram implements PropositionalModel {
     //for all solutions <= 0.5 remove tuples
     //System.out.println(result.value());
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      //System.out.println(solution.getGroundAtomsOf(predicate).getRelationVariable());
+//      System.out.println(predicate.getName());
+//      //System.out.println(solution.getGroundAtomsOf(predicate).getRelationVariable());
+//      System.out.println(groundAtom2indexScore.get(predicate).value());
       interpreter.assign(solution.getGroundAtomsOf(predicate).getRelationVariable(), removeFalseGroundAtoms.get(predicate));
       //System.out.println(solution.getGroundAtomsOf(predicate).getRelationVariable());
     }

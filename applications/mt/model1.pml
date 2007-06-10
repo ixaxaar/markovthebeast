@@ -1,5 +1,5 @@
 type SourceWord : "Ich","mag","Milch";
-type TargetWord : "I", "me", "like", "love", "the", "milk";
+type TargetWord : "I", "me", "like", "love", "the", "milk", "-BEGIN-", "-END-";
 
 //Source-Position x Source-Word
 predicate source: Int x SourceWord;
@@ -26,37 +26,37 @@ predicate activeGroup: Int;
 predicate activeTarget: Int;
 
 
-
 factor exactlyOneGroup: for Int i if source(i,_) :
   |Int group: group(i,group) & activeGroup(group)| <= 1;
-set solver.ground.exactlyOneGroup = true;
 
 factor groupImpliesTargetActive: for Int group, Int target if target(group,target,_):
   activeGroup(group) => activeTarget(target);
-set solver.ground.groupImpliesTargetActive = true;
 
 
 factor targetImpliesGroupActive: for Int group, Int target if target(group,target,_):
   activeTarget(target) => activeGroup(group);
-set solver.ground.targetImpliesGroupActive = true;
 
 //  (forall Int target: target(group,target) => activeTarget(target)) => activeGroup(group);
 
-/*
-factor: for Int begin if target(_,begin,_):
-  activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end)| == 1;
 
-factor: for Int end if target(_,end,_):
-  activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)| == 1;
-*/
+factor atLeastOneEnd: for Int begin if target(_,begin,_) & begin != 1:
+  activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end)| >= 1;
 
-factor followsActiveBegin: for Int begin, Int end if target(_,begin,_) & target(_,end,_) & followsScore(begin,end,_):
+factor atMostOneEnd: for Int begin if target(_,begin,_):
+  |Int end: target(_,end,_) & follows(begin,end)| <= 1;
+
+factor atLeastOneBegin: for Int end if target(_,end,_) & end != 0:
+  activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)| >= 1;
+
+factor atMostOneBegin: for Int end if target(_,end,_):
+  |Int begin: target(_,begin,_) & follows(begin,end)| <= 1;
+  
+
+factor followsActiveBegin: for Int begin, Int end if target(_,begin,_) & target(_,end,_):
   follows(begin,end) => activeTarget(begin);
-set solver.ground.followsActiveBegin = true;
 
-factor followsActiveEnd: for Int begin, Int end if target(_,begin,_) & target(_,end,_) & followsScore(begin,end,_):
+factor followsActiveEnd: for Int begin, Int end if target(_,begin,_) & target(_,end,_):
   follows(begin,end) => activeTarget(end);
-set solver.ground.followsActiveEnd = true;
 
 
 factor: follows acyclic;
