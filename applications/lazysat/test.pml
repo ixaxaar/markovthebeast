@@ -13,7 +13,8 @@ load corpus from "test.atoms";
 
 //load weights from dump "weights/for-fold-7.weights.dmp";
 //load weights from "bibserv.weights";
-load weights from "/tmp/test.weights";
+load weights from "txt.weights";
+//load weights from "/tmp/test.weights";
 //load weights from "bibserv.dummy.weights";
 //load weights from dump "weights.dmp";
 //load weights from "/tmp/er.inst.dmp";
@@ -24,7 +25,7 @@ next;
 
 /*
 set solver.model = "sat";
-set solver.model.solver.maxFlips = 100000;
+set solver.model.solver.maxFlips = 1000;
 set solver.maxIterations = 20;
 set solver.model.solver.initRandom = false;                                                               
 set solver.model.solver.updateRandom = false;
@@ -33,9 +34,11 @@ set solver.model.solver.seed = 0;
 set solver.model.solver.greedyProb = 0.9;
 */
 
+set solver.integer = true;
+
 solve;
 
-print eval;
+//print eval;
 
 print history;
 print solver.profiler;

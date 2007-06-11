@@ -3,6 +3,7 @@ package thebeast.pml;
 import thebeast.util.Counter;
 import thebeast.pml.parser.Shell;
 import thebeast.pml.corpora.TextFileCorpus;
+import thebeast.pml.formula.FactorFormula;
 import thebeast.nod.FileSource;
 
 import java.util.Formatter;
@@ -148,6 +149,7 @@ public class CorpusEvaluation {
       GroundFormulas f_guess = new GroundFormulas(model,weights);
       f_guess.init();
       f_guess.update(guess_atoms);
+
       GroundFormulas f_gold = new GroundFormulas(model, weights);
       f_gold.init();
       f_gold.update(gold_atoms);
@@ -155,6 +157,18 @@ public class CorpusEvaluation {
       s_guess.load(guess_atoms,f_guess);
       Solution s_gold = new Solution(model, weights);
       s_gold.load(gold_atoms,f_gold);
+
+//      for (FactorFormula formula : model.getGlobalFactorFormulas()){
+//        if (formula.isDeterministic()) continue;
+//        System.err.println(formula.toString());
+//        System.err.println("Weight:"+ weights.getWeight(formula.getWeightFunction()));
+//        System.err.println(f_gold.getFalseGroundFormulas(formula).value().size());
+//        System.err.println(f_guess.getFalseGroundFormulas(formula).value().size());
+////        if (formula.getWeightFunction().getName().equals("w_bibvenue")){
+////          System.err.println(f_gold.getFalseGroundFormulas(formula).value());
+////        }
+//      }
+
 
       LocalFeatures gold_features = new LocalFeatures(model, weights);
       LocalFeatures guess_features = new LocalFeatures(model, weights);

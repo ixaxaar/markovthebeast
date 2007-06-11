@@ -12,8 +12,8 @@ import java.util.StringTokenizer;
 public class EvaluationOutputParser {
 
   public static void main(String[] args) throws IOException {
-    PrintStream out = new PrintStream(args[0]);
-    for (int i = 1; i < args.length; ++i){
+    for (int i = 0; i < args.length; ++i){
+      System.err.println(args[i]);
       BufferedReader reader = new BufferedReader(new FileReader(args[i]));
       double f1 = 0;
       double score = 0;
@@ -22,6 +22,7 @@ public class EvaluationOutputParser {
       double time = 0;
       long clauses = 0;
       int iterations = 0;
+      long violations = 0;
       String[] firstRow = reader.readLine().split("[\\.]");
       long size = Integer.parseInt(firstRow[1]);
       int level = -1;
@@ -36,13 +37,15 @@ public class EvaluationOutputParser {
           tokenizer.nextToken();
           f1 = Double.parseDouble(tokenizer.nextToken());
           score = Double.parseDouble(tokenizer.nextToken());
+          violations = Integer.parseInt(tokenizer.nextToken());
           line = reader.readLine().trim();
-          tokenizer = new StringTokenizer(line,"[\t ]",false);
-          tokenizer.nextToken();
-          tokenizer.nextToken();
-          tokenizer.nextToken();
-          tokenizer.nextToken();
-          clauses = Long.parseLong(tokenizer.nextToken());
+          System.err.println(line);
+//          tokenizer = new StringTokenizer(line,"[\t ]",false);
+//          tokenizer.nextToken();
+//          tokenizer.nextToken();
+//          tokenizer.nextToken();
+//          tokenizer.nextToken();
+//          clauses = Long.parseLong(tokenizer.nextToken());
           inIteration = true;
           level = 0;
         }  else if (line.startsWith("solve") && level == 0){
@@ -64,19 +67,23 @@ public class EvaluationOutputParser {
           String token = tokenizer.nextToken();
           timeInUpdate = Double.parseDouble(token.substring(0, token.length()-2));
           ++level;
+        } else if (line.equals("") && inIteration){
+          inIteration = false;
         } else if (line.startsWith("root")){
           inIteration = false;
         }
         if (inIteration) {
           StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
+          System.err.println(line);
           iterations = Integer.parseInt(tokenizer.nextToken());
         }
       }
-      out.printf("%-5d %-5d %-10.4f %-10.4f %-10.2f %-10.2f %-10.2f %-10d\n",
-              iterations, size, f1, score, timeInSolve, timeInUpdate, time, clauses);
-      System.out.println(args[i]);
+      System.out.printf("%-5d %-5d %-10.4f %-10.4f %-10.2f %-10.2f %-10.2f %-10d %-10d\n",
+              iterations, size, f1, score, timeInSolve, timeInUpdate, time, clauses, violations);
+//      System.out.println(iterations + ", " +  size + ", " +  f1 + ", " +  score + ", " +  timeInSolve
+//              + ", " +  timeInUpdate + ", " +  time + ", " +  clauses + ", " +  violations);
+      //System.out.println(args[i]);
     }
-    out.close();
 
   }
 

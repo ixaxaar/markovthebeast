@@ -18,7 +18,7 @@ load corpus from "link.atoms";
 
 save corpus to ram;
 
-load weights from "bibserv.weights";
+load weights from "bibserv.withneg.weights";
 
 
 next;

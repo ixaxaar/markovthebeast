@@ -1,21 +1,21 @@
 #!/bin/bash
 
-experiment=mws-1-10m
+experiment=pseudo-mult-mws-1-10m-seeded-hard
 
-for i in 0 1 2 3 4 6 7 8 9; do \
-#for i in 1; do \
-#weights=weights/doublefold-$i.weights.dmp
-weights=bibserv.weights
-#mln=$weights.mln
-mln=corpora/cora/cora.mln
-db=corpora/cora/folds/filtered.${i}of10.doublefold.db
-gold=corpora/cora/folds/${i}of10.doublefold.db.atoms
-out=/tmp/$i.out
+for i in 0 1 2 3 4 5 6 7 8 9; do \
+#for i in 3; do \
+weights=weights/multiple-$i.weights
+#weights=bibserv.weights
+mln=weights/hard-multiple-$i.mln
+#mln=corpora/cora/cora.mln
+db=corpora/cora/folds/stripped.corafold-$i.db
+gold=corpora/cora/folds/corafold-$i.db.atoms
+out=/tmp/$experiment-$i.out
 
 echo Fold $i
 echo "Inference"
 
-~/opt/alchemy/bin/infer -seed 0 -mwsMaxSteps 10000000 -i $mln -e $db -r $out \
+~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 10000000 -i $mln -e $db -r $out \
  -q SameBib,SameTitle,SameAuthor,SameVenue -lazy -m > results/$experiment-$i.alchemy.output
 echo "converting to atoms..."
 java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyConverter \
