@@ -24,7 +24,7 @@ load weights from "bibserv.withneg.weights";
 next;
 
 set solver.profile = true;
-set solver.model.initIntegers = true;
+//set solver.model.initIntegers = true;
 //set solver.timeout =  
 solve;
 

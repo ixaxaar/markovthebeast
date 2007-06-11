@@ -138,6 +138,18 @@ public class TestCuttingPlaneSolver extends TestCase {
 
     validateSolution(cuttingPlaneSolver.getBestAtoms());
 
+    Solution solution = new Solution(erModel, erWeights);
+    solution.load(cuttingPlaneSolver.getBestAtoms(), cuttingPlaneSolver.getBestFormulas());
+    System.out.println(cuttingPlaneSolver.getBestFormulas());
+    FeatureVector vector = solution.extract();
+    System.out.println(erWeights.toString(vector.getLocal()));
+    System.out.println(vector.getLocal().toString());
+    double score = erWeights.score(vector);
+    double expectedScore = 9 * -0.01 + 2 * -0.01 + 2 * 2.0;
+    assertEquals(expectedScore,score);
+    System.out.println(expectedScore);
+    System.out.println(score);
+
   }
 
   public void testSolveWithMaxWalkSat() {
