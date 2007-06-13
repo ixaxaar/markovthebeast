@@ -10,6 +10,9 @@ import java.util.Arrays;
 /**
  * @author Sebastian Riedel
  */
+/**
+ * @author Sebastian Riedel
+ */
 public class AlchemyConverter {
 
   public static void main(String[] args) throws IOException {
@@ -29,7 +32,7 @@ public class AlchemyConverter {
     BufferedReader reader = new BufferedReader(new FileReader(mln));
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
-      if (line.equals("") || line.startsWith("//")) continue;
+      if (line.equals("") || line.startsWith("//") || line.startsWith("!")) continue;
       String[] split = line.split("[ ]");
       try {
         Double.parseDouble(split[0]);
