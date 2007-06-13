@@ -345,6 +345,7 @@ public class CuttingPlaneSolver implements Solver {
     done = propositionalModel.changed();
 
     profiler.end();
+    //System.out.println("!");
 
     if (printHistory) printHistory();
 
