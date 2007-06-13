@@ -61,6 +61,8 @@ public class ILPSolverLpSolve implements ILPSolver {
     try {
       int numRows = solver.getNrows() + constraints.value().size();
       int numCols = solver.getNcolumns() + constraints.value().size();
+      //System.out.println(variables.value());
+      //System.out.println(numRows);
       solver.resizeLp(numRows, numCols);
       for (int i = 0; i < variables.value().size(); ++i)
         solver.addColumnex(0, new double[0], new int[0]);

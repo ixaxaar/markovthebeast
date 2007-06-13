@@ -303,6 +303,8 @@ public class IntegerLinearProgram implements PropositionalModel {
 
   public void buildLocalModel(){
     //interpreter.assign(lastVarCount, varCount);
+    //System.out.println(lastVarCount.value());
+    //interpreter.clear(newVars);
     for (UserPredicate predicate : model.getHiddenPredicates()){
       RelationVariable target = groundAtom2indexScore.get(predicate);
       interpreter.assign(target, groundObjective.get(predicate));
@@ -327,6 +329,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     interpreter.clear(newVars);
     interpreter.clear(fractionals);
     interpreter.assign(varCount, builder.num(0).getInt());
+    interpreter.assign(lastVarCount, builder.num(0).getInt());
     for (RelationVariable var : groundAtom2indexScore.values())
       interpreter.clear(var);
     for (RelationVariable var : groundFormula2index.values())
