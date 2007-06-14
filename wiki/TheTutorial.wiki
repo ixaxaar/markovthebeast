@@ -94,6 +94,7 @@ The formula/factor/feature for the current word
 {{{
 factor: for Int t, Word w, Slot s if word(t,w) add [slot(t,s)] * w_word(w,s);
 }}}
+Basically this does what it says: for each token `t`, word `w` and slot type `s` for which `w` is the word at `t` we add a score `w_word(w,s)` if the atom `slot(t,s)` is true, and 0 otherwise. This is a local formula because the delta-function represented by the brackets `[` and `]` only contains one hidden decision to make: `slot(t,s)`. 
 
 While factors can share weights (untested) we usually have one unique weight function for each factor. If we want to take the next word into account, we need to define a new weight function:
 {{{
