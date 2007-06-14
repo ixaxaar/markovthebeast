@@ -102,7 +102,7 @@ weight w_word_p1: Word x Slot -> Double;
 }}}
 and a new formula
 {{{
-factor: for Int t, Word w, Slot s if word(t+1,w) add [slot(t,s)] * w_word_p1(w,s);
+factor: for Int t, Word w, Slot s if word(t+1,w) & word(t,_) add [slot(t,s)] * w_word_p1(w,s);
 }}}
 
 
