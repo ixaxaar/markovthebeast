@@ -368,12 +368,15 @@ public class QueryGenerator {
         ConjunctionProcessor.Context conjunctionContext = new ConjunctionProcessor.Context();
         conjunctions.add(conjunctionContext);
         //process the condition conjunction
-        conjunctionProcessor.processConjunction(conjunctionContext, conjunction);
+        conjunctionProcessor.processConjunction(conjunctionContext, conjunction, false);
         //processConjunction(conjunctionContext, conjunction);
         //process the single hidden atom
         processHiddenAtom(conjunctionContext, (Atom) factorFormula.getFormula());
         //now process the weight part.
         processWeightForLocal(conjunctionContext, factorFormula.getWeight());
+        //now process what we couldn't process so far
+        conjunctionProcessor.processConjunction(conjunctionContext, conjunctionContext.remainingAtoms, true);
+
         //make a tuple using all added columns
         conjunctionContext.selectBuilder.tuple();
       }
@@ -394,6 +397,7 @@ public class QueryGenerator {
       BoolExpression where = factory.createAnd(context.conditions);
       rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
     }
+    //System.out.println(rels.get(0));
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
 
 

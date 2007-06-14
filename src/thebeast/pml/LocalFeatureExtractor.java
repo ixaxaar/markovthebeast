@@ -3,6 +3,7 @@ package thebeast.pml;
 import thebeast.nod.expression.AttributeExpression;
 import thebeast.nod.expression.DepthFirstExpressionVisitor;
 import thebeast.nod.expression.RelationExpression;
+import thebeast.nod.expression.Equality;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.statement.Insert;
 import thebeast.nod.statement.StatementFactory;
@@ -62,10 +63,24 @@ public class LocalFeatureExtractor {
       if (relvar.getIndex(weightFunction.getName()) == null) {
         final HashSet<String> bound = new HashSet<String>();
         query.acceptExpressionVisitor(new DepthFirstExpressionVisitor() {
-          public void visitAttribute(AttributeExpression attribute) {
-            if (attribute.prefix().equals("weights"))
-              bound.add(attribute.attribute().name());
+
+          public void visitEquality(Equality equality) {
+            if (equality.leftHandSide() instanceof AttributeExpression) {
+              AttributeExpression lhs = (AttributeExpression) equality.leftHandSide();
+              if (lhs.prefix().equals("weights"))
+                bound.add(lhs.attribute().name());
+            }
+            else if (equality.leftHandSide() instanceof AttributeExpression) {
+              AttributeExpression rhs = (AttributeExpression) equality.rightHandSide();
+              if (rhs.prefix().equals("weights"))
+                bound.add(rhs.attribute().name());
+            }
           }
+
+//          public void visitAttribute(AttributeExpression attribute) {
+//            if (attribute.prefix().equals("weights"))
+//              bound.add(attribute.attribute().name());
+//          }
         });
         interpreter.addIndex(relvar, weightFunction.getName(), Index.Type.HASH, bound);
       }
