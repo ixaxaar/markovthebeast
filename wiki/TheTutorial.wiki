@@ -104,6 +104,7 @@ and a new formula
 {{{
 factor: for Int t, Word w, Slot s if word(t+1,w) & word(t,_) add [slot(t,s)] * w_word_p1(w,s);
 }}}
+Note the `_`: this indicates a _don't care_ variable. We only want to make sure that there is a word at `t`, we don't care what this word is, thus we write `word(t,_)`.
 
 
 = Loading Data =
