@@ -36,7 +36,8 @@ public class ConjunctionProcessor {
     public LinkedList<String> prefixes = new LinkedList<String>();
     public ExpressionBuilder selectBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     public HashMap<String, Term> remainingHiddenArgs = new HashMap<String, Term>();
-    
+    public LinkedList<SignedAtom> remainingAtoms = new LinkedList<SignedAtom>();
+
     public Context() {
     }
 
@@ -88,40 +89,44 @@ public class ConjunctionProcessor {
 
   }
 
-  public void processWithClosure(final Context context, GroundAtoms closure, SignedAtom atom){
+  public void processWithClosure(final Context context, GroundAtoms closure, SignedAtom atom) {
     if (!atom.isTrue()) throw new RuntimeException("Can't process negated atoms here");
     PredicateAtom predicateAtom = (PredicateAtom) atom.getAtom();
     UserPredicate userPredicate = (UserPredicate) predicateAtom.getPredicate();
     int argIndex = 0;
     String prefix = predicateAtom.getPredicate().getName() + "_closure";
     for (Term arg : predicateAtom.getArguments()) {
-       if (arg instanceof DontCare) {
-         ++argIndex;
-         continue;
-       }
-       String varName = prefix + "_" + userPredicate.getColumnName(argIndex);
-       Variable artificial = new Variable(arg.getType(), varName);
-       context.var2expr.put(artificial, factory.createAttribute(prefix, userPredicate.getAttribute(argIndex)));
-       Term resolved = termResolver.resolve(arg, context.var2term);
-       if (termResolver.getUnresolved().size() == 0) {
-         builder.var(artificial).term(resolved).equality();
-         context.conditions.add((BoolExpression) exprGenerator.convertFormula(
-                 builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
-       } else if (termResolver.getUnresolved().size() == 1) {
-         Variable toResolve = termResolver.getUnresolved().get(0);
-         Term inverted = inverter.invert(resolved, artificial, toResolve);
-         context.var2term.put(toResolve, inverted);
-       } else {
-           throw new RuntimeException("Seems like we really can't resolve " + atom);
-       }
-       ++argIndex;
-     }
-     context.prefixes.add(prefix);
-     context.relations.add(closure.getGroundAtomsOf(userPredicate).getRelationVariable());
+      if (arg instanceof DontCare) {
+        ++argIndex;
+        continue;
+      }
+      String varName = prefix + "_" + userPredicate.getColumnName(argIndex);
+      Variable artificial = new Variable(arg.getType(), varName);
+      context.var2expr.put(artificial, factory.createAttribute(prefix, userPredicate.getAttribute(argIndex)));
+      Term resolved = termResolver.resolve(arg, context.var2term);
+      if (termResolver.getUnresolved().size() == 0) {
+        builder.var(artificial).term(resolved).equality();
+        context.conditions.add((BoolExpression) exprGenerator.convertFormula(
+                builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
+      } else if (termResolver.getUnresolved().size() == 1) {
+        Variable toResolve = termResolver.getUnresolved().get(0);
+        Term inverted = inverter.invert(resolved, artificial, toResolve);
+        context.var2term.put(toResolve, inverted);
+      } else {
+        throw new RuntimeException("Seems like we really can't resolve " + atom);
+      }
+      ++argIndex;
+    }
+    context.prefixes.add(prefix);
+    context.relations.add(closure.getGroundAtomsOf(userPredicate).getRelationVariable());
 
   }
 
   public void processConjunction(final Context context, List<SignedAtom> conjunction) {
+    processConjunction(context, conjunction, true);
+  }
+
+  public void processConjunction(final Context context, List<SignedAtom> conjunction, final boolean throwException) {
     final LinkedList<SignedAtom> atoms = new LinkedList<SignedAtom>(conjunction);
     int atomIndex = 0;
     final HashSet<SignedAtom> triedOnce = new HashSet<SignedAtom>();
@@ -160,7 +165,12 @@ public class ConjunctionProcessor {
                     context.var2term.put(toResolve, inverted);
                   } else {
                     if (triedOnce.contains(signedAtom)) {
-                      throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                      //context.remainingHiddenArgs
+                      if (throwException)
+                        throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                      context.remainingAtoms.add(signedAtom);
+                      break main;
+
                     }
                     atoms.add(signedAtom);
                     triedOnce.add(signedAtom);
@@ -182,8 +192,14 @@ public class ConjunctionProcessor {
                   if (termResolver.getUnresolved().size() == 0) {
                     builder.term(resolved);
                   } else {
-                    if (triedOnce.contains(signedAtom))
-                      throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                    if (triedOnce.contains(signedAtom)) {
+                      //context.remainingHiddenArgs
+                      if (throwException)
+                        throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                      context.remainingAtoms.add(signedAtom);
+                      break main;
+
+                    }
                     atoms.add(signedAtom);
                     triedOnce.add(signedAtom);
                     break main;
@@ -202,7 +218,11 @@ public class ConjunctionProcessor {
               BooleanFormula resolved = formulaResolver.resolve(atom, context.var2term);
               if (resolved == null) {
                 if (triedOnce.contains(signedAtom)) {
-                  throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                  //context.remainingHiddenArgs
+                  if (throwException) throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+                  context.remainingAtoms.add(signedAtom);
+                  return;
+
                 }
                 atoms.add(signedAtom);
                 triedOnce.add(signedAtom);

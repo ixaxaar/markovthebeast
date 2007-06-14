@@ -156,9 +156,13 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
     toSkip = new HashSet<Expression>();
 
+    //System.out.println(query);
+    //System.out.println(equalities);
+
     MemSearchAction[] actions = new MemSearchAction[relationCount + 1];
     fillSearchActions(actions, relationCount, indexInformations, prefixes);
     //creating remaining "where" function
+    //System.out.println(toSkip);
     function = null;
     if (query.where() != null) query.where().acceptExpressionVisitor(this);
     toSkip.clear();
