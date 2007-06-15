@@ -67,6 +67,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     out.printf("%-20s%-6d\n", "Processed:", count);
     out.printf("%-20s%-6.2f\n", "Time(in s):", time/1000.0);
     out.printf("%-20s%-6d\n", "Avg. time(in ms):", time/count);
+    out.printf("%-20s%-6d\n", "Memory use(in mb):", Runtime.getRuntime().totalMemory()/1000000);
     if (performanceAvailable){
       out.printf("%-20s%-6.2f\n", "Loss: ", loss / count);
       out.printf("%-20s%-6.2f\n", "Iterations: ", (double) iterationCount / count);
