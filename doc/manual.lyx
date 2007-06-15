@@ -1,0 +1,189 @@
+#LyX 1.5.0rc1 created this file. For more info see http://www.lyx.org/
+\lyxformat 271
+\begin_document
+\begin_header
+\textclass scrbook
+\begin_preamble
+\usepackage{hyperref}
+\end_preamble
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter courier
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "Sebastian Riedel" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Markov TheBeast User Manual
+\end_layout
+
+\begin_layout Author
+Sebastian Riedel
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Introduction
+\end_layout
+
+\begin_layout Chapter
+Installation
+\end_layout
+
+\begin_layout LyX-Code
+ant -f thebeast.xml
+\end_layout
+
+\begin_layout Chapter
+The Shell
+\end_layout
+
+\begin_layout Section
+Architecture
+\end_layout
+
+\begin_layout Section
+Corpora
+\end_layout
+
+\begin_layout Subsection
+Working Corpus
+\end_layout
+
+\begin_layout Subsection
+Inspection Corpus
+\end_layout
+
+\begin_layout Section
+Atoms
+\end_layout
+
+\begin_layout Section
+Commands
+\end_layout
+
+\begin_layout Subsection
+Next
+\end_layout
+
+\begin_layout Subsection
+Learn
+\end_layout
+
+\begin_layout Subsection
+Print
+\end_layout
+
+\begin_layout Section
+Getting and Setting Properties
+\end_layout
+
+\begin_layout Chapter
+Signatures
+\end_layout
+
+\begin_layout Section
+Types
+\end_layout
+
+\begin_layout Section
+Predicates
+\end_layout
+
+\begin_layout Section
+Weight Functions
+\end_layout
+
+\begin_layout Chapter
+Formulas
+\end_layout
+
+\begin_layout Section
+Factor Formulas
+\end_layout
+
+\begin_layout Section
+Boolean Formulas
+\end_layout
+
+\begin_layout Section
+Terms
+\end_layout
+
+\begin_layout Subsection
+Variables
+\end_layout
+
+\begin_layout Subsection
+Function Applications
+\end_layout
+
+\begin_layout Subsection
+Weight Terms
+\end_layout
+
+\begin_layout Section
+Functions
+\end_layout
+
+\begin_layout Chapter
+Learning Weights
+\end_layout
+
+\begin_layout Section
+Instantiating Weights
+\end_layout
+
+\begin_layout Section
+Estimating Weights
+\end_layout
+
+\begin_layout Chapter
+Inference
+\end_layout
+
+\begin_layout Section
+Cutting Plane Solver
+\end_layout
+
+\begin_layout Section
+Propositional Models
+\end_layout
+
+\end_body
+\end_document
