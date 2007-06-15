@@ -1,0 +1,7 @@
+#summary thebeast road map
+
+= Release 0.1 =
+
+== Deliverables ==
+  * thebeast downloadable interpreter and API
+  * documentation (tutorial and manual)
