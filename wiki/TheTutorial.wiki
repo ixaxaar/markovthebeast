@@ -232,7 +232,7 @@ Once the learning epochs are finilazed, save the weights into a file (e.g. weigh
 save weights to dump "/tmp/weights.dmp";
 }}}
 
-Note: The beast saves the weights for each epoch unter the `/tmp` directory whith the names 'epoch_n.dmp' where n is the number of the epoch. These files are good to find the whch number of epochs produce the best model.
+Note: The beast saves the weights for each epoch unter the `/tmp` directory whith the names `epoch_n.dmp` where n is the number of the epoch. These files are good to find the which number of epochs produce the best model.
 
 = Testing =
 
