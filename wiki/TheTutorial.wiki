@@ -116,6 +116,9 @@ Note the `_`: this indicates a _don't care_ variable. We only want to make sure 
 = Loading Data =
 
 == File Format ==
+
+First, you need to define a file with the examples for the task. The following is an example for a the semantic tagging task.
+
 {{{
 >>
 >word
@@ -146,7 +149,10 @@ Note the `_`: this indicates a _don't care_ variable. We only want to make sure 
 }}}
 
 the `>>` starts a new database/sentence, the `>predicate-name` a table with true ground atoms for the given predicate.
+
 == Load corpus ==
+
+Once defined the file (e.g. corpus1.txt), you can load it into the beast with:
 
 {{{
 load corpus from "corpus1.txt";
@@ -175,46 +181,118 @@ to print all words of the current sentence/database.
 
 = Learning =
 
+For learning we follow the next sequence of actions:
+  * Define the signature
+  * Define the model
+  * Load corpus
+  * Collect features
+  * Setting learning parameters
+  * Begin learing
 
 == Collect Features ==
 
+Before training it is necesary to collect all instances of features from the corpus, this is done with:
 {{{
 collect;
 }}}
-
-== Learn ==
+To avoid this stage every training time, it's possible to save the instances of the features into a file with:
 
 {{{
 save corpus to instances "/tmp/instances.dmp";
 }}}
+
+Next time, we wish to train and the model hasn't change we can load this instances instead of collecting them.
+{{{
+load corpus from instances "/tmp/instances.dmp";
+}}}
+
+== Setting parameters for learning ==
+
+There are several parameters to set-up for the learner. We can set them using the command `set`. For instance:
 {{{
 set learner.update = "mira";
-set learner.loss = "avgF1";
-set learner.loss = "globalNumErrors";
 }}}
+The `learner` has a `solver` object which has another set of parameters. These are set with:
+{{{
+set learner.solver.integer = true;
+}}}
+TODO: Put reference with list of parameters
+
+== Learning process ==
+
+To begin the learing process use:
 
 {{{
 learn for 10 epochs;
 }}}
+where `10` can be any other number of epochs.
 
+Once the learning epochs are finilazed, save the weights into a file (e.g. weights.dmp).
 {{{
 save weights to dump "/tmp/weights.dmp";
 }}}
 
+Note: The beast saves the weights for each epoch unter the `/tmp` directory whith the names 'epoch_n.dmp' where n is the number of the epoch. These files are good to find the whch number of epochs produce the best model.
+
 = Testing =
+
+For testing we follow the next sequence of actions:
+  * Define the signature (similar to learning)
+  * Define the model (similar to learging)
+  * Load weights
+  * Load corpus (similar to learning)
+  * Setting solver parameters
+  * Begin testing process (similar to learning)
+
+== Loading weights ==
+
+To load the weights we use the following command:
 {{{
 load weights from dump "/tmp/weights.dmp";
-load corpus from "/tmp/testcorpus.txt";
+}}}
+
+== Setting parameters for the solver ==
+
+There are several parameters to set-up for the solver (notice that the learner has its own solver which parameters are independent of this). We can set them using the command `set`. For instance:
+{{{
+set solver.integer = true;
+}}}
+TODO: Put reference with list of parameters
+
+== Testing process ==
+
+To begin the testing procedure (i.e., tagging) we use the command:
+{{{
 test to "/tmp/output.txt";
 }}}
 
 == Inspecting the results ==
 
+Once the testing is finish, it's possible to inspect the results, for this we save the corpus into ram, as previously done:
+{{{
+save corpus to ram;
+}}}
+And, we use the triplet of commands:
+{{{
+ next; solve; print eval;
+}}}
+We print the atoms to identify the errors:
+{{{
+ print atoms;
+}}}
+
 = Extending the model =
 
+== Collect all ==
 
+== Global formulae ===
 
+== Hard constrains ===
 
+== Inspecting the features ===
+{{{
+ print solver.features.slot(6,'NONE');
+}}}
 
 
 Add your content here.  Format your content with:
