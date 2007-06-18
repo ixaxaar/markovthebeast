@@ -59,7 +59,7 @@ type Word: ... "a", "man";
 }}}
 The first row shows a type (the Slot type) that uses capitalized constants (`From_loc`). Note that `from_loc` (with lower case intial"f") will result in a syntax error, because lowercased strings are reserved for predicates and functions.
 
-The second row shows the Word type. It uses string literals in quotes in order to represent lower case words. Also not the `...`! This is a keyword that indicates that the type is "open-ended"; that is, we might encounter strings not defined here. For these we won't be able to learn any parameters, however, we also won't generate an error message if we see them.
+The second row shows the Word type. It uses string literals in quotes in order to represent lower case words. Also note the `...`! This is a keyword that indicates that the type is "open-ended"; that is, we might encounter strings not defined here. For these we won't be able to learn any parameters, however, we also won't generate an error message if we see them.
 
 == Predicates ==
 Based on these types we are now ready to define some predicates. In our example we define the slot and the word as follows:
@@ -191,24 +191,39 @@ For learning we follow the next sequence of actions:
   * Load corpus
   * Collect features
   * Setting learning parameters
-  * Begin learing
+  * Begin learning
 
 == Collect Features ==
 
-Before training it is necesary to collect all instances of features from the corpus, this is done with:
+As seen above, factors/features have parametrized weights. For example, the first factor we presented has a different weight for each possible argument vector to the weight function `w_word`. We we call each of these argument vectors an _instantiation_ of the factor. 
+
+Often we do not want to estimate weights for each factor instantiation. It might make sense to only use such instantiations that we have actually observed in the training set. To this end we introduce the feature _collection_ phase before training. In this phase we determine which instantiations we should learn weights for. Or in other words: what instantiations should have non-zero weights.
+
+The feature collection process is triggered by calling
 {{{
 collect;
 }}}
-To avoid this stage every training time, it's possible to save the instances of the features into a file with:
+By default, this will select all features we have seen in the data. If we want to use all possible instantiations of a factor we need to set 
+{{{
+set collector.all.w_word = true;
+}}}
+where `w_word` should be replaced by the corresponding weight function of the factor we want to fully instantiate.
+
+== Training Instances ==
+
+In online learning we need to extract the same features of the same training instances over and over again. thebeast allows(actually forces) us to cache these features for the training process. For this need to convert the training corpus into a data structure we will call _training instances_.
 
 {{{
 save corpus to instances "/tmp/instances.dmp";
 }}}
 
-Next time, we wish to train and the model hasn't change we can load this instances instead of collecting them.
+This extracts all required features in advance and saves these to a file on disk . During training this file is streamed in and out in blocks, avoiding large memory overhead (so make sure this file is fast to access).
+
+We can now go on to train the model. However, if we wish to stop thebeast now we can continue later without ever needing to re-extract features by simply calling
 {{{
-load corpus from instances "/tmp/instances.dmp";
+load instances from "/tmp/instances.dmp";
 }}}
+This allows us to evaluate different learning parameters (independent of the model/features) without doing all the extraction again. However, once we add new features this process (and the collection process) needs to be repeated and the old instances file becomes invalid.
 
 == Setting parameters for learning ==
 
