@@ -54,7 +54,7 @@ First we need to define the signature of our model. A signature consists of a se
 
 To define a type we write the following:
 {{{
-type Slot: From_loc, To_loc;
+type Slot: From_loc, To_loc, NONE;
 type Word: ... "a", "man";
 }}}
 The first row shows a type (the Slot type) that uses capitalized constants (`From_loc`). Note that `from_loc` (with lower case intial"f") will result in a syntax error, because lowercased strings are reserved for predicates and functions.
@@ -128,8 +128,10 @@ First, you need to define a file with the examples for the task. The following i
 3 "Chicago"
 
 >slot
+0 NONE
 1 From_Loc
 1 City_Name
+2 |NONE
 3 To_Loc
 3 City_Name
 
@@ -141,8 +143,10 @@ First, you need to define a file with the examples for the task. The following i
 3 "NewYork"
 
 >slot
+0 NONE
 1 From_Loc
 1 City_Name
+2 NONE
 3 To_Loc
 3 City_Name
 
@@ -290,16 +294,58 @@ include "model.plm";
 
 = Extending the model =
 
+Here we review some extensions to the models.
+
 == Collect all ==
+
+The first extension corresponds to the collection of features instances. So far, thebeast collects these features from the corpora, but we can ask to create all possible combination. For this we use:
+{{{
+set collector.all.w_word = true;
+}}}
+where `w_word` can be substituted by the name of any weight defined in the model. 
 
 == Global formulae ===
 
-== Hard constrains ===
+A powerful extension to the model is the inclusion of global constrains. These are formulae which relates two or more hidden variables. As explained above, a formulae is local if only contain one decision in the delta function, therefore it will be global it has more than one decision.
 
-== Inspecting the features ===
+*Important:* Before creating any global formulae is important to limit the reach of the formulae. This is important because keeps the model tracktable. We do this by restricting the nature of the weights. 
+{{{
+weight w_consecutive_slots: Slot x Slot -> Double-;
+}}}
+Notice that this weight has a `-` symbol at the end of the definition. 
+TODO: Explain what it does that symbol and the alternative `+`.
+
+An example of the formulae
+{{{
+factor: for Int t, Word w1, Word w2, Slot s1, Slot s2 if word(t,w1) & word(t+1,w2) add [slot(t,s1) & slot(t+1,s2] * w_consecutive(s1,s2);
+}}}
+In this case, this formulae together with the previous weight will constrain sequences of slots which are similar to the observed in the training data. 
+
+=== Hard constrains ===
+
+Hard constrains (LEQ, TODO: explain what LEQ means) are constrains that the solution have to satiesfied. For instance for the semantic tagging, there should be at least one slot per word. This constrains do not have an attached weight to them:
+{{{
+factor atLeastOne: for Int t, Word w if word(t,w) | Slot s: slot(t,s) | > 1;
+}}}
+The symbols `|` denotes the amount of its arguemt, in this case, the amount of slots.
+
+*Important* to activate the constrains it's necessary to tell the solvers to activate it. This has to be done after loading the corpus. We do this with the command:
+{{{
+set learner.solver.ground.atLeastOne = true;
+}}}
+for learting, and
+{{{
+set solver.ground.atLeastOne = true;
+}}}
+For testing.
+
+= More on inspecting the features =
+
+An importan feature of thebeast is to inspect the weights for the features for testing. We can query for them using:
 {{{
  print solver.features.slot(6,'NONE');
 }}}
+where `6` represents the position we are interested, and `NONE` the particular value of the slot we are interested. This command will display all factors which are attached to the node `slot(6,'NONE')`.
 
 
 Add your content here.  Format your content with:
