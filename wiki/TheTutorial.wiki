@@ -171,7 +171,7 @@ next;
 }}}
 and 
 {{{
-prev
+prev;
 }}}
 and 
 {{{
@@ -279,6 +279,13 @@ And, we use the triplet of commands:
 We print the atoms to identify the errors:
 {{{
  print atoms;
+}}}
+
+== Using scripts ==
+
+It is possible to define a sequence of commands into a script file and then loaded into the beast with the `include` command. This is useful to define the signature and the model files and the training, testing, and inspectig sequences we have seen here. An example of the command is:
+{{{
+include "model.plm";
 }}}
 
 = Extending the model =
