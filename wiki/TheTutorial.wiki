@@ -311,17 +311,9 @@ include "model.plm";
 
 Here we review some extensions to the models.
 
-== Collect all ==
-
-The first extension corresponds to the collection of features instances. So far, thebeast collects these features from the corpora, but we can ask to create all possible combination. For this we use:
-{{{
-set collector.all.w_word = true;
-}}}
-where `w_word` can be substituted by the name of any weight defined in the model. 
-
 == Global formulae ===
 
-A powerful extension to the model is the inclusion of global constrains. These are formulae which relates two or more hidden variables. As explained above, a formulae is local if only contain one decision in the delta function, therefore it will be global it has more than one decision.
+A powerful extension to the model is the inclusion of global constrains. These are formulae which relate two or more hidden ground atoms. As explained above, a formulae is local if it only contains one decision in the delta function, therefore it will be global if it has more than one decision.
 
 *Important:* Before creating any global formulae is important to limit the reach of the formulae. This is important because keeps the model tracktable. We do this by restricting the nature of the weights. 
 {{{
@@ -338,21 +330,30 @@ In this case, this formulae together with the previous weight will constrain seq
 
 === Hard constrains ===
 
-Hard constrains (LEQ, TODO: explain what LEQ means) are constrains that the solution have to satiesfied. For instance for the semantic tagging, there should be at least one slot per word. This constrains do not have an attached weight to them:
+Deterministic formulae/hard constrains (LEQ, TODO: explain what LEQ means) are constraints that the solution has to satisfy by all means. For instance, we might want force at least least one slot per word (and introduce a "NONE" slot type). This constraint is represented via
 {{{
-factor atLeastOne: for Int t, Word w if word(t,w) | Slot s: slot(t,s) | > 1;
+factor atLeastOne: for Int t, Word w if word(t,w) | Slot s: slot(t,s) | >= 1;
 }}}
-The symbols `|` denotes the amount of its arguemt, in this case, the amount of slots.
+The symbols `|` denotes the cardinality of its argument, in this case, the set of all `s` for which `slot(t,s)` holds. Note that this is basically a short form for writing
+{{{
+factor atLeastOne: for Int t, Word w if word(t,w) add [| Slot s: slot(t,s) | >= 1] * infinity;
+}}}
+Note that we have given the factor a name (`atLeastOne`). We will see in a bit for what this can be used.
 
-*Important* to activate the constrains it's necessary to tell the solvers to activate it. This has to be done after loading the corpus. We do this with the command:
-{{{
-set learner.solver.ground.atLeastOne = true;
-}}}
-for learting, and
+When using this constraint during inference, the incremental (cutting plane) solver has two options: either it incorporates this constraint from the beginning, or it adds it only if its violated. Both ways have advantages and disadvantages but return the same solution.
+
+By default, the constraint will only enforced if violated. To use it from the start we need to tell the solver:
+
 {{{
 set solver.ground.atLeastOne = true;
 }}}
-For testing.
+Here we see the use of named factor: we can refer to it later on inform the solver about its special status. 
+
+The online learner maintains an own solver with own parameters. If we want to configure this solver as the testing solver above, we write:
+{{{
+set learner.solver.ground.atLeastOne = true;
+}}}
+
 
 = More on inspecting the features =
 
