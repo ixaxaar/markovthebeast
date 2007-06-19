@@ -246,7 +246,7 @@ learn for 10 epochs;
 }}}
 where `10` can be any other number of epochs.
 
-Once the learning epochs are finilazed, save the weights into a file (e.g. weights.dmp).
+Once the learning epochs are finalized, save the weights into a file (e.g. weights.dmp).
 {{{
 save weights to dump "/tmp/weights.dmp";
 }}}
@@ -304,7 +304,7 @@ We print the atoms to identify the errors:
 
 It is possible to define a sequence of commands into a script file and then loaded into the beast with the `include` command. This is useful to define the signature and the model files and the training, testing, and inspectig sequences we have seen here. An example of the command is:
 {{{
-include "model.plm";
+include "model.pml";
 }}}
 
 = Extending the model =
@@ -330,7 +330,7 @@ In this case, this formulae together with the previous weight will constrain seq
 
 === Hard constraints ===
 
-Deterministic formulae/hard constrains (LEQ, TODO: explain what LEQ means) are constraints that the solution has to satisfy by all means. For instance, we might want force at least least one slot per word (and introduce a "NONE" slot type). This constraint is represented via
+Deterministic formulae/hard constraints are constraints that the solution has to satisfy by all means. For instance, we might want force at least least one slot per word (and introduce a "NONE" slot type). This constraint is represented via
 {{{
 factor atLeastOne: for Int t, Word w if word(t,w) | Slot s: slot(t,s) | >= 1;
 }}}
