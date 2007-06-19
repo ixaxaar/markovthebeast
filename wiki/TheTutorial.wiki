@@ -328,7 +328,7 @@ factor: for Int t, Word w1, Word w2, Slot s1, Slot s2 if word(t,w1) & word(t+1,w
 }}}
 In this case, this formulae together with the previous weight will constrain sequences of slots which are similar to the observed in the training data. 
 
-=== Hard constrains ===
+=== Hard constraints ===
 
 Deterministic formulae/hard constrains (LEQ, TODO: explain what LEQ means) are constraints that the solution has to satisfy by all means. For instance, we might want force at least least one slot per word (and introduce a "NONE" slot type). This constraint is represented via
 {{{
