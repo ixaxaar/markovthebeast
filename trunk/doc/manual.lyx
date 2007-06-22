@@ -65,55 +65,397 @@ Introduction
 Installation
 \end_layout
 
+\begin_layout Standard
+Download the archive and extract it using 
+\end_layout
+
 \begin_layout LyX-Code
-ant -f thebeast.xml
+$ tar xvf thebeast-0.x.y
+\end_layout
+
+\begin_layout Standard
+This will create a directory thebeast-0.x.y which we will refer to as the
+ THEDIR.
+ Change into THEDIR and call 
+\end_layout
+
+\begin_layout LyX-Code
+$ ant -f thebeast.xml
+\end_layout
+
+\begin_layout Standard
+This compiles the source.
+ You can now call thebeast executable by calling
+\end_layout
+
+\begin_layout LyX-Code
+$ $THEDIR/bin/linux/thebeast
+\end_layout
+
+\begin_layout Standard
+if you are running linux, or 
+\end_layout
+
+\begin_layout LyX-Code
+$ $THEDIR/bin/mac/thebeast
+\end_layout
+
+\begin_layout Standard
+if you run a mac.
+ 
+\end_layout
+
+\begin_layout Section
+Hints
+\end_layout
+
+\begin_layout Enumerate
+You can simplify your workflow by adding ..bin/linux/ or ../bin/mac to your
+ Path
+\end_layout
+
+\begin_layout Enumerate
+You're free to move and rename THEDIR.
+ 
 \end_layout
 
 \begin_layout Chapter
 The Shell
 \end_layout
 
+\begin_layout Standard
+Most likely you will communicate with thebeast
+\begin_inset Foot
+status collapsed
+
+\begin_layout Standard
+Alternatively, you can use the java API.
+\end_layout
+
+\end_inset
+
+ using 
+\emph on
+theshell
+\emph default
+ (in short 
+\emph on
+the
+\emph default
+-
+\emph on
+sh
+\emph default
+): a scripting language and interpreter that allows to access all the essential
+ functionality of the beast.
+ It can be used to 
+\end_layout
+
+\begin_layout Itemize
+define models
+\end_layout
+
+\begin_layout Itemize
+learn parameters
+\end_layout
+
+\begin_layout Itemize
+do inference
+\end_layout
+
+\begin_layout Itemize
+set parameters
+\end_layout
+
+\begin_layout Standard
+You can start the-sh by simply calling
+\end_layout
+
+\begin_layout LyX-Code
+$ thebeast
+\end_layout
+
+\begin_layout Standard
+This leaves you with a prompt like 
+\end_layout
+
+\begin_layout LyX-Code
+Markov TheBeast v0.0.1
+\end_layout
+
+\begin_layout LyX-Code
+# 
+\end_layout
+
+\begin_layout Standard
+Alternatively, you can save your script in a file, say test.thesh, and execute
+ this script directly via
+\end_layout
+
+\begin_layout LyX-Code
+$ thebeast test.thesh
+\end_layout
+
+\begin_layout Standard
+In the following we will give an high level overview of the main components
+ and commands of the shell.
+ For details on defining models, learning, inference we refer the reader
+ to the later chapters.
+ 
+\end_layout
+
 \begin_layout Section
 Architecture
+\end_layout
+
+\begin_layout Standard
+theshell can be seen as a collection of components and resources.
+ thesh commands can configure components and control them to process resources.
+ Figure 
+\begin_inset LatexCommand ref
+reference "fig:architecture"
+
+\end_inset
+
+ gives a schematic overview of these components and resources.
+ In the middle we see core components of theshell, the learner, solver and
+ collector.
+ Roughly speaking, the collector instantiates features, the learner learns
+ weights and the solver applies a trained model to data.
+ They all use or modify the 
+\emph on
+signature
+\emph default
+, a collection of types, predicates and functions, the 
+\emph on
+model, 
+\emph default
+a collection of formulas, and 
+\emph on
+weights
+\emph default
+, a collection of real numbers that determine with how much penalty formulas
+ can be violated.
+ The data used for training and testing comes from the 
+\emph on
+corpora
+\emph default
+ and guess and gold atoms.
+\end_layout
+
+\begin_layout Standard
+The remainder of this book will explain all these components, resources
+ and interactions in more detail.
+ In this chapter we will continue to give a high level overview of the component
+s and resources.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename graphics/architecture.eps
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:architecture"
+
+\end_inset
+
+A schematic overview of the components and resources within thesh.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Signature
+\end_layout
+
+\begin_layout Standard
+Before doing anything, we need to define the types, predicates and functions
+ that our model uses.
+ All data has to adhere this signature.
+ There are three types of definitions 
+\end_layout
+
+\begin_layout Description
+Type defines a set of constants
+\end_layout
+
+\begin_layout Description
+Predicate defines a predicate over the cartesian product of some types
+\end_layout
+
+\begin_layout Description
+Weight-Function defines a mapping from tuples to double values
+\end_layout
+
+\begin_layout Standard
+The shell only maintains one single signature.
+ Every definition is added to this signature.
+ 
+\end_layout
+
+\begin_layout Standard
+Chapter 
+\begin_inset LatexCommand ref
+reference "cha:Signatures"
+
+\end_inset
+
+ gives more details on signatures.
+\end_layout
+
+\begin_layout Section
+Model
+\end_layout
+
+\begin_layout Standard
+Using the predicates, types and functions of the signature we can define
+ a model.
+ A model consists of several formulas which assign scores (or probabilities)
+ to substructures of a solution.
+ As with signatures, the shell only maintains on global model.
+ Each new formula is added to this model and all components share this model.
 \end_layout
 
 \begin_layout Section
 Corpora
 \end_layout
 
+\begin_layout Standard
+The Beast needs data to learn weights from, to process during testing and
+ for inspection and analysis of errors.
+ This data comes from a corpus.
+ A corpus is a sequence of databases.
+ In thesh we have two corpora, the 
+\emph on
+working corpus
+\emph default
+ and the 
+\emph on
+inspection corpus
+\emph default
+.
+ Which to use depends on what you want to do with thebeast.
+ you can find more details on corpora in chapter 
+\begin_inset LatexCommand ref
+reference "cha:Corpora"
+
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Subsection
 Working Corpus
+\end_layout
+
+\begin_layout Standard
+The working corpus is used for training weights and testing a model, that
+ is, applying the model to data.
+ In general, the working corpus is saved on file and streamed in one by
+ one, thus only needing a small amount of memory.
+ 
 \end_layout
 
 \begin_layout Subsection
 Inspection Corpus
 \end_layout
 
-\begin_layout Section
-Atoms
+\begin_layout Standard
+The inspection corpus is used for analyzing the behaviour of the current
+ model.
+ The inspection corpus comes along with 
+\emph on
+current gold database
+\emph default
+ which can be loaded from any position in the corpus.
+ We can seek forwards and backwards within the inspection corpus and print
+ out the current database, apply the model it and compare the results of
+ our model with the original gold data provided.
+\end_layout
+
+\begin_layout Standard
+The inspection corpus fully resides in memory.
+ Any database within can be randomly accessed.
+ 
 \end_layout
 
 \begin_layout Section
-Commands
+Getting and Setting Parameters
 \end_layout
 
-\begin_layout Subsection
-Next
+\begin_layout Standard
+As mentioned above, theshell also provides means to configure components
+ and set parameters.
+ This is achieved using the 
+\emph on
+set
+\emph default
+ command.
+ Each component has name and a set of named properties.
+ For example, the solver is named 
+\begin_inset Quotes eld
+\end_inset
+
+solver
+\begin_inset Quotes erd
+\end_inset
+
+ and has a parameter 
+\begin_inset Quotes eld
+\end_inset
+
+maxIterations
+\begin_inset Quotes erd
+\end_inset
+
+.
+ We can set this parameter by 
 \end_layout
 
-\begin_layout Subsection
-Learn
+\begin_layout LyX-Code
+set solver.maxIterations = 10;
 \end_layout
 
-\begin_layout Subsection
-Print
-\end_layout
-
-\begin_layout Section
-Getting and Setting Properties
+\begin_layout Standard
+We will give the names and parameters of components in the following chapters.
 \end_layout
 
 \begin_layout Chapter
+\begin_inset LatexCommand label
+name "cha:Signatures"
+
+\end_inset
+
 Signatures
 \end_layout
 
@@ -130,7 +472,16 @@ Weight Functions
 \end_layout
 
 \begin_layout Chapter
-Formulas
+\begin_inset LatexCommand label
+name "cha:Corpora"
+
+\end_inset
+
+Corpora
+\end_layout
+
+\begin_layout Chapter
+Models
 \end_layout
 
 \begin_layout Section

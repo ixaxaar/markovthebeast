@@ -1,8 +1,42 @@
+forall x : pred(x) <=> ! exists x : !pred(x) <=> |x:!pred(x)| <= 0
+
+s = signature {
+
+}
+
+m = model(s) {
+  factor : Int t, Slot s add [slot(t,s)] * 123.123;
+}
+
+m         = normalize(m);
+w         = weights(m,s);
+corpus    = corpus("$filename", s);
+collector.collect(corpus,w);
+instances = instances(corpus,"$2");
+learner   = onlineLearner(w);
+learner.solver.ground.asLeastOne = true;
+learner.learn(instances);
+w.save("$3");
+
+gold  = corpus.get(0);
+guess = solver.solve();
+
+result = conll("w","result.conll");
+result.append(guess);
+
+//or
+solve.solve(corpus,result);
+
+
+
 corpus = conll("$1");
 gold = ram(corpus,1,100);
 guess = solver.solve(gold);
-instances = instances(ram,$2);
+instances = instances(ram,int($2));
 learner.solver.model = sat();
+learner.solver.model.solver = maxWalkSat();
+collector.collect(corpus,weights);
+
 collector = default();
 
 print learner.solver;
@@ -18,6 +52,8 @@ next(5);
 solver.solve();
 
 
+
+|Slot s: slot(t,s)| >= |Slot s|
 
 
 Nips:
