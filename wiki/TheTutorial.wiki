@@ -312,20 +312,16 @@ Here we review some extensions to the models.
 
 == Global formulae ===
 
-A powerful extension to the model is the inclusion of global constrains. These are formulae which relate two or more hidden ground atoms. As explained above, a formulae is local if it only contains one decision in the delta function, therefore it will be global if it has more than one decision.
+The true advantage of statistical relation learning engine such as thebeast are global features. While classifiers such as Maxent only provide local features and CRF packages features up to some small markov order n, thebeast can make use of correlations of far distant variables at a low computational cost. 
 
-*Important:* Before creating any global formulae is important to limit the reach of the formulae. This is important because keeps the model tracktable. We do this by restricting the nature of the weights. 
+For example, we know that there are dependencies between slots within a sentence on a non-local level. One `TOLOC` slot at the beginning of a sentence makes further `TOLOC` slots at any position less likely, because it is more probable to only mention on location as a destination. This correlation can be modeled using the following bits of code:
 {{{
-weight w_consecutive_slots: Slot x Slot -> Double-;
+weight w_pair: Slot x Slot -> Double-;
+factor: for Int t1, Int t2, Word w1, Word w2, Slot s1, Slot s2 
+   if word(t,w1) & word(t+1,w2) & s1 != NONE & s2 != NONE
+   add [slot(t1,s1) & slot(t2,s2] * w_pair(s1,s2);
 }}}
-Notice that this weight has a `-` symbol at the end of the definition. 
-TODO: Explain what it does that symbol and the alternative `+`.
 
-An example of the formulae
-{{{
-factor: for Int t, Word w1, Word w2, Slot s1, Slot s2 if word(t,w1) & word(t+1,w2) add [slot(t,s1) & slot(t+1,s2] * w_consecutive(s1,s2);
-}}}
-In this case, this formulae together with the previous weight will constrain sequences of slots which are similar to the observed in the training data. 
 
 === Hard constraints ===
 
