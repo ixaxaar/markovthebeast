@@ -11,7 +11,7 @@ import thebeast.pml.formula.FormulaBuilder;
 /**
  * @author Sebastian Riedel
  */
-public class TestCuttingPlaneSolver extends TestCase {
+public class TestCuttingPlaneSolverEntityResolution extends TestCase {
   private Signature erSig;
   private Model erModel;
   private GroundAtoms erAtoms;

@@ -429,6 +429,7 @@ public class QueryGenerator {
         //process the condition conjunction
         conjunctionProcessor.processConjunction(context, conjunction);
         //processConjunction(conjunctionContext, conjunction);
+        conjunctionProcessor.resolveBruteForce(context, (Atom) factorFormula.getFormula());
         //process the single hidden atom
         processHiddenAtom(context, (Atom) factorFormula.getFormula());
         //now process the score term

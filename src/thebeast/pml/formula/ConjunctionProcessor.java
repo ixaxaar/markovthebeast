@@ -66,6 +66,12 @@ public class ConjunctionProcessor {
   }
 
 
+  public void resolveBruteForce(final Context context, Atom atom){
+    ArrayList<SignedAtom> atoms = new ArrayList<SignedAtom>(1);
+    atoms.add(new SignedAtom(true,atom));
+    resolveBruteForce(context,atoms);
+  }
+
   public void resolveBruteForce(final Context context, List<SignedAtom> conjunction) {
     UnresolvedVariableCollector finalCollector = new UnresolvedVariableCollector();
     finalCollector.bind(context.var2expr.keySet());

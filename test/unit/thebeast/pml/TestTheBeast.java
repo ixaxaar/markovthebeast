@@ -3,6 +3,7 @@ package thebeast.pml;
 import junit.framework.TestCase;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.value.TupleValue;
 import thebeast.nod.expression.Operator;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
@@ -682,6 +683,7 @@ public class TestTheBeast extends TestCase {
   }
 
   public void testLocalFeatures() {
+
     Weights weights = signature.createWeights();
     weights.addWeight(weightFunction1, 0.0, "DT", "NP");
     weights.addWeight(weightFunction1, 0.0, "VBZ", "VP");
@@ -710,6 +712,41 @@ public class TestTheBeast extends TestCase {
     GroundAtoms closure = features.getClosure();
     assertEquals(17, closure.getGroundAtomsOf(phrase).size());
     System.out.println(closure);
+
+  }
+
+  public void testGEQCondition() {
+
+    builder.var("Int","b").var("Int","e").quantify();
+    builder.var("b").dontCare().dontCare().atom("token");
+    builder.var("e").dontCare().dontCare().atom("token");
+    builder.var("b").var("e").intLEQ();
+    builder.var("Int","m").quantify().var("m");
+    builder.dontCare().term("NN").atom("token").var("b").var("m").intLEQ().var("m").var("e").intLEQ().and(3);
+    builder.cardinality().term(1).lowerBound().cardinalityConstraint(false);
+    builder.and(4).condition();
+    builder.var("b").var("e").term("NP").atom("phrase").formula().term(1.0).weight();
+
+    Model model = new Model(signature);
+    model.addHiddenPredicate(phrase);
+    model.addObservedPredicate(token);
+    model.addFactorFormula(builder.produceFactorFormula());
+    Weights weights = new Weights(signature);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    LocalFeatures features = new LocalFeatures(model, weights);
+    extractor.extract(theManLikesTheBoat, features);
+
+    Scores scores = new Scores(model, weights);
+    scores.score(features, theManLikesTheBoat);
+
+    System.out.println(scores);
+
+    assertEquals(11,scores.getScoreRelation(phrase).value().size());
+    assertTrue(scores.getScoreRelation(phrase).contains(2,4,"NP",1.0));
+    for (TupleValue tuple : scores.getScoreRelation(phrase).value()){
+      assertEquals(1.0, tuple.doubleElement(3).getDouble());
+    }
+
 
   }
 
@@ -773,7 +810,6 @@ public class TestTheBeast extends TestCase {
     FactorFormula directScoreFormula = builder.produceFactorFormula();
     model.addFactorFormula(directScoreFormula);
 
-
     LocalFeatures features = new LocalFeatures(model, weights);
     LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
     extractor.extract(groundAtoms, features);
@@ -788,6 +824,40 @@ public class TestTheBeast extends TestCase {
 
 
   }
+
+  public void testDirectWeightTerm() throws IOException {
+
+    GroundAtoms groundAtoms = signature.createGroundAtoms();
+    groundAtoms.load("" +
+            ">token\n" +
+            "0 the DT\n" +
+            "1 man NN\n" +
+            "2 \"likes\" VBZ\n" +
+            "3 the DT\n" +
+            "4 boat NN\n");
+
+    builder.var("Int","b").var("Int","e").var("Label","l").quantify();
+    builder.var("b").dontCare().dontCare().atom(token).var("e").dontCare().dontCare().atom(token).and(2).condition();
+    builder.var("b").var("e").var("l").atom(phrase).formula();
+    builder.term(1.0).weight();
+    FactorFormula directScoreFormula = builder.produceFactorFormula();
+    model.addFactorFormula(directScoreFormula);
+
+    LocalFeatures features = new LocalFeatures(model, weights);
+    LocalFeatureExtractor extractor = new LocalFeatureExtractor(model, weights);
+    extractor.extract(groundAtoms, features);
+    System.out.println(features.getRelation(phrase).value().size());
+    Scores scores = new Scores(model, weights);
+    scores.score(features, groundAtoms);
+    System.out.println(scores);
+    RelationVariable var = scores.getScoreRelation(phrase);
+    assertEquals(100, var.value().size());
+    assertEquals(1.0, scores.getScore(phrase, 0, 1, "NP"));
+    assertEquals(1.0, scores.getScore(phrase, 2, 4, "VP"));
+
+
+  }
+
 
 
   public void testGreedySolve() {
