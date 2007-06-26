@@ -653,7 +653,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     try {
       if ("weights".equals(parserSave.target.head)) {
         if ("dump".equals(parserSave.mode)) {
-          File file = new File(parserSave.file);
+          File file = new File(filename(parserSave.file));
           file.delete();
           FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
           weights.write(sink);
