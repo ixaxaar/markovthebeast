@@ -687,7 +687,7 @@ public class QueryGenerator {
       return generateCycleConstraints((AcyclicityConstraint) formula.getFormula());
     }
 
-    //we only need to consider the this.formula (not the condition)
+    //we only need to consider the formula (not the condition)
     BooleanFormula booleanFormula = this.formula.getFormula();
     //normalize in case we have a deterministic constraint with Negative Infinity weight.
     if (this.formula.isDeterministic() && this.formula.getWeight().isNonPositive())
