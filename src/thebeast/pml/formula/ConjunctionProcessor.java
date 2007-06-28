@@ -276,8 +276,13 @@ public class ConjunctionProcessor {
                     exprGenerator.convertFormula(cardinalityConstraint, groundAtoms, weights,
                             context.var2expr, context.var2term));
           } catch (NoDExpressionGenerator.UnresolvableVariableException e) {
-            if (triedOnce.contains(signedAtom))
-              throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+            if (triedOnce.contains(signedAtom)) {
+              //context.remainingHiddenArgs
+              if (throwException) throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+              context.remainingAtoms.add(signedAtom);
+              return;
+
+            }
             atoms.add(signedAtom);
             triedOnce.add(signedAtom);
           }

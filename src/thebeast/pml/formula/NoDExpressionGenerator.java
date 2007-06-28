@@ -115,9 +115,11 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
       public void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint) {
         Term lb = cardinalityConstraint.getLowerBound();
         Term ub = cardinalityConstraint.getUpperBound();
+        TermResolver resolver = new TermResolver();
         boolean hasLb = false;
         if (!cardinalityConstraint.isLEQ()) {
-          lb.acceptTermVisitor(NoDExpressionGenerator.this);
+          resolver.resolve(lb,var2term).acceptTermVisitor(NoDExpressionGenerator.this);
+          //lb.acceptTermVisitor(NoDExpressionGenerator.this);
           hasLb = true;
         }
         createCountQuery(cardinalityConstraint.getQuantification(), cardinalityConstraint.getFormula());
@@ -131,7 +133,8 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         }
         if (!cardinalityConstraint.isGEQ()) {
           builder.expr(count);
-          ub.acceptTermVisitor(NoDExpressionGenerator.this);
+          resolver.resolve(ub,var2term).acceptTermVisitor(NoDExpressionGenerator.this);
+          //ub.acceptTermVisitor(NoDExpressionGenerator.this);
           if (cardinalityConstraint.getSign())
             builder.intLEQ();
           else

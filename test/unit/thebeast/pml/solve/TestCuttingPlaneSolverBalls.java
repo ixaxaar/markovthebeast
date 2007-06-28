@@ -2,6 +2,8 @@ package thebeast.pml.solve;
 
 import junit.framework.TestCase;
 import thebeast.pml.*;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.formula.FactorFormula;
 
@@ -96,9 +98,8 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
 
     erWeights.addWeight("w_count", 1.0, 2, "Small");
     erWeights.addWeight("w_count", 1.0, 4, "Big");
-//
-//
-//    IntegerLinearProgram ilp = new IntegerLinearProgram(ballsModel, erWeights, new ILPSolverLpSolve());
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(ballsModel, erWeights, new ILPSolverLpSolve());
 //    ilp.setInitIntegers(true);
 //
 //    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
