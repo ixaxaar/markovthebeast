@@ -214,6 +214,10 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemDoubleTimes(MemDoubleType.DOUBLE, leftHandSide, rightHandSide);
   }
 
+  public DoubleDivide createDoubleDivide(DoubleExpression leftHandSide, DoubleExpression rightHandSide) {
+    return new MemDoubleDivide(MemDoubleType.DOUBLE, leftHandSide, rightHandSide);
+  }
+
   public TupleComponent createTupleComponent(String name, Expression expression) {
     return new MemTupleComponent(name, expression);
   }

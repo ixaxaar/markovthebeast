@@ -26,6 +26,7 @@ import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.ilp.ILPSolver;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.solve.ilp.ILPGrounder;
 import thebeast.util.QuietProgressReporter;
 import thebeast.util.TreeProfiler;
 
@@ -976,7 +977,7 @@ public class TestTheBeast extends TestCase {
   }
 
   public void testQueryGeneratorSoftDisjunctionConstraint() {
-    QueryGenerator generator = new QueryGenerator();
+    ILPGrounder generator = new ILPGrounder();
     ExpressionBuilder exprBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     Operator<RelationType> constraint =
             generator.generateSoftConstraintOperator(true, new boolean[]{true, false, true});
@@ -996,7 +997,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(scores.getScoreRelation(phrase).value());
 
-    QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
+    ILPGrounder generator = new ILPGrounder(weights, theManLikesTheBoat);
     IntegerLinearProgram ilp = new IntegerLinearProgram(model, weights, null);
     RelationExpression result = generator.generateConstraintQuery(np_vp_s, formulas, false, scores, ilp, model);
     System.out.println(result);
@@ -1238,7 +1239,9 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(ilp.getConstraints().value());
 
-    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
+    ILPGrounder grounder = new ILPGrounder(weights, theManLikesTheBoat);
+
+    RelationExpression constraintQuery = grounder.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
 
     System.out.println(constraintQuery);
 
@@ -1348,7 +1351,9 @@ public class TestTheBeast extends TestCase {
     assertEquals(5, ilp.getVars().value().size());
 
 
-    RelationExpression constraintQuery = generator.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
+    ILPGrounder grounder = new ILPGrounder(weights, theManLikesTheBoat);
+
+    RelationExpression constraintQuery = grounder.generateConstraintQuery(factor, formulas, false, scores, ilp, model);
 
     System.out.println(constraintQuery);
 

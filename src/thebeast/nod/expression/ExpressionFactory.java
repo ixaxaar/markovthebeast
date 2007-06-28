@@ -79,6 +79,8 @@ public interface ExpressionFactory {
 
   DoubleTimes createDoubleTimes(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
 
+  DoubleDivide createDoubleDivide(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
+
   IntMinus createIntMinus(IntExpression leftHandSide, IntExpression rightHandSide);
 
   IntLEQ createIntLEQ(IntExpression leftHandSide, IntExpression rightHandSide);

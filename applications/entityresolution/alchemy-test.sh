@@ -11,16 +11,21 @@ mln=weights/hard-multiple-$i.mln
 db=corpora/cora/folds/stripped.corafold-$i.db
 gold=corpora/cora/folds/corafold-$i.db.atoms
 out=/tmp/$experiment-$i.out
+processed=/tmp/$experiment-$i.processed
 
 echo Fold $i
 echo "Inference"
 
-~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 10000000 -tries 1 -i $mln -e $db -r $out \
+~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 1000000 -tries 1 -i $mln -e $db -r $out \
  -q SameBib,SameTitle,SameAuthor,SameVenue -m -lazy > results/$experiment-$i.alchemy.output
 echo "converting to atoms..."
+cp $out $processed
+#java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyTransitivityConverter \
+#  < $out
+#  > $processed
 java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyConverter \
   $mln \
-  $out \
+  $processed \
   $out.types.pml \
   $out.predicates.pml \
   $out.atoms
