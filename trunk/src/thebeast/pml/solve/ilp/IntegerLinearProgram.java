@@ -218,7 +218,8 @@ public class IntegerLinearProgram implements PropositionalModel {
 
   private void configureFormula(FactorFormula formula, boolean fullyGround) {
     if (!formula.isLocal()) {
-      QueryGenerator generator = new QueryGenerator(this.weights, atoms);
+      //QueryGenerator generator = new QueryGenerator(this.weights, atoms);
+      ILPGrounder generator = new ILPGrounder(this.weights, atoms);
       generator.setClosure(closure);
       if (!formula.isAcyclicityConstraint() && !formula.isDeterministic()) {
         RelationVariable constraintVariables = interpreter.createRelationVariable(formula.getHeadingILP());

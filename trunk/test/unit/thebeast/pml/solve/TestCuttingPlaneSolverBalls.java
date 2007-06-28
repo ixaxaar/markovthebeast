@@ -83,7 +83,7 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
 
   public void testSolveInitInteger() {
     Weights erWeights = ballsSig.createWeights();
-    erWeights.addWeight("w_color", 4.0, "Green");
+    erWeights.addWeight("w_color", 5.0, "Green");
     erWeights.addWeight("w_color", 4.0, "Orange");
     erWeights.addWeight("w_color", 3.0, "Black");
     erWeights.addWeight("w_color", 2.0, "White");
@@ -94,18 +94,20 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
     erWeights.addWeight("w_size", 4.0, 0, "Big");
     erWeights.addWeight("w_size", -4.0, 0, "Small");
     erWeights.addWeight("w_size", -4.0, 1, "Big");
-    erWeights.addWeight("w_size", 4.0, 1, "Small");
+    erWeights.addWeight("w_size", 40.0, 1, "Small");
 
     erWeights.addWeight("w_count", 1.0, 2, "Small");
     erWeights.addWeight("w_count", 1.0, 4, "Big");
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(ballsModel, erWeights, new ILPSolverLpSolve());
-//    ilp.setInitIntegers(true);
-//
-//    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
-//    cuttingPlaneSolver.configure(ballsModel, erWeights);
-//    cuttingPlaneSolver.setObservation(ballsAtoms);
-//    cuttingPlaneSolver.solve();
+    ilp.setInitIntegers(true);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(ballsModel, erWeights);
+    cuttingPlaneSolver.setObservation(ballsAtoms);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
 
     //validateSolution(cuttingPlaneSolver.getBestAtoms());
 

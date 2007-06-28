@@ -166,6 +166,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitBinaryExpression(doubleTimes);
   }
 
+  public void visitDoubleDivide(DoubleDivide doubleDivide) {
+    visitBinaryExpression(doubleDivide);
+  }
+
   public void visitDoubleCast(DoubleCast doubleCast) {
     visitExpression(doubleCast);
   }

@@ -1,6 +1,7 @@
 package thebeast.nod.expression;
 
 import thebeast.nod.variable.*;
+import thebeast.nodmem.expression.MemDoubleDivide;
 
 /**
  * @author Sebastian Riedel
@@ -75,7 +76,9 @@ public interface ExpressionVisitor {
 
   void visitDoubleTimes(DoubleTimes doubleTimes);
 
-  void visitDoubleCast(DoubleCast doubleCast);  
+  void visitDoubleDivide(DoubleDivide doubleDivide);  
+
+  void visitDoubleCast(DoubleCast doubleCast);
 
   void visitIntAdd(IntAdd intAdd);
 

@@ -574,6 +574,14 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
   }
 
+  public void visitDoubleDivide(DoubleDivide doubleDivide) {
+    doubleDivide.leftHandSide().acceptExpressionVisitor(this);
+    MemFunction lhs = function;
+    doubleDivide.rightHandSide().acceptExpressionVisitor(this);
+    MemFunction rhs = function;
+    function = new MemFunction(MemFunction.Type.DOUBLE_DIVIDE, lhs, rhs);
+  }
+
   public void visitDoubleCast(DoubleCast doubleCast) {
     doubleCast.intExpression().acceptExpressionVisitor(this);
     MemFunction intFunction = function;

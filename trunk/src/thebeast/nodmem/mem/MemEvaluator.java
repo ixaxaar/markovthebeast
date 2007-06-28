@@ -125,6 +125,9 @@ public class MemEvaluator {
         case DOUBLE_TIMES:
           double_times(argChunk, returnChunk, argPointerVec);
           break;
+        case DOUBLE_DIVIDE:
+          double_divide(argChunk, returnChunk, argPointerVec);
+          break;
         case DOUBLE_CAST:
           double_cast(argChunk, returnChunk, argPointerVec);
           break;
@@ -536,6 +539,11 @@ public class MemEvaluator {
   private static void double_times(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] * argChunk.doubleData[1];
   }
+
+  private static void double_divide(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] / argChunk.doubleData[1];
+  }
+
 
   private static void double_minus(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] - argChunk.doubleData[1];

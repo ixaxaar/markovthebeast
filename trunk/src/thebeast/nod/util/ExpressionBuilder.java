@@ -550,6 +550,14 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder doubleDivide() {
+    DoubleExpression rhs = (DoubleExpression) expressionStack.pop();
+    DoubleExpression lhs = (DoubleExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createDoubleDivide(lhs, rhs));
+    return this;
+  }
+
+
   public ExpressionBuilder intMinus() {
     IntExpression rhs = (IntExpression) expressionStack.pop();
     IntExpression lhs = (IntExpression) expressionStack.pop();

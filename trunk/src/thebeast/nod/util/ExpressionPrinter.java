@@ -201,9 +201,16 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     os.print(" * ");
     doubleTimes.rightHandSide().acceptExpressionVisitor(this);
     os.print(")");
-
-
   }
+
+  public void visitDoubleDivide(DoubleDivide doubleDivide) {
+    os.print("(");
+    doubleDivide.leftHandSide().acceptExpressionVisitor(this);
+    os.print(" / ");
+    doubleDivide.rightHandSide().acceptExpressionVisitor(this);
+    os.print(")");
+  }
+
 
   public void visitDoubleCast(DoubleCast doubleCast) {
     os.print("(double)");
