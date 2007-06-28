@@ -94,7 +94,7 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
     erWeights.addWeight("w_size", 4.0, 0, "Big");
     erWeights.addWeight("w_size", -4.0, 0, "Small");
     erWeights.addWeight("w_size", -4.0, 1, "Big");
-    erWeights.addWeight("w_size", 40.0, 1, "Small");
+    erWeights.addWeight("w_size", 5.9, 1, "Small");
 
     erWeights.addWeight("w_count", 1.0, 2, "Small");
     erWeights.addWeight("w_count", 1.0, 4, "Big");
