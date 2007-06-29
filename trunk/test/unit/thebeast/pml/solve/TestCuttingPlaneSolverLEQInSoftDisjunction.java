@@ -10,13 +10,14 @@ import thebeast.pml.formula.FactorFormula;
 /**
  * @author Sebastian Riedel
  */
-public class TestCuttingPlaneSolverBalls extends TestCase {
+public class TestCuttingPlaneSolverLEQInSoftDisjunction extends TestCase {
   private Signature ballsSig;
   private Model ballsModel;
   private GroundAtoms ballsAtoms;
   private FactorFormula f_color;
   private FactorFormula f_size;
   private FactorFormula f_count;
+  private Weights weights1,weights2;
 
   protected void setUp() {
     setUpBalls();
@@ -79,37 +80,63 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
     ballsAtoms = ballsSig.createGroundAtoms();
     ballsAtoms.getGroundAtomsOf("isBag").addGroundAtom(0);
     ballsAtoms.getGroundAtomsOf("isBag").addGroundAtom(1);
+
+    weights1 = ballsSig.createWeights();
+    weights1.addWeight("w_color", 5.0, "Green");
+    weights1.addWeight("w_color", 4.0, "Orange");
+    weights1.addWeight("w_color", 3.0, "Black");
+    weights1.addWeight("w_color", 2.0, "White");
+    weights1.addWeight("w_color", 1.0, "Yellow");
+    weights1.addWeight("w_color", 0.0, "Red");
+    weights1.addWeight("w_color", -1.0, "Blue");
+
+    weights1.addWeight("w_size", 4.0, 0, "Big");
+    weights1.addWeight("w_size", -4.0, 0, "Small");
+    weights1.addWeight("w_size", -4.0, 1, "Big");
+    weights1.addWeight("w_size", 5.9, 1, "Small");
+
+    weights1.addWeight("w_count", 1.0, 2, "Small");
+    weights1.addWeight("w_count", 1.0, 4, "Big");
+
+    weights2 = ballsSig.createWeights();
+    weights2.addWeight("w_color", 5.0, "Green");
+    weights2.addWeight("w_color", 4.0, "Orange");
+    weights2.addWeight("w_color", 3.0, "Black");
+    weights2.addWeight("w_color", 2.0, "White");
+    weights2.addWeight("w_color", 1.0, "Yellow");
+    weights2.addWeight("w_color", 0.0, "Red");
+    weights2.addWeight("w_color", -1.0, "Blue");
+
+    weights2.addWeight("w_size", 4.0, 0, "Big");
+    weights2.addWeight("w_size", -4.0, 0, "Small");
+    weights2.addWeight("w_size", -4.0, 1, "Big");
+    weights2.addWeight("w_size", 6.1, 1, "Small");
+
+    weights2.addWeight("w_count", 1.0, 2, "Small");
+    weights2.addWeight("w_count", 1.0, 4, "Big");
+
+
   }
 
   public void testSolveInitInteger() {
-    Weights erWeights = ballsSig.createWeights();
-    erWeights.addWeight("w_color", 5.0, "Green");
-    erWeights.addWeight("w_color", 4.0, "Orange");
-    erWeights.addWeight("w_color", 3.0, "Black");
-    erWeights.addWeight("w_color", 2.0, "White");
-    erWeights.addWeight("w_color", 1.0, "Yellow");
-    erWeights.addWeight("w_color", 0.0, "Red");
-    erWeights.addWeight("w_color", -1.0, "Blue");
 
-    erWeights.addWeight("w_size", 4.0, 0, "Big");
-    erWeights.addWeight("w_size", -4.0, 0, "Small");
-    erWeights.addWeight("w_size", -4.0, 1, "Big");
-    erWeights.addWeight("w_size", 5.9, 1, "Small");
-
-    erWeights.addWeight("w_count", 1.0, 2, "Small");
-    erWeights.addWeight("w_count", 1.0, 4, "Big");
-
-    IntegerLinearProgram ilp = new IntegerLinearProgram(ballsModel, erWeights, new ILPSolverLpSolve());
+    IntegerLinearProgram ilp = new IntegerLinearProgram(ballsModel, weights1, new ILPSolverLpSolve());
     ilp.setInitIntegers(true);
 
     CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
-    cuttingPlaneSolver.configure(ballsModel, erWeights);
+    cuttingPlaneSolver.configure(ballsModel, weights1);
     cuttingPlaneSolver.setObservation(ballsAtoms);
     cuttingPlaneSolver.solve();
 
     System.out.println(cuttingPlaneSolver.getBestAtoms());
 
-    //validateSolution(cuttingPlaneSolver.getBestAtoms());
+    validateSolution1(cuttingPlaneSolver.getBestAtoms());
+
+    cuttingPlaneSolver.configure(ballsModel, weights2);
+    cuttingPlaneSolver.setObservation(ballsAtoms);
+    cuttingPlaneSolver.solve();
+
+    validateSolution2(cuttingPlaneSolver.getBestAtoms());
 
 
   }
@@ -294,27 +321,50 @@ public class TestCuttingPlaneSolverBalls extends TestCase {
 
   }
 
+  */
+  private void validateSolution1(GroundAtoms atoms) {
+    GroundAtomCollection size = atoms.getGroundAtomsOf("size");
 
-  private void validateSolution(GroundAtoms atoms) {
-    GroundAtomCollection sameBib = atoms.getGroundAtomsOf("sameBib");
+    assertTrue(size.containsAtom(0, "Big"));
 
-    assertTrue(sameBib.containsAtom("Bib1", "Bib2"));
-    assertTrue(sameBib.containsAtom("Bib2", "Bib1"));
-    assertTrue(sameBib.containsAtom("Bib1", "Bib3"));
-    assertTrue(sameBib.containsAtom("Bib3", "Bib1"));
-    assertTrue(sameBib.containsAtom("Bib2", "Bib3"));
-    assertTrue(sameBib.containsAtom("Bib3", "Bib2"));
-    assertTrue(sameBib.containsAtom("Bib1", "Bib1"));
-    assertTrue(sameBib.containsAtom("Bib2", "Bib2"));
-    assertTrue(sameBib.containsAtom("Bib3", "Bib3"));
+    assertEquals(size.size(), 1);
 
-    assertEquals(sameBib.size(), 9);
+    GroundAtomCollection inBag = atoms.getGroundAtomsOf("inBag");
 
-    GroundAtomCollection sameTitle = atoms.getGroundAtomsOf("sameTitle");
-    assertTrue(sameTitle.containsAtom("Cut and Price", "Cut"));
-    assertTrue(sameTitle.containsAtom("Cut and Price", "Price"));
-    assertEquals(sameTitle.size(), 2);
+    assertTrue(inBag.containsAtom(0, "Green"));
+    assertTrue(inBag.containsAtom(0, "Orange"));
+    assertTrue(inBag.containsAtom(0, "Black"));
+    assertTrue(inBag.containsAtom(0, "White"));
+    assertTrue(inBag.containsAtom(1, "Green"));
+    assertTrue(inBag.containsAtom(1, "Orange"));
+    assertTrue(inBag.containsAtom(1, "Black"));
+    assertTrue(inBag.containsAtom(1, "White"));
+    assertTrue(inBag.containsAtom(1, "Yellow"));
+
+    assertEquals(inBag.size(), 9);
+
   }
 
-*/
+  private void validateSolution2(GroundAtoms atoms) {
+    GroundAtomCollection size = atoms.getGroundAtomsOf("size");
+
+    assertTrue(size.containsAtom(0, "Big"));
+    assertTrue(size.containsAtom(1, "Small"));
+
+    assertEquals(size.size(), 2);
+
+    GroundAtomCollection inBag = atoms.getGroundAtomsOf("inBag");
+
+    assertTrue(inBag.containsAtom(0, "Green"));
+    assertTrue(inBag.containsAtom(0, "Orange"));
+    assertTrue(inBag.containsAtom(0, "Black"));
+    assertTrue(inBag.containsAtom(0, "White"));
+    assertTrue(inBag.containsAtom(1, "Green"));
+    assertTrue(inBag.containsAtom(1, "Orange"));
+
+    assertEquals(inBag.size(), 6);   
+
+  }
+
+
 }
