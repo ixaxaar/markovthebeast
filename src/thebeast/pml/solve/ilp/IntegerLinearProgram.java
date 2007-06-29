@@ -367,6 +367,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     if (initIntegers) {
       //System.out.println(newVars.value());
       solver.addIntegerConstraints(newVars);
+      //interpreter.append(fractionals,newVars);
     }
     profiler.end();
     profiler.start("solve", 1);
@@ -592,7 +593,6 @@ public class IntegerLinearProgram implements PropositionalModel {
     return result.toString();
   }
 
-
   /**
    * Returns a representation of this ILP in LpSolve ("lp") format. This method should mostly be called for debugging
    * purposes (it is not very optimized).
@@ -633,6 +633,14 @@ public class IntegerLinearProgram implements PropositionalModel {
         result.append(" = ").append(lb).append(";\n");
       }
     }
+
+    result.append("int: ");
+    //System.out.println("Fractionals: " + fractionals.value().size());
+
+    for (TupleValue var : fractionals.value()) {
+      result.append(indexToVariableString(var.intElement("index").getInt())).append("\n");
+    }
+
     return result.toString();
   }
 
