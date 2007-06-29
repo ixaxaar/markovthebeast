@@ -456,8 +456,9 @@ public class ILPGrounder {
 
       1) (n-c)/(n-k) + a + (1-s) >= 1
          c - a * (n-k) + s * (n-k) <= n
-      2) -((n-c)/(n-k) + a - 1)/(n/(n-k) + m - 1) + s >= 0
-         c - a * (n-k) + s * (n/(n-k) + m - 1) * (n-k) >= k
+      2) -((n-c+1)/(n-k) + a - 1)/((n+1)/(n-k) + m - 1) + s >= 0
+         //c - a * (n-k) + s * (n/(n-k) + m - 1) * (n-k) >= k
+         c - a * (n-k) + s * ((n+1)/(n-k) + m - 1) * (n-k) >= k + 1
     */
 
     int size = signs.size();
@@ -468,12 +469,14 @@ public class ILPGrounder {
     items.setLabel("items");
     variables.add(items);
     IntExpression n = builder.expr(items).count().getInt();
-    IntVariable upperBound = interpreter.createIntVariable();
-    IntExpression n_minus_k = builder.expr(n).expr(upperBound).intMinus().getInt();
-    DoubleExpression max = builder.expr(n).doubleCast().expr(n_minus_k).doubleCast().doubleDivide().
+    IntVariable k = interpreter.createIntVariable();
+    DoubleExpression k_plus_1 = builder.expr(k).num(1).intAdd().doubleCast().getDouble();
+    DoubleExpression n_plus_1 = builder.expr(n).num(1).intAdd().doubleCast().getDouble();
+    IntExpression n_minus_k = builder.expr(n).expr(k).intMinus().getInt();
+    DoubleExpression max = builder.expr(n_plus_1).expr(n_minus_k).doubleCast().doubleDivide().
             doubleValue(size-1).doubleAdd().getDouble();
-    upperBound.setLabel("upperbound");
-    variables.add(upperBound);
+    k.setLabel("upperbound");
+    variables.add(k);
     IntVariable weightIndex = interpreter.createIntVariable();
     variables.add(weightIndex);
     int trueCount = 0;
@@ -507,8 +510,8 @@ public class ILPGrounder {
 
     //now c - a * (n-k) + s * (n/(n-k) + m - 1) * (n-k) >= k
     builder.id("ub").num(Double.POSITIVE_INFINITY);
-    //lowerbound = k + falsecount * (n-k)
-    builder.id("lb").doubleValue(falseCount).expr(n_minus_k).doubleCast().doubleTimes().expr(upperBound).doubleCast().doubleAdd();
+    //lowerbound = k + 1 + falsecount * (n-k)
+    builder.id("lb").doubleValue(falseCount).expr(n_minus_k).doubleCast().doubleTimes().expr(k_plus_1).doubleAdd();
     builder.id("values");
     builder.expr(items);
     for (int i = 0; i < size; ++i) {

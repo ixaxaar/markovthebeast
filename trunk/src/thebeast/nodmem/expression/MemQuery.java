@@ -33,6 +33,7 @@ public class MemQuery extends AbstractMemExpression<RelationType> implements Que
     for (int index = 0; index < from.size(); ++index){
       prefix2relation.put(iterPrefix.next(), iterFrom.next());
     }
+    if (from.size() == 0) throw new RuntimeException("Empty FROM list for query " + this);
   }
 
   protected MemQuery(RelationType type) {
