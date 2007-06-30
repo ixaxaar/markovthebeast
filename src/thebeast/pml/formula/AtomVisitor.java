@@ -9,4 +9,8 @@ public interface AtomVisitor {
   void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint);
 
   void visitTrue(True aTrue);
+
+  void visitExists(Exists exists);
+
+  void visitForall(Forall forall);
 }

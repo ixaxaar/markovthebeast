@@ -15,4 +15,12 @@ public class AbstractAtomVisitor implements AtomVisitor {
   public void visitTrue(True aTrue) {
 
   }
+
+  public void visitExists(Exists exists) {
+    exists.toGEQConstraint().acceptAtomVisitor(this);
+  }
+
+  public void visitForall(Forall forall) {
+    forall.toLEQConstraint().acceptAtomVisitor(this);
+  }
 }

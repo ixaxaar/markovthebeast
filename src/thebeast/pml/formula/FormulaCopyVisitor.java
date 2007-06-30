@@ -13,7 +13,7 @@ public class FormulaCopyVisitor implements BooleanFormulaVisitor, TermVisitor {
   protected Term term;
 
   public void visitAtom(Atom atom) {
-    atom.acceptAtomVisitor(new AtomVisitor() {
+    atom.acceptAtomVisitor(new AbstractAtomVisitor() {
       public void visitPredicateAtom(PredicateAtom atom) {
         LinkedList<Term> args = new LinkedList<Term>();
         for (Term arg : atom.getArguments()) {

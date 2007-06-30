@@ -113,6 +113,15 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
         }
       }
 
+
+      public void visitExists(Exists exists) {
+        out.print("(exists " + exists.getQuantification() + ": " + exists.getFormula() + ")");
+      }
+
+      public void visitForall(Forall forall) {
+        out.print("(forall " + forall.getQuantification() + ": " + forall.getFormula() + ")");
+      }
+
       public void visitTrue(True aTrue) {
         out.print(true);
       }

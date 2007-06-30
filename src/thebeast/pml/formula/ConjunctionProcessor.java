@@ -142,7 +142,7 @@ public class ConjunctionProcessor {
       final Atom atom = signedAtom.getAtom();
       final boolean sign = signedAtom.isTrue();
       final int index = atomIndex;
-      atom.acceptAtomVisitor(new AtomVisitor() {
+      atom.acceptAtomVisitor(new AbstractAtomVisitor() {
         public void visitPredicateAtom(final PredicateAtom predicateAtom) {
           final String prefix = predicateAtom.getPredicate().getName() + "_" + String.valueOf(index);
           predicateAtom.getPredicate().acceptPredicateVisitor(new PredicateVisitor() {

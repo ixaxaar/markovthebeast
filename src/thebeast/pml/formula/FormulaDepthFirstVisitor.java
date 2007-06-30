@@ -5,7 +5,7 @@ import thebeast.pml.term.*;
 /**
  * @author Sebastian Riedel
  */
-public class FormulaDepthFirstVisitor implements BooleanFormulaVisitor, TermVisitor, AtomVisitor {
+public class FormulaDepthFirstVisitor extends AbstractAtomVisitor implements BooleanFormulaVisitor, TermVisitor {
   public void visitAtom(Atom atom) {
       atom.acceptAtomVisitor(this);
   }
