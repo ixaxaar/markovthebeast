@@ -267,6 +267,18 @@ public class ILPGrounder {
                   useDisjunction, signsWithoutCardinalities));
 
         }
+      } else if (leqQueries.size() == 0 && geqQueries.size() == 1) {
+        if (useDisjunction) {
+          RelationExpression items = geqQueries.get(0);
+          IntExpression lowerBound  = lowerBounds.get(0);
+          constraintBuilder.expr(items);
+          constraintBuilder.expr(lowerBound);
+          //the varBuilder contains |weight index| atom1 | atom2| ... where the cardinality constraint atom is removed
+          constraintBuilder.expressions(varBuilder.lastExpressions(atoms.size()));
+          constraintBuilder.invokeRelOp(generateGEQSoftCardinalityConstraintOperator(
+                  useDisjunction, signsWithoutCardinalities));
+
+        }
       }
     } else {
       if (leqQueries.size() == 0 && geqQueries.size() == 0) {
@@ -533,6 +545,102 @@ public class ILPGrounder {
     builder.relation(2);
     return factory.createOperator("constraints", variables, builder.getRelation());
   }
+
+  public Operator<RelationType> generateGEQSoftCardinalityConstraintOperator(boolean disjunction, List<Boolean> signs) {
+    if (!disjunction) throw new RuntimeException("Can't do conjunctions with card. constraints yet");
+
+    /*
+
+      1) c/k + a + (1-s) >= 1
+         c + a * k + k - k * s >=k
+         c + a * k - k * s >= k - k = 0
+
+      2) -((c+1)/k + a - 1)/((n+1)/k + m - 1) + s >= 0
+         -((c+1)/k + a - 1) + s * ((n+1)/k + m - 1) >=0
+         -(c+1)/k - a + 1 + s * ((n+1)/k + m - 1) >=0
+         max = ((n+1)/k + m - 1)
+         -c - 1 - k * a + k + s * max * k >=0
+         -c - k*a + s * max * k >= 1 - k
+    */
+
+    int size = signs.size();
+    ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
+    ExpressionFactory factory = TheBeast.getInstance().getNodServer().expressionFactory();
+    LinkedList<thebeast.nod.variable.Variable> variables = new LinkedList<thebeast.nod.variable.Variable>();
+    RelationVariable items = interpreter.createRelationVariable(IntegerLinearProgram.getValuesHeading());
+    items.setLabel("items");
+    variables.add(items);
+    IntExpression n = builder.expr(items).count().getInt();
+    IntVariable k = interpreter.createIntVariable();
+    DoubleExpression k_plus_1 = builder.expr(k).num(1).intAdd().doubleCast().getDouble();
+    DoubleExpression n_plus_1 = builder.expr(n).num(1).intAdd().doubleCast().getDouble();
+    IntExpression n_minus_k = builder.expr(n).expr(k).intMinus().getInt();
+    DoubleExpression max = builder.expr(n_plus_1).expr(k).doubleCast().doubleDivide().
+            doubleValue(size-1).doubleAdd().getDouble();
+    k.setLabel("upperbound");
+    variables.add(k);
+    IntVariable weightIndex = interpreter.createIntVariable();
+    variables.add(weightIndex);
+    int trueCount = 0;
+    for (int i = 0; i < size; ++i) {
+      IntVariable var = interpreter.createIntVariable();
+      var.setLabel("var" + i);
+      variables.add(var);
+      if (signs.get(i)) ++trueCount;
+    }
+    int falseCount = size - trueCount;
+
+    builder.id("ub").num(Double.POSITIVE_INFINITY);
+    //c + a * k - k * s >= k - k = 0
+
+    //c + a * k - k * s >= 1 - k
+
+    //lowerbound =  - falsecount * k
+    builder.id("lb").doubleValue(-falseCount).expr(k).doubleCast().doubleTimes();
+    builder.id("values");
+    builder.expr(items);
+    for (int i = 0; i < size; ++i) {
+      builder.id("index").expr(variables.get(i + 3));
+      builder.id("weight").expr(k).doubleCast();
+      if (!signs.get(i))
+        builder.num(-1.0).doubleTimes();
+      builder.tuple(2);
+    }
+    builder.id("index").expr(weightIndex);
+    builder.id("weight").expr(k).doubleCast().num(-1.0).doubleTimes();
+    builder.tuple(2);
+    builder.relation(size + 1); //put atoms and weight variable in one relation
+    //TODO: what if some atoms to count and atoms in disjunction are identical? union won't work!
+    builder.union(2); //combine with atoms from cardinality constraint
+    builder.tuple(3);
+
+    //-c - k*a + s * max * k >= 1 - k
+    //c + k*a - s * max * k <= k - 1
+    builder.id("lb").num(Double.NEGATIVE_INFINITY);
+    //upperbound = k - 1 - falsecount * k = k * (1 - falsecount) - 1
+    builder.id("ub").doubleValue(1 - falseCount).expr(k).doubleCast().doubleTimes().num(-1.0).doubleAdd();
+    builder.id("values");
+    builder.expr(items);
+    for (int i = 0; i < size; ++i) {
+      builder.id("index").expr(variables.get(i + 3));
+      builder.id("weight").expr(k).doubleCast();
+      if (!signs.get(i))
+        builder.num(-1.0).doubleTimes();
+      builder.tuple(2);
+    }
+    builder.id("index").expr(weightIndex);
+    //weight = - max * k
+    builder.id("weight").expr(k).doubleCast().expr(max).num(-1.0).doubleTimes().doubleTimes();
+    builder.tuple(2);
+    builder.relation(size + 1); //put atoms and weight variable in one relation
+    //TODO: what if some atoms to count and atoms in disjunction are identical? union won't work!
+    builder.union(2); //combine with atoms from cardinality constraint
+    builder.tuple(3);
+
+    builder.relation(2);
+    return factory.createOperator("constraints", variables, builder.getRelation());
+  }
+
 
 
   public RelationExpression createLEQQuery(CardinalityConstraint constraint,
