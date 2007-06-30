@@ -35,7 +35,7 @@ public class FormulaResolver extends FormulaCopyVisitor {
   }
 
   public void visitAtom(Atom atom) {
-    atom.acceptAtomVisitor(new AtomVisitor() {
+    atom.acceptAtomVisitor(new AbstractAtomVisitor() {
       public void visitPredicateAtom(PredicateAtom atom) {
         LinkedList<Term> args = new LinkedList<Term>();
         for (Term arg : atom.getArguments()) {

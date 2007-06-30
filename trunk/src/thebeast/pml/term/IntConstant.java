@@ -11,6 +11,11 @@ public class IntConstant extends Constant {
 
   private int integer;
 
+  public final static IntConstant ZERO = new IntConstant(0);
+  public final static IntConstant ONE = new IntConstant(1);  
+  public final static IntConstant MAX_VALUE = new IntConstant(Integer.MAX_VALUE);
+  public final static IntConstant MIN_VALUE = new IntConstant(Integer.MIN_VALUE);
+
 
   public IntConstant(int integer){
     this(Type.INT,integer);

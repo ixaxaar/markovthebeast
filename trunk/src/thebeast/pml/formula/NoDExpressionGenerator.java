@@ -57,7 +57,7 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
 
 
   public void visitAtom(final Atom atom) {
-    atom.acceptAtomVisitor(new AtomVisitor() {
+    atom.acceptAtomVisitor(new AbstractAtomVisitor() {
       public void visitPredicateAtom(final PredicateAtom atom) {
         atom.getPredicate().acceptPredicateVisitor(new PredicateVisitor() {
           public void visitUserPredicate(UserPredicate userPredicate) {

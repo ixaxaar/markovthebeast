@@ -186,7 +186,7 @@ public class ILPGrounder {
 
     //the atom argument indices
     for (final SignedAtom signedAtom : atoms) {
-      signedAtom.getAtom().acceptAtomVisitor(new AtomVisitor() {
+      signedAtom.getAtom().acceptAtomVisitor(new AbstractAtomVisitor() {
         public void visitPredicateAtom(final PredicateAtom predicateAtom) {
           signsWithoutCardinalities.add(signedAtom.isTrue());
           predicateAtom.getPredicate().acceptPredicateVisitor(new AbstractPredicateVisitor() {

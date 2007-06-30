@@ -645,7 +645,7 @@ public class QueryGenerator {
 
 
   private void processHiddenAtom(final ConjunctionProcessor.Context context, Atom atom) {
-    atom.acceptAtomVisitor(new AtomVisitor() {
+    atom.acceptAtomVisitor(new AbstractAtomVisitor() {
       public void visitPredicateAtom(PredicateAtom predicateAtom) {
         int argIndex = 0;
         for (Term arg : predicateAtom.getArguments()) {
