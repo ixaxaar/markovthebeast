@@ -1,6 +1,6 @@
 package thebeast.pml.corpora;
 
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 import thebeast.util.Pair;
 
 import java.io.BufferedReader;
@@ -49,12 +49,12 @@ public class CoraNFold {
     //get record clusters
 
     HashMap<String, String> bib2title = new HashMap<String, String>();
-    HashMultiMap<String, String> bib2author = new HashMultiMap<String, String>();
+    HashMultiMapList<String, String> bib2author = new HashMultiMapList<String, String>();
     HashMap<String, String> bib2venue = new HashMap<String, String>();
 
     HashMap<String, Cluster> bib2cluster = new HashMap<String, Cluster>();
 
-    HashMultiMap<Pair<String, String>, String> pairs2lines = new HashMultiMap<Pair<String, String>, String>();
+    HashMultiMapList<Pair<String, String>, String> pairs2lines = new HashMultiMapList<Pair<String, String>, String>();
 
     BufferedReader reader = new BufferedReader(new FileReader(args[2]));
     System.out.println("Collecting clusters");
@@ -160,7 +160,7 @@ public class CoraNFold {
 
   }
 
-  private static HashSet<String> buildFold(HashSet<String> fold, HashMap<String, String> bib2title, HashMap<String, String> bib2venue, HashMultiMap<String, String> bib2author, HashMultiMap<Pair<String, String>, String> pairs2lines) {
+  private static HashSet<String> buildFold(HashSet<String> fold, HashMap<String, String> bib2title, HashMap<String, String> bib2venue, HashMultiMapList<String, String> bib2author, HashMultiMapList<Pair<String, String>, String> pairs2lines) {
     HashSet<String> buffer = new HashSet<String>();
     for (String bib1 : fold) {
       String title1 = bib2title.get(bib1);

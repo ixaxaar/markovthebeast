@@ -3,7 +3,7 @@ package thebeast.pml.corpora;
 import thebeast.pml.*;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 
@@ -20,8 +20,8 @@ public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements 
   private Model model;
   private Corpus delegate;
   private GroundAtoms localAtoms;
-  private HashMultiMap<UserPredicate, RelationExpression>
-          generators = new HashMultiMap<UserPredicate, RelationExpression>();
+  private HashMultiMapList<UserPredicate, RelationExpression>
+          generators = new HashMultiMapList<UserPredicate, RelationExpression>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
 
   public AugmentedCorpus(Model model, Corpus delegate) {

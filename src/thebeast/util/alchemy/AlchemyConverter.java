@@ -1,11 +1,10 @@
 package thebeast.util.alchemy;
 
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Arrays;
 
 /**
  * @author Sebastian Riedel
@@ -43,7 +42,7 @@ public class AlchemyConverter {
     }
 
     HashMap<String, HashSet<String>> typeConstants = new HashMap<String, HashSet<String>>();
-    HashMultiMap<String, String[]> atoms = new HashMultiMap<String, String[]>();
+    HashMultiMapList<String, String[]> atoms = new HashMultiMapList<String, String[]>();
     reader = new BufferedReader(new FileReader(db));
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
@@ -51,8 +50,7 @@ public class AlchemyConverter {
       String[] groundAtomDef = line.split("[(),]");
       String[] predDef = predDefinitions.get(groundAtomDef[0]);
       if (predDef == null){
-        throw new RuntimeException("Woh, something's fishy with " + groundAtomDef[0]);
-
+        throw new RuntimeException("Woh, something's fishy with " + groundAtomDef[0] + " in line " + line);
       }
       for (int i = 1; i < groundAtomDef.length; ++i){
         HashSet<String> constants = typeConstants.get(predDef[i].trim());

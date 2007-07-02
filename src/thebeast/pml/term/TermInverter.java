@@ -4,7 +4,7 @@ import thebeast.pml.function.FunctionVisitor;
 import thebeast.pml.function.IntAdd;
 import thebeast.pml.function.IntMinus;
 import thebeast.pml.function.*;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 /**
  * @author Sebastian Riedel
@@ -13,7 +13,7 @@ public class TermInverter implements TermVisitor{
 
   private Variable argument;
   private Term result;
-  private HashMultiMap<Term,Term> children;
+  private HashMultiMapList<Term,Term> children;
   ChildrenCollector collector = new ChildrenCollector();
 
 

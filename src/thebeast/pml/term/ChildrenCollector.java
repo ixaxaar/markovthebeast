@@ -1,6 +1,6 @@
 package thebeast.pml.term;
 
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 import java.util.Stack;
 
@@ -9,11 +9,11 @@ import java.util.Stack;
  */
 public class ChildrenCollector implements TermVisitor{
 
-  public HashMultiMap<Term,Term> children;
+  public HashMultiMapList<Term,Term> children;
   private Stack<Term> parents;
 
-  public HashMultiMap<Term,Term> collect(Term term){
-    children = new HashMultiMap<Term, Term>();
+  public HashMultiMapList<Term,Term> collect(Term term){
+    children = new HashMultiMapList<Term, Term>();
     parents = new Stack<Term>();
     term.acceptTermVisitor(this);
     return children;

@@ -15,7 +15,7 @@ import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 import java.io.*;
 import java.util.HashMap;
@@ -35,8 +35,8 @@ public class Scores {
   private HashMap<UserPredicate, RelationVariable>
           directScoreTables = new HashMap<UserPredicate, RelationVariable>();
 
-  private HashMultiMap<UserPredicate, RelationExpression>
-          directScoreQueries = new HashMultiMap<UserPredicate, RelationExpression>();
+  private HashMultiMapList<UserPredicate, RelationExpression>
+          directScoreQueries = new HashMultiMapList<UserPredicate, RelationExpression>();
 
   private IntVariable directScoreIndex;
 

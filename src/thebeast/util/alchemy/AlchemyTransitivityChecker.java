@@ -14,14 +14,14 @@ public class AlchemyTransitivityChecker {
   public static void main(String[] args) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     HashSet<String> bibs = new HashSet<String>();
-    HashSet<Pair<String,String>> matches = new HashSet<Pair<String, String>>();
-    for (String line = reader.readLine(); line != null; line = reader.readLine()){
+    HashSet<Pair<String, String>> matches = new HashSet<Pair<String, String>>();
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
-      if (line.startsWith("SameBib")){
+      if (line.startsWith("SameBib")) {
         String[] atom = line.split("[(),]");
         bibs.add(atom[1]);
         bibs.add(atom[2]);
-        matches.add(new Pair<String, String>(atom[1],atom[2]));
+        matches.add(new Pair<String, String>(atom[1], atom[2]));
       }
     }
     System.out.println(bibs.size());
