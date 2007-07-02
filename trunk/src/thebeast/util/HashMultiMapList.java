@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class HashMultiMap<K, V> extends HashMap<K, List<V>> {
+public class HashMultiMapList<K, V> extends HashMap<K, List<V>> {
 
   public void add(K key, V value) {
     List<V> list = get(key);
@@ -16,8 +16,8 @@ public class HashMultiMap<K, V> extends HashMap<K, List<V>> {
     list.add(value);
   }
 
-  public HashMultiMap<K, V> deepcopy() {
-    HashMultiMap<K, V> result = new HashMultiMap<K, V>();
+  public HashMultiMapList<K, V> deepcopy() {
+    HashMultiMapList<K, V> result = new HashMultiMapList<K, V>();
     for (Map.Entry<K, List<V>> entry : entrySet())
       result.put(entry.getKey(), new LinkedList<V>(entry.getValue()));
     return result;

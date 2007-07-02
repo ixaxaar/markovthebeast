@@ -1,7 +1,7 @@
 package thebeast.pml.solve.weightedsat;
 
 import thebeast.pml.PropertyName;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 import thebeast.util.TreeProfiler;
 
 import java.util.*;
@@ -165,8 +165,8 @@ public class MaxWalkSat implements WeightedSatSolver {
       signs = clause.signs;
       cost = clause.score;
       trueLiteralCounts = new int[signs.length];
-      HashMultiMap<Atom, Integer> atom2positions = new HashMultiMap<Atom, Integer>();
-      HashMultiMap<Atom, Integer> atom2disjunctions = new HashMultiMap<Atom, Integer>();
+      HashMultiMapList<Atom, Integer> atom2positions = new HashMultiMapList<Atom, Integer>();
+      HashMultiMapList<Atom, Integer> atom2disjunctions = new HashMultiMapList<Atom, Integer>();
       for (int disjunction = 0; disjunction < clause.atoms.length; ++disjunction) {
         for (int position = 0; position < clause.atoms[disjunction].length; ++position) {
           MaxWalkSat.Atom atom = atoms[clause.atoms[disjunction][position]];

@@ -14,7 +14,7 @@ import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.PredicateAtom;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 import java.util.HashSet;
 
@@ -25,12 +25,12 @@ import java.util.HashSet;
  */
 public class LocalFeatureExtractor {
 
-  private HashMultiMap<UserPredicate, RelationExpression>
-          queries = new HashMultiMap<UserPredicate, RelationExpression>();
-  private HashMultiMap<UserPredicate, Insert>
-          inserts = new HashMultiMap<UserPredicate, Insert>();
-  private HashMultiMap<UserPredicate, RelationAppend>
-          appends = new HashMultiMap<UserPredicate, RelationAppend>();
+  private HashMultiMapList<UserPredicate, RelationExpression>
+          queries = new HashMultiMapList<UserPredicate, RelationExpression>();
+  private HashMultiMapList<UserPredicate, Insert>
+          inserts = new HashMultiMapList<UserPredicate, Insert>();
+  private HashMultiMapList<UserPredicate, RelationAppend>
+          appends = new HashMultiMapList<UserPredicate, RelationAppend>();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private StatementFactory factory = TheBeast.getInstance().getNodServer().statementFactory();
   private Model model;

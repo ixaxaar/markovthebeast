@@ -2,8 +2,7 @@ package thebeast.pml.corpora;
 
 import thebeast.pml.*;
 import thebeast.pml.term.Constant;
-import thebeast.util.HashMultiMap;
-import thebeast.util.Counter;
+import thebeast.util.HashMultiMapList;
 
 import java.io.*;
 import java.util.*;
@@ -21,8 +20,8 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
   private boolean sizeKnown;
   private int size;
-  private HashMultiMap<Integer, Extractor> col2extractor = new HashMultiMap<Integer, Extractor>();
-  private HashMultiMap<UserPredicate, AtomWriter> writers = new HashMultiMap<UserPredicate, AtomWriter>();
+  private HashMultiMapList<Integer, Extractor> col2extractor = new HashMultiMapList<Integer, Extractor>();
+  private HashMultiMapList<UserPredicate, AtomWriter> writers = new HashMultiMapList<UserPredicate, AtomWriter>();
   private HashMap<UserPredicate, Constant[]> constantAtoms = new HashMap<UserPredicate, Constant[]>();
   private boolean printZeroRow = false;
 
@@ -33,7 +32,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
   public static class Generator implements TypeGenerator {
 
-    private HashMultiMap<Integer, TokenCollector> collectors = new HashMultiMap<Integer, TokenCollector>();
+    private HashMultiMapList<Integer, TokenCollector> collectors = new HashMultiMapList<Integer, TokenCollector>();
 
     public static class TokenCollector {
       public String typeName;

@@ -11,7 +11,7 @@ import thebeast.nodmem.type.*;
 import thebeast.nodmem.variable.AbstractMemVariable;
 import thebeast.nodmem.variable.MemHashIndex;
 import thebeast.nodmem.variable.MemRelationVariable;
-import thebeast.util.HashMultiMap;
+import thebeast.util.HashMultiMapList;
 
 import java.util.*;
 
@@ -1086,10 +1086,10 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
   private class IndexRequirementsExtractor extends DepthFirstExpressionVisitor {
 
-    HashMultiMap<AttributeExpression, AttributeExpression>
-            requirements = new HashMultiMap<AttributeExpression, AttributeExpression>();
+    HashMultiMapList<AttributeExpression, AttributeExpression>
+            requirements = new HashMultiMapList<AttributeExpression, AttributeExpression>();
 
-    HashMultiMap<String, Attribute> prefix2AvalaibleAttributes = new HashMultiMap<String, Attribute>();
+    HashMultiMapList<String, Attribute> prefix2AvalaibleAttributes = new HashMultiMapList<String, Attribute>();
 
     HashMap<String, HashMap<String, Equality>> prefix2Attribute2Equality =
             new HashMap<String, HashMap<String, Equality>>();
@@ -1113,7 +1113,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       prefix2Attribute2Equality.clear();
     }
 
-    public HashMultiMap<AttributeExpression, AttributeExpression> getRequirements() {
+    public HashMultiMapList<AttributeExpression, AttributeExpression> getRequirements() {
       return requirements;
 
     }
