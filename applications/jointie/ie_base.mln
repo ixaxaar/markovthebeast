@@ -1,0 +1,74 @@
+// ------------------------------------------ //
+// PREDICATES
+// ------------------------------------------ //
+Token(token,position,bib)
+FollowBy(bib,position,token)	// tkn[.|,] ...
+Next(position,position)		// Next(j,i): j is next to i: j=i+1
+LessThan(position,position)	// LessThan(j,i): j<i
+
+IsAlphaChar(token)		// single alpha char
+IsDate(token)
+IsDigit(token)			// exclude date
+
+FirstNonAuthorTitleTkn(bib,position)
+FirstIn(bib,position)
+LastInitial(bib,position)	// last initial before nonATTkn
+
+Center(bib,position)		// lastinitial ~ firstNonAT/firstIn
+
+HasPunc(bib,position)
+HasComma(bib,position)
+
+SimilarTitle(bib,position,position,bib,position,position)
+SimilarVenue(bib,bib)
+
+JntInfCandidate(bib,position,bib)	// (c,i,c'): (c,i) matches punc in c'
+
+InField(bib,field,position)
+SameBib(bib,bib)
+
+// ------------------------------------------ //
+// SEG
+// ------------------------------------------ //
+/*** mutual exclusive ***/
+!InField(c,Fauthor,i) v !InField(c,Ftitle,i).
+!InField(c,Fauthor,i) v !InField(c,Fvenue,i).
+!InField(c,Fvenue,i) v !InField(c,Ftitle,i).
+
+/*** word / fld regression ***/
+!Token(+w,i,c) v IsDate(+w) v IsDigit(+w) v InField(c,+f,i)
+!Token(w,i,c) v !IsDate(w) v !InField(c,+f,i)
+!Token(w,i,c) v !IsDigit(w) v !InField(c,+f,i)
+
+/*** signature words ***/
+!LastInitial(c,i) v !LessThan(j,i) v !InField(c,Ftitle,j) 
+!LastInitial(c,i) v !LessThan(j,i) v !InField(c,Fvenue,j) 
+!FirstIn(c,i) v !LessThan(i,j) v !InField(c,Fauthor,j) 
+!FirstNonAuthorTitleTkn(c,i) v !LessThan(i,j) v !InField(c,Fauthor,j) 
+!FirstNonAuthorTitleTkn(c,i) v !LessThan(i,j) v !InField(c,Ftitle,j) 
+
+// initial either author or editor
+!Token(w,i,c) v !IsAlphaChar(w) v !FollowBy(c,i,TPERIOD) v InField(c,Fauthor,i) v InField(c,Fvenue,i)
+
+/*** position rule ***/
+Center(c,i)=>InField(c,Ftitle,i)
+!Token(w,P00,c) v IsDigit(w) v InField(c,+f,P00)
+InField(c,+f,P01)
+
+// ------------------------------------------ //
+// ER
+// ------------------------------------------ //
+SameBib(c,c)
+SameBib(c1,c2)
+SimilarTitle(c1,i1,j1,c2,i2,j2) ^ SimilarVenue(c1,c2) => SameBib(c1,c2)
+
+// ------------------------------------------ //
+// Consecutive rules: Base
+// ------------------------------------------ //
+// =>
+Next(j,i) ^ !HasPunc(c,i) ^ InField(c,+f,i) => InField(c,+f,j)
+Next(j,i) ^ HasComma(c,i) ^ InField(c,+f,i) => InField(c,+f,j)
+
+// <=
+Next(j,i) ^ !HasPunc(c,i) ^ InField(c,+f,j) => InField(c,+f,i)
+Next(j,i) ^ HasComma(c,i) ^ InField(c,+f,j) => InField(c,+f,i)
