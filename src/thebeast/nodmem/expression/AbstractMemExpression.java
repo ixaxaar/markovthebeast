@@ -82,4 +82,8 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
     return function;
   }
 
+  public int byteSize(){
+    return function != null ? function.bytesize() : 0;
+  }
+
 }

@@ -69,6 +69,12 @@ public class MemVector {
     xChunk += rows * op.xChunk;
   }
 
+  public void set(int rows, MemVector op) {
+    xInt = rows * op.xInt;
+    xDouble = rows * op.xDouble;
+    xChunk = rows * op.xChunk;
+  }
+
   public void add(int ints, int doubles, int chunks) {
     xInt += ints;
     xDouble += doubles;

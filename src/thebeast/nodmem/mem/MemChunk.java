@@ -156,14 +156,14 @@ public final class MemChunk extends MemHolder {
     if (dim.xChunk > 0) chunkData = new MemChunk[capacity * dim.xChunk];
     //rowIndex = new MemChunkIndex(capacity == 0 ? 1 : capacity, dim);
     //dim.allCols = new MemColumnSelector(numIntCols, dim.xDouble, dim.xChunk);
-    //references.add(new WeakReference<MemChunk>(this, queue));
+    references.add(new WeakReference<MemChunk>(this, queue));
   }
 
   public MemChunk(MemDim dim) {
     this(1, 1, dim);
     //rowIndex = new MemChunkIndex(10, dim);
     //dim.allCols = new MemColumnSelector(numIntCols, dim.xDouble, dim.xChunk);
-    //references.add(new WeakReference<MemChunk>(this, queue));
+    references.add(new WeakReference<MemChunk>(this, queue));
   }
 
 
@@ -180,7 +180,7 @@ public final class MemChunk extends MemHolder {
     this.chunkData = chunkData;
     //rowIndex = new MemChunkIndex(10, MemDim.create(numIntCols, dim.xDouble, dim.xChunk));
     //dim.allCols = new MemColumnSelector(numIntCols, dim.xDouble, dim.xChunk);
-    //references.add(new WeakReference<MemChunk>(this, queue));
+    references.add(new WeakReference<MemChunk>(this, queue));
   }
 
   /*
@@ -221,6 +221,8 @@ public final class MemChunk extends MemHolder {
     chunkData = newChunkData;
     if (rowIndex != null) rowIndex.increaseCapacity(howMuch);
     //dim.allCols = new MemColumnSelector(numIntCols, dim.xDouble, dim.xChunk);
+
+    if (capacity > 10000) throw new RuntimeException("Lots of capacity, man!");
   }
 
   public void compactify() {
@@ -458,6 +460,20 @@ public final class MemChunk extends MemHolder {
       size += index.byteSize();
     return size;
   }
+
+  public int shallowByteSize() {
+    //rowsIndexedSoFar
+    int size = INTSIZE + 3 * POINTERSIZE;
+    //if (dim.allCols != null) size += ARRAYSIZE;
+    size += super.shallowByteSize();
+    if (rowIndex != null) {
+      size += rowIndex.byteSize();
+    }
+    if (indices != null) for (MemChunkMultiIndex index : indices)
+      size += index.byteSize();
+    return size;
+  }
+
 
   public String toString() {
     StringBuffer result = new StringBuffer(super.toString());

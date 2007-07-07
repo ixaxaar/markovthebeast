@@ -95,6 +95,19 @@ public class MemHolder {
     return size;
   }
 
+  public int shallowByteSize() {
+    int size = 2 * INTSIZE + 3 * POINTERSIZE;
+    if (intData != null)
+      size += intData.length * INTSIZE + ARRAYSIZE;
+    if (doubleData != null)
+      size += doubleData.length * DOUBLESIZE + ARRAYSIZE;
+    if (chunkData != null) {
+      size += chunkData.length * POINTERSIZE + ARRAYSIZE;
+    }
+    return size;
+  }
+
+
   public static void serialize(MemHolder holder, MemSerializer serializer, MemDim dim) throws IOException {
     serializer.writeInts(holder.size);
     if (holder.intData != null) {

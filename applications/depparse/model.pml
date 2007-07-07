@@ -1,5 +1,5 @@
 include "conll06.pml";
-include "nonproj.pml";
+include "proj.pml";
 
 hidden: link, dep;
 observed: word, pos, cpos, prefix;
