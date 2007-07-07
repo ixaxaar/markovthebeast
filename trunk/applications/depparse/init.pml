@@ -1,17 +1,19 @@
-types from conll06 "corpora/train.conll";
+types from conll06 "train.conll";
 types to "corpora/train.types.pml";
 
 include "model.pml";
 
-set instancesCacheSize = 10;
+set instancesCacheSize = 5;
 
-load corpus from conll06 "corpora/train.conll";
+load corpus from conll06 "train.conll";
 
-save corpus (0-100) to ram;
+//save corpus (0-100) to ram;
 
 collect;
 
-save weights to dump "/tmp/depparse.weights.dmp";
+print weights.bias;
+
+save weights to dump "/tmp/depparse.clean.weights.dmp";
 
 save corpus to instances "/tmp/depparse.instances.dmp";
 

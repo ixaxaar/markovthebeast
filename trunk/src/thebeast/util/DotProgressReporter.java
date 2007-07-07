@@ -1,5 +1,7 @@
 package thebeast.util;
 
+import thebeast.pml.TheBeast;
+
 import java.io.PrintStream;
 
 /**
@@ -40,11 +42,13 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     if (count % chunkInterval == chunkInterval - 1) out.print(" ");
     if (count % lineInterval == lineInterval - 1) {
       out.printf("%6d", count + 1);
+
       if (performanceAvailable){
-        out.printf(" %3.2f %3.2f\n", loss / count, (double) iterationCount / count);
-      } else {
-        out.println();
-      }
+        out.printf(" %3.2f %3.2f", loss / count, (double) iterationCount / count);
+      } 
+      out.println();
+
+      System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
     }
     ++count;
 

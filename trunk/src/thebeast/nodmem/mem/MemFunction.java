@@ -506,4 +506,37 @@ public final class MemFunction {
     if (backoffFunction != null) backoffFunction.clear();
   }
 
+  public int bytesize(){
+    int size = 0;
+    size += 46 * MemChunk.POINTERSIZE;
+    size += 15 * MemChunk.INTSIZE;
+    for (MemFunction arg : arguments)
+      size += arg.bytesize();
+    if (opArgFunctions != null) for (MemFunction arg : opArgFunctions)
+      size += arg.bytesize();
+    if (searchChunkFunction != null) size += searchChunkFunction.bytesize();
+    if (searchVarFunction != null) size += searchVarFunction.bytesize();
+    if (tmpFunction != null) size += tmpFunction.bytesize();
+    if (backoffFunction != null) size+= backoffFunction.bytesize();
+    if (argHolder != null) size+= argHolder.byteSize();
+    if (index != null) size += index.byteSize();
+    if (returnStack != null)
+      size += MemChunk.ARRAYSIZE + returnStack.length * MemChunk.POINTERSIZE;
+    if (argStack != null)
+      size += MemChunk.ARRAYSIZE + argStack.length * MemChunk.POINTERSIZE;
+    if (argFunctionStack != null)
+      size += MemChunk.ARRAYSIZE + argFunctionStack.length * MemChunk.POINTERSIZE;
+    if (processedStack != null)
+      size += MemChunk.ARRAYSIZE + processedStack.length * MemChunk.INTSIZE;
+    if (argPointersVecStac != null)
+      size += MemChunk.ARRAYSIZE + argPointersVecStac.length * MemChunk.POINTERSIZE;
+    if (argPointersVec != null)
+      size += MemChunk.ARRAYSIZE + argPointersVec.length * MemChunk.POINTERSIZE;
+    if (tmpFunction != null)
+      size += tmpFunction.bytesize();
+    return size;
+
+  }
+
+  
 }

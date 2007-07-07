@@ -16,6 +16,7 @@ public class MemInserter {
       int old = index.get(src, pointer, src.dim.allCols);
       if (old == -1) {
         if (dst.size == dst.capacity)
+          //dst.increaseCapacity(dst.size + src.size);
           dst.increaseCapacity(dst.size + src.size);
         if (src.intData != null  && src.dim.xInt > 0)
           System.arraycopy(src.intData, pointer.xInt, dst.intData, dstPointer.xInt, dst.dim.xInt);
