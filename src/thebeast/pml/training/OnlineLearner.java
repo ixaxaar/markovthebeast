@@ -275,6 +275,7 @@ public class OnlineLearner implements Learner, HasProperties {
     profiler.start("evaluate");
     evaluation.evaluate(goldAtoms, solver.getBestAtoms());
     double loss = lossFunction.loss(goldAtoms, solver.getBestAtoms());
+    //System.out.println(loss);
     profiler.end();
 
     gold.load(data.getGold());
@@ -308,15 +309,17 @@ public class OnlineLearner implements Learner, HasProperties {
     }
 
     if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations
-            && candidates.size() < maxCandidates) {
+            && candidates.size() < maxCandidates && solver.doesOwnLocalSearch()) {
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
       solution.getGroundFormulas().load(solver.getGreedyFormulas());
       FeatureVector features = solution.extract(this.features);
+      //System.out.println(features.getLocal());
       //features.getNonnegative().load(gold.getNonnegative());
       //features.getNonpositive().load(gold.getNonpositive());
       candidates.add(features);
       losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
     }
+    //System.out.println(losses);
 
     //guess.load(solution.extract(features));
     profiler.end();

@@ -823,4 +823,7 @@ public class ExpressionBuilder {
   }
 
 
+  public int stackSize() {
+    return expressionStack.size();
+  }
 }

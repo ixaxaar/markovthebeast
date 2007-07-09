@@ -17,7 +17,7 @@ public class MemHashIndex implements Index {
   private MemRelationVariable variable;
   private ArrayList<String> attributes;
   private Index.Type indexType;
-  private MemChunkMultiIndex memIndex,ownIndex;
+  private MemShallowMultiIndex memIndex,ownIndex;
   //private int indexedSoFar;
   private MemColumnSelector cols;
   private MemDim dim;
@@ -38,7 +38,7 @@ public class MemHashIndex implements Index {
     cols = new MemColumnSelector(pointers);
     dim = cols.getDim();
     chunk = variable.getContainerChunk().chunkData[variable.getPointer().xChunk];
-    memIndex = new MemChunkMultiIndex(chunk.size, dim);
+    memIndex = new MemShallowMultiIndex(chunk, cols, chunk.size, dim);
     memIndex.indexedSoFar = 0;
   }
 
@@ -71,7 +71,7 @@ public class MemHashIndex implements Index {
     return indexType;
   }
 
-  public MemChunkMultiIndex memIndex() {
+  public MemShallowMultiIndex memIndex() {
     return memIndex;
   }
 

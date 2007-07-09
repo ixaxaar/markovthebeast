@@ -29,7 +29,7 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
 
   protected AbstractMemExpression(T type) {
     this.type = type;
-    references.add(new WeakReference<Expression>(this, queue));
+    //references.add(new WeakReference<Expression>(this, queue));
   }
 
   public static List<WeakReference<Expression>> references(){
@@ -42,6 +42,7 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
 
   public void needsUpdating() {
     function = null;
+    dependendIndices.clear();
   }
 
   public List<MemHashIndex> dependendIndices() {

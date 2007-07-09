@@ -13,7 +13,7 @@ public final class MemShallowIndex {
   private MemChunk chunk;
   private int[][] values;
   private int[][] keys;
-  private int[] valueCounts;
+  private int[] keyCounts;
   private int capacity;
   private MemDim dim;
   private int numKeys;
@@ -32,7 +32,7 @@ public final class MemShallowIndex {
   public MemShallowIndex(int capacity, MemDim dim, MemChunk data) {
     keys = new int[capacity][];
     values = new int[capacity][];
-    valueCounts = new int[capacity];
+    keyCounts = new int[capacity];
     this.capacity = capacity;
     this.dim = dim;
     this.chunk = data;
@@ -73,7 +73,7 @@ public final class MemShallowIndex {
       keys[index] = keysAtIndex;
       values[index] = valuesAtIndex;
     }
-    int length = valueCounts[index];
+    int length = keyCounts[index];
     if (length == 0) ++numUsedIndices;
     current.set(0,0,0);
     for (int item = 0; item < length; ++item) {
@@ -92,7 +92,7 @@ public final class MemShallowIndex {
             break check;
         int oldChunk = old * dim.xChunk;
         for (int i = 0; i < cols.chunkCols.length; ++i)
-          if (!data.chunkData[oldChunk + cols.chunkCols[i]].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
+          if (!chunk.chunkData[oldChunk + cols.chunkCols[i]].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
             break check;
         //they are equal, let's just set the new value
         if (override) valuesAtIndex[item] = value;
@@ -117,7 +117,7 @@ public final class MemShallowIndex {
     //insert
     valuesAtIndex[length] = value;
     keysAtIndex[length] = key;
-    valueCounts[index]++;
+    keyCounts[index]++;
     ++numKeys;
     return -1;
   }
@@ -141,7 +141,7 @@ public final class MemShallowIndex {
     int[] keysAtIndex = keys[index];
     if (keysAtIndex == null) return -1;
     int[] valuesAtIndex = values[index];
-    int length = valueCounts[index];
+    int length = keyCounts[index];
     MemVector p = new MemVector();
     for (int item = 0; item < length; ++item) {
       //test key equality
@@ -159,7 +159,7 @@ public final class MemShallowIndex {
             break check;
         int oldChunk = old * dim.xChunk;
         for (int i = 0; i < cols.chunkCols.length; ++i)
-          if (!data.chunkData[oldChunk + cols.chunkCols[i]].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
+          if (!chunk.chunkData[oldChunk + cols.chunkCols[i]].equals(data.chunkData[pointer.xChunk + cols.chunkCols[i]]))
             break check;
         //they are equal, let's just set the new value
         return old;
@@ -174,13 +174,13 @@ public final class MemShallowIndex {
   public void clear() {
     numKeys = 0;
     numUsedIndices = 0;
-    Arrays.fill(valueCounts,0);
+    Arrays.fill(keyCounts,0);
   }
 
   public void clearMemory() {
     keys = new int[capacity][];
     values = new int[capacity][];
-    Arrays.fill(valueCounts,0);
+    Arrays.fill(keyCounts,0);
     numKeys = 0;
     numUsedIndices = 0;
   }
@@ -194,11 +194,11 @@ public final class MemShallowIndex {
     MemShallowIndex helper = new MemShallowIndex(capacity + howMuch, dim,chunk);
     MemColumnSelector cols = new MemColumnSelector(dim.xInt, dim.xDouble, dim.xChunk);
     for (int index = 0; index < values.length; ++index) {
-      if (valueCounts[index] > 0) {
+      if (keyCounts[index] > 0) {
         //int[] keysAtIndex = keys[index];
         int[] valuesAtIndex = values[index];
         //MemVector current = new MemVector();
-        int length = valueCounts[index];
+        int length = keyCounts[index];
         for (int item = 0; item < length; ++item) {
           current.set(valuesAtIndex[item],dim);
           helper.put(chunk, current, cols, valuesAtIndex[item], true);
@@ -209,7 +209,7 @@ public final class MemShallowIndex {
       }
     }
     this.capacity = helper.capacity;
-    this.valueCounts = helper.valueCounts;
+    this.keyCounts = helper.keyCounts;
     this.values = helper.values;
     this.keys = helper.keys;
     this.numUsedIndices = helper.numUsedIndices;
@@ -229,12 +229,12 @@ public final class MemShallowIndex {
   }
 
   public int byteSize() {
-    int size = 3 * MemChunk.ARRAYSIZE + 3 & MemChunk.POINTERSIZE + dim.byteSize() + 3 * MemChunk.INTSIZE;
-    size += valueCounts.length * MemChunk.INTSIZE;
+    int size = 3 * MemChunk.ARRAYSIZE + 3 & MemChunk.POINTERSIZE + MemDim.byteSize() + 3 * MemChunk.INTSIZE;
+    size += keyCounts.length * MemChunk.INTSIZE;
     size += keys.length * MemChunk.POINTERSIZE;
     size += values.length * MemChunk.POINTERSIZE;
     for (int i = 0; i < capacity; ++i)
-      if (valueCounts[i] > 0) {
+      if (keyCounts[i] > 0) {
         size += 2 * MemChunk.ARRAYSIZE;
         size += keys[i].length * MemChunk.INTSIZE;
         size += values[i].length * MemChunk.INTSIZE;
@@ -246,10 +246,10 @@ public final class MemShallowIndex {
     serializer.writeInts(index.capacity, index.dim.xInt, index.dim.xDouble,
             index.dim.xChunk, index.numKeys, index.numUsedIndices);
     for (int i = 0; i < index.capacity; ++i) {
-      if (index.valueCounts[i] > 0) {
+      if (index.keyCounts[i] > 0) {
         serializer.writeInts(0);
       } else {
-        int size = index.valueCounts[i];
+        int size = index.keyCounts[i];
         serializer.writeInts(size);
         if (size > 0) {
           serializer.writeInts(index.keys[i], size);
@@ -269,7 +269,7 @@ public final class MemShallowIndex {
     for (int i = 0; i < index.capacity; ++i) {
       deserializer.read(size, 1);
       if (size[0] > 0) {
-        index.valueCounts[i] = size[0];
+        index.keyCounts[i] = size[0];
         index.keys[i] = new int[size[0]];
         deserializer.read(index.keys[i], size[0]);
         index.values[i] = new int[size[0]];
@@ -297,7 +297,7 @@ public final class MemShallowIndex {
     for (int i = 0; i < savedSize; ++i) {
       deserializer.read(size, 1);
       if (size[0] > 0) {
-        index.valueCounts[i] = size[0];
+        index.keyCounts[i] = size[0];
         if (index.keys[i] == null || index.keys[i].length < size[0])
           index.keys[i] = new int[size[0]];
         deserializer.read(index.keys[i], size[0]);

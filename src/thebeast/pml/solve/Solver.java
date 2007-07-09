@@ -31,5 +31,7 @@ public interface Solver extends HasProperties {
 
   void setProfiler(Profiler profiler);
 
-  int getIterationCount();  
+  int getIterationCount();
+
+  boolean doesOwnLocalSearch();
 }

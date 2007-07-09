@@ -276,8 +276,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * @return true if the solver calculates a first solution purely based on local scores by itself or whether this is
-   *         left to the propositional model.
+   * @return true if the solver calculates a first solution purely based on local scores by itself, false
+   * if the first step uses constraints.
    */
   public boolean doesOwnLocalSearch() {
     return groundAll.isEmpty();

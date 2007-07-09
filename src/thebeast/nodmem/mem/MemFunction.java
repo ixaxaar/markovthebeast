@@ -519,6 +519,9 @@ public final class MemFunction {
     if (tmpFunction != null) size += tmpFunction.bytesize();
     if (backoffFunction != null) size+= backoffFunction.bytesize();
     if (argHolder != null) size+= argHolder.byteSize();
+    if (getRel != null) size+= getRel.byteSize();
+    if (getBackoffChunk != null) size+= getBackoffChunk.byteSize();
+    if (constantChunk != null) size += constantChunk.byteSize();
     if (index != null) size += index.byteSize();
     if (returnStack != null)
       size += MemChunk.ARRAYSIZE + returnStack.length * MemChunk.POINTERSIZE;
@@ -534,6 +537,8 @@ public final class MemFunction {
       size += MemChunk.ARRAYSIZE + argPointersVec.length * MemChunk.POINTERSIZE;
     if (tmpFunction != null)
       size += tmpFunction.bytesize();
+    if (plan != null)
+      size += plan.byteSize();
     return size;
 
   }

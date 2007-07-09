@@ -19,18 +19,21 @@ public class MemRelationType extends AbstractMemType implements RelationType {
 
   private MemHeading heading;
   private LinkedList<KeyAttributes> candidateKeys;
+  private MemTupleType tupleType;
 
   public MemRelationType(MemHeading heading) {
     this.heading = heading;
     setDim(heading.getDim());
     candidateKeys = new LinkedList<KeyAttributes>();
     candidateKeys.add(new MemKeyAttributes(heading, heading.attributes()));
+    tupleType = new MemTupleType(heading);
   }
 
   public MemRelationType(MemHeading heading, List<KeyAttributes> candidates) {
     this.heading = heading;
     setDim(heading.getDim());
     candidateKeys = new LinkedList<KeyAttributes>(candidates);
+    tupleType = new MemTupleType(heading);
   }
 
 
@@ -47,7 +50,7 @@ public class MemRelationType extends AbstractMemType implements RelationType {
   }
 
   public Type instanceType() {
-    return new MemTupleType(heading);
+    return tupleType;
   }
 
   public Value emptyValue() {
@@ -58,6 +61,27 @@ public class MemRelationType extends AbstractMemType implements RelationType {
     MemChunk memChunk = chunk.chunkData[pointer.xChunk];
     assert memChunk != null;
     return new MemRelation(memChunk, new MemVector(), this);
+  }
+
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+    Object[] array = (Object[]) value;
+    //necessary?
+    if (array.length == 1 && array[0] instanceof Object[])
+      array = (Object[]) array[0];
+    MemChunk dst = chunk.chunkData[pointer.xChunk];
+    if (dst == null) {
+      dst = new MemChunk(0,array.length,getDim());
+      chunk.chunkData[pointer.xChunk] = dst;
+    } else
+      dst.ensureCapacity(array.length);
+    MemVector dstPointer = new MemVector();
+    for (int index = 0; index < array.length; ++index){
+      tupleType.valueToChunkWithOffset(array[index],dst,dstPointer);
+      dstPointer.add(dst.dim);
+    }
+    dst.size = array.length;
+    dst.unify();
+
   }
 
   public String toString() {

@@ -5,15 +5,16 @@ predicate possiblePair: Slot x Slot;
 predicate type1 : Slot;
 predicate type2 : Slot;
 
-include "slotpair.pml";
+//include "slotpair.pml";
 
-factor: for Int i, Slot s1, Slot s2 if type1(s1) & type2(s2) : slot(i,s1) & slot(i,s2) => slotPair(i,s1,s2);
-factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s1);
-factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s2);
+//factor: for Int i, Slot s1, Slot s2 if type1(s1) & type2(s2) : slot(i,s1) & slot(i,s2) => slotPair(i,s1,s2);
+//factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s1);
+//factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s2);
 
 global: type1, type2, possiblePair;
-auxiliary: slotPair;
-hidden: slot, slotPair;
+//auxiliary: slotPair;
+hidden: slot;
+//hidden: slot, slotPair;
 observed: word, pos;
 
 weight w_bias: Slot -> Double-;

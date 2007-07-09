@@ -40,5 +40,13 @@ public final class MemSearchAction {
     args = new MemChunk(1,1,MemDim.INT_DIM);
   }
 
+  public int byteSize(){
+    int size = 0;
+    for (MemFunction f : functions)
+      size += f.bytesize();
+    if (args != null) size += args.byteSize();
+    return size;
+  }
+
 
 }

@@ -167,6 +167,32 @@ public class Type {
     return null;
   }
 
+  public Object getObject(String name) {
+    switch (typeClass) {
+      case CATEGORICAL:
+        if (constants.contains("\"" + name + "\""))
+          return "\"" + name + "\"";
+        if (!constants.contains(name)) throw new NotInTypeException(name, this);
+        return name;
+      case CATEGORICAL_UNKNOWN:
+        if (constants.contains("\"" + name + "\""))
+          return "\"" + name + "\"";
+        return name;
+      case INT:
+        return Integer.valueOf(name);
+      case POSITIVE_INT:
+        if (Integer.valueOf(name) < 0) throw new NotInTypeException(name, this);
+        return Integer.valueOf(name);
+      case NEGATIVE_INT:
+        if (Integer.valueOf(name) > 0) throw new NotInTypeException(name, this);
+        return Integer.valueOf(name);
+      case BOOL:
+        return "true".equals(name);
+    }
+    return null;
+  }
+
+
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;

@@ -62,6 +62,10 @@ public class MemDoubleType extends AbstractScalarType implements DoubleType {
     return new MemDouble(chunk, pointer.xDouble, this);
   }
 
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+    chunk.doubleData[pointer.xDouble] = (Double)value; 
+  }
+
   public void load(StreamTokenizer src, MemChunk dst, MemVector ptr) throws IOException {
     src.nextToken();
     dst.doubleData[ptr.xDouble] = src.nval;

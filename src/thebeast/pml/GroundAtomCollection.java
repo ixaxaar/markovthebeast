@@ -70,23 +70,24 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
   }
 
   /**
-   * Adds a ground atom to this collection.
+   * Adds a ground atom to this collection. Fast!
    *
    * @param arguments the arguments of the atoms. Can be strings, doubles or integers.
    */
   public void addGroundAtom(Object... arguments) {
-    int index = 0;
-    builder.clear();
-    for (Type type : predicate.getArgumentTypes()) {
-      builder.id(predicate.getColumnName(index)).constant(type.getNodType(), arguments[index++]);
-    }
-    builder.tupleForIds().relation(1);
-    interpreter.insert(relation, builder.getRelation());
+    relation.addTuple(arguments);
+//    int index = 0;
+//    builder.clear();
+//    for (Type type : predicate.getArgumentTypes()) {
+//      builder.id(predicate.getColumnName(index)).constant(type.getNodType(), arguments[index++]);
+//    }
+//    builder.tupleForIds().relation(1);
+//    interpreter.insert(relation, builder.getRelation());
   }
 
 
   /**
-   * Adds a ground atom to this collection.
+   * Adds a ground atom to this collection. Slow!
    *
    * @param arguments the arguments of the atoms. Can be strings, doubles or integers.
    */
@@ -97,6 +98,7 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
     }
     builder.tupleForIds().relation(1);
     interpreter.insert(relation, builder.getRelation());
+    //relation.addTuple();
   }
 
 

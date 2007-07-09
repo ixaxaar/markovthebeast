@@ -121,6 +121,10 @@ public class LocalSolver implements Solver {
     return 1;
   }
 
+  public boolean doesOwnLocalSearch() {
+    return true;
+  }
+
 
   public List<GroundAtoms> getCandidateAtoms() {
     return Collections.singletonList(atoms);

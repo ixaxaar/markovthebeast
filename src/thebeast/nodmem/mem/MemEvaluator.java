@@ -53,6 +53,7 @@ public class MemEvaluator {
       MemChunk returnChunk = returnStack[stackPointer];
       MemVector argPointerVec = argPointersVec[stackPointer];
 
+
       switch (f.type) {
         case VOID:
           break;
@@ -234,6 +235,8 @@ public class MemEvaluator {
           MemMath.collect(argChunk.chunkData[0], f.groupAtt, returnChunk.chunkData[argPointerVec.xChunk], f);
           break;
       }
+      //if (argChunk != null && argChunk.size > argChunk.capacity) throw new RuntimeException("Somethings fishy here");
+      //if (dst != null && dst.size > dst.capacity) throw new RuntimeException("Somethings fishy here with " + f.type);
       --stackPointer;
     }
   }
@@ -363,7 +366,7 @@ public class MemEvaluator {
     MemChunk relation = argChunk.chunkData[0];
     MemChunk tuple = argChunk.chunkData[1];
     relation.buildRowIndex();
-    MemChunkIndex index = relation.rowIndex;
+    MemShallowIndex index = relation.rowIndex;
 
     returnChunk.intData[0] = index.get(tuple, MemVector.ZERO, tuple.dim.allCols) == -1 ? 0 : 1;
   }
@@ -444,8 +447,7 @@ public class MemEvaluator {
 //          result.size = 0;
 //          result.rowIndexedSoFar = 0;
 //          result.rowIndex.clear();
-    MemSearch.search(f.plan, f.searchChunkFunction.argHolder.chunkData,
-            null, result, 0);
+    MemSearch.search(f.plan, f.searchChunkFunction.argHolder.chunkData, null, result, 0);
   }
 
   private static void or(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
@@ -662,7 +664,9 @@ public class MemEvaluator {
       System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, argChunk.doubleData.length);
     if (argChunk.chunkData != null)
       MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, argChunk.chunkData.length);
+    //returnChunk.size = argChunk.size;
     ++returnChunk.size;
+    //todo: changing the size here causes problems: it only makes sense in a memsearch context ->get rid of it
   }
 
   private static void cycles(MemFunction f, MemChunk argChunk, MemChunk returnChunk) {
@@ -834,7 +838,7 @@ public class MemEvaluator {
     MemDim dim = dst.getDim();
 
     if (add.rhsIndex != -1) {
-      MemChunkMultiIndex index = rhs.indices[add.rhsIndex];
+      MemShallowMultiIndex index = rhs.indices[add.rhsIndex];
       int[][] rows = new int[1][];
       MemVector lhsPtr = new MemVector();
       for (int row = 0; row < lhs.size; ++row) {
@@ -855,7 +859,7 @@ public class MemEvaluator {
 
     }
     if (add.lhsIndex != -1) {
-      MemChunkMultiIndex index = lhs.indices[add.lhsIndex];
+      MemShallowMultiIndex index = lhs.indices[add.lhsIndex];
       int[][] rows = new int[1][];
       MemVector rhsPtr = new MemVector();
       for (int row = 0; row < rhs.size; ++row) {

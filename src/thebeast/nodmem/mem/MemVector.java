@@ -15,7 +15,7 @@ public class MemVector {
   public MemVector() {
   }
 
-  public int byteSize(){
+  public static int byteSize(){
     return 3 * MemChunk.INTSIZE;
   }
 
@@ -113,6 +113,15 @@ public class MemVector {
     this.xChunk = xChunk;
   }
 
+  public void set(MemVector vector){
+    this.xInt = vector.xInt;
+    this.xDouble = vector.xDouble;
+    this.xChunk = vector.xChunk;
+  }
+
+  public String toString() {
+    return "(" + xInt + "," + xDouble + "," + xChunk + ")";
+  }
 
   public boolean equals(Object o) {
     if (this == o) return true;

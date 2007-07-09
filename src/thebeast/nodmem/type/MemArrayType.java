@@ -32,6 +32,10 @@ public class MemArrayType extends AbstractMemType implements ArrayType {
     return new MemArray(chunk.chunkData[pointer.xChunk], new MemVector(), this);
   }
 
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+
+  }
+
   public void acceptTypeVisitor(TypeVisitor visitor) {
     visitor.visitArrayType(this);
   }

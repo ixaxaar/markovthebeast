@@ -22,7 +22,7 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
   private int size;
   private HashMultiMapList<Integer, Extractor> col2extractor = new HashMultiMapList<Integer, Extractor>();
   private HashMultiMapList<UserPredicate, AtomWriter> writers = new HashMultiMapList<UserPredicate, AtomWriter>();
-  private HashMap<UserPredicate, Constant[]> constantAtoms = new HashMap<UserPredicate, Constant[]>();
+  private HashMap<UserPredicate, Object[]> constantAtoms = new HashMap<UserPredicate, Object[]>();
   private boolean printZeroRow = false;
 
   private HashSet<Extractor> extractors = new HashSet<Extractor>();
@@ -307,9 +307,9 @@ public class TabFormatCorpus extends AbstractCollection<GroundAtoms> implements 
 
   public void addConstantAtom(UserPredicate predicate, Object... arg) {
     int index = 0;
-    Constant[] constants = new Constant[arg.length];
+    Object[] constants = new Object[arg.length];
     for (Type type : predicate.getArgumentTypes()) {
-      constants[index] = type.getConstant(arg[index++].toString());
+      constants[index] = type.getObject(arg[index++].toString());
     }
     constantAtoms.put(predicate, constants);
   }

@@ -87,6 +87,10 @@ public class MemIntType extends AbstractScalarType implements IntType, Iterable<
     return new MemInt(chunk, pointer.xInt, this);
   }
 
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+    chunk.intData[pointer.xInt] = (Integer)value;
+  }
+
 
   public void load(StreamTokenizer src, MemChunk dst, MemVector ptr) throws IOException {
     src.nextToken();

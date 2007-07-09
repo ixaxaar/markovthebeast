@@ -36,8 +36,12 @@ public class MemSearchPlan {
     resultDim = MemDim.EMPTY;
   }
 
-  
 
-
-
+  public int byteSize() {
+    int size = 0;
+    for (MemSearchAction action : actions)
+      size += action.byteSize();
+    size += valid.byteSize();
+    return size;
+  }
 }
