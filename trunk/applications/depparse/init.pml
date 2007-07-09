@@ -4,10 +4,11 @@ types to "corpora/train.types.pml";
 include "model.pml";
 
 set instancesCacheSize = 5;
+set corpusCacheSize = 20;
 
 load corpus from conll06 "train.conll";
 
-//save corpus (0-100) to ram;
+save corpus (0-100) to ram;
 
 collect;
 

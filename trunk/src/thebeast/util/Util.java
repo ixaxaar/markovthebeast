@@ -1,10 +1,6 @@
 package thebeast.util;
 
-import java.util.List;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Formatter;
-import java.io.*;
 
 /**
  * @author Sebastian Riedel
@@ -21,9 +17,8 @@ public class Util {
     return buffer.toString();
   }
 
-  public static String toMemoryString(long bytes) {
+  public static String toMemoryString(double bytes) {
     double display = bytes;
-    Formatter f = new Formatter();
     if (display < 1024)
       return display + "b";
     display /= 1024.0;

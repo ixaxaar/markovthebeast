@@ -13,6 +13,7 @@ public class GlobalF1Loss implements LossFunction {
 
   public GlobalF1Loss(Model model){
     evaluation = new Evaluation(model);
+    System.out.println(model.getHiddenPredicates());
   }
   public double loss(GroundAtoms gold, GroundAtoms guess) {
     evaluation.evaluate(gold, guess);

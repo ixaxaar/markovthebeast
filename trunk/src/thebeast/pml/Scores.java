@@ -302,7 +302,7 @@ public class Scores {
         interpreter.assign(atomScores.get(predicate), sums.get(predicate));
       }
     }
-    closure.load(features.getClosure());
+    //closure.load(features.getClosure());
   }
 
   public GroundAtoms getClosure() {

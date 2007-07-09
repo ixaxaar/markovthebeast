@@ -135,6 +135,7 @@ public class FeatureCollector implements HasProperties {
     progressReporter.started("Collecting Features");
     while (corpus.hasNext()) {
       this.atoms.load(corpus.next(), model.getInstancePredicates());
+      //todo: inserts.keySet() causes randomness
       for (FactorFormula factor : inserts.keySet()) {
         if (!done.contains(factor.getWeightFunction()))
           interpreter.interpret(inserts.get(factor));

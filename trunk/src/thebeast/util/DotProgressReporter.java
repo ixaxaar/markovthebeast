@@ -48,7 +48,8 @@ public class DotProgressReporter implements PerformanceProgressReporter {
       } 
       out.println();
 
-      System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
+      //System.gc();
+      //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
     }
     ++count;
 

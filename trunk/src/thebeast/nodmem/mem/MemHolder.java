@@ -173,6 +173,14 @@ public class MemHolder {
     return result.toString();
   }
 
+  public boolean sameObject(Object object){
+    return super.equals(object);
+  }
+
+  public String toOriginalString(){
+    return super.toString();
+  }
+
 }
 
 

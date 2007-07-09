@@ -15,6 +15,7 @@ import thebeast.nodmem.mem.MemVector;
 import thebeast.nodmem.statement.IndexInformation;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemRelationType;
+import thebeast.nodmem.type.AbstractMemType;
 import thebeast.nodmem.value.MemRelation;
 
 import java.util.ArrayList;
@@ -33,20 +34,17 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   private ExpressionBuilder builder;
   private TupleType tupleType;
   private static final int OVERHEAD = 3000;
+  private AbstractMemType[] types;
 
-  public MemRelationVariable(NoDServer server, RelationValue value) {
-    super(server, value, value.type());
-    ((MemRelation) value).addOwner();
-    builder = server.expressionBuilder();
-    //builder = new ExpressionBuilder(server);
-    tupleType = server.typeFactory().createTupleType(type.heading());
-  }
 
   public MemRelationVariable(NoDServer server, RelationType type) {
     super(server, type, new MemChunk(1, 1, MemDim.CHUNK_DIM));
     chunk.chunkData[0] = new MemChunk(0, 0, ((MemHeading) type.heading()).getDim());
     builder = new ExpressionBuilder(server);
     tupleType = server.typeFactory().createTupleType(type.heading());
+    types = new AbstractMemType[type.heading().attributes().size()];
+    for (int i = 0; i < types.length; ++i)
+      types[i] = (AbstractMemType) type.heading().attributes().get(i).type();
   }
 
   public void addDependendExpression(AbstractMemExpression expression) {
@@ -70,7 +68,17 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   }
 
   public RelationValue value() {
-    return new MemRelation(chunk.chunkData[0], new MemVector(), (MemRelationType) type);
+    //System.out.println("Chunk:" + chunk.toOriginalString());
+    if (value == null ||
+            chunk.chunkData[0] != ((MemRelation)value).chunk() ||
+            chunk.chunkData[0].chunkData != ((MemRelation)value).chunk().chunkData )
+      value = new MemRelation(chunk.chunkData[0], new MemVector(), (MemRelationType) type);
+////    System.out.println(chunk.chunkData[0].chunkData == ((MemRelation)value).chunk().chunkData);
+////    System.out.println(chunk.chunkData[0].sameObject(((MemRelation)value).chunk()));
+////    System.out.println(chunk.chunkData[0].toOriginalString());
+////    System.out.println(((MemRelation)value).chunk().toOriginalString());
+    return value;
+//    return new MemRelation(chunk.chunkData[0], new MemVector(), (MemRelationType) type);
   }
 
   public void acceptExpressionVisitor(ExpressionVisitor visitor) {
@@ -86,7 +94,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   }
 
   public void destroy() {
-    ((MemRelation) value).removeOwner();
+    //((MemRelation) value).removeOwner();
   }
 
   public IndexInformation indexInformation() {
@@ -119,6 +127,11 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
       owns.removeOwner(this);
       owns = null;
     }
+
+//    System.out.println("After own");
+//    System.out.println(chunk.chunkData[0].toOriginalString());
+    ///if (value != null) System.out.println(((MemRelation)value).chunk().toOriginalString());
+
   }
 
   public boolean copy(AbstractMemVariable var) {
@@ -147,12 +160,30 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
 //      }
 //    }
     owns = other;
+//    System.out.println("After copy");
+//    System.out.println(chunk.chunkData[0].toOriginalString());
+    //if (value != null) System.out.println(((MemRelation)value).chunk().toOriginalString());
     return true;
   }
 
   public void addTuple(Object... args) {
-    Object[] relation = new Object[]{new Object[]{args}};
-    server.interpreter().insert(this, builder.value(type(), relation).getRelation());
+    own();
+    MemHeading heading = (MemHeading) type.heading();
+    MemChunk dst = chunk.chunkData[pointer.xChunk];
+    int end = dst.size;
+    dst.ensureCapacity(end + 1);
+    MemVector pointer = new MemVector(end,heading.getDim());
+    for (int index = 0; index < heading.attributes().size();index++){
+      pointer.set(end,heading.getDim());
+      pointer.add(heading.pointerForIndex(index));
+      types[index].valueToChunk(args[index],dst,pointer);
+    }
+    ++dst.size;
+    dst.unify();
+    
+    //heading.pointerForIndex()
+    //Object[] relation = new Object[]{new Object[]{args}};
+    //server.interpreter().insert(this, builder.value(type(), relation).getRelation());
   }
 
   public boolean contains(Object... args) {

@@ -23,13 +23,13 @@ public class TestMemSearch extends TestCase {
 
     //let's also build an index of table2
     MemDim dim = MemDim.INT_DIM;
-    MemChunkMultiIndex index1 = new MemChunkMultiIndex(3, dim);
     MemColumnSelector cols = new MemColumnSelector(new int[]{0}, new int[0], new int[0]);
+    MemShallowMultiIndex index1 = new MemShallowMultiIndex(table2,cols,3, dim);
     index1.add(table2, new MemVector(0, dim), cols, 0);
     index1.add(table2, new MemVector(1, dim), cols, 1);
     index1.add(table2, new MemVector(2, dim), cols, 2);
 
-    table2.indices = new MemChunkMultiIndex[]{index1};
+    table2.indices = new MemShallowMultiIndex[]{index1};
 
     attr1 = new MemPointer(MemChunk.DataType.INT, 0);
     attr1Select = new MemFunction(new MemChunk(1, 1, MemDim.INT_DIM),

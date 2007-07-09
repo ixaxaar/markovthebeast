@@ -47,6 +47,10 @@ public class MemBoolType extends AbstractScalarType implements BoolType {
     return new MemBool(chunk, pointer.xInt, this);
   }
 
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+    chunk.intData[pointer.xInt] = (Boolean)value ? 1 : 0;
+  }
+
   public void load(StreamTokenizer src, MemChunk dst, MemVector ptr) throws IOException {
     src.nextToken();
     dst.intData[ptr.xInt] = src.sval.equals("true") ? 1 : 0;

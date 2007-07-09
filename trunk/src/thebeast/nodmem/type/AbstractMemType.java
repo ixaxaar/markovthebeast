@@ -75,4 +75,6 @@ public abstract class AbstractMemType implements Type {
 
   public abstract AbstractMemValue valueFromChunk(MemChunk chunk, MemVector pointer);
 
+  public abstract void valueToChunk(Object value, MemChunk chunk, MemVector pointer);
+
 }

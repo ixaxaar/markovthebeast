@@ -17,20 +17,20 @@ public class AttributeExtractor implements Extractor {
 
   private HashMap<Integer, Integer> mapping;
   private UserPredicate predicate;
-  private Constant[] args;
+  private Object[] args;
   private HashMap<Integer, TokenProcessor> processors = new HashMap<Integer, TokenProcessor>();
   private HashSet<Integer> lineNrArgs = new HashSet<Integer>();
 
   public AttributeExtractor(UserPredicate predicate, Map<Integer, Integer> mapping) {
     this.predicate = predicate;
     this.mapping = new HashMap<Integer, Integer>(mapping);
-    args = new Constant[mapping.size()];
+    args = new Object[mapping.size()];
   }
 
   public AttributeExtractor(UserPredicate predicate, int size) {
     this.predicate = predicate;
     this.mapping = new HashMap<Integer, Integer>();
-    args = new Constant[size];
+    args = new Object[size];
 
   }
 
@@ -50,7 +50,7 @@ public class AttributeExtractor implements Extractor {
 
   public void beginLine(int lineNr) {
     for (int i : lineNrArgs) {
-      args[i] = Type.INT.toConstant(lineNr);
+      args[i] = lineNr;
     }
   }
 
@@ -65,7 +65,7 @@ public class AttributeExtractor implements Extractor {
   public void extract(int column, String value) {
     int argIndex = mapping.get(column);
     Type type = predicate.getArgumentTypes().get(argIndex);
-    args[argIndex] = type.getConstant(processors.get(column).process(value));
+    args[argIndex] = type.getObject(processors.get(column).process(value));
   }
 
   public Collection<Integer> getColumns() {

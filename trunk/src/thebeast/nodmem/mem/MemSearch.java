@@ -76,8 +76,6 @@ public final class MemSearch {
             if (valid.intData[0] == 1) {
               //System.out.println("Written");
               int oldSize = dst.size;
-              //todo: the size can be increased by more than one in one call to MemEvaluator.evaluate (for inserts!)
-              //todo: but I think this is handled in the evaluate function.
               if (dst.capacity == dst.size){
                 dst.increaseCapacity(dst.capacity < CAPACITY_INCREMENTS ? CAPACITY_INCREMENTS : dst.capacity);
                 //System.out.println(dst.capacity);

@@ -9,7 +9,7 @@ public class MemInserter {
     //assuming src is unique
     MemVector pointer = new MemVector();
     dst.buildRowIndex();
-    MemChunkIndex index = dst.rowIndex;
+    MemShallowIndex index = dst.rowIndex;
     //System.out.println("index.getLoadFactor() = " + index.getLoadFactor());;
     MemVector dstPointer = new MemVector(dst.size, dst.getDim());
     for (int row = 0; row < src.size; ++row) {

@@ -1,6 +1,7 @@
 package thebeast.nodmem.mem;
 
 import java.util.ArrayList;
+import java.io.IOException;
 
 /**
  * @author Sebastian Riedel
@@ -60,6 +61,25 @@ public class MemColumnSelector {
 
   public MemDim getDim(){
     return MemDim.create(intCols.length,doubleCols.length,chunkCols.length);
+  }
+
+  public void serialize(MemSerializer serializer) throws IOException {
+    serializer.writeInts(intCols.length, doubleCols.length, chunkCols.length);
+    for (int col : intCols) serializer.writeInts(col);
+    for (int col : doubleCols) serializer.writeInts(col);
+    for (int col : chunkCols) serializer.writeInts(col);
+  }
+
+  public static MemColumnSelector deserialize(MemDeserializer deserializer) throws IOException {
+    int ints = deserializer.readInt();
+    int doubles = deserializer.readInt();
+    int chunks = deserializer.readInt();
+    MemColumnSelector result = new MemColumnSelector(MemDim.create(ints,doubles,chunks));
+    deserializer.read(result.intCols, ints);
+    deserializer.read(result.doubleCols, ints);
+    deserializer.read(result.chunkCols, ints);
+    return result;
+
   }
 
   public int compareTo(MemColumnSelector cols) {

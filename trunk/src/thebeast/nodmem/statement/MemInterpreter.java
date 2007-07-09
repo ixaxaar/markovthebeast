@@ -9,12 +9,14 @@ import thebeast.nod.value.IntValue;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.*;
 import thebeast.nodmem.MemNoDServer;
+import thebeast.nodmem.value.MemRelation;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.expression.MemDoubleConstant;
 import thebeast.nodmem.mem.*;
 import thebeast.nodmem.type.*;
 import thebeast.nodmem.variable.*;
 import thebeast.util.Util;
+import thebeast.pml.TheBeast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -364,7 +366,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     MemHashIndex index = new MemHashIndex(memRelationVariable,
             createIndex.indexType(), createIndex.attributes());
     int nr = memRelationVariable.indexInformation().addIndex(createIndex.name(), index);
-    chunk.addMemChunkMultiIndex(index.memIndex());
+    chunk.addMemShallowMultiIndex(index.memIndex());
     for (AbstractMemExpression expr : memRelationVariable.dependendExpressions()) {
       expr.needsUpdating();
     }
@@ -488,23 +490,35 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     int totalBytesize = 0;
     int instanceCount = 0;
     int maxRowCount = 0;
+    int maxCapacity = 0;
+    RelationVariable maxRelVar = null;
     for (WeakReference<RelationVariable> ref : relVarReferences){
       if (ref.isEnqueued())
         ++gced;
       else {
         totalRowCount += ref.get().value().size();
-        totalCapacity += ((MemRelationVariable)ref.get()).getContainerChunk().chunkData[0].capacity;
+        int capacity = ((MemRelationVariable) ref.get()).getContainerChunk().chunkData[0].capacity;
+        totalCapacity += capacity;
         totalBytesize += ref.get().byteSize();
         ++alive;
-        if (ref.get().value().size()> maxRowCount)
+        if (ref.get().value().size()> maxRowCount){
           maxRowCount = ref.get().value().size();
+          maxRelVar = ref.get();
+        }
+        if (capacity > maxCapacity){
+          maxCapacity = capacity;
+        }
+
       }
     }
+
+    System.out.println(maxRelVar.type().heading());
 
     instanceCount = relVarReferences.size();
     Formatter formatter = new Formatter();
     printStats("RelVars", formatter, instanceCount, gced, alive, totalRowCount, totalCapacity, totalBytesize);
     formatter.format("%-30s%-7d\n","RelVars max row count", maxRowCount);
+    formatter.format("%-30s%-7d\n","RelVars max capacity", maxCapacity);
 
     totalRowCount = 0;
     totalCapacity = 0;
@@ -537,6 +551,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         AbstractMemExpression expr = (AbstractMemExpression) ref.get();
         if (!(expr instanceof AbstractMemVariable))
           totalBytesize += expr.byteSize();
+        //System.out.println(expr);
       }
     }
     formatter.format("%-30s%-7d\n","Expressions instantiated", AbstractMemExpression.references().size());
@@ -561,12 +576,33 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     formatter.format("%-30s%-7d\n","Inserts alive", alive);
     formatter.format("%-30s%-7s\n","Inserts total bytesize", Util.toMemoryString(totalBytesize));
 
+    gced = 0;
+    alive = 0;
+    totalBytesize = 0;
+    for (WeakReference<RelationValue> ref : MemRelation.references()){
+      if (ref.isEnqueued())
+        ++gced;
+      else {
+        ++alive;
+        MemRelation expr = (MemRelation) ref.get();
+        totalBytesize += expr.chunk().byteSize();
+      }
+    }
+    formatter.format("%-30s%-7d\n","Relations instantiated", MemRelation.references().size());
+    formatter.format("%-30s%-7d\n","Relations gced", gced);
+    formatter.format("%-30s%-7d\n","Relations alive", alive);
+    formatter.format("%-30s%-7s\n","Relations total bytesize", Util.toMemoryString(totalBytesize));
+
 
     gced = 0;
     alive = 0;
     totalBytesize = 0;
     totalRowCount = 0;
+    totalCapacity = 0;
     maxRowCount = 0;
+    maxCapacity = 0;
+    MemChunk maxChunk = null;
+    int withIndex = 0;
     for (WeakReference<MemChunk> ref : MemChunk.references()){
       if (ref.isEnqueued())
         ++gced;
@@ -574,23 +610,38 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         ++alive;
         totalBytesize += ref.get().byteSize();
         totalRowCount += ref.get().size;
-        if (ref.get().size > maxRowCount)
+        totalCapacity += ref.get().capacity;
+        if (ref.get().rowIndex != null)  ++withIndex;
+        if (ref.get().size > maxRowCount){
           maxRowCount = ref.get().size;
+          maxChunk = ref.get();
+        }
+        if (ref.get().capacity > maxCapacity)
+          maxCapacity = ref.get().capacity;
       }
     }
+
+    //System.out.println(maxChunk);
+    //System.out.println(maxChunk.dim);
+    //System.out.println(maxChunk.size);
+    //System.out.println(Arrays.toString(maxChunk.intData));
 
     formatter.format("%-30s%-7d\n","Chunks instantiated", MemChunk.references().size());
     formatter.format("%-30s%-7d\n","Chunks gced", gced);
     formatter.format("%-30s%-7d\n","Chunks alive", alive);
     formatter.format("%-30s%-7s\n","Chunks total bytesize", Util.toMemoryString(totalBytesize));
-    formatter.format("%-30s%-7f\n","Chunks avg capacity", (double) totalBytesize / (double) alive);
+    formatter.format("%-30s%-7s\n","Chunks avg bytesize", Util.toMemoryString((double) totalBytesize / (double) alive));
+    formatter.format("%-30s%-7f\n","Chunks avg capacity", (double) totalCapacity / (double) alive);
     formatter.format("%-30s%-7d\n","Chunks total row count", totalRowCount);
     formatter.format("%-30s%-7f\n","Chunks avg row count", (double) totalRowCount / (double) alive);
     formatter.format("%-30s%-7d\n","Chunks max row count", maxRowCount);
+    formatter.format("%-30s%-7d\n","Chunks max capacity", maxCapacity);
+    formatter.format("%-30s%-7d\n","Chunks with indices", withIndex);
 
     //formatter.format("\n");
     formatter.format("%-30s%-7s\n","Java mem usage", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
 
+    formatter.format("%s\n", TheBeast.getInstance().getNodServer().expressionBuilder().stackSize());
 
     return formatter.toString();
   }

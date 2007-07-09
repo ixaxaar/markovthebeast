@@ -28,7 +28,7 @@ set learner.profile = true;
 set learner.maxViolations = 1000;
 set learner.useGreedy = true;
 
-learn for 1 epochs;
+learn for 10 epochs;
 
 save weights to dump "/tmp/depparse.weights.dmp";
 

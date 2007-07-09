@@ -111,6 +111,10 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     return new MemCategorical(chunk, pointer.xInt, this);
   }
 
+  public void valueToChunk(Object value, MemChunk chunk, MemVector pointer) {
+    chunk.intData[pointer.xInt] = index((String)value);
+  }
+
   public void load(StreamTokenizer src, MemChunk dst, MemVector ptr) throws IOException {
     src.nextToken();
     String s = src.ttype == '"' || src.ttype == '\'' ? "\"" + src.sval + "\"" : src.sval;
