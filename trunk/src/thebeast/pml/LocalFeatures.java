@@ -258,6 +258,8 @@ public class LocalFeatures implements HasProperties {
   public void clear() {
     for (RelationVariable var : features.values())
       interpreter.clear(var);
+    for (RelationVariable var : grouped.values())
+      interpreter.clear(var);
   }
 
   /**

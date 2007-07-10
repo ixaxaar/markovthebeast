@@ -17,5 +17,5 @@ set learner.solver.integer = true;
 //set learner.solver.maxIterations = 2;
 //set learner.maxCandidates = 1;
 set learner.maxViolations = 1000;
-learn for 3 epochs;
+learn for 10 epochs;
 save weights to dump "/tmp/semtag.trained.weights";

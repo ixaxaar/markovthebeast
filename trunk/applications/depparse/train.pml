@@ -6,12 +6,12 @@ set instancesCacheSize = 5;
 
 //load corpus from conll00 "train.conll";
 
-load weights from dump "/tmp/depparse.clean.weights.dmp";
+load weights from dump "/tmp/depparse.clean.weights.2.dmp";
 
 //print weights.bias;
 
-load instances from dump "/tmp/depparse.instances.dmp";
-
+//load instances from dump "/tmp/depparse.instances.2.dmp";
+load instances from dump "/disk/home/dendrite/s0349492/tmp/depparse.instances.2.dmp";
 //set learner.solver.ilp.solver = "osi";
 //set learner.solver.ilp.solver.implementation = "clp";
 set learner.solver.maxIterations = 5;

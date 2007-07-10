@@ -38,6 +38,21 @@ public final class MemShallowIndex {
     this.chunk = data;
   }
 
+  public void init(MemDim dim, MemChunk data, int minimumCapacity){
+    this.dim = dim;
+    this.chunk = data;
+    numKeys = 0;
+    numUsedIndices = 0;
+    if (capacity < minimumCapacity) {
+      keys = new int[minimumCapacity][];
+      values = new int[minimumCapacity][];
+      keyCounts = new int[minimumCapacity];
+      this.capacity = minimumCapacity;
+    } else {
+      Arrays.fill(keyCounts,0);      
+    }
+  }
+
   public int put(int[] ints, double[] doubles, MemChunk[] chunks, int value, boolean overide) {
     return put(new MemHolder(1, 1, ints, doubles, chunks),
             MemVector.ZERO, new MemColumnSelector(ints.length, doubles.length, chunks.length), value, overide);

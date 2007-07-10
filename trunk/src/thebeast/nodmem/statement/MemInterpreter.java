@@ -640,6 +640,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
     //formatter.format("\n");
     formatter.format("%-30s%-7s\n","Java mem usage", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
+    formatter.format("%-30s%-7s\n","Java free mem", Util.toMemoryString(Runtime.getRuntime().freeMemory()));
 
     formatter.format("%s\n", TheBeast.getInstance().getNodServer().expressionBuilder().stackSize());
 

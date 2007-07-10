@@ -201,4 +201,10 @@ public class SparseVector {
   public double[] getValueArray() {
     return values.getDoubleColumn("value");
   }
+
+  public void clear(){
+    interpreter.clear(values);
+    interpreter.clear(otherValues);
+  }
+
 }

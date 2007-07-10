@@ -23,12 +23,12 @@ public class Util {
       return display + "b";
     display /= 1024.0;
     if (display < 1024)
-      return String.format("%-3.3f",display) + "kb";
+      return String.format("%-1.1f",display) + "kb";
     display /= 1024.0;
     if (display < 1024)
-      return String.format("%-3.3f",display) + "mb";
+      return String.format("%-1.1f",display) + "mb";
     display /= 1024.0;
-    return String.format("%-3.3f",display) + "gb";
+    return String.format("%-1.1f",display) + "gb";
 
   }
 

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Stack;
 
 /**
  * This object represents a list of training instances (gold feature vector, gold solution (+observation) and local
@@ -34,6 +35,10 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
   private File file;
   private Signature signature;
   private boolean loadedFromFile;
+  private Stack<LocalFeatures> allFeatures = new Stack<LocalFeatures>();
+  private Stack<LocalFeatures> usableFeatures = new Stack<LocalFeatures>();
+  private Stack<FeatureVector> allVectors = new Stack<FeatureVector>();
+  private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
 
   public TrainingInstances(Model model, File file, int maxByteSize) {
@@ -91,9 +96,21 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
       solution.load(atoms);
       model = extractor.getModel();
       weights = extractor.getWeights();
-      LocalFeatures features = new LocalFeatures(model, weights);
+      LocalFeatures features;
+      FeatureVector vector;
+      if (usableFeatures.isEmpty()){
+        features = new LocalFeatures(model, weights);
+        vector = new FeatureVector();
+        allFeatures.add(features);
+        allVectors.add(vector);
+      } else {
+        features = usableFeatures.pop();
+        vector = usableVectors.pop();
+      }
       extractor.extract(atoms, features);
-      TrainingInstance instance = new TrainingInstance(atoms, features, solution.extract(features));
+      solution.extractInPlace(features,vector);
+      //TrainingInstance instance = new TrainingInstance(atoms, features, solution.extract(features));
+      TrainingInstance instance = new TrainingInstance(atoms, features, vector);
       active.add(instance);
       byteSize += instance.getMemoryUsage();
       //++size;
@@ -120,6 +137,15 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
       instance.write(fileSink);
     }
     //fileSink.flush();
+    //clear features and make them available for reuse
+    for (LocalFeatures features : allFeatures){
+      features.clear();
+      usableFeatures.add(features);
+    }
+    for (FeatureVector vector: allVectors){
+      vector.clear();
+      usableVectors.add(vector);
+    }
     if (verbose) System.out.print(">");
     active.clear();
   }

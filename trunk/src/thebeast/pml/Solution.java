@@ -53,6 +53,8 @@ public class Solution {
 
   private Profiler profiler = new NullProfiler();
 
+  private SparseVector tmp = new SparseVector();
+
   public Solution(Model model, Weights weights) {
     groundAtoms = model.getSignature().createGroundAtoms();
     groundFormulas = new GroundFormulas(model, weights);
@@ -139,6 +141,11 @@ public class Solution {
     //extract args + index into tmp vars
     FeatureVector vector = new FeatureVector();
     //SparseVector result = new SparseVector();
+    extractInPlace(vector);
+    return vector;
+  }
+
+  private void extractInPlace(FeatureVector vector) {
     profiler.start("local");
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
       profiler.start("formula");
@@ -147,7 +154,8 @@ public class Solution {
       interpreter.assign(tmpFeatures.get(formula), localExtractors.get(formula));
       profiler.end();
 
-      SparseVector tmp = new SparseVector();
+      tmp.clear();
+      //SparseVector tmp = new SparseVector();
 
       profiler.start("summarize");
       interpreter.assign(tmp.getValuesRelation(), localSummarizer.get(formula));
@@ -162,7 +170,8 @@ public class Solution {
     profiler.end();
     profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
-      SparseVector tmp = new SparseVector();
+      //SparseVector tmp = new SparseVector();
+      tmp.clear();
       if (formula.usesWeights()) {
         if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
@@ -179,12 +188,16 @@ public class Solution {
     }
     vector.setSignedLocalweights(model,weights);
     profiler.end();
-    return vector;
   }
 
   public FeatureVector extract(LocalFeatures features) {
     //SparseVector result = new SparseVector();
     FeatureVector vector = new FeatureVector();
+    extractInPlace(features, vector);
+    return vector;
+  }
+
+  public void extractInPlace(LocalFeatures features, FeatureVector vector) {
     localFeatures.load(features);
     profiler.start("local");
     for (UserPredicate pred : model.getHiddenPredicates()) {
@@ -206,7 +219,8 @@ public class Solution {
 //      interpreter.assign(tmp.getValuesRelation(), localSummarizerForFeatures.get(pred));
 //      profiler.end();
 
-      SparseVector tmp = new SparseVector();
+      //SparseVector tmp = new SparseVector();
+      tmp.clear();
       profiler.start("collect");
       interpreter.assign(tmp.getValuesRelation(), localCollectors.get(pred));
       //System.out.println(tmp.getValuesRelation().value());
@@ -224,7 +238,8 @@ public class Solution {
     profiler.end();
     profiler.start("global");
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
-      SparseVector tmp = new SparseVector();
+      tmp.clear();
+      //SparseVector tmp = new SparseVector();
       if (formula.usesWeights()) {
         if (formula.getWeight().isNonNegative())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
@@ -242,7 +257,6 @@ public class Solution {
     }
     vector.setSignedLocalweights(model, weights);
     profiler.end();
-    return vector;
   }
 
   public void load(GroundAtoms groundAtoms, GroundFormulas groundFormulas) {
