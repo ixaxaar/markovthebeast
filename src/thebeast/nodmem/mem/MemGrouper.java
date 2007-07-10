@@ -1,19 +1,27 @@
 package thebeast.nodmem.mem;
 
 /**
+ * Important note: grouping is a class-synchronized method, i.e. in the whole VM there can only be
+ * one active group call at a time. This is because the grouper reuses memory.
  * @author Sebastian Riedel
  */
 public class MemGrouper {
 
-  public static void group(MemChunk src,
+  //private static MemShallowIndex index = new MemShallowIndex(1,null,null);
+  private static MemChunkIndex index = new MemChunkIndex(1,null);
+
+
+  public synchronized static void group(MemChunk src,
                            MemColumnSelector keyCols,
                            MemColumnSelector dstCols,
                            MemColumnSelector groupedCols,
                            int dstGroupCol,
                            MemChunk dst){
-    MemChunkIndex index = new MemChunkIndex(src.getSize(), keyCols.getDim());
+    //System.out.println(src.getSize());
+    //MemChunkIndex index = new MemChunkIndex(src.getSize(), keyCols.getDim());
+    index.init(src.getSize(), keyCols.getDim());
     MemVector srcPointer = new MemVector();
-    MemVector dstPointer;
+    MemVector dstPointer = new MemVector();
     MemDim srcDim = src.getDim();
     MemDim dstDim = dst.getDim();
     MemChunk groupCol;
@@ -23,7 +31,8 @@ public class MemGrouper {
     for (int row = 0; row < src.size; ++row){
       int old = index.put(src,srcPointer,keyCols, dstRow, false);
       if (old == -1){
-        dstPointer = new MemVector(dstRow,dstDim);
+        dstPointer.set(dstRow,dstDim);
+        //dstPointer = new MemVector(dstRow,dstDim);
         if (dstRow >= dst.capacity)
           dst.increaseCapacity(src.size - dst.capacity);
         for (int i = 0; i < keyCols.intCols.length;++i)

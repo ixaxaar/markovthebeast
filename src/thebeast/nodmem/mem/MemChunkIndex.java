@@ -1,6 +1,7 @@
 package thebeast.nodmem.mem;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * This index maps from row data to row numbers.
@@ -32,6 +33,21 @@ public final class MemChunkIndex {
     values = new int[capacity][];
     this.capacity = capacity;
     this.dim = dim;
+  }
+
+  public void init(int minimumCapacity, MemDim dim){
+    this.dim = dim;
+    numKeys = 0;
+    numUsedIndices = 0;
+    if (capacity < minimumCapacity) {
+      keys = new int[minimumCapacity][];
+      values = new int[minimumCapacity][];
+      tuples = new MemHolder[minimumCapacity];
+      this.capacity = minimumCapacity;
+    } else {
+      clear();      
+    }
+
   }
 
   public int put(int[] ints, double[] doubles, MemChunk[] chunks, int value, boolean overide) {

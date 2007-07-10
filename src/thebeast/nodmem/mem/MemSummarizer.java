@@ -9,7 +9,9 @@ public class MemSummarizer {
     INT_COUNT, INT_SUM, DOUBLE_COUNT, DOUBLE_SUM
   }
 
-  public static void summarize(MemChunk src,
+  private static MemChunkIndex index = new MemChunkIndex(1,null);
+
+  public synchronized static void summarize(MemChunk src,
                                MemFunction f,
                                MemChunk dst) {
     MemColumnSelector key2original = f.key2original;
@@ -21,9 +23,10 @@ public class MemSummarizer {
     MemChunk tmp = new MemChunk(1, 1, tmp2result.getDim());
     MemChunk wrappedTmp = new MemChunk(1, new int[0], new double[0], new MemChunk[]{tmp});
     //todo: cache this index somewhere and reuse its buffers to avoid gc.    
-    MemChunkIndex index = new MemChunkIndex(src.getSize(), key2original.getDim());
+    //MemChunkIndex index = new MemChunkIndex(src.getSize(), key2original.getDim());
+    index.init(src.getSize(), key2original.getDim());
     MemVector srcPointer = new MemVector();
-    MemVector dstPointer;
+    MemVector dstPointer = new MemVector();
     MemDim srcDim = src.getDim();
     MemDim dstDim = dst.getDim();
     MemChunk[] chunks = new MemChunk[]{src};
@@ -36,7 +39,8 @@ public class MemSummarizer {
       rows[0] = row;
       int old = index.put(src, srcPointer, key2original, dstRow, false);
       if (old == -1) {
-        dstPointer = new MemVector(dstRow, dstDim);
+        dstPointer.set(dstRow,dstDim);
+        //dstPointer = new MemVector(dstRow, dstDim);
         if (dstRow >= dst.capacity)
           dst.increaseCapacity(src.size - dst.capacity);
         //copy keys

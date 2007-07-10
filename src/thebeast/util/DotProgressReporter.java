@@ -46,6 +46,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
       if (performanceAvailable){
         out.printf(" %3.2f %3.2f", loss / count, (double) iterationCount / count);
       } 
+      out.print(" " + Util.toMemoryString(Runtime.getRuntime().totalMemory()));
       out.println();
 
       //System.gc();

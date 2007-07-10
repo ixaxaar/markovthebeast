@@ -21,6 +21,7 @@ public class FeatureVector {
   private RelationVariable localNNIndices,localNPIndices;
 
   private static Heading indexHeading;
+  private Interpreter interpreter;
 
   static {
     TypeFactory typeFactory = TheBeast.getInstance().getNodServer().typeFactory();
@@ -32,7 +33,7 @@ public class FeatureVector {
     free = new SparseVector();
     nonnegative = new SparseVector();
     nonpositive = new SparseVector();
-    Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    interpreter = TheBeast.getInstance().getNodServer().interpreter();
     localNNIndices = interpreter.createRelationVariable(indexHeading);
     localNPIndices = interpreter.createRelationVariable(indexHeading);
   }
@@ -49,6 +50,11 @@ public class FeatureVector {
     return nonpositive;
   }
 
+  /**
+   * Tells the vector which indices of local features refer to signed/bounded features
+   * @param model model to take the weight functions from
+   * @param weights weights
+   */
   public void setSignedLocalweights(Model model, Weights weights){
     int[] localWeights = getLocal().getIndexArray();
     localNNIndices.assignByArray(
@@ -117,4 +123,13 @@ public class FeatureVector {
     this.nonnegative.load(vector.nonnegative);
     this.nonpositive.load(vector.nonpositive);
   }
+
+  public void clear(){
+    interpreter.clear(localNNIndices);
+    interpreter.clear(localNPIndices);
+    nonnegative.clear();
+    nonpositive.clear();
+    free.clear();
+  }
+
 }

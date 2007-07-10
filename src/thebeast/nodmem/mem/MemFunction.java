@@ -12,7 +12,6 @@ public final class MemFunction {
   public MemChunkIndex index;
   public int groupAtt;
 
-
   public enum Type {
     COPY,
     VOID,
@@ -219,6 +218,7 @@ public final class MemFunction {
     this.dstCols = dstCols;
     this.groupCols = groupCols;
     this.dstGroupCol = dstGroupCol;
+    
     buildStacks();
   }
 

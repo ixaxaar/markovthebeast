@@ -1,20 +1,19 @@
 package thebeast.pml.training;
 
+import thebeast.nod.FileSink;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
-import thebeast.nod.FileSink;
 import thebeast.pml.*;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
-import thebeast.pml.solve.ilp.ILPSolverLpSolve;
-import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * @author Sebastian Riedel
@@ -50,6 +49,8 @@ public class OnlineLearner implements Learner, HasProperties {
   private boolean initializeWeights = false;
   private double initialWeight = 0;
   private String savePrefix = "/tmp/epoch_";
+  private Stack<FeatureVector> allVectors = new Stack<FeatureVector>();
+  private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
   private int numEpochs;
   private int maxViolations = 1;//Integer.MAX_VALUE;
@@ -300,7 +301,15 @@ public class OnlineLearner implements Learner, HasProperties {
 //        }
         solution.getGroundAtoms().load((guessAtoms));
         solution.getGroundFormulas().load(candidateFormulas.get(i));
-        FeatureVector features = solution.extract(this.features);
+        FeatureVector features;
+        if (usableVectors.isEmpty()){
+          features = new FeatureVector();
+          allVectors.push(features);
+        } else {
+          features = usableVectors.pop();
+        }
+        solution.extractInPlace(this.features,features);
+//        FeatureVector features = solution.extract(this.features);
         candidates.add(features);
         losses.add(lossFunction.loss(goldAtoms, guessAtoms));
         //new SentencePrinter().print(guessAtoms, System.out);
@@ -312,7 +321,15 @@ public class OnlineLearner implements Learner, HasProperties {
             && candidates.size() < maxCandidates && solver.doesOwnLocalSearch()) {
       solution.getGroundAtoms().load(solver.getGreedyAtoms());
       solution.getGroundFormulas().load(solver.getGreedyFormulas());
-      FeatureVector features = solution.extract(this.features);
+      FeatureVector features;
+      if (usableVectors.isEmpty()){
+        features = new FeatureVector();
+        allVectors.push(features);
+      } else {
+        features = usableVectors.pop();
+      }
+      solution.extractInPlace(this.features,features);
+      //FeatureVector features = solution.extract(this.features);
       //System.out.println(features.getLocal());
       //features.getNonnegative().load(gold.getNonnegative());
       //features.getNonpositive().load(gold.getNonpositive());
@@ -333,6 +350,12 @@ public class OnlineLearner implements Learner, HasProperties {
     updateAverage();
 
     progressReporter.progressed(loss, solver.getIterationCount());
+
+    //add feature vectors for reuse
+    for (FeatureVector vector: allVectors){
+      vector.clear();
+      usableVectors.add(vector);
+    }
 
 //    for (UserPredicate pred : model.getHiddenPredicates()) {
 //      System.out.println(goldAtoms.getGroundAtomsOf(pred));

@@ -106,8 +106,8 @@ public class LocalFeatureExtractor {
 //      for (Insert insert : inserts.get(pred))
 //        interpreter.interpret(insert);
       for (RelationExpression expression : queries.get(pred)) {
-        interpreter.insert(features.getRelation(pred), expression);
-        //interpreter.append(features.getRelation(pred), expression);
+        //interpreter.insert(features.getRelation(pred), expression);
+        interpreter.append(features.getRelation(pred), expression);
       }
     }
     features.invalidate();
