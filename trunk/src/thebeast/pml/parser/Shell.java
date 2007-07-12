@@ -694,7 +694,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       corpusEvaluation.add(evaluation);
       dst.append(solver.getBestAtoms());
       double loss = lossFunction.loss(gold, solver.getBestAtoms());
-      reporter.progressed(loss, 1);
+      reporter.progressed(loss, solver.getIterationCount());
       //System.out.println(loss);
     }
     reporter.finished();
