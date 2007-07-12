@@ -44,7 +44,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
       out.printf("%6d", count + 1);
 
       if (performanceAvailable){
-        out.printf(" %3.2f %3.2f", loss / count, (double) iterationCount / count);
+        out.printf(" %3.3f %3.2f", loss / count, (double) iterationCount / count);
       } 
       out.print(" " + Util.toMemoryString(Runtime.getRuntime().totalMemory()));
       out.println();
@@ -70,13 +70,13 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     }
     long time = stopWatch.stopAndContinue();
     out.println();
-    out.printf("%-20s%-6d\n", "Processed:", count);
-    out.printf("%-20s%-6.2f\n", "Time(in s):", time/1000.0);
-    out.printf("%-20s%-6d\n", "Avg. time(in ms):", time/count);
-    out.printf("%-20s%-6d\n", "Memory use(in mb):", Runtime.getRuntime().totalMemory()/1000000);
+    out.printf("%-15s%-6d\n", "Processed:", count);
+    out.printf("%-15s%-6s\n", "Time:", Util.toTimeString(time));
+    out.printf("%-15s%-6s\n", "Avg. time:", Util.toTimeString(time/count));
+    out.printf("%-15s%-6s\n", "Memory use:", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
     if (performanceAvailable){
-      out.printf("%-20s%-6.2f\n", "Loss: ", loss / count);
-      out.printf("%-20s%-6.2f\n", "Iterations: ", (double) iterationCount / count);
+      out.printf("%-15s%-6.3f\n", "Loss: ", loss / count);
+      out.printf("%-15s%-6.2f\n", "Iterations: ", (double) iterationCount / count);
     }
   }
 }
