@@ -59,7 +59,7 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
     semtagModel.addFactorFormula(builder.produceFactorFormula("atLeastOne"));
 
     //word feature
-    builder.var("Int", "t").var("Word", "w").var("Slot","s").quantify().
+    builder.var("Int", "t").var("Word", "w").var("Slot", "s").quantify().
             var("t").var("w").atom("word").condition().
             var("t").var("s").atom("slot").formula().
             var("w").var("s").apply("w_word").weight();
@@ -67,12 +67,12 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
     semtagModel.addFactorFormula(builder.produceFactorFormula());
 
     //slot pair feature
-    builder.var("Int", "t1").var("Int", "t2").var("Slot","s1").var("Slot","s2").quantify().
+    builder.var("Int", "t1").var("Int", "t2").var("Slot", "s1").var("Slot", "s2").quantify().
             var("t1").dontCare().atom("word").var("t2").dontCare().atom("word").var("t1").var("t2").intLessThan().and(3).condition().
             var("t1").var("s1").atom("slot").var("t2").var("s2").atom("slot").and(2).formula().
             var("s1").var("s2").apply("w_slotpair").weight();
 
-    semtagModel.addFactorFormula(builder.produceFactorFormula());
+    semtagModel.addFactorFormula(builder.produceFactorFormula("slotPair"));
 
 
     semtagAtoms = semtagSig.createGroundAtoms();
@@ -94,7 +94,7 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
             "5  FROM_LOC\n" +
             "6  O\n" +
             "7  TO_LOC\n");
-    
+
 
     setUpWeights();
 
@@ -139,6 +139,28 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
 
   }
 
+  public void testSolveOrdered() {
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(semtagModel, erWeights, new ILPSolverLpSolve());
+    ilp.setInitIntegers(true);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(semtagModel, erWeights);
+    //cuttingPlaneSolver.setEnforceIntegers(true);
+    cuttingPlaneSolver.setObservation(semtagAtoms);
+    cuttingPlaneSolver.setOrder(semtagModel.getFactorFormula("atMostOne"), 0);
+    cuttingPlaneSolver.setOrder(semtagModel.getFactorFormula("slotPair"), 1);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getHistoryString());
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+
+    assertEquals(5,cuttingPlaneSolver.getIterationCount());
+
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
   public void testSolveInitIntegerGroundAll() {
 
     IntegerLinearProgram ilp = new IntegerLinearProgram(semtagModel, erWeights, new ILPSolverLpSolve());
@@ -160,27 +182,27 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
     Evaluation evaluation = new Evaluation(semtagModel);
     evaluation.evaluate(semtagAtoms, bestAtoms);
     System.out.println(evaluation);
-    assertEquals(1.0,evaluation.getF1());
+    assertEquals(1.0, evaluation.getF1());
   }
 
   private void setUpWeights() {
     erWeights = semtagSig.createWeights();
-    erWeights.addWeight("w_word", 1.0, "\"I\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"want\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"a\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"flight\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"from\"","O");
-    erWeights.addWeight("w_word", 2.0, "\"Edinburgh\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"to\"","O");
-    erWeights.addWeight("w_word", 1.0, "\"Tokyo\"","O");
-    erWeights.addWeight("w_word", 4.0, "\"Edinburgh\"","FROM_LOC");
-    erWeights.addWeight("w_word", 4.0, "\"Edinburgh\"","TO_LOC");
-    erWeights.addWeight("w_word", 4.0, "\"Tokyo\"","FROM_LOC");
-    erWeights.addWeight("w_word", 4.0, "\"Tokyo\"","TO_LOC");
-    erWeights.addWeight("w_slotpair", - 8.0, "FROM_LOC", "FROM_LOC");
-    erWeights.addWeight("w_slotpair", - 1.5, "TO_LOC", "FROM_LOC");
-    erWeights.addWeight("w_slotpair", - 1.0, "FROM_LOC", "TO_LOC");
-    erWeights.addWeight("w_slotpair", - 4.0, "TO_LOC", "TO_LOC");
+    erWeights.addWeight("w_word", 1.0, "\"I\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"want\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"a\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"flight\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"from\"", "O");
+    erWeights.addWeight("w_word", 2.0, "\"Edinburgh\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"to\"", "O");
+    erWeights.addWeight("w_word", 1.0, "\"Tokyo\"", "O");
+    erWeights.addWeight("w_word", 4.0, "\"Edinburgh\"", "FROM_LOC");
+    erWeights.addWeight("w_word", 4.0, "\"Edinburgh\"", "TO_LOC");
+    erWeights.addWeight("w_word", 4.0, "\"Tokyo\"", "FROM_LOC");
+    erWeights.addWeight("w_word", 4.0, "\"Tokyo\"", "TO_LOC");
+    erWeights.addWeight("w_slotpair", -8.0, "FROM_LOC", "FROM_LOC");
+    erWeights.addWeight("w_slotpair", -1.5, "TO_LOC", "FROM_LOC");
+    erWeights.addWeight("w_slotpair", -1.0, "FROM_LOC", "TO_LOC");
+    erWeights.addWeight("w_slotpair", -4.0, "TO_LOC", "TO_LOC");
   }
 
 

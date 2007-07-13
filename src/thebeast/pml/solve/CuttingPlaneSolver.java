@@ -56,17 +56,38 @@ public class CuttingPlaneSolver implements Solver {
 
   private HashSet<FactorFormula> groundAll = new HashSet<FactorFormula>();
 
+  private HashMap<Integer, FactorSet> factorSets = new HashMap<Integer, FactorSet>();
+  private HashMap<FactorFormula, Integer> factor2order = new HashMap<FactorFormula, Integer>();
+  private ArrayList<FactorSet> orderedFactors = new ArrayList<FactorSet>();
+
+  /**
+   * Creates a new solver that uses ILP as propositional model and LpSolve as ILP solver.
+   */
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
     this(new IntegerLinearProgram(new ILPSolverLpSolve()));
   }
 
 
+  /**
+   * Creates a new solver using the given propositional model to represent and solve the grounded networks.
+   *
+   * @param propositionalModel the model the solve will use to represent and in turn solve the partially grounded
+   *                           networks it creates during its iterations.
+   */
   public CuttingPlaneSolver(PropositionalModel propositionalModel) {
     this.propositionalModel = propositionalModel;
     propositionalModel.setProfiler(profiler);
   }
 
+  /**
+   * Defines whether the given formula should be grounded in advance. Note that if there is one more formulas
+   * which have to be grounded in advance, the solver won't do an initial greedy step. The first problem is then
+   * solved using the propositional model/solver.
+   *
+   * @param formula     the formula to be grounded in advance (or not)
+   * @param fullyGround true if the formula should grounded in advance, false otherwise.
+   */
   public void setFullyGround(FactorFormula formula, boolean fullyGround) {
     if (formula == null) throw new RuntimeException("formula must not be null");
     if (fullyGround)
@@ -79,6 +100,11 @@ public class CuttingPlaneSolver implements Solver {
 
   }
 
+  /**
+   * Defines whether all formulas should be grounded in advance, or none
+   *
+   * @param fullyGroundAll if true all formulas should be grounded in advance, if false none are.
+   */
   public void setFullyGroundAll(boolean fullyGroundAll) {
     for (FactorFormula formula : model.getGlobalFactorFormulas())
       setFullyGround(formula, fullyGroundAll);
@@ -97,6 +123,9 @@ public class CuttingPlaneSolver implements Solver {
     greedyAtoms = model.getSignature().createGroundAtoms();
     greedyFormulas = new GroundFormulas(model, weights);
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+
+    for (FactorFormula formula : model.getGlobalFactorFormulas())
+      setOrder(formula, 0);
   }
 
 
@@ -156,6 +185,13 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * If the solve calculates an initial purely greedy/local solution this method
+   * returns it. If it doesn't the method return value is undefined and not to be used.
+   * Check {@link #doesOwnLocalSearch()} to see whether it does.
+   *
+   * @return the greedy calculated in the last call to {@link #solve()}.
+   */
   public GroundAtoms getGreedyAtoms() {
     return greedyAtoms;
   }
@@ -201,19 +237,19 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  private void update() {
+  private void update(Collection<FactorFormula> factors) {
     profiler.start("update");
 
     profiler.start("formulas");
     //System.out.println("Grounding");
-    formulas.update(atoms);
+    formulas.update(atoms, factors);
     profiler.end();
 
     //System.out.println(formulas);
 
     profiler.start("updatemodel");
     //System.out.println("Transfer");
-    propositionalModel.update(formulas, atoms);
+    propositionalModel.update(formulas, atoms, factors);
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
@@ -277,7 +313,7 @@ public class CuttingPlaneSolver implements Solver {
 
   /**
    * @return true if the solver calculates a first solution purely based on local scores by itself, false
-   * if the first step uses constraints.
+   *         if the first step uses constraints.
    */
   public boolean doesOwnLocalSearch() {
     return groundAll.isEmpty();
@@ -307,10 +343,18 @@ public class CuttingPlaneSolver implements Solver {
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
 
+    int order = 0;
+    HashSet<FactorFormula> factors = new HashSet<FactorFormula>(orderedFactors.get(order++));
+
     if (groundAll.isEmpty()) {
       //System.out.println(ground);
       if (!initSet) initSolution();
-      update();
+      update(factors);
+      while (!propositionalModel.changed() && order < orderedFactors.size()) {
+        FactorSet set = orderedFactors.get(order++);
+        update(set);
+        factors.addAll(set);
+      }
       setGreedy();
       //System.out.println(atoms.getGroundAtomsOf("sameBib"));
     } else {
@@ -333,8 +377,13 @@ public class CuttingPlaneSolver implements Solver {
       //System.out.println("solved!");
       profiler.end();
       ++iteration;
-      update();
+      update(factors);
       addCandidate();
+      while (!propositionalModel.changed() && order < orderedFactors.size()) {
+        FactorSet set = orderedFactors.get(order++);
+        update(set);
+        factors.addAll(set);
+      }
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
       }
@@ -351,76 +400,6 @@ public class CuttingPlaneSolver implements Solver {
 
   }
 
-  /**
-   * Solves the current problem with the given number of iterations or less if optimal before. If the solver has a
-   * initial guess (either from the last time this method was called or through external specification) this guess is
-   * used as a starting point. If not a greedy solution is used as a starting point. <p/> <p>This version only adds
-   * global features/soft constraints if no hard constraints (==less than maxViolationsForNonDeterministic) are violated
-   * in the current solution.
-   *
-   * @param maxIterations the maximum number iterations to use (less if optimality is reached before).
-   */
-  public void solveAlternating(int maxIterations) {
-    //todo: factorize this! use the solve method and parametrize the update function to use
-
-    formulas.init();
-    firstFormulas.init();
-    //formulas = new GroundFormulas(model, weights);
-    //ilp = new IntegerLinearProgram(model,weights, ilpSolver);
-
-    //System.out.println(formulas);
-    //formulas = new GroundFormulas(model, weights);
-    profiler.start("solve");
-
-    holderAtoms.addAll(candidateAtoms);
-    holderFormulas.addAll(candidateFormulas);
-    candidateAtoms.clear();
-    candidateFormulas.clear();
-    iteration = 0;
-    if (!scoresSet) score();
-    propositionalModel.setClosure(scores.getClosure());
-    if (!initSet) initSolution();
-    //new SentencePrinter().print(atoms, System.out);
-
-    updateAlternating();
-    setGreedy();
-
-    //new SentencePrinter().print(atoms, System.out);
-    //System.out.println(ilp.toLpSolveFormat());
-
-    profiler.start("iterations");
-    //System.out.print(formulas.size() + " -> ");
-    //System.out.println(ilp.getNumRows());
-    while (propositionalModel.changed() && iteration < maxIterations) {
-      profiler.start("ilp.solve");
-      propositionalModel.solve(atoms);
-      //new SentencePrinter().print(atoms, System.out);
-
-      profiler.end();
-      ++iteration;
-      updateAlternating();
-      addCandidate();
-      if (enforceIntegers && propositionalModel.isFractional()) {
-        //if (enforceIntegers && !ilp.changed() && ilp.isFractional()) {
-        //System.out.println("fractional");
-        propositionalModel.enforceIntegerSolution();
-      }
-//      if (iteration == 1){
-//        System.out.print(formulas.size() + " -> ");
-//        System.out.println(ilp.getNumRows());
-//        new SentencePrinter().print(atoms,System.out);
-//        System.out.println(formulas);
-//      }
-    }
-    //System.out.print(iteration);
-    profiler.end();
-
-    done = propositionalModel.changed();
-
-    profiler.end();
-
-    if (printHistory) printHistory();
-  }
 
   private void addCandidate() {
     if (holderAtoms.isEmpty()) {
@@ -442,35 +421,6 @@ public class CuttingPlaneSolver implements Solver {
 
   }
 
-  private void deterministicFirst() {
-    profiler.start("deterministic");
-    //new SentencePrinter().print(atoms, System.out);
-
-    formulas.update(atoms);
-    //add greedy solution to candidates
-    setGreedy();
-    //addCandidate();
-    //update the ilp (but only with hard constraints)
-    propositionalModel.update(formulas, atoms, model.getDeterministicFormulas());
-    //System.out.println(ilp.toLpSolveFormat());
-    if (propositionalModel.changed()) {
-      //some constraints were violated -> lets solve
-      propositionalModel.solve(atoms);
-      //ilp.update(formulas,atoms,model.getNondeterministicFormulas());
-      //create a new set of ground formulas and a new ilp
-      update();
-      //add the first solution which takes constraints into account
-      addCandidate();
-    } else {
-      //formulas.update(atoms, model.getNondeterministicFormulas());
-      propositionalModel.update(formulas, atoms);
-    }
-
-    profiler.end();
-    //System.out.println(formulas);
-
-
-  }
 
   /**
    * Calls {@link CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by {@link
@@ -551,6 +501,38 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * Defines an ordering on the set of factor formulas. This is ordering is used to determine
+   * when the solver first inspects the solutions for violations of the given factor formula. If a factor A has
+   * the order k and another factor B has the order l > k then we will only start to look for violations of B when no
+   * no more new violations of A can be found. By default each formula has the the order 0.
+   *
+   * @param factorFormula the formula to give an order to.
+   * @param order         the order of the formula.
+   */
+  public void setOrder(FactorFormula factorFormula, int order) {
+    Integer oldOrder = factor2order.get(factorFormula);
+    if (oldOrder != null) {
+      FactorSet factorSet = factorSets.get(oldOrder);
+      factorSet.remove(factorFormula);
+      factor2order.remove(factorFormula);
+      if (factorSet.size() == 0) {
+        factorSets.remove(oldOrder);
+        orderedFactors.remove(factorSet);
+      }
+    }
+    FactorSet set = factorSets.get(order);
+    if (set == null) {
+      set = new FactorSet(order);
+      factorSets.put(order, set);
+      orderedFactors.add(set);
+      Collections.sort(orderedFactors);
+    }
+    factor2order.put(factorFormula, order);
+    set.add(factorFormula);
+  }
+
+
   public boolean isDeterministicFirst() {
     return deterministicFirst;
   }
@@ -593,6 +575,12 @@ public class CuttingPlaneSolver implements Solver {
       if (formula == null)
         throw new RuntimeException("There is no factor with name " + name.getTail().getHead());
       setFullyGround(formula, (Boolean) value);
+    } else if (name.getHead().equals("order")) {
+      String factorName = name.getTail().getHead();
+      FactorFormula formula = model.getFactorFormula(factorName);
+      if (formula == null)
+        throw new RuntimeException("There is no factor with name " + name.getTail().getHead());
+      setOrder(formula, (Integer) value);
     } else if (name.getHead().equals("maxIterations"))
       setMaxIterations((Integer) value);
     else if (name.getHead().equals("timeout"))
@@ -671,4 +659,21 @@ public class CuttingPlaneSolver implements Solver {
   public LocalFeatures getLocalFeatures() {
     return features;
   }
+
+  /**
+   * A FactorSet is a set of factors along with a number that determines when
+   * the factors of the set are first checked for in the current solution.
+   */
+  private static class FactorSet extends HashSet<FactorFormula> implements Comparable<FactorSet> {
+    public final int order;
+
+    public FactorSet(int order) {
+      this.order = order;
+    }
+
+    public int compareTo(FactorSet factorSet) {
+      return order - factorSet.order;
+    }
+  }
+
 }

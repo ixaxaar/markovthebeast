@@ -117,6 +117,27 @@ public class TestCuttingPlaneSolverEntityResolution extends TestCase {
 
   }
 
+  public void testSolveOrdered() {
+    Weights erWeights = erSig.createWeights();
+    erWeights.addWeight("w_titlebib", 2.0);
+    erWeights.addWeight("w_similarTitle", 2.0);
+
+    IntegerLinearProgram ilp = new IntegerLinearProgram(erModel, erWeights, new ILPSolverLpSolve());
+    ilp.setInitIntegers(true);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
+    cuttingPlaneSolver.configure(erModel, erWeights);
+    cuttingPlaneSolver.setOrder(erModel.getFactorFormula("sameTitle"), 1);
+    cuttingPlaneSolver.setObservation(erAtoms);
+    cuttingPlaneSolver.solve();
+
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+
+  }
+
+
   public void testSolveIncrementalIntegers() {
     Weights erWeights = erSig.createWeights();
     erWeights.addWeight("w_titlebib", 2.0);
@@ -146,7 +167,7 @@ public class TestCuttingPlaneSolverEntityResolution extends TestCase {
     System.out.println(vector.getLocal().toString());
     double score = erWeights.score(vector);
     double expectedScore = 9 * -0.01 + 2 * -0.01 + 2 * 2.0;
-    assertEquals(expectedScore,score);
+    assertEquals(expectedScore, score);
     System.out.println(expectedScore);
     System.out.println(score);
 
