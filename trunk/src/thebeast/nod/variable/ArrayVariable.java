@@ -18,4 +18,5 @@ public interface ArrayVariable extends Variable<ArrayValue,ArrayType>, ArrayExpr
 
   void fill(double value, int howmany);
 
+  int nonZeroCount(double eps);
 }

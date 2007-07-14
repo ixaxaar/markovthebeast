@@ -201,8 +201,8 @@ public class Weights implements HasProperties {
     builder.clear();
   }
 
-  public void addWeight(String weightFunction, double weight, Object ... arguments){
-    addWeight(signature.getWeightFunction(weightFunction),weight,arguments );
+  public void addWeight(String weightFunction, double weight, Object... arguments) {
+    addWeight(signature.getWeightFunction(weightFunction), weight, arguments);
   }
 
   /**
@@ -403,6 +403,14 @@ public class Weights implements HasProperties {
       //won't happen
     }
   }
+
+  /**
+   * @return the number of weights that have non zero value.
+   */
+  public int getNonZeroCount() {
+    return weights.nonZeroCount(1E-15);
+  }
+
 
   public RelationValue getWeights(WeightFunction function, Object... args) {
     builder.expr(getRelation(function)).from("args");
@@ -713,26 +721,27 @@ public class Weights implements HasProperties {
     return result;
   }
 
-  public void setAllWeights(double value){
+  public void setAllWeights(double value) {
     weights.fill(value, weights.value().size());
   }
 
 
   /**
    * Calculates dot product of the weifht vector and the given sparse vector
+   *
    * @param vector a sparse vector with indices in the range 0-#weights
    * @return the dot product of the sparse vector and this weight vector
    */
-  public double score(SparseVector vector){
+  public double score(SparseVector vector) {
     return weights.value().dotProduct(vector.getIndexArray(), vector.getValueArray());
   }
 
-  public double score(FeatureVector vector){
+  public double score(FeatureVector vector) {
     double result = 0;
     result += score(vector.getLocal());
     result += score(vector.getTrueVector());
     result += score(vector.getFalseVector());
-    return result;  
+    return result;
   }
 
   public void setProperty(PropertyName name, Object value) {
@@ -741,6 +750,8 @@ public class Weights implements HasProperties {
 
 
   public Object getProperty(PropertyName name) {
+    if ("nonzero".equals(name.getHead()))
+      return getNonZeroCount();    
     return null;
   }
 }

@@ -1,20 +1,20 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
-import thebeast.pml.formula.FactorFormula;
-import thebeast.pml.solve.ilp.IntegerLinearProgram;
-import thebeast.pml.solve.ilp.ILPSolverLpSolve;
-import thebeast.pml.solve.weightedsat.WeightedSatProblem;
-import thebeast.pml.solve.weightedsat.MaxWalkSat;
 import thebeast.pml.corpora.GroundAtomsPrinter;
 import thebeast.pml.corpora.SemtagPrinter;
+import thebeast.pml.formula.FactorFormula;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.solve.weightedsat.MaxWalkSat;
+import thebeast.pml.solve.weightedsat.WeightedSatProblem;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 import thebeast.util.TreeProfiler;
 
-import java.util.*;
-import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * A PML Solver based on the Cutting Plane algorithm and column generation.
@@ -41,7 +41,6 @@ public class CuttingPlaneSolver implements Solver {
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
-  private int maxViolationsForNonDeterministic = 1;
   private boolean alternating = false;
   private long timeout = Long.MAX_VALUE; //10000;
 
@@ -178,6 +177,11 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * Sets the propositional model to represent and solve partially grounded networks.
+   *
+   * @param propositionalModel the propositional model to be used for grounding.
+   */
   public void setPropositionalModel(PropositionalModel propositionalModel) {
     this.propositionalModel = propositionalModel;
     propositionalModel.configure(model, weights);
@@ -282,35 +286,6 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  private void updateAlternating() {
-    profiler.start("update");
-
-    profiler.start("det formulas");
-    formulas.update(atoms, model.getDeterministicFormulas());
-    profiler.end();
-
-    //System.out.print("Iteration " + iteration + ": ");
-    if (!alternating || formulas.getViolationCount() <= maxViolationsForNonDeterministic) {
-      //System.out.println("nondet");
-      profiler.start("nondet formulas");
-      formulas.update(atoms, model.getNondeterministicFormulas());
-      profiler.end();
-    } else {
-      //System.out.println("det");
-    }
-    //System.out.println(formulas);
-
-    profiler.start("ilp.update");
-    propositionalModel.update(formulas, atoms);
-    profiler.end();
-
-    //System.out.println(ilp.toLpSolveFormat());
-
-    updated = true;
-
-    profiler.end();
-  }
-
   /**
    * @return true if the solver calculates a first solution purely based on local scores by itself, false
    *         if the first step uses constraints.
@@ -344,7 +319,8 @@ public class CuttingPlaneSolver implements Solver {
     propositionalModel.setClosure(scores.getClosure());
 
     int order = 0;
-    HashSet<FactorFormula> factors = new HashSet<FactorFormula>(orderedFactors.get(order++));
+    HashSet<FactorFormula> factors = orderedFactors.size() > 0 ?
+            new HashSet<FactorFormula>(orderedFactors.get(order++)) : new HashSet<FactorFormula>();
 
     if (groundAll.isEmpty()) {
       //System.out.println(ground);
@@ -358,9 +334,11 @@ public class CuttingPlaneSolver implements Solver {
       setGreedy();
       //System.out.println(atoms.getGroundAtomsOf("sameBib"));
     } else {
+      profiler.start("ground-all");
       atoms.clear(model.getHiddenPredicates());
       propositionalModel.buildLocalModel();
       createFullyGroundedFormulas();
+      profiler.end();
       setGreedy();
     }
 
@@ -463,6 +441,11 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
   }
 
+  /**
+   * This method returns the final solution after the last iteration.
+   *
+   * @return ground atoms storing the final solution after the last iteration.
+   */
   public GroundAtoms getBestAtoms() {
     return atoms;
   }
@@ -486,6 +469,13 @@ public class CuttingPlaneSolver implements Solver {
     return new ArrayList<GroundFormulas>(candidateFormulas);
   }
 
+  /**
+   * The solver might be limited to only do a fixed number of iterations. If the solver has to stop before
+   * the propositional model is not changing anymore, it is not "done".
+   *
+   * @return true if the propositional model has not changed in the last iteration, false if the solver had
+   *         to be stopped before that.
+   */
   public boolean isDone() {
     return done;
   }
