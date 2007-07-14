@@ -1,7 +1,7 @@
 include "corpora/atis_2_3.dev.types.pml";
 
-predicate slotPair : Int x Slot x Slot;
-predicate possiblePair: Slot x Slot;
+//predicate slotPair : Int x Slot x Slot;
+//predicate possiblePair: Slot x Slot;
 predicate type1 : Slot;
 predicate type2 : Slot;
 
@@ -11,7 +11,7 @@ predicate type2 : Slot;
 //factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s1);
 //factor: for Int i, Slot s1, Slot s2: slotPair(i,s1,s2)=>slot(i,s2);
 
-global: type1, type2, possiblePair;
+global: type1, type2;//, possiblePair;
 //auxiliary: slotPair;
 hidden: slot;
 //hidden: slot, slotPair;

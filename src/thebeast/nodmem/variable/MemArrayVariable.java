@@ -70,4 +70,15 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue, ArrayType>
     memChunk.size = howmany;
 
   }
+
+  public int nonZeroCount(double eps) {
+    MemChunk memChunk = chunk.chunkData[pointer.xChunk];
+    int count = 0;
+    for (int i = 0; i < memChunk.size; ++i){
+      double value = memChunk.doubleData[i];
+      if (value < -eps || value > eps)
+        ++count;
+    }
+    return count;
+  }
 }

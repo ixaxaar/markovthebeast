@@ -503,11 +503,15 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       if (parserPrint.name.tail == null)
         weights.save(out);
       else {
-        WeightFunction function = (WeightFunction) signature.getFunction(parserPrint.name.tail.head);
-        if (parserPrint.name.tail.arguments != null) {
-          out.println(weights.getWeights(function, parserPrint.name.tail.arguments.toArray()));
+        if (parserPrint.name.tail.head.equals("nonzero")) {
+          out.println(weights.getNonZeroCount());
         } else {
-          weights.save(function, out);
+          WeightFunction function = (WeightFunction) signature.getFunction(parserPrint.name.tail.head);
+          if (parserPrint.name.tail.arguments != null) {
+            out.println(weights.getWeights(function, parserPrint.name.tail.arguments.toArray()));
+          } else {
+            weights.save(function, out);
+          }
         }
       }
     } else if ("memory".equals(parserPrint.name.head)) {
@@ -1169,7 +1173,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     solution.load(bestAtoms, solver.getCandidateAtoms().size() > 0 ?
             solver.getCandidateFormulas().get(0) : solver.getGreedyFormulas());
     evaluation.evaluate(gold, solution.getGroundAtoms());
-    for (UserPredicate pred : model.getHiddenPredicates()){
+    for (UserPredicate pred : model.getHiddenPredicates()) {
       System.out.println(pred.getName());
       for (int i = 0; i < 20; ++i) out.print("-");
       out.println();
