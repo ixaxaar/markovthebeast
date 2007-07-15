@@ -8,7 +8,7 @@ package thebeast.nodmem.mem;
 public class MemGrouper {
 
   //private static MemShallowIndex index = new MemShallowIndex(1,null,null);
-  private static MemChunkIndex index = new MemChunkIndex(1,null);
+  private static MemShallowIndex index = new MemShallowIndex(1,null, null);
 
 
   public synchronized static void group(MemChunk src,
@@ -19,7 +19,7 @@ public class MemGrouper {
                            MemChunk dst){
     //System.out.println(src.getSize());
     //MemChunkIndex index = new MemChunkIndex(src.getSize(), keyCols.getDim());
-    index.init(src.getSize(), keyCols.getDim());
+    index.init(keyCols.getDim(), dst,src.getSize());
     MemVector srcPointer = new MemVector();
     MemVector dstPointer = new MemVector();
     MemDim srcDim = src.getDim();
