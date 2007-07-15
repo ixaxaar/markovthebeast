@@ -24,6 +24,9 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     dotInterval = stepsPerDot;
     chunkInterval = stepsPerDot * dotsPerChunk;
     lineInterval = stepsPerDot * dotsPerChunk * chunksPerLine;
+    values = new double[0];
+    names = new String[0];
+    formats = new String[0];
   }
 
   public void started() {
@@ -93,6 +96,9 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     out.printf("%-15s%-6s\n", "Time:", Util.toTimeString(time));
     out.printf("%-15s%-6s\n", "Avg. time:", Util.toTimeString(time/count));
     out.printf("%-15s%-6s\n", "Memory use:", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
+    for (int i = 0; i < values.length; ++i){
+      out.printf("%-15s%" + formats[i], names[i], values[i] / count);      
+    }
     if (performanceAvailable){
       out.printf("%-15s%-6.3f\n", "Loss: ", loss / count);
       out.printf("%-15s%-6.2f\n", "Iterations: ", (double) iterationCount / count);
