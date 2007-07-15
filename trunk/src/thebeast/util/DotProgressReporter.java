@@ -1,8 +1,7 @@
 package thebeast.util;
 
-import thebeast.pml.TheBeast;
-
 import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 19-Feb-2007 Time: 17:34:18
@@ -17,6 +16,8 @@ public class DotProgressReporter implements PerformanceProgressReporter {
   private double loss;
   private boolean performanceAvailable;
   private int iterationCount;
+  private double[] values;
+  private String[] names, formats;
 
   public DotProgressReporter(PrintStream out, int stepsPerDot, int dotsPerChunk, int chunksPerLine) {
     this.out = out;
@@ -29,6 +30,7 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     count = 0;
     loss =  0;
     iterationCount = 0;
+    Arrays.fill(values,0.0);
     stopWatch.start();
   }
 
@@ -37,12 +39,29 @@ public class DotProgressReporter implements PerformanceProgressReporter {
     out.println("Started " + name + ":");
   }
 
+  public void setColumns(String ... names){
+    values = new double[names.length];
+    this.names = new String[names.length];
+    System.arraycopy(names,0,this.names,0,names.length);
+    formats = new String[names.length];
+    Arrays.fill(formats,"%3.3f");
+  }
+
+  public void progressed(double ... values){
+    for (int i = 0; i < values.length;++i){
+      this.values[i] += values[i];
+    }
+    progressed();
+  }
+
   public void progressed() {
     if (count % dotInterval == dotInterval - 1) out.print(".");
     if (count % chunkInterval == chunkInterval - 1) out.print(" ");
     if (count % lineInterval == lineInterval - 1) {
       out.printf("%6d", count + 1);
-
+      for (int i = 0; i < values.length; ++i){
+        out.printf(formats[i] + " ",values[i] / count);
+      }
       if (performanceAvailable){
         out.printf(" %3.3f %3.2f", loss / count, (double) iterationCount / count);
       } 

@@ -9,7 +9,7 @@ public class MemSummarizer {
     INT_COUNT, INT_SUM, DOUBLE_COUNT, DOUBLE_SUM
   }
 
-  private static MemChunkIndex index = new MemChunkIndex(1,null);
+  private static MemShallowIndex index = new MemShallowIndex(1,null, null);
 
   public synchronized static void summarize(MemChunk src,
                                MemFunction f,
@@ -24,7 +24,7 @@ public class MemSummarizer {
     MemChunk wrappedTmp = new MemChunk(1, new int[0], new double[0], new MemChunk[]{tmp});
     //todo: cache this index somewhere and reuse its buffers to avoid gc.    
     //MemChunkIndex index = new MemChunkIndex(src.getSize(), key2original.getDim());
-    index.init(src.getSize(), key2original.getDim());
+    index.init(key2original.getDim(), dst, src.getSize());
     MemVector srcPointer = new MemVector();
     MemVector dstPointer = new MemVector();
     MemDim srcDim = src.getDim();
