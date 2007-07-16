@@ -38,8 +38,8 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     else {
       os.print("{");
       int index = 0;
-      for (TupleExpression expr : relationSelector.tupleExpressions()){
-        if (index ++ > 0) os.print(", ");
+      for (TupleExpression expr : relationSelector.tupleExpressions()) {
+        if (index++ > 0) os.print(", ");
         expr.acceptExpressionVisitor(this);
       }
       os.print("}");
@@ -55,12 +55,12 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     os.print("SELECT ");
     query.select().acceptExpressionVisitor(this);
     os.print(" FROM ");
-    for (int i = 0; i < query.prefixes().size(); ++i){
+    for (int i = 0; i < query.prefixes().size(); ++i) {
       if (i > 0) os.print(", ");
       query.relations().get(i).acceptExpressionVisitor(this);
       os.print(" " + query.prefixes().get(i));
     }
-    if (query.where() != null){
+    if (query.where() != null) {
       os.print(" WHERE ");
       query.where().acceptExpressionVisitor(this);
     }
@@ -70,12 +70,12 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     os.print("INSERT ");
     query.insert().acceptExpressionVisitor(this);
     os.print(" FROM ");
-    for (int i = 0; i < query.prefixes().size(); ++i){
+    for (int i = 0; i < query.prefixes().size(); ++i) {
       if (i > 0) os.print(", ");
       query.relations().get(i).acceptExpressionVisitor(this);
       os.print(" " + query.prefixes().get(i));
     }
-    if (query.where() != null){
+    if (query.where() != null) {
       os.print(" WHERE ");
       query.where().acceptExpressionVisitor(this);
     }
@@ -100,7 +100,7 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
 
   public void visitAnd(And and) {
     int index = 0;
-    for (BoolExpression arg : and.arguments()){
+    for (BoolExpression arg : and.arguments()) {
       if (index++ > 0) os.print(" & ");
       arg.acceptExpressionVisitor(this);
     }
@@ -118,14 +118,14 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
 
 
   public void visitCategoricalConstant(CategoricalConstant categoricalConstant) {
-    os.print("\"" + categoricalConstant.representation()+ "\"");
+    os.print("\"" + categoricalConstant.representation() + "\"");
   }
 
   public void visitArrayCreator(ArrayCreator arrayCreator) {
     os.print("[");
     int index = 0;
     for (Expression arg : arrayCreator.elements()) {
-      if (index ++ > 0) os.print(", ");
+      if (index++ > 0) os.print(", ");
       arg.acceptExpressionVisitor(this);
     }
     os.print("]");
@@ -149,8 +149,8 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     group.relation().acceptExpressionVisitor(this);
     os.print(" BY (");
     int index = 0;
-    for (String att : group.attributes()){
-      if (index ++ > 0) os.print(", ");
+    for (String att : group.attributes()) {
+      if (index++ > 0) os.print(", ");
       os.print(att);
     }
     os.print(")");
@@ -242,6 +242,22 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     intAdd.leftHandSide().acceptExpressionVisitor(this);
     os.print(" + ");
     intAdd.rightHandSide().acceptExpressionVisitor(this);
+    os.print(")");
+  }
+
+  public void visitIntMin(IntMin intMin) {
+    os.print("min(");
+    intMin.leftHandSide().acceptExpressionVisitor(this);
+    os.print(", ");
+    intMin.rightHandSide().acceptExpressionVisitor(this);
+    os.print(")");
+  }
+
+  public void visitIntMax(IntMax intMax) {
+    os.print("max(");
+    intMax.leftHandSide().acceptExpressionVisitor(this);
+    os.print(", ");
+    intMax.rightHandSide().acceptExpressionVisitor(this);
     os.print(")");
   }
 
@@ -352,7 +368,7 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     if (doubleAttribute.prefix() != null)
       os.print(doubleAttribute.prefix());
     os.print(":");
-    os.print(doubleAttribute.attribute().name());    
+    os.print(doubleAttribute.attribute().name());
   }
 
   public void visitDoubleGreaterThan(DoubleGreaterThan doubleGreaterThan) {
@@ -432,11 +448,11 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     summarize.relation().acceptExpressionVisitor(this);
     os.print(" BY ");
     int index = 0;
-    for (String name : summarize.by()){
-      if (index ++ > 0) os.print(", ");
+    for (String name : summarize.by()) {
+      if (index++ > 0) os.print(", ");
       os.print(name);
     }
-    for (int i = 0; i < summarize.add().size();++i) {
+    for (int i = 0; i < summarize.add().size(); ++i) {
       os.print(" ");
       os.print(summarize.specs().get(i).name());
       os.print(" ");
@@ -448,7 +464,7 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
   public void visitUnion(Union union) {
     int index = 0;
     os.print("UNION ");
-    for (RelationExpression rel : union.arguments()){
+    for (RelationExpression rel : union.arguments()) {
       if (index++ > 0) os.print(", ");
       rel.acceptExpressionVisitor(this);
     }
@@ -457,8 +473,8 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
   public void visitIntBin(IntBins intBins) {
     os.print("[");
     int index = 0;
-    for (int bin : intBins.bins()){
-      if (index++>0) os.print(", ");
+    for (int bin : intBins.bins()) {
+      if (index++ > 0) os.print(", ");
       os.print(bin);
     }
     os.print("](");
@@ -471,13 +487,13 @@ public class ExpressionPrinter extends AbstractExpressionVisitor {
     indexCollector.grouped().acceptExpressionVisitor(this);
   }
 
-  public void visitOperatorInvocation(OperatorInvocation operatorInvocation){
+  public void visitOperatorInvocation(OperatorInvocation operatorInvocation) {
     os.print(operatorInvocation.operator().name());
     os.print("(");
     int index = 0;
-    for (Object obj : operatorInvocation.args()){
-      Expression expr  = (Expression) obj;
-      if (index ++ > 0) os.print(", ");
+    for (Object obj : operatorInvocation.args()) {
+      Expression expr = (Expression) obj;
+      if (index++ > 0) os.print(", ");
       expr.acceptExpressionVisitor(this);
 
     }

@@ -934,7 +934,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitComparison(ParserComparison parserComparison) {
     Term lhs, rhs;
-    if (parserComparison.type == ParserComparison.Type.NEQ) {
+    if (parserComparison.type == ParserComparison.Type.NEQ || parserComparison.type == ParserComparison.Type.EQ ) {
       if (parserComparison.lhs instanceof ParserNamedConstant) {
         parserComparison.rhs.acceptParserTermVisitor(this);
         rhs = term;
@@ -958,6 +958,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       rhs = term;
     }
     switch (parserComparison.type) {
+      case EQ:
+        formula = new PredicateAtom(signature.createEquals(Type.INT), lhs, rhs);
+        break;
       case NEQ:
         formula = new PredicateAtom(signature.createNotEquals(Type.INT), lhs, rhs);
         break;

@@ -34,26 +34,6 @@ public final class MemChunkIndex {
     this.dim = dim;
   }
 
-  /**
-   * Don't use this method!
-   *
-   * @param minimumCapacity
-   * @param dim
-   */
-  public void init(int minimumCapacity, MemDim dim) {
-    this.dim = dim;
-    numKeys = 0;
-    numUsedIndices = 0;
-    if (capacity < minimumCapacity) {
-      keys = new int[minimumCapacity][];
-      values = new int[minimumCapacity][];
-      tuples = new MemHolder[minimumCapacity];
-      this.capacity = minimumCapacity;
-    } else {
-      clear();
-    }
-
-  }
 
   public int put(int[] ints, double[] doubles, MemChunk[] chunks, int value, boolean overide) {
     return put(new MemHolder(1, 1, ints, doubles, chunks),

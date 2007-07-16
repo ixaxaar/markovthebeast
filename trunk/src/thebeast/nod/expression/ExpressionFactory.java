@@ -73,6 +73,10 @@ public interface ExpressionFactory {
 
   IntAdd createIntAdd(IntExpression leftHandSide, IntExpression rightHandSide);
 
+  IntMin createIntMin(IntExpression leftHandSide, IntExpression rightHandSide);
+
+  IntMax createIntMax(IntExpression leftHandSide, IntExpression rightHandSide);
+
   DoubleAdd createDoubleAdd(DoubleExpression leftHandSide, DoubleExpression rightHandSide);
 
   DoubleMinus createDoubleMinus(DoubleExpression leftHandSide, DoubleExpression rightHandSide);

@@ -2,6 +2,8 @@ package thebeast.nod.expression;
 
 import thebeast.nod.variable.*;
 import thebeast.nodmem.expression.MemDoubleDivide;
+import thebeast.nodmem.expression.MemIntMin;
+import thebeast.nodmem.expression.MemIntMax;
 
 /**
  * @author Sebastian Riedel
@@ -81,6 +83,10 @@ public interface ExpressionVisitor {
   void visitDoubleCast(DoubleCast doubleCast);
 
   void visitIntAdd(IntAdd intAdd);
+
+  void visitIntMin(IntMin intMin);
+
+  void visitIntMax(IntMax intMax);  
 
   void visitIntMinus(IntMinus intMinus);
 

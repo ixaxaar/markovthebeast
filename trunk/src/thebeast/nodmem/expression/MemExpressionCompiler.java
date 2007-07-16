@@ -598,6 +598,22 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     function = new MemFunction(MemFunction.Type.INT_ADD, lhs, rhs);
   }
 
+  public void visitIntMin(IntMin intMin) {
+    intMin.leftHandSide().acceptExpressionVisitor(this);
+    MemFunction lhs = function;
+    intMin.rightHandSide().acceptExpressionVisitor(this);
+    MemFunction rhs = function;
+    function = new MemFunction(MemFunction.Type.INT_MIN, lhs, rhs);
+  }
+
+  public void visitIntMax(IntMax intMax) {
+    intMax.leftHandSide().acceptExpressionVisitor(this);
+    MemFunction lhs = function;
+    intMax.rightHandSide().acceptExpressionVisitor(this);
+    MemFunction rhs = function;
+    function = new MemFunction(MemFunction.Type.INT_MAX, lhs, rhs);
+  }
+
   public void visitIntMinus(IntMinus intMinus) {
     intMinus.leftHandSide().acceptExpressionVisitor(this);
     MemFunction lhs = function;

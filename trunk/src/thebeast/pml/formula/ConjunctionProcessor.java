@@ -66,10 +66,10 @@ public class ConjunctionProcessor {
   }
 
 
-  public void resolveBruteForce(final Context context, Atom atom){
+  public void resolveBruteForce(final Context context, Atom atom) {
     ArrayList<SignedAtom> atoms = new ArrayList<SignedAtom>(1);
-    atoms.add(new SignedAtom(true,atom));
-    resolveBruteForce(context,atoms);
+    atoms.add(new SignedAtom(true, atom));
+    resolveBruteForce(context, atoms);
   }
 
   public void resolveBruteForce(final Context context, List<SignedAtom> conjunction) {
@@ -221,6 +221,27 @@ public class ConjunctionProcessor {
             }
 
             public void visitPredicate(Predicate predicate) {
+              if (predicate.getName().equals("equals")) {
+
+                Term lhs = predicateAtom.getArguments().get(0);
+                Term rhs = predicateAtom.getArguments().get(1);
+                Term lhsResolved = termResolver.resolve(lhs, context.var2term);
+                int lhsUnsresolved = termResolver.getUnresolved().size();
+                Term rhsResolved = termResolver.resolve(rhs, context.var2term);
+                int rhsUnsresolved = termResolver.getUnresolved().size();
+                if (lhs instanceof Variable && lhsUnsresolved == 1 && rhsUnsresolved == 0) {
+                  context.var2term.put((Variable) lhs,rhsResolved);
+                  context.var2expr.put((Variable) lhs,
+                          exprGenerator.convertTerm(rhsResolved, groundAtoms, weights,context.var2expr, context.var2term));
+                  return;
+                } else if (rhs instanceof Variable && rhsUnsresolved == 1 && lhsUnsresolved == 0) {
+                  context.var2term.put((Variable) rhs,lhsResolved);
+                  context.var2expr.put((Variable) rhs,
+                          exprGenerator.convertTerm(lhsResolved, groundAtoms, weights,context.var2expr, context.var2term));
+                  return;
+                }
+
+              }
               BooleanFormula resolved = formulaResolver.resolve(atom, context.var2term);
               if (resolved == null) {
                 if (triedOnce.contains(signedAtom)) {
@@ -261,6 +282,8 @@ public class ConjunctionProcessor {
             public void visitIntGEQ(IntGEQ intGEQ) {
               visitPredicate(intGEQ);
             }
+
+
           });
 
         }

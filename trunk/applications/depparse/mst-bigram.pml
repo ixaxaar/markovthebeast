@@ -5,6 +5,7 @@
    We call head attributes h_x and modifier attributes m_x */
 
 //h_pos, m_pos (and derivations)
+//min(l,h,m) & max(r,h,m)
 weight pos : Pos x Pos -> Double;
 factor :
   for Int h, Int m, Pos h_pos, Pos m_pos

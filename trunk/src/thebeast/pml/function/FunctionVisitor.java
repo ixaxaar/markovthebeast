@@ -12,4 +12,8 @@ public interface FunctionVisitor {
   void visitIntAdd(IntAdd intAdd);
 
   void visitIntMinus(IntMinus intMinus);
+
+  void visitIntMin(IntMin intMin);
+
+  void visitIntMax(IntMax intMax);
 }

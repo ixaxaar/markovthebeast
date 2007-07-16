@@ -1,9 +1,6 @@
 package thebeast.pml.term;
 
-import thebeast.pml.function.FunctionVisitor;
-import thebeast.pml.function.IntAdd;
-import thebeast.pml.function.IntMinus;
-import thebeast.pml.function.WeightFunction;
+import thebeast.pml.function.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -64,6 +61,23 @@ public class TermPrinter implements TermVisitor {
         out.print("(");
         functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
         out.print(" - ");
+        functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+
+      }
+
+      public void visitIntMin(IntMin intMin) {
+        out.print("min(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(", ");
+        functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
+
+      public void visitIntMax(IntMax intMax) {
+        out.print("max(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(", ");
         functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
         out.print(")");
 

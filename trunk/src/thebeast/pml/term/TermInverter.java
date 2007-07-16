@@ -12,14 +12,16 @@ import thebeast.util.HashMultiMapList;
 public class TermInverter implements TermVisitor{
 
   private Variable argument;
-  private Term result;
+  private Term result, term;
   private HashMultiMapList<Term,Term> children;
   ChildrenCollector collector = new ChildrenCollector();
+
 
 
   public Term invert(Term term, Variable lhs, Variable argument){
     this.argument = argument;
     this.result = lhs;
+    this.term = term;
     children = collector.collect(term);
     term.acceptTermVisitor(this);
     return result;
@@ -59,6 +61,14 @@ public class TermInverter implements TermVisitor{
           rhs.acceptTermVisitor(TermInverter.this);
         }
 
+      }
+
+      public void visitIntMin(IntMin intMin) {
+        throw new RuntimeException("We can't invert min function " + intMin + " in " + term);
+      }
+
+      public void visitIntMax(IntMax intMax) {
+        throw new RuntimeException("We can't invert max function " + intMax + " in " + term);
       }
     });
   }

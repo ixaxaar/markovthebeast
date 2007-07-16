@@ -63,6 +63,12 @@ public class MemEvaluator {
         case INT_ADD:
           int_add(argChunk, returnChunk, argPointerVec);
           break;
+        case INT_MIN:
+          int_min(argChunk, returnChunk, argPointerVec);
+          break;
+        case INT_MAX:
+          int_max(argChunk, returnChunk, argPointerVec);
+          break;
         case INT_MINUS:
           int_minus(argChunk, returnChunk, argPointerVec);
           break;
@@ -379,11 +385,11 @@ public class MemEvaluator {
       result = new MemChunk(1, 1, src.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     }
-    if (argChunk.chunkData[0].intData != null  && argChunk.chunkData[0].dim.xInt > 0)
+    if (argChunk.chunkData[0].intData != null && argChunk.chunkData[0].dim.xInt > 0)
       System.arraycopy(argChunk.chunkData[0].intData, 0, result.intData, 0, argChunk.chunkData[0].dim.xInt);
-    if (argChunk.chunkData[0].doubleData != null && argChunk.chunkData[0].dim.xDouble > 0 )
+    if (argChunk.chunkData[0].doubleData != null && argChunk.chunkData[0].dim.xDouble > 0)
       System.arraycopy(argChunk.chunkData[0].doubleData, 0, result.doubleData, 0, argChunk.chunkData[0].dim.xDouble);
-    if (argChunk.chunkData[0].chunkData != null  && argChunk.chunkData[0].dim.xChunk > 0)
+    if (argChunk.chunkData[0].chunkData != null && argChunk.chunkData[0].dim.xChunk > 0)
       MemChunk.copyChunks(argChunk.chunkData[0].chunkData, 0, result.chunkData, 0, argChunk.chunkData[0].dim.xChunk);
   }
 
@@ -410,8 +416,8 @@ public class MemEvaluator {
     //System.out.print(".");
     if (
             returnChunk.dim.xInt > 0 && argPointerVec.xInt + intSize > returnChunk.intData.length ||
-            returnChunk.dim.xDouble > 0 &&  argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
-            returnChunk.dim.xChunk > 0 && argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length) {
+                    returnChunk.dim.xDouble > 0 && argPointerVec.xDouble + doubleSize > returnChunk.doubleData.length ||
+                    returnChunk.dim.xChunk > 0 && argPointerVec.xChunk + chunkSize > returnChunk.chunkData.length) {
 //      returnChunk.increaseCapacity(argChunk.size);
       returnChunk.increaseCapacity(argChunk.size > returnChunk.size ? 5 * argChunk.size : returnChunk.size);
       //System.out.println(returnChunk.capacity);
@@ -656,6 +662,19 @@ public class MemEvaluator {
   private static void int_add(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     returnChunk.intData[argPointerVec.xInt] = argChunk.intData[0] + argChunk.intData[1];
   }
+
+  private static void int_min(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    int l = argChunk.intData[0];
+    int r = argChunk.intData[1];
+    returnChunk.intData[argPointerVec.xInt] = l < r ? l : r;
+  }
+
+  private static void int_max(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    int l = argChunk.intData[0];
+    int r = argChunk.intData[1];
+    returnChunk.intData[argPointerVec.xInt] = l < r ? r : l;
+  }
+
 
   private static void copy(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     if (argChunk.intData != null)

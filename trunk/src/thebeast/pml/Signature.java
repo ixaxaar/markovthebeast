@@ -3,8 +3,7 @@ package thebeast.pml;
 import thebeast.pml.predicate.Predicate;
 import thebeast.pml.predicate.Equals;
 import thebeast.pml.predicate.NotEquals;
-import thebeast.pml.function.WeightFunction;
-import thebeast.pml.function.Function;
+import thebeast.pml.function.*;
 
 import java.util.*;
 import java.io.InputStream;
@@ -16,7 +15,7 @@ public class Signature {
 
   private HashMap<String, Predicate> name2predicate = new HashMap<String, Predicate>();
 
-  private HashMap<String, WeightFunction> name2weightFunction = new HashMap<String, WeightFunction>();
+  private HashMap<String, Function> name2function = new HashMap<String, Function>();
 
   private HashMap<String, Type> name2type = new HashMap<String, Type>();
 
@@ -30,6 +29,12 @@ public class Signature {
     name2type.put(Type.DOUBLE.getName(), Type.DOUBLE);
     name2type.put(Type.INT.getName(), Type.INT);
     name2type.put(Type.BOOL.getName(), Type.BOOL);
+
+    name2function.put(IntMin.MIN.getName(), IntMin.MIN);
+    name2function.put(IntMax.MAX.getName(), IntMax.MAX);    
+    name2function.put(IntAdd.ADD.getName(), IntAdd.ADD);
+    name2function.put(IntMinus.MINUS.getName(), IntMinus.MINUS);    
+
   }
 
   /**
@@ -122,7 +127,7 @@ public class Signature {
    */
   public WeightFunction createWeightFunction(String name, List<Type> argumentTypes) {
     WeightFunction result = new WeightFunction(name, argumentTypes);
-    name2weightFunction.put(name, result);
+    name2function.put(name, result);
     weightFunctions.add(result);
     Collections.sort(weightFunctions);
     return result;
@@ -187,7 +192,7 @@ public class Signature {
                                              List<Type> argumentTypes) {
     WeightFunction result = new WeightFunction(name, positive,
             argumentTypes);
-    name2weightFunction.put(name, result);
+    name2function.put(name, result);
     weightFunctions.add(result);
     Collections.sort(weightFunctions);
     return result;
@@ -262,11 +267,11 @@ public class Signature {
    *         signature.
    */
   public Function getFunction(String functionName) {
-    return name2weightFunction.get(functionName);
+    return name2function.get(functionName);
   }
 
   public WeightFunction getWeightFunction(String functionName) {
-    return name2weightFunction.get(functionName);
+    return (WeightFunction) name2function.get(functionName);
   }
 
   /**
