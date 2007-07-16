@@ -40,4 +40,12 @@ public class AbstractFunctionVisitor implements FunctionVisitor {
   public void visitIntMinus(IntMinus intMinus) {
     if (throwsException) throw new UnsupportedHostException(intMinus);
   }
+
+  public void visitIntMin(IntMin intMin) {
+    if (throwsException) throw new UnsupportedHostException(intMin);
+  }
+
+  public void visitIntMax(IntMax intMax) {
+    if (throwsException) throw new UnsupportedHostException(intMax);
+  }
 }

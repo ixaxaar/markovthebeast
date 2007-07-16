@@ -113,6 +113,7 @@ public class TestInterpreter extends NoDTest {
 
 
   }
+
   public void testAddTuple() {
     exprBuilder.id("arg1").num(5).id("arg2").num(5.0).id("index").num(1).tupleForIds();
     exprBuilder.id("arg1").num(2).id("arg2").num(2.0).id("index").num(2).tupleForIds();
@@ -169,7 +170,7 @@ public class TestInterpreter extends NoDTest {
     RelationVariable var4 = interpreter.createRelationVariable(var3);
 
     //lets var4 = var1 and change var4
-    interpreter.assign(var4,var1);
+    interpreter.assign(var4, var1);
     exprBuilder.id("arg1").num(1).id("arg2").num(1).id("index").num(4).tupleForIds();
     exprBuilder.id("arg1").num(1).id("arg2").num(2).id("index").num(5).tupleForIds();
     exprBuilder.id("arg1").num(1).id("arg2").num(3).id("index").num(6).tupleForIds();
@@ -178,25 +179,25 @@ public class TestInterpreter extends NoDTest {
     RelationExpression relation = exprBuilder.getRelation();
     interpreter.assign(var4, relation);
     //var1 should be the same
-    assertTrue(var1.contains(5,5,1));
-    assertTrue(var1.contains(2,2,2));
-    assertTrue(var1.contains(4,4,3));
+    assertTrue(var1.contains(5, 5, 1));
+    assertTrue(var1.contains(2, 2, 2));
+    assertTrue(var1.contains(4, 4, 3));
     //var 4 should as defined
-    assertTrue(var4.contains(1,1,4));
-    assertTrue(var4.contains(1,2,5));
-    assertTrue(var4.contains(1,3,6));
+    assertTrue(var4.contains(1, 1, 4));
+    assertTrue(var4.contains(1, 2, 5));
+    assertTrue(var4.contains(1, 3, 6));
 
     //lets var4 = var1 and change var1
-    interpreter.assign(var4,var1);
-    interpreter.assign(var1,relation);
+    interpreter.assign(var4, var1);
+    interpreter.assign(var1, relation);
     //var1 should have changed
-    assertTrue(var1.contains(1,1,4));
-    assertTrue(var1.contains(1,2,5));
-    assertTrue(var1.contains(1,3,6));
+    assertTrue(var1.contains(1, 1, 4));
+    assertTrue(var1.contains(1, 2, 5));
+    assertTrue(var1.contains(1, 3, 6));
     //var 4 should remain the same
-    assertTrue(var4.contains(5,5,1));
-    assertTrue(var4.contains(2,2,2));
-    assertTrue(var4.contains(4,4,3));
+    assertTrue(var4.contains(5, 5, 1));
+    assertTrue(var4.contains(2, 2, 2));
+    assertTrue(var4.contains(4, 4, 3));
 
     System.out.println(var4.value());
     System.out.println(var1.value());
@@ -263,6 +264,7 @@ public class TestInterpreter extends NoDTest {
     ArrayValue array = var.value();
     assertEquals(0, array.size());
   }
+
   public void testIndexedSum() {
     exprBuilder.doubleValue(1.0).doubleValue(2.0).doubleValue(3.0).doubleValue(5.0).array(4);
     ArrayVariable array = interpreter.createArrayVariable(exprBuilder.getArray());
@@ -370,7 +372,7 @@ public class TestInterpreter extends NoDTest {
 
   }
 
-  public void testGetTwice(){
+  public void testGetTwice() {
     exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
     exprBuilder.id("a").integer(5).id("b").integer(2).id("c").integer(20).tuple(3);
     exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
@@ -387,7 +389,7 @@ public class TestInterpreter extends NoDTest {
     System.out.println(rel.value());
     assertTrue(rel.contains(50));
     assertEquals(1, rel.value().size());
-    
+
   }
 
   public void testArrayAccess() {
@@ -400,23 +402,23 @@ public class TestInterpreter extends NoDTest {
     assertEquals(2.5, var.value().getDouble());
   }
 
-  public void testArrayAdd(){
-    ArrayVariable var = interpreter.createArrayVariable(typeFactory.doubleType(),4);
+  public void testArrayAdd() {
+    ArrayVariable var = interpreter.createArrayVariable(typeFactory.doubleType(), 4);
     exprBuilder.num(1.0).num(2.0).num(3.0).num(4.0).array(4);
     ArrayExpression argument = exprBuilder.getArray();
     interpreter.add(var, argument, exprBuilder.num(1.0).getDouble());
     ArrayValue array = var.value();
-    assertEquals(1.0,array.doubleElement(0).getDouble());
-    assertEquals(2.0,array.doubleElement(1).getDouble());
-    assertEquals(3.0,array.doubleElement(2).getDouble());
-    assertEquals(4.0,array.doubleElement(3).getDouble());
+    assertEquals(1.0, array.doubleElement(0).getDouble());
+    assertEquals(2.0, array.doubleElement(1).getDouble());
+    assertEquals(3.0, array.doubleElement(2).getDouble());
+    assertEquals(4.0, array.doubleElement(3).getDouble());
     System.out.println(var.value());
-    interpreter.add(var,argument, exprBuilder.num(2.0).getDouble());
+    interpreter.add(var, argument, exprBuilder.num(2.0).getDouble());
     System.out.println(var.value());
-    assertEquals(3.0,array.doubleElement(0).getDouble());
-    assertEquals(6.0,array.doubleElement(1).getDouble());
-    assertEquals(9.0,array.doubleElement(2).getDouble());
-    assertEquals(12.0,array.doubleElement(3).getDouble());
+    assertEquals(3.0, array.doubleElement(0).getDouble());
+    assertEquals(6.0, array.doubleElement(1).getDouble());
+    assertEquals(9.0, array.doubleElement(2).getDouble());
+    assertEquals(12.0, array.doubleElement(3).getDouble());
 
   }
 
@@ -471,7 +473,7 @@ public class TestInterpreter extends NoDTest {
 
   public void testInequality() {
     assertTrue(interpreter.evaluateBool(exprBuilder.num(5).num(6).inequality().getBool()).getBool());
-    assertFalse(interpreter.evaluateBool(exprBuilder.num(5).num(1).intAdd(2).num(6).inequality().getBool()).getBool());
+    assertFalse(interpreter.evaluateBool(exprBuilder.num(5).num(1).intAdd().num(6).inequality().getBool()).getBool());
   }
 
   public void testGroup() {
@@ -524,10 +526,10 @@ public class TestInterpreter extends NoDTest {
     interpreter.assign(rel, exprBuilder.relation(6).getRelation());
 
     exprBuilder.expr(rel).by("index").doubleAttribute("value").summarizeAs("sum", Summarize.Spec.DOUBLE_SUM);
-    interpreter.assign(sum , exprBuilder.summarize().getRelation());
+    interpreter.assign(sum, exprBuilder.summarize().getRelation());
 
     System.out.println(sum.value());
-    
+
 
     assertEquals(3, sum.value().size());
     assertTrue(sum.contains(0, 1.0));
@@ -634,12 +636,11 @@ public class TestInterpreter extends NoDTest {
   public void testOperationInvocation() {
     IntVariable x = interpreter.createIntVariable();
     IntVariable y = interpreter.createIntVariable();
-    exprBuilder.expr(x).expr(y).intAdd(2);
+    exprBuilder.expr(x).expr(y).intAdd();
     Operator<IntType> add = expressionFactory.createOperator("add", exprBuilder.getInt(), x, y);
     int result = interpreter.evaluateInt(exprBuilder.integer(6).integer(2).invokeIntOp(add).getInt()).getInt();
     assertEquals(8, result);
     System.out.println(result);
-
   }
 
   public void testOperationInvocationQuery() {
@@ -670,7 +671,7 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
     exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
     exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
-    exprBuilder.relation(4,true);
+    exprBuilder.relation(4, true);
     RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
     assertEquals(3, var.value().size());
     HashSet<Integer> ints = new HashSet<Integer>();
@@ -716,7 +717,7 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.id("a").integer(3).id("b").integer(3).id("c").integer(3).tuple(3);
     exprBuilder.relation(3);
     RelationExpression expression = exprBuilder.getRelation();
-    RelationAppend append = statementFactory.createRelationAppend(var,expression);
+    RelationAppend append = statementFactory.createRelationAppend(var, expression);
     interpreter.interpret(append);
     System.out.println(var.value());
     assertEquals(6, var.value().size());
@@ -778,6 +779,35 @@ public class TestInterpreter extends NoDTest {
     }
   }
 
+  public void testMinMax() {
+    exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
+    exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(2).id("c").integer(1).tuple(3);
+    exprBuilder.relation(3);
+    RelationVariable var1 = interpreter.createRelationVariable(exprBuilder.getRelation());
+
+    exprBuilder.id("a").integer(1).id("b").integer(1).id("c").integer(1).tuple(3);
+    exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(3).id("c").integer(3).tuple(3);
+    exprBuilder.relation(3);
+    RelationVariable var2 = interpreter.createRelationVariable(exprBuilder.getRelation());
+
+    exprBuilder.
+            expr(var1).from("var1").expr(var2).from("var2").
+            intAttribute("var1", "a").intAttribute("var2", "b").equality().where().
+            id("min").intAttribute("var1", "b").intAttribute("var2", "a").intMin().
+            id("max").intAttribute("var1", "b").intAttribute("var2", "a").intMax().tuple(2).select().
+            query();
+
+    RelationVariable var3 = interpreter.createRelationVariable(exprBuilder.getRelation());
+    assertEquals(3,var3.value().size());
+    assertTrue(var3.contains(2,1));
+    assertTrue(var3.contains(2,2));
+    assertTrue(var3.contains(3,2));
+    System.out.println(var3.value());
+
+  }
+
   public void testQuery2() {
     exprBuilder.id("a").integer(1).id("b").integer(2).id("c").integer(3).tuple(3);
     exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
@@ -825,7 +855,7 @@ public class TestInterpreter extends NoDTest {
             intAttribute("var1", "a").intAttribute("var1", "c").equality().
             and(2).where().
             id("newA").intAttribute("var1", "a").id("newB").intAttribute("var2", "b").tuple(2).
-            id("newA").intAttribute("var1", "a").num(1).intAdd(2).id("newB").intAttribute("var2", "b").tuple(2).
+            id("newA").intAttribute("var1", "a").num(1).intAdd().id("newB").intAttribute("var2", "b").tuple(2).
             relation(2).
             insert().
             queryInsert();
@@ -946,16 +976,16 @@ public class TestInterpreter extends NoDTest {
 
   }
 
-  public void testIndexCollector(){
+  public void testIndexCollector() {
     int size = 10;
-    for (int i = 0; i < size; ++i){
+    for (int i = 0; i < size; ++i) {
       exprBuilder.id("a").num(i).id("rel");
       for (int j = 0; j < 10; ++j) exprBuilder.id("value").num(j).tuple(1);
       exprBuilder.relation(10).tuple(2);
     }
     exprBuilder.relation(size);
     RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
-    exprBuilder.expr(var).collect("rel","index","value");
+    exprBuilder.expr(var).collect("rel", "index", "value");
     RelationExpression collector = exprBuilder.getRelation();
     RelationVariable collected = interpreter.createRelationVariable(collector);
     System.out.println(collected.value());

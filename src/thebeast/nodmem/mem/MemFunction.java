@@ -16,7 +16,7 @@ public final class MemFunction {
     COPY,
     VOID,
     INT_CONSTANT,
-    INT_ADD, INT_EQUAL, INT_MINUS, INT_LEQ, INT_GEQ, INT_LESSTHAN, INT_GREATERTHAN,
+    INT_ADD, INT_EQUAL, INT_MINUS, INT_LEQ, INT_GEQ, INT_LESSTHAN, INT_GREATERTHAN, INT_MAX,
     INT_ATTRIBUTE,
     INT_VARIABLE, INT_EXTRACT,
     CHUNK_CONSTANT, CHUNK_EQUAL,
@@ -33,7 +33,7 @@ public final class MemFunction {
     COUNT, RELATION_COPY, CYCLES,
     DOUBLE_LEQ, SPARSE_ADD, SUMMARIZE, RELATION_MINUS, INT_NOTEQUAL, CHUNK_NOTEQUAL, DOUBLE_ADD, UNION,
     DOUBLE_CAST, DOUBLE_MINUS, INT_BINS, DOUBLE_EQUAL, DOUBLE_TIMES, DOUBLE_NOTEQUAL,
-    DOUBLE_GEQ, DOUBLE_LT, DOUBLE_DIVIDE, INDEX_COLLECTOR
+    DOUBLE_GEQ, DOUBLE_LT, DOUBLE_DIVIDE, INT_MIN, INDEX_COLLECTOR
 
   }
 
@@ -218,7 +218,7 @@ public final class MemFunction {
     this.dstCols = dstCols;
     this.groupCols = groupCols;
     this.dstGroupCol = dstGroupCol;
-    
+
     buildStacks();
   }
 
@@ -408,6 +408,8 @@ public final class MemFunction {
     switch (type) {
       case INT_ADD:
       case INT_MINUS:
+      case INT_MIN:
+      case INT_MAX:
       case INT_GEQ:
       case INT_LEQ:
       case INT_LESSTHAN:
@@ -490,10 +492,10 @@ public final class MemFunction {
     return returnDim;
   }
 
-  public void clear(){
-    if (argHolder != null && argHolder.chunkData != null){
-      for (MemChunk chunk : argHolder.chunkData){
-        if (chunk!=null){
+  public void clear() {
+    if (argHolder != null && argHolder.chunkData != null) {
+      for (MemChunk chunk : argHolder.chunkData) {
+        if (chunk != null) {
           chunk.clear();
         }
       }
@@ -506,7 +508,7 @@ public final class MemFunction {
     if (backoffFunction != null) backoffFunction.clear();
   }
 
-  public int bytesize(){
+  public int bytesize() {
     int size = 0;
     size += 46 * MemChunk.POINTERSIZE;
     size += 15 * MemChunk.INTSIZE;
@@ -517,10 +519,10 @@ public final class MemFunction {
     if (searchChunkFunction != null) size += searchChunkFunction.bytesize();
     if (searchVarFunction != null) size += searchVarFunction.bytesize();
     if (tmpFunction != null) size += tmpFunction.bytesize();
-    if (backoffFunction != null) size+= backoffFunction.bytesize();
-    if (argHolder != null) size+= argHolder.byteSize();
-    if (getRel != null) size+= getRel.byteSize();
-    if (getBackoffChunk != null) size+= getBackoffChunk.byteSize();
+    if (backoffFunction != null) size += backoffFunction.bytesize();
+    if (argHolder != null) size += argHolder.byteSize();
+    if (getRel != null) size += getRel.byteSize();
+    if (getBackoffChunk != null) size += getBackoffChunk.byteSize();
     if (constantChunk != null) size += constantChunk.byteSize();
     if (index != null) size += index.byteSize();
     if (returnStack != null)
@@ -543,5 +545,5 @@ public final class MemFunction {
 
   }
 
-  
+
 }

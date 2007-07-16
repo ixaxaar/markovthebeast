@@ -202,6 +202,14 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemIntAdd(MemIntType.INT, leftHandSide, rightHandSide);
   }
 
+  public IntMin createIntMin(IntExpression leftHandSide, IntExpression rightHandSide) {
+    return new MemIntMin(MemIntType.INT, leftHandSide, rightHandSide);
+  }
+
+  public IntMax createIntMax(IntExpression leftHandSide, IntExpression rightHandSide) {
+    return new MemIntMax(MemIntType.INT, leftHandSide, rightHandSide);
+  }
+
   public DoubleAdd createDoubleAdd(DoubleExpression leftHandSide, DoubleExpression rightHandSide) {
     return new MemDoubleAdd(MemDoubleType.DOUBLE, leftHandSide, rightHandSide);
   }

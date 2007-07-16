@@ -384,6 +384,8 @@ formula ::=
     {: RESULT = new ParserComparison(ParserComparison.Type.GEQ, lhs, rhs); :}
   | term:lhs NOTEQUALS term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.NEQ, lhs, rhs); :}
+  | term:lhs EQUALS term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.EQ, lhs, rhs); :}
   | EXCL formula:f
     {: RESULT = new ParserNot(f); :}
   | LPAREN formula:f RPAREN

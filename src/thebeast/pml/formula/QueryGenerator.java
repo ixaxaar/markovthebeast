@@ -11,6 +11,7 @@ import thebeast.pml.*;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.predicate.*;
 import thebeast.pml.function.*;
+import thebeast.pml.function.IntMin;
 import thebeast.pml.term.*;
 import thebeast.pml.term.IntConstant;
 import thebeast.pml.term.CategoricalConstant;
@@ -376,7 +377,6 @@ public class QueryGenerator {
         processWeightForLocal(conjunctionContext, factorFormula.getWeight());
         //now process what we couldn't process so far
         conjunctionProcessor.processConjunction(conjunctionContext, conjunctionContext.remainingAtoms, true);
-
         //make a tuple using all added columns
         conjunctionContext.selectBuilder.tuple();
       }
@@ -521,7 +521,7 @@ public class QueryGenerator {
       }
 
       public void visitFunctionApplication(final FunctionApplication functionApplication) {
-        functionApplication.getFunction().acceptFunctionVisitor(new FunctionVisitor() {
+        functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor(true) {
           public void visitWeightFunction(WeightFunction weightFunction) {
             String prefix = "weights";
 
@@ -531,13 +531,6 @@ public class QueryGenerator {
 
           }
 
-          public void visitIntAdd(thebeast.pml.function.IntAdd intAdd) {
-
-          }
-
-          public void visitIntMinus(thebeast.pml.function.IntMinus intMinus) {
-
-          }
         });
       }
 

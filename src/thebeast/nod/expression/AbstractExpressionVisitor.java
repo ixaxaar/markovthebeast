@@ -178,6 +178,14 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitBinaryExpression(intAdd);
   }
 
+  public void visitIntMin(IntMin intMin) {
+    visitBinaryExpression(intMin);
+  }
+
+  public void visitIntMax(IntMax intMax) {
+    visitBinaryExpression(intMax);
+  }
+
   public void visitIntMinus(IntMinus intMinus) {
     visitBinaryExpression(intMinus);
   }

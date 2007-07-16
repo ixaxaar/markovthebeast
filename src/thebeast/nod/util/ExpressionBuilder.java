@@ -518,15 +518,25 @@ public class ExpressionBuilder {
     return this;
   }
 
-  public ExpressionBuilder intAdd(int howmany) {
+  public ExpressionBuilder intAdd() {
     IntExpression rhs = (IntExpression) expressionStack.pop();
     IntExpression lhs = (IntExpression) expressionStack.pop();
     expressionStack.push(expressionFactory.createIntAdd(lhs, rhs));
     return this;
   }
 
-  public ExpressionBuilder intAdd() {
-    return intAdd(2);
+  public ExpressionBuilder intMin() {
+    IntExpression rhs = (IntExpression) expressionStack.pop();
+    IntExpression lhs = (IntExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createIntMin(lhs, rhs));
+    return this;
+  }
+
+    public ExpressionBuilder intMax() {
+    IntExpression rhs = (IntExpression) expressionStack.pop();
+    IntExpression lhs = (IntExpression) expressionStack.pop();
+    expressionStack.push(expressionFactory.createIntMax(lhs, rhs));
+    return this;
   }
 
   public ExpressionBuilder doubleAdd() {

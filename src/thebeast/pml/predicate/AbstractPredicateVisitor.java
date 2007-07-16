@@ -1,10 +1,6 @@
 package thebeast.pml.predicate;
 
-import thebeast.pml.predicate.IntLEQ;
-import thebeast.pml.predicate.Equals;
-import thebeast.pml.predicate.PredicateVisitor;
 import thebeast.pml.UserPredicate;
-import thebeast.pml.term.Term;
 
 /**
  * @author Sebastian Riedel
@@ -55,5 +51,5 @@ public abstract class AbstractPredicateVisitor implements PredicateVisitor {
     if (throwExceptions) throw new UnsupportedHostException(intGEQ);
   }
 
-
+  
 }

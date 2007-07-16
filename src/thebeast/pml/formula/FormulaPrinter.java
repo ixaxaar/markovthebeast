@@ -82,6 +82,8 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
             atom.getArguments().get(1).acceptTermVisitor(termPrinter);
 
           }
+
+
         });
 
       }

@@ -1,26 +1,22 @@
 package thebeast.pml.formula;
 
-import thebeast.nod.expression.Expression;
 import thebeast.nod.expression.BoolExpression;
+import thebeast.nod.expression.Expression;
 import thebeast.nod.expression.ExpressionFactory;
 import thebeast.nod.expression.Operator;
-import thebeast.nod.type.CategoricalType;
-import thebeast.nod.type.IntType;
-import thebeast.nod.type.DoubleType;
-import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
+import thebeast.nod.type.CategoricalType;
+import thebeast.nod.type.DoubleType;
+import thebeast.nod.type.IntType;
+import thebeast.nod.util.ExpressionBuilder;
 import thebeast.pml.*;
-import thebeast.pml.function.IntMinus;
-import thebeast.pml.function.FunctionVisitor;
-import thebeast.pml.function.IntAdd;
-import thebeast.pml.function.WeightFunction;
+import thebeast.pml.function.*;
 import thebeast.pml.predicate.*;
 import thebeast.pml.term.*;
-import thebeast.pml.term.Variable;
 
-import java.util.Map;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 30-Jan-2007 Time: 13:14:05
@@ -109,6 +105,8 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
             atom.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
             builder.intGEQ();
           }
+
+
         });
       }
 
@@ -283,6 +281,19 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
         builder.intMinus();
 
+      }
+
+      public void visitIntMin(IntMin intMin) {
+        functionApplication.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+        functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
+        builder.intMin();
+
+      }
+
+      public void visitIntMax(IntMax intMax) {
+        functionApplication.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+        functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
+        builder.intMax();
       }
     });
   }

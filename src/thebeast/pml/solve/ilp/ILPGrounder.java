@@ -10,7 +10,7 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.pml.formula.*;
 import thebeast.pml.formula.Not;
 import thebeast.pml.*;
-import thebeast.pml.predicate.AbstractPredicateVisitor;
+import thebeast.pml.predicate.*;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.*;
 
@@ -25,11 +25,6 @@ public class ILPGrounder {
   private GroundFormulas groundFormulas;
   private IntegerLinearProgram ilp;
   private FactorFormula formula;
-  private DNFGenerator dnfGenerator = new DNFGenerator();
-  private CNFGenerator cnfGenerator = new CNFGenerator();
-  private TermResolver termResolver = new TermResolver();
-  private FormulaResolver formulaResolver = new FormulaResolver();
-  private TermInverter inverter = new TermInverter();
   private NoDExpressionGenerator exprGenerator = new NoDExpressionGenerator();
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private ExpressionFactory factory;
@@ -844,6 +839,7 @@ public class ILPGrounder {
             }
           }
 
+        
 
         });
       }
