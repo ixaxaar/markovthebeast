@@ -26,6 +26,7 @@ factor: for Int t,Slot s if word(t,_) add [slot(t,s)]*w_bias(s);
 
 weight w_word: Word x Slot -> Double;
 factor: for Int t, Int l, Word w, Slot s if word(t,w) & l == min(t,5) add [slot(l,s)]*w_word(w,s);
+factor: for Int t, Int l, Word w, Slot s if word(t,w) & l == min(t,5) add [slot(l,s)]*w_word(w,s);
 set collector.all.w_word = true;
 
 weight w_pos: POS x Slot -> Double;
