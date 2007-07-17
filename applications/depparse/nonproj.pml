@@ -16,4 +16,6 @@ factor head_leq1:
   for Int m if m > 0 & word(m,_): |Int h: word(h,_) & link(h,m)| <= 1;
 
 //forbid cyles
-factor: link acyclic;
+factor nocycles:
+  link acyclic;
+

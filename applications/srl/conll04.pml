@@ -2,14 +2,16 @@
 predicate word:   Int x Word;
 predicate pos:    Int x Pos;
 
-//role label for target # and constituent
-predicate arg:    Int x Phrase x Arg;
+//is a phrase argument for target #
+predicate arg:    Int x Phrase;
+//role label for target # and phrase
+predicate type:   Int x Phrase x Arg;
 
 //path between target # and phrase
 predicate path:   Int x Phrase x Path;
 
 //type of constituents
-predicate type:   Phrase x Label;
+predicate node:   Phrase x Label;
 
 //beginning and end of constituent
 predicate begin:  Phrase x Int;
