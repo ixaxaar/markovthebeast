@@ -1,5 +1,5 @@
 /*
-  features based only one token(head or modifer
+  features based only one token(head or modifer)
  */
 
 //h_pos
