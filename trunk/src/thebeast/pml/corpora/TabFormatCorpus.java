@@ -1,7 +1,6 @@
 package thebeast.pml.corpora;
 
 import thebeast.pml.*;
-import thebeast.pml.term.Constant;
 import thebeast.util.HashMultiMapList;
 
 import java.io.*;
