@@ -2,10 +2,7 @@ package thebeast.pml.corpora;
 
 import thebeast.util.Pair;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -50,7 +47,6 @@ public class CoNLL05Converter {
     headFinder.addRuleAsString("X\tr");
   }
 
-
   public static void main(String[] args) throws IOException {
     if (args.length == 0) {
       System.out.println("Usage: CoNLL05Converter conll2pml|pml2conll < <inputfile> > <outputfile>");
@@ -58,7 +54,7 @@ public class CoNLL05Converter {
     }
     String mode = args[0];
     if (mode.equals("conll2pml")) {
-      conll2pml(new BufferedReader(new InputStreamReader(System.in)), System.out);
+      conll2pml(new BufferedReader(new InputStreamReader(args.length == 2 ? new FileInputStream(args[1]) : System.in)),System.out);
     } else if (mode.equals("pml2conll")) {
 
     } else {
@@ -96,19 +92,24 @@ public class CoNLL05Converter {
           printFeatures("word", out, sentence, WORD_INDEX);
           printFeatures("pos", out, sentence, POS_INDEX);
 
-          HashSet<Pair<Integer, Integer>> spans = new HashSet<Pair<Integer, Integer>>();
+
+          Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
+
+          HashSet<Pair<Integer,Integer>> spans = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
-          charniak.getSpans(spans);
+          Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
+          charniakPruned.getSpans(spans);
           ne.getSpans(spans);
           args.getChunks(spans);
 
-          ArrayList<Pair<Integer, Integer>> sorted = new ArrayList<Pair<Integer, Integer>>(spans);
+          ArrayList<Pair<Integer,Integer>> sorted = new ArrayList<Pair<Integer, Integer>>(spans);
           Collections.sort(sorted, new Tree.SpanComparator());
+
 
           //spans
           int id = 0;
           out.println(">span");
-          for (Pair<Integer, Integer> span : sorted) {
+          for (Pair<Integer,Integer> span : sorted){
             out.println(id++ + "\t" + span.arg1 + "\t" + span.arg2);
           }
           out.println();
@@ -116,22 +117,22 @@ public class CoNLL05Converter {
           //labels
           id = 0;
           out.println(">label");
-          for (Pair<Integer, Integer> span : spans) {
-            out.println(id + "\tNE\t" + ne.getLabel(span.arg1, span.arg2));
-            out.println(id++ + "\tCharniak\t" + charniak.getLabel(span.arg1, span.arg2));
+          for (Pair<Integer,Integer> span : spans){
+            out.println(id + "\tNE\t" + ne.getLabel(span.arg1,span.arg2));
+            out.println(id++ + "\tCharniak\t" + charniakPruned.getLabel(span.arg1,span.arg2));
           }
           out.println();
 
           //paths
           id = 0;
           out.println(">path");
-          Tree from = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
-          for (Pair<Integer, Integer> span : spans) {
-            if (charniak.contains(span.arg1, span.arg2)) {
+          Tree from = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
+          for (Pair<Integer,Integer> span : spans){
+            if (charniak.contains(span.arg1,span.arg2)){
               Tree.Path path = new Tree.Path();
-              path.add(new Tree.PathStep(from.label, true));
-              Tree to = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
-              from.getPath(to, path);
+              path.add(new Tree.PathStep(from.label,true));
+              Tree to = charniak.getSmallestCoveringTree(span.arg1,span.arg2);
+              from.getPath(to,path);
               out.println(id++ + "\tCharniak\t\"" + path + "\"");
             } else {
               out.println(id++ + "\tCharniak\tNONE");
@@ -232,10 +233,17 @@ public class CoNLL05Converter {
     }
 
     public Tree pruneXuePalmer() {
-      Tree current = this;
-      Tree result = new Tree(this);
+      Tree current = this.parent;
+      Tree result = null;
+      Tree lastNode = null;
+      Tree lastResult = null;
       while (current != null) {
-        for (Tree child : children) {
+        result = new Tree(current);
+        for (Tree child : current.children) {
+          if (child == lastNode){
+            result.addChild(lastResult);
+            continue;
+          }
           Tree tree = new Tree(child, result);
           result.children.add(tree);
           if (tree.label.equals("PP")) {
@@ -244,9 +252,16 @@ public class CoNLL05Converter {
             }
           }
         }
+        lastNode = current;
         current = current.parent;
+        lastResult = result;
       }
-      return null;
+      return result;
+    }
+
+    public void addChild(Tree tree) {
+      children.add(tree);
+      tree.parent = this;
     }
 
     public Tree getRoot() {
@@ -285,11 +300,13 @@ public class CoNLL05Converter {
           result.add(tag);
         }
         result.add(child);
+        child.augmentWithTags(sentence, column);
+        
         previous = child.end + 1;
       }
       for (int i = previous; i <= end; ++i){
         Tree tag = new Tree(this, sentence.get(i).get(column),i,i);
-        result.add(tag);        
+        result.add(tag);
       }
       this.children = result;
     }
@@ -305,6 +322,13 @@ public class CoNLL05Converter {
       return this;
     }
 
+    public String toString(){
+      StringBuffer result = new StringBuffer();
+      result.append("(").append(label);
+      for (Tree child : children) result.append(child);
+      result.append(")");
+      return result.toString();
+    }
     public void getPath(Tree other, Path path) {
       if (covers(other)) {
         for (Tree child : children) {
@@ -361,7 +385,10 @@ public class CoNLL05Converter {
             Tree tree = stack.pop();
             tree.end = i;
             if (stack.size() > 0) stack.peek().children.add(tree);
-            else return tree;
+            else {
+              tree.augmentWithTags(sentence, POS_INDEX);
+              return tree;
+            }
           }
         }
       }
