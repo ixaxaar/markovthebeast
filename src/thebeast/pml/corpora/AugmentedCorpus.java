@@ -13,9 +13,10 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 22-May-2007 Time: 17:38:52
+ * An augmented corpus augments each set of ground atoms with a set of globally defined
+ * atoms and all auxilary predicate atoms (using their corresponding generator formulas).
  */
-public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements Corpus{
+public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements Corpus {
 
   private Model model;
   private Corpus delegate;
@@ -29,7 +30,7 @@ public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements 
     this.delegate = delegate;
     localAtoms = model.getSignature().createGroundAtoms();
     QueryGenerator generator = new QueryGenerator();
-    for (FactorFormula formula: model.getAuxiliaryGenerators()){
+    for (FactorFormula formula : model.getAuxiliaryGenerators()) {
       generators.add(formula.getGeneratorTarget(), generator.generateAuxiliaryQuery(formula, localAtoms, null));
     }
   }
@@ -38,19 +39,20 @@ public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements 
 
     return new Iterator<GroundAtoms>() {
       Iterator<GroundAtoms> iterator = delegate.iterator();
+
       public boolean hasNext() {
         return iterator.hasNext();
       }
 
       public GroundAtoms next() {
         GroundAtoms atoms = iterator.next();
-        if (model.getGlobalPredicates().size() > 0){
+        if (model.getGlobalPredicates().size() > 0) {
           atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
         }
         if (generators.isEmpty()) return atoms;
         localAtoms.load(atoms);
-        for (Map.Entry<UserPredicate, List<RelationExpression>> entry : generators.entrySet()){
-          for (RelationExpression expr : entry.getValue()){
+        for (Map.Entry<UserPredicate, List<RelationExpression>> entry : generators.entrySet()) {
+          for (RelationExpression expr : entry.getValue()) {
             interpreter.assign(atoms.getGroundAtomsOf(entry.getKey()).getRelationVariable(), expr);
           }
         }
