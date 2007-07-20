@@ -164,7 +164,7 @@ public class CoNLL05Converter {
               Tree tree = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
               out.println(id + "\tCharniak\t" + headFinder.getHead(tree).begin);
             } else {
-              out.println(id + "\tCharniak\tNONE");
+              out.println(id + "\tCharniak\t" + span.arg2);
             }
           }
           out.println();
@@ -203,7 +203,7 @@ public class CoNLL05Converter {
   }
 
 
-  private static class Tree implements Comparable<Tree> {
+  public static class Tree implements Comparable<Tree> {
     String label;
     ArrayList<Tree> children = new ArrayList<Tree>();
     int begin, end;
@@ -419,8 +419,9 @@ public class CoNLL05Converter {
         this.up = up;
       }
 
+
       public String toString() {
-        return label + (up ? " ^ " : " v ");
+        return unquote(label) + (up ? " ^ " : " v ");
       }
     }
 
@@ -532,23 +533,18 @@ public class CoNLL05Converter {
         this.labels.addAll(tags);
       }
 
-      private static String normalize(String label){
-        return (label.startsWith("\"")) ? label.substring(1,label.length()-1) : label;
-
-      }
-
       public Tree scan(Tree parent, HeadFinder finder){
         if (parent.children.size() == 0) return parent;
         if (!left){
           for (int i = parent.children.size() - 1; i >= 0; --i){
             Tree child = parent.children.get(i);
-            if (labels.contains(normalize(child.label))) return finder.getHead(child);
+            if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
         } else {
           //noinspection ForLoopReplaceableByForEach
           for (int i = 0; i < parent.children.size(); ++i){
             Tree child = parent.children.get(i);
-            if (labels.contains(normalize(child.label))) return finder.getHead(child);
+            if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
 
         }
@@ -620,6 +616,12 @@ public class CoNLL05Converter {
       tags.clear();
       rules.put(label, rule);
     }
+
+  }
+
+
+  public static String unquote(String label){
+    return (label.startsWith("\"")) ? label.substring(1,label.length()-1) : label;
 
   }
 

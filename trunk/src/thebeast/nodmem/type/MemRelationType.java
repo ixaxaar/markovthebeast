@@ -70,13 +70,13 @@ public class MemRelationType extends AbstractMemType implements RelationType {
       array = (Object[]) array[0];
     MemChunk dst = chunk.chunkData[pointer.xChunk];
     if (dst == null) {
-      dst = new MemChunk(0,array.length,getDim());
+      dst = new MemChunk(0, array.length, getDim());
       chunk.chunkData[pointer.xChunk] = dst;
     } else
       dst.ensureCapacity(array.length);
     MemVector dstPointer = new MemVector();
-    for (int index = 0; index < array.length; ++index){
-      tupleType.valueToChunkWithOffset(array[index],dst,dstPointer);
+    for (int index = 0; index < array.length; ++index) {
+      tupleType.valueToChunkWithOffset(array[index], dst, dstPointer);
       dstPointer.add(dst.dim);
     }
     dst.size = array.length;
@@ -122,9 +122,9 @@ public class MemRelationType extends AbstractMemType implements RelationType {
 //    }
     BufferedReader reader = new BufferedReader(new InputStreamReader(is));
     int lineNr = 0;
-    MemVector current = new MemVector(ptr);    
+    MemVector current = new MemVector(ptr);
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-      StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
+      StringTokenizer tokenizer = new StringTokenizer(line, "[\t ]", false);
       //String[] split = line.split(" \t");
       if (lineNr++ >= dst.capacity) dst.increaseCapacity(40);
       int index = 0;
@@ -132,7 +132,12 @@ public class MemRelationType extends AbstractMemType implements RelationType {
         AbstractMemType type = (AbstractMemType) attribute.type();
         MemVector local = new MemVector(current);
         local.add(heading.pointerForIndex(index++));
-        type.load(tokenizer.nextToken(), dst, local);
+        try {
+          type.load(nextToken(tokenizer), dst, local);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem with reading column " + (index - 1) +
+                  " of row: " + line, e);
+        }
       }
       current.add(getDim());
       ++dst.size;
@@ -140,39 +145,20 @@ public class MemRelationType extends AbstractMemType implements RelationType {
     }
     dst.unify();
 
-//    StreamTokenizer tokenizer = new StreamTokenizer(r);
-//
-//    //tokenizer.resetSyntax();
-//    tokenizer.parseNumbers();
-//    tokenizer.wordChars('"', '"');
-//    tokenizer.wordChars('\'', '\'');
-//    //tokenizer.quoteChar('"');
-//    //tokenizer.quoteChar('\'');
-//    tokenizer.whitespaceChars(' ', ' ');
-//    tokenizer.whitespaceChars('\t', '\t');
-//    tokenizer.whitespaceChars('\n', '\n');
-//    //tokenizer.eolIsSignificant(false);
-//    MemVector current = new MemVector(ptr);
-//    int line = 0;
-//    while (tokenizer.nextToken() != StreamTokenizer.TT_EOF)
-//
-//    {
-//      if (line++ >= dst.capacity) dst.increaseCapacity(40);
-//      tokenizer.pushBack();
-//      int index = 0;
-//      System.out.print(line + " ");
-//      for (Attribute attribute : heading.attributes()) {
-//        AbstractMemType type = (AbstractMemType) attribute.type();
-//        MemVector local = new MemVector(current);
-//        local.add(heading.pointerForIndex(index++));
-//        type.load(tokenizer, dst, local);
-//      }
-//      current.add(getDim());
-//      ++dst.size;
-//    }
-//    //System.out.println(dst.size);
-//    dst.unify();
-    //System.out.println(dst.size);
+
+  }
+
+  private static String nextToken(StringTokenizer tokenizer){
+    String token = tokenizer.nextToken();
+    if (!token.startsWith("\"")) return token;
+    if (token.endsWith("\"")) return token;
+    StringBuffer result = new StringBuffer(token);
+    while (tokenizer.hasMoreTokens()){
+      token = tokenizer.nextToken();
+      result.append(" ").append(token);
+      if (token.endsWith("\"")) break;
+    }
+    return result.toString();
   }
 
 

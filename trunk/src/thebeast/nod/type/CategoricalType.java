@@ -20,6 +20,8 @@ public interface CategoricalType extends ScalarType {
 
   int index(String represenation);
 
+  boolean contains(String representation);
+
   boolean unknowns();
 
 }

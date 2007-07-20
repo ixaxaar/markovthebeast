@@ -26,9 +26,6 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
 
   private ArrayList<String> representations;
   private HashMap<String, Integer> indices;
-  private HashMap<Integer, String> unknownIndices;
-  private HashMap<String, Integer> unknownWords;
-  private boolean storeUnknowns = false;
   private boolean unknowns;
 
   public MemCategoricalType(Name name, boolean unknowns, List<String> representations) {
@@ -36,8 +33,6 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     setDim(1,0,0);
     //setNumIntCols(1);
     this.representations = new ArrayList<String>(representations);
-    this.unknownIndices = new HashMap<Integer, String>();
-    this.unknownWords = new HashMap<String, Integer>();
     indices = new HashMap<String, Integer>();
     int index = 0;
     for (String rep : representations)
@@ -77,15 +72,11 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   }
 
   private int unknownIndex(String rep) {
-    return -1;
-//    Integer index = unknownWords.get(rep);
-//    if (index == null){
-//      int result = - unknownWords.size() - 1;
-//      unknownWords.put(rep,result);
-//      unknownIndices.put(result,rep);
-//      return result;
-//    } else
-//      return index;
+    if (!unknowns) return -1;
+    int index = representations.size();
+    representations.add(rep);
+    indices.put(rep,index);
+    return index;
   }
 
   public CategoricalValue value(int index) {
@@ -97,6 +88,10 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
   public int index(String represenation) {
     Integer index = indices.get(represenation);
     return index == null ? unknownIndex(represenation) : index;
+  }
+
+  public boolean contains(String representation) {
+    return indices.get(representation) != null; 
   }
 
   public boolean unknowns() {
@@ -130,7 +125,7 @@ public class MemCategoricalType extends AbstractScalarType implements Categorica
     //System.out.println(name + " " + s);
     if (!unknowns && integer == null)
       throw new RuntimeException(this + " has no value " + s);
-    dst.intData[ptr.xInt] = integer == null ? -1 : integer;
+    dst.intData[ptr.xInt] = integer == null ? unknownIndex(s) : integer;
   }
 
 }

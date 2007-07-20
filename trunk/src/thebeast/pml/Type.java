@@ -1,6 +1,7 @@
 package thebeast.pml;
 
 import thebeast.nod.NoDServer;
+import thebeast.nod.type.CategoricalType;
 import thebeast.nod.value.CategoricalValue;
 import thebeast.nod.value.IntValue;
 import thebeast.nod.value.Value;
@@ -46,7 +47,7 @@ public class Type {
   private String name;
   private thebeast.nod.type.Type nodType;
   private Class typeClass;
-  private HashSet<String> constants;
+  //private HashSet<String> constants;
 
   public Type(String name, Class typeClass, thebeast.nod.type.Type nodType) {
     this.name = name;
@@ -61,7 +62,6 @@ public class Type {
     this.nodType = nodServer.typeFactory().createCategoricalType(
             nodServer.identifierFactory().createName(name + typeCount++), withUnknowns, constants);
     this.name = name;
-    this.constants = new HashSet<String>(constants);
   }
 
   public String getName() {
@@ -74,7 +74,12 @@ public class Type {
 
 
   public Set<String> getConstants() {
-    return Collections.unmodifiableSet(constants);
+    HashSet<String> result = new HashSet<String>();
+    CategoricalType type = ((CategoricalType) nodType);
+    for (CategoricalValue value : type.values()){
+      result.add(value.representation());
+    }
+    return result;
   }
 
   public boolean isNumeric() {
@@ -145,12 +150,14 @@ public class Type {
   public Constant getConstant(String name) {
     switch (typeClass) {
       case CATEGORICAL:
-        if (constants.contains("\"" + name + "\""))
+        CategoricalType type = (CategoricalType) nodType;
+        if (type.contains("\"" + name + "\""))
           return new CategoricalConstant(this, "\"" + name + "\"");
-        if (!constants.contains(name)) throw new NotInTypeException(name, this);
+        if (!type.contains(name)) throw new NotInTypeException(name, this);
         return new CategoricalConstant(this, name);
       case CATEGORICAL_UNKNOWN:
-        if (constants.contains("\"" + name + "\""))
+        type = (CategoricalType) nodType;
+        if (type.contains("\"" + name + "\""))
           return new CategoricalConstant(this, "\"" + name + "\"");
         return new CategoricalConstant(this, name);
       case INT:
@@ -170,12 +177,14 @@ public class Type {
   public Object getObject(String name) {
     switch (typeClass) {
       case CATEGORICAL:
-        if (constants.contains("\"" + name + "\""))
+        CategoricalType type = (CategoricalType) nodType;
+        if (type.contains("\"" + name + "\""))
           return "\"" + name + "\"";
-        if (!constants.contains(name)) throw new NotInTypeException(name, this);
+        if (!type.contains(name)) throw new NotInTypeException(name, this);
         return name;
       case CATEGORICAL_UNKNOWN:
-        if (constants.contains("\"" + name + "\""))
+        type = (CategoricalType) nodType;
+        if (type.contains("\"" + name + "\""))
           return "\"" + name + "\"";
         return name;
       case INT:
@@ -226,9 +235,11 @@ public class Type {
       case NEGATIVE_DOUBLE:
         return BigInteger.valueOf(Long.MAX_VALUE).divide(BigInteger.valueOf(2));
       case CATEGORICAL:
-        return BigInteger.valueOf(constants.size());
+        CategoricalType type = (CategoricalType) nodType;
+        return BigInteger.valueOf(type.values().size());
       case CATEGORICAL_UNKNOWN:
-        return BigInteger.valueOf(constants.size()+1);
+        type = (CategoricalType) nodType;
+        return BigInteger.valueOf(type.values().size()+1);
       case BOOL:
         return BigInteger.valueOf(2);
     }
