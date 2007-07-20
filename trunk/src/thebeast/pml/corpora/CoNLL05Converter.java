@@ -99,12 +99,14 @@ public class CoNLL05Converter {
 
           HashSet<Pair<Integer,Integer>> spans = new HashSet<Pair<Integer, Integer>>();
           HashSet<Pair<Integer,Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
+          HashSet<Pair<Integer,Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
           Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
           charniakPruned.getSpans(candidates);
           ne.getSpans(candidates);
-          args.getChunks(spans);
+          args.getChunks(argSpans);
           spans.addAll(candidates);
+          spans.addAll(argSpans);
 
           ArrayList<Pair<Integer,Integer>> sortedSpans = new ArrayList<Pair<Integer, Integer>>(spans);
           Collections.sort(sortedSpans, new Tree.SpanComparator());
@@ -145,7 +147,6 @@ public class CoNLL05Converter {
           for (Pair<Integer,Integer> span : spans){
             if (charniak.contains(span.arg1,span.arg2)){
               Tree.Path path = new Tree.Path();
-              path.add(new Tree.PathStep(from.label,true));
               Tree to = charniak.getSmallestCoveringTree(span.arg1,span.arg2);
               from.getPath(to,path);
               out.println(id++ + "\tCharniak\t\"" + path + "\"");
@@ -156,26 +157,25 @@ public class CoNLL05Converter {
           out.println();
 
           //heads
-          id = 0;
           out.println(">head");
           for (Pair<Integer, Integer> span : spans) {
+            id = span2id.get(span);
             if (charniak.contains(span.arg1, span.arg2)) {
               Tree tree = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
-              out.println(id++ + "\tCharniak\t\"" + headFinder.getHead(tree).begin + "\"");
+              out.println(id + "\tCharniak\t" + headFinder.getHead(tree).begin);
             } else {
-              out.println(id++ + "\tCharniak\tNONE");
+              out.println(id + "\tCharniak\tNONE");
             }
           }
           out.println();
 
           //args
-          id = 0;
           out.println(">arg");
-          for (Pair<Integer, Integer> span : spans) {
+          for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
+            id = span2id.get(span);
             if (!label.equals(NONE))
               out.println(id + "\t" + args.getLabel(span.arg1, span.arg2));
-            ++id;
           }
           out.println();
 
@@ -312,29 +312,31 @@ public class CoNLL05Converter {
     }
 
     public boolean activeVoice(Sentence sentence){
-      if (!label.equals("VBN")) return true;
+      if (!label.equals("\"VBN\"")) return true;
       Tree vp = parent;
+      Tree aux = vp.parent;
+      if (aux == null) return true;
       //check for "is"
-      for (Tree child : vp.children){
+      for (Tree child : aux.children){
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("is"))
           return false;
       }
       //check for "was"
-      for (Tree child : vp.children){
+      for (Tree child : aux.children){
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
           return false;
       }
       //check for "be"
-      for (Tree child : vp.children){
+      for (Tree child : aux.children){
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
           return false;
       }
       //check for "has been"
       boolean lookForBeen = false;
-      for (Tree child : vp.children){
+      for (Tree child : aux.children){
         if (child.begin == begin) break;
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
           lookForBeen = true;
@@ -344,7 +346,7 @@ public class CoNLL05Converter {
 
       //check for "had been"
       lookForBeen = false;
-      for (Tree child : vp.children){
+      for (Tree child : aux.children){
         if (child.begin == begin) break;
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("had"))
           lookForBeen = true;
@@ -359,7 +361,7 @@ public class CoNLL05Converter {
       int previous = begin;
       for (Tree child : children){
         for (int i = previous; i < child.begin; ++i){
-          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"" );
+          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"",i,i);
           result.add(tag);
         }
         result.add(child);
@@ -530,18 +532,23 @@ public class CoNLL05Converter {
         this.labels.addAll(tags);
       }
 
-      public Tree scan(Tree parent){
+      private static String normalize(String label){
+        return (label.startsWith("\"")) ? label.substring(1,label.length()-1) : label;
+
+      }
+
+      public Tree scan(Tree parent, HeadFinder finder){
         if (parent.children.size() == 0) return parent;
-        if (left){
+        if (!left){
           for (int i = parent.children.size() - 1; i >= 0; --i){
             Tree child = parent.children.get(i);
-            if (labels.contains(child.label)) return scan(child);
+            if (labels.contains(normalize(child.label))) return finder.getHead(child);
           }
         } else {
           //noinspection ForLoopReplaceableByForEach
           for (int i = 0; i < parent.children.size(); ++i){
             Tree child = parent.children.get(i);
-            if (labels.contains(child.label)) return scan(child);
+            if (labels.contains(normalize(child.label))) return finder.getHead(child);
           }
 
         }
@@ -555,9 +562,9 @@ public class CoNLL05Converter {
       if (tree.children.size() == 0) return tree;
       Rule rule = rules.get(tree.label);
       if (rule == null) return tree.children.get(tree.children.size() - 1);
-      Tree head = rule.apply(tree);
+      Tree head = rule.apply(tree, this);
       if (head == null) return tree.children.get(tree.children.size() - 1);
-      return getHead(head);
+      return head;
     }
 
     static class Rule extends LinkedList<Scan> {
@@ -567,9 +574,9 @@ public class CoNLL05Converter {
         this.label = label;
       }
 
-      public Tree apply(Tree tree){
+      public Tree apply(Tree tree, HeadFinder finder){
         for (Scan scan : this) {
-          Tree result = scan.scan(tree);
+          Tree result = scan.scan(tree, finder);
           if (result != null) return result;
         }
         return null;
