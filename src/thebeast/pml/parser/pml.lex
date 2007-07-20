@@ -23,7 +23,6 @@ private Symbol symbol(int type, Object value) {
 %%
 <YYINITIAL> "type" { return symbol(sym.TYPE); }
 <YYINITIAL> "predicate" { return symbol(sym.PREDICATE); }
-<YYINITIAL> "arg" { return symbol(sym.ARG); }
 <YYINITIAL> "sequential" { return symbol(sym.SEQ); }
 <YYINITIAL> "weight" { return symbol(sym.WEIGHT); }
 <YYINITIAL> "global" { return symbol(sym.GLOBAL); }

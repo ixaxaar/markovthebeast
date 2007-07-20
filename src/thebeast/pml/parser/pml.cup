@@ -190,6 +190,8 @@ createType ::= TYPE UPPERCASEID:id COLON namedconstantlist:l
                {: RESULT = new ParserCreateType(id,false,l); :}
              | TYPE UPPERCASEID:id COLON ELLIPSIS namedconstantlist:l
                {: RESULT = new ParserCreateType(id,true,l); :}
+             | TYPE UPPERCASEID:id COLON ELLIPSIS
+               {: RESULT = new ParserCreateType(id,true,new LinkedList<ParserNamedConstant>()); :}
                ;
 
 createPredicate ::= PREDICATE LOWERCASEID:id COLON argtypes:l
