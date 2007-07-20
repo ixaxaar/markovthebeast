@@ -83,6 +83,8 @@ public class CoNLL05Converter {
         Tree charniak = Tree.create(sentence, CHARNIAK_INDEX);
         Tree ne = Tree.create(sentence, NE_INDEX);
 
+        HashMap<Pair<Integer,Integer>,Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
+
         //count of predicates
         int predCount = sentence.get(0).size() - CORE_FEATURE_COUNT - 2;
         for (int pred = 0; pred < predCount; ++pred) {
@@ -96,28 +98,41 @@ public class CoNLL05Converter {
           Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
 
           HashSet<Pair<Integer,Integer>> spans = new HashSet<Pair<Integer, Integer>>();
+          HashSet<Pair<Integer,Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
           Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
-          charniakPruned.getSpans(spans);
-          ne.getSpans(spans);
+          charniakPruned.getSpans(candidates);
+          ne.getSpans(candidates);
           args.getChunks(spans);
+          spans.addAll(candidates);
 
-          ArrayList<Pair<Integer,Integer>> sorted = new ArrayList<Pair<Integer, Integer>>(spans);
-          Collections.sort(sorted, new Tree.SpanComparator());
+          ArrayList<Pair<Integer,Integer>> sortedSpans = new ArrayList<Pair<Integer, Integer>>(spans);
+          Collections.sort(sortedSpans, new Tree.SpanComparator());
+          ArrayList<Pair<Integer,Integer>> sortedCandidates = new ArrayList<Pair<Integer, Integer>>(candidates);
+          Collections.sort(sortedCandidates, new Tree.SpanComparator());
 
 
           //spans
           int id = 0;
           out.println(">span");
-          for (Pair<Integer,Integer> span : sorted){
+          for (Pair<Integer,Integer> span : sortedSpans){
+            span2id.put(span,id);
             out.println(id++ + "\t" + span.arg1 + "\t" + span.arg2);
           }
           out.println();
 
+          //candidates
+          out.println(">candidate");
+          for (Pair<Integer,Integer> span : sortedCandidates){
+            out.println(span2id.get(span));
+          }
+          out.println();
+
+
           //labels
           id = 0;
           out.println(">label");
-          for (Pair<Integer,Integer> span : spans){
+          for (Pair<Integer,Integer> span : candidates){
             out.println(id + "\tNE\t" + ne.getLabel(span.arg1,span.arg2));
             out.println(id++ + "\tCharniak\t" + charniakPruned.getLabel(span.arg1,span.arg2));
           }
@@ -166,7 +181,8 @@ public class CoNLL05Converter {
 
           //write out predicate information
           out.println(">pred");
-          out.println(predicateToken + "\t" + predicateLemmas.get(pred));
+          out.println(predicateToken + "\t" + predicateLemmas.get(pred) + "\t" +
+                  (predicateTree.activeVoice(sentence) ? "Active" : "Passive"));
           out.println();
 
 
@@ -291,12 +307,59 @@ public class CoNLL05Converter {
       return covers(other.begin, other.end);
     }
 
+    public boolean isToken(){
+      return begin == end;
+    }
+
+    public boolean activeVoice(Sentence sentence){
+      if (!label.equals("VBN")) return true;
+      Tree vp = parent;
+      //check for "is"
+      for (Tree child : vp.children){
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("is"))
+          return false;
+      }
+      //check for "was"
+      for (Tree child : vp.children){
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
+          return false;
+      }
+      //check for "be"
+      for (Tree child : vp.children){
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
+          return false;
+      }
+      //check for "has been"
+      boolean lookForBeen = false;
+      for (Tree child : vp.children){
+        if (child.begin == begin) break;
+        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
+          lookForBeen = true;
+        else if (lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("been"))
+          return false;
+      }
+
+      //check for "had been"
+      lookForBeen = false;
+      for (Tree child : vp.children){
+        if (child.begin == begin) break;
+        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("had"))
+          lookForBeen = true;
+        else if (lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("been"))
+          return false;
+      }
+      return true;
+    }
+
     public void augmentWithTags(Sentence sentence, int column){
       ArrayList<Tree> result = new ArrayList<Tree>();
       int previous = begin;
       for (Tree child : children){
         for (int i = previous; i < child.begin; ++i){
-          Tree tag = new Tree(this, sentence.get(i).get(column));
+          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"" );
           result.add(tag);
         }
         result.add(child);
@@ -305,7 +368,7 @@ public class CoNLL05Converter {
         previous = child.end + 1;
       }
       for (int i = previous; i <= end; ++i){
-        Tree tag = new Tree(this, sentence.get(i).get(column),i,i);
+        Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"" ,i,i);
         result.add(tag);
       }
       this.children = result;
