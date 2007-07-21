@@ -20,9 +20,19 @@ predicate pred: Int x Predicate x Voice;
 hidden: arg;
 observed: word,pos,span,label,head,candidate,pred;
 
+weight w_path: Path x Labeller x Argument -> Double;
+factor: for Int c, Path p, Labeller labeller, Argument a
+  if candidate(c) & path(c,labeller,p) add [arg(c,a)] * w_path(p,labeller,a); 
+
 load corpus from "one-sentence.crp";
 
 save corpus to ram;
+
+collect;
+
+save corpus to instances "/tmp/srl.instances.dmp";
+
+learn for 4 epochs;
 
 //next;
 

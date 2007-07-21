@@ -1,0 +1,1035 @@
+>>
+>word
+0 "In"
+1 "an"
+2 "Oct."
+3 "19"
+4 "review"
+5 "of"
+6 "``"
+7 "The"
+8 "Misanthrope"
+9 "''"
+10 "at"
+11 "Chicago"
+12 "'s"
+13 "Goodman"
+14 "Theatre"
+15 "("
+16 "``"
+17 "Revitalized"
+18 "Classics"
+19 "Take"
+20 "the"
+21 "Stage"
+22 "in"
+23 "Windy"
+24 "City"
+25 ","
+26 "''"
+27 "Leisure"
+28 "&"
+29 "Arts"
+30 ")"
+31 ","
+32 "the"
+33 "role"
+34 "of"
+35 "Celimene"
+36 ","
+37 "played"
+38 "by"
+39 "Kim"
+40 "Cattrall"
+41 ","
+42 "was"
+43 "mistakenly"
+44 "attributed"
+45 "to"
+46 "Christina"
+47 "Haag"
+48 "."
+
+>pos
+0 "IN"
+1 "DT"
+2 "NNP"
+3 "CD"
+4 "NN"
+5 "IN"
+6 "''"
+7 "DT"
+8 "NN"
+9 "''"
+10 "IN"
+11 "NNP"
+12 "POS"
+13 "NNP"
+14 "NNP"
+15 "("
+16 "''"
+17 "VBN"
+18 "NNS"
+19 "VBP"
+20 "DT"
+21 "NN"
+22 "IN"
+23 "NNP"
+24 "NNP"
+25 ","
+26 "''"
+27 "NNP"
+28 "CC"
+29 "NNPS"
+30 ")"
+31 ","
+32 "DT"
+33 "NN"
+34 "IN"
+35 "NNP"
+36 ","
+37 "VBN"
+38 "IN"
+39 "NNP"
+40 "NNP"
+41 ","
+42 "AUX"
+43 "RB"
+44 "VBN"
+45 "TO"
+46 "NNP"
+47 "NNP"
+48 "."
+
+>span
+0	0	48
+1	0	30
+2	0	0
+3	1	30
+4	1	4
+5	5	14
+6	5	5
+7	6	6
+8	7	14
+9	11	11
+10	15	30
+11	15	15
+12	16	16
+13	17	24
+14	17	18
+15	17	17
+16	18	18
+17	19	24
+18	25	25
+19	26	26
+20	27	29
+21	30	30
+22	31	31
+23	32	41
+24	42	47
+25	48	48
+
+>candidate
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+>label
+0	NE	NONE
+0	Charniak	"IN"
+1	NE	NONE
+1	Charniak	S
+2	NE	NONE
+2	Charniak	NP
+3	NE	NONE
+3	Charniak	"VBN"
+4	NE	NONE
+4	Charniak	NP
+5	NE	NONE
+5	Charniak	VP
+6	NE	NONE
+6	Charniak	"''"
+7	NE	NONE
+7	Charniak	NP
+8	NE	NONE
+8	Charniak	","
+9	NE	NONE
+9	Charniak	","
+10	NE	NONE
+10	Charniak	VP
+11	NE	NONE
+11	Charniak	PP
+12	NE	NONE
+12	Charniak	"NNS"
+13	NE	NONE
+13	Charniak	NP
+14	NE	NONE
+14	Charniak	PP
+15	NE	NONE
+15	Charniak	"''"
+16	NE	NONE
+16	Charniak	NP
+17	NE	NONE
+17	Charniak	"IN"
+18	NE	NONE
+18	Charniak	"."
+19	NE	NONE
+19	Charniak	PRN
+20	NE	NONE
+20	Charniak	"''"
+21	NE	NONE
+21	Charniak	S1
+22	NE	LOC
+22	Charniak	NONE
+23	NE	NONE
+23	Charniak	")"
+24	NE	NONE
+24	Charniak	"("
+25	NE	NONE
+25	Charniak	NP
+
+>path
+0	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP v "
+1	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+2	Charniak	"VBN ^ NP ^ "
+3	Charniak	""
+4	Charniak	"VBN ^ NP ^ S v "
+5	Charniak	"VBN ^ "
+6	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+7	Charniak	"VBN ^ NP ^ S ^ PRN v "
+8	Charniak	"VBN ^ NP ^ S ^ PRN v "
+9	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+10	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+11	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ "
+12	Charniak	"VBN ^ NP v "
+13	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
+14	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
+15	Charniak	"VBN ^ NP ^ S ^ PRN v "
+16	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+17	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+18	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+19	Charniak	"VBN ^ NP ^ S ^ "
+20	Charniak	"VBN ^ NP ^ S ^ PRN v "
+21	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ "
+22	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
+23	Charniak	"VBN ^ NP ^ S ^ PRN v "
+24	Charniak	"VBN ^ NP ^ S ^ PRN v "
+25	Charniak	"VBN ^ NP ^ S ^ PRN ^ "
+
+>head
+2	Charniak	0
+23	Charniak	33
+13	Charniak	19
+15	Charniak	17
+17	Charniak	19
+14	Charniak	18
+7	Charniak	6
+20	Charniak	29
+18	Charniak	25
+22	Charniak	31
+24	Charniak	44
+1	Charniak	0
+16	Charniak	18
+4	Charniak	4
+5	Charniak	5
+12	Charniak	16
+8	Charniak	8
+6	Charniak	5
+25	Charniak	48
+10	Charniak	30
+19	Charniak	26
+0	Charniak	0
+9	Charniak	11
+21	Charniak	30
+11	Charniak	15
+3	Charniak	4
+
+>arg
+16	A1
+15	V
+
+>pred
+17	revitalize	Active
+
+>>
+>word
+0 "In"
+1 "an"
+2 "Oct."
+3 "19"
+4 "review"
+5 "of"
+6 "``"
+7 "The"
+8 "Misanthrope"
+9 "''"
+10 "at"
+11 "Chicago"
+12 "'s"
+13 "Goodman"
+14 "Theatre"
+15 "("
+16 "``"
+17 "Revitalized"
+18 "Classics"
+19 "Take"
+20 "the"
+21 "Stage"
+22 "in"
+23 "Windy"
+24 "City"
+25 ","
+26 "''"
+27 "Leisure"
+28 "&"
+29 "Arts"
+30 ")"
+31 ","
+32 "the"
+33 "role"
+34 "of"
+35 "Celimene"
+36 ","
+37 "played"
+38 "by"
+39 "Kim"
+40 "Cattrall"
+41 ","
+42 "was"
+43 "mistakenly"
+44 "attributed"
+45 "to"
+46 "Christina"
+47 "Haag"
+48 "."
+
+>pos
+0 "IN"
+1 "DT"
+2 "NNP"
+3 "CD"
+4 "NN"
+5 "IN"
+6 "''"
+7 "DT"
+8 "NN"
+9 "''"
+10 "IN"
+11 "NNP"
+12 "POS"
+13 "NNP"
+14 "NNP"
+15 "("
+16 "''"
+17 "VBN"
+18 "NNS"
+19 "VBP"
+20 "DT"
+21 "NN"
+22 "IN"
+23 "NNP"
+24 "NNP"
+25 ","
+26 "''"
+27 "NNP"
+28 "CC"
+29 "NNPS"
+30 ")"
+31 ","
+32 "DT"
+33 "NN"
+34 "IN"
+35 "NNP"
+36 ","
+37 "VBN"
+38 "IN"
+39 "NNP"
+40 "NNP"
+41 ","
+42 "AUX"
+43 "RB"
+44 "VBN"
+45 "TO"
+46 "NNP"
+47 "NNP"
+48 "."
+
+>span
+0	0	48
+1	0	30
+2	0	0
+3	1	30
+4	1	4
+5	5	14
+6	5	5
+7	6	6
+8	7	14
+9	11	11
+10	15	30
+11	15	15
+12	16	16
+13	17	24
+14	17	18
+15	19	24
+16	19	19
+17	20	21
+18	22	24
+19	22	22
+20	23	24
+21	25	25
+22	26	26
+23	27	29
+24	30	30
+25	31	31
+26	32	41
+27	42	47
+28	48	48
+
+>candidate
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+
+>label
+0	NE	NONE
+0	Charniak	"IN"
+1	NE	NONE
+1	Charniak	NP
+2	NE	NONE
+2	Charniak	S
+3	NE	NONE
+3	Charniak	"VBP"
+4	NE	NONE
+4	Charniak	NP
+5	NE	NONE
+5	Charniak	VP
+6	NE	NONE
+6	Charniak	NP
+7	NE	NONE
+7	Charniak	"''"
+8	NE	NONE
+8	Charniak	NP
+9	NE	NONE
+9	Charniak	","
+10	NE	NONE
+10	Charniak	","
+11	NE	NONE
+11	Charniak	VP
+12	NE	NONE
+12	Charniak	PP
+13	NE	NONE
+13	Charniak	NP
+14	NE	NONE
+14	Charniak	PP
+15	NE	NONE
+15	Charniak	"''"
+16	NE	NONE
+16	Charniak	NP
+17	NE	NONE
+17	Charniak	"IN"
+18	NE	NONE
+18	Charniak	"IN"
+19	NE	NONE
+19	Charniak	PP
+20	NE	NONE
+20	Charniak	"."
+21	NE	NONE
+21	Charniak	NP
+22	NE	NONE
+22	Charniak	PRN
+23	NE	NONE
+23	Charniak	"''"
+24	NE	NONE
+24	Charniak	S1
+25	NE	LOC
+25	Charniak	NONE
+26	NE	NONE
+26	Charniak	")"
+27	NE	NONE
+27	Charniak	"("
+28	NE	NONE
+28	Charniak	NP
+
+>path
+0	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP v "
+1	Charniak	"VBP ^ VP ^ "
+2	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+3	Charniak	""
+4	Charniak	"VBP ^ "
+5	Charniak	"VBP ^ VP ^ S v "
+6	Charniak	"VBP ^ VP v PP v "
+7	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+8	Charniak	"VBP ^ VP ^ S ^ PRN v "
+9	Charniak	"VBP ^ VP ^ S ^ PRN v "
+10	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+11	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+12	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ "
+13	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
+14	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
+15	Charniak	"VBP ^ VP ^ S ^ PRN v "
+16	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+17	Charniak	"VBP ^ VP v PP v "
+18	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+19	Charniak	"VBP ^ VP v "
+20	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+21	Charniak	"VBP ^ VP v "
+22	Charniak	"VBP ^ VP ^ S ^ "
+23	Charniak	"VBP ^ VP ^ S ^ PRN v "
+24	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ "
+25	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
+26	Charniak	"VBP ^ VP ^ S ^ PRN v "
+27	Charniak	"VBP ^ VP ^ S ^ PRN v "
+28	Charniak	"VBP ^ VP ^ S ^ PRN ^ "
+
+>head
+2	Charniak	0
+13	Charniak	19
+26	Charniak	33
+16	Charniak	19
+15	Charniak	19
+14	Charniak	18
+20	Charniak	24
+7	Charniak	6
+23	Charniak	29
+21	Charniak	25
+25	Charniak	31
+27	Charniak	44
+1	Charniak	0
+4	Charniak	4
+5	Charniak	5
+12	Charniak	16
+8	Charniak	8
+19	Charniak	22
+6	Charniak	5
+18	Charniak	22
+28	Charniak	48
+17	Charniak	21
+10	Charniak	30
+22	Charniak	26
+0	Charniak	0
+9	Charniak	11
+24	Charniak	30
+11	Charniak	15
+3	Charniak	4
+
+>arg
+16	V
+14	A0
+18	AM-LOC
+17	A1
+
+>pred
+19	take	Active
+
+>>
+>word
+0 "In"
+1 "an"
+2 "Oct."
+3 "19"
+4 "review"
+5 "of"
+6 "``"
+7 "The"
+8 "Misanthrope"
+9 "''"
+10 "at"
+11 "Chicago"
+12 "'s"
+13 "Goodman"
+14 "Theatre"
+15 "("
+16 "``"
+17 "Revitalized"
+18 "Classics"
+19 "Take"
+20 "the"
+21 "Stage"
+22 "in"
+23 "Windy"
+24 "City"
+25 ","
+26 "''"
+27 "Leisure"
+28 "&"
+29 "Arts"
+30 ")"
+31 ","
+32 "the"
+33 "role"
+34 "of"
+35 "Celimene"
+36 ","
+37 "played"
+38 "by"
+39 "Kim"
+40 "Cattrall"
+41 ","
+42 "was"
+43 "mistakenly"
+44 "attributed"
+45 "to"
+46 "Christina"
+47 "Haag"
+48 "."
+
+>pos
+0 "IN"
+1 "DT"
+2 "NNP"
+3 "CD"
+4 "NN"
+5 "IN"
+6 "''"
+7 "DT"
+8 "NN"
+9 "''"
+10 "IN"
+11 "NNP"
+12 "POS"
+13 "NNP"
+14 "NNP"
+15 "("
+16 "''"
+17 "VBN"
+18 "NNS"
+19 "VBP"
+20 "DT"
+21 "NN"
+22 "IN"
+23 "NNP"
+24 "NNP"
+25 ","
+26 "''"
+27 "NNP"
+28 "CC"
+29 "NNPS"
+30 ")"
+31 ","
+32 "DT"
+33 "NN"
+34 "IN"
+35 "NNP"
+36 ","
+37 "VBN"
+38 "IN"
+39 "NNP"
+40 "NNP"
+41 ","
+42 "AUX"
+43 "RB"
+44 "VBN"
+45 "TO"
+46 "NNP"
+47 "NNP"
+48 "."
+
+>span
+0	0	48
+1	0	30
+2	0	0
+3	1	30
+4	11	11
+5	31	31
+6	32	41
+7	32	35
+8	32	33
+9	34	35
+10	34	34
+11	35	35
+12	36	36
+13	37	40
+14	37	37
+15	38	40
+16	38	38
+17	39	40
+18	41	41
+19	42	47
+20	48	48
+
+>candidate
+0
+1
+2
+3
+4
+5
+6
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+
+>label
+0	NE	NONE
+0	Charniak	"IN"
+1	NE	NONE
+1	Charniak	VP
+2	NE	NONE
+2	Charniak	NP
+3	NE	NONE
+3	Charniak	","
+4	NE	NONE
+4	Charniak	"VBN"
+5	NE	NONE
+5	Charniak	"IN"
+6	NE	NONE
+6	Charniak	NP
+7	NE	NONE
+7	Charniak	PP
+8	NE	NONE
+8	Charniak	NP
+9	NE	NONE
+9	Charniak	"."
+10	NE	NONE
+10	Charniak	"IN"
+11	NE	NONE
+11	Charniak	PP
+12	NE	NONE
+12	Charniak	NP
+13	NE	NONE
+13	Charniak	S1
+14	NE	LOC
+14	Charniak	NONE
+15	NE	NONE
+15	Charniak	","
+16	NE	NONE
+16	Charniak	","
+17	NE	NONE
+17	Charniak	VP
+18	NE	NONE
+18	Charniak	NP
+19	NE	NONE
+19	Charniak	PP
+
+>path
+0	Charniak	"VBN ^ VP ^ NP ^ S v PP v "
+1	Charniak	"VBN ^ "
+2	Charniak	"VBN ^ VP ^ "
+3	Charniak	"VBN ^ VP ^ NP v "
+4	Charniak	""
+5	Charniak	"VBN ^ VP v PP v "
+6	Charniak	"VBN ^ VP v PP v "
+7	Charniak	"VBN ^ VP v "
+8	Charniak	"VBN ^ VP ^ NP v "
+9	Charniak	NONE
+10	Charniak	"VBN ^ VP ^ NP ^ S v "
+11	Charniak	"VBN ^ VP ^ NP v PP v "
+12	Charniak	"VBN ^ VP ^ NP v "
+13	Charniak	"VBN ^ VP ^ NP v PP v NP v "
+14	Charniak	"VBN ^ VP ^ NP ^ "
+15	Charniak	"VBN ^ VP ^ NP ^ S v PP v NP v PP v NP v PP v NP v NP v "
+16	Charniak	"VBN ^ VP ^ NP v "
+17	Charniak	"VBN ^ VP ^ NP ^ S v "
+18	Charniak	"VBN ^ VP ^ NP ^ S v "
+19	Charniak	"VBN ^ VP ^ NP ^ S v PP v "
+20	Charniak	"VBN ^ VP ^ NP ^ S v "
+
+>head
+2	Charniak	0
+13	Charniak	37
+6	Charniak	33
+12	Charniak	36
+14	Charniak	37
+16	Charniak	38
+17	Charniak	40
+15	Charniak	38
+8	Charniak	33
+7	Charniak	35
+20	Charniak	48
+10	Charniak	34
+9	Charniak	34
+11	Charniak	35
+0	Charniak	0
+4	Charniak	11
+18	Charniak	41
+5	Charniak	31
+19	Charniak	44
+3	Charniak	4
+1	Charniak	0
+
+>arg
+14	V
+15	A0
+7	A1
+
+>pred
+37	play	Active
+
+>>
+>word
+0 "In"
+1 "an"
+2 "Oct."
+3 "19"
+4 "review"
+5 "of"
+6 "``"
+7 "The"
+8 "Misanthrope"
+9 "''"
+10 "at"
+11 "Chicago"
+12 "'s"
+13 "Goodman"
+14 "Theatre"
+15 "("
+16 "``"
+17 "Revitalized"
+18 "Classics"
+19 "Take"
+20 "the"
+21 "Stage"
+22 "in"
+23 "Windy"
+24 "City"
+25 ","
+26 "''"
+27 "Leisure"
+28 "&"
+29 "Arts"
+30 ")"
+31 ","
+32 "the"
+33 "role"
+34 "of"
+35 "Celimene"
+36 ","
+37 "played"
+38 "by"
+39 "Kim"
+40 "Cattrall"
+41 ","
+42 "was"
+43 "mistakenly"
+44 "attributed"
+45 "to"
+46 "Christina"
+47 "Haag"
+48 "."
+
+>pos
+0 "IN"
+1 "DT"
+2 "NNP"
+3 "CD"
+4 "NN"
+5 "IN"
+6 "''"
+7 "DT"
+8 "NN"
+9 "''"
+10 "IN"
+11 "NNP"
+12 "POS"
+13 "NNP"
+14 "NNP"
+15 "("
+16 "''"
+17 "VBN"
+18 "NNS"
+19 "VBP"
+20 "DT"
+21 "NN"
+22 "IN"
+23 "NNP"
+24 "NNP"
+25 ","
+26 "''"
+27 "NNP"
+28 "CC"
+29 "NNPS"
+30 ")"
+31 ","
+32 "DT"
+33 "NN"
+34 "IN"
+35 "NNP"
+36 ","
+37 "VBN"
+38 "IN"
+39 "NNP"
+40 "NNP"
+41 ","
+42 "AUX"
+43 "RB"
+44 "VBN"
+45 "TO"
+46 "NNP"
+47 "NNP"
+48 "."
+
+>span
+0	0	48
+1	0	30
+2	0	0
+3	1	30
+4	11	11
+5	31	31
+6	32	41
+7	42	47
+8	42	42
+9	43	47
+10	43	43
+11	44	44
+12	45	47
+13	45	45
+14	46	47
+15	48	48
+
+>candidate
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+
+>label
+0	NE	NONE
+0	Charniak	"IN"
+1	NE	NONE
+1	Charniak	NP
+2	NE	NONE
+2	Charniak	"."
+3	NE	NONE
+3	Charniak	"TO"
+4	NE	NONE
+4	Charniak	S1
+5	NE	NONE
+5	Charniak	"VBN"
+6	NE	NONE
+6	Charniak	PP
+7	NE	LOC
+7	Charniak	NONE
+8	NE	NONE
+8	Charniak	NP
+9	NE	NONE
+9	Charniak	VP
+10	NE	NONE
+10	Charniak	","
+11	NE	NONE
+11	Charniak	VP
+12	NE	NONE
+12	Charniak	ADVP
+13	NE	NONE
+13	Charniak	NP
+14	NE	NONE
+14	Charniak	"AUX"
+15	NE	NONE
+15	Charniak	PP
+
+>path
+0	Charniak	"VBN ^ VP ^ VP ^ S v PP v "
+1	Charniak	"VBN ^ VP ^ VP ^ S v "
+2	Charniak	"VBN ^ VP ^ VP ^ S v "
+3	Charniak	"VBN ^ VP v PP v "
+4	Charniak	"VBN ^ VP ^ VP ^ "
+5	Charniak	""
+6	Charniak	"VBN ^ VP v "
+7	Charniak	"VBN ^ VP ^ VP ^ S v PP v NP v PP v NP v PP v NP v NP v "
+8	Charniak	"VBN ^ VP v PP v "
+9	Charniak	"VBN ^ "
+10	Charniak	"VBN ^ VP ^ VP ^ S v "
+11	Charniak	"VBN ^ VP ^ "
+12	Charniak	"VBN ^ VP v ADVP v "
+13	Charniak	"VBN ^ VP ^ VP v "
+14	Charniak	"VBN ^ VP ^ VP ^ S v PP v "
+15	Charniak	"VBN ^ VP ^ VP ^ S v "
+
+>head
+2	Charniak	0
+6	Charniak	33
+15	Charniak	48
+13	Charniak	45
+0	Charniak	0
+11	Charniak	44
+12	Charniak	45
+4	Charniak	11
+14	Charniak	47
+9	Charniak	44
+5	Charniak	31
+7	Charniak	44
+10	Charniak	43
+8	Charniak	42
+3	Charniak	4
+1	Charniak	0
+
+>arg
+6	A1
+12	A2
+11	V
+10	AM-MNR
+1	AM-LOC
+
+>pred
+44	attribute	Passive
+
