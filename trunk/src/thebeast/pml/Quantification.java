@@ -6,6 +6,7 @@ import thebeast.pml.term.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 16:29:30
@@ -23,6 +24,10 @@ public class Quantification {
     for (Variable var : variables){
       attributes.add(factory.createAttribute("var" + index++, var.getType().getNodType()));
     }
+  }
+
+  public Quantification(Variable ... variables){
+    this(Arrays.asList(variables));
   }
 
   public List<Variable> getVariables() {

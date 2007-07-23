@@ -8,10 +8,7 @@ import thebeast.nod.value.Value;
 import thebeast.nod.value.BoolValue;
 import thebeast.pml.term.*;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.math.BigInteger;
 
 /**
@@ -31,7 +28,7 @@ public class Type {
 
   public final static String UNKNOWN = "-UNKNOWN-";
 
-  public static Type INT, DOUBLE, POS_INT, NEG_INT, POS_DOUBLE, NEG_DOUBLE;
+  public static Type INT, DOUBLE, POS_INT, NEG_INT, POS_DOUBLE, NEG_DOUBLE, SINGLETON;
 
   static {
     NoDServer nodServer = TheBeast.getInstance().getNodServer();
@@ -42,6 +39,7 @@ public class Type {
     NEG_INT = new Type("Int-", Type.Class.NEGATIVE_INT, nodServer.typeFactory().intType());
     NEG_DOUBLE = new Type("Double-", Type.Class.NEGATIVE_DOUBLE, nodServer.typeFactory().doubleType());
     BOOL = new Type("Bool", Class.BOOL, nodServer.typeFactory().boolType());
+    SINGLETON = new Type("Singleton", false, "Singleton");
   }
 
   private String name;
@@ -62,6 +60,10 @@ public class Type {
     this.nodType = nodServer.typeFactory().createCategoricalType(
             nodServer.identifierFactory().createName(name + typeCount++), withUnknowns, constants);
     this.name = name;
+  }
+
+  public Type(String name, boolean withUnknowns, String ... constants){
+    this(name, Arrays.asList(constants),withUnknowns);
   }
 
   public String getName() {

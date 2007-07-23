@@ -29,6 +29,7 @@ public class Signature {
     name2type.put(Type.DOUBLE.getName(), Type.DOUBLE);
     name2type.put(Type.INT.getName(), Type.INT);
     name2type.put(Type.BOOL.getName(), Type.BOOL);
+    name2type.put(Type.SINGLETON.getName(), Type.SINGLETON);
 
     name2function.put(IntMin.MIN.getName(), IntMin.MIN);
     name2function.put(IntMax.MAX.getName(), IntMax.MAX);    
