@@ -6,6 +6,7 @@ import thebeast.nod.type.TypeFactory;
 import thebeast.pml.Quantification;
 import thebeast.pml.TheBeast;
 import thebeast.pml.UserPredicate;
+import thebeast.pml.Type;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.DoubleConstant;
 import thebeast.pml.term.Term;
@@ -45,6 +46,8 @@ public class FactorFormula {
 
   public FactorFormula(String name, Quantification quantification, BooleanFormula condition,
                        BooleanFormula formula, Term weight) {
+    if (quantification.getVariables().size() == 0)
+      quantification = new Quantification(new Variable(Type.SINGLETON, "singleton"));
     this.quantification = quantification;
     this.condition = condition;
     this.formula = formula;

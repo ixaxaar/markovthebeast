@@ -132,26 +132,26 @@ public class CoNLL05Converter {
 
 
           //labels
-          id = 0;
           out.println(">label");
           for (Pair<Integer,Integer> span : candidates){
+            id = span2id.get(span);
             out.println(id + "\tNE\t" + ne.getLabel(span.arg1,span.arg2));
-            out.println(id++ + "\tCharniak\t" + charniakPruned.getLabel(span.arg1,span.arg2));
+            out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1,span.arg2));
           }
           out.println();
 
           //paths
-          id = 0;
           out.println(">path");
           Tree from = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
-          for (Pair<Integer,Integer> span : spans){
+          for (Pair<Integer,Integer> span : candidates){
+            id = span2id.get(span);
             if (charniak.contains(span.arg1,span.arg2)){
               Tree.Path path = new Tree.Path();
               Tree to = charniak.getSmallestCoveringTree(span.arg1,span.arg2);
               from.getPath(to,path);
-              out.println(id++ + "\tCharniak\t\"" + path + "\"");
+              out.println(id + "\tCharniak\t\"" + path + "\"");
             } else {
-              out.println(id++ + "\tCharniak\tNONE");
+              out.println(id + "\tCharniak\tNONE");
             }
           }
           out.println();
@@ -164,7 +164,7 @@ public class CoNLL05Converter {
               Tree tree = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
               out.println(id + "\tCharniak\t" + headFinder.getHead(tree).begin);
             } else {
-              out.println(id + "\tCharniak\t" + span.arg2);
+              out.println(id + "\tCharniak\t-1 ");
             }
           }
           out.println();
@@ -246,6 +246,22 @@ public class CoNLL05Converter {
 
     public void getChunks(Collection<Pair<Integer, Integer>> spans) {
       for (Tree child : children) child.getSpans(spans);
+    }
+
+    public int getLeafDistance(int from, int to){
+      if (isLeaf())
+        return begin > from && end < to ? 1 : 0;
+      int distance = 0;
+      for (Tree child : children){
+        if (child.begin > from && child.end < to){
+          distance += child.getLeafDistance(child.begin,child.end);  
+        }
+      }
+      return distance;
+    }
+
+    public boolean isLeaf(){
+      return children.size() == 0;
     }
 
     public Tree pruneXuePalmer() {
