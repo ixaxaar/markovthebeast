@@ -109,6 +109,12 @@ public class CuttingPlaneSolver implements Solver {
       setFullyGround(formula, fullyGroundAll);
   }
 
+  /**
+   * Configures this solver to work with the given model and weights
+   *
+   * @param model   the model the solver should use
+   * @param weights the weights the solver should use
+   */
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
@@ -170,6 +176,12 @@ public class CuttingPlaneSolver implements Solver {
     return profiler;
   }
 
+  /**
+   * Sets the profiler for this solver. The profiler will never be called in inner loops etc but only before and
+   * after relatively coarse subroutines such as "find violated constraints" etc.
+   *
+   * @param profiler the profiler to use
+   */
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
     if (propositionalModel != null) propositionalModel.setProfiler(profiler);
@@ -632,7 +644,9 @@ public class CuttingPlaneSolver implements Solver {
 
     //GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
     GroundAtomsPrinter printer = new SemtagPrinter();
-    printer.print(greedyAtoms, out);
+    for (UserPredicate hidden : model.getHiddenPredicates())
+      System.out.println(greedyAtoms.getGroundAtomsOf(hidden));
+    //printer.print(greedyAtoms, out);
     GroundAtoms last = greedyAtoms;
     ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());
     Evaluation evaluation = new Evaluation(model);
@@ -640,7 +654,9 @@ public class CuttingPlaneSolver implements Solver {
       GroundAtoms current = iter.previous();
       evaluation.evaluate(current, last);
       out.println(evaluation);
-      printer.print(current, out);
+      for (UserPredicate hidden : model.getHiddenPredicates())
+        System.out.println(current.getGroundAtomsOf(hidden));
+      //printer.print(current, out);
       last = current;
     }
   }

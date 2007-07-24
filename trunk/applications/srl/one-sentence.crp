@@ -211,6 +211,62 @@
 2	NE	NONE
 2	Charniak	"IN"
 
+>frame
+22	Charniak	n_n_v_n_n
+21	Charniak	n_n_v_n_n
+23	Charniak	n_n_v_n_N
+1	Charniak	n_n_v_n_n
+18	Charniak	n_n_v_n_n
+19	Charniak	n_n_v_n_n
+25	Charniak	n_n_v_n_n
+15	Charniak	n_n_V_n_n
+16	Charniak	n_n_v_n_n
+0	Charniak	n_n_v_n_n
+4	Charniak	N_n_v_n_n
+14	Charniak	n_n_v_n_n
+5	Charniak	n_n_v_n_n
+6	Charniak	n_n_v_n_n
+3	Charniak	n_n_v_n_n
+20	Charniak	n_n_v_N_n
+11	Charniak	n_n_v_n_n
+9	Charniak	n_N_v_n_n
+10	Charniak	n_n_v_n_n
+8	Charniak	n_N_v_n_n
+17	Charniak	n_n_v_n_n
+24	Charniak	n_n_v_n_n
+13	Charniak	n_n_v_n_n
+7	Charniak	n_n_v_n_n
+12	Charniak	n_n_v_n_n
+2	Charniak	n_n_v_n_n
+
+>position
+22	After
+21	After
+23	After
+1	After
+18	After
+19	After
+25	After
+15	After
+16	After
+0	After
+4	Before
+14	After
+5	Before
+6	Before
+3	After
+20	After
+11	Before
+9	Before
+10	After
+8	Before
+17	After
+24	After
+13	After
+7	Before
+12	Before
+2	Before
+
 >path
 22	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
 21	Charniak	"VBN ^ NP ^ S ^ PRN v "
@@ -273,6 +329,9 @@
 
 >pred
 17	revitalize	Active
+
+>subcat
+Charniak "VBN NNS"
 
 >>
 >word
@@ -499,6 +558,68 @@
 2	NE	NONE
 2	Charniak	"IN"
 
+>frame
+25	Charniak	n_n_n_v_n_n_n_n
+26	Charniak	n_n_n_v_n_n_n_N
+24	Charniak	n_n_n_v_n_n_n_n
+1	Charniak	n_n_n_v_n_n_n_n
+21	Charniak	n_n_n_v_n_n_n_n
+22	Charniak	n_n_n_v_n_n_n_n
+28	Charniak	n_n_n_v_n_n_n_n
+0	Charniak	n_n_n_v_n_n_n_n
+4	Charniak	N_n_n_v_n_n_n_n
+16	Charniak	n_n_n_V_n_n_n_n
+20	Charniak	n_n_n_v_n_N_n_n
+19	Charniak	n_n_n_v_n_n_n_n
+14	Charniak	n_n_N_v_n_n_n_n
+5	Charniak	n_n_n_v_n_n_n_n
+6	Charniak	n_n_n_v_n_n_n_n
+3	Charniak	n_n_n_v_n_n_n_n
+23	Charniak	n_n_n_v_n_n_N_n
+11	Charniak	n_n_n_v_n_n_n_n
+9	Charniak	n_N_n_v_n_n_n_n
+10	Charniak	n_n_n_v_n_n_n_n
+8	Charniak	n_N_n_v_n_n_n_n
+15	Charniak	n_n_n_v_n_n_n_n
+27	Charniak	n_n_n_v_n_n_n_n
+17	Charniak	n_n_n_v_N_n_n_n
+18	Charniak	n_n_n_v_n_n_n_n
+13	Charniak	n_n_n_v_n_n_n_n
+7	Charniak	n_n_n_v_n_n_n_n
+12	Charniak	n_n_n_v_n_n_n_n
+2	Charniak	n_n_n_v_n_n_n_n
+
+>position
+25	After
+26	After
+24	After
+1	After
+21	After
+22	After
+28	After
+0	After
+4	Before
+16	After
+20	After
+19	After
+14	Before
+5	Before
+6	Before
+3	After
+23	After
+11	Before
+9	Before
+10	After
+8	Before
+15	After
+27	After
+17	After
+18	After
+13	After
+7	Before
+12	Before
+2	Before
+
 >path
 25	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
 26	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
@@ -569,6 +690,9 @@
 
 >pred
 19	take	Active
+
+>subcat
+Charniak "VBP NP PP"
 
 >>
 >word
@@ -760,6 +884,50 @@
 2	NE	NONE
 2	Charniak	"IN"
 
+>frame
+10	Charniak	n_n_n_v_n
+14	Charniak	n_n_n_V_n
+5	Charniak	n_n_n_v_n
+11	Charniak	n_n_N_v_n
+12	Charniak	n_n_n_v_n
+6	Charniak	n_n_n_v_n
+1	Charniak	n_n_n_v_n
+16	Charniak	n_n_n_v_n
+20	Charniak	n_n_n_v_n
+15	Charniak	n_n_n_v_n
+0	Charniak	n_n_n_v_n
+8	Charniak	n_N_n_v_n
+19	Charniak	n_n_n_v_n
+18	Charniak	n_n_n_v_n
+13	Charniak	n_n_n_v_n
+17	Charniak	n_n_n_v_N
+9	Charniak	n_n_n_v_n
+3	Charniak	N_n_n_v_n
+4	Charniak	N_n_n_v_n
+2	Charniak	n_n_n_v_n
+
+>position
+10	Before
+14	After
+5	Before
+11	Before
+12	Before
+6	After
+1	Before
+16	After
+20	After
+15	After
+0	After
+8	Before
+19	After
+18	After
+13	After
+17	After
+9	Before
+3	Before
+4	Before
+2	Before
+
 >path
 10	Charniak	"VBN ^ VP ^ NP v PP v "
 14	Charniak	""
@@ -800,7 +968,7 @@
 13	Charniak	37
 17	Charniak	40
 9	Charniak	34
-7	Charniak	35
+7	Charniak	-1 
 3	Charniak	4
 2	Charniak	0
 4	Charniak	11
@@ -812,6 +980,9 @@
 
 >pred
 37	play	Active
+
+>subcat
+Charniak "VBN PP"
 
 >>
 >word
@@ -986,6 +1157,42 @@
 2	NE	NONE
 2	Charniak	"IN"
 
+>frame
+5	Charniak	n_n_v_n
+14	Charniak	n_n_v_N
+6	Charniak	n_N_v_n
+1	Charniak	n_n_v_n
+9	Charniak	n_n_v_n
+12	Charniak	n_n_v_n
+13	Charniak	n_n_v_n
+15	Charniak	n_n_v_n
+0	Charniak	n_n_v_n
+8	Charniak	n_n_v_n
+7	Charniak	n_n_v_n
+10	Charniak	n_n_v_n
+11	Charniak	n_n_V_n
+3	Charniak	N_n_v_n
+4	Charniak	N_n_v_n
+2	Charniak	n_n_v_n
+
+>position
+5	Before
+14	After
+6	Before
+1	Before
+9	After
+12	After
+13	After
+15	After
+0	After
+8	Before
+7	After
+10	Before
+11	After
+3	Before
+4	Before
+2	Before
+
 >path
 5	Charniak	"VBN ^ VP ^ VP ^ S v "
 14	Charniak	"VBN ^ VP v PP v "
@@ -1031,4 +1238,7 @@
 
 >pred
 44	attribute	Passive
+
+>subcat
+Charniak "ADVP VBN PP"
 
