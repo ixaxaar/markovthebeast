@@ -199,6 +199,7 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
   public void learn(TrainingInstances instances) {
+    //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
     setUpAverage();
     if (initializeWeights)
@@ -356,12 +357,13 @@ public class OnlineLearner implements Learner, HasProperties {
       vector.clear();
       usableVectors.add(vector);
     }
-
+//    System.out.println("Gold:");
 //    for (UserPredicate pred : model.getHiddenPredicates()) {
 //      System.out.println(goldAtoms.getGroundAtomsOf(pred));
-//      System.out.println(candidateAtoms.get(0).getGroundAtomsOf(pred));
+//      //System.out.println(candidateAtoms.get(0).getGroundAtomsOf(pred));
 //    }
     //System.out.println(losses);
+
 
     profiler.end();
   }

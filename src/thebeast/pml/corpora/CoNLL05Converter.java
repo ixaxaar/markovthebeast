@@ -54,7 +54,7 @@ public class CoNLL05Converter {
     }
     String mode = args[0];
     if (mode.equals("conll2pml")) {
-      conll2pml(new BufferedReader(new InputStreamReader(args.length == 2 ? new FileInputStream(args[1]) : System.in)),System.out);
+      conll2pml(new BufferedReader(new InputStreamReader(args.length == 2 ? new FileInputStream(args[1]) : System.in)), System.out);
     } else if (mode.equals("pml2conll")) {
 
     } else {
@@ -83,7 +83,7 @@ public class CoNLL05Converter {
         Tree charniak = Tree.create(sentence, CHARNIAK_INDEX);
         Tree ne = Tree.create(sentence, NE_INDEX);
 
-        HashMap<Pair<Integer,Integer>,Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
+        HashMap<Pair<Integer, Integer>, Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
 
         //count of predicates
         int predCount = sentence.get(0).size() - CORE_FEATURE_COUNT - 2;
@@ -95,60 +95,77 @@ public class CoNLL05Converter {
           printFeatures("pos", out, sentence, POS_INDEX);
 
 
-          Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
+          Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
 
-          HashSet<Pair<Integer,Integer>> spans = new HashSet<Pair<Integer, Integer>>();
-          HashSet<Pair<Integer,Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
-          HashSet<Pair<Integer,Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
+          HashSet<Pair<Integer, Integer>> spans = new HashSet<Pair<Integer, Integer>>();
+          HashSet<Pair<Integer, Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
+          HashSet<Pair<Integer, Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
           Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
+          Tree charniakFrame = charniakPruned.getSyntacticFrameTree(predicateTree);
           charniakPruned.getSpans(candidates);
           ne.getSpans(candidates);
           args.getChunks(argSpans);
           spans.addAll(candidates);
           spans.addAll(argSpans);
 
-          ArrayList<Pair<Integer,Integer>> sortedSpans = new ArrayList<Pair<Integer, Integer>>(spans);
+          ArrayList<Pair<Integer, Integer>> sortedSpans = new ArrayList<Pair<Integer, Integer>>(spans);
           Collections.sort(sortedSpans, new Tree.SpanComparator());
-          ArrayList<Pair<Integer,Integer>> sortedCandidates = new ArrayList<Pair<Integer, Integer>>(candidates);
+          ArrayList<Pair<Integer, Integer>> sortedCandidates = new ArrayList<Pair<Integer, Integer>>(candidates);
           Collections.sort(sortedCandidates, new Tree.SpanComparator());
-
 
           //spans
           int id = 0;
           out.println(">span");
-          for (Pair<Integer,Integer> span : sortedSpans){
-            span2id.put(span,id);
+          for (Pair<Integer, Integer> span : sortedSpans) {
+            span2id.put(span, id);
             out.println(id++ + "\t" + span.arg1 + "\t" + span.arg2);
           }
           out.println();
 
           //candidates
           out.println(">candidate");
-          for (Pair<Integer,Integer> span : sortedCandidates){
+          for (Pair<Integer, Integer> span : sortedCandidates) {
             out.println(span2id.get(span));
           }
           out.println();
 
-
           //labels
           out.println(">label");
-          for (Pair<Integer,Integer> span : candidates){
+          for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            out.println(id + "\tNE\t" + ne.getLabel(span.arg1,span.arg2));
-            out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1,span.arg2));
+            out.println(id + "\tNE\t" + ne.getLabel(span.arg1, span.arg2));
+            out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1, span.arg2));
+          }
+          out.println();
+
+          //frames
+          out.println(">frame");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree arg = charniakPruned.getSmallestCoveringTree(span.arg1,span.arg2);
+            out.println(id + "\tCharniak\t" + charniakFrame.getSyntacticFrameString(arg));
+          }
+          out.println();
+
+
+          //before/after
+          out.println(">position");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            out.println(id + "\t" + (span.arg2 < predicateToken ? "Before" : "After"));
           }
           out.println();
 
           //paths
           out.println(">path");
-          Tree from = charniak.getSmallestCoveringTree(predicateToken,predicateToken);
-          for (Pair<Integer,Integer> span : candidates){
+          Tree from = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
+          for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            if (charniak.contains(span.arg1,span.arg2)){
+            if (charniak.contains(span.arg1, span.arg2)) {
               Tree.Path path = new Tree.Path();
-              Tree to = charniak.getSmallestCoveringTree(span.arg1,span.arg2);
-              from.getPath(to,path);
+              Tree to = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
+              from.getPath(to, path);
               out.println(id + "\tCharniak\t\"" + path + "\"");
             } else {
               out.println(id + "\tCharniak\tNONE");
@@ -185,6 +202,9 @@ public class CoNLL05Converter {
                   (predicateTree.activeVoice(sentence) ? "Active" : "Passive"));
           out.println();
 
+          out.println(">subcat");
+          out.println("Charniak \"" + predicateTree.parent.getSubcat() + "\"");
+          out.println();
 
         }
         sentence.clear();
@@ -231,6 +251,16 @@ public class CoNLL05Converter {
       this.label = label;
     }
 
+    public String getSubcat() {
+      StringBuffer result = new StringBuffer();
+      int index = 0;
+      for (Tree child : children) {
+        if (index++ > 0) result.append(" ");
+        result.append(unquote(child.label));
+
+      }
+      return result.toString();
+    }
 
     public Tree(Tree parent, String label, int begin, int end) {
       this.parent = parent;
@@ -248,19 +278,19 @@ public class CoNLL05Converter {
       for (Tree child : children) child.getSpans(spans);
     }
 
-    public int getLeafDistance(int from, int to){
+    public int getLeafDistance(int from, int to) {
       if (isLeaf())
         return begin > from && end < to ? 1 : 0;
       int distance = 0;
-      for (Tree child : children){
-        if (child.begin > from && child.end < to){
-          distance += child.getLeafDistance(child.begin,child.end);  
+      for (Tree child : children) {
+        if (child.begin > from && child.end < to) {
+          distance += child.getLeafDistance(child.begin, child.end);
         }
       }
       return distance;
     }
 
-    public boolean isLeaf(){
+    public boolean isLeaf() {
       return children.size() == 0;
     }
 
@@ -271,8 +301,8 @@ public class CoNLL05Converter {
       Tree lastResult = null;
       while (current != null) {
         result = new Tree(current);
-        for (Tree child : current.children) {
-          if (child == lastNode){
+        if (!current.label.equals("CC")) for (Tree child : current.children) {
+          if (child == lastNode) {
             result.addChild(lastResult);
             continue;
           }
@@ -294,6 +324,62 @@ public class CoNLL05Converter {
     public void addChild(Tree tree) {
       children.add(tree);
       tree.parent = this;
+    }
+
+    public void getSyntacticFrame(List<Tree> frame, Tree predicate) {
+      if (!covers(predicate) && label.equals("NP") || this.equals(predicate)) {
+        frame.add(this);
+        return;
+      }
+      for (Tree child : children) {
+        child.getSyntacticFrame(frame, predicate);
+      }
+    }
+
+    public Tree getSyntacticFrameTree(Tree predicate) {
+      LinkedList<Tree> frame = new LinkedList<Tree>();
+      getSyntacticFrame(frame, predicate);
+      Tree result = new Tree("Frame");
+      result.begin = Integer.MAX_VALUE;
+      result.end = Integer.MIN_VALUE;
+      for (Tree tree : frame) {
+        result.addChild(new Tree(tree));
+        if (tree.begin < result.begin) result.begin = tree.begin;
+        if (tree.end > result.end) result.end = tree.end;
+      }
+      return result;
+    }
+
+    public String getSyntacticFrameString(Tree argument) {
+      StringBuffer result = new StringBuffer();
+      int index = 0;
+      for (Tree child : children) {
+        if (index++>0) result.append("_");
+        if (child.equals(argument)) {
+          result.append(unquote(child.label).substring(0,1).toUpperCase());
+        } else
+          result.append(unquote(child.label).substring(0,1).toLowerCase());
+      }
+      return result.toString();
+    }
+
+
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Tree tree = (Tree) o;
+
+      return begin == tree.begin && end == tree.end && !(label != null ? !label.equals(tree.label) : tree.label != null);
+
+    }
+
+    public int hashCode() {
+      int result;
+      result = (label != null ? label.hashCode() : 0);
+      result = 31 * result + begin;
+      result = 31 * result + end;
+      return result;
     }
 
     public Tree getRoot() {
@@ -323,36 +409,36 @@ public class CoNLL05Converter {
       return covers(other.begin, other.end);
     }
 
-    public boolean isToken(){
+    public boolean isToken() {
       return begin == end;
     }
 
-    public boolean activeVoice(Sentence sentence){
+    public boolean activeVoice(Sentence sentence) {
       if (!label.equals("\"VBN\"")) return true;
       Tree vp = parent;
       Tree aux = vp.parent;
       if (aux == null) return true;
       //check for "is"
-      for (Tree child : aux.children){
+      for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("is"))
           return false;
       }
       //check for "was"
-      for (Tree child : aux.children){
+      for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
           return false;
       }
       //check for "be"
-      for (Tree child : aux.children){
+      for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
           return false;
       }
       //check for "has been"
       boolean lookForBeen = false;
-      for (Tree child : aux.children){
+      for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
           lookForBeen = true;
@@ -362,7 +448,7 @@ public class CoNLL05Converter {
 
       //check for "had been"
       lookForBeen = false;
-      for (Tree child : aux.children){
+      for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("had"))
           lookForBeen = true;
@@ -372,21 +458,21 @@ public class CoNLL05Converter {
       return true;
     }
 
-    public void augmentWithTags(Sentence sentence, int column){
+    public void augmentWithTags(Sentence sentence, int column) {
       ArrayList<Tree> result = new ArrayList<Tree>();
       int previous = begin;
-      for (Tree child : children){
-        for (int i = previous; i < child.begin; ++i){
-          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"",i,i);
+      for (Tree child : children) {
+        for (int i = previous; i < child.begin; ++i) {
+          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
           result.add(tag);
         }
         result.add(child);
         child.augmentWithTags(sentence, column);
-        
+
         previous = child.end + 1;
       }
-      for (int i = previous; i <= end; ++i){
-        Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"" ,i,i);
+      for (int i = previous; i <= end; ++i) {
+        Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
         result.add(tag);
       }
       this.children = result;
@@ -403,13 +489,14 @@ public class CoNLL05Converter {
       return this;
     }
 
-    public String toString(){
+    public String toString() {
       StringBuffer result = new StringBuffer();
       result.append("(").append(label);
       for (Tree child : children) result.append(child);
       result.append(")");
       return result.toString();
     }
+
     public void getPath(Tree other, Path path) {
       if (covers(other)) {
         for (Tree child : children) {
@@ -549,16 +636,16 @@ public class CoNLL05Converter {
         this.labels.addAll(tags);
       }
 
-      public Tree scan(Tree parent, HeadFinder finder){
+      public Tree scan(Tree parent, HeadFinder finder) {
         if (parent.children.size() == 0) return parent;
-        if (!left){
-          for (int i = parent.children.size() - 1; i >= 0; --i){
+        if (!left) {
+          for (int i = parent.children.size() - 1; i >= 0; --i) {
             Tree child = parent.children.get(i);
             if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
         } else {
           //noinspection ForLoopReplaceableByForEach
-          for (int i = 0; i < parent.children.size(); ++i){
+          for (int i = 0; i < parent.children.size(); ++i) {
             Tree child = parent.children.get(i);
             if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
@@ -586,7 +673,7 @@ public class CoNLL05Converter {
         this.label = label;
       }
 
-      public Tree apply(Tree tree, HeadFinder finder){
+      public Tree apply(Tree tree, HeadFinder finder) {
         for (Scan scan : this) {
           Tree result = scan.scan(tree, finder);
           if (result != null) return result;
@@ -636,8 +723,8 @@ public class CoNLL05Converter {
   }
 
 
-  public static String unquote(String label){
-    return (label.startsWith("\"")) ? label.substring(1,label.length()-1) : label;
+  public static String unquote(String label) {
+    return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
 
   }
 
