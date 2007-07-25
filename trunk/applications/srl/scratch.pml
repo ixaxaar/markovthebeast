@@ -90,9 +90,9 @@ collect;
 
 save corpus to instances "/tmp/srl.instances.dmp";
 
-set learner.solver.integer = true;
+//set learner.solver.integer = true;
 set learner.loss = "avgF1";
-//set learner.solver.model.initIntegers = true;
+set learner.solver.model.initIntegers = true;
 set learner.solver.maxIterations = 10;
 //set learner.useGreedy = false;
 //set learner.maxViolations = 1000;
