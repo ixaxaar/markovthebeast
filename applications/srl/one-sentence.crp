@@ -1,5 +1,6 @@
 >>
 >word
+-1	START
 0 "In"
 1 "an"
 2 "Oct."
@@ -51,13 +52,14 @@
 48 "."
 
 >pos
+-1	START
 0 "IN"
 1 "DT"
 2 "NNP"
 3 "CD"
 4 "NN"
 5 "IN"
-6 "''"
+6 "``"
 7 "DT"
 8 "NN"
 9 "''"
@@ -67,12 +69,12 @@
 13 "NNP"
 14 "NNP"
 15 "("
-16 "''"
+16 "``"
 17 "VBN"
 18 "NNS"
 19 "VBP"
 20 "DT"
-21 "NN"
+21 "NNP"
 22 "IN"
 23 "NNP"
 24 "NNP"
@@ -80,7 +82,7 @@
 26 "''"
 27 "NNP"
 28 "CC"
-29 "NNPS"
+29 "NNS"
 30 ")"
 31 ","
 32 "DT"
@@ -93,7 +95,7 @@
 39 "NNP"
 40 "NNP"
 41 ","
-42 "AUX"
+42 "VBD"
 43 "RB"
 44 "VBN"
 45 "TO"
@@ -158,170 +160,170 @@
 25
 
 >label
-22	NE	NONE
-22	Charniak	","
-21	NE	NONE
-21	Charniak	")"
-23	NE	NONE
-23	Charniak	NP
-1	NE	NONE
-1	Charniak	PP
-18	NE	NONE
-18	Charniak	","
-19	NE	NONE
-19	Charniak	"''"
-25	NE	NONE
-25	Charniak	"."
-15	NE	NONE
-15	Charniak	"VBN"
-16	NE	NONE
-16	Charniak	"NNS"
-0	NE	NONE
-0	Charniak	S1
-4	NE	NONE
-4	Charniak	NP
-14	NE	NONE
-14	Charniak	NP
-5	NE	NONE
-5	Charniak	PP
-6	NE	NONE
-6	Charniak	"IN"
-3	NE	NONE
-3	Charniak	NP
-20	NE	NONE
-20	Charniak	NP
-11	NE	NONE
-11	Charniak	"("
-9	NE	LOC
-9	Charniak	NONE
-10	NE	NONE
-10	Charniak	PRN
-8	NE	NONE
-8	Charniak	NP
-17	NE	NONE
-17	Charniak	VP
-24	NE	NONE
-24	Charniak	VP
-13	NE	NONE
-13	Charniak	S
-7	NE	NONE
-7	Charniak	"''"
-12	NE	NONE
-12	Charniak	"''"
 2	NE	NONE
 2	Charniak	"IN"
+13	NE	NONE
+13	Charniak	S
+23	NE	NONE
+23	Charniak	NP
+15	NE	NONE
+15	Charniak	"VBN"
+14	NE	NONE
+14	Charniak	NP
+17	NE	NONE
+17	Charniak	VP
+7	NE	NONE
+7	Charniak	"``"
+20	NE	NONE
+20	Charniak	NP
+18	NE	NONE
+18	Charniak	","
+22	NE	NONE
+22	Charniak	","
+24	NE	NONE
+24	Charniak	VP
+1	NE	NONE
+1	Charniak	PP
+16	NE	NONE
+16	Charniak	"NNS"
+4	NE	NONE
+4	Charniak	NP
+5	NE	NONE
+5	Charniak	PP
+12	NE	NONE
+12	Charniak	"``"
+8	NE	NONE
+8	Charniak	NP
+6	NE	NONE
+6	Charniak	"IN"
+25	NE	NONE
+25	Charniak	"."
+10	NE	NONE
+10	Charniak	PRN
+19	NE	NONE
+19	Charniak	"''"
+0	NE	NONE
+0	Charniak	S1
+9	NE	LOC
+9	Charniak	NONE
+21	NE	NONE
+21	Charniak	")"
+11	NE	NONE
+11	Charniak	"("
+3	NE	NONE
+3	Charniak	NP
 
 >frame
-22	Charniak	n_n_v_n_n
-21	Charniak	n_n_v_n_n
-23	Charniak	n_n_v_n_N
-1	Charniak	n_n_v_n_n
-18	Charniak	n_n_v_n_n
-19	Charniak	n_n_v_n_n
-25	Charniak	n_n_v_n_n
-15	Charniak	n_n_V_n_n
-16	Charniak	n_n_v_n_n
-0	Charniak	n_n_v_n_n
-4	Charniak	N_n_v_n_n
-14	Charniak	n_n_v_n_n
-5	Charniak	n_n_v_n_n
-6	Charniak	n_n_v_n_n
-3	Charniak	n_n_v_n_n
-20	Charniak	n_n_v_N_n
-11	Charniak	n_n_v_n_n
-9	Charniak	n_N_v_n_n
-10	Charniak	n_n_v_n_n
-8	Charniak	n_N_v_n_n
-17	Charniak	n_n_v_n_n
-24	Charniak	n_n_v_n_n
-13	Charniak	n_n_v_n_n
-7	Charniak	n_n_v_n_n
-12	Charniak	n_n_v_n_n
 2	Charniak	n_n_v_n_n
+13	Charniak	n_n_v_n_n
+23	Charniak	n_n_v_n_N
+15	Charniak	n_n_V_n_n
+14	Charniak	n_n_v_n_n
+17	Charniak	n_n_v_n_n
+7	Charniak	n_n_v_n_n
+20	Charniak	n_n_v_N_n
+18	Charniak	n_n_v_n_n
+22	Charniak	n_n_v_n_n
+24	Charniak	n_n_v_n_n
+1	Charniak	n_n_v_n_n
+16	Charniak	n_n_v_n_n
+4	Charniak	N_n_v_n_n
+5	Charniak	n_n_v_n_n
+12	Charniak	n_n_v_n_n
+8	Charniak	n_N_v_n_n
+6	Charniak	n_n_v_n_n
+25	Charniak	n_n_v_n_n
+10	Charniak	n_n_v_n_n
+19	Charniak	n_n_v_n_n
+0	Charniak	n_n_v_n_n
+9	Charniak	n_N_v_n_n
+21	Charniak	n_n_v_n_n
+11	Charniak	n_n_v_n_n
+3	Charniak	n_n_v_n_n
 
 >position
-22	After
-21	After
-23	After
-1	After
-18	After
-19	After
-25	After
-15	After
-16	After
-0	After
-4	Before
-14	After
-5	Before
-6	Before
-3	After
-20	After
-11	Before
-9	Before
-10	After
-8	Before
-17	After
-24	After
-13	After
-7	Before
-12	Before
 2	Before
+13	After
+23	After
+15	After
+14	After
+17	After
+7	Before
+20	After
+18	After
+22	After
+24	After
+1	After
+16	After
+4	Before
+5	Before
+12	Before
+8	Before
+6	Before
+25	After
+10	After
+19	After
+0	After
+9	Before
+21	After
+11	Before
+3	After
 
 >path
-22	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
-21	Charniak	"VBN ^ NP ^ S ^ PRN v "
-23	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
-1	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ "
-18	Charniak	"VBN ^ NP ^ S ^ PRN v "
-19	Charniak	"VBN ^ NP ^ S ^ PRN v "
-25	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
-15	Charniak	""
-16	Charniak	"VBN ^ NP v "
-0	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ "
-4	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
-14	Charniak	"VBN ^ "
-5	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
-6	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
-3	Charniak	"VBN ^ NP ^ S ^ PRN ^ "
-20	Charniak	"VBN ^ NP ^ S ^ PRN v "
-11	Charniak	"VBN ^ NP ^ S ^ PRN v "
-9	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
-10	Charniak	"VBN ^ NP ^ S ^ "
-8	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
-17	Charniak	"VBN ^ NP ^ S v "
-24	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
-13	Charniak	"VBN ^ NP ^ "
-7	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
-12	Charniak	"VBN ^ NP ^ S ^ PRN v "
 2	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP v "
+13	Charniak	"VBN ^ NP ^ "
+23	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+15	Charniak	""
+14	Charniak	"VBN ^ "
+17	Charniak	"VBN ^ NP ^ S v "
+7	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+20	Charniak	"VBN ^ NP ^ S ^ PRN v "
+18	Charniak	"VBN ^ NP ^ S ^ PRN v "
+22	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+24	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+1	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ "
+16	Charniak	"VBN ^ NP v "
+4	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
+5	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v "
+12	Charniak	"VBN ^ NP ^ S ^ PRN v "
+8	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+6	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v "
+25	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ S v "
+10	Charniak	"VBN ^ NP ^ S ^ "
+19	Charniak	"VBN ^ NP ^ S ^ PRN v "
+0	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP ^ PP ^ "
+9	Charniak	"VBN ^ NP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
+21	Charniak	"VBN ^ NP ^ S ^ PRN v "
+11	Charniak	"VBN ^ NP ^ S ^ PRN v "
+3	Charniak	"VBN ^ NP ^ S ^ PRN ^ "
 
 >head
-22	Charniak	31
-23	Charniak	33
-21	Charniak	30
-1	Charniak	0
-19	Charniak	26
-18	Charniak	25
-25	Charniak	48
-16	Charniak	18
-15	Charniak	17
-0	Charniak	0
-4	Charniak	4
-14	Charniak	18
-5	Charniak	5
-6	Charniak	5
-3	Charniak	4
-20	Charniak	29
-11	Charniak	15
-9	Charniak	11
-10	Charniak	30
-8	Charniak	8
-17	Charniak	19
-24	Charniak	44
-13	Charniak	19
-7	Charniak	6
-12	Charniak	16
 2	Charniak	0
+23	Charniak	33
+13	Charniak	19
+15	Charniak	17
+17	Charniak	19
+14	Charniak	18
+7	Charniak	6
+20	Charniak	29
+18	Charniak	25
+22	Charniak	31
+24	Charniak	42
+1	Charniak	0
+16	Charniak	18
+4	Charniak	4
+5	Charniak	5
+12	Charniak	16
+8	Charniak	8
+6	Charniak	5
+25	Charniak	48
+10	Charniak	30
+19	Charniak	26
+0	Charniak	0
+9	Charniak	11
+21	Charniak	30
+11	Charniak	15
+3	Charniak	4
 
 >arg
 16	A1
@@ -335,6 +337,7 @@ Charniak "VBN NNS"
 
 >>
 >word
+-1	START
 0 "In"
 1 "an"
 2 "Oct."
@@ -386,13 +389,14 @@ Charniak "VBN NNS"
 48 "."
 
 >pos
+-1	START
 0 "IN"
 1 "DT"
 2 "NNP"
 3 "CD"
 4 "NN"
 5 "IN"
-6 "''"
+6 "``"
 7 "DT"
 8 "NN"
 9 "''"
@@ -402,12 +406,12 @@ Charniak "VBN NNS"
 13 "NNP"
 14 "NNP"
 15 "("
-16 "''"
+16 "``"
 17 "VBN"
 18 "NNS"
 19 "VBP"
 20 "DT"
-21 "NN"
+21 "NNP"
 22 "IN"
 23 "NNP"
 24 "NNP"
@@ -415,7 +419,7 @@ Charniak "VBN NNS"
 26 "''"
 27 "NNP"
 28 "CC"
-29 "NNPS"
+29 "NNS"
 30 ")"
 31 ","
 32 "DT"
@@ -428,7 +432,7 @@ Charniak "VBN NNS"
 39 "NNP"
 40 "NNP"
 41 ","
-42 "AUX"
+42 "VBD"
 43 "RB"
 44 "VBN"
 45 "TO"
@@ -499,194 +503,194 @@ Charniak "VBN NNS"
 28
 
 >label
-25	NE	NONE
-25	Charniak	","
-26	NE	NONE
-26	Charniak	NP
-24	NE	NONE
-24	Charniak	")"
-1	NE	NONE
-1	Charniak	PP
-21	NE	NONE
-21	Charniak	","
-22	NE	NONE
-22	Charniak	"''"
-28	NE	NONE
-28	Charniak	"."
-0	NE	NONE
-0	Charniak	S1
-4	NE	NONE
-4	Charniak	NP
-16	NE	NONE
-16	Charniak	"VBP"
-20	NE	NONE
-20	Charniak	NP
-19	NE	NONE
-19	Charniak	"IN"
-14	NE	NONE
-14	Charniak	NP
-5	NE	NONE
-5	Charniak	PP
-6	NE	NONE
-6	Charniak	"IN"
-3	NE	NONE
-3	Charniak	NP
-23	NE	NONE
-23	Charniak	NP
-11	NE	NONE
-11	Charniak	"("
-9	NE	LOC
-9	Charniak	NONE
-10	NE	NONE
-10	Charniak	PRN
-8	NE	NONE
-8	Charniak	NP
-15	NE	NONE
-15	Charniak	VP
-27	NE	NONE
-27	Charniak	VP
-17	NE	NONE
-17	Charniak	NP
-18	NE	NONE
-18	Charniak	PP
-13	NE	NONE
-13	Charniak	S
-7	NE	NONE
-7	Charniak	"''"
-12	NE	NONE
-12	Charniak	"''"
 2	NE	NONE
 2	Charniak	"IN"
+26	NE	NONE
+26	Charniak	NP
+13	NE	NONE
+13	Charniak	S
+16	NE	NONE
+16	Charniak	"VBP"
+14	NE	NONE
+14	Charniak	NP
+15	NE	NONE
+15	Charniak	VP
+20	NE	NONE
+20	Charniak	NP
+7	NE	NONE
+7	Charniak	"``"
+23	NE	NONE
+23	Charniak	NP
+21	NE	NONE
+21	Charniak	","
+25	NE	NONE
+25	Charniak	","
+27	NE	NONE
+27	Charniak	VP
+1	NE	NONE
+1	Charniak	PP
+4	NE	NONE
+4	Charniak	NP
+5	NE	NONE
+5	Charniak	PP
+12	NE	NONE
+12	Charniak	"``"
+8	NE	NONE
+8	Charniak	NP
+19	NE	NONE
+19	Charniak	"IN"
+6	NE	NONE
+6	Charniak	"IN"
+18	NE	NONE
+18	Charniak	PP
+28	NE	NONE
+28	Charniak	"."
+17	NE	NONE
+17	Charniak	NP
+10	NE	NONE
+10	Charniak	PRN
+22	NE	NONE
+22	Charniak	"''"
+0	NE	NONE
+0	Charniak	S1
+9	NE	LOC
+9	Charniak	NONE
+24	NE	NONE
+24	Charniak	")"
+11	NE	NONE
+11	Charniak	"("
+3	NE	NONE
+3	Charniak	NP
 
 >frame
-25	Charniak	n_n_n_v_n_n_n_n
-26	Charniak	n_n_n_v_n_n_n_N
-24	Charniak	n_n_n_v_n_n_n_n
-1	Charniak	n_n_n_v_n_n_n_n
-21	Charniak	n_n_n_v_n_n_n_n
-22	Charniak	n_n_n_v_n_n_n_n
-28	Charniak	n_n_n_v_n_n_n_n
-0	Charniak	n_n_n_v_n_n_n_n
-4	Charniak	N_n_n_v_n_n_n_n
-16	Charniak	n_n_n_V_n_n_n_n
-20	Charniak	n_n_n_v_n_N_n_n
-19	Charniak	n_n_n_v_n_n_n_n
-14	Charniak	n_n_N_v_n_n_n_n
-5	Charniak	n_n_n_v_n_n_n_n
-6	Charniak	n_n_n_v_n_n_n_n
-3	Charniak	n_n_n_v_n_n_n_n
-23	Charniak	n_n_n_v_n_n_N_n
-11	Charniak	n_n_n_v_n_n_n_n
-9	Charniak	n_N_n_v_n_n_n_n
-10	Charniak	n_n_n_v_n_n_n_n
-8	Charniak	n_N_n_v_n_n_n_n
-15	Charniak	n_n_n_v_n_n_n_n
-27	Charniak	n_n_n_v_n_n_n_n
-17	Charniak	n_n_n_v_N_n_n_n
-18	Charniak	n_n_n_v_n_n_n_n
-13	Charniak	n_n_n_v_n_n_n_n
-7	Charniak	n_n_n_v_n_n_n_n
-12	Charniak	n_n_n_v_n_n_n_n
 2	Charniak	n_n_n_v_n_n_n_n
+26	Charniak	n_n_n_v_n_n_n_N
+13	Charniak	n_n_n_v_n_n_n_n
+16	Charniak	n_n_n_V_n_n_n_n
+14	Charniak	n_n_N_v_n_n_n_n
+15	Charniak	n_n_n_v_n_n_n_n
+20	Charniak	n_n_n_v_n_N_n_n
+7	Charniak	n_n_n_v_n_n_n_n
+23	Charniak	n_n_n_v_n_n_N_n
+21	Charniak	n_n_n_v_n_n_n_n
+25	Charniak	n_n_n_v_n_n_n_n
+27	Charniak	n_n_n_v_n_n_n_n
+1	Charniak	n_n_n_v_n_n_n_n
+4	Charniak	N_n_n_v_n_n_n_n
+5	Charniak	n_n_n_v_n_n_n_n
+12	Charniak	n_n_n_v_n_n_n_n
+8	Charniak	n_N_n_v_n_n_n_n
+19	Charniak	n_n_n_v_n_n_n_n
+6	Charniak	n_n_n_v_n_n_n_n
+18	Charniak	n_n_n_v_n_n_n_n
+28	Charniak	n_n_n_v_n_n_n_n
+17	Charniak	n_n_n_v_N_n_n_n
+10	Charniak	n_n_n_v_n_n_n_n
+22	Charniak	n_n_n_v_n_n_n_n
+0	Charniak	n_n_n_v_n_n_n_n
+9	Charniak	n_N_n_v_n_n_n_n
+24	Charniak	n_n_n_v_n_n_n_n
+11	Charniak	n_n_n_v_n_n_n_n
+3	Charniak	n_n_n_v_n_n_n_n
 
 >position
-25	After
-26	After
-24	After
-1	After
-21	After
-22	After
-28	After
-0	After
-4	Before
-16	After
-20	After
-19	After
-14	Before
-5	Before
-6	Before
-3	After
-23	After
-11	Before
-9	Before
-10	After
-8	Before
-15	After
-27	After
-17	After
-18	After
-13	After
-7	Before
-12	Before
 2	Before
+26	After
+13	After
+16	After
+14	Before
+15	After
+20	After
+7	Before
+23	After
+21	After
+25	After
+27	After
+1	After
+4	Before
+5	Before
+12	Before
+8	Before
+19	After
+6	Before
+18	After
+28	After
+17	After
+10	After
+22	After
+0	After
+9	Before
+24	After
+11	Before
+3	After
 
 >path
-25	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
-26	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
-24	Charniak	"VBP ^ VP ^ S ^ PRN v "
-1	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ "
-21	Charniak	"VBP ^ VP ^ S ^ PRN v "
-22	Charniak	"VBP ^ VP ^ S ^ PRN v "
-28	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
-0	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ "
-4	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
-16	Charniak	""
-20	Charniak	"VBP ^ VP v PP v "
-19	Charniak	"VBP ^ VP v PP v "
-14	Charniak	"VBP ^ VP ^ S v "
-5	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
-6	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
-3	Charniak	"VBP ^ VP ^ S ^ PRN ^ "
-23	Charniak	"VBP ^ VP ^ S ^ PRN v "
-11	Charniak	"VBP ^ VP ^ S ^ PRN v "
-9	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
-10	Charniak	"VBP ^ VP ^ S ^ "
-8	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
-15	Charniak	"VBP ^ "
-27	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
-17	Charniak	"VBP ^ VP v "
-18	Charniak	"VBP ^ VP v "
-13	Charniak	"VBP ^ VP ^ "
-7	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
-12	Charniak	"VBP ^ VP ^ S ^ PRN v "
 2	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP v "
+26	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+13	Charniak	"VBP ^ VP ^ "
+16	Charniak	""
+14	Charniak	"VBP ^ VP ^ S v "
+15	Charniak	"VBP ^ "
+20	Charniak	"VBP ^ VP v PP v "
+7	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+23	Charniak	"VBP ^ VP ^ S ^ PRN v "
+21	Charniak	"VBP ^ VP ^ S ^ PRN v "
+25	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+27	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+1	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ "
+4	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
+5	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v "
+12	Charniak	"VBP ^ VP ^ S ^ PRN v "
+8	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+19	Charniak	"VBP ^ VP v PP v "
+6	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v "
+18	Charniak	"VBP ^ VP v "
+28	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ S v "
+17	Charniak	"VBP ^ VP v "
+10	Charniak	"VBP ^ VP ^ S ^ "
+22	Charniak	"VBP ^ VP ^ S ^ PRN v "
+0	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP ^ PP ^ "
+9	Charniak	"VBP ^ VP ^ S ^ PRN ^ NP v PP v NP v PP v NP v NP v "
+24	Charniak	"VBP ^ VP ^ S ^ PRN v "
+11	Charniak	"VBP ^ VP ^ S ^ PRN v "
+3	Charniak	"VBP ^ VP ^ S ^ PRN ^ "
 
 >head
-25	Charniak	31
-24	Charniak	30
-26	Charniak	33
-1	Charniak	0
-22	Charniak	26
-21	Charniak	25
-28	Charniak	48
-0	Charniak	0
-16	Charniak	19
-4	Charniak	4
-20	Charniak	24
-19	Charniak	22
-14	Charniak	18
-5	Charniak	5
-6	Charniak	5
-3	Charniak	4
-23	Charniak	29
-11	Charniak	15
-9	Charniak	11
-10	Charniak	30
-8	Charniak	8
-15	Charniak	19
-27	Charniak	44
-17	Charniak	21
-18	Charniak	22
-13	Charniak	19
-7	Charniak	6
-12	Charniak	16
 2	Charniak	0
+13	Charniak	19
+26	Charniak	33
+16	Charniak	19
+15	Charniak	19
+14	Charniak	18
+20	Charniak	24
+7	Charniak	6
+23	Charniak	29
+21	Charniak	25
+25	Charniak	31
+27	Charniak	42
+1	Charniak	0
+4	Charniak	4
+5	Charniak	5
+12	Charniak	16
+8	Charniak	8
+19	Charniak	22
+6	Charniak	5
+18	Charniak	22
+28	Charniak	48
+17	Charniak	21
+10	Charniak	30
+22	Charniak	26
+0	Charniak	0
+9	Charniak	11
+24	Charniak	30
+11	Charniak	15
+3	Charniak	4
 
 >arg
-18	AM-LOC
 16	V
-17	A1
 14	A0
+18	AM-LOC
+17	A1
 
 >pred
 19	take	Active
@@ -696,6 +700,7 @@ Charniak "VBP NP PP"
 
 >>
 >word
+-1	START
 0 "In"
 1 "an"
 2 "Oct."
@@ -747,13 +752,14 @@ Charniak "VBP NP PP"
 48 "."
 
 >pos
+-1	START
 0 "IN"
 1 "DT"
 2 "NNP"
 3 "CD"
 4 "NN"
 5 "IN"
-6 "''"
+6 "``"
 7 "DT"
 8 "NN"
 9 "''"
@@ -763,12 +769,12 @@ Charniak "VBP NP PP"
 13 "NNP"
 14 "NNP"
 15 "("
-16 "''"
+16 "``"
 17 "VBN"
 18 "NNS"
 19 "VBP"
 20 "DT"
-21 "NN"
+21 "NNP"
 22 "IN"
 23 "NNP"
 24 "NNP"
@@ -776,7 +782,7 @@ Charniak "VBP NP PP"
 26 "''"
 27 "NNP"
 28 "CC"
-29 "NNPS"
+29 "NNS"
 30 ")"
 31 ","
 32 "DT"
@@ -789,7 +795,7 @@ Charniak "VBP NP PP"
 39 "NNP"
 40 "NNP"
 41 ","
-42 "AUX"
+42 "VBD"
 43 "RB"
 44 "VBN"
 45 "TO"
@@ -843,140 +849,140 @@ Charniak "VBP NP PP"
 20
 
 >label
-10	NE	NONE
-10	Charniak	"IN"
-14	NE	NONE
-14	Charniak	"VBN"
-5	NE	NONE
-5	Charniak	","
-11	NE	NONE
-11	Charniak	NP
-12	NE	NONE
-12	Charniak	","
-6	NE	NONE
-6	Charniak	NP
-1	NE	NONE
-1	Charniak	PP
-16	NE	NONE
-16	Charniak	"IN"
-20	NE	NONE
-20	Charniak	"."
-15	NE	NONE
-15	Charniak	PP
-0	NE	NONE
-0	Charniak	S1
-8	NE	NONE
-8	Charniak	NP
-19	NE	NONE
-19	Charniak	VP
-18	NE	NONE
-18	Charniak	","
-13	NE	NONE
-13	Charniak	VP
-17	NE	NONE
-17	Charniak	NP
-9	NE	NONE
-9	Charniak	PP
-3	NE	NONE
-3	Charniak	NP
-4	NE	LOC
-4	Charniak	NONE
 2	NE	NONE
 2	Charniak	"IN"
+13	NE	NONE
+13	Charniak	VP
+6	NE	NONE
+6	Charniak	NP
+12	NE	NONE
+12	Charniak	","
+14	NE	NONE
+14	Charniak	"VBN"
+16	NE	NONE
+16	Charniak	"IN"
+17	NE	NONE
+17	Charniak	NP
+15	NE	NONE
+15	Charniak	PP
+8	NE	NONE
+8	Charniak	NP
+20	NE	NONE
+20	Charniak	"."
+10	NE	NONE
+10	Charniak	"IN"
+9	NE	NONE
+9	Charniak	PP
+11	NE	NONE
+11	Charniak	NP
+0	NE	NONE
+0	Charniak	S1
+4	NE	LOC
+4	Charniak	NONE
+18	NE	NONE
+18	Charniak	","
+5	NE	NONE
+5	Charniak	","
+19	NE	NONE
+19	Charniak	VP
+3	NE	NONE
+3	Charniak	NP
+1	NE	NONE
+1	Charniak	PP
 
 >frame
-10	Charniak	n_n_n_v_n
-14	Charniak	n_n_n_V_n
-5	Charniak	n_n_n_v_n
-11	Charniak	n_n_N_v_n
-12	Charniak	n_n_n_v_n
-6	Charniak	n_n_n_v_n
-1	Charniak	n_n_n_v_n
-16	Charniak	n_n_n_v_n
-20	Charniak	n_n_n_v_n
-15	Charniak	n_n_n_v_n
-0	Charniak	n_n_n_v_n
-8	Charniak	n_N_n_v_n
-19	Charniak	n_n_n_v_n
-18	Charniak	n_n_n_v_n
-13	Charniak	n_n_n_v_n
-17	Charniak	n_n_n_v_N
-9	Charniak	n_n_n_v_n
-3	Charniak	N_n_n_v_n
-4	Charniak	N_n_n_v_n
 2	Charniak	n_n_n_v_n
+13	Charniak	n_n_n_v_n
+6	Charniak	n_n_n_v_n
+12	Charniak	n_n_n_v_n
+14	Charniak	n_n_n_V_n
+16	Charniak	n_n_n_v_n
+17	Charniak	n_n_n_v_N
+15	Charniak	n_n_n_v_n
+8	Charniak	n_N_n_v_n
+20	Charniak	n_n_n_v_n
+10	Charniak	n_n_n_v_n
+9	Charniak	n_n_n_v_n
+11	Charniak	n_n_N_v_n
+0	Charniak	n_n_n_v_n
+4	Charniak	N_n_n_v_n
+18	Charniak	n_n_n_v_n
+5	Charniak	n_n_n_v_n
+19	Charniak	n_n_n_v_n
+3	Charniak	N_n_n_v_n
+1	Charniak	n_n_n_v_n
 
 >position
-10	Before
-14	After
-5	Before
-11	Before
-12	Before
-6	After
-1	Before
-16	After
-20	After
-15	After
-0	After
-8	Before
-19	After
-18	After
-13	After
-17	After
-9	Before
-3	Before
-4	Before
 2	Before
+13	After
+6	After
+12	Before
+14	After
+16	After
+17	After
+15	After
+8	Before
+20	After
+10	Before
+9	Before
+11	Before
+0	After
+4	Before
+18	After
+5	Before
+19	After
+3	Before
+1	Before
 
 >path
-10	Charniak	"VBN ^ VP ^ NP v PP v "
-14	Charniak	""
-5	Charniak	"VBN ^ VP ^ NP ^ S v "
-11	Charniak	"VBN ^ VP ^ NP v PP v NP v "
-12	Charniak	"VBN ^ VP ^ NP v "
-6	Charniak	"VBN ^ VP ^ "
-1	Charniak	"VBN ^ VP ^ NP ^ S v "
-16	Charniak	"VBN ^ VP v PP v "
-20	Charniak	"VBN ^ VP ^ NP ^ S v "
-15	Charniak	"VBN ^ VP v "
-0	Charniak	"VBN ^ VP ^ NP ^ "
-8	Charniak	"VBN ^ VP ^ NP v "
-19	Charniak	"VBN ^ VP ^ NP ^ S v "
-18	Charniak	"VBN ^ VP ^ NP v "
-13	Charniak	"VBN ^ "
-17	Charniak	"VBN ^ VP v PP v "
-9	Charniak	"VBN ^ VP ^ NP v "
-3	Charniak	"VBN ^ VP ^ NP ^ S v PP v "
-4	Charniak	"VBN ^ VP ^ NP ^ S v PP v NP v PP v NP v PP v NP v NP v "
 2	Charniak	"VBN ^ VP ^ NP ^ S v PP v "
+13	Charniak	"VBN ^ "
+6	Charniak	"VBN ^ VP ^ "
+12	Charniak	"VBN ^ VP ^ NP v "
+14	Charniak	""
+16	Charniak	"VBN ^ VP v PP v "
+17	Charniak	"VBN ^ VP v PP v "
+15	Charniak	"VBN ^ VP v "
+8	Charniak	"VBN ^ VP ^ NP v "
+20	Charniak	"VBN ^ VP ^ NP ^ S v "
+10	Charniak	"VBN ^ VP ^ NP v PP v "
+9	Charniak	"VBN ^ VP ^ NP v "
+11	Charniak	"VBN ^ VP ^ NP v PP v NP v "
+0	Charniak	"VBN ^ VP ^ NP ^ "
+4	Charniak	"VBN ^ VP ^ NP ^ S v PP v NP v PP v NP v PP v NP v NP v "
+18	Charniak	"VBN ^ VP ^ NP v "
+5	Charniak	"VBN ^ VP ^ NP ^ S v "
+19	Charniak	"VBN ^ VP ^ NP ^ S v "
+3	Charniak	"VBN ^ VP ^ NP ^ S v PP v "
+1	Charniak	"VBN ^ VP ^ NP ^ S v "
 
 >head
-10	Charniak	34
-14	Charniak	37
-5	Charniak	31
-11	Charniak	35
-12	Charniak	36
-6	Charniak	33
-1	Charniak	0
-16	Charniak	38
-20	Charniak	48
-15	Charniak	38
-0	Charniak	0
-8	Charniak	33
-19	Charniak	44
-18	Charniak	41
-13	Charniak	37
-17	Charniak	40
-9	Charniak	34
-7	Charniak	-1 
-3	Charniak	4
 2	Charniak	0
+13	Charniak	37
+6	Charniak	33
+12	Charniak	36
+14	Charniak	37
+16	Charniak	38
+17	Charniak	40
+15	Charniak	38
+8	Charniak	33
+7	Charniak	-1 
+20	Charniak	48
+10	Charniak	34
+9	Charniak	34
+11	Charniak	35
+0	Charniak	0
 4	Charniak	11
+18	Charniak	41
+5	Charniak	31
+19	Charniak	42
+3	Charniak	4
+1	Charniak	0
 
 >arg
 14	V
-7	A1
 15	A0
+7	A1
 
 >pred
 37	play	Active
@@ -986,6 +992,7 @@ Charniak "VBN PP"
 
 >>
 >word
+-1	START
 0 "In"
 1 "an"
 2 "Oct."
@@ -1037,13 +1044,14 @@ Charniak "VBN PP"
 48 "."
 
 >pos
+-1	START
 0 "IN"
 1 "DT"
 2 "NNP"
 3 "CD"
 4 "NN"
 5 "IN"
-6 "''"
+6 "``"
 7 "DT"
 8 "NN"
 9 "''"
@@ -1053,12 +1061,12 @@ Charniak "VBN PP"
 13 "NNP"
 14 "NNP"
 15 "("
-16 "''"
+16 "``"
 17 "VBN"
 18 "NNS"
 19 "VBP"
 20 "DT"
-21 "NN"
+21 "NNP"
 22 "IN"
 23 "NNP"
 24 "NNP"
@@ -1066,7 +1074,7 @@ Charniak "VBN PP"
 26 "''"
 27 "NNP"
 28 "CC"
-29 "NNPS"
+29 "NNS"
 30 ")"
 31 ","
 32 "DT"
@@ -1079,7 +1087,7 @@ Charniak "VBN PP"
 39 "NNP"
 40 "NNP"
 41 ","
-42 "AUX"
+42 "VBD"
 43 "RB"
 44 "VBN"
 45 "TO"
@@ -1124,117 +1132,117 @@ Charniak "VBN PP"
 15
 
 >label
-5	NE	NONE
-5	Charniak	","
-14	NE	NONE
-14	Charniak	NP
+2	NE	NONE
+2	Charniak	"IN"
 6	NE	NONE
 6	Charniak	NP
-1	NE	NONE
-1	Charniak	PP
-9	NE	NONE
-9	Charniak	VP
-12	NE	NONE
-12	Charniak	PP
-13	NE	NONE
-13	Charniak	"TO"
 15	NE	NONE
 15	Charniak	"."
+13	NE	NONE
+13	Charniak	"TO"
 0	NE	NONE
 0	Charniak	S1
-8	NE	NONE
-8	Charniak	"AUX"
+11	NE	NONE
+11	Charniak	"VBN"
+12	NE	NONE
+12	Charniak	PP
+4	NE	LOC
+4	Charniak	NONE
+14	NE	NONE
+14	Charniak	NP
+9	NE	NONE
+9	Charniak	VP
+5	NE	NONE
+5	Charniak	","
 7	NE	NONE
 7	Charniak	VP
 10	NE	NONE
 10	Charniak	ADVP
-11	NE	NONE
-11	Charniak	"VBN"
 3	NE	NONE
 3	Charniak	NP
-4	NE	LOC
-4	Charniak	NONE
-2	NE	NONE
-2	Charniak	"IN"
+8	NE	NONE
+8	Charniak	"VBD"
+1	NE	NONE
+1	Charniak	PP
 
 >frame
-5	Charniak	n_n_v_n
-14	Charniak	n_n_v_N
+2	Charniak	n_n_v_n
 6	Charniak	n_N_v_n
-1	Charniak	n_n_v_n
-9	Charniak	n_n_v_n
-12	Charniak	n_n_v_n
-13	Charniak	n_n_v_n
 15	Charniak	n_n_v_n
+13	Charniak	n_n_v_n
 0	Charniak	n_n_v_n
-8	Charniak	n_n_v_n
+11	Charniak	n_n_V_n
+12	Charniak	n_n_v_n
+4	Charniak	N_n_v_n
+14	Charniak	n_n_v_N
+9	Charniak	n_n_v_n
+5	Charniak	n_n_v_n
 7	Charniak	n_n_v_n
 10	Charniak	n_n_v_n
-11	Charniak	n_n_V_n
 3	Charniak	N_n_v_n
-4	Charniak	N_n_v_n
-2	Charniak	n_n_v_n
+8	Charniak	n_n_v_n
+1	Charniak	n_n_v_n
 
 >position
-5	Before
-14	After
+2	Before
 6	Before
-1	Before
-9	After
-12	After
-13	After
 15	After
+13	After
 0	After
-8	Before
+11	After
+12	After
+4	Before
+14	After
+9	After
+5	Before
 7	After
 10	Before
-11	After
 3	Before
-4	Before
-2	Before
+8	Before
+1	Before
 
 >path
-5	Charniak	"VBN ^ VP ^ VP ^ S v "
-14	Charniak	"VBN ^ VP v PP v "
+2	Charniak	"VBN ^ VP ^ VP ^ S v PP v "
 6	Charniak	"VBN ^ VP ^ VP ^ S v "
-1	Charniak	"VBN ^ VP ^ VP ^ S v "
-9	Charniak	"VBN ^ "
-12	Charniak	"VBN ^ VP v "
-13	Charniak	"VBN ^ VP v PP v "
 15	Charniak	"VBN ^ VP ^ VP ^ S v "
+13	Charniak	"VBN ^ VP v PP v "
 0	Charniak	"VBN ^ VP ^ VP ^ "
-8	Charniak	"VBN ^ VP ^ VP v "
+11	Charniak	""
+12	Charniak	"VBN ^ VP v "
+4	Charniak	"VBN ^ VP ^ VP ^ S v PP v NP v PP v NP v PP v NP v NP v "
+14	Charniak	"VBN ^ VP v PP v "
+9	Charniak	"VBN ^ "
+5	Charniak	"VBN ^ VP ^ VP ^ S v "
 7	Charniak	"VBN ^ VP ^ "
 10	Charniak	"VBN ^ VP v ADVP v "
-11	Charniak	""
 3	Charniak	"VBN ^ VP ^ VP ^ S v PP v "
-4	Charniak	"VBN ^ VP ^ VP ^ S v PP v NP v PP v NP v PP v NP v NP v "
-2	Charniak	"VBN ^ VP ^ VP ^ S v PP v "
+8	Charniak	"VBN ^ VP ^ VP v "
+1	Charniak	"VBN ^ VP ^ VP ^ S v "
 
 >head
-5	Charniak	31
-14	Charniak	47
-6	Charniak	33
-1	Charniak	0
-9	Charniak	44
-12	Charniak	45
-13	Charniak	45
-15	Charniak	48
-0	Charniak	0
-8	Charniak	42
-7	Charniak	44
-10	Charniak	43
-11	Charniak	44
-3	Charniak	4
 2	Charniak	0
+6	Charniak	33
+15	Charniak	48
+13	Charniak	45
+0	Charniak	0
+11	Charniak	44
+12	Charniak	45
 4	Charniak	11
+14	Charniak	47
+9	Charniak	44
+5	Charniak	31
+7	Charniak	42
+10	Charniak	43
+8	Charniak	42
+3	Charniak	4
+1	Charniak	0
 
 >arg
 6	A1
-1	AM-LOC
 12	A2
 11	V
 10	AM-MNR
+1	AM-LOC
 
 >pred
 44	attribute	Passive

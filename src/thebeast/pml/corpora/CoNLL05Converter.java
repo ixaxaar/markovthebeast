@@ -10,11 +10,16 @@ import java.util.*;
  */
 public class CoNLL05Converter {
 
-  private static final int CORE_FEATURE_COUNT = 4;
+  private static final int CORE_FEATURE_COUNT = 9;
   private static final int WORD_INDEX = 0;
   private static final int POS_INDEX = 1;
-  private static final int CHARNIAK_INDEX = 2;
-  private static final int NE_INDEX = 3;
+  private static final int COLLINS_INDEX = 2;
+  private static final int COLLINS_POS_INDEX = 3;
+  private static final int UPC_CHUNK_INDEX = 4;
+  private static final int UPC_CLAUSE_INDEX = 5;
+  private static final int UPC_POS_INDEX = 6;
+  private static final int CHARNIAK_INDEX = 7;
+  private static final int NE_INDEX = 8;
   private static final String NONE = "NONE";
   private static HeadFinder headFinder = new HeadFinder();
 
@@ -216,6 +221,7 @@ public class CoNLL05Converter {
 
   private static void printFeatures(String name, PrintStream out, Sentence sentence, int index) {
     out.println(">" + name);
+    out.println("-1\tSTART");
     for (int token = 0; token < sentence.size(); ++token) {
       out.println(token + " \"" + sentence.get(token).get(index) + "\"");
     }
