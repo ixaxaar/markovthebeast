@@ -19,14 +19,14 @@ set learner.solver.integer = false;
 //set learner.solver.deterministicFirst = false;
 set learner.update = "mira";
 set learner.update.signs = true;
-set learner.maxCandidates = 1;
+set learner.maxCandidates = 1000;
 set learner.average = true;
 set learner.loss = "avgF1";
 //set learner.loss = "globalNumErrors";
 set learner.profile = true;
 //set learner.penalizeGold = true;
 set learner.maxViolations = 1000;
-set learner.useGreedy = false;
+set learner.useGreedy = true;
 
 //set learner.solver.ground.label_leq1 = true;
 //set learner.solver.ground.head_leq1 = true;

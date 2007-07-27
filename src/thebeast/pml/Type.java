@@ -55,7 +55,7 @@ public class Type {
 
   public Type(String name, List<String> constants, boolean withUnknowns) {
     this.typeClass = withUnknowns ? Class.CATEGORICAL_UNKNOWN : Class.CATEGORICAL;
-    Collections.sort(constants);
+    //Collections.sort(constants);
     NoDServer nodServer = TheBeast.getInstance().getNodServer();
     this.nodType = nodServer.typeFactory().createCategoricalType(
             nodServer.identifierFactory().createName(name + typeCount++), withUnknowns, constants);
@@ -75,8 +75,8 @@ public class Type {
   }
 
 
-  public Set<String> getConstants() {
-    HashSet<String> result = new HashSet<String>();
+  public List<String> getConstants() {
+    LinkedList<String> result = new LinkedList<String>();
     CategoricalType type = ((CategoricalType) nodType);
     for (CategoricalValue value : type.values()){
       result.add(value.representation());
@@ -99,10 +99,8 @@ public class Type {
 
   public boolean inherits(Type superType){
     if (this.equals(superType)) return true;
-    if (superType.getTypeClass() == Class.DOUBLE &&
-            (getTypeClass() == Class.POSITIVE_DOUBLE || getTypeClass() == Class.NEGATIVE_DOUBLE))
-      return true;
-    return false;
+    return superType.getTypeClass() == Class.DOUBLE &&
+            (getTypeClass() == Class.POSITIVE_DOUBLE || getTypeClass() == Class.NEGATIVE_DOUBLE);
   }
 
   public Constant toConstant(Value value) {

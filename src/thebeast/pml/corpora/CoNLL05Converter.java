@@ -86,7 +86,8 @@ public class CoNLL05Converter {
       } else {
         //collect all spans
         Tree charniak = Tree.create(sentence, CHARNIAK_INDEX);
-        Tree ne = Tree.create(sentence, NE_INDEX);
+        Tree upc = Tree.createChunks(sentence, UPC_CHUNK_INDEX);
+        Tree ne = Tree.createChunks(sentence, NE_INDEX);
 
         HashMap<Pair<Integer, Integer>, Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
 
@@ -143,13 +144,22 @@ public class CoNLL05Converter {
             out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1, span.arg2));
           }
           out.println();
+          //chunk distance
+          out.println(">chunkdistance");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            out.println(id + "\t" + upc.getLeafDistance(span.arg1,predicateToken));
+          }
+          out.println();
+
+
 
           //frames
           out.println(">frame");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
             Tree arg = charniakPruned.getSmallestCoveringTree(span.arg1,span.arg2);
-            out.println(id + "\tCharniak\t" + charniakFrame.getSyntacticFrameString(arg));
+            out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
           }
           out.println();
 
@@ -197,13 +207,13 @@ public class CoNLL05Converter {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
             if (!label.equals(NONE))
-              out.println(id + "\t" + args.getLabel(span.arg1, span.arg2));
+              out.println(id + "\t\"" + args.getLabel(span.arg1, span.arg2) + "\"");
           }
           out.println();
 
           //write out predicate information
           out.println(">pred");
-          out.println(predicateToken + "\t" + predicateLemmas.get(pred) + "\t" +
+          out.println(predicateToken + "\t\"" + predicateLemmas.get(pred) + "\"\t" +
                   (predicateTree.activeVoice(sentence) ? "Active" : "Passive"));
           out.println();
 
@@ -214,6 +224,7 @@ public class CoNLL05Converter {
         }
         sentence.clear();
         predicateTokens.clear();
+        predicateLemmas.clear();
 
       }
     }
@@ -285,8 +296,14 @@ public class CoNLL05Converter {
     }
 
     public int getLeafDistance(int from, int to) {
+      boolean reverse = from > to;
+      if (reverse){
+        int tmp = from;
+        from = to;
+        to = tmp;
+      }
       if (isLeaf())
-        return begin > from && end < to ? 1 : 0;
+        return begin >= from && end <= to ? 1 : 0;
       int distance = 0;
       for (Tree child : children) {
         if (child.begin > from && child.end < to) {
@@ -294,6 +311,7 @@ public class CoNLL05Converter {
         }
       }
       return distance;
+      //return reverse ? -distance : distance;
     }
 
     public boolean isLeaf() {
@@ -574,7 +592,7 @@ public class CoNLL05Converter {
 
     public static Tree createChunks(Sentence sentence, int column) {
       Stack<Tree> stack = new Stack<Tree>();
-      stack.push(new Tree("chunks"));
+      stack.push(new Tree("Root"));
       for (int i = 0; i < sentence.size(); ++i) {
         StringTokenizer tokenizer = new StringTokenizer(sentence.get(i).get(column), "[()*]", true);
         while (tokenizer.hasMoreTokens()) {
