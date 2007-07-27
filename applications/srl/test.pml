@@ -5,7 +5,7 @@ include "model.pml";
 set corpusCacheSize = 20;
 
 //load weights from dump "/tmp/srl.weights.dmp";
-load weights from dump "/tmp/epoch_11.dmp";
+load weights from dump "/tmp/epoch_10.dmp";
 
 //set learner.solver.integer = true;
 set solver.model.initIntegers = true;
@@ -13,6 +13,6 @@ set solver.model.solver.bbDepthLimit=200;
 
 load corpus from "corpora/dev-set.crp";
 
-save corpus(0-400) to ram;
+save corpus(0-1000) to ram;
 
 test to ram;

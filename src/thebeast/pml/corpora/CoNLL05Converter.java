@@ -22,6 +22,7 @@ public class CoNLL05Converter {
   private static final int NE_INDEX = 8;
   private static final String NONE = "NONE";
   private static HeadFinder headFinder = new HeadFinder();
+  private static HashSet<String> copula = new HashSet<String>();
 
   static {
     headFinder.addRuleAsString("NP\tr POS NN NNP NNPS NNS;r NX;r JJR;r CD;r JJ;r JJS;r RB;r QP;r NP;r");
@@ -50,6 +51,14 @@ public class CoNLL05Converter {
     headFinder.addRuleAsString("WHPP\tl IN;l TO;l FW;l");
     headFinder.addRuleAsString("NX\tr POS NN NNP NNPS NNS;r NX;r JJR;r CD;r JJ;r JJS;r RB;r QP;r NP;r");
     headFinder.addRuleAsString("X\tr");
+
+    copula.add("is");
+    copula.add("were");
+    copula.add("was");
+    copula.add("be");
+    copula.add("got");
+    copula.add("are");
+    copula.add("am");
   }
 
   public static void main(String[] args) throws IOException {
@@ -454,10 +463,34 @@ public class CoNLL05Converter {
         if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
           return false;
       }
+      //check for "got"
+      for (Tree child : aux.children) {
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("got"))
+          return false;
+      }
+      //check for "are"
+      for (Tree child : aux.children) {
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("are"))
+          return false;
+      }
       //check for "be"
       for (Tree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
+          return false;
+      }
+      //check for "were"
+      for (Tree child : aux.children) {
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("were"))
+          return false;
+      }
+      //check for "am"
+      for (Tree child : aux.children) {
+        if (child.begin == begin) break;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("am"))
           return false;
       }
       //check for "has been"
