@@ -36,12 +36,12 @@ public class TabularValuePrinter implements ValueVisitor {
 
   public void visitRelation(RelationValue relation) {
     if (inTuple) {
-      out.printf("%-15s", LineValuePrinter.toString(relation));
+      out.printf("%-15s ", LineValuePrinter.toString(relation));
     } else {
 
       if (header) {
         for (Attribute attribute : relation.type().heading().attributes())
-          out.printf("%-15s", attribute.name());
+          out.printf("%-15s ", attribute.name());
         out.println();
         out.println();
 
@@ -56,24 +56,24 @@ public class TabularValuePrinter implements ValueVisitor {
   }
 
   public void visitCategorical(CategoricalValue categoricalValue) {
-    out.printf("%-15s", categoricalValue.representation());
+    out.printf("%-15s ", categoricalValue.representation());
   }
 
   public void visitArray(ArrayValue arrayValue) {
-    out.printf("%-15s", LineValuePrinter.toString(arrayValue));
+    out.printf("%-15s ", LineValuePrinter.toString(arrayValue));
   }
 
   public void visitInt(IntValue intValue) {
-    out.printf("%-15d", intValue.getInt());
+    out.printf("%-15d ", intValue.getInt());
   }
 
   public void visitDouble(DoubleValue doubleValue) {
-    if (cutoffDoubles) out.printf("%-15f", doubleValue.getDouble());
+    if (cutoffDoubles) out.printf("%-15f ", doubleValue.getDouble());
     else out.print(doubleValue.getDouble());
   }
 
   public void visitBool(BoolValue boolValue) {
-    out.printf("%-6s", boolValue.getBool());
+    out.printf("%-6s ", boolValue.getBool());
   }
 
 
