@@ -68,13 +68,21 @@ max = max(c/(k+1) + ¬a)
 
 forall x : pred(x) <=> ! exists x : !pred(x) <=> |x:!pred(x)| <= 0
 
-s = signature {
 
+model m {
+  type Slot : ...;
+  factor blah : Int t, Slot s add [slot(t,s)] * 123.123;
 }
 
-m = model(s) {
-  factor : Int t, Slot s add [slot(t,s)] * 123.123;
+model m {
+  factor blub : Int t, Slot s add [slot(t,s)] * 123.123;
 }
+
+
+drop m.blah;
+m.drop("blah");
+ 
+
 
 m         = normalize(m);
 w         = weights(m,s);
@@ -83,6 +91,7 @@ collector.collect(corpus,w);
 instances = instances(corpus,"$2");
 learner   = onlineLearner(w);
 learner.solver.ground.asLeastOne = true;
+learner.solver.setGround(m.atLeastOne,true);
 learner.learn(instances);
 w.save("$3");
 
