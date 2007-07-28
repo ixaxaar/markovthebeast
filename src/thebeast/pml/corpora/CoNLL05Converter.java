@@ -23,6 +23,7 @@ public class CoNLL05Converter {
   private static final String NONE = "NONE";
   private static HeadFinder headFinder = new HeadFinder();
   private static HashSet<String> copula = new HashSet<String>();
+  private static HashSet<String> punctuation = new HashSet<String>();
 
   static {
     headFinder.addRuleAsString("NP\tr POS NN NNP NNPS NNS;r NX;r JJR;r CD;r JJ;r JJS;r RB;r QP;r NP;r");
@@ -59,6 +60,14 @@ public class CoNLL05Converter {
     copula.add("got");
     copula.add("are");
     copula.add("am");
+
+    punctuation.add(".");
+    punctuation.add(",");
+    punctuation.add(";");
+    punctuation.add("''");
+    punctuation.add("``");
+    punctuation.add(")");
+    punctuation.add("(");
   }
 
   public static void main(String[] args) throws IOException {
@@ -157,21 +166,21 @@ public class CoNLL05Converter {
           out.println(">chunkdistance");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            out.println(id + "\t" + upc.getLeafDistance(span.arg1,predicateToken));
+            out.println(id + "\t" + upc.getLeafDistance(span.arg1, predicateToken));
           }
           out.println();
-
-
 
           //frames
           out.println(">frame");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree arg = charniakPruned.getSmallestCoveringTree(span.arg1,span.arg2);
-            out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
+            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
+            if (arg != null)
+              out.println(id + "\tCharniak\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree,arg) + "\"");
+            else out.println(id + "\tCharniak\tNONE");
           }
           out.println();
-
 
           //before/after
           out.println(">position");
@@ -304,9 +313,81 @@ public class CoNLL05Converter {
       for (Tree child : children) child.getSpans(spans);
     }
 
+
+    public static class SyntacticFrame extends LinkedList<Tree> {
+      private HashSet<Tree> pivots = new HashSet<Tree>();
+      private Tree predicate = null;
+
+      public SyntacticFrame(Tree root, Tree... pivots) {
+        this(root, Arrays.asList(pivots));
+        this.predicate = pivots[0];
+      }
+
+      public SyntacticFrame(Tree root, Collection<Tree> pivots) {
+        this.pivots.addAll(pivots);
+        addYield(root);
+      }
+
+      private void addYield(Tree root) {
+        for (Tree leaf : pivots) {
+          if (root.equals(leaf)) {
+            add(root);
+            return;
+          }
+          if (root.covers(leaf)) {
+            int oldSize = size();
+            for (Tree child : root.children) {
+              addYield(child);
+            }
+            if (size() == oldSize) {
+              add(root);
+            }
+            return;
+          }
+        }
+        add(root);
+
+      }
+
+      public String toString() {
+        StringBuffer result = new StringBuffer();
+        int index = 0;
+        for (Tree child : this) {
+          if (punctuation.contains(unquote(child.label))) continue;
+          if (index++ > 0) result.append("_");
+          if (pivots.contains(child)) {
+            if (child.equals(predicate)) result.append("!");
+            result.append(unquote(child.label).substring(0, 1).toUpperCase());
+          } else
+            result.append(unquote(child.label).substring(0, 1).toLowerCase());
+        }
+        return result.toString();
+      }
+
+      public String toStringPattern() {
+        StringBuffer result = new StringBuffer();
+        int index = 0;
+        for (Tree child : this) {
+          if (punctuation.contains(unquote(child.label))) continue;
+          if (index++ > 0) result.append("_");
+          if (pivots.contains(child)) {
+            if (unquote(child.label).startsWith("V"))
+              result.append(unquote(child.label).substring(0, 1).toUpperCase());
+            else
+              result.append("CUR");
+          } else
+            result.append(unquote(child.label).substring(0, 1).toLowerCase());
+        }
+        return result.toString();
+      }
+
+      
+    }
+
+
     public int getLeafDistance(int from, int to) {
       boolean reverse = from > to;
-      if (reverse){
+      if (reverse) {
         int tmp = from;
         from = to;
         to = tmp;
@@ -360,7 +441,7 @@ public class CoNLL05Converter {
     }
 
     public void getSyntacticFrame(List<Tree> frame, Tree predicate) {
-      if (!covers(predicate) && label.equals("NP") || this.equals(predicate)) {
+      if (!covers(predicate) && (label.equals("NP") || label.equals("PP")) || this.equals(predicate)) {
         frame.add(this);
         return;
       }
@@ -387,11 +468,11 @@ public class CoNLL05Converter {
       StringBuffer result = new StringBuffer();
       int index = 0;
       for (Tree child : children) {
-        if (index++>0) result.append("_");
+        if (index++ > 0) result.append("_");
         if (child.equals(argument)) {
-          result.append(unquote(child.label).substring(0,1).toUpperCase());
+          result.append(unquote(child.label).substring(0, 1).toUpperCase());
         } else
-          result.append(unquote(child.label).substring(0,1).toLowerCase());
+          result.append(unquote(child.label).substring(0, 1).toLowerCase());
       }
       return result.toString();
     }
@@ -428,6 +509,16 @@ public class CoNLL05Converter {
       }
       return NONE;
     }
+
+    public Tree getNode(int begin, int end) {
+      if (this.begin == begin && this.end == end)
+        return this;
+      for (Tree child : children) {
+        if (child.covers(begin, end)) return child.getNode(begin, end);
+      }
+      return null;
+    }
+
 
     public boolean contains(int begin, int end) {
       //noinspection StringEquality
@@ -581,7 +672,7 @@ public class CoNLL05Converter {
 
 
       public String toString() {
-        return unquote(label) + (up ? " ^ " : " v ");
+        return abbreviate(unquote(label)) + (up ? " ^ " : " v ");
       }
     }
 
@@ -782,8 +873,10 @@ public class CoNLL05Converter {
 
   public static String unquote(String label) {
     return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
-
   }
 
+  public static String abbreviate(String label) {
+    return label.length() > 2 ? label.substring(0, 2) : label;
+  }
 
 }
