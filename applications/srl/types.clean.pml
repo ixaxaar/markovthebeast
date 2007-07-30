@@ -9,3 +9,4 @@ type Predicate : ... ;
 type Subcat: ... ;
 type Position: ... ;
 type Frame: ...;
+type FramePattern: ...;

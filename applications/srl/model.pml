@@ -2,7 +2,9 @@ predicate word: Int x Word;
 predicate pos: Int x Pos;
 predicate span: Int x Int x Int;
 predicate label: Int x Labeller x Label;
+predicate parentlabel: Int x Labeller x Label;
 predicate head: Int x Labeller x Int;
+predicate parenthead: Int x Labeller x Int;
 predicate candidate: Int;
 predicate arg: Int x Argument;
 predicate path: Int x Labeller x Path;
@@ -10,13 +12,15 @@ predicate pred: Int x Predicate x Voice;
 predicate subcat: Labeller x Subcat;
 predicate position: Int x Position;
 predicate frame: Int x Labeller x Frame;
+predicate framepattern: Int x Labeller x FramePattern;
 predicate chunkdistance: Int x Int;
 predicate sister: Int x Labeller x Int x Int;
 
 //index: span(*,*,_);
 
 hidden: arg;
-observed: word,pos,span,label,head,candidate,pred,path,subcat,position,frame,chunkdistance;
+observed: word,pos,span,label,head,candidate,pred,path,subcat,position,
+  frame,chunkdistance,framepattern,parentlabel,parenthead;
 
 weight w_path: Path x Labeller x Argument -> Double;
 factor: for Int c, Path p, Labeller labeller, Argument a
@@ -25,6 +29,10 @@ factor: for Int c, Path p, Labeller labeller, Argument a
 weight w_label: Labeller x Label x Argument -> Double;
 factor: for Int c, Label label, Labeller labeller, Argument a
   if candidate(c) & label(c,labeller,label) add [arg(c,a)] * w_label(labeller, label, a);
+
+weight w_parentlabel: Labeller x Label x Argument -> Double;
+factor: for Int c, Label label, Labeller labeller, Argument a
+  if candidate(c) & parentlabel(c,labeller,label) add [arg(c,a)] * w_parentlabel(labeller, label, a);
 
 weight w_voice: Voice x Argument -> Double;
 factor: for Int c, Voice v, Argument a
@@ -39,20 +47,28 @@ factor: for Int c, Label label, Labeller labeller, Argument a, Predicate p
   if candidate(c) & label(c,labeller,label) & pred(_,p,_) add [arg(c,a)] * w_labelpred(labeller, label, p, a);
 
 weight w_position: Position x Argument -> Double;
-factor: for Int c, Position p, Argument a if candidate(c) & position(c,p) add [arg(c,a)] * w_position(p,a);
+factor: for Int c, Position p, Argument a
+  if candidate(c) & position(c,p) add [arg(c,a)] * w_position(p,a);
 
 weight w_positionvoice: Position x Voice x Argument -> Double;
 factor: for Int c, Position p, Voice v, Argument a
   if candidate(c) & position(c,p) & pred(_,_,v) add [arg(c,a)] * w_positionvoice(p,v,a);
 
 weight w_head: Word x Labeller x Argument -> Double;
-factor: for Int c, Argument a, Int t, Word h, Labeller l if candidate(c) & head(c,l,t) & word(t,h)
+factor: for Int c, Argument a, Int t, Word h, Labeller l
+  if candidate(c) & head(c,l,t) & word(t,h)
   add [arg(c,a)] * w_head(h,l,a);
 
 weight w_headpred: Word x Labeller x Predicate x Argument -> Double;
 factor: for Int c, Argument a, Int t, Word h, Labeller l, Predicate p
   if candidate(c) & head(c,l,t) & word(t,h) & pred(_,p,_)
   add [arg(c,a)] * w_headpred(h,l,p,a);
+
+weight w_parenthead: Word x Labeller x Argument -> Double;
+factor: for Int c, Argument a, Int t, Word h, Labeller l
+  if candidate(c) & parenthead(c,l,t) & word(t,h)
+  add [arg(c,a)] * w_parenthead(h,l,a);
+
 
 weight w_chunkdistance: Int x Argument -> Double;
 factor: for Int c, Argument a, Int d
@@ -85,7 +101,8 @@ factor: for Int c, Argument a, Int e, Pos p
   add [arg(c,a)] * w_lastpos(p,a);
 
 weight w_subcat: Labeller x Subcat x Argument -> Double;
-factor: for Labeller l, Subcat s, Argument a, Int c if subcat(l,s) & candidate(c) add [arg(c,a)] * w_subcat(l,s,a);
+factor: for Labeller l, Subcat s, Argument a, Int c
+  if subcat(l,s) & candidate(c) add [arg(c,a)] * w_subcat(l,s,a);
 
 weight w_frame: Labeller x Frame x Argument -> Double;
 factor: for Labeller l, Frame f, Argument a, Int c

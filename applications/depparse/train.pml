@@ -26,7 +26,7 @@ set learner.loss = "avgF1";
 set learner.profile = true;
 //set learner.penalizeGold = true;
 set learner.maxViolations = 1000;
-set learner.useGreedy = true;
+set learner.useGreedy = false;
 
 //set learner.solver.ground.label_leq1 = true;
 //set learner.solver.ground.head_leq1 = true;

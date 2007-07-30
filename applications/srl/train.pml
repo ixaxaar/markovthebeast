@@ -25,7 +25,7 @@ set learner.average = true;
 
 //print weights.w_path;
 
-learn for 1 epochs;
+//learn for 1 epochs;
 
 save weights to dump "/tmp/srl.weights.dmp";
 
