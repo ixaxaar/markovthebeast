@@ -126,7 +126,6 @@ public class CoNLL05Converter {
           HashSet<Pair<Integer, Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
           Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
-          Tree charniakFrame = charniakPruned.getSyntacticFrameTree(predicateTree);
           charniakPruned.getSpans(candidates);
           ne.getSpans(candidates);
           args.getChunks(argSpans);
@@ -163,11 +162,38 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">parentlabel");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            if (tree != null) {
+              Tree parent = tree.parent;
+              if (parent != null) {
+                out.println(id + "\tCharniak\t" + parent.label);
+              }
+            }
+          }
+          out.println();
+
+          out.println(">parenthead");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            if (tree != null && tree.parent != null) {
+              Tree parent = tree.parent;
+              out.println(id + "\tCharniak\t" + headFinder.getHead(parent).begin);
+            } else {
+              out.println(id + "\tCharniak\t-1");
+            }
+          }
+          out.println();
+
+
           out.println(">sister");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
             Tree tree = charniakPruned.getNode(span.arg1, span.arg2);
-            if (tree != null){
+            if (tree != null) {
               Tree leftSister = tree.getLeftSister();
               Tree rightSister = tree.getRightSister();
               int idLeft = leftSister != null ? span2id.get(leftSister.getSpan()) : -1;
@@ -192,7 +218,19 @@ public class CoNLL05Converter {
             Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              out.println(id + "\tCharniak\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree,arg) + "\"");
+              out.println(id + "\tCharniak\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg) + "\"");
+            else out.println(id + "\tCharniak\tNONE");
+          }
+          out.println();
+
+          out.println(">framepattern");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
+            if (arg != null)
+              out.println(id + "\tCharniak\t\"" +
+                      new Tree.SyntacticFrame(charniakPruned, predicateTree, arg).toStringPattern() + "\"");
             else out.println(id + "\tCharniak\tNONE");
           }
           out.println();
@@ -332,8 +370,8 @@ public class CoNLL05Converter {
       if (parent == null) return null;
       Tree leftsister = null;
       int max = Integer.MIN_VALUE;
-      for (Tree sister : parent.children){
-        if (sister.end < begin && sister.end > max){
+      for (Tree sister : parent.children) {
+        if (sister.end < begin && sister.end > max) {
           leftsister = sister;
           max = sister.end;
         }
@@ -344,9 +382,9 @@ public class CoNLL05Converter {
     public Tree getRightSister() {
       if (parent == null) return null;
       Tree rightsister = null;
-      int min  = Integer.MIN_VALUE;
-      for (Tree sister : parent.children){
-        if (sister.begin > end && sister.begin < min){
+      int min = Integer.MIN_VALUE;
+      for (Tree sister : parent.children) {
+        if (sister.begin > end && sister.begin < min) {
           rightsister = sister;
           min = sister.begin;
         }
@@ -354,8 +392,8 @@ public class CoNLL05Converter {
       return rightsister;
     }
 
-    public Pair<Integer,Integer> getSpan() {
-      return new Pair<Integer, Integer>(begin,end);
+    public Pair<Integer, Integer> getSpan() {
+      return new Pair<Integer, Integer>(begin, end);
     }
 
     public static class SyntacticFrame extends LinkedList<Tree> {
@@ -415,6 +453,7 @@ public class CoNLL05Converter {
           if (punctuation.contains(unquote(child.label))) continue;
           if (index++ > 0) result.append("_");
           if (pivots.contains(child)) {
+            if (child.equals(predicate)) result.append("!");
             if (unquote(child.label).startsWith("V"))
               result.append(unquote(child.label).substring(0, 1).toUpperCase());
             else
@@ -425,7 +464,7 @@ public class CoNLL05Converter {
         return result.toString();
       }
 
-      
+
     }
 
 
@@ -760,7 +799,7 @@ public class CoNLL05Converter {
 
     public static Tree createChunks(Sentence sentence, int column) {
       Stack<Tree> stack = new Stack<Tree>();
-      stack.push(new Tree("Root"));
+      stack.push(new Tree(null, "Root", 0, sentence.size()-1));
       for (int i = 0; i < sentence.size(); ++i) {
         StringTokenizer tokenizer = new StringTokenizer(sentence.get(i).get(column), "[()*]", true);
         while (tokenizer.hasMoreTokens()) {

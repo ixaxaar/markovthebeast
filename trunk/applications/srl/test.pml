@@ -5,7 +5,7 @@ include "model.pml";
 set corpusCacheSize = 20;
 
 load weights from dump "/tmp/srl.weights.dmp";
-//load weights from dump "/tmp/epoch_29.dmp";
+//load weights from dump "/tmp/epoch_6.dmp";
 
 //set learner.solver.integer = true;
 set solver.model.initIntegers = true;
