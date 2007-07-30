@@ -162,6 +162,21 @@ public class CoNLL05Converter {
             out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1, span.arg2));
           }
           out.println();
+
+          out.println(">sister");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree tree = charniakPruned.getNode(span.arg1, span.arg2);
+            if (tree != null){
+              Tree leftSister = tree.getLeftSister();
+              Tree rightSister = tree.getRightSister();
+              int idLeft = leftSister != null ? span2id.get(leftSister.getSpan()) : -1;
+              int idRight = rightSister != null ? span2id.get(rightSister.getSpan()) : -1;
+              out.println(id + "\tCharniak\t" + idLeft + "\t" + idRight);
+            }
+          }
+          out.println();
+
           //chunk distance
           out.println(">chunkdistance");
           for (Pair<Integer, Integer> span : candidates) {
@@ -313,6 +328,35 @@ public class CoNLL05Converter {
       for (Tree child : children) child.getSpans(spans);
     }
 
+    public Tree getLeftSister() {
+      if (parent == null) return null;
+      Tree leftsister = null;
+      int max = Integer.MIN_VALUE;
+      for (Tree sister : parent.children){
+        if (sister.end < begin && sister.end > max){
+          leftsister = sister;
+          max = sister.end;
+        }
+      }
+      return leftsister;
+    }
+
+    public Tree getRightSister() {
+      if (parent == null) return null;
+      Tree rightsister = null;
+      int min  = Integer.MIN_VALUE;
+      for (Tree sister : parent.children){
+        if (sister.begin > end && sister.begin < min){
+          rightsister = sister;
+          min = sister.begin;
+        }
+      }
+      return rightsister;
+    }
+
+    public Pair<Integer,Integer> getSpan() {
+      return new Pair<Integer, Integer>(begin,end);
+    }
 
     public static class SyntacticFrame extends LinkedList<Tree> {
       private HashSet<Tree> pivots = new HashSet<Tree>();

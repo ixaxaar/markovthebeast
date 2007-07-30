@@ -11,6 +11,7 @@ predicate subcat: Labeller x Subcat;
 predicate position: Int x Position;
 predicate frame: Int x Labeller x Frame;
 predicate chunkdistance: Int x Int;
+predicate sister: Int x Labeller x Int x Int;
 
 //index: span(*,*,_);
 
@@ -83,9 +84,17 @@ factor: for Int c, Argument a, Int e, Pos p
   if candidate(c) & span(c,_,e) & pos(e,p)
   add [arg(c,a)] * w_lastpos(p,a);
 
-
 weight w_subcat: Labeller x Subcat x Argument -> Double;
 factor: for Labeller l, Subcat s, Argument a, Int c if subcat(l,s) & candidate(c) add [arg(c,a)] * w_subcat(l,s,a);
+
+weight w_frame: Labeller x Frame x Argument -> Double;
+factor: for Labeller l, Frame f, Argument a, Int c
+  if candidate(c) & frame(c,l,f) add [arg(c,a)] * w_frame(l,f,a);
+
+weight w_framepred: Labeller x Frame x Predicate x Argument -> Double;
+factor: for Labeller l, Frame f, Argument a, Int c, Predicate p
+  if candidate(c) & frame(c,l,f) & pred(_,p,_) add [arg(c,a)] * w_framepred(l,f,p,a);
+
 
 //no overlaps
 factor: for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2, Argument a1, Argument a2

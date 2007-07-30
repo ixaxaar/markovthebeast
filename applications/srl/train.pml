@@ -4,7 +4,8 @@ include "model.pml";
 set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
-load weights from dump "/tmp/srl.clean.weights.dmp";
+//load weights from dump "/tmp/srl.clean.weights.dmp";
+load weights from dump "/tmp/srl.weights.dmp";
 
 load instances from dump "/disk/home/dendrite/s0349492/tmp/srl.instances.dmp";
 
@@ -24,7 +25,7 @@ set learner.average = true;
 
 //print weights.w_path;
 
-learn for 15 epochs;
+learn for 1 epochs;
 
 save weights to dump "/tmp/srl.weights.dmp";
 

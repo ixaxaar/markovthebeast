@@ -130,17 +130,27 @@ public class OnlineLearner implements Learner, HasProperties {
 
 
   private void finalizeAverage(Weights weights) {
-    if (averaging && average != null) {
-      interpreter.scale(average, 1.0 / count);
+    if (averaging) {
+    //if (averaging && average != null) {
+      //interpreter.scale(average, 1.0 / count);
+      interpreter.assign(weights.getLastWeights(), weights.getWeights());
       interpreter.assign(weights.getWeights(), average);
+      interpreter.scale(weights.getWeights(), 1.0 / count);
+      weights.setSeenInstances(count);
     }
-    average = null;
+    //average = null;
   }
 
   private void setUpAverage() {
     if (averaging) {
-      average = interpreter.createDoubleArrayVariable(weights.getFeatureCount());
-      count = 0;
+      count = weights.getSeenInstances();
+      if (count == 0)
+        average = interpreter.createDoubleArrayVariable(weights.getFeatureCount());
+      else {
+        average = interpreter.createArrayVariable(weights.getWeights());
+        interpreter.scale(average, count);
+        interpreter.assign(weights.getWeights(), weights.getLastWeights());
+      }
     }
   }
 
@@ -238,7 +248,7 @@ public class OnlineLearner implements Learner, HasProperties {
       FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
       if (averaging) {
         Weights copy = weights.copy();
-        finalizeAverage(weights);
+        finalizeAverage(copy);
         copy.write(sink);
       } else {
         weights.write(sink);
