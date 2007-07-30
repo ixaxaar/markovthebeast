@@ -29,8 +29,8 @@ import java.util.*;
 public class Weights implements HasProperties {
 
   private Signature signature;
-  private IntVariable counter;
-  private ArrayVariable weights;
+  private IntVariable counter, seenInstances;
+  private ArrayVariable weights, lastWeights;
 
   private NoDServer nodServer = TheBeast.getInstance().getNodServer();
   private Interpreter interpreter = nodServer.interpreter();
@@ -52,7 +52,9 @@ public class Weights implements HasProperties {
   public Weights(Signature signature) {
     this.signature = signature;
     counter = interpreter.createIntVariable(builder.integer(0).getInt());
+    seenInstances = interpreter.createIntVariable(builder.integer(0).getInt());
     weights = interpreter.createArrayVariable(nodServer.typeFactory().doubleType());
+    lastWeights = interpreter.createArrayVariable(nodServer.typeFactory().doubleType());
     for (WeightFunction function : signature.getWeightFunctions()) {
       //List<String> names = function.getHeading().getAttributeNames();
       RelationVariable relation = interpreter.createRelationVariable(function.getIndexedHeading());
@@ -123,7 +125,9 @@ public class Weights implements HasProperties {
    */
   public void write(FileSink sink) throws IOException {
     sink.write(counter, false);
+    sink.write(seenInstances, false);
     sink.write(weights, false);
+    sink.write(lastWeights, false);
     for (WeightFunction function : signature.getWeightFunctions()) {
       sink.write(getRelation(function), false);
     }
@@ -137,7 +141,9 @@ public class Weights implements HasProperties {
    */
   public void read(FileSource source) throws IOException {
     source.read(counter);
+    source.read(seenInstances);
     source.read(weights);
+    source.read(lastWeights);
     for (WeightFunction function : signature.getWeightFunctions()) {
       source.read(getRelation(function));
     }
@@ -189,7 +195,7 @@ public class Weights implements HasProperties {
   public void addWeight(WeightFunction weightFunction, double weight, Object... arguments) {
     RelationVariable rel = relations.get(weightFunction);
     interpreter.append(weights, builder.doubleValue(weight).array(1).getArray());
-    //the index is the first column
+    //the index is the L column
     builder.id(weightFunction.getIndexAttribute().name()).expr(counter).intPostInc();
     int index = 0;
     //now insert the arguments into the relation variable
@@ -203,6 +209,16 @@ public class Weights implements HasProperties {
 
   public void addWeight(String weightFunction, double weight, Object... arguments) {
     addWeight(signature.getWeightFunction(weightFunction), weight, arguments);
+  }
+
+  /**
+   * Each weights object remembers the number of instances that the learner processed (epochs * instances in training
+   * set).
+   *
+   * @return the number of instances the learner processed (added over all epochs).
+   */
+  public int getSeenInstances() {
+    return seenInstances.value().getInt();
   }
 
   /**
@@ -341,7 +357,9 @@ public class Weights implements HasProperties {
       interpreter.assign(local, other);
     }
     interpreter.assign(this.weights, weights.weights);
+    interpreter.assign(this.lastWeights, weights.lastWeights);
     interpreter.assign(counter, weights.counter);
+    interpreter.assign(seenInstances, weights.seenInstances);
   }
 
   /**
@@ -697,8 +715,7 @@ public class Weights implements HasProperties {
   }
 
   /**
-   * Builds an array with the indices of all weights the provided
-   * weight functions define.
+   * Builds an array with the indices of all weights the provided weight functions define.
    *
    * @param functions a collections of weight functions.
    * @return an array of all weight indices of the weight functions (in unspecified order).
@@ -748,10 +765,29 @@ public class Weights implements HasProperties {
 
   }
 
+  /**
+   * When an online learner has finished processing weights it should set the number of iterations it used using this
+   * method
+   *
+   * @param iterations of instances the learner processed (added over all epochs).
+   */
+  public void setSeenInstances(int iterations) {
+    interpreter.assign(this.seenInstances, builder.num(iterations).getInt());
+  }
 
   public Object getProperty(PropertyName name) {
     if ("nonzero".equals(name.getHead()))
-      return getNonZeroCount();    
+      return getNonZeroCount();
     return null;
+  }
+
+  /**
+   * If trained using an averaging online algorithm the weight object remembers the weights as there were after the last
+   * iteration *without* averaging.
+   *
+   * @return the weights from after the last iteration before averaging.
+   */
+  public ArrayVariable getLastWeights() {
+    return lastWeights;
   }
 }

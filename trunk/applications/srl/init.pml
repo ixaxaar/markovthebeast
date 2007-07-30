@@ -7,7 +7,7 @@ set corpusCacheSize = 20;
 //load corpus from "one-sentence.crp";
 load corpus from "corpora/small-train-set.crp";
 
-save corpus (0-10000) to ram;
+save corpus (0-1000) to ram;
 
 collect;
 
