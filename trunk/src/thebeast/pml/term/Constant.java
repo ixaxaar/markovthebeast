@@ -18,4 +18,10 @@ public abstract class Constant extends Term {
 
   public abstract ScalarExpression toScalar();
 
+  public int asInt() {
+    throw new UnsupportedOperationException();
+  }
+
+
+
 }

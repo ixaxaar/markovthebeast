@@ -50,6 +50,11 @@ public class IntConstant extends Constant {
 
   }
 
+
+  public int asInt() {
+    return integer;
+  }
+
   public int hashCode() {
     int result = super.hashCode();
     result = 31 * result + integer;

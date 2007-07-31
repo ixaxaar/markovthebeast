@@ -15,16 +15,25 @@ predicate frame: Int x Labeller x Frame;
 predicate framepattern: Int x Labeller x FramePattern;
 predicate chunkdistance: Int x Int;
 predicate sister: Int x Labeller x Int x Int;
+predicate pprightmosthead: Int x Labeller x Int;
 
 //index: span(*,*,_);
 
 hidden: arg;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,
-  frame,chunkdistance,framepattern,parentlabel,parenthead;
+  frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead;
+
+
+weight w_bias: Argument -> Double;
+factor: for Int c, Argument a if candidate(c) add [arg(c,a)] * w_bias(a);
 
 weight w_path: Path x Labeller x Argument -> Double;
 factor: for Int c, Path p, Labeller labeller, Argument a
   if candidate(c) & path(c,labeller,p) add [arg(c,a)] * w_path(p,labeller,a);
+
+weight w_pathpred: Path x Labeller x Predicate x Argument -> Double;
+factor: for Int c, Path p, Labeller labeller, Argument a, Predicate pr
+  if candidate(c) & path(c,labeller,p) & pred(_,pr,_) add [arg(c,a)] * w_pathpred(p,labeller,pr,a);
 
 weight w_label: Labeller x Label x Argument -> Double;
 factor: for Int c, Label label, Labeller labeller, Argument a
@@ -54,6 +63,14 @@ weight w_positionvoice: Position x Voice x Argument -> Double;
 factor: for Int c, Position p, Voice v, Argument a
   if candidate(c) & position(c,p) & pred(_,_,v) add [arg(c,a)] * w_positionvoice(p,v,a);
 
+weight w_positionpred: Position x Predicate x Argument -> Double;
+factor: for Int c, Position p, Predicate pr, Argument a
+  if candidate(c) & position(c,p) & pred(_,pr,_) add [arg(c,a)] * w_positionpred(p,pr,a);
+
+weight w_positionpredvoice: Position x Predicate x Voice x Argument -> Double;
+factor: for Int c, Position p, Predicate pr, Argument a, Voice v
+  if candidate(c) & position(c,p) & pred(_,pr,v) add [arg(c,a)] * w_positionpredvoice(p,pr,v,a);
+
 weight w_head: Word x Labeller x Argument -> Double;
 factor: for Int c, Argument a, Int t, Word h, Labeller l
   if candidate(c) & head(c,l,t) & word(t,h)
@@ -68,6 +85,16 @@ weight w_parenthead: Word x Labeller x Argument -> Double;
 factor: for Int c, Argument a, Int t, Word h, Labeller l
   if candidate(c) & parenthead(c,l,t) & word(t,h)
   add [arg(c,a)] * w_parenthead(h,l,a);
+
+weight w_rightlabel: Labeller x Label x Argument -> Double;
+factor: for Int c, Int s, Argument a, Labeller l, Label label
+  if candidate(c) & sister(c,l,s,_) & label(s,l,label)
+  add [arg(c,a)] * w_rightlabel(l,label,a);
+
+weight w_leftlabel: Labeller x Label x Argument -> Double;
+factor: for Int c, Int s, Argument a, Labeller l, Label label
+  if candidate(c) & sister(c,l,_,s) & label(s,l,label)
+  add [arg(c,a)] * w_leftlabel(l,label,a);
 
 
 weight w_chunkdistance: Int x Argument -> Double;
@@ -112,6 +139,15 @@ weight w_framepred: Labeller x Frame x Predicate x Argument -> Double;
 factor: for Labeller l, Frame f, Argument a, Int c, Predicate p
   if candidate(c) & frame(c,l,f) & pred(_,p,_) add [arg(c,a)] * w_framepred(l,f,p,a);
 
+weight w_pprighthead: Labeller x Word x Argument -> Double;
+factor: for Int c, Argument a, Int t, Word h, Labeller l
+  if candidate(c) & pprightmosthead(c,l,t) & word(t,h)
+  add [arg(c,a)] * w_pprighthead(l,h,a);
+
+weight w_pprightheadpos: Labeller x Pos x Argument -> Double;
+factor: for Int c, Argument a, Int t, Pos h, Labeller l
+  if candidate(c) & pprightmosthead(c,l,t) & pos(t,h)
+  add [arg(c,a)] * w_pprightheadpos(l,h,a);
 
 //no overlaps
 factor: for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2, Argument a1, Argument a2
@@ -127,6 +163,9 @@ factor: |Int c: arg(c,"A1")| <= 1;
 factor: |Int c: arg(c,"A2")| <= 1;
 factor: |Int c: arg(c,"A3")| <= 1;
 factor: |Int c: arg(c,"A4")| <= 1;
+
+factor: |Int c: candidate(c) & arg(c,"V")| >= 1;
+
 
 /*
 factor: for Predicate p, Int t, Argument a if pred(t,p,Active)
