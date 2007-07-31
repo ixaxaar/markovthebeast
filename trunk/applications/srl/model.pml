@@ -127,3 +127,8 @@ factor: |Int c: arg(c,"A1")| <= 1;
 factor: |Int c: arg(c,"A2")| <= 1;
 factor: |Int c: arg(c,"A3")| <= 1;
 factor: |Int c: arg(c,"A4")| <= 1;
+
+/*
+factor: for Predicate p, Int t, Argument a if pred(t,p,Active)
+  add [|Int c, Int b: arg(c,a) & span(c,b,_) & b > t | >= 1] * w_activeright(p,a);
+*/
