@@ -50,6 +50,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
   private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
+  private ArrayList<Integer> candidateOrders = new ArrayList<Integer>();
   private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
   private Stack<GroundFormulas> holderFormulas = new Stack<GroundFormulas>();
 
@@ -326,6 +327,7 @@ public class CuttingPlaneSolver implements Solver {
     holderFormulas.addAll(candidateFormulas);
     candidateAtoms.clear();
     candidateFormulas.clear();
+    candidateOrders.clear();
     iteration = 0;
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
@@ -368,12 +370,13 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       ++iteration;
       update(factors);
-      addCandidate();
       while (!propositionalModel.changed() && order < orderedFactors.size()) {
         FactorSet set = orderedFactors.get(order++);
         update(set);
         factors.addAll(set);
       }
+      addCandidate();
+      candidateOrders.add(order);
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
       }

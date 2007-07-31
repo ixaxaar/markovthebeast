@@ -1,3 +1,15 @@
+SRL:
+- local features:
+  - position+predicate
+  - position+predicate+voice
+- hard constraint: there has to be one V
+- soft cardinality/existential constraints for arguments
+
+cutting plane solving+learning:
+- order of a formula: defined by user
+- order of a set of ground formulas: lowest order of formulas in it, or INF if it contains no ground formulas
+- minimum-order m of online learner: use for training all candidates with ground formula order >= m
+
 kyu 02072248555
 
 ------------------------------
