@@ -155,6 +155,7 @@ public class CoNLL05Converter {
 
           //labels
           out.println(">label");
+          out.println("-1\tCharniak\tUNDEFINED");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
             out.println(id + "\tNE\t" + ne.getLabel(span.arg1, span.arg2));
@@ -188,6 +189,16 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">pprightmosthead");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            if (tree != null && tree.label.equals("PP")) {
+              Tree rightmost = tree.getRightMostChild();
+              out.println(id + "\tCharniak\t" + headFinder.getHead(rightmost).begin);
+            } 
+          }
+          out.println();
 
           out.println(">sister");
           for (Pair<Integer, Integer> span : candidates) {
@@ -382,7 +393,7 @@ public class CoNLL05Converter {
     public Tree getRightSister() {
       if (parent == null) return null;
       Tree rightsister = null;
-      int min = Integer.MIN_VALUE;
+      int min = Integer.MAX_VALUE;
       for (Tree sister : parent.children) {
         if (sister.begin > end && sister.begin < min) {
           rightsister = sister;
@@ -394,6 +405,18 @@ public class CoNLL05Converter {
 
     public Pair<Integer, Integer> getSpan() {
       return new Pair<Integer, Integer>(begin, end);
+    }
+
+    public Tree getRightMostChild() {
+      int max = Integer.MIN_VALUE;
+      Tree result = null;
+      for (Tree child : children){
+        if (child.begin > max){
+          result = child;
+          max = child.begin;
+        }
+      }
+      return result;
     }
 
     public static class SyntacticFrame extends LinkedList<Tree> {

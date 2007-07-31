@@ -1136,6 +1136,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerTypeGenerator("conll00", CoNLL00Factory.GENERATOR);
     registerTypeGenerator("conll00noisy", CoNLL00Factory.GENERATOR_NOISYPOS);
     registerPrinter("conll00", new CoNLL00SentencePrinter());
+    registerPrinter("conll05", new CoNLL05SentencePrinter());
     registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("default", new DefaultPrinter());
   }
