@@ -55,6 +55,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int numEpochs;
   private int maxViolations = 1;//Integer.MAX_VALUE;
   private int instanceNr;
+  private int minOrder = 0;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -70,6 +71,20 @@ public class OnlineLearner implements Learner, HasProperties {
     this.progressReporter = progressReporter;
   }
 
+
+  /**
+   * The minimum order is the minimum order a candidate has to have in order to be included
+   * in the update operation.
+   *
+   * @return the minimum order of a candidate to be included in learning.
+   */
+  public int getMinOrder() {
+    return minOrder;
+  }
+
+  public void setMinOrder(int minOrder) {
+    this.minOrder = minOrder;
+  }
 
   public int getMaxCandidates() {
     return maxCandidates;
@@ -131,7 +146,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
   private void finalizeAverage(Weights weights) {
     if (averaging) {
-    //if (averaging && average != null) {
+      //if (averaging && average != null) {
       //interpreter.scale(average, 1.0 / count);
       interpreter.assign(weights.getLastWeights(), weights.getWeights());
       interpreter.assign(weights.getWeights(), average);
@@ -294,32 +309,31 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //extract features (or load)
     profiler.start("extract");
-    List<GroundAtoms> candidateAtoms = solver.getCandidateAtoms();
-    List<GroundFormulas> candidateFormulas = solver.getCandidateFormulas();
-    List<FeatureVector> candidates = new ArrayList<FeatureVector>(candidateAtoms.size());
-    List<Double> losses = new ArrayList<Double>(candidateAtoms.size());
+    List<FeatureVector> candidates = new ArrayList<FeatureVector>(solver.getCandidateCount());
+    List<Double> losses = new ArrayList<Double>(solver.getCandidateCount());
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
-    for (int i = 0; i < candidateAtoms.size() && i < maxCandidates; ++i) {
-      int violationCount = candidateFormulas.get(i).getViolationCount();
+    for (int i = 0; i < solver.getCandidateCount() && i < maxCandidates; ++i) {
+      int violationCount = solver.getCandidateFormulas(i).getViolationCount();
+      int order = solver.getCandidateOrder(i);
       //maxViolations = 1;
-      if (violationCount < maxViolations) {
+      if (violationCount < maxViolations && order >= minOrder) {
         //System.out.print(violationCount + " ");
-        GroundAtoms guessAtoms = candidateAtoms.get(i);
+        GroundAtoms guessAtoms = solver.getCandidateAtoms(i);
 //        if (instanceNr == 0){
 //          new SentencePrinter().print(guessAtoms, System.out);
 //        }
         solution.getGroundAtoms().load((guessAtoms));
-        solution.getGroundFormulas().load(candidateFormulas.get(i));
+        solution.getGroundFormulas().load(solver.getCandidateFormulas(i));
         FeatureVector features;
-        if (usableVectors.isEmpty()){
+        if (usableVectors.isEmpty()) {
           features = new FeatureVector();
           allVectors.push(features);
         } else {
           features = usableVectors.pop();
         }
-        solution.extractInPlace(this.features,features);
+        solution.extractInPlace(this.features, features);
 //        FeatureVector features = solution.extract(this.features);
         candidates.add(features);
         losses.add(lossFunction.loss(goldAtoms, guessAtoms));
@@ -328,25 +342,25 @@ public class OnlineLearner implements Learner, HasProperties {
       }
     }
 
-    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations
-            && candidates.size() < maxCandidates && solver.doesOwnLocalSearch()) {
-      solution.getGroundAtoms().load(solver.getGreedyAtoms());
-      solution.getGroundFormulas().load(solver.getGreedyFormulas());
-      FeatureVector features;
-      if (usableVectors.isEmpty()){
-        features = new FeatureVector();
-        allVectors.push(features);
-      } else {
-        features = usableVectors.pop();
-      }
-      solution.extractInPlace(this.features,features);
-      //FeatureVector features = solution.extract(this.features);
-      //System.out.println(features.getLocal());
-      //features.getNonnegative().load(gold.getNonnegative());
-      //features.getNonpositive().load(gold.getNonpositive());
-      candidates.add(features);
-      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
-    }
+//    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations
+//            && candidates.size() < maxCandidates && solver.doesOwnLocalSearch()) {
+//      solution.getGroundAtoms().load(solver.getGreedyAtoms());
+//      solution.getGroundFormulas().load(solver.getGreedyFormulas());
+//      FeatureVector features;
+//      if (usableVectors.isEmpty()){
+//        features = new FeatureVector();
+//        allVectors.push(features);
+//      } else {
+//        features = usableVectors.pop();
+//      }
+//      solution.extractInPlace(this.features,features);
+//      //FeatureVector features = solution.extract(this.features);
+//      //System.out.println(features.getLocal());
+//      //features.getNonnegative().load(gold.getNonnegative());
+//      //features.getNonpositive().load(gold.getNonpositive());
+//      candidates.add(features);
+//      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
+//    }
     //System.out.println(losses);
 
     //guess.load(solution.extract(features));
@@ -363,7 +377,7 @@ public class OnlineLearner implements Learner, HasProperties {
     progressReporter.progressed(loss, solver.getIterationCount());
 
     //add feature vectors for reuse
-    for (FeatureVector vector: allVectors){
+    for (FeatureVector vector : allVectors) {
       vector.clear();
       usableVectors.add(vector);
     }
@@ -421,6 +435,8 @@ public class OnlineLearner implements Learner, HasProperties {
 
     } else if ("maxCandidates".equals(name.getHead())) {
       setMaxCandidates((Integer) value);
+    } else if ("minOrder".equals(name.getHead())) {
+      setMinOrder((Integer) value);
     } else if ("maxViolations".equals(name.getHead())) {
       setMaxViolations((Integer) value);
     } else if ("numEpochs".equals(name.getHead())) {

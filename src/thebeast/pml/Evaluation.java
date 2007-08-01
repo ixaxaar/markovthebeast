@@ -3,6 +3,7 @@ package thebeast.pml;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.statement.Interpreter;
+import thebeast.util.HashMultiMapList;
 
 import java.util.HashMap;
 import java.util.Formatter;
@@ -13,6 +14,9 @@ import java.util.Formatter;
 public class Evaluation {
 
   private GroundAtoms gold, guess, falsePositives, falseNegatives;
+
+  private HashMultiMapList<UserPredicate, Object[]>
+          restrictionPatterns = new HashMultiMapList<UserPredicate, Object[]>();
   
 
   private Model model;
@@ -42,6 +46,10 @@ public class Evaluation {
     }
   }
 
+  public void addRestrictionPattern(UserPredicate predicate, Object ... pattern){
+    restrictionPatterns.add(predicate, pattern);
+  }
+
 
   public GroundAtoms getGold() {
     return gold;
@@ -55,6 +63,10 @@ public class Evaluation {
     this.gold.load(gold,model.getHiddenPredicates());
     this.guess.load(guess, model.getHiddenPredicates());
     for (UserPredicate pred : model.getHiddenPredicates()){
+      for (Object[] pattern : restrictionPatterns.get(pred)){
+        this.gold.getGroundAtomsOf(pred).remove(pattern);
+        this.guess.getGroundAtomsOf(pred).remove(pattern);
+      }
       interpreter.assign(falsePositives.getGroundAtomsOf(pred).getRelationVariable(), fpQueries.get(pred));
       interpreter.assign(falseNegatives.getGroundAtomsOf(pred).getRelationVariable(), fnQueries.get(pred));
     }

@@ -19,6 +19,7 @@ import java.io.File;
 public class CorpusEvaluation {
 
   private int guessCount, goldCount, fnCount, fpCount;
+  private int instances,correct;
 
   private Model model;
 
@@ -32,21 +33,30 @@ public class CorpusEvaluation {
 
   public CorpusEvaluation(Model model) {
     this.model = model;
+    instances = 0;
+    correct = 0;
   }
 
   public void add(Evaluation evaluation) {
     guessCount += evaluation.getGuessCount();
     goldCount += evaluation.getGoldCount();
-    fnCount += evaluation.getFalseNegativesCount();
-    fpCount += evaluation.getFalsePositivesCount();
+    int fn = evaluation.getFalseNegativesCount();
+    int fp = evaluation.getFalsePositivesCount();
+    fnCount += fn;
+    fpCount += fp;
+    if (fnCount == 0 && fpCount == 0) ++correct;
     for (UserPredicate pred : model.getHiddenPredicates()) {
       goldCountPerPredicate.increment(pred, evaluation.getGold().getGroundAtomsOf(pred).size());
       guessCountPerPredicate.increment(pred, evaluation.getGuess().getGroundAtomsOf(pred).size());
       fnCountPerPredicate.increment(pred, evaluation.getFalseNegatives().getGroundAtomsOf(pred).size());
       fpCountPerPredicate.increment(pred, evaluation.getFalsePositives().getGroundAtomsOf(pred).size());
     }
+    ++instances;
   }
 
+  public double getCorrectRatio(){
+    return (double) correct / (double) instances;
+  }
 
   public int getGuessCount() {
     return guessCount;
@@ -110,6 +120,7 @@ public class CorpusEvaluation {
     formatter.format("%-20s%4.3f\n", "Recall", getRecall());
     formatter.format("%-20s%4.3f\n", "Precision", getPrecision());
     formatter.format("%-20s%4.3f\n", "F1", getF1());
+    formatter.format("%-20s%4.3f\n", "Correct", getCorrectRatio());
     //result.append(formatter.toString());
     for (UserPredicate pred : model.getHiddenPredicates()) {
       result.append(pred.getName()).append("\n");

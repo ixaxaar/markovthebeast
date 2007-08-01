@@ -188,6 +188,16 @@ public class TestTheBeast extends TestCase {
     System.out.println(groundAtoms);
   }
 
+  public void testRemoveGroundAtoms(){
+    GroundAtomCollection tokens = theManLikesTheBoat.getGroundAtomsOf(token);
+    tokens.remove(null,null,"DT");
+    System.out.println(tokens);
+    assertEquals(3, tokens.size());
+    assertTrue(tokens.containsAtom(1,"man","NN"));
+    assertTrue(tokens.containsAtom(2,"likes","VBZ"));
+    assertTrue(tokens.containsAtom(4,"boat","NN"));
+  }
+
   public void testLoadWeights() throws IOException {
     Weights weights = signature.createWeights();
 

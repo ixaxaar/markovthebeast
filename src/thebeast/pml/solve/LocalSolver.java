@@ -105,14 +105,6 @@ public class LocalSolver implements Solver {
     return formulas;
   }
 
-  public GroundAtoms getGreedyAtoms() {
-    return atoms;
-  }
-
-  public GroundFormulas getGreedyFormulas() {
-    return formulas;
-  }
-
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
   }
@@ -126,12 +118,24 @@ public class LocalSolver implements Solver {
   }
 
 
-  public List<GroundAtoms> getCandidateAtoms() {
-    return Collections.singletonList(atoms);
-  }
-
   public List<GroundFormulas> getCandidateFormulas() {
     return Collections.singletonList(formulas);
+  }
+
+  public GroundFormulas getCandidateFormulas(int candidate) {
+    return null;
+  }
+
+  public GroundAtoms getCandidateAtoms(int candidate) {
+    return null;
+  }
+
+  public int getCandidateOrder(int candidate) {
+    return 0;
+  }
+
+  public int getCandidateCount() {
+    return 0;
   }
 
   public void setProperty(PropertyName name, Object value) {
