@@ -461,16 +461,19 @@ public class OnlineLearner implements Learner, HasProperties {
     } else if ("initWeight".equals(name.getHead())) {
       setInitialWeight((Double) value);
     } else if ("loss".equals(name.getHead())) {
-      if (value.equals("avgF1"))
-        setLossFunction(new AverageF1Loss(model));
-      else if (value.equals("avgNumErrors"))
-        setLossFunction(new AverageNumErrors(model));
-      else if (value.equals("globalNumErrors"))
-        setLossFunction(new GlobalNumErrors(model));
-      else if (value.equals("globalF1"))
-        setLossFunction(new GlobalF1Loss(model));
-      else
-        throw new IllegalPropertyValueException(name, value);
+      if (name.isTerminal()) {
+        if (value.equals("avgF1"))
+          setLossFunction(new AverageF1Loss(model));
+        else if (value.equals("avgNumErrors"))
+          setLossFunction(new AverageNumErrors(model));
+        else if (value.equals("globalNumErrors"))
+          setLossFunction(new GlobalNumErrors(model));
+        else if (value.equals("globalF1"))
+          setLossFunction(new GlobalF1Loss(model));
+        else
+          throw new IllegalPropertyValueException(name, value);
+      } else
+        lossFunction.setProperty(name.getTail(), value);
     } else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
 
