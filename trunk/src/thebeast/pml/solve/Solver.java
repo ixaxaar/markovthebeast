@@ -21,13 +21,13 @@ public interface Solver extends HasProperties {
 
   GroundFormulas getBestFormulas();
 
-  GroundAtoms getGreedyAtoms();
+  GroundFormulas getCandidateFormulas(int candidate);
 
-  GroundFormulas getGreedyFormulas();
+  GroundAtoms getCandidateAtoms(int candidate);
 
-  List<GroundAtoms> getCandidateAtoms();
+  int getCandidateOrder(int candidate);
 
-  List<GroundFormulas> getCandidateFormulas();
+  int getCandidateCount();
 
   void setProfiler(Profiler profiler);
 

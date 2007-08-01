@@ -14,10 +14,7 @@ import thebeast.pml.function.WeightFunction;
 import thebeast.pml.predicate.*;
 import thebeast.pml.term.*;
 import thebeast.pml.training.*;
-import thebeast.util.DotProgressReporter;
-import thebeast.util.StopWatch;
-import thebeast.util.Util;
-import thebeast.util.TreeProfiler;
+import thebeast.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -78,6 +75,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private int defaultTrainingCacheSize = 10 * 1024 * 1024;
 
   private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
+  private HashMultiMapList<UserPredicate, Object[]> evaluationRestrictions = new HashMultiMapList<UserPredicate, Object[]>();
 
 
   public Shell() {
@@ -486,6 +484,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.println(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
     } else if ("eval".equals(parserPrint.name.head)) {
       Evaluation evaluation = new Evaluation(model);
+      for (UserPredicate pred : evaluationRestrictions.keySet()) {
+        for (Object[] pattern : evaluationRestrictions.get(pred))
+          evaluation.addRestrictionPattern(pred, pattern);
+      }
       evaluation.evaluate(gold, guess);
       out.println(evaluation);
     } else if ("formulas".equals(parserPrint.name.head)) {
@@ -684,6 +686,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     }
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
     Evaluation evaluation = new Evaluation(model);
+    for (UserPredicate pred : evaluationRestrictions.keySet()) {
+      for (Object[] pattern : evaluationRestrictions.get(pred))
+        evaluation.addRestrictionPattern(pred, pattern);
+    }    
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
@@ -836,6 +842,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
 
+  public void addEvaluationRestriction(UserPredicate pred, List<Object> pattern) {
+    evaluationRestrictions.add(pred, pattern.toArray(new Object[]{}));
+  }
+
   public void visitSet(ParserSet parserSet) {
     if ("instancesCacheSize".equals(parserSet.propertyName.head))
       defaultTrainingCacheSize = 1024 * 1024 * (Integer) parserSet.value;
@@ -845,7 +855,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("weights".equals(parserSet.propertyName.head))
       weights.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
-    else if ("learner".equals(parserSet.propertyName.head))
+    else if ("evalrestrict".equals(parserSet.propertyName.head)) {
+      if ((Boolean) parserSet.value)
+        addEvaluationRestriction(signature.getUserPredicate(parserSet.propertyName.tail.head),
+                parserSet.propertyName.tail.arguments);
+    } else if ("learner".equals(parserSet.propertyName.head))
       learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
     else if ("collector".equals(parserSet.propertyName.head))
       collector.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
@@ -934,7 +948,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitComparison(ParserComparison parserComparison) {
     Term lhs, rhs;
-    if (parserComparison.type == ParserComparison.Type.NEQ || parserComparison.type == ParserComparison.Type.EQ ) {
+    if (parserComparison.type == ParserComparison.Type.NEQ || parserComparison.type == ParserComparison.Type.EQ) {
       if (parserComparison.lhs instanceof ParserNamedConstant) {
         parserComparison.rhs.acceptParserTermVisitor(this);
         rhs = term;
@@ -1155,27 +1169,19 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     out.printf("%-10s %-10s %-10s %-10s %-10s\n", "Iter.", "F1", "Score", "Violated", "Total");
     for (int i = 0; i < 55; ++i) out.print("-");
     out.println();
-    for (int i = 0; i < solver.getCandidateAtoms().size(); ++i) {
-      solution.load(solver.getCandidateAtoms().get(i), solver.getCandidateFormulas().get(i));
+    for (int i = 0; i < solver.getCandidateCount(); ++i) {
+      solution.load(solver.getCandidateAtoms(i), solver.getCandidateFormulas(i));
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
       out.printf("%-10d %-10.3f %-10.4f %-10d %-10d\n", i, evaluation.getF1(), weights.score(vector),
-              solution.getGroundFormulas().getViolationCount(), solver.getCandidateFormulas().get(i).getNewCount());
+              solution.getGroundFormulas().getViolationCount(), solver.getCandidateFormulas(i).getNewCount());
       //System.out.println(solver.getCandidateFormulas().get(i));
     }
-    solution.load(solver.getGreedyAtoms(), solver.getGreedyFormulas());
-    FeatureVector vector = solution.extract(solver.getLocalFeatures());
-    evaluation.evaluate(gold, solution.getGroundAtoms());
-    out.printf("%-10d %-10.3f %-10.4f %-10d %-10d\n", solver.getCandidateAtoms().size(), evaluation.getF1(),
-            weights.score(vector), solution.getGroundFormulas().getViolationCount(),
-            solution.getGroundFormulas().getNewCount());
 
     out.println();
 
-    GroundAtoms bestAtoms = solver.getCandidateAtoms().size() > 0 ?
-            solver.getCandidateAtoms().get(0) : solver.getGreedyAtoms();
-    solution.load(bestAtoms, solver.getCandidateAtoms().size() > 0 ?
-            solver.getCandidateFormulas().get(0) : solver.getGreedyFormulas());
+    GroundAtoms bestAtoms = solver.getCandidateAtoms(0);
+    solution.load(bestAtoms, solver.getCandidateFormulas(0));
     evaluation.evaluate(gold, solution.getGroundAtoms());
     for (UserPredicate pred : model.getHiddenPredicates()) {
       System.out.println(pred.getName());

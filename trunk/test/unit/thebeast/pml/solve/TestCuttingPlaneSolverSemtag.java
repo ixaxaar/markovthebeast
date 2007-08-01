@@ -154,6 +154,15 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
 
     System.out.println(cuttingPlaneSolver.getHistoryString());
     System.out.println(cuttingPlaneSolver.getIterationCount());
+    assertEquals(0,cuttingPlaneSolver.getCandidateOrder(5));
+    assertEquals(1,cuttingPlaneSolver.getCandidateOrder(4));
+    assertEquals(1,cuttingPlaneSolver.getCandidateOrder(3));
+    assertEquals(1,cuttingPlaneSolver.getCandidateOrder(2));
+    assertEquals(1,cuttingPlaneSolver.getCandidateOrder(1));
+    assertEquals(Integer.MAX_VALUE,cuttingPlaneSolver.getCandidateOrder(0));
+
+    System.out.println(cuttingPlaneSolver.getCandidateAtoms(5));
+    System.out.println(cuttingPlaneSolver.getCandidateFormulas(5));
 
     assertEquals(5,cuttingPlaneSolver.getIterationCount());
 

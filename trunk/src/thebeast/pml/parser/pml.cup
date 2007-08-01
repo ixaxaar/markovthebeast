@@ -258,6 +258,8 @@ object ::=
     {: RESULT = -1 * d; :}
   | STRING:s
     {: RESULT = s.substring(1,s.length()-1); :}
+  | LPAREN tuple:t RPAREN
+    {: RESULT = t; :}
   | TIMES
     {: RESULT = null; :}
   | TRUE
@@ -265,6 +267,7 @@ object ::=
   | FALSE
     {: RESULT = false; :}
   ;
+
 
 markers ::=
     markers:l COMMA TIMES

@@ -298,6 +298,8 @@ public class QueryGenerator {
       formula = factorFormula.getFormula();
     } else if (factorFormula.getFormula() instanceof Disjunction) {
       formula = factorFormula.getFormula();
+    } else {
+      return null;
     }
 
     BooleanFormula both = factorFormula.getCondition() == null ?

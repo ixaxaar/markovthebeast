@@ -265,7 +265,7 @@ public class ILPGrounder {
       } else if (leqQueries.size() == 0 && geqQueries.size() == 1) {
         if (useDisjunction) {
           RelationExpression items = geqQueries.get(0);
-          IntExpression lowerBound  = lowerBounds.get(0);
+          IntExpression lowerBound = lowerBounds.get(0);
           constraintBuilder.expr(items);
           constraintBuilder.expr(lowerBound);
           //the varBuilder contains |weight index| atom1 | atom2| ... where the cardinality constraint atom is removed
@@ -481,7 +481,7 @@ public class ILPGrounder {
     DoubleExpression n_plus_1 = builder.expr(n).num(1).intAdd().doubleCast().getDouble();
     IntExpression n_minus_k = builder.expr(n).expr(k).intMinus().getInt();
     DoubleExpression max = builder.expr(n_plus_1).expr(n_minus_k).doubleCast().doubleDivide().
-            doubleValue(size-1).doubleAdd().getDouble();
+            doubleValue(size - 1).doubleAdd().getDouble();
     k.setLabel("upperbound");
     variables.add(k);
     IntVariable weightIndex = interpreter.createIntVariable();
@@ -571,7 +571,7 @@ public class ILPGrounder {
     DoubleExpression n_plus_1 = builder.expr(n).num(1).intAdd().doubleCast().getDouble();
     IntExpression n_minus_k = builder.expr(n).expr(k).intMinus().getInt();
     DoubleExpression max = builder.expr(n_plus_1).expr(k).doubleCast().doubleDivide().
-            doubleValue(size-1).doubleAdd().getDouble();
+            doubleValue(size - 1).doubleAdd().getDouble();
     k.setLabel("upperbound");
     variables.add(k);
     IntVariable weightIndex = interpreter.createIntVariable();
@@ -635,7 +635,6 @@ public class ILPGrounder {
     builder.relation(2);
     return factory.createOperator("constraints", variables, builder.getRelation());
   }
-
 
 
   public RelationExpression createLEQQuery(CardinalityConstraint constraint,
@@ -786,9 +785,11 @@ public class ILPGrounder {
     for (SignedAtom atom : conjunction) {
       if (atom.getAtom() instanceof PredicateAtom) {
         PredicateAtom predicateAtom = (PredicateAtom) atom.getAtom();
-        UserPredicate predicate = (UserPredicate) predicateAtom.getPredicate();
-        if (model.getHiddenPredicates().contains(predicate))
-          hidden = atom;
+        if (predicateAtom.getPredicate() instanceof UserPredicate) {
+          UserPredicate predicate = (UserPredicate) predicateAtom.getPredicate();
+          if (model.getHiddenPredicates().contains(predicate))
+            hidden = atom;
+        }
       }
     }
     if (hidden == null) throw new RuntimeException("Exactly one atom in the cardinality formula should be hidden");
@@ -839,7 +840,6 @@ public class ILPGrounder {
             }
           }
 
-        
 
         });
       }

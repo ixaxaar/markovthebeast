@@ -9,6 +9,7 @@ import thebeast.nod.variable.Index;
 import thebeast.nod.type.Attribute;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
+import thebeast.nod.expression.RelationExpression;
 import thebeast.pml.term.Constant;
 import thebeast.pml.predicate.PredicateIndex;
 
@@ -39,10 +40,10 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
     for (Attribute attribute : predicate.getHeading().attributes())
       interpreter.addIndex(relation, attribute.name(), Index.Type.HASH, attribute.name());
     int indexNr = 0;
-    for (PredicateIndex index : predicate.getIndices()){
+    for (PredicateIndex index : predicate.getIndices()) {
       ArrayList<String> attNames = new ArrayList<String>();
       int i = 0;
-      for (Attribute attribute : predicate.getHeading().attributes()){
+      for (Attribute attribute : predicate.getHeading().attributes()) {
         if (index.getMarkers().get(i++))
           attNames.add(attribute.name());
       }
@@ -76,13 +77,6 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
    */
   public void addGroundAtom(Object... arguments) {
     relation.addTuple(arguments);
-//    int index = 0;
-//    builder.clear();
-//    for (Type type : predicate.getArgumentTypes()) {
-//      builder.id(predicate.getColumnName(index)).constant(type.getNodType(), arguments[index++]);
-//    }
-//    builder.tupleForIds().relation(1);
-//    interpreter.insert(relation, builder.getRelation());
   }
 
 
@@ -101,6 +95,30 @@ public class GroundAtomCollection extends AbstractCollection<GroundAtom> {
     //relation.addTuple();
   }
 
+  /**
+   * Removes all ground atoms that match the given pattern
+   *
+   * @param pattern an array with the length equal to the number of arguments of the predicate of these ground atoms.
+   *                A null object matches any constant, another object only constants that equal this object.
+   */
+  public void remove(Object... pattern) {
+    builder.clear();
+    builder.expr(relation);
+    for (int index = 0; index < pattern.length; ++index){
+      if (pattern[index]!=null){
+        builder.attribute(predicate.getAttribute(index)).value(predicate.getAttribute(index).type(), pattern[index]);
+        //builder.equality();
+        builder.inequality();
+      }
+    }
+    builder.restrict();
+    RelationExpression restriction = builder.getRelation();
+    //System.out.println(restriction);
+    //todo: this is dodgy: using the target variable in the expression doesn't work
+    RelationVariable tmp = interpreter.createRelationVariable(restriction);
+    //System.out.println(tmp.value());
+    interpreter.assign(relation, tmp);
+  }
 
   /**
    * Iterates over all ground atoms in this collection

@@ -1,8 +1,6 @@
 package thebeast.pml.solve;
 
 import thebeast.pml.*;
-import thebeast.pml.corpora.GroundAtomsPrinter;
-import thebeast.pml.corpora.SemtagPrinter;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
@@ -32,25 +30,23 @@ public class CuttingPlaneSolver implements Solver {
   private LocalFeatureExtractor extractor;
   private Scores scores;
   private GroundAtoms atoms;
-  private GroundAtoms greedyAtoms;
-  private GroundFormulas greedyFormulas;
 
   private Weights weights;
   private int iteration;
-  private boolean done, scoresSet, initSet, updated, deterministicFirst;
+  private boolean done, scoresSet, initSet;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
 
-  private boolean alternating = false;
   private long timeout = Long.MAX_VALUE; //10000;
 
   private boolean printHistory = false;
   private boolean showIterations = false;
 
 
-  private LinkedList<GroundAtoms> candidateAtoms = new LinkedList<GroundAtoms>();
-  private LinkedList<GroundFormulas> candidateFormulas = new LinkedList<GroundFormulas>();
+  private ArrayList<GroundAtoms> candidateAtoms = new ArrayList<GroundAtoms>();
+  private ArrayList<GroundFormulas> candidateFormulas = new ArrayList<GroundFormulas>();
   private ArrayList<Integer> candidateOrders = new ArrayList<Integer>();
+  private HashSet<Integer> completelyInspected = new HashSet<Integer>();
   private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
   private Stack<GroundFormulas> holderFormulas = new Stack<GroundFormulas>();
 
@@ -97,7 +93,6 @@ public class CuttingPlaneSolver implements Solver {
     formulas.setFullyGround(formula, fullyGround);
     firstFormulas.setFullyGround(formula, fullyGround);
     propositionalModel.setFullyGround(formula, fullyGround);
-
   }
 
   /**
@@ -126,8 +121,6 @@ public class CuttingPlaneSolver implements Solver {
     extractor = new LocalFeatureExtractor(model, weights);
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
-    greedyAtoms = model.getSignature().createGroundAtoms();
-    greedyFormulas = new GroundFormulas(model, weights);
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
 
     for (FactorFormula formula : model.getGlobalFactorFormulas())
@@ -203,21 +196,6 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * If the solve calculates an initial purely greedy/local solution this method
-   * returns it. If it doesn't the method return value is undefined and not to be used.
-   * Check {@link #doesOwnLocalSearch()} to see whether it does.
-   *
-   * @return the greedy calculated in the last call to {@link #solve()}.
-   */
-  public GroundAtoms getGreedyAtoms() {
-    return greedyAtoms;
-  }
-
-  public GroundFormulas getGreedyFormulas() {
-    return greedyFormulas;
-  }
-
-  /**
    * Defines a new problem by setting the current observation. The next call to any solve method will use this
    * observation as input.
    *
@@ -227,7 +205,6 @@ public class CuttingPlaneSolver implements Solver {
     done = false;
     scoresSet = false;
     initSet = false;
-    updated = false;
 //    ((ILPSolverLpSolve)((IntegerLinearProgram)propositionalModel).getSolver()).delete();
 //    propositionalModel = new IntegerLinearProgram(model, weights, new ILPSolverLpSolve());
     //this.atoms.clear(model.getHiddenPredicates());
@@ -237,6 +214,8 @@ public class CuttingPlaneSolver implements Solver {
     this.atoms.load(atoms, model.getObservedPredicates());
     //todo: what to do with this?
     //this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    completelyInspected.clear();
+
   }
 
   /**
@@ -271,8 +250,6 @@ public class CuttingPlaneSolver implements Solver {
 
     //System.out.println(ilp.toLpSolveFormat());
 
-    updated = true;
-
     profiler.end();
   }
 
@@ -292,8 +269,6 @@ public class CuttingPlaneSolver implements Solver {
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
-
-    updated = true;
 
     profiler.end();
   }
@@ -332,28 +307,18 @@ public class CuttingPlaneSolver implements Solver {
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
 
-    int order = 0;
-    HashSet<FactorFormula> factors = orderedFactors.size() > 0 ?
-            new HashSet<FactorFormula>(orderedFactors.get(order++)) : new HashSet<FactorFormula>();
-
     if (groundAll.isEmpty()) {
       //System.out.println(ground);
       if (!initSet) initSolution();
-      update(factors);
-      while (!propositionalModel.changed() && order < orderedFactors.size()) {
-        FactorSet set = orderedFactors.get(order++);
-        update(set);
-        factors.addAll(set);
-      }
-      setGreedy();
-      //System.out.println(atoms.getGroundAtomsOf("sameBib"));
+      //update(factors);
+      addCandidate(inspect());
     } else {
       profiler.start("ground-all");
       atoms.clear(model.getHiddenPredicates());
       propositionalModel.buildLocalModel();
       createFullyGroundedFormulas();
       profiler.end();
-      setGreedy();
+      //addCandidate(groundAllOrder);
     }
 
     if (showIterations) System.out.print("+");
@@ -369,14 +334,7 @@ public class CuttingPlaneSolver implements Solver {
       //System.out.println("solved!");
       profiler.end();
       ++iteration;
-      update(factors);
-      while (!propositionalModel.changed() && order < orderedFactors.size()) {
-        FactorSet set = orderedFactors.get(order++);
-        update(set);
-        factors.addAll(set);
-      }
-      addCandidate();
-      candidateOrders.add(order);
+      addCandidate(inspect());
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
       }
@@ -394,7 +352,82 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  private void addCandidate() {
+  /**
+   * This method returns the set of ground formulas for the given candidate solution index. Note that this method
+   * might need to perform some expensive operations since the solver does not need to have a complete set of ground
+   * formulas ready. Thus it might need to search for more unsatisfied formulas in order to return a consisten ground
+   * formulas object.
+   *
+   * @param candidate the index of the candidate we want the ground formulas for
+   * @return the ground formulas for the given candidate.
+   */
+  public GroundFormulas getCandidateFormulas(int candidate) {
+    int order = candidateOrders.get(candidate);
+    GroundFormulas formulas = candidateFormulas.get(candidate);
+    if (completelyInspected.contains(candidate)) return formulas;
+    //we know that the formulas have been inspect up to <order> so we need to inspect from <order> + 1
+    //update if needed
+    while (order != Integer.MAX_VALUE && ++order < orderedFactors.size()) {
+      FactorSet set = orderedFactors.get(order);
+      formulas.update(candidateAtoms.get(candidate), set);
+    }
+    completelyInspected.add(candidate);
+    return formulas;
+  }
+
+  /**
+   * Returns the candidate solution with the specified index.
+   *
+   * @param candidate the index of the candidate
+   * @return a set of ground atoms representing the candidate
+   */
+  public GroundAtoms getCandidateAtoms(int candidate) {
+    return candidateAtoms.get(candidate);
+  }
+
+  /**
+   * Returns the order of a candidate solution. The order of a candidate solution is the order
+   * of the newly found formula with lowest order. A formula f is newly found at candidate i>0 if i contains
+   * a ground version of f that is not contained in any candidate in 0 ... i-1. For i = 0 each formula that has
+   * been found in i = 0 is newly found. 
+   *
+   * @param candidate the candidate index
+   * @return the order of the given candidate.
+   */
+  public int getCandidateOrder(int candidate) {
+    return candidateOrders.get(candidate);
+  }
+
+  /**
+   * Returns the number of candidates the solver generated on the way to its final solution. These might
+   * be used for learning.
+   *
+   * @return the number of candidates the solver generated on the way.
+   */
+  public int getCandidateCount() {
+    return candidateAtoms.size();
+  }
+
+  /**
+   * Inspects the current solutions, updates formulas and propositional model and returns the lowest order of formulas
+   * that are violated in the current solution.
+   *
+   * @return the order of the set of ground formulas of the last solution.
+   */
+  private int inspect() {
+    if (orderedFactors.size() == 0) return Integer.MAX_VALUE;
+    int order = 0;
+    do {
+      FactorSet set = orderedFactors.get(order);
+      update(set);
+      if (propositionalModel.changed()) return order;
+      ++order;
+    } while (order < orderedFactors.size());
+    return Integer.MAX_VALUE;
+  }
+
+
+  private void addCandidate(int order) {
     if (holderAtoms.isEmpty()) {
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
@@ -406,14 +439,8 @@ public class CuttingPlaneSolver implements Solver {
       candidateAtoms.add(0, atomsToAdd);
       candidateFormulas.add(0, formulasToAdd);
     }
+    candidateOrders.add(0, order);
   }
-
-  private void setGreedy() {
-    greedyAtoms.load(atoms);
-    greedyFormulas.load(formulas);
-
-  }
-
 
   /**
    * Calls {@link CuttingPlaneSolver#solve(int)} with the maximum number of iterations defined by {@link
@@ -438,7 +465,6 @@ public class CuttingPlaneSolver implements Solver {
   public void setInititalSolution(GroundAtoms atoms) {
     this.atoms.load(atoms, model.getHiddenPredicates());
     initSet = true;
-    updated = false;
   }
 
   private void score() {
@@ -469,20 +495,6 @@ public class CuttingPlaneSolver implements Solver {
     return formulas;
   }
 
-  /**
-   * The solver remembers all partial solutions on the way to its final solution. They can be accessed using this
-   * method. Note: The solver owns all ground atoms returned by this method and will overwrite them in the next
-   * solve-call. If you need these atoms permanently you need to create a copy of them.
-   *
-   * @return the list of solutions generated "on the way";
-   */
-  public List<GroundAtoms> getCandidateAtoms() {
-    return new ArrayList<GroundAtoms>(candidateAtoms);
-  }
-
-  public List<GroundFormulas> getCandidateFormulas() {
-    return new ArrayList<GroundFormulas>(candidateFormulas);
-  }
 
   /**
    * The solver might be limited to only do a fixed number of iterations. If the solver has to stop before
@@ -538,24 +550,6 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
-  public boolean isDeterministicFirst() {
-    return deterministicFirst;
-  }
-
-  public void setDeterministicFirst(boolean deterministicFirst) {
-    this.deterministicFirst = deterministicFirst;
-  }
-
-
-  public boolean isAlternating() {
-    return alternating;
-  }
-
-  public void setAlternating(boolean alternating) {
-    this.alternating = alternating;
-  }
-
-
   public long getTimeout() {
     return timeout;
   }
@@ -594,10 +588,6 @@ public class CuttingPlaneSolver implements Solver {
       setEnforceIntegers((Boolean) value);
     else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
-    else if (name.getHead().equals("alternating"))
-      setAlternating((Boolean) value);
-    else if (name.getHead().equals("deterministicFirst"))
-      setDeterministicFirst((Boolean) value);
     else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
     else if (name.getHead().equals("profiler"))
@@ -646,12 +636,9 @@ public class CuttingPlaneSolver implements Solver {
     out.println("=======================================");
 
     //GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
-    GroundAtomsPrinter printer = new SemtagPrinter();
-    for (UserPredicate hidden : model.getHiddenPredicates())
-      System.out.println(greedyAtoms.getGroundAtomsOf(hidden));
-    //printer.print(greedyAtoms, out);
-    GroundAtoms last = greedyAtoms;
-    ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size());
+    //GroundAtomsPrinter printer = new SemtagPrinter();
+    GroundAtoms last = candidateAtoms.get(candidateAtoms.size() - 1);
+    ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size() - 1);
     Evaluation evaluation = new Evaluation(model);
     while (iter.hasPrevious()) {
       GroundAtoms current = iter.previous();
