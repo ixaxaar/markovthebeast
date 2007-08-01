@@ -7,6 +7,7 @@ import thebeast.util.HashMultiMapList;
 
 import java.util.HashMap;
 import java.util.Formatter;
+import java.util.List;
 
 /**
  * An Evaluation object can extract precision/recall information from a gold and guess set of ground atoms.
@@ -50,6 +51,9 @@ public class Evaluation {
     restrictionPatterns.add(predicate, pattern);
   }
 
+  public void addRestrictionPattern(UserPredicate predicate, List<Object> pattern){
+    restrictionPatterns.add(predicate, pattern.toArray(new Object[pattern.size()]));
+  }
 
   public GroundAtoms getGold() {
     return gold;
@@ -180,5 +184,9 @@ public class Evaluation {
 
   public int getNumErrors(){
     return getFalseNegativesCount() + getFalsePositivesCount();
+  }
+
+  public Model getModel() {
+    return model;
   }
 }

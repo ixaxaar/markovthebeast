@@ -44,7 +44,7 @@ public class CorpusEvaluation {
     int fp = evaluation.getFalsePositivesCount();
     fnCount += fn;
     fpCount += fp;
-    if (fnCount == 0 && fpCount == 0) ++correct;
+    if (fn == 0 && fp == 0) ++correct;
     for (UserPredicate pred : model.getHiddenPredicates()) {
       goldCountPerPredicate.increment(pred, evaluation.getGold().getGroundAtomsOf(pred).size());
       guessCountPerPredicate.increment(pred, evaluation.getGuess().getGroundAtomsOf(pred).size());
