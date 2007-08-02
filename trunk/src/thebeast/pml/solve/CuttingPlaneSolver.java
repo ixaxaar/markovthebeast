@@ -310,6 +310,7 @@ public class CuttingPlaneSolver implements Solver {
     if (groundAll.isEmpty()) {
       //System.out.println(ground);
       if (!initSet) initSolution();
+      ++iteration;
       //update(factors);
       addCandidate(inspect());
     } else {
@@ -320,7 +321,6 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       //addCandidate(groundAllOrder);
     }
-
     if (showIterations) System.out.print("+");
     profiler.start("iterations");
     while (propositionalModel.changed() && iteration < maxIterations) {
@@ -586,6 +586,8 @@ public class CuttingPlaneSolver implements Solver {
       setTimeout((Integer) value);
     else if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
+    else if (name.getHead().equals("history"))
+      setPrintHistory((Boolean)value);
     else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
     else if (name.getHead().equals("profile"))
@@ -593,6 +595,10 @@ public class CuttingPlaneSolver implements Solver {
     else if (name.getHead().equals("profiler"))
       if (!name.isTerminal())
         profiler.setProperty(name.getTail(), value);
+  }
+
+  private void setPrintHistory(boolean printHistory) {
+    this.printHistory = printHistory;
   }
 
 
@@ -638,16 +644,27 @@ public class CuttingPlaneSolver implements Solver {
     //GroundAtomsPrinter printer = new CoNLL00SentencePrinter();
     //GroundAtomsPrinter printer = new SemtagPrinter();
     GroundAtoms last = candidateAtoms.get(candidateAtoms.size() - 1);
-    ListIterator<GroundAtoms> iter = candidateAtoms.listIterator(candidateAtoms.size() - 1);
+    out.println(">>>>>> Atoms <<<<<<");
+    for (UserPredicate hidden : model.getHiddenPredicates())
+      out.println(last.getGroundAtomsOf(hidden));
+    out.println(">>>>>> Formulas <<<<<<");
+    out.println(candidateFormulas.get(candidateAtoms.size() - 1));
     Evaluation evaluation = new Evaluation(model);
-    while (iter.hasPrevious()) {
-      GroundAtoms current = iter.previous();
+    int candidate = candidateAtoms.size()-2;
+    while (candidate >= 0) {
+      GroundAtoms current = candidateAtoms.get(candidate);
+      GroundFormulas form = candidateFormulas.get(candidate);
       evaluation.evaluate(current, last);
+      out.println(">>>>>> Changes <<<<<<");
       out.println(evaluation);
+      out.println(">>>>>> Atoms <<<<<<");
       for (UserPredicate hidden : model.getHiddenPredicates())
         System.out.println(current.getGroundAtomsOf(hidden));
+      out.println(">>>>>> Formulas <<<<<<");
+      out.println(form);
       //printer.print(current, out);
       last = current;
+      --candidate;
     }
   }
 

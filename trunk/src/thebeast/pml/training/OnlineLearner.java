@@ -35,7 +35,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private Solution goldSolution;
   private Weights weights;
   private Model model;
-  private PerformanceProgressReporter progressReporter = new QuietProgressReporter();
+  private ProgressReporter progressReporter = new QuietProgressReporter();
   private boolean averaging = false;
   private ArrayVariable average;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
@@ -53,9 +53,9 @@ public class OnlineLearner implements Learner, HasProperties {
   private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
   private int numEpochs;
-  private int maxViolations = 1;//Integer.MAX_VALUE;
   private int instanceNr;
   private int minOrder = 0;
+  private int minCandidates = 0;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -67,7 +67,7 @@ public class OnlineLearner implements Learner, HasProperties {
     return progressReporter;
   }
 
-  public void setProgressReporter(PerformanceProgressReporter progressReporter) {
+  public void setProgressReporter(ProgressReporter progressReporter) {
     this.progressReporter = progressReporter;
   }
 
@@ -226,6 +226,7 @@ public class OnlineLearner implements Learner, HasProperties {
   public void learn(TrainingInstances instances) {
     //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
+    progressReporter.setColumns("Loss", "Iterations", "Candidates");
     setUpAverage();
     if (initializeWeights)
       weights.setAllWeights(initialWeight);
@@ -315,17 +316,18 @@ public class OnlineLearner implements Learner, HasProperties {
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
     for (int i = 0; i < solver.getCandidateCount() && i < maxCandidates; ++i) {
-      int violationCount = solver.getCandidateFormulas(i).getViolationCount();
       int order = solver.getCandidateOrder(i);
       //maxViolations = 1;
-      if (violationCount < maxViolations && order >= minOrder) {
+      if (i < minCandidates || (order >= minOrder)) {
         //System.out.print(violationCount + " ");
         GroundAtoms guessAtoms = solver.getCandidateAtoms(i);
 //        if (instanceNr == 0){
 //          new SentencePrinter().print(guessAtoms, System.out);
 //        }
         solution.getGroundAtoms().load((guessAtoms));
+        profiler.start("get-formulas");
         solution.getGroundFormulas().load(solver.getCandidateFormulas(i));
+        profiler.end();
         FeatureVector features;
         if (usableVectors.isEmpty()) {
           features = new FeatureVector();
@@ -374,7 +376,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //System.out.println(losses);
     updateAverage();
 
-    progressReporter.progressed(loss, solver.getIterationCount());
+    progressReporter.progressed(loss, solver.getIterationCount(), losses.size());
 
     //add feature vectors for reuse
     for (FeatureVector vector : allVectors) {
@@ -411,13 +413,7 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
-  public int getMaxViolations() {
-    return maxViolations;
-  }
 
-  public void setMaxViolations(int maxViolations) {
-    this.maxViolations = maxViolations;
-  }
 
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
@@ -435,10 +431,10 @@ public class OnlineLearner implements Learner, HasProperties {
 
     } else if ("maxCandidates".equals(name.getHead())) {
       setMaxCandidates((Integer) value);
+    } else if ("minCandidates".equals(name.getHead())) {
+      setMinCandidates((Integer) value);
     } else if ("minOrder".equals(name.getHead())) {
       setMinOrder((Integer) value);
-    } else if ("maxViolations".equals(name.getHead())) {
-      setMaxViolations((Integer) value);
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
     } else if ("update".equals(name.getHead())) {
@@ -490,6 +486,15 @@ public class OnlineLearner implements Learner, HasProperties {
 
   public boolean isInitializeWeights() {
     return initializeWeights;
+  }
+
+
+  public int getMinCandidates() {
+    return minCandidates;
+  }
+
+  public void setMinCandidates(int minCandidates) {
+    this.minCandidates = minCandidates;
   }
 
   public void setInitializeWeights(boolean initializeWeights) {

@@ -691,6 +691,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         evaluation.addRestrictionPattern(pred, pattern);
     }    
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
+    reporter.setColumns("Loss","Iterations");
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
     for (GroundAtoms gold : corpus) {

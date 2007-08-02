@@ -5,9 +5,12 @@ set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
 //load corpus from "one-sentence.crp";
-load corpus from "corpora/small-train-set.crp";
+//load corpus from "corpora/small-train-set.crp";
+//load corpus from "corpora/train-set.crp";
+//load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/train-set.crp";
+load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/small-train-set.crp";
 
-//save corpus (0-10000) to ram;
+save corpus (0-1000) to ram;
 
 collect;
 
