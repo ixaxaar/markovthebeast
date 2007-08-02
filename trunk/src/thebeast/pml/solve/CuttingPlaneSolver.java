@@ -42,6 +42,9 @@ public class CuttingPlaneSolver implements Solver {
   private boolean printHistory = false;
   private boolean showIterations = false;
 
+  private boolean currentSolutionHadSoftConstraint = false;
+  private boolean lastSolutionHadSoftConstraint = false;
+
 
   private ArrayList<GroundAtoms> candidateAtoms = new ArrayList<GroundAtoms>();
   private ArrayList<GroundFormulas> candidateFormulas = new ArrayList<GroundFormulas>();
@@ -417,17 +420,23 @@ public class CuttingPlaneSolver implements Solver {
   private int inspect() {
     if (orderedFactors.size() == 0) return Integer.MAX_VALUE;
     int order = 0;
+    lastSolutionHadSoftConstraint = currentSolutionHadSoftConstraint;
+    currentSolutionHadSoftConstraint = false;
     do {
       FactorSet set = orderedFactors.get(order);
       update(set);
-      if (propositionalModel.changed()) return order;
+      if (propositionalModel.changed()) {
+        currentSolutionHadSoftConstraint = !set.isAllDeterministic();
+        return order;
+      }
       ++order;
     } while (order < orderedFactors.size());
     return Integer.MAX_VALUE;
   }
 
-
   private void addCandidate(int order) {
+    if (order == Integer.MAX_VALUE && lastSolutionHadSoftConstraint)
+      return;
     if (holderAtoms.isEmpty()) {
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
@@ -659,7 +668,7 @@ public class CuttingPlaneSolver implements Solver {
       out.println(evaluation);
       out.println(">>>>>> Atoms <<<<<<");
       for (UserPredicate hidden : model.getHiddenPredicates())
-        System.out.println(current.getGroundAtomsOf(hidden));
+        out.println(current.getGroundAtomsOf(hidden));
       out.println(">>>>>> Formulas <<<<<<");
       out.println(form);
       //printer.print(current, out);
@@ -680,8 +689,34 @@ public class CuttingPlaneSolver implements Solver {
   private static class FactorSet extends HashSet<FactorFormula> implements Comparable<FactorSet> {
     public final int order;
 
+    private boolean allDeterministic = true;
+
     public FactorSet(int order) {
       this.order = order;
+    }
+
+
+    public boolean isAllDeterministic() {
+      return allDeterministic;
+    }
+
+    public boolean add(FactorFormula factorFormula) {
+      if (!factorFormula.isDeterministic())
+        allDeterministic = false;
+      return super.add(factorFormula);
+    }
+
+
+    public boolean remove(Object o) {
+      boolean result = super.remove(o);
+      allDeterministic = true;
+      for (FactorFormula f : this){
+        if (!f.isDeterministic()){
+          allDeterministic = false;
+          break;
+        }
+      }
+      return result;
     }
 
     public int compareTo(FactorSet factorSet) {
