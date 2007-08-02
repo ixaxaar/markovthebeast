@@ -156,7 +156,7 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
   public void createCountQuery(Quantification quantification, BooleanFormula formula) {
     DNF dnf = DNFGenerator.generateDNF(formula);
     if (dnf.getConjunctionCount() > 1)
-      throw new RuntimeException("We can only do plain conjunctions for cardinality constraints but look at this:" +
+      throw new RuntimeException("We can only do plain conjunctions inside cardinality constraints but look at this:" +
               dnf + " coming from this " + formula);
     List<SignedAtom> conjunction = dnf.getConjunction(0);
 
@@ -175,6 +175,7 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
     for (Variable var : collector.getUnresolved()) {
       thebeast.nod.variable.Variable param = interpreter.createVariable(var.getType().getNodType());
       Term term = var2term.get(var);
+      if (term == null) throw new UnresolvableVariableException(var);
       NoDExpressionGenerator generator = new NoDExpressionGenerator();
       Expression arg = generator.convertTerm(term, groundAtoms, weights, var2expr, var2term);
       args.add(arg);

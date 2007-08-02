@@ -4,6 +4,7 @@ include "model.pml";
 set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
+//load weights from dump "/tmp/epoch_6.dmp";
 load weights from dump "/tmp/srl.clean.weights.dmp";
 //load weights from dump "/tmp/srl.weights.dmp";
 
@@ -30,8 +31,11 @@ set learner.solver.history = false;
 
 set learner.solver.order.implyArg = 1;
 set learner.solver.order.implyIsarg = 1;
-set learner.solver.order.argpair = 2;
-set learner.solver.order.argpairvoice = 2;
+//set learner.solver.ground.implyArg = true;
+//set learner.solver.ground.implyIsarg = true;
+//set learner.solver.ground.atMostOneArg = true;
+//set learner.solver.order.argpair = 2;
+//set learner.solver.order.argpairvoice = 2;
 
 //set learner.maxViolations = 1000;
 
@@ -40,7 +44,7 @@ set learner.solver.order.argpairvoice = 2;
 //print weights.w_path;
 
 learn for 10 epochs;
-//learn for 3 epochs;
+//learn for 7 epochs;
 
 //print weights.w_isarg_bias;
 print learner.profiler;
