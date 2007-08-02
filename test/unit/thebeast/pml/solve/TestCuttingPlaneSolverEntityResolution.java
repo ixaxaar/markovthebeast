@@ -154,7 +154,7 @@ public class TestCuttingPlaneSolverEntityResolution extends TestCase {
     cuttingPlaneSolver.solve();
 
     System.out.println(cuttingPlaneSolver.getIterationCount());
-    assertEquals(3, cuttingPlaneSolver.getIterationCount());
+    assertEquals(4, cuttingPlaneSolver.getIterationCount());
 
 
     validateSolution(cuttingPlaneSolver.getBestAtoms());

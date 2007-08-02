@@ -1436,7 +1436,7 @@ public class TestTheBeast extends TestCase {
     solver.setObservation(theManLikesTheBoat);
     solver.setScores(scores);
     solver.setInititalSolution(theManLikesTheBoat);
-    solver.solve(1);
+    solver.solve(2);
     //solver.solve(theManLikesTheBoat,1);
     System.out.println(solver.getBestAtoms());
     //Solution result = new Solution(model, weights);
