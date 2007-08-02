@@ -42,10 +42,6 @@ public class CuttingPlaneSolver implements Solver {
   private boolean printHistory = false;
   private boolean showIterations = false;
 
-  private boolean currentSolutionHadSoftConstraint = false;
-  private boolean lastSolutionHadSoftConstraint = false;
-
-
   private ArrayList<GroundAtoms> candidateAtoms = new ArrayList<GroundAtoms>();
   private ArrayList<GroundFormulas> candidateFormulas = new ArrayList<GroundFormulas>();
   private ArrayList<Integer> candidateOrders = new ArrayList<Integer>();
@@ -420,13 +416,10 @@ public class CuttingPlaneSolver implements Solver {
   private int inspect() {
     if (orderedFactors.size() == 0) return Integer.MAX_VALUE;
     int order = 0;
-    lastSolutionHadSoftConstraint = currentSolutionHadSoftConstraint;
-    currentSolutionHadSoftConstraint = false;
     do {
       FactorSet set = orderedFactors.get(order);
       update(set);
       if (propositionalModel.changed()) {
-        currentSolutionHadSoftConstraint = !set.isAllDeterministic();
         return order;
       }
       ++order;
@@ -435,8 +428,6 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   private void addCandidate(int order) {
-    if (order == Integer.MAX_VALUE && lastSolutionHadSoftConstraint)
-      return;
     if (holderAtoms.isEmpty()) {
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
