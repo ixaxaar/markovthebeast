@@ -167,6 +167,7 @@ public class GroundFormulas {
           }
         } catch (RuntimeException e) {
           if (formula.getWeight().isFree()) throw e;
+          //throw new RuntimeException("Couldn't create groundall query for " + formula,e);
           //might happen for signed formulas and as long we don't need to fully ground them things are fine.
         }
 

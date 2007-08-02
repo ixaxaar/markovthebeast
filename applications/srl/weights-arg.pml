@@ -1,5 +1,5 @@
-//weight w_bias: Argument -> Double;
-//factor: for Int c, Argument a if candidate(c) add [arg(c,a)] * w_bias(a);
+weight w_bias: Argument -> Double-;
+  factor: for Int c, Argument a if candidate(c) add [arg(c,a)] * w_bias(a);
 
 weight w_path: Path x Argument -> Double;
 factor: for Int c, Path p, Argument a

@@ -25,6 +25,8 @@ public class CoNLL05Converter {
   private static HashSet<String> copula = new HashSet<String>();
   private static HashSet<String> punctuation = new HashSet<String>();
 
+  private static boolean extractV = false;
+
   static {
     headFinder.addRuleAsString("NP\tr POS NN NNP NNPS NNS;r NX;r JJR;r CD;r JJ;r JJS;r RB;r QP;r NP;r");
     headFinder.addRuleAsString("ADJP\tr NNS;r QP;r NN;r $;r ADVP;r JJ;r VBN;r VBG;r ADJP;r JJR;r NP;r JJS;r DT;r FW;r RBR;r RBS;r SBAR;r RB;r");
@@ -201,7 +203,7 @@ public class CoNLL05Converter {
             if (tree != null && tree.label.equals("PP")) {
               Tree rightmost = tree.getRightMostChild();
               out.println(id + "\t" + headFinder.getHead(rightmost).begin);
-            } 
+            }
           }
           out.println();
 
@@ -239,6 +241,18 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">shortframe");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
+            if (arg != null)
+              out.println(id + "\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg).toShortPattern() + "\"");
+            else out.println(id + "\tNONE");
+          }
+          out.println();
+
+
           out.println(">framepattern");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
@@ -275,6 +289,20 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">pathlength");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            Tree to = charniak.getNode(span.arg1, span.arg2);
+            if (to != null) {
+              Tree.Path path = new Tree.Path();
+              from.getPath(to, path);
+              out.println(id + "\t" + path.size());
+            } else {
+              out.println(id + "\t-1");
+            }
+          }
+          out.println();
+
           //heads
           out.println(">head");
           for (Pair<Integer, Integer> span : spans) {
@@ -293,8 +321,8 @@ public class CoNLL05Converter {
           for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
-            if (!label.equals(NONE))
-              out.println(id + "\t\"" + args.getLabel(span.arg1, span.arg2) + "\"");
+            if (!label.equals(NONE) && (extractV || !label.startsWith("V")))
+              out.println(id + "\t\"" + label + "\"");
           }
           out.println();
 
@@ -302,7 +330,7 @@ public class CoNLL05Converter {
           for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
-            if (!label.equals(NONE))
+            if (!label.equals(NONE) && (extractV || !label.startsWith("V")))
               out.println(id);
           }
           out.println();
@@ -314,7 +342,7 @@ public class CoNLL05Converter {
           out.println();
 
           out.println(">subcat");
-          out.println("\"" + (predicateTree.parent != null?
+          out.println("\"" + (predicateTree.parent != null ?
                   predicateTree.parent.getSubcat() : "NOPARENT") + "\"");
           out.println();
 
@@ -425,8 +453,8 @@ public class CoNLL05Converter {
     public Tree getRightMostChild() {
       int max = Integer.MIN_VALUE;
       Tree result = null;
-      for (Tree child : children){
-        if (child.begin > max){
+      for (Tree child : children) {
+        if (child.begin > max) {
           result = child;
           max = child.begin;
         }
@@ -503,6 +531,25 @@ public class CoNLL05Converter {
       }
 
 
+      public String toShortPattern() {
+        StringBuffer result = new StringBuffer();
+        int index = 0;
+        boolean betweenPivots = false;
+        for (Tree child : this) {
+          if (punctuation.contains(unquote(child.label))) continue;
+          if (pivots.contains(child)) {
+            if (index++ > 0) result.append("_");
+            if (child.equals(predicate)) result.append("!");
+            result.append(unquote(child.label).substring(0, 1).toUpperCase());
+            if (betweenPivots) return result.toString();
+            else betweenPivots = true;
+          } else if (betweenPivots) {
+            if (index++ > 0) result.append("_");
+            result.append(unquote(child.label).substring(0, 1).toLowerCase());
+          }
+        }
+        return result.toString();
+      }
     }
 
 
@@ -838,7 +885,7 @@ public class CoNLL05Converter {
 
     public static Tree createChunks(Sentence sentence, int column) {
       Stack<Tree> stack = new Stack<Tree>();
-      stack.push(new Tree(null, "Root", 0, sentence.size()-1));
+      stack.push(new Tree(null, "Root", 0, sentence.size() - 1));
       for (int i = 0; i < sentence.size(); ++i) {
         StringTokenizer tokenizer = new StringTokenizer(sentence.get(i).get(column), "[()*]", true);
         while (tokenizer.hasMoreTokens()) {
@@ -887,9 +934,9 @@ public class CoNLL05Converter {
     public Sentence() {
     }
 
-    public String toString(){
+    public String toString() {
       StringBuffer result = new StringBuffer();
-      for (int i = 0; i < size();++i)
+      for (int i = 0; i < size(); ++i)
         result.append(get(i).get(WORD_INDEX)).append(" ");
       return result.toString();
     }

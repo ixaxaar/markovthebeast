@@ -39,6 +39,8 @@ public class CuttingPlaneSolver implements Solver {
 
   private long timeout = Long.MAX_VALUE; //10000;
 
+  private int maxOrder = Integer.MAX_VALUE;
+
   private boolean printHistory = false;
   private boolean showIterations = false;
 
@@ -63,7 +65,6 @@ public class CuttingPlaneSolver implements Solver {
     this(new IntegerLinearProgram(new ILPSolverLpSolve()));
   }
 
-
   /**
    * Creates a new solver using the given propositional model to represent and solve the grounded networks.
    *
@@ -76,9 +77,9 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Defines whether the given formula should be grounded in advance. Note that if there is one more formulas
-   * which have to be grounded in advance, the solver won't do an initial greedy step. The first problem is then
-   * solved using the propositional model/solver.
+   * Defines whether the given formula should be grounded in advance. Note that if there is one more formulas which have
+   * to be grounded in advance, the solver won't do an initial greedy step. The first problem is then solved using the
+   * propositional model/solver.
    *
    * @param formula     the formula to be grounded in advance (or not)
    * @param fullyGround true if the formula should grounded in advance, false otherwise.
@@ -170,8 +171,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Sets the profiler for this solver. The profiler will never be called in inner loops etc but only before and
-   * after relatively coarse subroutines such as "find violated constraints" etc.
+   * Sets the profiler for this solver. The profiler will never be called in inner loops etc but only before and after
+   * relatively coarse subroutines such as "find violated constraints" etc.
    *
    * @param profiler the profiler to use
    */
@@ -232,6 +233,11 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * This method extracts ground formulas from the current solution and updates the propositional model accordingly.
+   *
+   * @param factors the collection of factors to use for updating.
+   */
   private void update(Collection<FactorFormula> factors) {
     profiler.start("update");
 
@@ -274,8 +280,8 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * @return true if the solver calculates a first solution purely based on local scores by itself, false
-   *         if the first step uses constraints.
+   * @return true if the solver calculates a first solution purely based on local scores by itself, false if the first
+   *         step uses constraints.
    */
   public boolean doesOwnLocalSearch() {
     return groundAll.isEmpty();
@@ -306,12 +312,15 @@ public class CuttingPlaneSolver implements Solver {
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
 
+    int order = 0;
+
     if (groundAll.isEmpty()) {
       //System.out.println(ground);
       if (!initSet) initSolution();
       ++iteration;
       //update(factors);
-      addCandidate(inspect());
+      order = inspect();
+      addCandidate(order);
     } else {
       profiler.start("ground-all");
       atoms.clear(model.getHiddenPredicates());
@@ -322,7 +331,7 @@ public class CuttingPlaneSolver implements Solver {
     }
     if (showIterations) System.out.print("+");
     profiler.start("iterations");
-    while (propositionalModel.changed() && iteration < maxIterations) {
+    while (propositionalModel.changed() && iteration < maxIterations && order <= maxOrder) {
       //System.out.println(iteration + " of " + maxIterations);
       if (System.currentTimeMillis() - start > timeout) {
         System.out.println("timeout");
@@ -333,7 +342,8 @@ public class CuttingPlaneSolver implements Solver {
       //System.out.println("solved!");
       profiler.end();
       ++iteration;
-      addCandidate(inspect());
+      order = inspect();
+      addCandidate(order);
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
       }
@@ -352,10 +362,10 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * This method returns the set of ground formulas for the given candidate solution index. Note that this method
-   * might need to perform some expensive operations since the solver does not need to have a complete set of ground
-   * formulas ready. Thus it might need to search for more unsatisfied formulas in order to return a consisten ground
-   * formulas object.
+   * This method returns the set of ground formulas for the given candidate solution index. Note that this method might
+   * need to perform some expensive operations since the solver does not need to have a complete set of ground formulas
+   * ready. Thus it might need to search for more unsatisfied formulas in order to return a consisten ground formulas
+   * object.
    *
    * @param candidate the index of the candidate we want the ground formulas for
    * @return the ground formulas for the given candidate.
@@ -385,10 +395,9 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Returns the order of a candidate solution. The order of a candidate solution is the order
-   * of the newly found formula with lowest order. A formula f is newly found at candidate i>0 if i contains
-   * a ground version of f that is not contained in any candidate in 0 ... i-1. For i = 0 each formula that has
-   * been found in i = 0 is newly found. 
+   * Returns the order of a candidate solution. The order of a candidate solution is the order of the newly found
+   * formula with lowest order. A formula f is newly found at candidate i>0 if i contains a ground version of f that is
+   * not contained in any candidate in 0 ... i-1. For i = 0 each formula that has been found in i = 0 is newly found.
    *
    * @param candidate the candidate index
    * @return the order of the given candidate.
@@ -398,8 +407,8 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Returns the number of candidates the solver generated on the way to its final solution. These might
-   * be used for learning.
+   * Returns the number of candidates the solver generated on the way to its final solution. These might be used for
+   * learning.
    *
    * @return the number of candidates the solver generated on the way.
    */
@@ -497,11 +506,11 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * The solver might be limited to only do a fixed number of iterations. If the solver has to stop before
-   * the propositional model is not changing anymore, it is not "done".
+   * The solver might be limited to only do a fixed number of iterations. If the solver has to stop before the
+   * propositional model is not changing anymore, it is not "done".
    *
-   * @return true if the propositional model has not changed in the last iteration, false if the solver had
-   *         to be stopped before that.
+   * @return true if the propositional model has not changed in the last iteration, false if the solver had to be
+   *         stopped before that.
    */
   public boolean isDone() {
     return done;
@@ -519,10 +528,10 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
-   * Defines an ordering on the set of factor formulas. This is ordering is used to determine
-   * when the solver first inspects the solutions for violations of the given factor formula. If a factor A has
-   * the order k and another factor B has the order l > k then we will only start to look for violations of B when no
-   * no more new violations of A can be found. By default each formula has the the order 0.
+   * Defines an ordering on the set of factor formulas. This is ordering is used to determine when the solver first
+   * inspects the solutions for violations of the given factor formula. If a factor A has the order k and another factor
+   * B has the order l > k then we will only start to look for violations of B when no no more new violations of A can
+   * be found. By default each formula has the the order 0.
    *
    * @param factorFormula the formula to give an order to.
    * @param order         the order of the formula.
@@ -549,13 +558,47 @@ public class CuttingPlaneSolver implements Solver {
     set.add(factorFormula);
   }
 
-
+  /**
+   * The solver usually runs until convergence or until a specified order is achieved. The timeout time specifies the
+   * time when solver stops even though none of the above criteria is fulfilled.
+   *
+   * @return the time in milliseconds until the solver is forced to stop.
+   */
   public long getTimeout() {
     return timeout;
   }
 
+  /**
+   * The solver usually runs until convergence or until a specified order is achieved. The timeout time specifies the
+   * time when solver stops even though none of the above criteria is fulfilled.
+   *
+   * @param timeout the time in milliseconds until the solver is forced to stop.
+   */
   public void setTimeout(long timeout) {
     this.timeout = timeout;
+  }
+
+
+  /**
+   * The solver can be told to stop when its solution reaches a certain order. For example, if all deterministic
+   * formulas have order 0 and all global nondeterministic formulas have order 1, by setting the maxOrder to 0 we stop
+   * once all hard constraints are fulfilled. By default this is Integer.MAX_VALUE.
+   *
+   * @return the order at which the solver stops.
+   */
+  public int getMaxOrder() {
+    return maxOrder;
+  }
+
+  /**
+   * The solver can be told to stop when its solution reaches a certain order. For example, if all deterministic
+   * formulas have order 0 and all global nondeterministic formulas have order 1, by setting the maxOrder to 0 we stop
+   * once all hard constraints are fulfilled. By default this is Integer.MAX_VALUE.
+   *
+   * @param maxOrder the order at which the solver stops.
+   */
+  public void setMaxOrder(int maxOrder) {
+    this.maxOrder = maxOrder;
   }
 
   public void setProperty(PropertyName name, Object value) {
@@ -584,10 +627,12 @@ public class CuttingPlaneSolver implements Solver {
       setMaxIterations((Integer) value);
     else if (name.getHead().equals("timeout"))
       setTimeout((Integer) value);
+    else if (name.getHead().equals("maxOrder"))
+      setMaxOrder((Integer) value);
     else if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
     else if (name.getHead().equals("history"))
-      setPrintHistory((Boolean)value);
+      setPrintHistory((Boolean) value);
     else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
     else if (name.getHead().equals("profile"))
@@ -650,7 +695,7 @@ public class CuttingPlaneSolver implements Solver {
     out.println(">>>>>> Formulas <<<<<<");
     out.println(candidateFormulas.get(candidateAtoms.size() - 1));
     Evaluation evaluation = new Evaluation(model);
-    int candidate = candidateAtoms.size()-2;
+    int candidate = candidateAtoms.size() - 2;
     while (candidate >= 0) {
       GroundAtoms current = candidateAtoms.get(candidate);
       GroundFormulas form = candidateFormulas.get(candidate);
@@ -669,13 +714,19 @@ public class CuttingPlaneSolver implements Solver {
   }
 
 
+  /**
+   * The solver has to extract local features for the given observation. This method allows client to inspect the local
+   * features from the last instance processed.
+   *
+   * @return the local features for the last solved problem.
+   */
   public LocalFeatures getLocalFeatures() {
     return features;
   }
 
   /**
-   * A FactorSet is a set of factors along with a number that determines when
-   * the factors of the set are first checked for in the current solution.
+   * A FactorSet is a set of factors along with a number that determines when the factors of the set are first checked
+   * for in the current solution.
    */
   private static class FactorSet extends HashSet<FactorFormula> implements Comparable<FactorSet> {
     public final int order;
@@ -701,8 +752,8 @@ public class CuttingPlaneSolver implements Solver {
     public boolean remove(Object o) {
       boolean result = super.remove(o);
       allDeterministic = true;
-      for (FactorFormula f : this){
-        if (!f.isDeterministic()){
+      for (FactorFormula f : this) {
+        if (!f.isDeterministic()) {
           allDeterministic = false;
           break;
         }
