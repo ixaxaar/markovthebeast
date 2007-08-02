@@ -120,14 +120,20 @@ public class CoNLL05Converter {
 
 
           Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
+          if (predicateTree == null) throw new RuntimeException("Problem in sentence " + sentence +
+                  " with predicate token " + predicateToken);
 
           HashSet<Pair<Integer, Integer>> spans = new HashSet<Pair<Integer, Integer>>();
           HashSet<Pair<Integer, Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
           HashSet<Pair<Integer, Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
           Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
-          Tree charniakPruned = predicateTree.pruneXuePalmer().getRoot();
+          Tree tmp = predicateTree.pruneXuePalmer();
+          if (tmp == null) throw new RuntimeException("Problem in sentence " + sentence +
+                  " with predicate token " + predicateToken);
+
+          Tree charniakPruned = tmp.getRoot();
           charniakPruned.getSpans(candidates);
-          ne.getSpans(candidates);
+          //ne.getSpans(candidates);
           args.getChunks(argSpans);
           spans.addAll(candidates);
           spans.addAll(argSpans);
@@ -155,11 +161,10 @@ public class CoNLL05Converter {
 
           //labels
           out.println(">label");
-          out.println("-1\tCharniak\tUNDEFINED");
+          out.println("-1\tUNDEFINED");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            out.println(id + "\tNE\t" + ne.getLabel(span.arg1, span.arg2));
-            out.println(id + "\tCharniak\t" + charniakPruned.getLabel(span.arg1, span.arg2));
+            out.println(id + "\t" + charniakPruned.getLabel(span.arg1, span.arg2));
           }
           out.println();
 
@@ -170,7 +175,7 @@ public class CoNLL05Converter {
             if (tree != null) {
               Tree parent = tree.parent;
               if (parent != null) {
-                out.println(id + "\tCharniak\t" + parent.label);
+                out.println(id + "\t" + parent.label);
               }
             }
           }
@@ -182,9 +187,9 @@ public class CoNLL05Converter {
             Tree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null && tree.parent != null) {
               Tree parent = tree.parent;
-              out.println(id + "\tCharniak\t" + headFinder.getHead(parent).begin);
+              out.println(id + "\t" + headFinder.getHead(parent).begin);
             } else {
-              out.println(id + "\tCharniak\t-1");
+              out.println(id + "\t-1");
             }
           }
           out.println();
@@ -195,7 +200,7 @@ public class CoNLL05Converter {
             Tree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null && tree.label.equals("PP")) {
               Tree rightmost = tree.getRightMostChild();
-              out.println(id + "\tCharniak\t" + headFinder.getHead(rightmost).begin);
+              out.println(id + "\t" + headFinder.getHead(rightmost).begin);
             } 
           }
           out.println();
@@ -209,7 +214,7 @@ public class CoNLL05Converter {
               Tree rightSister = tree.getRightSister();
               int idLeft = leftSister != null ? span2id.get(leftSister.getSpan()) : -1;
               int idRight = rightSister != null ? span2id.get(rightSister.getSpan()) : -1;
-              out.println(id + "\tCharniak\t" + idLeft + "\t" + idRight);
+              out.println(id + "\t" + idLeft + "\t" + idRight);
             }
           }
           out.println();
@@ -229,8 +234,8 @@ public class CoNLL05Converter {
             Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              out.println(id + "\tCharniak\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg) + "\"");
-            else out.println(id + "\tCharniak\tNONE");
+              out.println(id + "\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg) + "\"");
+            else out.println(id + "\tNONE");
           }
           out.println();
 
@@ -240,9 +245,9 @@ public class CoNLL05Converter {
             Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              out.println(id + "\tCharniak\t\"" +
+              out.println(id + "\t\"" +
                       new Tree.SyntacticFrame(charniakPruned, predicateTree, arg).toStringPattern() + "\"");
-            else out.println(id + "\tCharniak\tNONE");
+            else out.println(id + "\tNONE");
           }
           out.println();
 
@@ -259,13 +264,13 @@ public class CoNLL05Converter {
           Tree from = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            if (charniak.contains(span.arg1, span.arg2)) {
+            Tree to = charniak.getNode(span.arg1, span.arg2);
+            if (to != null) {
               Tree.Path path = new Tree.Path();
-              Tree to = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
               from.getPath(to, path);
-              out.println(id + "\tCharniak\t\"" + path + "\"");
+              out.println(id + "\t\"" + path + "\"");
             } else {
-              out.println(id + "\tCharniak\tNONE");
+              out.println(id + "\tNONE");
             }
           }
           out.println();
@@ -274,11 +279,11 @@ public class CoNLL05Converter {
           out.println(">head");
           for (Pair<Integer, Integer> span : spans) {
             id = span2id.get(span);
-            if (charniak.contains(span.arg1, span.arg2)) {
-              Tree tree = charniak.getSmallestCoveringTree(span.arg1, span.arg2);
-              out.println(id + "\tCharniak\t" + headFinder.getHead(tree).begin);
+            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            if (tree != null) {
+              out.println(id + "\t" + headFinder.getHead(tree).begin);
             } else {
-              out.println(id + "\tCharniak\t-1 ");
+              out.println(id + "\t-1 ");
             }
           }
           out.println();
@@ -293,6 +298,15 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">isarg");
+          for (Pair<Integer, Integer> span : argSpans) {
+            String label = args.getLabel(span.arg1, span.arg2);
+            id = span2id.get(span);
+            if (!label.equals(NONE))
+              out.println(id);
+          }
+          out.println();
+
           //write out predicate information
           out.println(">pred");
           out.println(predicateToken + "\t\"" + predicateLemmas.get(pred) + "\"\t" +
@@ -300,7 +314,8 @@ public class CoNLL05Converter {
           out.println();
 
           out.println(">subcat");
-          out.println("Charniak \"" + predicateTree.parent.getSubcat() + "\"");
+          out.println("\"" + (predicateTree.parent != null?
+                  predicateTree.parent.getSubcat() : "NOPARENT") + "\"");
           out.println();
 
         }
@@ -519,6 +534,7 @@ public class CoNLL05Converter {
       Tree result = null;
       Tree lastNode = null;
       Tree lastResult = null;
+      if (current == null) return new Tree(this);
       while (current != null) {
         result = new Tree(current);
         if (!current.label.equals("CC")) for (Tree child : current.children) {
@@ -869,6 +885,13 @@ public class CoNLL05Converter {
     }
 
     public Sentence() {
+    }
+
+    public String toString(){
+      StringBuffer result = new StringBuffer();
+      for (int i = 0; i < size();++i)
+        result.append(get(i).get(WORD_INDEX)).append(" ");
+      return result.toString();
     }
   }
 

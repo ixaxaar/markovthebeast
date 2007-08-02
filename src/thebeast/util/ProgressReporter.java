@@ -7,7 +7,9 @@ public interface ProgressReporter {
 
   void started();
   void started(String name);
-  void progressed();
   void finished();
 
+  void setColumns(String ... names);
+
+  void progressed(double ... values);
 }
