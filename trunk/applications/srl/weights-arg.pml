@@ -1,6 +1,8 @@
 weight w_bias: Argument -> Double-;
   factor: for Int c, Argument a if candidate(c) add [arg(c,a)] * w_bias(a);
 
+set collector.all.w_bias = true;
+
 weight w_path: Path x Argument -> Double;
 factor: for Int c, Path p, Argument a
   if candidate(c) & path(c,p) add [arg(c,a)] * w_path(p,a);
@@ -50,6 +52,12 @@ factor: for Int c, Argument a, Int t, Word h
   if candidate(c) & head(c,t) & word(t,h)
   add [arg(c,a)] * w_head(h,a);
 
+/*
+weight w_distance: Int x Argument -> Double;
+factor: for Int c, Int d, Argument a
+  if candidate(c) & distance(c,d)
+  add [arg(c,a)] * w_distance(d,a);
+*/
 weight w_headpred: Word x Predicate x Argument -> Double;
 factor: for Int c, Argument a, Int t, Word h, Predicate p
   if candidate(c) & head(c,t) & word(t,h) & pred(_,p,_)
@@ -113,6 +121,10 @@ factor: for  Subcat s, Argument a, Int c
 weight w_frame: Frame x Argument -> Double;
 factor: for Frame f, Argument a, Int c
   if candidate(c) & frame(c,f) add [arg(c,a)] * w_frame(f,a);
+
+//weight w_shortframe: ShortFrame x Argument -> Double;
+//factor: for ShortFrame f, Argument a, Int c
+//  if candidate(c) & shortframe(c,f) add [arg(c,a)] * w_shortframe(f,a);
 
 weight w_framepred: Frame x Predicate x Argument -> Double;
 factor: for  Frame f, Argument a, Int c, Predicate p

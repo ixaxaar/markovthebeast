@@ -11,10 +11,11 @@ load weights from dump "/tmp/srl.weights.dmp";
 set solver.model.initIntegers = true;
 
 set solver.order.implyArg = 1;
-set solver.order.implyIsarg = 1;
-set solver.order.argpair = 2;
-set solver.order.argpairvoice = 2;
+//set solver.order.implyIsarg = 0;
+//set solver.order.argpair = 2;
+//set solver.order.argpairvoice = 2;
 
+set solver.model.solver.bbDepthLimit=200;
 
 //load corpus from "corpora/dev-set.crp";
 load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/dev-set.crp";
@@ -23,6 +24,6 @@ set printer = "conll05";
 
 save corpus(0-400) to ram;
 
-set evalrestrict.arg(*,'V') = true;
+//set evalrestrict.arg(*,'V') = true;
 
 //test to ram;

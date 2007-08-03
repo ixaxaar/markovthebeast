@@ -5,6 +5,14 @@ weight w_isarg_path: Path -> Double;
 factor: for Int c, Path p
   if candidate(c) & path(c,p) add [isarg(c)] * w_isarg_path(p);
 
+//weight w_isarg_pathlength: Int -> Double;
+//factor: for Int c, Int l
+//  if candidate(c) & pathlength(c,l) add [isarg(c)] * w_isarg_pathlength(l);
+
+//weight w_isarg_pathlengthlabel: Int x Label -> Double;
+//factor: for Int c, Int l, Label label
+//  if candidate(c) & pathlength(c,l) & label(c,label) add [isarg(c)] * w_isarg_pathlengthlabel(l,label);
+
 weight w_isarg_pathpred: Path x Predicate -> Double;
 factor: for Int c, Path p, Predicate pr
   if candidate(c) & path(c,p) & pred(_,pr,_) add [isarg(c)] * w_isarg_pathpred(p,pr);
@@ -17,13 +25,13 @@ weight w_isarg_parentlabel: Label -> Double;
 factor: for Int c, Label label
   if candidate(c) & parentlabel(c,label) add [isarg(c)] * w_isarg_parentlabel(label);
 
-weight w_isarg_voice: Voice -> Double;
-factor: for Int c, Voice v
-  if candidate(c) & pred(_,_,v) add [isarg(c)] * w_isarg_voice(v);
+//weight w_isarg_voice: Voice -> Double;
+//factor: for Int c, Voice v
+//  if candidate(c) & pred(_,_,v) add [isarg(c)] * w_isarg_voice(v);
 
-weight w_isarg_pred: Predicate -> Double;
-factor: for Int c, Predicate p
-  if candidate(c) & pred(_,p,_) add [isarg(c)] * w_isarg_pred(p);
+//weight w_isarg_pred: Predicate -> Double;
+//factor: for Int c, Predicate p
+//  if candidate(c) & pred(_,p,_) add [isarg(c)] * w_isarg_pred(p);
 
 weight w_isarg_labelpred: Label x Predicate -> Double;
 factor: for Int c, Label label, Predicate p
@@ -81,6 +89,11 @@ factor: for Int c, Int d
   if candidate(c) & chunkdistance(c,d)
   add [isarg(c)] * w_isarg_chunkdistance(d);
 
+weight w_isarg_distance: Int -> Double;
+factor: for Int c, Int d
+  if candidate(c) & distance(c,d)
+  add [isarg(c)] * w_isarg_distance(d);
+
 weight w_isarg_length: Int -> Double;
 factor: for Int c, Int b, Int e
   if candidate(c) & span(c,b,e)
@@ -106,13 +119,17 @@ factor: for Int c, Int e, Pos p
   if candidate(c) & span(c,_,e) & pos(e,p)
   add [isarg(c)] * w_isarg_lastpos(p);
 
-weight w_isarg_subcat: Subcat -> Double;
-factor: for  Subcat s, Int c
-  if subcat(s) & candidate(c) add [isarg(c)] * w_isarg_subcat(s);
+//weight w_isarg_subcat: Subcat -> Double;
+//factor: for  Subcat s, Int c
+//  if subcat(s) & candidate(c) add [isarg(c)] * w_isarg_subcat(s);
 
 weight w_isarg_frame: Frame -> Double;
 factor: for Frame f, Int c
   if candidate(c) & frame(c,f) add [isarg(c)] * w_isarg_frame(f);
+
+weight w_isarg_shortframe: ShortFrame -> Double;
+factor: for ShortFrame f, Int c
+  if candidate(c) & shortframe(c,f) add [isarg(c)] * w_isarg_shortframe(f);
 
 weight w_isarg_framepred: Frame x Predicate -> Double;
 factor: for  Frame f, Int c, Predicate p
