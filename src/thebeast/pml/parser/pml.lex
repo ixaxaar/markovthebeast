@@ -157,7 +157,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> [a-z][A-Z_a-z0-9]* { return symbol(sym.LOWERCASEID, yytext());}
 <YYINITIAL> [A-Z][A-Z_a-z0-9]* { return symbol(sym.UPPERCASEID, yytext());}
 
-<YYINITIAL> [$][A-Z_a-z0-9]* { return symbol(sym.ARGIDENT, yytext());}
+<YYINITIAL> [$][A-Z_a-z0-9]* { return symbol(sym.PARAMETER, "\"" +yytext() + "\"" );}
 
 <YYINITIAL> [0-9]+ { return symbol(sym.NUMBER, new Integer(yytext())); }
 

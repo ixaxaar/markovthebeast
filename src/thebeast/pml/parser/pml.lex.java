@@ -925,7 +925,7 @@ private Symbol symbol(int type, Object value) {
 					case -55:
 						break;
 					case 55:
-						{ return symbol(sym.ARGIDENT, yytext());}
+						{ return symbol(sym.PARAMETER, "\"" +yytext() + "\"" );}
 					case -56:
 						break;
 					case 56:

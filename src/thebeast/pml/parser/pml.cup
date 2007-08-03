@@ -37,7 +37,7 @@ terminal WHILE,DO;
 terminal NULL;
 terminal Integer NUMBER;
 terminal Double DOUBLE;
-terminal String IDENT,STRING,JAVAID,ARGIDENT;
+terminal String IDENT,STRING,JAVAID,PARAMETER,FILENAME;
 
 non terminal LinkedList<ParserStatement> begin;
 non terminal LinkedList<ParserStatement> program;
@@ -61,7 +61,7 @@ non terminal ParserCreatePredicate createPredicate;
 non terminal ParserCreateWeightFunction createWeightFunction;
 non terminal Object object;
 non terminal List<Object> tuple;
-non terminal String factorName;
+non terminal String factorName,filename;
 
 precedence nonassoc ACYCLIC;
 precedence nonassoc FOR, ADD, IF, LSQPAREN, RSQPAREN;
@@ -120,18 +120,18 @@ statement ::= createType:s
               {: RESULT = new ParserLoadScores(s.substring(1,s.length()-1)); :}
             | WEIGHTS FROM STRING:s
               {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
-            | LOAD name:n FROM STRING:s
+            | LOAD name:n FROM filename:s
               {: RESULT = new ParserLoad(n, null, s.substring(1,s.length()-1)); :}
-            | LOAD name:n FROM LOWERCASEID:m STRING:s
+            | LOAD name:n FROM LOWERCASEID:m filename:s
               {: RESULT = new ParserLoad(n, m, s.substring(1,s.length()-1)); :}
-            | LOAD CORPUS FROM STRING:s
+            | LOAD CORPUS FROM filename:s
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1)); :}
             | LOAD CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
-            | LOAD CORPUS FROM LOWERCASEID:f STRING:s
+            | LOAD CORPUS FROM LOWERCASEID:f filename:s
               {: RESULT = new ParserLoadCorpus(f, s.substring(1,s.length()-1)); :}
-            | LOAD CORPUS FROM LOWERCASEID:factory STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
+            | LOAD CORPUS FROM LOWERCASEID:factory filename:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
             | TEST TO LOWERCASEID:f STRING:s
@@ -266,6 +266,8 @@ object ::=
     {: RESULT = true; :}
   | FALSE
     {: RESULT = false; :}
+  | PARAMETER:p
+    {: RESULT = p.substring(1,p.length()-1); :}
   ;
 
 
@@ -460,4 +462,10 @@ namedconstant ::=
     {: RESULT = new ParserNamedConstant(s); :}
   | UPPERCASEID:s
     {: RESULT = new ParserNamedConstant(s); :};
+
+filename ::=
+    STRING:s
+    {: RESULT = s; :}
+  | PARAMETER:s
+    {: RESULT = s; :};
 

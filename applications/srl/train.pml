@@ -5,7 +5,7 @@ set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
 //load weights from dump "/tmp/epoch_6.dmp";
-load weights from dump "/tmp/srl.clean.weights.dmp";
+load weights from dump $1;
 //load weights from dump "/tmp/srl.weights.dmp";
 
 load instances from dump "/disk/home/dendrite/s0349492/tmp/srl.instances.dmp";
@@ -22,7 +22,7 @@ set learner.solver.model.solver.bbDepthLimit=5;
 //set learner.useGreedy = false;
 
 set learner.minOrder = 2;
-set learner.maxCandidates=10;
+set learner.maxCandidates=1;
 set learner.minCandidates=1;
 
 set learner.update.signs = true;
@@ -30,7 +30,7 @@ set learner.average = true;
 set learner.solver.history = false;
 
 set learner.solver.order.implyArg = 1;
-set learner.solver.order.implyIsarg = 1;
+//set learner.solver.order.implyIsarg = 0;
 //set learner.solver.ground.implyArg = true;
 //set learner.solver.ground.implyIsarg = true;
 //set learner.solver.ground.atMostOneArg = true;

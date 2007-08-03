@@ -315,7 +315,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //new SentencePrinter().print(goldAtoms, System.out);
     //System.out.println("Gold:" + weights.toString(gold));
-    for (int i = 0; i < solver.getCandidateCount() && losses.size() <= maxCandidates; ++i) {
+    for (int i = 0; i < solver.getCandidateCount() && losses.size() < maxCandidates; ++i) {
       int order = solver.getCandidateOrder(i);
       //maxViolations = 1;
       if (i < minCandidates || (order >= minOrder)) {

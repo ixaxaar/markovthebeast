@@ -17,6 +17,8 @@ predicate shortframe: Int x ShortFrame;
 predicate chunkdistance: Int x Int;
 predicate sister: Int x Int x Int;
 predicate pprightmosthead: Int x Int;
+predicate distance: Int x Int;
+
 
 predicate arg: Int x Argument;
 predicate isarg: Int;
@@ -25,19 +27,21 @@ predicate isarg: Int;
 
 hidden: arg,isarg;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,pathlength,shortframe,
-  frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead;
+  frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead,distance;
 
 include "weights-arg.pml";
 include "weights-isarg.pml";
+//include "weights-isarg-compact.pml";
+
+
+//weight w_argpair: Argument x Argument -> Double-;
+//factor argpair:
+//  for Int c1, Int c2, Argument a1, Argument a2, Int b1, Int b2
+//  if candidate(c1) & candidate(c2) & span(c1,b1,_) & span(c2,b2,_) & b2 > b1
+//  add [arg(c1,a1) & arg(c2,a2)] * w_argpair(a1,a2);
+//set collector.all.w_argpair = true;
 
 /*
-weight w_argpair: Argument x Argument -> Double-;
-factor argpair:
-  for Int c1, Int c2, Argument a1, Argument a2, Int b1, Int b2
-  if candidate(c1) & candidate(c2) & span(c1,b1,_) & span(c2,b2,_) & b2 > b1
-  add [arg(c1,a1) & arg(c2,a2)] * w_argpair(a1,a2);
-set collector.all.w_argpair = true;
-
 weight w_argpairvoice: Argument x Argument x Voice -> Double-;
 factor argpairvoice:
   for Int c1, Int c2, Argument a1, Argument a2, Int b1, Int b2, Voice v
@@ -61,7 +65,7 @@ factor atMostOneArg: for Int c if candidate(c): |Argument a: arg(c,a)| <= 1;
 factor implyArg: for Int c if candidate(c): isarg(c) => |Argument a: arg(c,a)| >= 1;
 
 //if there is an arg there has to be a isarg
-factor implyIsarg: for Int c, Argument a if candidate(c): arg(c,a) => isarg(c);
+//factor implyIsarg: for Int c, Argument a if candidate(c): arg(c,a) => isarg(c);
 
 //factor implyIsarg: for Int c if candidate(c): |Argument a: arg(c,a)| >= 1 => isarg(c);
 

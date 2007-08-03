@@ -96,6 +96,7 @@ public class TheBeast {
     if (args.length > 0) {
       File file = new File(args[0]);
       Shell shell = new Shell(new FileInputStream(file), System.out, System.err);
+      shell.setArgs(args);
       shell.setDirectory(home != null ? home : file.getParentFile() == null ? null : file.getParentFile().getPath());
       shell.execute();
     } else {

@@ -4,7 +4,6 @@ import jline.ConsoleReader;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 import thebeast.pml.*;
-import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.corpora.*;
 import thebeast.pml.formula.*;
 import thebeast.pml.function.Function;
@@ -12,6 +11,7 @@ import thebeast.pml.function.IntAdd;
 import thebeast.pml.function.IntMinus;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.predicate.*;
+import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.term.*;
 import thebeast.pml.training.*;
 import thebeast.util.*;
@@ -76,6 +76,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
   private HashMultiMapList<UserPredicate, Object[]> evaluationRestrictions = new HashMultiMapList<UserPredicate, Object[]>();
+  private String[] args;
 
 
   public Shell() {
@@ -402,29 +403,29 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoad(ParserLoad parserLoad) {
     update();
     try {
+      String filename = resolveParam(parserLoad.file).toString();
       if ("global".equals(parserLoad.target.head)) {
         if (parserLoad.target.tail == null)
-          model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)));
+          model.getGlobalAtoms().load(new FileInputStream(filename(filename)));
         else {
           UserPredicate predicate = signature.getUserPredicate(parserLoad.target.tail.head);
           if (!model.getGlobalPredicates().contains(predicate))
             throw new RuntimeException(predicate + " is not a global predicate. Use \"global: "
                     + predicate.getName() + "\"");
-          model.getGlobalAtoms().load(new FileInputStream(filename(parserLoad.file)), predicate);
-
+          model.getGlobalAtoms().load(new FileInputStream(filename(filename)), predicate);
         }
         out.println("Global atoms loaded.");
         //System.out.println(model.getGlobalAtoms());
       } else if ("instances".equals(parserLoad.target.head)) {
-        instances = new TrainingInstances(model, new File(filename(parserLoad.file)), defaultTrainingCacheSize);
+        instances = new TrainingInstances(model, new File(filename(filename)), defaultTrainingCacheSize);
         out.println(instances.size() + " instances loaded.");
       } else if ("weights".equals(parserLoad.target.head)) {
         if ("dump".equals(parserLoad.mode)) {
-          FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(filename(parserLoad.file)), 1024);
+          FileSource source = TheBeast.getInstance().getNodServer().createSource(new File(filename(filename)), 1024);
           weights.read(source);
           weightsUpdated = true;
         } else if (null == parserLoad.mode) {
-          weights.load(new FileInputStream(filename(parserLoad.file)));
+          weights.load(new FileInputStream(filename(filename)));
         } else {
           throw new ShellException("Mode " + parserLoad.mode + " not supported for loading " + parserLoad.target);
         }
@@ -583,12 +584,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitLoadCorpus(ParserLoadCorpus parserLoadCorpus) {
     update();
+    String s = resolveParam(parserLoadCorpus.file).toString();
     if ("dump".equals(parserLoadCorpus.factory)) {
-      corpus = new DumpedCorpus(signature, new File(parserLoadCorpus.file), defaultCorpusCacheSize);
+      corpus = new DumpedCorpus(signature, new File(s), defaultCorpusCacheSize);
       //iterator = corpus.iterator();
     } else {
       CorpusFactory factory = getCorpusFactory(parserLoadCorpus.factory);
-      corpus = factory.createCorpus(signature, new File(filename(parserLoadCorpus.file)));
+      corpus = factory.createCorpus(signature, new File(filename(s)));
       corpus = new AugmentedCorpus(model, corpus);
       if (parserLoadCorpus.from != -1) {
         Iterator<GroundAtoms> instance = corpus.iterator();
@@ -689,9 +691,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     for (UserPredicate pred : evaluationRestrictions.keySet()) {
       for (Object[] pattern : evaluationRestrictions.get(pred))
         evaluation.addRestrictionPattern(pred, pattern);
-    }    
+    }
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
-    reporter.setColumns("Loss","Iterations");
+    reporter.setColumns("Loss", "Iterations");
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
     for (GroundAtoms gold : corpus) {
@@ -793,7 +795,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitLoadWeights(ParserLoadWeights parserLoadWeights) {
     try {
       if (weights == null) weights = signature.createWeights();
-      weights.load(new FileInputStream(parserLoadWeights.file));
+      String filename = resolveParam(parserLoadWeights.file).toString();
+      weights.load(new FileInputStream(filename));
       weightsUpdated = true;
       out.println(weights.getFeatureCount() + " weights loaded.");
     } catch (IOException e) {
@@ -847,29 +850,61 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     evaluationRestrictions.add(pred, pattern.toArray(new Object[]{}));
   }
 
+  private Object getParameter(String name) {
+    String stringValue;
+    try {
+      int number = Integer.parseInt(name);
+      if (number >= args.length)
+        throw new ShellException("You are using " + name + " but there are only " + (args.length-1) + " " +
+                "parameters available!");
+      stringValue = args[number];
+    }
+    catch (NumberFormatException ex) {
+      stringValue = System.getProperty(name);
+    }
+    try {
+      return Double.parseDouble(stringValue);
+    } catch (NumberFormatException e1) {
+      try {
+        return Integer.parseInt(stringValue);
+      } catch (NumberFormatException e2) {
+        return stringValue;
+      }
+    }
+  }
+
+  private Object resolveParam(Object value){
+    if (value instanceof String && ((String) value).startsWith("$")) {
+      String param = ((String) value).substring(1);
+      return getParameter(param);
+    }
+    return value;
+  }
+
   public void visitSet(ParserSet parserSet) {
+    Object value = resolveParam(parserSet.value);
     if ("instancesCacheSize".equals(parserSet.propertyName.head))
-      defaultTrainingCacheSize = 1024 * 1024 * (Integer) parserSet.value;
+      defaultTrainingCacheSize = 1024 * 1024 * (Integer) value;
     else if ("corpusCacheSize".equals(parserSet.propertyName.head))
-      defaultCorpusCacheSize = 1024 * 1024 * (Integer) parserSet.value;
+      defaultCorpusCacheSize = 1024 * 1024 * (Integer) value;
     else if ("solver".equals(parserSet.propertyName.head))
-      solver.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+      solver.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("weights".equals(parserSet.propertyName.head))
-      weights.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+      weights.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("evalrestrict".equals(parserSet.propertyName.head)) {
-      if ((Boolean) parserSet.value)
+      if ((Boolean) value)
         addEvaluationRestriction(signature.getUserPredicate(parserSet.propertyName.tail.head),
                 parserSet.propertyName.tail.arguments);
     } else if ("learner".equals(parserSet.propertyName.head))
-      learner.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+      learner.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("collector".equals(parserSet.propertyName.head))
-      collector.setProperty(toPropertyName(parserSet.propertyName.tail), parserSet.value);
+      collector.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("printer".equals(parserSet.propertyName.head))
-      printer = printers.get(parserSet.value.toString());
+      printer = printers.get(value.toString());
     else
       throw new RuntimeException("There is no property named " + parserSet.propertyName);
 
-    out.println(parserSet.propertyName + " set to " + parserSet.value + ".");
+    out.println(parserSet.propertyName + " set to " + value + ".");
   }
 
   private PropertyName toPropertyName(ParserName name) {
@@ -1158,6 +1193,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void registerPrinter(String name, GroundAtomsPrinter printer) {
     printers.put(name, printer);
+  }
+
+  public void setArgs(String[] args) {
+    this.args = args;
   }
 
   public static interface PropertySetter {

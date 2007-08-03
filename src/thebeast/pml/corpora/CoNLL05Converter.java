@@ -229,6 +229,16 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          //distance
+          out.println(">distance");
+          for (Pair<Integer, Integer> span : candidates) {
+            id = span2id.get(span);
+            out.println(id + "\t" + Math.min(
+                    Math.abs(predicateToken - span.arg1),
+                    Math.abs(predicateToken - span.arg2)));
+          }
+          out.println();
+
           //frames
           out.println(">frame");
           for (Pair<Integer, Integer> span : candidates) {
@@ -321,7 +331,7 @@ public class CoNLL05Converter {
           for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
-            if (!label.equals(NONE) && (extractV || !label.startsWith("V")))
+            if (!label.equals(NONE) && (extractV || (!label.startsWith("V") && !label.endsWith("-V"))))
               out.println(id + "\t\"" + label + "\"");
           }
           out.println();
@@ -330,7 +340,7 @@ public class CoNLL05Converter {
           for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
-            if (!label.equals(NONE) && (extractV || !label.startsWith("V")))
+            if (!label.equals(NONE) && (extractV || (!label.startsWith("V") && !label.endsWith("-V"))))
               out.println(id);
           }
           out.println();
@@ -711,6 +721,7 @@ public class CoNLL05Converter {
       Tree vp = parent;
       Tree aux = vp.parent;
       if (aux == null) return true;
+      Tree aux_parent = aux.parent;
       //check for "is"
       for (Tree child : aux.children) {
         if (child.begin == begin) break;
@@ -757,9 +768,9 @@ public class CoNLL05Converter {
       boolean lookForBeen = false;
       for (Tree child : aux.children) {
         if (child.begin == begin) break;
-        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
-          lookForBeen = true;
-        else if (lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("been"))
+//        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
+//          lookForBeen = true;
+        if (sentence.get(child.begin).get(WORD_INDEX).equals("been"))
           return false;
       }
 
@@ -797,13 +808,13 @@ public class CoNLL05Converter {
 
     public Tree getSmallestCoveringTree(int begin, int end) {
       if (!covers(begin, end)) return null;
-      if (this.begin == begin && this.end == end)
-        return this;
       for (Tree child : children) {
         Tree result = child.getSmallestCoveringTree(begin, end);
         if (result != null) return result;
       }
-      return this;
+      if (this.begin == begin && this.end == end)
+        return this;
+      return null;
     }
 
     public String toString() {
