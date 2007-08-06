@@ -16,8 +16,9 @@ public class WeightFunction extends Function {
 
   private Heading headingWithIndex;
   private LinkedList<Attribute> attributes;
-  private Attribute indexAttribute;
+  private Attribute indexAttribute, countAttribute;
   private Heading heading;
+
 
   public WeightFunction(String name, List<Type> argumentTypes) {
     super(name, Type.DOUBLE, argumentTypes);
@@ -39,6 +40,9 @@ public class WeightFunction extends Function {
     heading = factory.createHeadingFromAttributes(attributes);
     indexAttribute = factory.createAttribute("index", factory.intType());
     attributes.add(indexAttribute);
+    countAttribute = factory.createAttribute("count", factory.intType());
+    attributes.add(countAttribute);
+
     headingWithIndex = factory.createHeadingFromAttributes(attributes);
   }
 
@@ -52,6 +56,10 @@ public class WeightFunction extends Function {
 
   public Attribute getIndexAttribute() {
     return indexAttribute;
+  }
+
+  public Attribute getCountAttribute() {
+    return countAttribute;
   }
 
   public void acceptFunctionVisitor(FunctionVisitor visitor) {

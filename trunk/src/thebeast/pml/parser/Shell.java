@@ -855,7 +855,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     try {
       int number = Integer.parseInt(name);
       if (number >= args.length)
-        throw new ShellException("You are using " + name + " but there are only " + (args.length-1) + " " +
+        throw new ShellException("You are using " + name + " parameters but there are only " + (args.length-1) + " " +
                 "parameters available!");
       stringValue = args[number];
     }

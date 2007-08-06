@@ -39,7 +39,7 @@ public class TypeBuilder {
     return this;
   }
 
-  public TypeBuilder catType(String attName, String typeName, String... constants) {
+  public TypeBuilder catType(String typeName, String... constants) {
     typeStack.push(factory.createCategoricalType(server.identifierFactory().createName(typeName),
             Arrays.asList(constants)));
     return this;

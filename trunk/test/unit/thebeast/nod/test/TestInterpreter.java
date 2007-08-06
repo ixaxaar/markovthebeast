@@ -8,7 +8,9 @@ import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.*;
 import thebeast.nod.type.IntType;
 import thebeast.nod.type.RelationType;
+import thebeast.nod.type.Heading;
 import thebeast.nod.statement.RelationAppend;
+import thebeast.nod.util.TypeBuilder;
 
 import java.util.HashSet;
 import java.util.Arrays;
@@ -337,6 +339,45 @@ public class TestInterpreter extends NoDTest {
     TupleVariable t4 = interpreter.createTupleVariable(exprBuilder.getTuple());
     assertEquals(1, t4.value().intElement(0).getInt());
 
+
+  }
+
+
+  public void testInsertWithCounting(){
+    TypeBuilder typeBuilder = new TypeBuilder(server);
+    typeBuilder.intType().att("arg0").catType("B","x","y","z").att("arg1").intType().att("count").relationType(3);
+    Heading heading = typeBuilder.buildRelationType().heading();
+    RelationVariable var = interpreter.createRelationVariable(heading, "count");
+    var.addTuple(1,"x",1);
+    var.addTuple(2,"x",2);
+    var.addTuple(3,"x",3);
+    System.out.println(var.value());
+    RelationVariable src = interpreter.createRelationVariable(heading);
+    src.addTuple(1,"x",1);
+    src.addTuple(2,"x",2);
+    src.addTuple(3,"x",3);
+    src.addTuple(4,"x",3);
+
+    interpreter.insert(var,src);
+    assertEquals(4,var.value().size());
+    assertTrue(var.contains(1,"x",2));
+    assertTrue(var.contains(2,"x",4));
+    assertTrue(var.contains(3,"x",6));
+    assertTrue(var.contains(4,"x",3));
+
+    interpreter.insert(var,src);
+    assertEquals(4,var.value().size());
+    assertTrue(var.contains(1,"x",3));
+    assertTrue(var.contains(2,"x",6));
+    assertTrue(var.contains(3,"x",9));
+    assertTrue(var.contains(4,"x",6));
+
+    interpreter.insert(var,var);
+    assertEquals(4,var.value().size());
+    assertTrue(var.contains(1,"x",6));
+    assertTrue(var.contains(2,"x",12));
+    assertTrue(var.contains(3,"x",18));
+    assertTrue(var.contains(4,"x",12));
 
   }
 

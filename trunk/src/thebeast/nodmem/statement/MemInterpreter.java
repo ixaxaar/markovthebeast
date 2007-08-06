@@ -9,20 +9,20 @@ import thebeast.nod.value.IntValue;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.*;
 import thebeast.nodmem.MemNoDServer;
-import thebeast.nodmem.value.MemRelation;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.expression.MemDoubleConstant;
 import thebeast.nodmem.mem.*;
 import thebeast.nodmem.type.*;
+import thebeast.nodmem.value.MemRelation;
 import thebeast.nodmem.variable.*;
-import thebeast.util.Util;
 import thebeast.pml.TheBeast;
+import thebeast.util.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.*;
 
 /**
  * @author Sebastian Riedel
@@ -135,13 +135,13 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   public ArrayVariable createArrayVariable(Type instanceType) {
     MemArrayVariable var = new MemArrayVariable(server, typeFactory.createArrayType(instanceType));
-    arrayVarReferences.add(new WeakReference<ArrayVariable>(var,arrayVarReferenceQueue));
+    arrayVarReferences.add(new WeakReference<ArrayVariable>(var, arrayVarReferenceQueue));
     return var;
   }
 
   public ArrayVariable createArrayVariable(Type instanceType, int size) {
     MemArrayVariable var = new MemArrayVariable(server, typeFactory.createArrayType(instanceType), size);
-    arrayVarReferences.add(new WeakReference<ArrayVariable>(var,arrayVarReferenceQueue));
+    arrayVarReferences.add(new WeakReference<ArrayVariable>(var, arrayVarReferenceQueue));
     return var;
   }
 
@@ -152,7 +152,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   public ArrayVariable createArrayVariable(ArrayExpression expr) {
     MemArrayVariable var = new MemArrayVariable(server, expr.type());
     interpret(factory.createAssign(var, expr));
-    arrayVarReferences.add(new WeakReference<ArrayVariable>(var,arrayVarReferenceQueue));
+    arrayVarReferences.add(new WeakReference<ArrayVariable>(var, arrayVarReferenceQueue));
     return var;
   }
 
@@ -164,7 +164,12 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
   public RelationVariable createRelationVariable(Heading heading) {
-    MemRelationVariable memRelationVariable = new MemRelationVariable(server, new MemRelationType((MemHeading) heading));
+    return createRelationVariable(heading, null);
+  }
+
+  public RelationVariable createRelationVariable(Heading heading, String countAttribute) {
+    MemRelationVariable memRelationVariable =
+            new MemRelationVariable(server, new MemRelationType((MemHeading) heading), countAttribute);
     relVarReferences.add(new WeakReference<RelationVariable>(memRelationVariable, relVarReferenceQueue));
     return memRelationVariable;
   }
@@ -210,9 +215,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   }
 
 
-
-
-  public void append(RelationVariable relVar, RelationExpression expression){
+  public void append(RelationVariable relVar, RelationExpression expression) {
     interpret(new MemRelationAppend(relVar, expression));
   }
 
@@ -317,11 +320,17 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 //    System.out.println("result.size = " + result.size);
 //    System.out.println("result.capacity = " + result.capacity);
     //MemInserter.append(src,result);
-    MemInserter.insert(src, result);
+    if (var.getCountAttribute() == null)
+      MemInserter.insert(src, result);
+    else {
+      var.buildCountIndex();
+      MemInserter.insertWithCounts(src,result, var.getCountCol(), var.getNonCountCols(), var.getCountIndex());
+      var.invalidateNotCounting();
+    }
     //var.invalidate();
   }
 
-   public void visitRelationAppend(RelationAppend relationAppend) {
+  public void visitRelationAppend(RelationAppend relationAppend) {
     MemRelationAppend append = (MemRelationAppend) relationAppend;
     MemRelationVariable var = (MemRelationVariable) relationAppend.relationTarget();
     var.own();
@@ -404,7 +413,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     }
     //int size = arrayAppend.expression().
     MemChunk buffer = new MemChunk(1, new int[0], new double[0], new MemChunk[]{
-            new MemChunk(0, 0, ((AbstractMemType)var.type().instanceType()).getDim())});
+            new MemChunk(0, 0, ((AbstractMemType) var.type().instanceType()).getDim())});
     MemEvaluator.evaluate(expr.compile(), null, null, buffer, new MemVector(0, 0, 0));
     MemInserter.append(buffer.chunkData[0], result);
     var.invalidate();
@@ -482,7 +491,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     var.invalidate();
   }
 
-  public String getMemoryString(){
+  public String getMemoryString() {
     int gced = 0;
     int alive = 0;
     int totalRowCount = 0;
@@ -492,7 +501,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     int maxRowCount = 0;
     int maxCapacity = 0;
     RelationVariable maxRelVar = null;
-    for (WeakReference<RelationVariable> ref : relVarReferences){
+    for (WeakReference<RelationVariable> ref : relVarReferences) {
       if (ref.isEnqueued())
         ++gced;
       else {
@@ -501,11 +510,11 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         totalCapacity += capacity;
         totalBytesize += ref.get().byteSize();
         ++alive;
-        if (ref.get().value().size()> maxRowCount){
+        if (ref.get().value().size() > maxRowCount) {
           maxRowCount = ref.get().value().size();
           maxRelVar = ref.get();
         }
-        if (capacity > maxCapacity){
+        if (capacity > maxCapacity) {
           maxCapacity = capacity;
         }
 
@@ -517,8 +526,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     instanceCount = relVarReferences.size();
     Formatter formatter = new Formatter();
     printStats("RelVars", formatter, instanceCount, gced, alive, totalRowCount, totalCapacity, totalBytesize);
-    formatter.format("%-30s%-7d\n","RelVars max row count", maxRowCount);
-    formatter.format("%-30s%-7d\n","RelVars max capacity", maxCapacity);
+    formatter.format("%-30s%-7d\n", "RelVars max row count", maxRowCount);
+    formatter.format("%-30s%-7d\n", "RelVars max capacity", maxCapacity);
 
     totalRowCount = 0;
     totalCapacity = 0;
@@ -526,24 +535,24 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     gced = 0;
     alive = 0;
     instanceCount = 0;
-    for (WeakReference<ArrayVariable> ref : arrayVarReferences){
+    for (WeakReference<ArrayVariable> ref : arrayVarReferences) {
       if (ref.isEnqueued())
         ++gced;
       else {
         totalRowCount += ref.get().value().size();
-        totalCapacity += ((MemArrayVariable)ref.get()).getContainerChunk().chunkData[0].capacity;
+        totalCapacity += ((MemArrayVariable) ref.get()).getContainerChunk().chunkData[0].capacity;
         totalBytesize += ref.get().byteSize();
         ++alive;
       }
       ++instanceCount;
     }
     printStats("ArrayVars", formatter, instanceCount, gced, alive, totalRowCount, totalCapacity, totalBytesize);
-    
+
 
     gced = 0;
     alive = 0;
     totalBytesize = 0;
-    for (WeakReference<Expression> ref : AbstractMemExpression.references()){
+    for (WeakReference<Expression> ref : AbstractMemExpression.references()) {
       if (ref.isEnqueued())
         ++gced;
       else {
@@ -554,15 +563,15 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         //System.out.println(expr);
       }
     }
-    formatter.format("%-30s%-7d\n","Expressions instantiated", AbstractMemExpression.references().size());
-    formatter.format("%-30s%-7d\n","Expressions gced", gced);
-    formatter.format("%-30s%-7d\n","Expressions alive", alive);
-    formatter.format("%-30s%-7s\n","Expressions total bytesize", Util.toMemoryString(totalBytesize));
+    formatter.format("%-30s%-7d\n", "Expressions instantiated", AbstractMemExpression.references().size());
+    formatter.format("%-30s%-7d\n", "Expressions gced", gced);
+    formatter.format("%-30s%-7d\n", "Expressions alive", alive);
+    formatter.format("%-30s%-7s\n", "Expressions total bytesize", Util.toMemoryString(totalBytesize));
 
     gced = 0;
     alive = 0;
     totalBytesize = 0;
-    for (WeakReference<Insert> ref : MemInsert.references()){
+    for (WeakReference<Insert> ref : MemInsert.references()) {
       if (ref.isEnqueued())
         ++gced;
       else {
@@ -571,15 +580,15 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         totalBytesize += expr.byteSize();
       }
     }
-    formatter.format("%-30s%-7d\n","Inserts instantiated", MemInsert.references().size());
-    formatter.format("%-30s%-7d\n","Inserts gced", gced);
-    formatter.format("%-30s%-7d\n","Inserts alive", alive);
-    formatter.format("%-30s%-7s\n","Inserts total bytesize", Util.toMemoryString(totalBytesize));
+    formatter.format("%-30s%-7d\n", "Inserts instantiated", MemInsert.references().size());
+    formatter.format("%-30s%-7d\n", "Inserts gced", gced);
+    formatter.format("%-30s%-7d\n", "Inserts alive", alive);
+    formatter.format("%-30s%-7s\n", "Inserts total bytesize", Util.toMemoryString(totalBytesize));
 
     gced = 0;
     alive = 0;
     totalBytesize = 0;
-    for (WeakReference<RelationValue> ref : MemRelation.references()){
+    for (WeakReference<RelationValue> ref : MemRelation.references()) {
       if (ref.isEnqueued())
         ++gced;
       else {
@@ -588,10 +597,10 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         totalBytesize += expr.chunk().byteSize();
       }
     }
-    formatter.format("%-30s%-7d\n","Relations instantiated", MemRelation.references().size());
-    formatter.format("%-30s%-7d\n","Relations gced", gced);
-    formatter.format("%-30s%-7d\n","Relations alive", alive);
-    formatter.format("%-30s%-7s\n","Relations total bytesize", Util.toMemoryString(totalBytesize));
+    formatter.format("%-30s%-7d\n", "Relations instantiated", MemRelation.references().size());
+    formatter.format("%-30s%-7d\n", "Relations gced", gced);
+    formatter.format("%-30s%-7d\n", "Relations alive", alive);
+    formatter.format("%-30s%-7s\n", "Relations total bytesize", Util.toMemoryString(totalBytesize));
 
 
     gced = 0;
@@ -603,7 +612,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     maxCapacity = 0;
     MemChunk maxChunk = null;
     int withIndex = 0;
-    for (WeakReference<MemChunk> ref : MemChunk.references()){
+    for (WeakReference<MemChunk> ref : MemChunk.references()) {
       if (ref.isEnqueued())
         ++gced;
       else {
@@ -611,8 +620,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
         totalBytesize += ref.get().byteSize();
         totalRowCount += ref.get().size;
         totalCapacity += ref.get().capacity;
-        if (ref.get().rowIndex != null)  ++withIndex;
-        if (ref.get().size > maxRowCount){
+        if (ref.get().rowIndex != null) ++withIndex;
+        if (ref.get().size > maxRowCount) {
           maxRowCount = ref.get().size;
           maxChunk = ref.get();
         }
@@ -626,21 +635,21 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     //System.out.println(maxChunk.size);
     //System.out.println(Arrays.toString(maxChunk.intData));
 
-    formatter.format("%-30s%-7d\n","Chunks instantiated", MemChunk.references().size());
-    formatter.format("%-30s%-7d\n","Chunks gced", gced);
-    formatter.format("%-30s%-7d\n","Chunks alive", alive);
-    formatter.format("%-30s%-7s\n","Chunks total bytesize", Util.toMemoryString(totalBytesize));
-    formatter.format("%-30s%-7s\n","Chunks avg bytesize", Util.toMemoryString((double) totalBytesize / (double) alive));
-    formatter.format("%-30s%-7f\n","Chunks avg capacity", (double) totalCapacity / (double) alive);
-    formatter.format("%-30s%-7d\n","Chunks total row count", totalRowCount);
-    formatter.format("%-30s%-7f\n","Chunks avg row count", (double) totalRowCount / (double) alive);
-    formatter.format("%-30s%-7d\n","Chunks max row count", maxRowCount);
-    formatter.format("%-30s%-7d\n","Chunks max capacity", maxCapacity);
-    formatter.format("%-30s%-7d\n","Chunks with indices", withIndex);
+    formatter.format("%-30s%-7d\n", "Chunks instantiated", MemChunk.references().size());
+    formatter.format("%-30s%-7d\n", "Chunks gced", gced);
+    formatter.format("%-30s%-7d\n", "Chunks alive", alive);
+    formatter.format("%-30s%-7s\n", "Chunks total bytesize", Util.toMemoryString(totalBytesize));
+    formatter.format("%-30s%-7s\n", "Chunks avg bytesize", Util.toMemoryString((double) totalBytesize / (double) alive));
+    formatter.format("%-30s%-7f\n", "Chunks avg capacity", (double) totalCapacity / (double) alive);
+    formatter.format("%-30s%-7d\n", "Chunks total row count", totalRowCount);
+    formatter.format("%-30s%-7f\n", "Chunks avg row count", (double) totalRowCount / (double) alive);
+    formatter.format("%-30s%-7d\n", "Chunks max row count", maxRowCount);
+    formatter.format("%-30s%-7d\n", "Chunks max capacity", maxCapacity);
+    formatter.format("%-30s%-7d\n", "Chunks with indices", withIndex);
 
     //formatter.format("\n");
-    formatter.format("%-30s%-7s\n","Java mem usage", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
-    formatter.format("%-30s%-7s\n","Java free mem", Util.toMemoryString(Runtime.getRuntime().freeMemory()));
+    formatter.format("%-30s%-7s\n", "Java mem usage", Util.toMemoryString(Runtime.getRuntime().totalMemory()));
+    formatter.format("%-30s%-7s\n", "Java free mem", Util.toMemoryString(Runtime.getRuntime().freeMemory()));
 
     formatter.format("%s\n", TheBeast.getInstance().getNodServer().expressionBuilder().stackSize());
 
@@ -649,13 +658,13 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   private void printStats(String name, Formatter formatter, int instanceCount, int gced, int alive, int totalRowCount, int totalCapacity, int totalBytesize) {
     formatter.format("%-30s%-7d\n", name + " instantiated", instanceCount);
-    formatter.format("%-30s%-7d\n",name + " gced", gced);
-    formatter.format("%-30s%-7d\n",name + " alive", alive);
-    formatter.format("%-30s%-7d\n",name + " total row count", totalRowCount);
-    formatter.format("%-30s%-7f\n",name + " avg row count", (double) totalRowCount / (double) alive);
-    formatter.format("%-30s%-7d\n",name + " total capacity", totalCapacity);
-    formatter.format("%-30s%-7f\n",name + " avg capacity", (double) totalCapacity / (double) alive);
-    formatter.format("%-30s%-7s\n",name + " total bytesize", Util.toMemoryString(totalBytesize));
+    formatter.format("%-30s%-7d\n", name + " gced", gced);
+    formatter.format("%-30s%-7d\n", name + " alive", alive);
+    formatter.format("%-30s%-7d\n", name + " total row count", totalRowCount);
+    formatter.format("%-30s%-7f\n", name + " avg row count", (double) totalRowCount / (double) alive);
+    formatter.format("%-30s%-7d\n", name + " total capacity", totalCapacity);
+    formatter.format("%-30s%-7f\n", name + " avg capacity", (double) totalCapacity / (double) alive);
+    formatter.format("%-30s%-7s\n", name + " total bytesize", Util.toMemoryString(totalBytesize));
   }
 
 

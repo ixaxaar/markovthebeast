@@ -1,10 +1,8 @@
 package thebeast.nod.statement;
 
-import thebeast.nod.expression.RelationExpression;
-import thebeast.nod.expression.VariableReference;
-import thebeast.nod.expression.Expression;
 import thebeast.nod.expression.BoolExpression;
-import thebeast.nod.type.RelationType;
+import thebeast.nod.expression.Expression;
+import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.Variable;
 
@@ -14,6 +12,7 @@ import java.util.List;
  * @author Sebastian Riedel
  */
 public interface StatementFactory {
+
   Insert createInsert(RelationVariable relationTarget, RelationExpression relationExp);
 
   RelationAppend createRelationAppend(RelationVariable relationTarget, RelationExpression relationExp);

@@ -28,6 +28,9 @@ public interface ExpressionFactory {
   TupleComponent createTupleComponent(String name, Expression expression);
 
   Query createQuery(List<String> prefixes, List<? extends RelationExpression> from,
+                    BoolExpression where, TupleExpression select, boolean unify);
+
+  Query createQuery(List<String> prefixes, List<? extends RelationExpression> from,
                     BoolExpression where, TupleExpression select);
 
   QueryInsert createQueryInsert(List<String> prefixes, List<? extends RelationExpression> from,

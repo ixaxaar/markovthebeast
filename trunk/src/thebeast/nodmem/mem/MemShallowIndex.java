@@ -205,9 +205,12 @@ public final class MemShallowIndex {
     return capacity;
   }
 
-  public void increaseCapacity(int howMuch) {
+  public void increaseCapacity(int howMuch){
+    increaseCapacity(howMuch, new MemColumnSelector(dim.xInt, dim.xDouble, dim.xChunk));
+  }
+
+  public void increaseCapacity(int howMuch, MemColumnSelector cols) {
     MemShallowIndex helper = new MemShallowIndex(capacity + howMuch, dim,chunk);
-    MemColumnSelector cols = new MemColumnSelector(dim.xInt, dim.xDouble, dim.xChunk);
     for (int index = 0; index < values.length; ++index) {
       if (keyCounts[index] > 0) {
         //int[] keysAtIndex = keys[index];

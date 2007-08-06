@@ -187,7 +187,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 
     MemDim resultDim = ((MemHeading) query.select().type().heading()).getDim();
 
-    MemSearchPlan plan = new MemSearchPlan(resultDim, actions);
+    MemSearchPlan plan = new MemSearchPlan(resultDim, query.unify(), actions);
 
     //voila
     function = new MemFunction(plan, chunkFunction, null);
@@ -494,7 +494,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       attributes.add(new MemTupleComponent(attribute.name(), factory.createAttribute(null, attribute)));
     }
     TupleExpression select = factory.createTupleSelectorInvocation(attributes);
-    MemQuery query = new MemQuery(restrict.type(), prefixes, from, restrict.where(), select);
+    MemQuery query = new MemQuery(restrict.type(), prefixes, from, restrict.where(), select, true);
     query.acceptExpressionVisitor(this);
   }
 

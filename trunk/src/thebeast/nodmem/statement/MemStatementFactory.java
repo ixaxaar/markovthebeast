@@ -21,6 +21,7 @@ public class MemStatementFactory implements StatementFactory {
     return new MemInsert(relationTarget, relationExp);
   }
 
+
   public RelationAppend createRelationAppend(RelationVariable relationTarget, RelationExpression relationExp) {
     return new MemRelationAppend(relationTarget, relationExp);
   }

@@ -18,15 +18,17 @@ public class MemQuery extends AbstractMemExpression<RelationType> implements Que
   private BoolExpression where;
   private TupleExpression select;
   private HashMap<String,RelationExpression> prefix2relation = new HashMap<String, RelationExpression>();
+  private boolean unify = true;
 
 
   public MemQuery(RelationType type, List<String> prefixes, List<? extends RelationExpression> from,
-                  BoolExpression where, TupleExpression select) {
+                  BoolExpression where, TupleExpression select, boolean unify) {
     super(type);
     this.prefixes = new ArrayList<String>(prefixes);
     this.from = new ArrayList<RelationExpression>(from);
     this.where = where;
     this.select = select;
+    this.unify = unify;
     Iterator<String> iterPrefix = prefixes.iterator();
     Iterator<? extends RelationExpression> iterFrom = from.iterator();
     //noinspection ForLoopReplaceableByForEach
@@ -62,5 +64,9 @@ public class MemQuery extends AbstractMemExpression<RelationType> implements Que
 
   public TupleExpression select() {
     return select;
+  }
+
+  public boolean unify() {
+    return unify;
   }
 }

@@ -6,7 +6,7 @@ package thebeast.nodmem.mem;
 public class MemInserter {
 
   public static void insert(MemChunk src, MemChunk dst) {
-    //assuming src is unique
+    //todo assuming src is unique
     MemVector pointer = new MemVector();
     dst.buildRowIndex();
     MemShallowIndex index = dst.rowIndex;
@@ -18,11 +18,11 @@ public class MemInserter {
         if (dst.size == dst.capacity)
           //dst.increaseCapacity(dst.size + src.size);
           dst.increaseCapacity(dst.size + src.size);
-        if (src.intData != null  && src.dim.xInt > 0)
+        if (src.intData != null && src.dim.xInt > 0)
           System.arraycopy(src.intData, pointer.xInt, dst.intData, dstPointer.xInt, dst.dim.xInt);
         if (src.doubleData != null && src.dim.xDouble > 0)
           System.arraycopy(src.doubleData, pointer.xDouble, dst.doubleData, dstPointer.xDouble, dst.dim.xDouble);
-        if (src.chunkData != null  && src.dim.xChunk > 0)
+        if (src.chunkData != null && src.dim.xChunk > 0)
           MemChunk.copyChunks(src.chunkData, pointer.xChunk, dst.chunkData, dstPointer.xChunk, dst.dim.xChunk);
         ++dst.size;
         dstPointer.xInt += dst.dim.xInt;
@@ -34,6 +34,43 @@ public class MemInserter {
       pointer.xChunk += src.dim.xChunk;
     }
   }
+
+  public static void insertWithCounts(MemChunk src, MemChunk dst, int countCol,
+                            MemColumnSelector cols, MemShallowIndex countIndex) {
+    //assuming src is unique
+    MemVector pointer = new MemVector();
+    //System.out.println("index.getLoadFactor() = " + index.getLoadFactor());;
+    MemVector dstPointer = new MemVector(dst.size, dst.getDim());
+    for (int row = 0; row < src.size; ++row) {
+      //int old = countIndex.get(src, pointer, cols);
+      int old = countIndex.put(src, pointer, cols, dst.size, false);
+      if (old == -1) {
+        if (dst.size == dst.capacity)
+          //dst.increaseCapacity(dst.size + src.size);
+          dst.increaseCapacity(dst.size + src.size);
+        if (src.intData != null && src.dim.xInt > 0)
+          System.arraycopy(src.intData, pointer.xInt, dst.intData, dstPointer.xInt, dst.dim.xInt);
+        if (src.doubleData != null && src.dim.xDouble > 0)
+          System.arraycopy(src.doubleData, pointer.xDouble, dst.doubleData, dstPointer.xDouble, dst.dim.xDouble);
+        if (src.chunkData != null && src.dim.xChunk > 0)
+          MemChunk.copyChunks(src.chunkData, pointer.xChunk, dst.chunkData, dstPointer.xChunk, dst.dim.xChunk);
+        ++dst.size;
+        dstPointer.xInt += dst.dim.xInt;
+        dstPointer.xDouble += dst.dim.xDouble;
+        dstPointer.xChunk += dst.dim.xChunk;
+      } else {
+        dst.intData[old * dst.dim.xInt + countCol] += src.intData[row * src.dim.xInt + countCol];
+      }
+      pointer.xInt += src.dim.xInt;
+      pointer.xDouble += src.dim.xDouble;
+      pointer.xChunk += src.dim.xChunk;
+//      if (countIndex.getLoadFactor() > 3.0) {
+//        countIndex.increaseCapacity(dst.size);
+//      }
+    }
+    //dst.rowIndexedSoFar = 0;
+  }
+
 
   public static void append(MemChunk src, MemChunk dst) {
     if (src.size + dst.size > dst.capacity) {

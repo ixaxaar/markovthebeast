@@ -15,5 +15,6 @@ public interface Query extends RelationExpression {
   RelationExpression relation(String prefix);
   BoolExpression where();
   TupleExpression select();
+  boolean unify();
 
 }

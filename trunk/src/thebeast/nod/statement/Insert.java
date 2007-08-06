@@ -9,7 +9,8 @@ import thebeast.nod.variable.RelationVariable;
  * @author Sebastian Riedel
  */
 public interface Insert extends Statement {
-    RelationVariable relationTarget();
-    RelationExpression relationExp();
-    
+  RelationVariable relationTarget();
+
+  RelationExpression relationExp();
+
 }

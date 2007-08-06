@@ -11,6 +11,7 @@ public interface RelationVariable extends Variable<RelationValue,RelationType>, 
 
   void addTuple(Object ... args);
 
+  //todo: this should probably be in the value class 
   public boolean contains(Object ...args);
 
   Index getIndex(String name);

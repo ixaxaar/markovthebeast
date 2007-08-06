@@ -231,8 +231,13 @@ public class MemExpressionFactory implements ExpressionFactory {
   }
 
   public Query createQuery(List<String> prefixes, List<? extends RelationExpression> from,
-                           BoolExpression where, TupleExpression select) {
-    return new MemQuery(new MemRelationType((MemHeading) select.type().heading()), prefixes, from, where, select);
+                           BoolExpression where, TupleExpression select, boolean unify) {
+    return new MemQuery(new MemRelationType((MemHeading) select.type().heading()), prefixes, from, where, select, unify);
+  }
+
+
+  public Query createQuery(List<String> prefixes, List<? extends RelationExpression> from, BoolExpression where, TupleExpression select) {
+    return createQuery(prefixes, from, where, select,true);
   }
 
   public QueryInsert createQueryInsert(List<String> prefixes, List<? extends RelationExpression> from, BoolExpression where, RelationExpression insert) {
