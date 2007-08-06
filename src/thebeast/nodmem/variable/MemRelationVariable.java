@@ -8,10 +8,7 @@ import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nodmem.expression.AbstractMemExpression;
-import thebeast.nodmem.mem.MemChunk;
-import thebeast.nodmem.mem.MemDim;
-import thebeast.nodmem.mem.MemPointer;
-import thebeast.nodmem.mem.MemVector;
+import thebeast.nodmem.mem.*;
 import thebeast.nodmem.statement.IndexInformation;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemRelationType;
@@ -35,9 +32,17 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
   private TupleType tupleType;
   private static final int OVERHEAD = 3000;
   private AbstractMemType[] types;
-
+  private String countAttribute;
+  private MemShallowIndex countIndex;
+  private MemColumnSelector nonCountCols;
+  private int countCol;
+  private int countIndexedSoFar = 0;
 
   public MemRelationVariable(NoDServer server, RelationType type) {
+    this(server,type, null);
+  }
+
+  public MemRelationVariable(NoDServer server, RelationType type, String countAttribute) {
     super(server, type, new MemChunk(1, 1, MemDim.CHUNK_DIM));
     chunk.chunkData[0] = new MemChunk(0, 0, ((MemHeading) type.heading()).getDim());
     builder = new ExpressionBuilder(server);
@@ -45,6 +50,32 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     types = new AbstractMemType[type.heading().attributes().size()];
     for (int i = 0; i < types.length; ++i)
       types[i] = (AbstractMemType) type.heading().attributes().get(i).type();
+    this.countAttribute = countAttribute;
+    if (countAttribute != null) setUpCounting();
+  }
+
+  private void setUpCounting() {
+    MemHeading heading = ((MemRelationType)type).heading();
+    countCol = heading.pointerForAttribute(countAttribute).pointer;
+    countIndex = new MemShallowIndex(100,heading.getDim(), chunk.chunkData[0]);
+    nonCountCols = new MemColumnSelector(heading.getDim());
+    nonCountCols.removeIntCol(countCol);
+  }
+
+  public MemShallowIndex getCountIndex() {
+    return countIndex;
+  }
+
+  public String getCountAttribute() {
+    return countAttribute;
+  }
+
+  public int getCountCol() {
+    return countCol;
+  }
+
+  public MemColumnSelector getNonCountCols() {
+    return nonCountCols;
   }
 
   public void addDependendExpression(AbstractMemExpression expression) {
@@ -147,7 +178,7 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     if (owns != null) owns.removeOwner(this);
     other.addOwner(this);
     chunk.chunkData[pointer.xChunk].shallowCopy(other.chunk.chunkData[other.pointer.xChunk]);
-    //lets check if we can reuse some indices
+    //todo: lets check if we can reuse some indices
 //    for (Index index: information.getIndices()){
 //      MemHashIndex hashIndex = (MemHashIndex) index;
 //      int myIndexNr = information.getIndexIdForAttributes(index.attributes());
@@ -259,5 +290,34 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;
     if (chunk.chunkData[pointer.xChunk].rowIndex != null) chunk.chunkData[pointer.xChunk].rowIndex.clear();
     indexInformation().invalidateIndices();
+    if (countIndex != null) countIndexedSoFar = 0;
+  }
+
+  public void invalidateNotCounting() {
+    chunk.chunkData[pointer.xChunk].rowIndexedSoFar = 0;
+    if (chunk.chunkData[pointer.xChunk].rowIndex != null) chunk.chunkData[pointer.xChunk].rowIndex.clear();
+    indexInformation().invalidateIndices();
+  }
+
+
+  public void buildCountIndex(){
+    MemDim dim = ((MemRelationType) type).getDim();
+    MemVector pointer = new MemVector(countIndexedSoFar, dim);
+    MemChunk data = chunk.chunkData[pointer.xChunk];
+    int size = value().size();
+    if (countIndex.getLoadFactor() > 3.0) {
+      //System.out.print("*");
+      //countIndex.increaseCapacity(size,nonCountCols);
+      countIndex.increaseCapacity(size - countIndex.getCapacity(),nonCountCols);
+    }
+    for (int row = countIndexedSoFar; row < size; ++row) {
+      countIndex.put(data, pointer, nonCountCols, row, false);
+      pointer.xInt += dim.xInt;
+      pointer.xDouble += dim.xDouble;
+      pointer.xChunk += dim.xChunk;
+    }
+    countIndexedSoFar = size;
+
   }
 }
+

@@ -128,7 +128,7 @@ public final class MemSearch {
 
     } while (currentChunk >= 0);
 
-    dst.unify();
+    if (plan.unify) dst.unify();
 
   }
 

@@ -168,7 +168,7 @@ public class ILPGrounder {
         varBuilder.expr(exprGenerator.convertTerm(arg, groundAtoms, weights, var2expr, null));
       }
       varBuilder.tuple(weight.getArguments().size());
-      varBuilder.id("index").num(-1).tuple(1).get().intExtractComponent("index");
+      varBuilder.id("index").num(-1).id("count").num(0).tuple(2).get().intExtractComponent("index");
       varBuilder.doubleArrayElement();
       varBuilder.tuple(2);
       varBuilder.getPut().intExtractComponent("index");

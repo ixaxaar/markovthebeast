@@ -24,7 +24,6 @@ public class MemInsert implements Insert {
   private static LinkedList<WeakReference<Insert>> references = new LinkedList<WeakReference<Insert>>();
   private static ReferenceQueue<Insert> queue = new ReferenceQueue<Insert>();
 
-
   public MemInsert(RelationVariable relationTarget, RelationExpression relationExp) {
     this.relationTarget = relationTarget;
     this.relationExp = relationExp;
@@ -33,6 +32,7 @@ public class MemInsert implements Insert {
             new MemChunk(0, 0, heading.getDim())});
     references.add(new WeakReference<Insert>(this, queue));
   }
+
 
   public static List<WeakReference<Insert>> references() {
     return references;

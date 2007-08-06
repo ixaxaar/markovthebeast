@@ -9,7 +9,7 @@ public class MemDim extends MemVector {
 
   private static HashMap<MemDim, MemDim> cache = new HashMap<MemDim, MemDim>();
 
-  public MemColumnSelector allCols;
+  public final MemColumnSelector allCols;
 
   public static final MemDim EMPTY = new MemDim(0, 0, 0);
   public static final MemDim INT_DIM = new MemDim(1, 0, 0);

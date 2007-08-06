@@ -10,6 +10,7 @@ import thebeast.nod.type.CategoricalType;
 import thebeast.nod.type.Heading;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.IntVariable;
+import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.*;
 import thebeast.pml.corpora.Corpus;
 import thebeast.pml.formula.FactorFormula;
@@ -46,6 +47,8 @@ public class FeatureCollector implements HasProperties {
 
   private HashSet<WeightFunction>
           collectAll = new HashSet<WeightFunction>();
+
+  private int cutoff = 0;
 
   private double initialWeight;
 
@@ -91,11 +94,35 @@ public class FeatureCollector implements HasProperties {
     this.initialWeight = initialWeight;
   }
 
+  /**
+   * Collects all features from the corpus. This method creates a set of weight function arguments that can later be
+   * trained to have non-zero weights.
+   *
+   * @param corpus a corpus conforming to the signature of the model this collector has been configured with.
+   */
   public void collect(Corpus corpus) {
     collect(corpus.iterator());
   }
 
+  /**
+   * The collector can remove all features that haven't been seen often enough.
+   *
+   * @return the number of times a feature has to be in the corpus in order to be collected. This is 0 by default.
+   */
+  public int getCutoff() {
+    return cutoff;
+  }
 
+  /**
+   * The collector can remove all features that haven't been seen often enough.
+   *
+   * @param cutoff the number of times a feature has to be in the corpus in order to be collected. This is 0 by default.
+   *               Note that this number does not affect weight functions for which we take all possible
+   *               instantiations.
+   */
+  public void setCutoff(int cutoff) {
+    this.cutoff = cutoff;
+  }
 
   /**
    * Collects a set of weight function arguments which later learners then can learn the weights for.
@@ -110,10 +137,9 @@ public class FeatureCollector implements HasProperties {
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.usesWeights()) {
         WeightFunction function = factor.getWeightFunction();
-        if (function.getArity() == 0){
-          weights.addWeight(function,0.0);  
-        }
-        else if (collectAll.contains(function)) {
+        if (function.getArity() == 0) {
+          weights.addWeight(function, 0.0);
+        } else if (collectAll.contains(function)) {
           Heading heading = function.getHeading();
           for (Attribute attribute : heading.attributes()) {
             builder.allConstants((CategoricalType) attribute.type()).from(attribute.name());
@@ -122,7 +148,8 @@ public class FeatureCollector implements HasProperties {
             builder.id(attribute.name()).categoricalAttribute(attribute.name(), "value");
           }
           builder.id(function.getIndexAttribute().name()).num(0);
-          builder.tuple(function.getArity() + 1).select();
+          builder.id(function.getCountAttribute().name()).num(1);
+          builder.tuple(function.getArity() + 2).select();
           builder.query();
           interpreter.assign(weights.getRelation(function), builder.getRelation());
           progressReporter.progressed();
@@ -142,6 +169,23 @@ public class FeatureCollector implements HasProperties {
       }
       progressReporter.progressed();
     }
+    progressReporter.finished();
+
+    //cutoff features
+    if (cutoff > 0) {
+      progressReporter.started("Cutoff features");
+      for (WeightFunction w : model.getLocalWeightFunctions()) {
+        if (!collectAll.contains(w)) {
+          RelationVariable relation = weights.getRelation(w);
+          RelationVariable tmp = interpreter.createRelationVariable(w.getIndexedHeading());
+          builder.expr(relation).intAttribute("count").num(cutoff).intGreaterThan().restrict();
+          interpreter.assign(tmp, builder.getRelation());
+          interpreter.assign(relation, tmp);
+          progressReporter.progressed();
+        }
+      }
+      progressReporter.finished();
+    }
 
     for (FactorFormula factor : updateIndices.keySet()) {
       interpreter.update(weights.getRelation(factor.getWeightFunction()), updateIndices.get(factor));
@@ -149,7 +193,6 @@ public class FeatureCollector implements HasProperties {
     int newFeatures = counter.value().getInt() - weights.getFeatureCounter().value().getInt();
     interpreter.assign(weights.getFeatureCounter(), counter);
     interpreter.append(weights.getWeights(), newFeatures, initialWeight);
-    progressReporter.finished();
   }
 
 
@@ -176,9 +219,7 @@ public class FeatureCollector implements HasProperties {
   }
 
 
-
-
-  public void setCollectAll(WeightFunction function, boolean collectAll){
+  public void setCollectAll(WeightFunction function, boolean collectAll) {
     if (function == null) throw new IllegalArgumentException("function must not be null!");
     if (collectAll) this.collectAll.add(function);
     else this.collectAll.remove(function);
@@ -189,14 +230,13 @@ public class FeatureCollector implements HasProperties {
     if (name.getHead().equals("all")) {
       WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
       if (weightFunction == null) throw new NoSuchPropertyException(name);
-      setCollectAll(weightFunction,(Boolean)value);
-    }
-    else if (name.getHead().equals("init")){
-      setInitialWeight((Double)value);
+      setCollectAll(weightFunction, (Boolean) value);
+    } else if (name.getHead().equals("init")) {
+      setInitialWeight((Double) value);
+    } else if (name.getHead().equals("cutoff")) {
+      setCutoff((Integer) value);
     }
   }
-
-
 
 
   public Object getProperty(PropertyName name) {

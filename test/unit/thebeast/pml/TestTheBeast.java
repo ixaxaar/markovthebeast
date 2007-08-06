@@ -33,6 +33,7 @@ import thebeast.util.TreeProfiler;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:38:07
@@ -436,7 +437,7 @@ public class TestTheBeast extends TestCase {
     weights.addWeight(weightFunction1, -2.0, "NN", "VP");
     weights.addWeight(weightFunction2, -2.0, "VP");
 
-    File file = new File("/tmp/test");
+    File file = new File("/tmp/" + new Random().nextInt());
     file.delete();
     FileSink sink = server.getNodServer().createSink(file, 1024);
     weights.write(sink);
@@ -1466,6 +1467,7 @@ public class TestTheBeast extends TestCase {
 
     RandomAccessCorpus corpus = new RandomAccessCorpus(signature, 1);
     corpus.add(instance);
+    corpus.add(instance);
 
     Weights weights = signature.createWeights();
     FeatureCollector collector = new FeatureCollector(model, weights);
@@ -1476,6 +1478,14 @@ public class TestTheBeast extends TestCase {
     assertEquals(6, weights.getFeatureCount());
     assertEquals(0.0, weights.getWeight(weightFunction1, "DT", "NP"));
     assertEquals(0.0, weights.getWeight(weightFunction2, "NP"));
+
+    assertEquals(4, weights.getCount(weightFunction1, "DT", "NP"));
+    assertEquals(2, weights.getCount(weightFunction1, "VBZ", "VP"));
+    assertEquals(2, weights.getCount(weightFunction1, "DT", "S"));
+
+    assertEquals(4, weights.getCount(weightFunction2, "NP"));
+    assertEquals(2, weights.getCount(weightFunction2, "S"));
+
     assertTrue(weights.getIndex(weightFunction3, "NP", "VP", "S") != -1);
   }
 

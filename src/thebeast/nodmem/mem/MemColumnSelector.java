@@ -36,6 +36,13 @@ public class MemColumnSelector {
     this(cols.intCols.length, cols.doubleCols.length, cols.chunkCols.length);
   }
 
+  public void removeIntCol(int col){
+    int[] newIntCols = new int[intCols.length-1];
+    int i = 0;
+    for (int c: intCols) if (c != col) newIntCols[i++] = c;
+    this.intCols = newIntCols;
+  }
+
   public MemColumnSelector(MemPointer ... pointers){
     ArrayList<Integer> intCols = new ArrayList<Integer>();
     ArrayList<Integer> doubleCols = new ArrayList<Integer>();

@@ -390,8 +390,8 @@ public class ExpressionBuilder {
     return this;
   }
 
-  public ExpressionBuilder query() {
-    expressionStack.push(expressionFactory.createQuery(prefixes, from, where, select));
+  public ExpressionBuilder query(boolean unify) {
+    expressionStack.push(expressionFactory.createQuery(prefixes, from, where, select,unify));
     prefixes.clear();
     from.clear();
     prefix2rel.clear();
@@ -399,6 +399,11 @@ public class ExpressionBuilder {
     where = null;
     return this;
   }
+
+  public ExpressionBuilder query() {
+    return query(true);
+  }
+
 
   public ExpressionBuilder queryInsert() {
     expressionStack.push(expressionFactory.createQueryInsert(prefixes, from, where, insert));

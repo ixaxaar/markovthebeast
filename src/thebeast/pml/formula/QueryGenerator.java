@@ -335,6 +335,7 @@ public class QueryGenerator {
         conjunctionContext.selectBuilder.id(function.getColumnName(argIndex++)).expr(expr);
       }
       conjunctionContext.selectBuilder.id("index").num(0);
+      conjunctionContext.selectBuilder.id("count").num(1);
       //make a tuple using all added columns
       conjunctionContext.selectBuilder.tuple();
     }
@@ -344,7 +345,8 @@ public class QueryGenerator {
     if (conjunctions.size() == 1) {
       ConjunctionProcessor.Context context = conjunctions.get(0);
       BoolExpression where = factory.createAnd(context.conditions);
-      rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
+      rels.add(factory.createQuery(context.prefixes, context.relations,
+              where, context.selectBuilder.getTuple(),false));
     }
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
 

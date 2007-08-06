@@ -1,20 +1,19 @@
 package thebeast.nod.statement;
 
 import thebeast.nod.expression.*;
+import thebeast.nod.type.CategoricalType;
 import thebeast.nod.type.Heading;
 import thebeast.nod.type.Type;
-import thebeast.nod.type.CategoricalType;
-import thebeast.nod.variable.*;
 import thebeast.nod.value.BoolValue;
-import thebeast.nod.value.IntValue;
 import thebeast.nod.value.DoubleValue;
+import thebeast.nod.value.IntValue;
 import thebeast.nod.value.RelationValue;
-import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.variable.*;
 
-import java.util.List;
-import java.util.Collection;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Sebastian Riedel
@@ -66,6 +65,8 @@ public interface Interpreter {
   RelationVariable createRelationVariable(RelationExpression expr);
 
   RelationVariable createRelationVariable(Heading heading);
+
+  RelationVariable createRelationVariable(Heading heading, String countAttribute);  
 
   CategoricalVariable createCategoricalVariable(CategoricalExpression categorical);
 

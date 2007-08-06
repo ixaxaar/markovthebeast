@@ -57,7 +57,9 @@ public class Weights implements HasProperties {
     lastWeights = interpreter.createArrayVariable(nodServer.typeFactory().doubleType());
     for (WeightFunction function : signature.getWeightFunctions()) {
       //List<String> names = function.getHeading().getAttributeNames();
-      RelationVariable relation = interpreter.createRelationVariable(function.getIndexedHeading());
+      RelationVariable relation = interpreter.createRelationVariable(function.getIndexedHeading(),
+              function.getCountAttribute().name());
+//      RelationVariable relation = interpreter.createRelationVariable(function.getIndexedHeading());
       relation.setLabel(function.getName());
       relations.put(function, relation);
       //interpreter.addIndex(relation, "toIndex", Index.Type.HASH, names.subList(0, names.size() - 1));
@@ -197,6 +199,7 @@ public class Weights implements HasProperties {
     interpreter.append(weights, builder.doubleValue(weight).array(1).getArray());
     //the index is the L column
     builder.id(weightFunction.getIndexAttribute().name()).expr(counter).intPostInc();
+    builder.id(weightFunction.getCountAttribute().name()).num(1);
     int index = 0;
     //now insert the arguments into the relation variable
     for (Type type : weightFunction.getArgumentTypes()) {
@@ -244,6 +247,30 @@ public class Weights implements HasProperties {
     DoubleVariable weight = interpreter.createDoubleVariable(builder.getDouble());
     return weight.value().getDouble();
   }
+
+  /**
+   * Returns the count of the given args via the given function. If no mapping is defined, 0.0 is returned.
+   *
+   * @param weightFunction the weight function f
+   * @param args           the arguments x
+   * @return the count that is stored for the specified arguments
+   */
+  public int getCount(WeightFunction weightFunction, Object... args) {
+    RelationVariable rel = relations.get(weightFunction);
+    //create conjunction arg_1=args[0] && arg_2=args[1] etc.
+    builder.expr(rel);
+    for (int argIndex = 0; argIndex < args.length; ++argIndex) {
+      Attribute attribute = weightFunction.getAttributeForArg(argIndex);
+      builder.attribute(attribute).constant(attribute.type(), args[argIndex]).equality();
+    }
+    builder.and(args.length);
+    builder.restrict();
+    RelationVariable tmp = interpreter.createRelationVariable(builder.getRelation());
+    if (tmp.value().size() == 0) return -1;
+    builder.expr(weights).expr(tmp).tupleFrom().intExtractComponent("count");
+    return interpreter.evaluateInt(builder.getInt()).getInt();
+  }
+
 
   /**
    * Creates a No-D expression that, when evaluated, returns the weight of the given args.
@@ -332,7 +359,10 @@ public class Weights implements HasProperties {
    * @return the current number of features.
    */
   public int getFeatureCount() {
-    return counter.value().getInt();
+    int count = 0;
+    for (RelationVariable var : relations.values())
+      count+= var.value().size();
+    return count;
   }
 
 
@@ -512,7 +542,8 @@ public class Weights implements HasProperties {
           double weight = Double.parseDouble(tokenizer.nextToken());
           weightBuilder.doubleValue(weight);
           argBuilder.id("index").integer(index++);
-          argBuilder.tuple(arity + 1);
+          argBuilder.id("count").num(1);
+          argBuilder.tuple(arity + 2);
           ++rows;
         }
 

@@ -17,9 +17,14 @@ public class MemSearchPlan {
   boolean[] filled;
   boolean[] incremental;
 
-
+  boolean unify = true;
 
   public MemSearchPlan(MemDim resultDim, MemSearchAction ... actions) {
+    this(resultDim, true, actions);
+  }
+
+
+  public MemSearchPlan(MemDim resultDim, boolean unify, MemSearchAction ... actions) {
     this.resultDim = resultDim;
     this.actions = actions;
     int chunkCount = actions.length - 1;
@@ -29,6 +34,7 @@ public class MemSearchPlan {
     currentSpaces = new int[chunkCount][];
     filled = new boolean[chunkCount];
     incremental = new boolean[chunkCount];
+    this.unify = unify;
   }
 
   public MemSearchPlan(MemSearchAction... actions) {
