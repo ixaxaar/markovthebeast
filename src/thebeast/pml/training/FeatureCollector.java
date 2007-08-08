@@ -133,6 +133,19 @@ public class FeatureCollector implements HasProperties {
 
     HashSet<WeightFunction> done = new HashSet<WeightFunction>();
 
+    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    progressReporter.started("Collecting Features");
+    while (corpus.hasNext()) {
+      this.atoms.load(corpus.next(), model.getInstancePredicates());
+      //todo: inserts.keySet() causes randomness
+      for (FactorFormula factor : inserts.keySet()) {
+        if (factor.getWeightFunction().getArity() > 0 && !collectAll.contains(factor.getWeightFunction()))
+          interpreter.interpret(inserts.get(factor));
+      }
+      progressReporter.progressed();
+    }
+    progressReporter.finished();
+
     progressReporter.started("Instantiating Features");
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.usesWeights()) {
@@ -156,19 +169,6 @@ public class FeatureCollector implements HasProperties {
           done.add(function);
         }
       }
-    progressReporter.finished();
-
-    this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
-    progressReporter.started("Collecting Features");
-    while (corpus.hasNext()) {
-      this.atoms.load(corpus.next(), model.getInstancePredicates());
-      //todo: inserts.keySet() causes randomness
-      for (FactorFormula factor : inserts.keySet()) {
-        if (!done.contains(factor.getWeightFunction()))
-          interpreter.interpret(inserts.get(factor));
-      }
-      progressReporter.progressed();
-    }
     progressReporter.finished();
 
     //cutoff features
