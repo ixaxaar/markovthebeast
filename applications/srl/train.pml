@@ -36,6 +36,8 @@ set learner.solver.order.implyArg = 1;
 //set learner.solver.ground.atMostOneArg = true;
 //set learner.solver.order.argpair = 2;
 //set learner.solver.order.argpairvoice = 2;
+//set learner.solver.order.argpairvoicepred = 2;
+//set learner.solver.order.duplicatearg = 2;
 
 //set learner.maxViolations = 1000;
 
@@ -44,7 +46,7 @@ set learner.solver.order.implyArg = 1;
 //print weights.w_path;
 
 learn for 10 epochs;
-//learn for 7 epochs;
+//learn for 1 epochs;
 
 //print weights.w_isarg_bias;
 print learner.profiler;

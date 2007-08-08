@@ -19,6 +19,8 @@ set solver.order.implyArg = 1;
 //set solver.order.implyIsarg = 0;
 //set solver.order.argpair = 2;
 //set solver.order.argpairvoice = 2;
+//set solver.order.argpairvoicepred = 2;
+//set solver.order.duplicatearg = 2;
 
 //load corpus from "corpora/dev-set.crp";
 load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/dev-set.crp";
