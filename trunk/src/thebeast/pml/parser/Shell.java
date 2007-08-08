@@ -252,8 +252,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void visitCreateWeightFunction(ParserCreateWeightFunction parserCreateWeightFunction) {
     LinkedList<Type> types = new LinkedList<Type>();
-    for (String name : parserCreateWeightFunction.argTypes)
-      types.add(signature.getType(name));
+    for (String name : parserCreateWeightFunction.argTypes) {
+      Type type = signature.getType(name);
+      if (type == null) throw new ShellException("There is no type with name " + name +
+              " like you used in " + parserCreateWeightFunction);
+      types.add(type);
+    }
     String returnType = parserCreateWeightFunction.returnType;
     String name = parserCreateWeightFunction.name;
     if (!returnType.startsWith("Double"))

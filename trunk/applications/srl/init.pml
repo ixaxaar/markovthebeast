@@ -10,9 +10,9 @@ set corpusCacheSize = 20;
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/train-set.crp";
 load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/small-train-set.crp";
 
-save corpus (0-1000) to ram;
+//save corpus (0-15000) to ram;
 
-set collector.cutoff = 1;
+set collector.cutoff = 0;
 
 collect;
 
