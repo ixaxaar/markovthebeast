@@ -1,0 +1,25 @@
+Exports NNS   (TOP(S(S-A(S(NP*)           NNS     (NP*)    (S(S(S*      NNS   (S1(S(S(NP*)                *    -   -                    (A1*)           (A1*)           (A2*)           (A1*      
+are VBP               (VP*            VBP     (VP*           *      AUX          (VP*                 *    -   -                       *               *               *               *      
+thought VBN             (VP-A*            VBN        *           *      VBN          (VP*                 *    01  think                 (V*)              *               *               *      
+to TO            (S-A(VP*            TO         *           *      TO         (S(VP*                 *    -   -                  (C-A1*               *               *               *      
+have VB              (VP-A*            VB         *           *      AUX          (VP*                 *    -   -                       *               *               *               *      
+risen VBN             (VP-A*            VBN        *)          *      VBN          (VP*                 *    01  rise                    *             (V*)              *               *      
+strongly RB              (ADVP*)           RB    (ADVP*)          *      RB    (ADVP(ADVP*                 *    -   -                       *            (A2*               *               *      
+in IN                (PP*            IN      (PP*)          *      IN           (PP*                 *    -   -                       *               *               *               *      
+August NNP               (NP*            NNP     (NP*)          *S)    NNP          (NP*)))              *    -   -                       *               *               *               *      
+, ,                    *)))))))))   ,          *           *      ,               *                 *    -   -                       *               *               *               *      
+but CC                   *            CC         *           *      CC              *                 *    -   -                       *               *               *               *      
+probably RB         (FRAG(ADVP*            RB    (ADVP*)          *      RB         (ADVP*                 *    -   -                       *               *               *               *      
+not RB                   *            RB         *           *      RB              *                 *    -   -                       *               *               *               *      
+enough RB              (ADVP*            RB         *           *      JJ              *))               *    -   -                       *               *               *               *      
+to TO              (S(VP*            TO      (VP*         (S*      TO         (S(VP*                 *    -   -                       *               *               *               *      
+offset VB              (VP-A*            VB         *)          *      VB           (VP*                 *    01  offset                  *               *             (V*)              *      
+the DT           (NP-A(NP*            DT      (NP*           *      DT        (NP(NP*                 *    -   -                       *               *            (A1*               *      
+jump NN                   *)           NN         *)          *      NN              *)                *    -   -                       *               *               *               *      
+in IN                (PP*            IN      (PP*)          *      IN           (PP*                 *    -   -                       *               *               *               *      
+imports NNS               (NP*            NNS     (NP*)          *S)S)  NNS          (NP*)))))))))))))    *    -   -                       *)              *)              *)              *)     
+, ,                    *))))))))))  ,          *           *      ,               *                 *    -   -                       *               *               *               *      
+economists NNS               (NP*)           NNS     (NP*)          *      NNS          (NP*)                *    -   -                       *               *               *            (A0*)     
+said VBD               (VP*            VBD     (VP*)          *      VBD          (VP*)                *    01  say                     *               *               *             (V*)     
+. .                    *)))         .          *           *S)    .               *))               *    -   -                       *               *               *               *      
+      
