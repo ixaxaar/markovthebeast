@@ -75,12 +75,12 @@ factor: for Int c, Int t, Word h
 
 weight w_isarg_rightlabel: Label -> Double;
 factor: for Int c, Int s, Label label
-  if candidate(c) & sister(c,s,_) & label(s,label)
+  if candidate(c) & sister(c,_,s) & label(s,label)
   add [isarg(c)] * w_isarg_rightlabel(label);
 
 weight w_isarg_leftlabel: Label -> Double;
 factor: for Int c, Int s, Label label
-  if candidate(c) & sister(c,_,s) & label(s,label)
+  if candidate(c) & sister(c,s,_) & label(s,label)
   add [isarg(c)] * w_isarg_leftlabel(label);
 
 

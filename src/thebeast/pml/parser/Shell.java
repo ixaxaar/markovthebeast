@@ -39,6 +39,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   private HashMap<String, CorpusFactory> corpusFactories = new HashMap<String, CorpusFactory>();
   private HashMap<String, TypeGenerator> typeGenerators = new HashMap<String, TypeGenerator>();
+  private HashMap<String, CorpusEvaluationFunction> evalFunctions = new HashMap<String, CorpusEvaluationFunction>();
+  private String evalFunction = null;
 
   private GroundAtoms guess, gold;
   private Corpus corpus;
@@ -77,6 +79,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
   private HashMultiMapList<UserPredicate, Object[]> evaluationRestrictions = new HashMultiMapList<UserPredicate, Object[]>();
   private String[] args;
+
 
 
   public Shell() {
@@ -307,6 +310,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     model.addFactorFormula(factorFormula);
     if (parserFactorFormula.quantification != null)
       popQuantification();
+    modelUpdated = true;
     if (printModelChanges) out.println("Factor added: " + factorFormula);
   }
 
@@ -691,6 +695,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
     }
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
+    if (evalFunction != null){
+      CorpusEvaluationFunction function = evalFunctions.get(evalFunction);
+      if (function != null){
+        corpusEvaluation.addCorpusEvaluationFunction(evalFunction, function);
+      }
+    }
     Evaluation evaluation = new Evaluation(model);
     for (UserPredicate pred : evaluationRestrictions.keySet()) {
       for (Object[] pattern : evaluationRestrictions.get(pred))
@@ -763,9 +773,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   private void loadAtoms(GroundAtoms atoms) {
-    gold.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    //gold.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    gold.load(atoms, model.getGlobalPredicates());
     gold.load(atoms, model.getInstancePredicates());
-    guess.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    //guess.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    guess.load(atoms, model.getGlobalPredicates());
     guess.load(atoms, model.getInstancePredicates());
     solver.setObservation(atoms);
     solutionAvailable = true;
@@ -905,6 +917,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       collector.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("printer".equals(parserSet.propertyName.head))
       printer = printers.get(value.toString());
+    else if ("eval".equals(parserSet.propertyName.head))
+      evalFunction = value.toString();
     else
       throw new RuntimeException("There is no property named " + parserSet.propertyName);
 
@@ -1193,6 +1207,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerPrinter("conll05", new CoNLL05SentencePrinter());
     registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("default", new DefaultPrinter());
+    registerEvaluator("F1 SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.F1));
+    registerEvaluator("Recall SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.RECALL));
+    registerEvaluator("Precision SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.PRECISION));
+  }
+
+  public void registerEvaluator(String name, CorpusEvaluationFunction function){
+    evalFunctions.put(name,function);
   }
 
   public void registerPrinter(String name, GroundAtomsPrinter printer) {

@@ -2,8 +2,10 @@ package thebeast.nodmem.mem;
 
 import thebeast.util.CycleFinder;
 import thebeast.util.Pair;
+import thebeast.util.Util;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * @author Sebastian Riedel
@@ -279,10 +281,20 @@ public class MemEvaluator {
   private static void operator_inv(MemFunction f, MemChunk[] chunks, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
     for (int i = 0; i < f.opArgFunctions.length; ++i) {
       //f.opArgFunctions[i].clear();
+      f.opArgs[i].clear();
       evaluate(f.opArgFunctions[i], chunks, rows, f.opArgs[i], f.opArgVecs[i]);
     }
     //f.opResultFunction.clear();
     evaluate(f.opResultFunction, null, null, returnChunk, argPointerVec);
+//    if (returnChunk.dim.xChunk == 1)
+//      if (returnChunk.dim.xDouble == 2) {
+//        System.out.println("Constraint operator:");
+//        System.out.println("Size: " + returnChunk.chunkData[0].size);
+//      } else {
+//        System.out.println("Items operator:");
+//        System.out.println("Size: " + returnChunk.chunkData[0].size);
+//      }
+
   }
 
   private static void indexed_sum(MemFunction f, MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
@@ -346,7 +358,7 @@ public class MemEvaluator {
       result = new MemChunk(neededSize, neededSize, first.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     } else if (result.capacity < neededSize) {
-
+      result.clear();
       //int increment = neededSize - result.chunkData.length;
       int increment = neededSize - result.capacity;
       //System.out.print("+");
@@ -400,11 +412,18 @@ public class MemEvaluator {
       result = new MemChunk(1, 1, f.argHolder.dim);
       returnChunk.chunkData[argPointerVec.xChunk] = result;
     }
-    if (argChunk.intData != null) System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
+    if (argChunk.intData != null)
+      System.arraycopy(argChunk.intData, 0, result.intData, 0, argChunk.intData.length);
     if (argChunk.doubleData != null)
       System.arraycopy(argChunk.doubleData, 0, result.doubleData, 0, argChunk.doubleData.length);
-    if (argChunk.chunkData != null)
+    if (argChunk.chunkData != null) {
       MemChunk.copyChunks(argChunk.chunkData, 0, result.chunkData, 0, argChunk.chunkData.length);
+    }
+//    if (argChunk.dim.xDouble == 2 && argChunk.dim.xChunk == 1 && argChunk.doubleData[0] == 0.0) {
+//      System.out.println("Tuple-Selector:");
+//      System.out.println("Must be a GEQ constraint with " + argChunk.chunkData[0].size + " items");
+//      System.out.println("Result size: " + result.chunkData[0].size);
+//    }
   }
 
   private static void relation_copy(MemChunk argChunk, MemVector argPointerVec, MemChunk returnChunk) {
@@ -426,8 +445,14 @@ public class MemEvaluator {
       System.arraycopy(argChunk.intData, 0, returnChunk.intData, argPointerVec.xInt, intSize);
     if (argChunk.doubleData != null && doubleSize > 0)
       System.arraycopy(argChunk.doubleData, 0, returnChunk.doubleData, argPointerVec.xDouble, doubleSize);
-    if (argChunk.chunkData != null && chunkSize > 0)
+    if (argChunk.chunkData != null && chunkSize > 0) {
       MemChunk.copyChunks(argChunk.chunkData, 0, returnChunk.chunkData, argPointerVec.xChunk, chunkSize);
+    }
+//    if (argChunk.dim.xDouble == 2 && argChunk.dim.xChunk == 1 && argChunk.doubleData[0] == 0.0) {
+//      System.out.println("relation_copy:");
+//      System.out.println("Must be a GEQ constraint with " + argChunk.chunkData[0].size + " items");
+//      System.out.println("Result size: " + returnChunk.chunkData[0].size);
+//    }
     returnChunk.size += argChunk.size;
   }
 
@@ -582,11 +607,23 @@ public class MemEvaluator {
       dst = new MemChunk(0, maxSize, f.returnDim);
       returnChunk.chunkData[argPointerVec.xChunk] = dst;
     } else {
-      dst.size = 0;
+      //todo: this looks very dodgy and might be a source of illegal reuse.
+      //todo: it could be that the old index for dst was causing trouble and
+      //was never cleared
+      //dst.size = 0;
+      dst.clear();
       if (dst.capacity < maxSize) dst.increaseCapacity(maxSize - dst.capacity);
     }
-    for (int i = 0; i < argChunk.dim.xChunk; ++i)
+    for (int i = 0; i < argChunk.dim.xChunk; ++i) {
+      if (argChunk.chunkData[i].dim.xInt == 1 && argChunk.chunkData[i].dim.xDouble == 1){
+        //System.out.println("Union arg " + i + " has size " + argChunk.chunkData[i].size);
+        //if (argChunk.chunkData[i].size > 0) System.out.println("First int: " + argChunk.chunkData[i].intData[0]);
+      }
       MemInserter.append(argChunk.chunkData[i], dst);
+    }
+//    if (dst.dim.xInt == 1 && dst.dim.xDouble == 1){
+//      System.out.println("Union result has size " + dst.size);
+//    }
     dst.unify();
   }
 

@@ -18,7 +18,8 @@ public class Evaluation {
 
   private HashMultiMapList<UserPredicate, Object[]>
           restrictionPatterns = new HashMultiMapList<UserPredicate, Object[]>();
-  
+
+
 
   private Model model;
 
@@ -64,8 +65,8 @@ public class Evaluation {
   }
 
   public void evaluate(GroundAtoms gold, GroundAtoms guess) {
-    this.gold.load(gold,model.getHiddenPredicates());
-    this.guess.load(guess, model.getHiddenPredicates());
+    this.gold.load(gold,model.getInstancePredicates());
+    this.guess.load(guess, model.getInstancePredicates());
     for (UserPredicate pred : model.getHiddenPredicates()){
       for (Object[] pattern : restrictionPatterns.get(pred)){
         this.gold.getGroundAtomsOf(pred).remove(pattern);
@@ -115,11 +116,11 @@ public class Evaluation {
   }
 
   public int getGoldCount(){
-    return gold.getGroundAtomCount();
+    return gold.getGroundAtomCount(model.getHiddenPredicates());
   }
 
   public int getGuessCount(){
-    return guess.getGroundAtomCount();
+    return guess.getGroundAtomCount(model.getHiddenPredicates());
   }
 
   public String toString(){

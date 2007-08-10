@@ -1,16 +1,15 @@
 package thebeast.pml;
 
-import thebeast.util.Counter;
-import thebeast.pml.parser.Shell;
-import thebeast.pml.corpora.TextFileCorpus;
-import thebeast.pml.formula.FactorFormula;
 import thebeast.nod.FileSource;
+import thebeast.pml.corpora.TextFileCorpus;
+import thebeast.util.Counter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Formatter;
 import java.util.Iterator;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.File;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author Sebastian Riedel
@@ -23,6 +22,8 @@ public class CorpusEvaluation {
 
   private Model model;
 
+  private SortedMap<String, CorpusEvaluationFunction> evaluators =
+          new TreeMap<String, CorpusEvaluationFunction>();
 
   private Counter<UserPredicate>
           guessCountPerPredicate = new Counter<UserPredicate>(),
@@ -45,13 +46,27 @@ public class CorpusEvaluation {
     fnCount += fn;
     fpCount += fp;
     if (fn == 0 && fp == 0) ++correct;
-    for (UserPredicate pred : model.getHiddenPredicates()) {
-      goldCountPerPredicate.increment(pred, evaluation.getGold().getGroundAtomsOf(pred).size());
-      guessCountPerPredicate.increment(pred, evaluation.getGuess().getGroundAtomsOf(pred).size());
-      fnCountPerPredicate.increment(pred, evaluation.getFalseNegatives().getGroundAtomsOf(pred).size());
-      fpCountPerPredicate.increment(pred, evaluation.getFalsePositives().getGroundAtomsOf(pred).size());
+    for (CorpusEvaluationFunction f : evaluators.values()){
+      f.evaluate(evaluation.getGold(), evaluation.getGuess());
     }
+    for (UserPredicate pred : model.getHiddenPredicates()) {
+      int goldCount = evaluation.getGold().getGroundAtomsOf(pred).size();
+      goldCountPerPredicate.increment(pred, goldCount);
+      int guessCount = evaluation.getGuess().getGroundAtomsOf(pred).size();
+      guessCountPerPredicate.increment(pred, guessCount);
+      int predFN = evaluation.getFalseNegatives().getGroundAtomsOf(pred).size();
+      fnCountPerPredicate.increment(pred, predFN);
+      int predFP = evaluation.getFalsePositives().getGroundAtomsOf(pred).size();
+      fpCountPerPredicate.increment(pred, predFP);
+      
+    }
+
     ++instances;
+  }
+
+
+  public void addCorpusEvaluationFunction(String name, CorpusEvaluationFunction function){
+    evaluators.put(name, function);
   }
 
   public double getCorrectRatio(){
@@ -84,7 +99,8 @@ public class CorpusEvaluation {
   public double getRecall(UserPredicate predicate) {
     double all = goldCountPerPredicate.get(predicate);
     if (all == 0) return 1.0;
-    return (all - fnCountPerPredicate.get(predicate)) / all;
+    int totalFN = fnCountPerPredicate.get(predicate);
+    return (all - totalFN) / all;
   }
 
   public double getPrecision() {
@@ -96,7 +112,8 @@ public class CorpusEvaluation {
   public double getPrecision(UserPredicate predicate) {
     double all = guessCountPerPredicate.get(predicate);
     if (all == 0) return 1.0;
-    return (all - fpCountPerPredicate.get(predicate)) / all;
+    int totalFP = fpCountPerPredicate.get(predicate);
+    return (all - totalFP) / all;
   }
 
   public double getF1() {
@@ -121,6 +138,10 @@ public class CorpusEvaluation {
     formatter.format("%-20s%4.3f\n", "Precision", getPrecision());
     formatter.format("%-20s%4.3f\n", "F1", getF1());
     formatter.format("%-20s%4.3f\n", "Correct", getCorrectRatio());
+    for (String measure : evaluators.keySet()){
+      formatter.format("%-20s%4.3f\n", measure, evaluators.get(measure).getResult());
+    }
+
     //result.append(formatter.toString());
     for (UserPredicate pred : model.getHiddenPredicates()) {
       result.append(pred.getName()).append("\n");

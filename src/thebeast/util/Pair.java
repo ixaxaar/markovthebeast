@@ -3,7 +3,7 @@ package thebeast.util;
 /**
  * Created by IntelliJ IDEA. User: srriedel Date: Sep 21, 2006 Time: 11:56:32 PM
  */
-public class Pair<A1, A2> {
+public class Pair<A1, A2>  {
   public final A1 arg1;
   public final A2 arg2;
 

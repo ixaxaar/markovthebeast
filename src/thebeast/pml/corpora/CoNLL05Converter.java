@@ -92,6 +92,8 @@ public class CoNLL05Converter {
     Sentence sentence = new Sentence(50);
     ArrayList<Integer> predicateTokens = new ArrayList<Integer>();
     ArrayList<String> predicateLemmas = new ArrayList<String>();
+    ArrayList<String> predicateClasses = new ArrayList<String>();
+    HashSet<String> argTypes = new HashSet<String>();
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
       if (!line.equals("")) {
@@ -103,8 +105,13 @@ public class CoNLL05Converter {
           predicateTokens.add(sentence.size() - 1);
           predicateLemmas.add(fields.get(CORE_FEATURE_COUNT + 1));
         }
+        if (!fields.get(CORE_FEATURE_COUNT).equals("-")) {
+          predicateClasses.add(fields.get(CORE_FEATURE_COUNT));
+        }
       } else {
         //collect all spans
+        if (sentence.size() > 0 && !sentence.get(0).get(POS_INDEX).equals("NNP"))
+          sentence.get(0).set(WORD_INDEX, sentence.get(0).get(WORD_INDEX).toLowerCase());
         Tree charniak = Tree.create(sentence, CHARNIAK_INDEX);
         Tree upc = Tree.createChunks(sentence, UPC_CHUNK_INDEX);
         Tree ne = Tree.createChunks(sentence, NE_INDEX);
@@ -116,6 +123,7 @@ public class CoNLL05Converter {
         for (int pred = 0; pred < predCount; ++pred) {
           //words
           int predicateToken = predicateTokens.get(pred);
+          String predicateClass = predicateClasses.get(pred);
           out.println(">>");
           printFeatures("word", out, sentence, WORD_INDEX);
           printFeatures("pos", out, sentence, POS_INDEX);
@@ -246,7 +254,10 @@ public class CoNLL05Converter {
             Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              out.println(id + "\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg) + "\"");
+//              out.println(id + "\t\"" + new Tree.SyntacticFrame(
+//                      charniakPruned, predicateTree, arg) + "\"");
+            out.println(id + "\t\"" + new Tree.SyntacticFrame(
+                    charniakPruned.smallestCommonAncestor(predicateTree,arg), predicateTree, arg) + "\"");
             else out.println(id + "\tNONE");
           }
           out.println();
@@ -331,6 +342,7 @@ public class CoNLL05Converter {
           for (Pair<Integer, Integer> span : argSpans) {
             String label = args.getLabel(span.arg1, span.arg2);
             id = span2id.get(span);
+            argTypes.add(label);
             if (!label.equals(NONE) && (extractV || (!label.startsWith("V") && !label.endsWith("-V"))))
               out.println(id + "\t\"" + label + "\"");
           }
@@ -344,6 +356,10 @@ public class CoNLL05Converter {
               out.println(id);
           }
           out.println();
+          out.println(">class");
+          out.println(quote(predicateClass));
+          out.println();
+
 
           //write out predicate information
           out.println(">pred");
@@ -360,9 +376,48 @@ public class CoNLL05Converter {
         sentence.clear();
         predicateTokens.clear();
         predicateLemmas.clear();
+        predicateClasses.clear();
 
       }
     }
+    PrintStream global = new PrintStream("global.atoms");
+    HashSet<String> args = new HashSet<String>();
+    HashSet<String> modifiers = new HashSet<String>();
+    HashSet<String> c_args = new HashSet<String>();
+    HashSet<String> r_args = new HashSet<String>();
+    for (String arg : argTypes){
+      if (arg.charAt(0) == 'A' && Character.isDigit(arg.charAt(1)) && arg.length() == 2)
+        args.add(arg);
+      else if (arg.startsWith("AM"))
+        modifiers.add(arg);
+      else if (arg.startsWith("C-"))
+        c_args.add(arg);
+      else if (arg.startsWith("R-"))
+        r_args.add(arg);
+    }
+    global.println(">properarg");
+    for (String arg: args) global.println(quote(arg));
+    global.println();
+    global.println(">modifier");
+    for (String arg: modifiers) global.println(quote(arg));
+    global.println();
+    global.println(">carg");
+    for (String arg: c_args) global.println(quote(arg));
+    global.println();
+    global.println(">rarg");
+    for (String arg: r_args) global.println(quote(arg));
+    global.println();
+    global.println(">cargpair");
+    for (String arg: c_args)
+      global.println(quote(arg) + "\t" + quote(arg.substring(2)));
+    global.println();
+    global.println(">rargpair");
+    for (String arg: r_args)
+      global.println(quote(arg) + "\t" + quote(arg.substring(2)));
+    global.println();
+    global.close();
+
+
   }
 
   private static void printFeatures(String name, PrintStream out, Sentence sentence, int index) {
@@ -512,6 +567,7 @@ public class CoNLL05Converter {
         int index = 0;
         for (Tree child : this) {
           if (punctuation.contains(unquote(child.label))) continue;
+          if (!pivots.contains(child) && child.label.startsWith("A")) continue;
           if (index++ > 0) result.append("_");
           if (pivots.contains(child)) {
             if (child.equals(predicate)) result.append("!");
@@ -716,6 +772,51 @@ public class CoNLL05Converter {
       return begin == end;
     }
 
+    public Tree smallestCommonAncestor(Tree ... nodes){
+      return smallestCommonAncestor(Arrays.asList(nodes));
+    }
+
+
+    public Tree smallestCommonAncestor(Collection<Tree> nodes){
+      int minLength = Integer.MAX_VALUE;
+      int minDepth = Integer.MAX_VALUE;
+      Tree minTree = null;
+      for (Tree child : children){
+        Tree ancestor = child.smallestCommonAncestor(nodes);
+        if (ancestor == null) continue;
+        int length = ancestor.length();
+        int depth = ancestor.maxDepth();
+        if (length < minLength || length == minLength && depth < minDepth){
+          minLength = length;
+          minDepth = depth;
+          minTree = ancestor;
+        }
+      }
+      if (minTree == null){
+        //check whether this is a common ancestor
+        for (Tree node : nodes){
+          if (!covers(node)) return null;
+        }
+        return this;
+      }
+      return minTree;
+    }
+
+    public int length(){
+      return end - begin + 1;
+    }
+
+    public int maxDepth() {
+      int max = 0;
+      for (Tree child : children){
+        int depth = child.maxDepth();
+        if (depth > max) {
+          max = depth;
+        }
+      }
+      return max + 1;
+    }
+
     public boolean activeVoice(Sentence sentence) {
       if (!label.equals("\"VBN\"")) return true;
       Tree vp = parent;
@@ -829,30 +930,30 @@ public class CoNLL05Converter {
       if (covers(other)) {
         for (Tree child : children) {
           if (child.covers(other)) {
-            path.add(new PathStep(label, false));
+            path.add(new PathStep(this, false));
             child.getPath(other, path);
             return;
           }
         }
       } else {
         if (parent == null) return;
-        path.add(new PathStep(label, true));
+        path.add(new PathStep(this, true));
         parent.getPath(other, path);
       }
     }
 
     public static class PathStep {
       public final boolean up;
-      public final String label;
+      public final Tree node;
 
-      public PathStep(String label, boolean up) {
-        this.label = label;
+      public PathStep(Tree label, boolean up) {
+        this.node = label;
         this.up = up;
       }
 
 
       public String toString() {
-        return abbreviate(unquote(label)) + (up ? " ^ " : " v ");
+        return abbreviate(unquote(node.label)) + (up ? " ^ " : " v ");
       }
     }
 
@@ -864,6 +965,7 @@ public class CoNLL05Converter {
           result.append(step);
         return result.toString();
       }
+
     }
 
 
@@ -951,6 +1053,8 @@ public class CoNLL05Converter {
         result.append(get(i).get(WORD_INDEX)).append(" ");
       return result.toString();
     }
+
+
   }
 
   private static class HeadFinder {
@@ -1060,6 +1164,10 @@ public class CoNLL05Converter {
 
   public static String unquote(String label) {
     return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
+  }
+
+  public static String quote(String s){
+    return "\"" + s + "\"";
   }
 
   public static String abbreviate(String label) {

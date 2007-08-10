@@ -18,20 +18,33 @@ predicate chunkdistance: Int x Int;
 predicate sister: Int x Int x Int;
 predicate pprightmosthead: Int x Int;
 predicate distance: Int x Int;
+predicate class: Class;
 
+//global predicates
+predicate properarg: Argument;
+predicate modifier: Argument;
+predicate carg: Argument;
+predicate rarg: Argument;
+predicate cargpair: Argument x Argument;
+predicate rargpair: Argument x Argument;
 
 predicate arg: Int x Argument;
 predicate isarg: Int;
 
 //index: span(*,*,_);
 
-hidden: arg,isarg;
+hidden: arg,isarg,class;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,pathlength,shortframe,
   frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead,distance;
+global: properarg, modifier, carg, rarg, cargpair, rargpair;
+
 
 include "weights-arg.pml";
 include "weights-isarg.pml";
+include "weights-class.pml";
 //include "weights-isarg-compact.pml";
+
+load global from "global.atoms";
 
 
 //weight w_argpair: Argument x Argument -> Double-;
@@ -41,6 +54,16 @@ include "weights-isarg.pml";
 //  add [arg(c1,a1) & arg(c2,a2)] * w_argpair(a1,a2);
 //set collector.all.w_argpair = true;
 
+
+
+/*
+weight w_duplicatemod: Argument -> Double-;
+factor duplicatemod:
+  for Int c1, Int c2, Argument a1, Int b1, Int b2
+  if candidate(c1) & candidate(c2) & modifier(a1) & span(c1,b1,_) & span(c2,b2,_) & b2 > b1
+  add [arg(c1,a1) & arg(c2,a1)] * w_duplicatemod(a1);
+set collector.all.w_duplicatemod = true;
+*/
 /*
 weight w_duplicatearg: Argument -> Double-;
 factor duplicatearg:
@@ -85,15 +108,20 @@ factor implyArg: for Int c if candidate(c): isarg(c) => |Argument a: arg(c,a)| >
 //factor implyIsarg: for Int c if candidate(c): |Argument a: arg(c,a)| >= 1 => isarg(c);
 
 //not duplicate arguments
-//factor: |Int c: arg(c,"V")| <= 1;
-factor: |Int c: arg(c,"A0")| <= 1;
-factor: |Int c: arg(c,"A1")| <= 1;
-factor: |Int c: arg(c,"A2")| <= 1;
-factor: |Int c: arg(c,"A3")| <= 1;
-factor: |Int c: arg(c,"A4")| <= 1;
+factor duplicatearg: for Argument a if properarg(a) : |Int c: arg(c,a)| <= 1;
 
-//factor: |Int c: candidate(c) & arg(c,"V")| >= 1;
+//if there is a c-arg there has to be an arg
+factor cargimpliesarg: for Argument start, Argument ca, Int c, Int bc
+  if carg(ca) & cargpair(ca,start) & candidate(c) & span(c,bc,_) :
+  arg(c,ca) => |Int a, Int ba: candidate(a) & span(a,ba,_) & ba < bc & arg(a,start)| >= 1;
 
+factor rargimpliesarg: for Argument start, Argument ra, Int c
+  if carg(ra) & rargpair(ra,start) & candidate(c) :
+  arg(c,ra) => |Int a: candidate(a) & arg(a,start)| >= 1;
+
+
+//at least one argument
+factor atLeastOne: |Int c, Argument a: candidate(c) & arg(c,a)| >= 1;
 
 
   

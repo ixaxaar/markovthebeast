@@ -75,12 +75,12 @@ factor: for Int c, Argument a, Int t, Word h
 
 weight w_rightlabel: Label x Argument -> Double;
 factor: for Int c, Int s, Argument a, Label label
-  if candidate(c) & sister(c,s,_) & label(s,label)
+  if candidate(c) & sister(c,_,s) & label(s,label)
   add [arg(c,a)] * w_rightlabel(label,a);
 
 weight w_leftlabel: Label x Argument -> Double;
 factor: for Int c, Int s, Argument a, Label label
-  if candidate(c) & sister(c,_,s) & label(s,label)
+  if candidate(c) & sister(c,s,_) & label(s,label)
   add [arg(c,a)] * w_leftlabel(label,a);
 
 
