@@ -49,4 +49,9 @@ public class Util {
 
   }
 
+  public static String unquote(String label) {
+    return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
+  }
+
+
 }

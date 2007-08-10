@@ -164,6 +164,17 @@ public class IntegerLinearProgram implements PropositionalModel {
     builder.doubleAttribute("value").num(1.0 - eps).doubleLessThan().and(2).restrict();
     findFractionals = builder.getRelation();
 
+    groundAtom2indexScore.clear();
+    groundAtomGetWeight.clear();
+    addTrueGroundAtoms.clear();
+    removeFalseGroundAtoms.clear();
+    groundObjective.clear();
+    formula2query.clear();
+    newConstraintsInserts.clear();
+    constraintsInserts.clear();
+    groundFormula2index.clear();
+    groundFormulaGetWeight.clear();
+
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       QueryGenerator generator = new QueryGenerator(weights, atoms);
       generator.setClosure(closure);
@@ -430,8 +441,10 @@ public class IntegerLinearProgram implements PropositionalModel {
     newConstraintCount = 0;
 //    System.out.println(atoms);
 //    System.out.println(formulas);
+    
     interpreter.clear(newConstraints);
     profiler.start("find new constraints");
+    //System.out.println(newConstraints.value());
     for (FactorFormula formula : factors) {
       //System.out.println(formula);
       profiler.start(formula.toShortString());
@@ -442,7 +455,9 @@ public class IntegerLinearProgram implements PropositionalModel {
     //System.out.println("Updating ...");
     profiler.end();
     profiler.start("insert constraints");
+    //System.out.println(newConstraints.value());
     interpreter.append(constraints,newConstraints);
+    //System.out.println(constraints.value());
     //interpreter.interpret(insertNewConstraintsIntoOld);
     profiler.end();
     //System.out.println(constraints.value());

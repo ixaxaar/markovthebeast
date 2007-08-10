@@ -588,6 +588,8 @@ public final class MemChunk extends MemHolder {
         }
       }
     }
+    if (chunkData != null)
+      for (MemChunk aChunkData : chunkData) if (aChunkData != null) aChunkData.clear();
     size = 0;
   }
 

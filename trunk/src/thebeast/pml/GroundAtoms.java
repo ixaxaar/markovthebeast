@@ -262,6 +262,15 @@ public class GroundAtoms implements Dumpable, SignatureListener {
     return count;
   }
 
+  public int getGroundAtomCount(Collection<UserPredicate> predicates){
+    int count = 0;
+    for (UserPredicate pred : predicates){
+      GroundAtomCollection atoms = getGroundAtomsOf(pred);
+      count += atoms.size();
+    }
+    return count;    
+  }
+
   /**
    * Called when the signature has added a predicate. Will ensure that this object is consistent with the update
    * signature.

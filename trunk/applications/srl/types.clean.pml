@@ -11,3 +11,4 @@ type Position: ... ;
 type Frame: ...;
 type FramePattern: ...;
 type ShortFrame: ...;
+type Class: ...;

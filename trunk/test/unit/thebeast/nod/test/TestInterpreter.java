@@ -691,6 +691,7 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.id("a").integer(3).id("b").integer(3).id("c").integer(4).tuple(3);
     exprBuilder.relation();
     RelationVariable var = interpreter.createRelationVariable(exprBuilder.getRelation());
+    //SELECT x = var.a, result = (SELECT d=nested.c FROM nested WHERE nested.b = var.a) FROM var
     IntVariable x = interpreter.createIntVariable();
     exprBuilder.expr(var).from("var").intAttribute("var", "b").expr(x).equality().where();
     exprBuilder.id("d").intAttribute("var", "c").tuple(1).select().query();
@@ -698,12 +699,22 @@ public class TestInterpreter extends NoDTest {
     exprBuilder.expr(var).from("var").id("result").intAttribute("var", "a").invokeRelOp(search);
     exprBuilder.id("x").intAttribute("var", "a").tuple(2).select().query();
 
-    RelationVariable result = interpreter.createRelationVariable(exprBuilder.getRelation());
+    RelationExpression query = exprBuilder.getRelation();
+    RelationVariable result = interpreter.createRelationVariable(query);
     System.out.println(result.value());
     assertEquals(3, result.value().size());
     assertTrue(result.contains(new Object[]{}, 1));
     assertTrue(result.contains(new Object[]{new Object[]{1}, new Object[]{2}}, 2));
     assertTrue(result.contains(new Object[]{new Object[]{3}, new Object[]{4}}, 3));
+
+    exprBuilder.id("a").integer(2).id("b").integer(2).id("c").integer(2).tuple(3);
+    exprBuilder.id("a").integer(1).id("b").integer(3).id("c").integer(3).tuple(3);
+    exprBuilder.id("a").integer(3).id("b").integer(3).id("c").integer(4).tuple(3);
+    exprBuilder.relation();
+
+    interpreter.assign(var,exprBuilder.getRelation());
+    interpreter.assign(result, query);
+    System.out.println(result.value());
 
   }
 

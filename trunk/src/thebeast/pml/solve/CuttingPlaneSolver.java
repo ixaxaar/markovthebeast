@@ -122,6 +122,10 @@ public class CuttingPlaneSolver implements Solver {
     scores = new Scores(model, weights);
     atoms = model.getSignature().createGroundAtoms();
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+    groundAll.clear();
+    factor2order.clear();
+    factorSets.clear();
+    orderedFactors.clear();
 
     for (FactorFormula formula : model.getGlobalFactorFormulas())
       setOrder(formula, 0);
@@ -338,6 +342,7 @@ public class CuttingPlaneSolver implements Solver {
         break;
       }
       profiler.start("solvemodel");
+      //System.out.println(((IntegerLinearProgram)propositionalModel).getConstraints().value());
       propositionalModel.solve(atoms);
       //System.out.println("solved!");
       profiler.end();

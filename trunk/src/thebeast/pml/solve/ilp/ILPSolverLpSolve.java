@@ -30,6 +30,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private boolean writeLp = false;
   private long timeout = 1000;
   private int bbDepthLimit = 3;
+  private int count = 0;
 
   public void init() {
     try {
@@ -84,7 +85,11 @@ public class ILPSolverLpSolve implements ILPSolver {
         double[] weights = new double[length];
         int index = 0;
         for (TupleValue nonZero : values) {
-          shifted[index] = nonZero.intElement("index").getInt() + 1;
+          int var = nonZero.intElement("index").getInt() + 1;
+          if (var > solver.getNcolumns())
+            throw new RuntimeException("The constraint " + constraint + " contains a variable which has not been added" +
+                    "yet: nr " + (var - 1));
+          shifted[index] = var;
           weights[index++] = nonZero.doubleElement("weight").getDouble();
         }
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
@@ -112,7 +117,7 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public RelationVariable solve() {
     try {
-      if (writeLp) solver.writeLp("/tmp/debug.lp");
+      if (writeLp) solver.writeLp("/tmp/debug_" + count + ".lp");
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
       solver.setBbDepthlimit(bbDepthLimit);
       solver.setTimeout(timeout);
@@ -173,6 +178,17 @@ public class ILPSolverLpSolve implements ILPSolver {
       setBbDepthLimit((Integer)value);
     else if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
+    else if (name.getHead().equals("writeLP"))
+      setWriteLp((Boolean) value);
+  }
+
+
+  public boolean isWriteLp() {
+    return writeLp;
+  }
+
+  public void setWriteLp(boolean writeLp) {
+    this.writeLp = writeLp;
   }
 
   public void setProperty(String name, Object value) {

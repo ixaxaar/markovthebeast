@@ -76,6 +76,8 @@ public class FeatureCollector implements HasProperties {
     atoms = model.getSignature().createGroundAtoms();
     QueryGenerator generator = new QueryGenerator(weights, atoms);
     StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
+    inserts.clear();
+    updateIndices.clear();
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.usesWeights()) {
         RelationExpression query = generator.generateCollectorQuery(factor, atoms, weights);
@@ -164,6 +166,7 @@ public class FeatureCollector implements HasProperties {
           builder.id(function.getCountAttribute().name()).num(1);
           builder.tuple(function.getArity() + 2).select();
           builder.query();
+          System.out.println(function);
           interpreter.assign(weights.getRelation(function), builder.getRelation());
           progressReporter.progressed();
           done.add(function);

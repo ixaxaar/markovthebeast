@@ -22,14 +22,21 @@ set learner.solver.model.solver.bbDepthLimit=5;
 //set learner.useGreedy = false;
 
 set learner.minOrder = 2;
-set learner.maxCandidates=1;
+set learner.maxCandidates=10;
 set learner.minCandidates=1;
 
 set learner.update.signs = true;
 set learner.average = true;
 set learner.solver.history = false;
+set learner.solver.model.solver.writeLP = true;
 
 set learner.solver.order.implyArg = 1;
+set learner.solver.order.atLeastOne = 2;
+set learner.solver.order.cargimpliesarg = 2;
+//set learner.solver.order.duplicatemod = 2;
+
+
+//set learner.solver.model.solver.writeLP = true;
 //set learner.solver.order.implyIsarg = 0;
 //set learner.solver.ground.implyArg = true;
 //set learner.solver.ground.implyIsarg = true;

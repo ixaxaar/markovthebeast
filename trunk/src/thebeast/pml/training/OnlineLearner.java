@@ -245,6 +245,7 @@ public class OnlineLearner implements Learner, HasProperties {
         //((ILPSolverLpSolve)((IntegerLinearProgram)((CuttingPlaneSolver)solver).getPropositionalModel()).getSolver()).delete();
 //        solver = new CuttingPlaneSolver(new IntegerLinearProgram(model,weights, new ILPSolverLpSolve()));
 //        solver.configure(model,weights);
+        //System.out.println("Instance: " + instanceNr);
 
       }
       updateRule.endEpoch();

@@ -285,7 +285,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
 
   public void clear(ArrayVariable variable) {
     AbstractMemVariable var = (AbstractMemVariable) variable;
-    var.getContainerChunk().chunkData[var.getPointer().xChunk].size = 0;
+    var.getContainerChunk().chunkData[var.getPointer().xChunk].clear();
   }
 
   public void typeCheck(Type t1, Type t2, Object context) {
@@ -422,7 +422,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
   public void visitClearRelationVariable(ClearRelationVariable clearRelationVariable) {
     MemRelationVariable var = (MemRelationVariable) clearRelationVariable.variable();
     var.own();
-    var.getContainerChunk().chunkData[var.getPointer().xChunk].size = 0;
+    var.getContainerChunk().chunkData[var.getPointer().xChunk].clear();
     var.invalidate();
   }
 
