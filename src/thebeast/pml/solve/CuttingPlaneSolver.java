@@ -214,7 +214,7 @@ public class CuttingPlaneSolver implements Solver {
     //this.atoms.clear(model.getHiddenPredicates());
     this.atoms.clear(model.getHiddenPredicates());
     this.atoms.clear(model.getInstancePredicates());
-    this.atoms.clear(model.getGlobalPredicates());
+    //this.atoms.clear(model.getGlobalPredicates());
     this.atoms.load(atoms, model.getObservedPredicates());
     //todo: what to do with this?
     //this.atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());

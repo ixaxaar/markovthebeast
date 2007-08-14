@@ -46,9 +46,9 @@ public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements 
 
       public GroundAtoms next() {
         GroundAtoms atoms = iterator.next();
-        if (model.getGlobalPredicates().size() > 0) {
-          atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
-        }
+//        if (model.getGlobalPredicates().size() > 0) {
+//          atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
+//        }
         if (generators.isEmpty()) return atoms;
         localAtoms.load(atoms);
         for (Map.Entry<UserPredicate, List<RelationExpression>> entry : generators.entrySet()) {

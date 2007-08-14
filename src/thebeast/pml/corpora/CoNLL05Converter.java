@@ -1,6 +1,7 @@
 package thebeast.pml.corpora;
 
 import thebeast.util.Pair;
+import thebeast.util.HashMultiMapSet;
 
 import java.io.*;
 import java.util.*;
@@ -112,9 +113,9 @@ public class CoNLL05Converter {
         //collect all spans
         if (sentence.size() > 0 && !sentence.get(0).get(POS_INDEX).equals("NNP"))
           sentence.get(0).set(WORD_INDEX, sentence.get(0).get(WORD_INDEX).toLowerCase());
-        Tree charniak = Tree.create(sentence, CHARNIAK_INDEX);
-        Tree upc = Tree.createChunks(sentence, UPC_CHUNK_INDEX);
-        Tree ne = Tree.createChunks(sentence, NE_INDEX);
+        ParseTree charniak = ParseTree.create(sentence, CHARNIAK_INDEX);
+        ParseTree upc = ParseTree.createChunks(sentence, UPC_CHUNK_INDEX);
+        ParseTree ne = ParseTree.createChunks(sentence, NE_INDEX);
 
         HashMap<Pair<Integer, Integer>, Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
 
@@ -123,25 +124,25 @@ public class CoNLL05Converter {
         for (int pred = 0; pred < predCount; ++pred) {
           //words
           int predicateToken = predicateTokens.get(pred);
-          String predicateClass = predicateClasses.get(pred);
+          String predicateClass = predicateClasses.size() > pred ? predicateClasses.get(pred) : "NO";
           out.println(">>");
           printFeatures("word", out, sentence, WORD_INDEX);
           printFeatures("pos", out, sentence, POS_INDEX);
 
 
-          Tree predicateTree = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
+          ParseTree predicateTree = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
           if (predicateTree == null) throw new RuntimeException("Problem in sentence " + sentence +
                   " with predicate token " + predicateToken);
 
           HashSet<Pair<Integer, Integer>> spans = new HashSet<Pair<Integer, Integer>>();
           HashSet<Pair<Integer, Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
           HashSet<Pair<Integer, Integer>> argSpans = new HashSet<Pair<Integer, Integer>>();
-          Tree args = Tree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
-          Tree tmp = predicateTree.pruneXuePalmer();
+          ParseTree args = ParseTree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + pred);
+          ParseTree tmp = predicateTree.pruneXuePalmer();
           if (tmp == null) throw new RuntimeException("Problem in sentence " + sentence +
                   " with predicate token " + predicateToken);
 
-          Tree charniakPruned = tmp.getRoot();
+          ParseTree charniakPruned = tmp.getRoot();
           charniakPruned.getSpans(candidates);
           //ne.getSpans(candidates);
           args.getChunks(argSpans);
@@ -149,9 +150,9 @@ public class CoNLL05Converter {
           spans.addAll(argSpans);
 
           ArrayList<Pair<Integer, Integer>> sortedSpans = new ArrayList<Pair<Integer, Integer>>(spans);
-          Collections.sort(sortedSpans, new Tree.SpanComparator());
+          Collections.sort(sortedSpans, new ParseTree.SpanComparator());
           ArrayList<Pair<Integer, Integer>> sortedCandidates = new ArrayList<Pair<Integer, Integer>>(candidates);
-          Collections.sort(sortedCandidates, new Tree.SpanComparator());
+          Collections.sort(sortedCandidates, new ParseTree.SpanComparator());
 
           //spans
           int id = 0;
@@ -181,9 +182,9 @@ public class CoNLL05Converter {
           out.println(">parentlabel");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            ParseTree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null) {
-              Tree parent = tree.parent;
+              ParseTree parent = tree.parent;
               if (parent != null) {
                 out.println(id + "\t" + parent.label);
               }
@@ -194,9 +195,9 @@ public class CoNLL05Converter {
           out.println(">parenthead");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            ParseTree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null && tree.parent != null) {
-              Tree parent = tree.parent;
+              ParseTree parent = tree.parent;
               out.println(id + "\t" + headFinder.getHead(parent).begin);
             } else {
               out.println(id + "\t-1");
@@ -207,9 +208,9 @@ public class CoNLL05Converter {
           out.println(">pprightmosthead");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            ParseTree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null && tree.label.equals("PP")) {
-              Tree rightmost = tree.getRightMostChild();
+              ParseTree rightmost = tree.getRightMostChild();
               out.println(id + "\t" + headFinder.getHead(rightmost).begin);
             }
           }
@@ -218,10 +219,10 @@ public class CoNLL05Converter {
           out.println(">sister");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree tree = charniakPruned.getNode(span.arg1, span.arg2);
+            ParseTree tree = charniakPruned.getNode(span.arg1, span.arg2);
             if (tree != null) {
-              Tree leftSister = tree.getLeftSister();
-              Tree rightSister = tree.getRightSister();
+              ParseTree leftSister = tree.getLeftSister();
+              ParseTree rightSister = tree.getRightSister();
               int idLeft = leftSister != null ? span2id.get(leftSister.getSpan()) : -1;
               int idRight = rightSister != null ? span2id.get(rightSister.getSpan()) : -1;
               out.println(id + "\t" + idLeft + "\t" + idRight);
@@ -251,12 +252,12 @@ public class CoNLL05Converter {
           out.println(">frame");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            ParseTree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
 //              out.println(id + "\t\"" + new Tree.SyntacticFrame(
 //                      charniakPruned, predicateTree, arg) + "\"");
-            out.println(id + "\t\"" + new Tree.SyntacticFrame(
+            out.println(id + "\t\"" + new ParseTree.SyntacticFrame(
                     charniakPruned.smallestCommonAncestor(predicateTree,arg), predicateTree, arg) + "\"");
             else out.println(id + "\tNONE");
           }
@@ -265,10 +266,10 @@ public class CoNLL05Converter {
           out.println(">shortframe");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            ParseTree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              out.println(id + "\t\"" + new Tree.SyntacticFrame(charniakPruned, predicateTree, arg).toShortPattern() + "\"");
+              out.println(id + "\t\"" + new ParseTree.SyntacticFrame(charniakPruned, predicateTree, arg).toShortPattern() + "\"");
             else out.println(id + "\tNONE");
           }
           out.println();
@@ -277,11 +278,11 @@ public class CoNLL05Converter {
           out.println(">framepattern");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree arg = charniakPruned.getNode(span.arg1, span.arg2);
+            ParseTree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
               out.println(id + "\t\"" +
-                      new Tree.SyntacticFrame(charniakPruned, predicateTree, arg).toStringPattern() + "\"");
+                      new ParseTree.SyntacticFrame(charniakPruned, predicateTree, arg).toStringPattern() + "\"");
             else out.println(id + "\tNONE");
           }
           out.println();
@@ -296,12 +297,12 @@ public class CoNLL05Converter {
 
           //paths
           out.println(">path");
-          Tree from = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
+          ParseTree from = charniak.getSmallestCoveringTree(predicateToken, predicateToken);
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree to = charniak.getNode(span.arg1, span.arg2);
+            ParseTree to = charniak.getNode(span.arg1, span.arg2);
             if (to != null) {
-              Tree.Path path = new Tree.Path();
+              ParseTree.Path path = new ParseTree.Path();
               from.getPath(to, path);
               out.println(id + "\t\"" + path + "\"");
             } else {
@@ -313,9 +314,9 @@ public class CoNLL05Converter {
           out.println(">pathlength");
           for (Pair<Integer, Integer> span : candidates) {
             id = span2id.get(span);
-            Tree to = charniak.getNode(span.arg1, span.arg2);
+            ParseTree to = charniak.getNode(span.arg1, span.arg2);
             if (to != null) {
-              Tree.Path path = new Tree.Path();
+              ParseTree.Path path = new ParseTree.Path();
               from.getPath(to, path);
               out.println(id + "\t" + path.size());
             } else {
@@ -328,7 +329,7 @@ public class CoNLL05Converter {
           out.println(">head");
           for (Pair<Integer, Integer> span : spans) {
             id = span2id.get(span);
-            Tree tree = charniak.getNode(span.arg1, span.arg2);
+            ParseTree tree = charniak.getNode(span.arg1, span.arg2);
             if (tree != null) {
               out.println(id + "\t" + headFinder.getHead(tree).begin);
             } else {
@@ -429,31 +430,52 @@ public class CoNLL05Converter {
     out.println();
   }
 
+  public static class DependencyTree {
+    private HashMultiMapSet<Integer,Integer> modifiers = new HashMultiMapSet<Integer, Integer>();
+    private HashMap<Integer,Integer> heads = new HashMap<Integer, Integer>();
+    //private HashMap<ParseTree, Integer>
 
-  public static class Tree implements Comparable<Tree> {
+    public DependencyTree(ParseTree tree){
+
+    }
+
+    private void build(ParseTree tree, int parenthead){
+      int myHead = headFinder.getHead(tree).begin;
+      if (tree.length() == 1) {
+        heads.put(tree.begin,-1);
+      } else {
+        for (ParseTree child : tree.children){
+          int childHead = headFinder.getHead(child).begin;
+        }
+
+      }
+    }
+  }
+
+  public static class ParseTree implements Comparable<ParseTree> {
     String label;
-    ArrayList<Tree> children = new ArrayList<Tree>();
+    ArrayList<ParseTree> children = new ArrayList<ParseTree>();
     int begin, end;
-    Tree parent;
+    ParseTree parent;
 
-    public Tree(Tree tree) {
+    public ParseTree(ParseTree tree) {
       this.label = tree.label;
       this.begin = tree.begin;
       this.end = tree.end;
     }
 
-    public Tree(Tree tree, Tree parent) {
+    public ParseTree(ParseTree tree, ParseTree parent) {
       this.label = tree.label;
       this.begin = tree.begin;
       this.end = tree.end;
       this.parent = parent;
     }
 
-    public Tree(String label) {
+    public ParseTree(String label) {
       this.label = label;
     }
 
-    public Tree(Tree parent, String label) {
+    public ParseTree(ParseTree parent, String label) {
       this.parent = parent;
       this.label = label;
     }
@@ -461,7 +483,7 @@ public class CoNLL05Converter {
     public String getSubcat() {
       StringBuffer result = new StringBuffer();
       int index = 0;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         if (index++ > 0) result.append(" ");
         result.append(unquote(child.label));
 
@@ -469,7 +491,7 @@ public class CoNLL05Converter {
       return result.toString();
     }
 
-    public Tree(Tree parent, String label, int begin, int end) {
+    public ParseTree(ParseTree parent, String label, int begin, int end) {
       this.parent = parent;
       this.label = label;
       this.begin = begin;
@@ -478,18 +500,27 @@ public class CoNLL05Converter {
 
     public void getSpans(Collection<Pair<Integer, Integer>> spans) {
       spans.add(new Pair<Integer, Integer>(begin, end));
-      for (Tree child : children) child.getSpans(spans);
+      for (ParseTree child : children) child.getSpans(spans);
     }
 
     public void getChunks(Collection<Pair<Integer, Integer>> spans) {
-      for (Tree child : children) child.getSpans(spans);
+      for (ParseTree child : children) child.getSpans(spans);
     }
 
-    public Tree getLeftSister() {
+    public void getYield(Collection<ParseTree> yield){
+      if (length() == 1) {
+        yield.add(this);
+        return;
+      }
+      else for (ParseTree child : children) child.getYield(yield);
+
+    }
+
+    public ParseTree getLeftSister() {
       if (parent == null) return null;
-      Tree leftsister = null;
+      ParseTree leftsister = null;
       int max = Integer.MIN_VALUE;
-      for (Tree sister : parent.children) {
+      for (ParseTree sister : parent.children) {
         if (sister.end < begin && sister.end > max) {
           leftsister = sister;
           max = sister.end;
@@ -498,11 +529,11 @@ public class CoNLL05Converter {
       return leftsister;
     }
 
-    public Tree getRightSister() {
+    public ParseTree getRightSister() {
       if (parent == null) return null;
-      Tree rightsister = null;
+      ParseTree rightsister = null;
       int min = Integer.MAX_VALUE;
-      for (Tree sister : parent.children) {
+      for (ParseTree sister : parent.children) {
         if (sister.begin > end && sister.begin < min) {
           rightsister = sister;
           min = sister.begin;
@@ -515,10 +546,10 @@ public class CoNLL05Converter {
       return new Pair<Integer, Integer>(begin, end);
     }
 
-    public Tree getRightMostChild() {
+    public ParseTree getRightMostChild() {
       int max = Integer.MIN_VALUE;
-      Tree result = null;
-      for (Tree child : children) {
+      ParseTree result = null;
+      for (ParseTree child : children) {
         if (child.begin > max) {
           result = child;
           max = child.begin;
@@ -527,29 +558,29 @@ public class CoNLL05Converter {
       return result;
     }
 
-    public static class SyntacticFrame extends LinkedList<Tree> {
-      private HashSet<Tree> pivots = new HashSet<Tree>();
-      private Tree predicate = null;
+    public static class SyntacticFrame extends LinkedList<ParseTree> {
+      private HashSet<ParseTree> pivots = new HashSet<ParseTree>();
+      private ParseTree predicate = null;
 
-      public SyntacticFrame(Tree root, Tree... pivots) {
+      public SyntacticFrame(ParseTree root, ParseTree... pivots) {
         this(root, Arrays.asList(pivots));
         this.predicate = pivots[0];
       }
 
-      public SyntacticFrame(Tree root, Collection<Tree> pivots) {
+      public SyntacticFrame(ParseTree root, Collection<ParseTree> pivots) {
         this.pivots.addAll(pivots);
         addYield(root);
       }
 
-      private void addYield(Tree root) {
-        for (Tree leaf : pivots) {
+      private void addYield(ParseTree root) {
+        for (ParseTree leaf : pivots) {
           if (root.equals(leaf)) {
             add(root);
             return;
           }
           if (root.covers(leaf)) {
             int oldSize = size();
-            for (Tree child : root.children) {
+            for (ParseTree child : root.children) {
               addYield(child);
             }
             if (size() == oldSize) {
@@ -565,7 +596,7 @@ public class CoNLL05Converter {
       public String toString() {
         StringBuffer result = new StringBuffer();
         int index = 0;
-        for (Tree child : this) {
+        for (ParseTree child : this) {
           if (punctuation.contains(unquote(child.label))) continue;
           if (!pivots.contains(child) && child.label.startsWith("A")) continue;
           if (index++ > 0) result.append("_");
@@ -581,7 +612,7 @@ public class CoNLL05Converter {
       public String toStringPattern() {
         StringBuffer result = new StringBuffer();
         int index = 0;
-        for (Tree child : this) {
+        for (ParseTree child : this) {
           if (punctuation.contains(unquote(child.label))) continue;
           if (index++ > 0) result.append("_");
           if (pivots.contains(child)) {
@@ -601,7 +632,7 @@ public class CoNLL05Converter {
         StringBuffer result = new StringBuffer();
         int index = 0;
         boolean betweenPivots = false;
-        for (Tree child : this) {
+        for (ParseTree child : this) {
           if (punctuation.contains(unquote(child.label))) continue;
           if (pivots.contains(child)) {
             if (index++ > 0) result.append("_");
@@ -629,7 +660,7 @@ public class CoNLL05Converter {
       if (isLeaf())
         return begin >= from && end <= to ? 1 : 0;
       int distance = 0;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         if (child.begin > from && child.end < to) {
           distance += child.getLeafDistance(child.begin, child.end);
         }
@@ -642,24 +673,24 @@ public class CoNLL05Converter {
       return children.size() == 0;
     }
 
-    public Tree pruneXuePalmer() {
-      Tree current = this.parent;
-      Tree result = null;
-      Tree lastNode = null;
-      Tree lastResult = null;
-      if (current == null) return new Tree(this);
+    public ParseTree pruneXuePalmer() {
+      ParseTree current = this.parent;
+      ParseTree result = null;
+      ParseTree lastNode = null;
+      ParseTree lastResult = null;
+      if (current == null) return new ParseTree(this);
       while (current != null) {
-        result = new Tree(current);
-        if (!current.label.equals("CC")) for (Tree child : current.children) {
+        result = new ParseTree(current);
+        if (!current.label.equals("CC")) for (ParseTree child : current.children) {
           if (child == lastNode) {
             result.addChild(lastResult);
             continue;
           }
-          Tree tree = new Tree(child, result);
+          ParseTree tree = new ParseTree(child, result);
           result.children.add(tree);
           if (tree.label.equals("PP")) {
-            for (Tree ppChild : child.children) {
-              tree.children.add(new Tree(ppChild, tree));
+            for (ParseTree ppChild : child.children) {
+              tree.children.add(new ParseTree(ppChild, tree));
             }
           }
         }
@@ -670,39 +701,39 @@ public class CoNLL05Converter {
       return result;
     }
 
-    public void addChild(Tree tree) {
+    public void addChild(ParseTree tree) {
       children.add(tree);
       tree.parent = this;
     }
 
-    public void getSyntacticFrame(List<Tree> frame, Tree predicate) {
+    public void getSyntacticFrame(List<ParseTree> frame, ParseTree predicate) {
       if (!covers(predicate) && (label.equals("NP") || label.equals("PP")) || this.equals(predicate)) {
         frame.add(this);
         return;
       }
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         child.getSyntacticFrame(frame, predicate);
       }
     }
 
-    public Tree getSyntacticFrameTree(Tree predicate) {
-      LinkedList<Tree> frame = new LinkedList<Tree>();
+    public ParseTree getSyntacticFrameTree(ParseTree predicate) {
+      LinkedList<ParseTree> frame = new LinkedList<ParseTree>();
       getSyntacticFrame(frame, predicate);
-      Tree result = new Tree("Frame");
+      ParseTree result = new ParseTree("Frame");
       result.begin = Integer.MAX_VALUE;
       result.end = Integer.MIN_VALUE;
-      for (Tree tree : frame) {
-        result.addChild(new Tree(tree));
+      for (ParseTree tree : frame) {
+        result.addChild(new ParseTree(tree));
         if (tree.begin < result.begin) result.begin = tree.begin;
         if (tree.end > result.end) result.end = tree.end;
       }
       return result;
     }
 
-    public String getSyntacticFrameString(Tree argument) {
+    public String getSyntacticFrameString(ParseTree argument) {
       StringBuffer result = new StringBuffer();
       int index = 0;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         if (index++ > 0) result.append("_");
         if (child.equals(argument)) {
           result.append(unquote(child.label).substring(0, 1).toUpperCase());
@@ -717,7 +748,7 @@ public class CoNLL05Converter {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
 
-      Tree tree = (Tree) o;
+      ParseTree tree = (ParseTree) o;
 
       return begin == tree.begin && end == tree.end && !(label != null ? !label.equals(tree.label) : tree.label != null);
 
@@ -731,7 +762,7 @@ public class CoNLL05Converter {
       return result;
     }
 
-    public Tree getRoot() {
+    public ParseTree getRoot() {
       if (parent == null) return this;
       else return parent.getRoot();
     }
@@ -739,16 +770,16 @@ public class CoNLL05Converter {
     public String getLabel(int begin, int end) {
       if (this.begin == begin && this.end == end)
         return label;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         if (child.covers(begin, end)) return child.getLabel(begin, end);
       }
       return NONE;
     }
 
-    public Tree getNode(int begin, int end) {
+    public ParseTree getNode(int begin, int end) {
       if (this.begin == begin && this.end == end)
         return this;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         if (child.covers(begin, end)) return child.getNode(begin, end);
       }
       return null;
@@ -764,7 +795,7 @@ public class CoNLL05Converter {
       return this.begin <= begin && this.end >= end;
     }
 
-    public boolean covers(Tree other) {
+    public boolean covers(ParseTree other) {
       return covers(other.begin, other.end);
     }
 
@@ -772,17 +803,17 @@ public class CoNLL05Converter {
       return begin == end;
     }
 
-    public Tree smallestCommonAncestor(Tree ... nodes){
+    public ParseTree smallestCommonAncestor(ParseTree... nodes){
       return smallestCommonAncestor(Arrays.asList(nodes));
     }
 
 
-    public Tree smallestCommonAncestor(Collection<Tree> nodes){
+    public ParseTree smallestCommonAncestor(Collection<ParseTree> nodes){
       int minLength = Integer.MAX_VALUE;
       int minDepth = Integer.MAX_VALUE;
-      Tree minTree = null;
-      for (Tree child : children){
-        Tree ancestor = child.smallestCommonAncestor(nodes);
+      ParseTree minTree = null;
+      for (ParseTree child : children){
+        ParseTree ancestor = child.smallestCommonAncestor(nodes);
         if (ancestor == null) continue;
         int length = ancestor.length();
         int depth = ancestor.maxDepth();
@@ -794,7 +825,7 @@ public class CoNLL05Converter {
       }
       if (minTree == null){
         //check whether this is a common ancestor
-        for (Tree node : nodes){
+        for (ParseTree node : nodes){
           if (!covers(node)) return null;
         }
         return this;
@@ -808,7 +839,7 @@ public class CoNLL05Converter {
 
     public int maxDepth() {
       int max = 0;
-      for (Tree child : children){
+      for (ParseTree child : children){
         int depth = child.maxDepth();
         if (depth > max) {
           max = depth;
@@ -819,55 +850,55 @@ public class CoNLL05Converter {
 
     public boolean activeVoice(Sentence sentence) {
       if (!label.equals("\"VBN\"")) return true;
-      Tree vp = parent;
-      Tree aux = vp.parent;
+      ParseTree vp = parent;
+      ParseTree aux = vp.parent;
       if (aux == null) return true;
-      Tree aux_parent = aux.parent;
+      ParseTree aux_parent = aux.parent;
       //check for "is"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("is"))
           return false;
       }
       //check for "was"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
           return false;
       }
       //check for "got"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("got"))
           return false;
       }
       //check for "are"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("are"))
           return false;
       }
       //check for "be"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
           return false;
       }
       //check for "were"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("were"))
           return false;
       }
       //check for "am"
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("am"))
           return false;
       }
       //check for "has been"
       boolean lookForBeen = false;
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
 //        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
 //          lookForBeen = true;
@@ -877,7 +908,7 @@ public class CoNLL05Converter {
 
       //check for "had been"
       lookForBeen = false;
-      for (Tree child : aux.children) {
+      for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("had"))
           lookForBeen = true;
@@ -888,11 +919,11 @@ public class CoNLL05Converter {
     }
 
     public void augmentWithTags(Sentence sentence, int column) {
-      ArrayList<Tree> result = new ArrayList<Tree>();
+      ArrayList<ParseTree> result = new ArrayList<ParseTree>();
       int previous = begin;
-      for (Tree child : children) {
+      for (ParseTree child : children) {
         for (int i = previous; i < child.begin; ++i) {
-          Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
+          ParseTree tag = new ParseTree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
           result.add(tag);
         }
         result.add(child);
@@ -901,16 +932,16 @@ public class CoNLL05Converter {
         previous = child.end + 1;
       }
       for (int i = previous; i <= end; ++i) {
-        Tree tag = new Tree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
+        ParseTree tag = new ParseTree(this, "\"" + sentence.get(i).get(column) + "\"", i, i);
         result.add(tag);
       }
       this.children = result;
     }
 
-    public Tree getSmallestCoveringTree(int begin, int end) {
+    public ParseTree getSmallestCoveringTree(int begin, int end) {
       if (!covers(begin, end)) return null;
-      for (Tree child : children) {
-        Tree result = child.getSmallestCoveringTree(begin, end);
+      for (ParseTree child : children) {
+        ParseTree result = child.getSmallestCoveringTree(begin, end);
         if (result != null) return result;
       }
       if (this.begin == begin && this.end == end)
@@ -921,14 +952,14 @@ public class CoNLL05Converter {
     public String toString() {
       StringBuffer result = new StringBuffer();
       result.append("(").append(label);
-      for (Tree child : children) result.append(child);
+      for (ParseTree child : children) result.append(child);
       result.append(")");
       return result.toString();
     }
 
-    public void getPath(Tree other, Path path) {
+    public void getPath(ParseTree other, Path path) {
       if (covers(other)) {
-        for (Tree child : children) {
+        for (ParseTree child : children) {
           if (child.covers(other)) {
             path.add(new PathStep(this, false));
             child.getPath(other, path);
@@ -944,9 +975,9 @@ public class CoNLL05Converter {
 
     public static class PathStep {
       public final boolean up;
-      public final Tree node;
+      public final ParseTree node;
 
-      public PathStep(Tree label, boolean up) {
+      public PathStep(ParseTree label, boolean up) {
         this.node = label;
         this.up = up;
       }
@@ -969,19 +1000,19 @@ public class CoNLL05Converter {
     }
 
 
-    public static Tree create(Sentence sentence, int column) {
-      Stack<Tree> stack = new Stack<Tree>();
+    public static ParseTree create(Sentence sentence, int column) {
+      Stack<ParseTree> stack = new Stack<ParseTree>();
       for (int i = 0; i < sentence.size(); ++i) {
         StringTokenizer tokenizer = new StringTokenizer(sentence.get(i).get(column), "[()*]", true);
         while (tokenizer.hasMoreTokens()) {
           String token = tokenizer.nextToken();
           if (token.equals("(")) {
             String label = tokenizer.nextToken();
-            Tree tree = stack.size() > 0 ? new Tree(stack.peek(), label) : new Tree(label);
+            ParseTree tree = stack.size() > 0 ? new ParseTree(stack.peek(), label) : new ParseTree(label);
             tree.begin = i;
             stack.push(tree);
           } else if (token.equals(")")) {
-            Tree tree = stack.pop();
+            ParseTree tree = stack.pop();
             tree.end = i;
             if (stack.size() > 0) stack.peek().children.add(tree);
             else {
@@ -991,25 +1022,25 @@ public class CoNLL05Converter {
           }
         }
       }
-      Tree result = stack.pop();
+      ParseTree result = stack.pop();
       result.augmentWithTags(sentence, POS_INDEX);
       return result;
     }
 
-    public static Tree createChunks(Sentence sentence, int column) {
-      Stack<Tree> stack = new Stack<Tree>();
-      stack.push(new Tree(null, "Root", 0, sentence.size() - 1));
+    public static ParseTree createChunks(Sentence sentence, int column) {
+      Stack<ParseTree> stack = new Stack<ParseTree>();
+      stack.push(new ParseTree(null, "Root", 0, sentence.size() - 1));
       for (int i = 0; i < sentence.size(); ++i) {
         StringTokenizer tokenizer = new StringTokenizer(sentence.get(i).get(column), "[()*]", true);
         while (tokenizer.hasMoreTokens()) {
           String token = tokenizer.nextToken();
           if (token.equals("(")) {
             String label = tokenizer.nextToken();
-            Tree tree = new Tree(stack.peek(), label);
+            ParseTree tree = new ParseTree(stack.peek(), label);
             tree.begin = i;
             stack.push(tree);
           } else if (token.equals(")")) {
-            Tree tree = stack.pop();
+            ParseTree tree = stack.pop();
             tree.end = i;
             stack.peek().children.add(tree);
           }
@@ -1019,7 +1050,7 @@ public class CoNLL05Converter {
     }
 
 
-    public int compareTo(Tree o) {
+    public int compareTo(ParseTree o) {
       return o.covers(begin, end) ? -1 : covers(o.begin, o.end) ? 1 : begin - o.begin;
     }
 
@@ -1075,17 +1106,17 @@ public class CoNLL05Converter {
         this.labels.addAll(tags);
       }
 
-      public Tree scan(Tree parent, HeadFinder finder) {
+      public ParseTree scan(ParseTree parent, HeadFinder finder) {
         if (parent.children.size() == 0) return parent;
         if (!left) {
           for (int i = parent.children.size() - 1; i >= 0; --i) {
-            Tree child = parent.children.get(i);
+            ParseTree child = parent.children.get(i);
             if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
         } else {
           //noinspection ForLoopReplaceableByForEach
           for (int i = 0; i < parent.children.size(); ++i) {
-            Tree child = parent.children.get(i);
+            ParseTree child = parent.children.get(i);
             if (labels.contains(unquote(child.label))) return finder.getHead(child);
           }
 
@@ -1096,11 +1127,11 @@ public class CoNLL05Converter {
 
     }
 
-    public Tree getHead(Tree tree) {
+    public ParseTree getHead(ParseTree tree) {
       if (tree.children.size() == 0) return tree;
       Rule rule = rules.get(tree.label);
       if (rule == null) return tree.children.get(tree.children.size() - 1);
-      Tree head = rule.apply(tree, this);
+      ParseTree head = rule.apply(tree, this);
       if (head == null) return tree.children.get(tree.children.size() - 1);
       return head;
     }
@@ -1112,9 +1143,9 @@ public class CoNLL05Converter {
         this.label = label;
       }
 
-      public Tree apply(Tree tree, HeadFinder finder) {
+      public ParseTree apply(ParseTree tree, HeadFinder finder) {
         for (Scan scan : this) {
-          Tree result = scan.scan(tree, finder);
+          ParseTree result = scan.scan(tree, finder);
           if (result != null) return result;
         }
         return null;
