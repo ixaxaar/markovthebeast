@@ -1,4 +1,4 @@
-include "types.clean.pml";
+include "types.pml";
 include "model.pml";
 
 set instancesCacheSize = 5;
@@ -12,18 +12,12 @@ load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/train-set.crp";
 
 //save corpus (0-10000) to ram;
 
-set collector.cutoff = 1;
-
-collect;
-
 //print weights;
 
-save weights to dump "/tmp/srl.clean.weights.dmp";
+load weights from dump "/tmp/srl.clean.weights.dmp";
 
 //inspect Labeller;
 
 //print weights.w_path;
 
-types to "types.pml";
-
-//save corpus to instances "/disk/home/dendrite/s0349492/tmp/srl.instances.dmp";
+save corpus to instances "/disk/home/dendrite/s0349492/tmp/srl.instances.dmp";

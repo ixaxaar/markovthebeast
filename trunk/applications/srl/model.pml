@@ -33,7 +33,7 @@ predicate isarg: Int;
 
 //index: span(*,*,_);
 
-hidden: arg,isarg,class;
+hidden: arg,isarg;//,class;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,pathlength,shortframe,
   frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead,distance;
 global: properarg, modifier, carg, rarg, cargpair, rargpair;
@@ -41,7 +41,7 @@ global: properarg, modifier, carg, rarg, cargpair, rargpair;
 
 include "weights-arg.pml";
 include "weights-isarg.pml";
-include "weights-class.pml";
+//include "weights-class.pml";
 //include "weights-isarg-compact.pml";
 
 load global from "global.atoms";
@@ -121,7 +121,7 @@ factor rargimpliesarg: for Argument start, Argument ra, Int c
 
 
 //at least one argument
-factor atLeastOne: |Int c, Argument a: candidate(c) & arg(c,a)| >= 1;
+//factor atLeastOne: |Int c, Argument a: candidate(c) & arg(c,a)| >= 1;
 
 
   

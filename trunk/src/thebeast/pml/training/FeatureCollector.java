@@ -166,7 +166,6 @@ public class FeatureCollector implements HasProperties {
           builder.id(function.getCountAttribute().name()).num(1);
           builder.tuple(function.getArity() + 2).select();
           builder.query();
-          System.out.println(function);
           interpreter.assign(weights.getRelation(function), builder.getRelation());
           progressReporter.progressed();
           done.add(function);
