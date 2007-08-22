@@ -88,7 +88,6 @@ public final class MemShallowMultiIndex {
 //        for (int i = 0; i < cols.doubleCols.length; ++i)
 //          if (tuplesAtIndex.doubleData[p.xDouble + i] != data.doubleData[pointer.xDouble + cols.doubleCols[i]])
 //            break check;
-        //todo: chunkdata equality
         int oldInt = old * chunkDim.xInt;
         for (int i = 0; i < cols.intCols.length; ++i)
           if (chunk.intData[oldInt + this.cols.intCols[i]] != data.intData[pointer.xInt + cols.intCols[i]])
@@ -143,6 +142,10 @@ public final class MemShallowMultiIndex {
     keysAtIndex[length] = key;
     keyCounts[index]++;    
     ++numKeys;
+//    if (length == 1 && keysAtIndex[0] == keysAtIndex[1]) {
+//      System.out.println(Arrays.toString(keysAtIndex));
+//      throw new RuntimeException("Huch");
+//    }
     return -1;
   }
 
@@ -196,6 +199,7 @@ public final class MemShallowMultiIndex {
         listHolder[targetCell] = lists[index][item];
         return listSizes[index][item];
       }
+      //todo: necessary?
       current.xInt += cols.intCols.length;
       current.xDouble += cols.doubleCols.length;
       current.xChunk += cols.chunkCols.length;
@@ -236,10 +240,10 @@ public final class MemShallowMultiIndex {
     MemVector p = new MemVector();
     for (int index = 0; index < lists.length; ++index) {
       if (lists[index] != null)
-        for (int keyIndex = 0; keyIndex < lists[index].length; ++keyIndex) {
-          p.set(lists[index][keyIndex][0], keyDim);
+        for (int keyIndex = 0; keyIndex < keyCounts[index]; ++keyIndex) {
+          p.set(lists[index][keyIndex][0], chunkDim);
           for (int valueIndex = 0; valueIndex < listSizes[index][keyIndex]; ++valueIndex) {
-            helper.add(chunk, p, cols, lists[index][keyIndex][valueIndex]);
+            helper.add(chunk, p, this.cols, lists[index][keyIndex][valueIndex]);
           }
         }
     }
@@ -249,6 +253,8 @@ public final class MemShallowMultiIndex {
     this.keyCounts = helper.keyCounts;
     this.keys = helper.keys;
     this.numUsedIndices = helper.numUsedIndices;
+    this.numKeys = helper.numKeys;
+    
   }
 
 

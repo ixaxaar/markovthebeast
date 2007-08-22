@@ -6,11 +6,13 @@ import thebeast.nod.util.ExpressionPrinter;
 import thebeast.nodmem.mem.MemFunction;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.variable.MemHashIndex;
+import thebeast.nodmem.variable.MemRelationVariable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
 
@@ -26,6 +28,7 @@ public abstract class AbstractMemExpression<T extends Type> implements Expressio
 
   private static LinkedList<WeakReference<Expression>> references = new LinkedList<WeakReference<Expression>>();
   private static ReferenceQueue<Expression> queue = new ReferenceQueue<Expression>();
+  protected ArrayList<MemRelationVariable> sideEffected = new ArrayList<MemRelationVariable>();
 
   protected AbstractMemExpression(T type) {
     this.type = type;

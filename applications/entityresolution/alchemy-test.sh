@@ -1,6 +1,6 @@
 #!/bin/bash
 
-experiment=pseudo-mult-mcsat-maxSteps100
+experiment=pseudo-mult-mws-1m
 
 for i in 0 1 2 3 4 5 6 7 8 9; do \
 #for i in 1 2 3 4 5 6 7 8 9; do \
@@ -18,15 +18,15 @@ processed=/tmp/$experiment-$i.processed
 echo Fold $i
 echo "Inference"
 
-~/opt/alchemy/bin/infer -seed 1 -i $mln -e $db -r $out \
- -q SameBib,SameTitle,SameAuthor,SameVenue -ms -maxSteps 100 > results/$experiment-$i.alchemy.output
-#~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 1000000 -tries 1 -i $mln -e $db -r $out \
-# -q SameBib,SameTitle,SameAuthor,SameVenue -m -lazy > results/$experiment-$i.alchemy.output
-#cp $out $det
-echo "Converting to deterministic db..."
-java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyProb2Det \
-  < $out \
-  > $det
+#~/opt/alchemy/bin/infer -seed 1 -i $mln -e $db -r $out \
+# -q SameBib,SameTitle,SameAuthor,SameVenue -ms -maxSteps 100 > results/$experiment-$i.alchemy.output
+~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 1000000 -tries 1 -i $mln -e $db -r $out \
+ -q SameBib,SameTitle,SameAuthor,SameVenue -m -lazy > results/$experiment-$i.alchemy.output
+cp $out $det
+#echo "Converting to deterministic db..."
+#java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyProb2Det \
+#  < $out \
+#  > $det
 #echo "Postprocessing..."
 cp $det $processed
 #java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyTransitivityEnforcer \
