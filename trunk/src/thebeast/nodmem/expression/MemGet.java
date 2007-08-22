@@ -8,6 +8,7 @@ import thebeast.nod.type.TupleType;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nodmem.type.MemHeading;
 import thebeast.nodmem.type.MemTupleType;
+import thebeast.nodmem.variable.MemRelationVariable;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,6 +30,9 @@ public class MemGet extends AbstractMemExpression<TupleType> implements Get {
     this.argument = argument;
     this.backoff = backoff;
     this.put = put;
+    if (put) {
+      sideEffected.add((MemRelationVariable) relation);
+    }
   }
 
   protected static TupleType determineType(RelationVariable relation, TupleExpression argument, TupleExpression backoff) {

@@ -252,6 +252,8 @@ tuple ::=
 object ::=
     NUMBER:n
     {: RESULT = new Integer(n); :}
+  | MINUS NUMBER:n
+    {: RESULT = new Integer(-1 * n); :}
   | DOUBLE:d
     {: RESULT = d; :}
   | MINUS DOUBLE:d

@@ -28,7 +28,7 @@ factor: for Venue v1, Venue v2 if venue(_,v1) & venue(_,v2) add [sameVenue(v1,v2
 
 // SameBib(b1,b2) ^ SameBib(b2,b3) => SameBib(b1,b3)
 //20.0 !SameBib(b1,b2) v !SameBib(b2,b3) v SameBib(b1,b3)
-factor: for Bib b1, Bib b2, Bib b3 : sameBib(b1,b2) & sameBib(b2,b3) => sameBib(b1,b3);
+factor closure: for Bib b1, Bib b2, Bib b3 : sameBib(b1,b2) & sameBib(b2,b3) => sameBib(b1,b3);
 
 //
 // --- rules connecting evidence predicates to field match predicates
@@ -143,7 +143,7 @@ factor:
 // Author(b1,a1) ^ Author(b2,a2) ^ SameAuthor(a1,a2) => SameBib(b1,b2)
 //1.58212 !Author(b1,a1) v !Author(b2,a2) v !SameAuthor(a1,a2) v SameBib(b1,b2)
 weight w_authorbib : Double+;
-factor:
+factor sameAuthorBib:
   for Bib b1, Bib b2, Author a1, Author a2 if author(b1,a1) & author(b2,a2)
   add [sameAuthor(a1,a2) => sameBib(b1,b2)] * w_authorbib;
 
@@ -151,14 +151,14 @@ factor:
 // Title(b1,t1) ^ Title(b2,t2) ^ SameTitle(t1,t2) => SameBib(b1,b2)
 //4.87382 !Title(b1,t1) v !Title(b2,t2) v !SameTitle(t1,t2) v SameBib(b1,b2)
 weight w_titlebib : Double+;
-factor:
+factor sameTitleBib:
   for Bib b1, Bib b2, Title a1, Title a2 if title(b1,a1) & title(b2,a2)
   add [sameTitle(a1,a2) => sameBib(b1,b2)] * w_titlebib;
 
 // Venue(b1,v1) ^ Venue(b2,v2) ^ SameVenue(v1,v2) => SameBib(b1,b2)
 //5.6291 !Venue(b1,v1) v !Venue(b2,v2) v !SameVenue(v1,v2) v SameBib(b1,b2)
 weight w_venuebib : Double+;
-factor:
+factor sameVenueBib:
   for Bib b1, Bib b2, Venue a1, Venue a2 if venue(b1,a1) & venue(b2,a2)
   add [sameVenue(a1,a2) => sameBib(b1,b2)] * w_venuebib;
 
@@ -168,21 +168,21 @@ factor:
 // Author(b1,a1) ^ Author(b2,a2) ^ SameBib(b1,b2) => SameAuthor(a1,a2)
 //6.599 !Author(b1,a1) v !Author(b2,a2) v !SameBib(b1,b2) v SameAuthor(a1,a2)
 weight w_bibauthor : Double+;
-factor:
+factor sameBibAuthor:
   for Bib b1, Bib b2, Author a1, Author a2 if author(b1,a1) & author(b2,a2)
   add [sameBib(b1,b2) => sameAuthor(a1,a2)] * w_bibauthor;
 
 // Title(b1,t1) ^ Title(b2,t2) ^ SameBib(b1,b2) => SameTitle(t1,t2)
 //8.09818 !Title(b1,t1) v !Title(b2,t2) v !SameBib(b1,b2) v SameTitle(t1,t2)
 weight w_bibtitle : Double+;
-factor:
+factor sameBibTitle:
   for Bib b1, Bib b2, Title a1, Title a2 if title(b1,a1) & title(b2,a2)
   add [sameBib(b1,b2) => sameTitle(a1,a2)] * w_bibtitle;
 
 // Venue(b1,v1) ^ Venue(b2,v2) ^ SameBib(b1,b2) => SameVenue(v1,v2)
 //3.50065 !Venue(b1,v1) v !Venue(b2,v2) v !SameBib(b1,b2) v SameVenue(v1,v2)
 weight w_bibvenue : Double+;
-factor:
+factor sameBibVenue:
   for Bib b1, Bib b2, Venue a1, Venue a2 if venue(b1,a1) & venue(b2,a2)
   add [sameBib(b1,b2) => sameVenue(a1,a2)] * w_bibvenue;
 

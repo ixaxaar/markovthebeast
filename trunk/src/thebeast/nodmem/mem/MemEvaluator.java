@@ -861,9 +861,11 @@ public class MemEvaluator {
         //add to index
         //todo: increase capacity?
         if (f.indexNr != -1) {
-          if (chunk.indices[f.indexNr].getCapacity() == 0) {
+          if (chunk.indices[f.indexNr].getCapacity() == 0)
             chunk.indices[f.indexNr].increaseCapacity(50);
-          }
+          else if (chunk.indices[f.indexNr].getLoadFactor() >= 3.0) 
+            chunk.indices[f.indexNr].increaseCapacity(chunk.size);
+
           chunk.indices[f.indexNr].add(argChunk, MemVector.ZERO, f.indexCols, chunk.size);
           ++chunk.indices[f.indexNr].indexedSoFar;
         }

@@ -431,8 +431,14 @@ public class CuttingPlaneSolver implements Solver {
     if (orderedFactors.size() == 0) return Integer.MAX_VALUE;
     int order = 0;
     do {
+      //System.out.println("-------------------");
+      //System.out.println("Order: " + order);
       FactorSet set = orderedFactors.get(order);
+      //System.out.println(set);
       update(set);
+      //if (order == 0) System.out.println(formulas.getNewGroundFormulas(set.iterator().next()).value());
+      //System.out.println(propositionalModel);
+
       if (propositionalModel.changed()) {
         return order;
       }

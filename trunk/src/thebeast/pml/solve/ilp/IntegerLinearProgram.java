@@ -24,6 +24,7 @@ import thebeast.pml.solve.PropositionalModel;
 import thebeast.pml.*;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
+import thebeast.nodmem.variable.MemRelationVariable;
 
 import java.util.*;
 
@@ -215,13 +216,13 @@ public class IntegerLinearProgram implements PropositionalModel {
         builder.id(attribute.name()).attribute("scores", attribute);
       }
       builder.id("index").expr(varCount).intPostInc();
-      builder.id("score").doubleAttribute("scores","score");
+      builder.id("score").doubleAttribute("scores", "score");
       builder.tupleForIds().select().query();
       groundObjective.put(predicate, builder.getRelation());
 
     }
     for (FactorFormula formula : model.getFactorFormulas()) {
-      configureFormula(formula,false);
+      configureFormula(formula, false);
     }
     insertNewConstraintsIntoOld = factory.createInsert(constraints, newConstraints);
 
@@ -262,7 +263,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
 
-  public void setClosure(GroundAtoms closure){
+  public void setClosure(GroundAtoms closure) {
     this.closure.load(closure);
   }
 
@@ -313,11 +314,11 @@ public class IntegerLinearProgram implements PropositionalModel {
     buildLocalModel = false;
   }
 
-  public void buildLocalModel(){
+  public void buildLocalModel() {
     //interpreter.assign(lastVarCount, varCount);
     //System.out.println(lastVarCount.value());
     //interpreter.clear(newVars);
-    for (UserPredicate predicate : model.getHiddenPredicates()){
+    for (UserPredicate predicate : model.getHiddenPredicates()) {
       RelationVariable target = groundAtom2indexScore.get(predicate);
       interpreter.assign(target, groundObjective.get(predicate));
       interpreter.insert(newVars, groundAtomGetWeight.get(predicate));
@@ -326,11 +327,11 @@ public class IntegerLinearProgram implements PropositionalModel {
     buildLocalModel = true;
   }
 
-  public int getNumRows(){
+  public int getNumRows() {
     return constraints.value().size();
   }
 
-  public int getNumCols(){
+  public int getNumCols() {
     return vars.value().size();
   }
 
@@ -428,10 +429,10 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
   public void update(GroundFormulas formulas, GroundAtoms atoms) {
-    update(formulas,atoms, formula2query.keySet());
+    update(formulas, atoms, formula2query.keySet());
   }
-  
-  public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors){
+
+  public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
 
 
     interpreter.assign(lastVarCount, varCount);
@@ -441,7 +442,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     newConstraintCount = 0;
 //    System.out.println(atoms);
 //    System.out.println(formulas);
-    
+
     interpreter.clear(newConstraints);
     profiler.start("find new constraints");
     //System.out.println(newConstraints.value());
@@ -452,16 +453,22 @@ public class IntegerLinearProgram implements PropositionalModel {
       newConstraintCount += newConstraints.value().size();
       profiler.end();
     }
+//    System.out.println("New constraints");
+//    System.out.println(newConstraints.value());
+    UserPredicate pred = model.getSignature().getUserPredicate("sameBib");
+//    System.out.println("Mapping for " + pred);
+//    System.out.println(groundAtom2indexScore.get(pred).value());
     //System.out.println("Updating ...");
     profiler.end();
     profiler.start("insert constraints");
     //System.out.println(newConstraints.value());
-    interpreter.append(constraints,newConstraints);
+    interpreter.append(constraints, newConstraints);
     //System.out.println(constraints.value());
     //interpreter.interpret(insertNewConstraintsIntoOld);
     profiler.end();
     //System.out.println(constraints.value());
-    if (!buildLocalModel) interpreter.clear(newVars); else buildLocalModel = false;
+    if (!buildLocalModel) interpreter.clear(newVars);
+    else buildLocalModel = false;
     //get the new variables
     for (FactorFormula formula : groundFormula2index.keySet()) {
       interpreter.insert(newVars, groundFormulaGetWeight.get(formula));
@@ -505,17 +512,21 @@ public class IntegerLinearProgram implements PropositionalModel {
 
 
   public String toString() {
-    return toLpSolveFormat();
-//    StringBuffer buffer = new StringBuffer();
-//    for (UserPredicate pred : groundAtom2index.keySet())
-//      buffer.append(pred.getName()).append(":\n").append(groundAtom2index.get(pred).value());
-//
-//    buffer.append("Variables:\n");
-//    buffer.append(vars.value());
-//    buffer.append("Constraints:\n");
-//    buffer.append(constraints.value());
-//
-//    return buffer.toString();
+//    return toLpSolveFormat();
+    StringBuffer buffer = new StringBuffer();
+    for (UserPredicate pred : groundAtom2indexScore.keySet()){
+      MemRelationVariable relationVariable = (MemRelationVariable) groundAtom2indexScore.get(pred);
+      buffer.append(pred.getName()).append(":\n").append(relationVariable.value());
+    }
+
+    buffer.append("Variables:\n");
+    buffer.append(vars.value());
+    buffer.append("Constraints:\n");
+    buffer.append(constraints.value());
+
+    buffer.append("lpsolve format:");
+    buffer.append(toLpSolveFormat());
+    return buffer.toString();
   }
 
 
@@ -552,8 +563,8 @@ public class IntegerLinearProgram implements PropositionalModel {
 
 
   /**
-   * Calling this method will guarantee that when {@link IntegerLinearProgram#solve(GroundAtoms)} is called
-   * the next time the solution will be integer.
+   * Calling this method will guarantee that when {@link IntegerLinearProgram#solve(GroundAtoms)} is called the next
+   * time the solution will be integer.
    */
   public void enforceIntegerSolution() {
     if (isFractional()) {
@@ -736,7 +747,7 @@ public class IntegerLinearProgram implements PropositionalModel {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("initIntegers"))
-      setInitIntegers((Boolean) value);    
+      setInitIntegers((Boolean) value);
     if ("solver".equals(name.getHead()))
       if (name.isTerminal()) {
         String type = (String) value;

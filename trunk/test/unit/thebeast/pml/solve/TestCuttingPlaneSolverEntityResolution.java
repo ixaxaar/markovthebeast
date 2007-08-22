@@ -127,7 +127,7 @@ public class TestCuttingPlaneSolverEntityResolution extends TestCase {
 
     CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
     cuttingPlaneSolver.configure(erModel, erWeights);
-    cuttingPlaneSolver.setOrder(erModel.getFactorFormula("sameTitle"), 1);
+    cuttingPlaneSolver.setOrder(erModel.getFactorFormula("sameTitle"), -1);
     cuttingPlaneSolver.setObservation(erAtoms);
     cuttingPlaneSolver.solve();
 
@@ -210,8 +210,8 @@ public class TestCuttingPlaneSolverEntityResolution extends TestCase {
     Weights erWeights = erSig.createWeights();
     erWeights.addWeight("w_titlebib", 2.0);
     erWeights.addWeight("w_similarTitle", 2.0);
-    //erWeights.addWeight("w_bibPrior",-0.0001);
-    //erWeights.addWeight("w_titlePrior",-0.001);
+    erWeights.addWeight("w_bibPrior",-0.0001);
+    erWeights.addWeight("w_titlePrior",-0.0001);
 
     MaxWalkSat maxWalkSat = new MaxWalkSat();
     //maxWalkSat.setSeed(1);
