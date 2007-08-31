@@ -514,17 +514,17 @@ public class IntegerLinearProgram implements PropositionalModel {
   public String toString() {
 //    return toLpSolveFormat();
     StringBuffer buffer = new StringBuffer();
-    for (UserPredicate pred : groundAtom2indexScore.keySet()){
-      MemRelationVariable relationVariable = (MemRelationVariable) groundAtom2indexScore.get(pred);
-      buffer.append(pred.getName()).append(":\n").append(relationVariable.value());
-    }
-
-    buffer.append("Variables:\n");
-    buffer.append(vars.value());
-    buffer.append("Constraints:\n");
-    buffer.append(constraints.value());
-
-    buffer.append("lpsolve format:");
+//    for (UserPredicate pred : groundAtom2indexScore.keySet()){
+//      MemRelationVariable relationVariable = (MemRelationVariable) groundAtom2indexScore.get(pred);
+//      buffer.append(pred.getName()).append(":\n").append(relationVariable.value());
+//    }
+//
+//    buffer.append("Variables:\n");
+//    buffer.append(vars.value());
+//    buffer.append("Constraints:\n");
+//    buffer.append(constraints.value());
+//
+//    buffer.append("lpsolve format:");
     buffer.append(toLpSolveFormat());
     return buffer.toString();
   }

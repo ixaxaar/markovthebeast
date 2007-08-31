@@ -13,7 +13,7 @@ public class EvaluationOutputParser {
 
   public static void main(String[] args) throws IOException {
     for (int i = 0; i < args.length; ++i){
-      System.err.println(args[i]);
+      //System.err.println(args[i]);
       BufferedReader reader = new BufferedReader(new FileReader(args[i]));
       double f1 = 0;
       double score = 0;
@@ -39,7 +39,7 @@ public class EvaluationOutputParser {
           score = Double.parseDouble(tokenizer.nextToken());
           violations = Integer.parseInt(tokenizer.nextToken());
           line = reader.readLine().trim();
-          System.err.println(line);
+          //System.err.println(line);
 //          tokenizer = new StringTokenizer(line,"[\t ]",false);
 //          tokenizer.nextToken();
 //          tokenizer.nextToken();
@@ -74,7 +74,7 @@ public class EvaluationOutputParser {
         }
         if (inIteration) {
           StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
-          System.err.println(line);
+          //System.err.println(line);
           iterations = Integer.parseInt(tokenizer.nextToken());
         }
       }

@@ -7,6 +7,7 @@ import thebeast.nod.statement.Interpreter;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.nod.value.RelationValue;
 import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
@@ -76,31 +77,6 @@ public class GroundFormulas {
   public GroundFormulas(GroundFormulas formulas) {
     this(formulas.getModel(), formulas.weights);
     load(formulas);
-    
-    
-//    this.model = formulas.model;
-//    this.weights = formulas.weights;
-//    for (FactorFormula formula : model.getFactorFormulas()) {
-//      if (!formula.isLocal()) {
-//        //Heading heading = formula.isParametrized() ? formula.getSolutionHeading() : formula.get
-//        if (formula.isAcyclicityConstraint()) {
-//          UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
-//          cycles.put(predicate, interpreter.createRelationVariable(formulas.getCycles(predicate)));
-//        } else {
-//          explicitGroundFormulas.put(formula,
-//                  interpreter.createRelationVariable(formulas.getNewGroundFormulas(formula)));
-//          allExplicitGroundFormulas.put(formula,
-//                  interpreter.createRelationVariable(formulas.allExplicitGroundFormulas.get(formula)));
-//          newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-//          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
-//            trueGroundFormulas.put(formula,
-//                    interpreter.createRelationVariable(formulas.getTrueGroundFormulas(formula)));
-//          else if (formula.getWeight().isNonNegative())
-//            falseGroundFormulas.put(formula,
-//                    interpreter.createRelationVariable(formulas.getFalseGroundFormulas(formula)));
-//        }
-//      }
-//    }
   }
 
   /**
@@ -304,7 +280,8 @@ public class GroundFormulas {
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       if (formula.isAcyclicityConstraint()) {
         UserPredicate predicate = formula.getAcyclicityConstraint().getPredicate();
-        result.append("# Cycles in: ").append(predicate.getName()).append("\n").append(cycles.get(predicate).value());
+        RelationValue cycles = this.cycles.get(predicate).value();
+        result.append("# Cycles in: ").append(predicate.getName()).append("\n").append(cycles);
         continue;
       }
       //result.append(getExplicitGroundFormulas(formula).value().toString());
@@ -358,12 +335,6 @@ public class GroundFormulas {
     for (RelationVariable var : allExplicitGroundFormulas.values())
       size += var.value().size();
     return size;
-  }
-
-  public void updateDeterministic(GroundAtoms solution) {
-    init();
-    update(solution, model.getDeterministicFormulas());
-    isDeterministic = true;
   }
 
   public boolean isDeterministic() {

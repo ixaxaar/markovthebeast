@@ -281,7 +281,9 @@ public class MemEvaluator {
   private static void operator_inv(MemFunction f, MemChunk[] chunks, int[] rows, MemChunk returnChunk, MemVector argPointerVec) {
     for (int i = 0; i < f.opArgFunctions.length; ++i) {
       //f.opArgFunctions[i].clear();
-      f.opArgs[i].clear();
+      //todo: do we need to clear here? if argument is a variable (and not a copy) this changes the argument
+      //that was use here last time
+      //f.opArgs[i].clear();
       evaluate(f.opArgFunctions[i], chunks, rows, f.opArgs[i], f.opArgVecs[i]);
     }
     //f.opResultFunction.clear();
@@ -789,8 +791,10 @@ public class MemEvaluator {
             edges.chunkData[vertexIndex * graph.dim.xChunk + chunkIndex] =
                     graph.chunkData[row * graph.dim.xChunk + chunkIndex].copy();
       }
+      if (cycle.length == 0)
+        throw new RuntimeException("Something's fishy, cycle size == 0");
       edges.size = cycle.length;
-      //System.out.println("");
+      //System.out.println("edges.size = " + edges.size);
     }
   }
 

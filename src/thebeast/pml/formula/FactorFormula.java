@@ -31,7 +31,7 @@ public class FactorFormula {
 
   private static Attribute indexAttribute, weightAttribute;
   private static final TypeFactory factory = TheBeast.getInstance().getNodServer().typeFactory();
-  private Heading headingILP, heading;
+  private Heading headingILP;
 
   static {
     indexAttribute = factory.createAttribute("index", factory.intType());
@@ -122,6 +122,7 @@ public class FactorFormula {
   }
 
   public String toShortString() {
+    if (!name.equals("formula")) return name;
     return toString.length() > 30 ? toString.substring(toString.length() - 30) : toString;
   }
 

@@ -1,5 +1,5 @@
-type SourceWord : "Ich","mag","Milch";
-type TargetWord : "I", "me", "like", "love", "the", "milk", "-BEGIN-", "-END-";
+type SourceWord : ...;
+type TargetWord : ...;
 
 //Source-Position x Source-Word
 predicate source: Int x SourceWord;
@@ -25,9 +25,15 @@ predicate activeGroup: Int;
 //Target-Id
 predicate activeTarget: Int;
 
+index: follows(*,*);
+index: followsScore(*,*,_);
 
-factor exactlyOneGroup: for Int i if source(i,_) :
+factor atMostOneGroup: for Int i if source(i,_) :
   |Int group: group(i,group) & activeGroup(group)| <= 1;
+
+factor atLeastOneGroup: for Int i if source(i,_) :
+  |Int group: group(i,group) & activeGroup(group)| >= 1;
+
 
 factor groupImpliesTargetActive: for Int group, Int target if target(group,target,_):
   activeGroup(group) => activeTarget(target);
@@ -40,26 +46,26 @@ factor targetImpliesGroupActive: for Int group, Int target if target(group,targe
 
 
 factor atLeastOneEnd: for Int begin if target(_,begin,_) & begin != 1:
-  activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end)| >= 1;
+  activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end) & followsScore(begin,end,_)| >= 1;
 
 factor atMostOneEnd: for Int begin if target(_,begin,_):
-  |Int end: target(_,end,_) & follows(begin,end)| <= 1;
+  |Int end: target(_,end,_) & follows(begin,end)& followsScore(begin,end,_)| <= 1;
 
 factor atLeastOneBegin: for Int end if target(_,end,_) & end != 0:
-  activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)| >= 1;
+  activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)& followsScore(begin,end,_)| >= 1;
 
 factor atMostOneBegin: for Int end if target(_,end,_):
-  |Int begin: target(_,begin,_) & follows(begin,end)| <= 1;
+  |Int begin: target(_,begin,_) & follows(begin,end)& followsScore(begin,end,_)| <= 1;
   
 
-factor followsActiveBegin: for Int begin, Int end if target(_,begin,_) & target(_,end,_):
+factor followsActiveBegin: for Int begin, Int end if followsScore(begin,end,_):
   follows(begin,end) => activeTarget(begin);
 
-factor followsActiveEnd: for Int begin, Int end if target(_,begin,_) & target(_,end,_):
+factor followsActiveEnd: for Int begin, Int end if followsScore(begin,end,_):
   follows(begin,end) => activeTarget(end);
 
 
-factor: follows acyclic;
+factor acyclicity: follows acyclic;
 
 factor: for Int begin, Int end, Double score if followsScore(begin,end,score)
   add [follows(begin,end)] * score;

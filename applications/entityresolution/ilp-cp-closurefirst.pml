@@ -24,8 +24,9 @@ load weights from "bibserv.withneg.weights";
 next;
 
 set solver.profile = true;
+//set solver.model.solver.bbDepthLimit = 20;
 set solver.model.initIntegers = true;
-set solver.model.solver.writeLP = true;
+set solver.model.solver.writeLP = false;
 set solver.order.closure = -1;
 //set solver.timeout =
 solve;
