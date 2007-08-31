@@ -1206,6 +1206,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerPrinter("conll00", new CoNLL00SentencePrinter());
     registerPrinter("conll05", new CoNLL05SentencePrinter());
     registerPrinter("semtag", new SemtagPrinter());
+    registerPrinter("mt", new MTPrinter());
     registerPrinter("default", new DefaultPrinter());
     registerEvaluator("F1 SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.F1));
     registerEvaluator("Recall SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.RECALL));

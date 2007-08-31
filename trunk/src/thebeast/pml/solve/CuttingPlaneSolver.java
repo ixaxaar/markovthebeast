@@ -86,8 +86,15 @@ public class CuttingPlaneSolver implements Solver {
    */
   public void setFullyGround(FactorFormula formula, boolean fullyGround) {
     if (formula == null) throw new RuntimeException("formula must not be null");
-    if (fullyGround)
+    if (fullyGround) {
       groundAll.add(formula);
+      //remove formula from ordered factors
+      int order = factor2order.remove(formula);
+      FactorSet set = factorSets.get(order);
+      set.remove(formula);
+      if (set.size() == 0)
+        factorSets.remove(order);
+    }
     else
       groundAll.remove(formula);
     formulas.setFullyGround(formula, fullyGround);
@@ -274,7 +281,7 @@ public class CuttingPlaneSolver implements Solver {
 
     profiler.start("ilp.update");
     //System.out.println("Transfer");
-    propositionalModel.update(formulas, atoms);
+    propositionalModel.update(formulas, atoms,groundAll);
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
@@ -642,6 +649,8 @@ public class CuttingPlaneSolver implements Solver {
       setMaxOrder((Integer) value);
     else if (name.getHead().equals("integer"))
       setEnforceIntegers((Boolean) value);
+    else if (name.getHead().equals("showIterations"))
+      setShowIterations((Boolean) value);
     else if (name.getHead().equals("history"))
       setPrintHistory((Boolean) value);
     else if (name.getHead().equals("groundAll"))
@@ -651,6 +660,10 @@ public class CuttingPlaneSolver implements Solver {
     else if (name.getHead().equals("profiler"))
       if (!name.isTerminal())
         profiler.setProperty(name.getTail(), value);
+  }
+
+  private void setShowIterations(Boolean aBoolean) {
+    showIterations = aBoolean;
   }
 
   private void setPrintHistory(boolean printHistory) {

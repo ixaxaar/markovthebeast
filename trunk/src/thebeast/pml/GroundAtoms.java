@@ -152,7 +152,9 @@ public class GroundAtoms implements Dumpable, SignatureListener {
         buffer.append(line).append("\n");
       }
     }
-    GroundAtomCollection atoms = getGroundAtomsOf((UserPredicate) signature.getPredicate(pred));
+    UserPredicate predForName = (UserPredicate) signature.getPredicate(pred);
+    if (predForName == null) throw new RuntimeException("The predicate " + pred + " is not part of this signature");
+    GroundAtomCollection atoms = getGroundAtomsOf(predForName);
     atoms.load(buffer.toString());
   }
 

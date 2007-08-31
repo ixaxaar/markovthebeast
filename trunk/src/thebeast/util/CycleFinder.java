@@ -100,7 +100,9 @@ public class CycleFinder {
     }
     int[][] result = new int[cycleCount][];
     for (int i = 0; i < cycleCount; ++i) {
-      result[i] = new int[cycleSize[i]];
+      int size = cycleSize[i];
+      if (size == 0) throw new RuntimeException("Somethings fishy, a cycle with size 0");
+      result[i] = new int[size];
       System.arraycopy(cycles[i], 0, result[i], 0, cycleSize[i]);
     }
     return result;
