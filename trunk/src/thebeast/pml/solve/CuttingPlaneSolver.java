@@ -123,6 +123,7 @@ public class CuttingPlaneSolver implements Solver {
     this.weights = weights;
     propositionalModel.configure(model, weights);
     formulas = new GroundFormulas(model, weights);
+    formulas.setProfiler(profiler);
     firstFormulas = new GroundFormulas(model, weights);
     features = new LocalFeatures(model, weights);
     extractor = new LocalFeatureExtractor(model, weights);

@@ -292,7 +292,7 @@ public class Signature {
    * @return an NotEquals predicate for the given type.
    */
   public NotEquals createNotEquals(Type type) {
-    return new NotEquals("equals", type);
+    return new NotEquals("notequals", type);
   }
 
   /**

@@ -73,7 +73,7 @@ public class FactorFormula {
 
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
 
-    toString = (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
+    toString = (name != null? (name + ":") : "") + (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
             + (condition != null ? " IF " + condition + " " : "") +
             (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 

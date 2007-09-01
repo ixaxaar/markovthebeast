@@ -404,12 +404,11 @@ public class GroundFormulas {
     this.groundAtoms.load(solution, model.getInstancePredicates());
     //System.out.println(this.groundAtoms);
     for (FactorFormula factorFormula : formulas) {
-      String name = factorFormula.toShortString();
       if (factorFormula.isAcyclicityConstraint()) {
         UserPredicate predicate = factorFormula.getAcyclicityConstraint().getPredicate();
         interpreter.assign(getCycles(predicate), cycleQueries.get(predicate));
       } else if (!factorFormula.isLocal()) {
-        profiler.start("..." + name);
+        profiler.start(factorFormula.toShortString());
         //RelationVariable both = getExplicitGroundFormulas(factorFormula);
         RelationVariable both = newGroundFormulas.get(factorFormula);
         interpreter.clear(both);

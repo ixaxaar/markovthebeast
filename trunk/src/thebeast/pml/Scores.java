@@ -268,7 +268,14 @@ public class Scores {
   }
 
 
+  /**
+   * Scores a set of ground atoms using the one-feature-per-row represention of the local features
+   *
+   * @param features    the local features active for each ground atom
+   * @param observation the observation
+   */
   public void score(LocalFeatures features, GroundAtoms observation) {
+    //todo: deal with cases where we have both direct scores and weights
     localFeatures.load(features);
     interpreter.assign(directScoreIndex, this.weights.getFeatureCounter());
     localAtoms.load(observation);
@@ -287,8 +294,15 @@ public class Scores {
     closure.load(localFeatures.getClosure());
   }
 
+  /**
+   * Scores a set of ground atoms using the one-atom-per-row represention of the local features
+   *
+   * @param features    the local features active for each ground atom, one-atom-per-row (group view) must be valid.
+   * @param observation the observation
+   */
   public void scoreWithGroups(LocalFeatures features, GroundAtoms observation) {
     localFeatures.load(features);
+    interpreter.assign(directScoreIndex, this.weights.getFeatureCounter());
     localAtoms.load(observation);
     for (UserPredicate predicate : model.getHiddenPredicates()) {
       if (directScoreQueries.containsKey(predicate)) {
