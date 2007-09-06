@@ -38,20 +38,16 @@ factor atLeastOneGroup: for Int i if source(i,_) :
 factor groupImpliesTargetActive: for Int group, Int target if target(group,target,_):
   activeGroup(group) => activeTarget(target);
 
-
-factor targetImpliesGroupActive: for Int group, Int target if target(group,target,_):
+factor targetImpliesGroupActive: for Int group, Int target if target(group,target,_) & target >= 0:
   activeTarget(target) => activeGroup(group);
 
-//  (forall Int target: target(group,target) => activeTarget(target)) => activeGroup(group);
-
-
-factor atLeastOneEnd: for Int begin if target(_,begin,_) & begin != 1:
+factor atLeastOneEnd: for Int begin if target(_,begin,_) & begin != 1 & begin >= 0:
   activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end) & followsScore(begin,end,_)| >= 1;
 
 factor atMostOneEnd: for Int begin if target(_,begin,_):
   |Int end: target(_,end,_) & follows(begin,end)& followsScore(begin,end,_)| <= 1;
 
-factor atLeastOneBegin: for Int end if target(_,end,_) & end != 0:
+factor atLeastOneBegin: for Int end if target(_,end,_) & end > 0:
   activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)& followsScore(begin,end,_)| >= 1;
 
 factor atMostOneBegin: for Int end if target(_,end,_):
@@ -63,7 +59,6 @@ factor followsActiveBegin: for Int begin, Int end if followsScore(begin,end,_):
 
 factor followsActiveEnd: for Int begin, Int end if followsScore(begin,end,_):
   follows(begin,end) => activeTarget(end);
-
 
 factor acyclicity: follows acyclic;
 

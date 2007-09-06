@@ -2,10 +2,7 @@ package thebeast.pml;
 
 import thebeast.nod.NoDServer;
 import thebeast.nod.type.CategoricalType;
-import thebeast.nod.value.CategoricalValue;
-import thebeast.nod.value.IntValue;
-import thebeast.nod.value.Value;
-import thebeast.nod.value.BoolValue;
+import thebeast.nod.value.*;
 import thebeast.pml.term.*;
 
 import java.util.*;
@@ -111,6 +108,10 @@ public class Type {
         return new CategoricalConstant(this, name);
       case POSITIVE_INT:
       case NEGATIVE_INT:
+      case POSITIVE_DOUBLE:
+      case NEGATIVE_DOUBLE:
+      case DOUBLE:
+        return new DoubleConstant(this, ((DoubleValue) value).getDouble());
       case INT:
         int integer = ((IntValue) value).getInt();
         return new IntConstant(this, integer);
