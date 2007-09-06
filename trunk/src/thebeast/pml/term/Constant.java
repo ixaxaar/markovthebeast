@@ -23,5 +23,7 @@ public abstract class Constant extends Term {
   }
 
 
-
+  public double asDouble() {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -1,9 +1,8 @@
 package thebeast.pml.term;
 
-import thebeast.pml.Type;
 import thebeast.nod.expression.ScalarExpression;
-import thebeast.nod.type.IntType;
 import thebeast.nod.type.DoubleType;
+import thebeast.pml.Type;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 21-Jan-2007 Time: 17:55:25
@@ -52,6 +51,11 @@ public class DoubleConstant extends Constant {
   }
 
 
+  @Override
+  public double asDouble() {
+    return value;
+  }
+  
   public String toString() {
     return String.valueOf(value);
   }

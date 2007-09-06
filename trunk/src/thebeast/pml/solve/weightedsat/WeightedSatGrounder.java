@@ -24,7 +24,7 @@ public class WeightedSatGrounder {
   /**
    * <p>Returns a query that generates sat clauses for the grounded formulas in <code>formulas</code>
    * and fills the <code>satAtoms</code> table with new ground atoms + indices if necessary.
-   * <p>the query generates tables of the form |0.234|[[1,0,0],[0,1,1]]|[[2,3,4],[2,5,6]]| where the first
+   * <p>the query generates tables of the form |0.234|[[1,0,0],[0,1]]|[[2,3,4],[2,5]]| where the first
    * component refers to weight of the clause, the first
    * inner tuples refer to the signs of the cnf and the second one to corresponding atom indices.
    *
