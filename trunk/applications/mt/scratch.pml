@@ -33,13 +33,13 @@ set solver.model.initIntegers = true;
 //set solver.model.solver.writeLP = true;
 
 solve;
-//solve;
+solve;
 //solve;
 //set solver.integer = true;
 
-print atoms.follows;
-print atoms.activeTarget;
-print atoms.activeGroup;
+//print atoms.follows;
+//print atoms.activeTarget;
+//print atoms.activeGroup;
 
 print atoms;
 

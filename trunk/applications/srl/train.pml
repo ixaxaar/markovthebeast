@@ -52,7 +52,7 @@ set learner.solver.order.cargimpliesarg = 2;
 //print weights.w_path;
 
 //learn for 10 epochs;
-learn for 4 epochs;
+learn for 2 epochs;
 
 //print weights.w_isarg_bias;
 print learner.profiler;

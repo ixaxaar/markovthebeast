@@ -1,12 +1,13 @@
-types from conll00noisy "corpora/train.conll";
-types to "corpora/train.types.pml";
+include "corpora/types.clean.pml";
+//types from conll00noisy "corpora/train.conll";
 
 include "model.pml";
 
 load global from "global.txt";
 load global.rare from "corpora/rare.txt";
 
-load corpus from conll00noisy "corpora/train.conll";
+//load corpus from conll00noisy "corpora/train.conll";
+load corpus from conll00noisy $1;
 
 /*
 set collector.all.w_case = true;
@@ -46,6 +47,8 @@ set collector.init = -2.0;
 
 
 collect;
+
+types to "corpora/train.types.pml";
 
 //save weights to dump "/tmp/blank.weights.dmp";
 save weights to dump "/tmp/chunking.blank.weights.dmp";

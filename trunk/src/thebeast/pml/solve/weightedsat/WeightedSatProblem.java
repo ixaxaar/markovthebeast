@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 /**
  * A WeightedSatProblem represents a set of weighted clauses in CNF. For effiency it stores clauses
- * in database tables. 
+ * in database tables.  
  *
  * @author Sebastian Riedel
  */
