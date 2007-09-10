@@ -81,7 +81,8 @@ public class ConjunctionProcessor {
       for (Variable var : finalCollector.getUnresolved()) {
         Type type = var.getType();
         if (type.isNumeric())
-          throw new RuntimeException("Unresolved numeric variable " + var + "! Will blow up search space");
+          throw new RuntimeException("Unresolved numeric variable " + var + "! Will blow up search space " +
+                  "for conjunction " + conjunction);
         context.prefixes.add(var.getName());
         RelationExpression all = factory.createAllConstants((CategoricalType) type.getNodType());
         AttributeExpression att = factory.createAttribute(var.getName(), all.type().heading().attribute("value"));

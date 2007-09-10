@@ -333,6 +333,7 @@ public class CuttingPlaneSolver implements Solver {
       //update(factors);
       order = inspect();
       addCandidate(order);
+      if (showIterations) System.out.print("+");
     } else {
       profiler.start("ground-all");
       atoms.clear(model.getHiddenPredicates());
@@ -341,7 +342,6 @@ public class CuttingPlaneSolver implements Solver {
       profiler.end();
       //addCandidate(groundAllOrder);
     }
-    if (showIterations) System.out.print("+");
     profiler.start("iterations");
     while (propositionalModel.changed() && iteration < maxIterations && order <= maxOrder) {
       //System.out.println(iteration + " of " + maxIterations);

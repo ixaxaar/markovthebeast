@@ -45,13 +45,13 @@ factor atLeastOneEnd: for Int begin if target(_,begin,_) & begin != 1 & begin >=
   activeTarget(begin) => |Int end: target(_,end,_) & follows(begin,end) & followsScore(begin,end,_)| >= 1;
 
 factor atMostOneEnd: for Int begin if target(_,begin,_):
-  |Int end: target(_,end,_) & follows(begin,end)& followsScore(begin,end,_)| <= 1;
+  |Int end: follows(begin,end) & target(_,end,_) & followsScore(begin,end,_)| <= 1;
 
 factor atLeastOneBegin: for Int end if target(_,end,_) & end > 0:
   activeTarget(end) => |Int begin: target(_,begin,_) & follows(begin,end)& followsScore(begin,end,_)| >= 1;
 
 factor atMostOneBegin: for Int end if target(_,end,_):
-  |Int begin: target(_,begin,_) & follows(begin,end)& followsScore(begin,end,_)| <= 1;
+  |Int begin: follows(begin,end) & target(_,begin,_) & followsScore(begin,end,_)| <= 1;
   
 
 factor followsActiveBegin: for Int begin, Int end if followsScore(begin,end,_):

@@ -73,8 +73,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
 
   /**
-   * The minimum order is the minimum order a candidate has to have in order to be included
-   * in the update operation.
+   * The minimum order is the minimum order a candidate has to have in order to be included in the update operation.
    *
    * @return the minimum order of a candidate to be included in learning.
    */
@@ -223,6 +222,11 @@ public class OnlineLearner implements Learner, HasProperties {
     lossFunction = new GlobalNumErrors(model);
   }
 
+  /**
+   * Learns weights (the one we set using the configure method) using the specified set of training instances
+   *
+   * @param instances the training instances to use.
+   */
   public void learn(TrainingInstances instances) {
     //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
@@ -412,8 +416,6 @@ public class OnlineLearner implements Learner, HasProperties {
   public void setPenalizeGold(boolean penalizeGold) {
     this.penalizeGold = penalizeGold;
   }
-
-
 
 
   public void setProperty(PropertyName name, Object value) {

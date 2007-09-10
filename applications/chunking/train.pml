@@ -10,7 +10,7 @@ set instancesCacheSize = 5;
 load corpus from conll00noisy "corpora/train.conll";
 
 //load weights from dump "/tmp/blank.weights.dmp";
-load weights from dump "/tmp/chunking.blank.weights.dmp";
+load weights from dump $1;
 
 load instances from dump "/tmp/instances.dmp";
 
@@ -30,11 +30,12 @@ set learner.maxCandidates = 1;
 set learner.average = true;
 set learner.loss = "globalNumErrors";
 set learner.profile = true;
-set learner.useGreedy = true;
+set learner.maxCandidates = 1;
+
 //set learner.
 
 //set learner.maxViolations = 1;
-learn for 20 epochs;
+learn for 10 epochs;
 
 /*
 set learner.maxCandidates = 1;
@@ -43,6 +44,6 @@ set learner.maxViolations = 0;
 learn for 20 epochs;
 */
 
-save weights to dump "/tmp/weights.dmp";
+save weights to dump "/tmp/chunking.weights.dmp";
 
 print learner.profiler;
