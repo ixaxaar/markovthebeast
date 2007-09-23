@@ -541,6 +541,17 @@ public class ILPGrounder {
     return factory.createOperator("constraints", variables, builder.getRelation());
   }
 
+  /**
+   * Creates an operator that takes a table of (index,weight) pairs, an upper bound and a sequence of
+   * int values representing the atoms outside the cardinality constraint and
+   * returns a table with 2 rows that represent the given conjunction of
+   * cardinality constraint and atoms in ILP
+   *
+   * @param disjunction is the formula that contains the cardinality constraint a disjunction (or conjunction if false)
+   * @param signs       the signs (negated or not) of the (non-cardinality) atoms in the formula
+   * @return an operator taking the sequence [table of index+weight pairs for items of the cardinality constraint,
+   *         upperbound, index_atom1, index_atom2, ...]
+   */
   public Operator<RelationType> generateGEQSoftCardinalityConstraintOperator(boolean disjunction, List<Boolean> signs) {
     if (!disjunction) throw new RuntimeException("Can't do conjunctions with card. constraints yet");
 
@@ -636,7 +647,21 @@ public class ILPGrounder {
     return factory.createOperator("constraints", variables, builder.getRelation());
   }
 
-
+  /**
+   * /**
+   * Creates a query that returns the indices of all (or only the ones currently active)
+   * groundings of the hidden atom in the cardinality constraint.
+   *
+   * @param constraint the cardinality constraint to use
+   * @param var2expr   a mapping from variables to NoD expressions which is used for all free parameters in the
+   *                   constraint.
+   * @param model      the model to use.
+   * @param useAll     if set to true the query returns all atom indices, otherwise it only uses the ones in the
+   *                   current solution.
+   * @param itemWeight the weight for each row in the result table.
+   * @return a query that returns a table of the format |index|weight| where the index column stores the index of the
+   *         hidden atom in the ILP and weight is <code>itemWeight</code>
+   */
   public RelationExpression createLEQQuery(CardinalityConstraint constraint,
                                            Map<Variable, Expression> var2expr, boolean useAll,
                                            final Model model, double itemWeight) {
@@ -746,6 +771,16 @@ public class ILPGrounder {
   }
 
 
+  /**
+   * Creates a query that returns the indices of all groundings of the hidden atom in the cardinality constraint.
+   *
+   * @param constraint the cardinality constraint to use
+   * @param var2expr   a mapping from variables to NoD expressions which is used for all free parameters in the
+   *                   constraint.
+   * @param model      the model to use.
+   * @return a query that returns a table of the format |index|weight| where the index column stores the index of the
+   *         hidden atom in the ILP and weight is always 1.0
+   */
   public RelationExpression createGEQQuery(CardinalityConstraint constraint,
                                            Map<Variable, Expression> var2expr,
                                            final Model model) {

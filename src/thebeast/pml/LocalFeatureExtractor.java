@@ -69,8 +69,7 @@ public class LocalFeatureExtractor {
               AttributeExpression lhs = (AttributeExpression) equality.leftHandSide();
               if (lhs.prefix().equals("weights"))
                 bound.add(lhs.attribute().name());
-            }
-            else if (equality.leftHandSide() instanceof AttributeExpression) {
+            } else if (equality.leftHandSide() instanceof AttributeExpression) {
               AttributeExpression rhs = (AttributeExpression) equality.rightHandSide();
               if (rhs.prefix().equals("weights"))
                 bound.add(rhs.attribute().name());
@@ -87,14 +86,31 @@ public class LocalFeatureExtractor {
     }
   }
 
+  /**
+   * Returns the model this extractor is using
+   *
+   * @return a PML model
+   */
   public Model getModel() {
     return model;
   }
 
+  /**
+   * The extractor extracts only features with nonzero weights, which are taken from the
+   * weights object this method returns.
+   *
+   * @return the weights this extractor is using.
+   */
   public Weights getWeights() {
     return weights;
   }
 
+  /**
+   * Extracts all local features for all ground atoms.
+   *
+   * @param groundAtoms the ground atoms we use as observation
+   * @param features    the local features object the extractor writes its result to.
+   */
   public void extract(GroundAtoms groundAtoms, LocalFeatures features) {
     atoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
     atoms.load(groundAtoms, model.getInstancePredicates());

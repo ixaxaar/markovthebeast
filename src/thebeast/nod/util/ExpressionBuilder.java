@@ -115,6 +115,11 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder emptyArray(ArrayType type){
+    expressionStack.push(expressionFactory.createEmptyArray(type));
+    return this;
+  }
+
   public ExpressionBuilder constant(Type type, Object value) {
     try {
       if (type instanceof IntType) {
@@ -259,6 +264,8 @@ public class ExpressionBuilder {
             type.heading(), new ArrayList<TupleExpression>(0)));    
     return this;
   }
+
+
 
   public Expression getExpression() {
     return expressionStack.pop();

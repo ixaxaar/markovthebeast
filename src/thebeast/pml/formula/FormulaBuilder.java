@@ -322,4 +322,9 @@ public class FormulaBuilder {
     formulaStack.push(new AcyclicityConstraint(predicate));
     return this;
   }
+
+  public FormulaBuilder aclicity(UserPredicate predicate, int from, int to) {
+    formulaStack.push(new AcyclicityConstraint(predicate, from, to));
+    return this;
+  }
 }

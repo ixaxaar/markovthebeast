@@ -5,9 +5,9 @@ import thebeast.nod.expression.DepthFirstExpressionVisitor;
 import thebeast.nod.expression.RelationExpression;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.nod.value.RelationValue;
 import thebeast.pml.formula.AcyclicityConstraint;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
@@ -22,14 +22,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * A FormulaStates object is container with
- * <p/>
+ * A GroundFormulas object is container with
  * <ul>
- * <p/>
  * <li>a collection of positive ground formulas which don't hold int the solution given by some ground atoms</li>
- * <p/>
  * <li>a collection of negative ground formulas which hold int the solution given by some ground atoms</li>
- * <p/>
  * </ul>
  */
 public class GroundFormulas {
@@ -38,7 +34,6 @@ public class GroundFormulas {
           falseGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           allExplicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           newGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
-          explicitGroundFormulas = new HashMap<FactorFormula, RelationVariable>(),
           trueGroundFormulas = new HashMap<FactorFormula, RelationVariable>();
   private Model model;
   private Weights weights;
@@ -96,7 +91,6 @@ public class GroundFormulas {
           cycles.put(predicate, interpreter.createRelationVariable(predicate.getHeadingCycle()));
         } else {
           allExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          explicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
             trueGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
@@ -267,7 +261,8 @@ public class GroundFormulas {
    * formulas from the previous call.
    *
    * @param formula the formula we want the new ground formulas for.
-   * @return a table with new ground formulas of the given formula.
+   * @return a table with new ground formulas of the given formula. The table has the format |index|var1|var2|...|varn|
+   * if the formula is a nondeterministic formula, and |var1|var2|...|varn| otherwise.
    */
   public RelationVariable getNewGroundFormulas(FactorFormula formula) {
     return newGroundFormulas.get(formula);
@@ -314,8 +309,6 @@ public class GroundFormulas {
   public void init() {
     firstUpdate = true;
     for (RelationVariable var : allExplicitGroundFormulas.values())
-      interpreter.clear(var);
-    for (RelationVariable var : explicitGroundFormulas.values())
       interpreter.clear(var);
     for (RelationVariable var : newGroundFormulas.values())
       interpreter.clear(var);
@@ -373,7 +366,7 @@ public class GroundFormulas {
     return count;
   }
 
-  public int getNewCount(){
+  public int getNewCount() {
     int count = 0;
     for (Map.Entry<FactorFormula, RelationVariable> entry : newGroundFormulas.entrySet()) {
       count += entry.getValue().value().size();
@@ -382,7 +375,7 @@ public class GroundFormulas {
     return count;
   }
 
-  public int getFalseCount(){
+  public int getFalseCount() {
     int count = 0;
     for (Map.Entry<FactorFormula, RelationVariable> entry : falseGroundFormulas.entrySet()) {
       count += entry.getValue().value().size();
@@ -413,7 +406,7 @@ public class GroundFormulas {
         RelationVariable both = newGroundFormulas.get(factorFormula);
         interpreter.clear(both);
         boolean fullyGround = groundAll.contains(factorFormula);
-        RelationVariable relation = null;
+        RelationVariable relation;
         Term weight = factorFormula.getWeight();
         if (weight.isNonPositive() || !weight.isNonNegative()) {
           relation = getTrueGroundFormulas(factorFormula);
@@ -438,19 +431,6 @@ public class GroundFormulas {
       }
     }
     firstUpdate = false;
-  }
-
-  /**
-   * Returns all ground formulas for the given formula that have been generated since the last
-   * call to {@link GroundFormulas#init()}
-   *
-   * @param formula the (first order) formula we want the ground formulas for.
-   * @return a table with all groundings for the given formula. The format of the table is
-   *         <code>|var_1|var_2|...|var_n|</code> where each <code>var_i</code> refers to the i-ths
-   *         quantification variable in the formula.
-   */
-  public RelationVariable getAllGroundFormulas(FactorFormula formula) {
-    return allExplicitGroundFormulas.get(formula);
   }
 
 

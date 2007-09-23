@@ -38,7 +38,7 @@ public class MemArray extends AbstractMemValue<ArrayType> implements ArrayValue 
   }
 
   public int size() {
-    return chunk.getSize();
+    return chunk != null ? chunk.getSize() : 0;
   }
 
   public Value element(int index) {
@@ -74,7 +74,7 @@ public class MemArray extends AbstractMemValue<ArrayType> implements ArrayValue 
   }
 
   public Iterator<Value> iterator() {
-    final int size = chunk.getSize();
+    final int size = chunk != null ? chunk.getSize() : 0;
     return new Iterator<Value>() {
       private MemVector current = new MemVector(pointer);
       private int row = 0;

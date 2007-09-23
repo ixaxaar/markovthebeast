@@ -12,12 +12,23 @@ import java.util.HashSet;
  */
 public class Factor {
 
-  private FactorFormula formula;
+  private FactorFormula formula, grounded;
   private HashMap<Variable, Constant> assignment = new HashMap<Variable, Constant>();
   private HashSet<Node> nodes = new HashSet<Node>();
   private double weight;
 
-  
 
+  Factor(FactorFormula formula, double weight) {
+    this.formula = formula;
+    this.weight = weight;
+  }
+
+  void addAssignment(Variable var, Constant constant){
+    assignment.put(var,constant);
+  }
+
+  void addNode(Node node){
+    nodes.add(node);
+  }
 
 }
