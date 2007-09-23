@@ -15,6 +15,10 @@ factor head_geq1:
 factor head_leq1:
   for Int m if m > 0 & word(m,_): |Int h: word(h,_) & link(h,m)| <= 1;
 
+//factor label_head_leq1:
+//  for Int m if m > 0 & word(m,_): |Int h, Dep d: word(h,_) & dep(h,m,d)| <= 1;
+
+
 //forbid cyles
 factor nocycles:
   link acyclic;

@@ -28,6 +28,7 @@ public class WeightedSatGrounder {
   private ExpressionFactory factory = TheBeast.getInstance().getNodServer().expressionFactory();
   private static RelationType constraintType;
   private static ArrayType signArrayType, indexArrayType;
+  private static final double DET_WEIGHT = 20.0;
 
   static {
     TypeBuilder builder = new TypeBuilder(TheBeast.getInstance().getNodServer());
@@ -95,7 +96,7 @@ public class WeightedSatGrounder {
 
     //get the weight
     DoubleExpression weight = formula.isDeterministic() ?
-            builder.num(20.0).getDouble() : getFormulaWeight(builder, wsp.getWeights());
+            builder.num(DET_WEIGHT).getDouble() : getFormulaWeight(builder, wsp.getWeights());
 
     builder.id("weight").expr(weight);
     builder.id("signs").expr(disjunctionSigns);

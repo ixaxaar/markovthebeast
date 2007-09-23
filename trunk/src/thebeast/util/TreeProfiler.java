@@ -13,20 +13,21 @@ public class TreeProfiler implements Profiler {
 
   private ProfileNode root = new ProfileNode("root", null);
   private ProfileNode current = root;
+  private int maxPrintDepth = Integer.MAX_VALUE;
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("reset") && (Boolean)value)
+    if (name.getHead().equals("reset") && (Boolean) value)
       root = new ProfileNode("root", null);
+    if (name.getHead().equals("maxDepth"))
+      maxPrintDepth = (Integer) value;
   }
 
   public Object getProperty(PropertyName name) {
-    if (name.getHead().equals("calls")){
+    if (name.getHead().equals("calls")) {
       return getCalls(name.getTail().toString());
-    }
-    else if (name.getHead().equals("total")){
+    } else if (name.getHead().equals("total")) {
       return getTotalTime(name.getTail().toString());
-    }
-    else if (name.getHead().equals("average")){
+    } else if (name.getHead().equals("average")) {
       return getAverageTime(name.getTail().toString());
     }
     return null;
@@ -65,8 +66,8 @@ public class TreeProfiler implements Profiler {
       return result;
     }
 
-    public ProfileNode getQualifiedNode(String qualifiedName){
-      if (qualifiedName.contains(".")){
+    public ProfileNode getQualifiedNode(String qualifiedName) {
+      if (qualifiedName.contains(".")) {
         int index = qualifiedName.indexOf('.');
         String prefix = qualifiedName.substring(0, index);
         ProfileNode node = getNode(prefix);
@@ -95,8 +96,9 @@ public class TreeProfiler implements Profiler {
       return result;
     }
 
-    public void print(StringBuffer buffer, int indent) {
-      appendWhiteSpace(buffer,indent);
+    public void print(StringBuffer buffer, int indent, int depth) {
+      if (depth >= maxPrintDepth) return;
+      appendWhiteSpace(buffer, indent);
       if (parent == null) {
         buffer.append(name).append("\n");
       } else {
@@ -105,11 +107,11 @@ public class TreeProfiler implements Profiler {
         buffer.append(formatter.toString());
       }
       for (ProfileNode node : getSortedChildren()) {
-        node.print(buffer, indent + 3);
+        node.print(buffer, indent + 3, depth + 1);
       }
     }
 
-    private void appendWhiteSpace(StringBuffer buffer, int howmany){
+    private void appendWhiteSpace(StringBuffer buffer, int howmany) {
       for (int i = 0; i < howmany; ++i) buffer.append(" ");
     }
 
@@ -122,7 +124,6 @@ public class TreeProfiler implements Profiler {
   public void start(String operation) {
     start(operation, current.children.size());
   }
-
 
 
   public void start(String operation, int order) {
@@ -155,7 +156,7 @@ public class TreeProfiler implements Profiler {
 
   public String toString() {
     StringBuffer buffer = new StringBuffer();
-    root.print(buffer, 0);
+    root.print(buffer, 0, 0);
     return buffer.toString();
   }
 
@@ -169,7 +170,7 @@ public class TreeProfiler implements Profiler {
     int maxIterations = 200000000;
     profiler.start("static");
     for (int i = 0; i < maxIterations; ++i)
-      result = op(i,i);
+      result = op(i, i);
     profiler.end();
     profiler.start("inline");
     for (int i = 0; i < maxIterations; ++i)
@@ -177,7 +178,7 @@ public class TreeProfiler implements Profiler {
     profiler.end();
     profiler.start("virtual");
     for (int i = 0; i < maxIterations; ++i)
-      result = op.add(i,i);
+      result = op.add(i, i);
     profiler.end();
 
 
@@ -187,12 +188,12 @@ public class TreeProfiler implements Profiler {
   }
 
   private static class Op {
-    int add(int arg1, int arg2){
+    int add(int arg1, int arg2) {
       return arg1 + arg2;
     }
   }
 
-  private static int op(int arg1, int arg2){
+  private static int op(int arg1, int arg2) {
     return arg1 + arg2;
   }
 
