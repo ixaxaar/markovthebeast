@@ -342,6 +342,7 @@ public class CuttingPlaneSolver implements Solver {
       //addCandidate(groundAllOrder);
     }
     profiler.start("iterations");
+    //System.out.println(propositionalModel);
     while (propositionalModel.changed() && iteration < maxIterations && order <= maxOrder) {
       //System.out.println(iteration + " of " + maxIterations);
       if (System.currentTimeMillis() - start > timeout) {

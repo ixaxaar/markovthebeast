@@ -1,7 +1,6 @@
 include "types.pml";
 include "model.pml";
 
-
 //set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 

@@ -61,12 +61,12 @@ public class WeightedSatClause {
   }
 
   /**
-   * Converts cardinality constraints into plain disjunctions. Works only for all <= constraints
-   * and >= {1,n}
+   * Converts cardinality constraints into plain disjunctions. Works only for all <= constraints and >= {1,n}
    *
    * @return an equivalent clause without cardinality constraints
    */
   public WeightedSatClause expandCardinalityConstraints() {
+    if (constraints == null) return this;
     ArrayList<int[]> allNewAtoms = new ArrayList<int[]>();
     ArrayList<boolean[]> allNewSigns = new ArrayList<boolean[]>();
     for (int i = 0; i < constraints.length; ++i) {
@@ -128,6 +128,64 @@ public class WeightedSatClause {
     boolean[][] newSignsArray = allNewSigns.toArray(new boolean[][]{});
 
     return new WeightedSatClause(score, newAtomsArray, newSignsArray, new Constraint[allNewAtoms.size()][]);
+  }
+
+
+  /**
+   * Removes all disjunctions that contain a v not(a) and shortens disjunctions with a v a or not(a) v not(a).
+   *
+   * @return a compact version of this clause without any redundancies.
+   */
+  public WeightedSatClause normalize() {
+    int newDisjunctionCount = 0;
+    boolean[][] newDisjunctionSigns = new boolean[this.signs.length][];
+    int[][] newDisjunctionAtoms = new int[this.signs.length][];
+
+    for (int disjunction = 0; disjunction < this.signs.length; ++disjunction) {
+      int[] atoms = this.atoms[disjunction];
+      boolean[] signs = this.signs[disjunction];
+      int length = atoms.length;
+      if (length == 0) continue;
+      boolean[] toSkip = new boolean[length];
+      int toSkipCount = 0;
+      boolean alwaysTrue = false;
+      outer:
+      for (int i = 0; i < length; ++i)
+        for (int j = i + 1; j < length; ++j) {
+          if (atoms[i] == atoms[j]) {
+            if (signs[i] == signs[j]) {
+              ++toSkipCount;
+              toSkip[i] = true;
+              continue outer;
+            } else {
+              alwaysTrue = true;
+              break outer;
+            }
+          }
+        }
+      if (alwaysTrue) continue;
+      int newLength = length - toSkipCount;
+      int[] newAtoms = new int[newLength];
+      boolean[] newSigns = new boolean[newLength];
+      int pointer = 0;
+      for (int i = 0; i < length; ++i) {
+        if (!toSkip[i]) {
+          newAtoms[pointer] = atoms[i];
+          newSigns[pointer] = signs[i];
+          ++pointer;
+        }
+      }
+      newDisjunctionAtoms[newDisjunctionCount] = newAtoms;
+      newDisjunctionSigns[newDisjunctionCount] = newSigns;
+      ++newDisjunctionCount;
+
+    }
+    if (newDisjunctionCount == 0) return null;
+    int[][] newAtoms = new int[newDisjunctionCount][];
+    boolean[][] newSigns = new boolean[newDisjunctionCount][];
+    System.arraycopy(newDisjunctionAtoms, 0, newAtoms, 0, newDisjunctionCount);
+    System.arraycopy(newDisjunctionSigns, 0, newSigns, 0, newDisjunctionCount);
+    return new WeightedSatClause(score, newAtoms, newSigns, new Constraint[newAtoms.length][]);
   }
 
 

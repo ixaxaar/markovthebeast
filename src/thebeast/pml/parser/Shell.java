@@ -80,7 +80,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private HashMultiMapList<UserPredicate, Object[]> evaluationRestrictions = new HashMultiMapList<UserPredicate, Object[]>();
   private String[] args;
 
-
+  private UserPredicate predicateForSize;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -710,9 +710,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     reporter.setColumns("Loss", "Iterations");
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
+    Counter<Integer> iterations = new Counter<Integer>();
     for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
+      if (predicateForSize != null)
+        solver.getProfiler().start(String.valueOf(gold.getGroundAtomsOf(predicateForSize).size()));
       solver.solve();
+      if (predicateForSize != null){
+        solver.getProfiler().end();
+        iterations.increment(gold.getGroundAtomsOf(predicateForSize).size(),solver.getIterationCount());
+      }
       evaluation.evaluate(gold, solver.getBestAtoms());
 //      for (UserPredicate pred : model.getHiddenPredicates()){
 //        System.out.println(gold.getGroundAtomsOf(pred));
@@ -726,6 +733,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     }
     reporter.finished();
     out.print(corpusEvaluation);
+    if (predicateForSize != null){
+      try {
+        iterations.save(System.out);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public void visitCreateIndex(ParserCreateIndex parserCreateIndex) {
@@ -917,6 +931,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       collector.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("printer".equals(parserSet.propertyName.head))
       printer = printers.get(value.toString());
+    else if ("sizePred".equals(parserSet.propertyName.head)){
+      predicateForSize = signature.getUserPredicate(value.toString());
+    }
     else if ("eval".equals(parserSet.propertyName.head))
       evalFunction = value.toString();
     else
