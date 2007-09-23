@@ -5,6 +5,7 @@ import thebeast.pml.solve.PropositionalModel;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.util.HashMultiMapList;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.Index;
@@ -16,13 +17,13 @@ import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.value.ArrayValue;
+import thebeast.nod.value.RelationValue;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * A WeightedSatProblem represents a set of weighted clauses in CNF. For effiency it stores clauses
- * in database tables.  
+ * in database tables.
  *
  * @author Sebastian Riedel
  */
@@ -46,6 +47,7 @@ public class WeightedSatProblem implements PropositionalModel {
   private GroundFormulas groundFormulas;
   private GroundAtoms solution;
   private GroundAtoms lastSolution;
+  private GroundAtoms atoms;
 
   private HashMap<FactorFormula, RelationExpression>
           groundingQueries = new HashMap<FactorFormula, RelationExpression>(),
@@ -72,12 +74,16 @@ public class WeightedSatProblem implements PropositionalModel {
   private ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
   private static Heading indexScore_heading;
   private boolean buildLocalModel = false;
+  private WeightedSatGrounder grounder;
 
   static {
     TypeBuilder typeBuilder = new TypeBuilder(TheBeast.getInstance().getNodServer());
     typeBuilder.doubleType().att("weight").
             boolType().arrayType().arrayType().att("signs").
-            intType().arrayType().arrayType().att("atoms").relationType(3);
+            intType().arrayType().arrayType().att("atoms").
+            intType().att("ub").intType().att("lb").intType().att("disjunction").intType().att("index").
+            relationType(1).att("items").relationType(4).att("constraints").
+            relationType(4);
     clause_heading = typeBuilder.buildRelationType().heading();
 
     index_heading = typeBuilder.intType().att("index").relationType(1).buildRelationType().heading();
@@ -90,6 +96,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public WeightedSatProblem(WeightedSatSolver solver) {
     this.solver = solver;
+    grounder = new WeightedSatGrounder();
   }
 
   /**
@@ -184,6 +191,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public void update(GroundFormulas formulas, GroundAtoms atoms, Collection<FactorFormula> factors) {
     lastSolution.load(atoms, model.getHiddenPredicates());
+    this.atoms.load(atoms);
     int oldNumClauses = clauses.value().size();
     if (!buildLocalModel)
       oldNumAtoms = atomCounter.value().getInt();
@@ -266,7 +274,7 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   public void setFullyGround(FactorFormula formula, boolean fullyGround) {
-
+    groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, atoms, fullyGround, weights, this));
   }
 
   public void configure(Model model, Weights weights) {
@@ -275,6 +283,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
     groundFormulas = new GroundFormulas(model, weights);
     solution = model.getSignature().createGroundAtoms();
+    atoms = model.getSignature().createGroundAtoms();
     lastSolution = model.getSignature().createGroundAtoms();
     scores = new Scores(model, weights);
 
@@ -282,16 +291,16 @@ public class WeightedSatProblem implements PropositionalModel {
     newClauses = interpreter.createRelationVariable(clause_heading);
     groundedClauses = interpreter.createRelationVariable(clause_heading);
     trueAtoms = interpreter.createRelationVariable(index_heading);
-    interpreter.addIndex(trueAtoms,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(trueAtoms, "index", Index.Type.HASH, "index");
     falseAtoms = interpreter.createRelationVariable(index_heading);
-    interpreter.addIndex(falseAtoms,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(falseAtoms, "index", Index.Type.HASH, "index");
     atomCounter = interpreter.createIntVariable();
     atomCosts = interpreter.createRelationVariable(indexScore_heading);
-    interpreter.addIndex(atomCosts,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(atomCosts, "index", Index.Type.HASH, "index");
     oldAtomCosts = interpreter.createRelationVariable(indexScore_heading);
-    interpreter.addIndex(oldAtomCosts,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(oldAtomCosts, "index", Index.Type.HASH, "index");
     newAtomCosts = interpreter.createRelationVariable(indexScore_heading);
-    interpreter.addIndex(newAtomCosts,"index", Index.Type.HASH, "index");
+    interpreter.addIndex(newAtomCosts, "index", Index.Type.HASH, "index");
     mappings = new HashMap<UserPredicate, RelationVariable>();
 
     clauses = interpreter.createRelationVariable(clause_heading);
@@ -329,13 +338,11 @@ public class WeightedSatProblem implements PropositionalModel {
       builder.expr(mapping).from("mapping").
               expr(lastSolution.getGroundAtomsOf(pred).getRelationVariable()).from("last");
       for (int i = 0; i < pred.getArity(); ++i) {
-        builder.attribute("mapping",pred.getAttribute(i)).attribute("last",pred.getAttribute(i)).equality();
+        builder.attribute("mapping", pred.getAttribute(i)).attribute("last", pred.getAttribute(i)).equality();
       }
       builder.and(pred.getArity()).where();
-      builder.id("index").intAttribute("mapping","index").tuple(1).select().query();
+      builder.id("index").intAttribute("mapping", "index").tuple(1).select().query();
       getTrueIndices.put(pred, builder.getRelation());
-
-
 
       //a query that selects the scores and indices from the mapping
       builder.expr(mapping).from("mapping").
@@ -359,15 +366,11 @@ public class WeightedSatProblem implements PropositionalModel {
     newAtomCostsQuery = builder.getRelation();
 
 
-    WeightedSatGrounder grounder = new WeightedSatGrounder();
-
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
-      groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, this));
+      groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, atoms,false, weights, this));
       //newQueries.put(formula, builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation());
     }
     newClausesQuery = builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation();
-
-
   }
 
   public void setProperty(PropertyName name, Object value) {
@@ -378,7 +381,7 @@ public class WeightedSatProblem implements PropositionalModel {
       } else
         solver.setProperty(name.getTail(), value);
     } else if (name.getHead().equals("singleCallMode")) {
-      setSingleCallMode((Boolean)value);
+      setSingleCallMode((Boolean) value);
     }
   }
 
@@ -408,12 +411,32 @@ public class WeightedSatProblem implements PropositionalModel {
         indicesArr[i][j] = disjunction.intElement(j).getInt();
     }
     double weight = tuple.doubleElement("weight").getDouble();
-    return new WeightedSatClause(weight, indicesArr, signsArr);
+    WeightedSatClause.Constraint[][] constraints = new WeightedSatClause.Constraint[indices.size()][];
+    RelationValue cardConstraints = tuple.relationElement("constraints");
+    HashMultiMapList<Integer, WeightedSatClause.Constraint> disjunction2Constraints =
+            new HashMultiMapList<Integer, WeightedSatClause.Constraint>();
+    for (TupleValue c : cardConstraints) {
+      RelationValue items = c.relationElement("items");
+      int[] itemIndices = new int[items.size()];
+      int itemIndex = 0;
+      for (TupleValue item : items) {
+        itemIndices[itemIndex++] = item.intElement(0).getInt();
+      }
+      int lb = c.intElement("lb").getInt();
+      int ub = c.intElement("ub").getInt();
+      int disjunctionIndex = c.intElement("disjunction").getInt();
+      disjunction2Constraints.add(disjunctionIndex, new WeightedSatClause.Constraint(lb, ub, itemIndices));
+    }
+    for (Map.Entry<Integer, List<WeightedSatClause.Constraint>> entry : disjunction2Constraints.entrySet()) {
+      constraints[entry.getKey()] = entry.getValue().toArray(new WeightedSatClause.Constraint[0]);
+    }
+
+    return new WeightedSatClause(weight, indicesArr, signsArr, constraints);
   }
 
   private void updateSolver() {
     interpreter.clear(lastTrueIndices);
-    for (UserPredicate pred: model.getHiddenPredicates()){
+    for (UserPredicate pred : model.getHiddenPredicates()) {
       interpreter.append(lastTrueIndices, getTrueIndices.get(pred));
     }
     int[] trueIndices = lastTrueIndices.getIntColumn("index");

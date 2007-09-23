@@ -50,6 +50,8 @@ public interface ExpressionFactory {
 
   ArrayCreator createArrayCreator(List<Expression> elements);
 
+  ArrayCreator createEmptyArray(ArrayType type);  
+
   IntPostIncrement createIntPostIncrement(IntVariable variable);
 
   DoubleConstant createDoubleConstant(DoubleType type, double value);

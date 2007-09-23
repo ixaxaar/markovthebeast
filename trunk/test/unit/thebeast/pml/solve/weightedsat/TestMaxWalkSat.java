@@ -19,8 +19,8 @@ public class TestMaxWalkSat extends TestCase {
     maxWalkSat.setPickFromUnsatisfied(false);
     maxWalkSat.addAtoms(scores);
     maxWalkSat.addClauses(
-            new WeightedSatClause(-30, new int[][]{{0,1}}, new boolean[][]{{true,true}}),
-            new WeightedSatClause(2,  new int[][]{{1,2}}, new boolean[][]{{true,true}})
+            new WeightedSatClause(-30, new int[][]{{0,1}}, new boolean[][]{{true,true}},null),
+            new WeightedSatClause(2,  new int[][]{{1,2}}, new boolean[][]{{true,true}},null)
     );
 
     boolean[] result = maxWalkSat.solve();
@@ -43,9 +43,9 @@ public class TestMaxWalkSat extends TestCase {
     maxWalkSat.setMaxFlips(10);
     maxWalkSat.addAtoms(scores);
     maxWalkSat.addClauses(
-            new WeightedSatClause(5, new int[][]{{0,0}}, new boolean[][]{{false,false}}),
-            new WeightedSatClause(-30, new int[][]{{1,1,1}}, new boolean[][]{{false, false,true}}),
-            new WeightedSatClause(2,  new int[][]{{1,2}}, new boolean[][]{{true,true}})
+            new WeightedSatClause(5, new int[][]{{0,0}}, new boolean[][]{{false,false}},null),
+            new WeightedSatClause(-30, new int[][]{{1,1,1}}, new boolean[][]{{false, false,true}},null),
+            new WeightedSatClause(2,  new int[][]{{1,2}}, new boolean[][]{{true,true}},null)
     );
 
     boolean[] result = maxWalkSat.solve();

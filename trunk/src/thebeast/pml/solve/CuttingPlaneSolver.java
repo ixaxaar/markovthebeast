@@ -15,7 +15,7 @@ import java.io.PrintStream;
 import java.util.*;
 
 /**
- * A PML Solver based on the Cutting Plane algorithm and column generation.
+ * A PML Solver based on the Cutting Plane Inference.
  *
  * @author Sebastian Riedel
  */
@@ -94,8 +94,7 @@ public class CuttingPlaneSolver implements Solver {
       set.remove(formula);
       if (set.size() == 0)
         factorSets.remove(order);
-    }
-    else
+    } else
       groundAll.remove(formula);
     formulas.setFullyGround(formula, fullyGround);
     firstFormulas.setFullyGround(formula, fullyGround);
@@ -282,7 +281,7 @@ public class CuttingPlaneSolver implements Solver {
 
     profiler.start("ilp.update");
     //System.out.println("Transfer");
-    propositionalModel.update(formulas, atoms,groundAll);
+    propositionalModel.update(formulas, atoms, groundAll);
     profiler.end();
 
     //System.out.println(ilp.toLpSolveFormat());
@@ -455,6 +454,11 @@ public class CuttingPlaneSolver implements Solver {
     return Integer.MAX_VALUE;
   }
 
+  /**
+   * Adds the current solution (atoms + formulas) to the list of candidates (reusing memory if possible)
+   *
+   * @param order the order of the current colution to add.
+   */
   private void addCandidate(int order) {
     if (holderAtoms.isEmpty()) {
       candidateAtoms.add(0, new GroundAtoms(atoms));
@@ -478,6 +482,9 @@ public class CuttingPlaneSolver implements Solver {
     solve(maxIterations);
   }
 
+  /**
+   * Creates a first solution using a greedy solve based on local scores.
+   */
   private void initSolution() {
     profiler.start("greedy", 0);
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
@@ -519,6 +526,11 @@ public class CuttingPlaneSolver implements Solver {
     return atoms;
   }
 
+  /**
+   * This method returns the ground formulas of the last solution.
+   *
+   * @return the ground formulas corresponding to the last solution.
+   */
   public GroundFormulas getBestFormulas() {
     return formulas;
   }
@@ -663,11 +675,11 @@ public class CuttingPlaneSolver implements Solver {
         profiler.setProperty(name.getTail(), value);
   }
 
-  private void setShowIterations(Boolean aBoolean) {
+  public void setShowIterations(Boolean aBoolean) {
     showIterations = aBoolean;
   }
-
-  private void setPrintHistory(boolean printHistory) {
+  
+  public void setPrintHistory(boolean printHistory) {
     this.printHistory = printHistory;
   }
 

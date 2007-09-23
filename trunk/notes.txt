@@ -1,3 +1,9 @@
+format for weighted clause:
+weight  signs         indices     d    lb   items  ub
+|0.12|[[0,1][1,1]] [[1,2][3,4]] {|0|-inf|{1,2,3,4}|1|}
+
+d=disjunction index
+
 SRL:
 - local features:
   - position+predicate

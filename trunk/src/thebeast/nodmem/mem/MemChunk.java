@@ -18,7 +18,7 @@ public final class MemChunk extends MemHolder {
   //these should go into a general info object to be shared over chunks
 //  public int numDoubleCols;
 //  public int numIntCols;
-//  public int numChunkCols;
+  //  public int numChunkCols;
   //  public MemColumnSelector dim.allCols;
   public MemDim dim;
 
@@ -42,18 +42,22 @@ public final class MemChunk extends MemHolder {
   //private static final int INCREMENTSCALE = 1;
 
   public void copyFrom(MemChunk other) {
-    if (other.size > capacity) increaseCapacity(other.size - capacity);
-    if (intData != null && other.intData != null)
-      System.arraycopy(other.intData, 0, intData, 0, other.size * other.dim.xInt);
-    if (doubleData != null && other.doubleData != null)
-      System.arraycopy(other.doubleData, 0, doubleData, 0, other.size * other.dim.xDouble);
-    if (chunkData != null && other.chunkData != null)
-      for (int i = 0; i < other.size * other.dim.xChunk; ++i)
-        if (chunkData[i] == null)
-          chunkData[i] = other.chunkData[i].copy();
-        else
-          chunkData[i].copyFrom(other.chunkData[i]);
-    size = other.size;
+    if (other == null) {
+      size = 0;
+    } else {
+      if (other.size > capacity) increaseCapacity(other.size - capacity);
+      if (intData != null && other.intData != null)
+        System.arraycopy(other.intData, 0, intData, 0, other.size * other.dim.xInt);
+      if (doubleData != null && other.doubleData != null)
+        System.arraycopy(other.doubleData, 0, doubleData, 0, other.size * other.dim.xDouble);
+      if (chunkData != null && other.chunkData != null)
+        for (int i = 0; i < other.size * other.dim.xChunk; ++i)
+          if (chunkData[i] == null) {
+            if (other.chunkData[i] != null) chunkData[i] = other.chunkData[i].copy();
+          } else
+            chunkData[i].copyFrom(other.chunkData[i]);
+      size = other.size;
+    }
     rowIndexedSoFar = 0;
     if (indices != null) for (MemShallowMultiIndex index : indices)
       if (index != null) {
@@ -76,13 +80,13 @@ public final class MemChunk extends MemHolder {
     int[] buffer = new int[1];
     deserializer.read(buffer, 1);
     if (buffer[0] == 1) {
-      result.rowIndex = MemShallowIndex.deserialize(deserializer,result);
+      result.rowIndex = MemShallowIndex.deserialize(deserializer, result);
     }
     deserializer.read(buffer, 1);
     if (buffer[0] > 0) {
       result.indices = new MemShallowMultiIndex[buffer[0]];
       for (int i = 0; i < buffer[0]; ++i) {
-        result.indices[i] = MemShallowMultiIndex.deserialize(deserializer,result);
+        result.indices[i] = MemShallowMultiIndex.deserialize(deserializer, result);
       }
     }
     return result;
@@ -98,7 +102,7 @@ public final class MemChunk extends MemHolder {
     deserializer.read(buffer, 1);
     if (buffer[0] == 1) {
       if (dst.rowIndex == null)
-        dst.rowIndex = MemShallowIndex.deserialize(deserializer,dst);
+        dst.rowIndex = MemShallowIndex.deserialize(deserializer, dst);
       else
         MemShallowIndex.deserializeInPlace(deserializer, dst.rowIndex);
     }
@@ -107,7 +111,7 @@ public final class MemChunk extends MemHolder {
       dst.indices = new MemShallowMultiIndex[buffer[0]];
       for (int i = 0; i < buffer[0]; ++i) {
         if (dst.indices[i] == null)
-          dst.indices[i] = MemShallowMultiIndex.deserialize(deserializer,dst);
+          dst.indices[i] = MemShallowMultiIndex.deserialize(deserializer, dst);
         else
           MemShallowMultiIndex.deserializeInPlace(deserializer, dst.indices[i]);
       }
@@ -176,7 +180,7 @@ public final class MemChunk extends MemHolder {
     int xInt = intData == null ? 0 : intData.length / size;
     int xDouble = doubleData == null ? 0 : doubleData.length / size;
     int xChunk = chunkData == null ? 0 : chunkData.length / size;
-    dim = MemDim.create(xInt,xDouble, xChunk);
+    dim = MemDim.create(xInt, xDouble, xChunk);
     this.intData = intData;
     this.doubleData = doubleData;
     this.chunkData = chunkData;
@@ -203,7 +207,7 @@ public final class MemChunk extends MemHolder {
 
   */
 
-  public void ensureCapacity(int capacity){
+  public void ensureCapacity(int capacity) {
     if (this.capacity >= capacity) return;
     increaseCapacity(capacity - this.capacity);
   }
@@ -234,7 +238,7 @@ public final class MemChunk extends MemHolder {
 
   public void buildRowIndex() {
     if (rowIndex == null)
-      rowIndex = new MemShallowIndex(size > 0 ? size : 1, dim,this);
+      rowIndex = new MemShallowIndex(size > 0 ? size : 1, dim, this);
     MemVector pointer = new MemVector(rowIndexedSoFar, getDim());
     if (rowIndex.getLoadFactor() > MAXLOADFACTOR) {
       rowIndex.increaseCapacity((size - rowIndex.getCapacity()));
@@ -252,7 +256,7 @@ public final class MemChunk extends MemHolder {
     MemVector srcPointer = new MemVector(rowIndexedSoFar, dim);
     MemVector dstPointer = new MemVector(rowIndexedSoFar, dim);
     if (rowIndex == null)
-      rowIndex = new MemShallowIndex(size > 0 ? size : 1, dim,this);
+      rowIndex = new MemShallowIndex(size > 0 ? size : 1, dim, this);
     int dstRow = rowIndexedSoFar;
     for (int row = rowIndexedSoFar; row < size; ++row) {
       int old = rowIndex.put(this, srcPointer, dim.allCols, row, false);
@@ -302,7 +306,7 @@ public final class MemChunk extends MemHolder {
       result = result * 37 + (int) doubleData[i];
     int chunkLength = size * dim.xChunk;
     for (int i = 0; i < chunkLength; ++i)
-      result = result * 37 + chunkData[i].hashCode();
+      result = result * 37 + (chunkData[i] != null ? chunkData[i].hashCode() : 17);
     return result;
   }
 
@@ -323,7 +327,9 @@ public final class MemChunk extends MemHolder {
       if (other.doubleData[i] != doubleData[i]) return false;
     int chunkLength = size * dim.xChunk;
     for (int i = 0; i < chunkLength; ++i)
-      if (!other.chunkData[i].equals(chunkData[i])) return false;
+      if (other.chunkData[i] != null && chunkData[i] != null && !other.chunkData[i].equals(chunkData[i])
+              || chunkData[i] == null && (other.chunkData[i] != null && other.chunkData[i].size > 0)
+              || other.chunkData[i] == null && (chunkData[i] != null && chunkData[i].size > 0)) return false;
     return true;
   }
 

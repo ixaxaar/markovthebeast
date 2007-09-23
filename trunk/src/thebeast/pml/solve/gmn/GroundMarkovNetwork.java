@@ -2,11 +2,15 @@ package thebeast.pml.solve.gmn;
 
 import thebeast.pml.solve.PropositionalModel;
 import thebeast.pml.*;
+import thebeast.pml.term.DoubleConstant;
+import thebeast.pml.term.Constant;
+import thebeast.pml.term.Variable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.DNF;
 import thebeast.util.Profiler;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.value.TupleValue;
+import thebeast.nod.value.Value;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +21,8 @@ import java.util.HashMap;
 public class GroundMarkovNetwork implements PropositionalModel {
 
   private HashMap<GroundFormula, DNF> dnfs = new HashMap<GroundFormula, DNF>();
-  
+  private Weights weights;
+
 
 
   public void init(Scores scores) {
@@ -44,8 +49,21 @@ public class GroundMarkovNetwork implements PropositionalModel {
     //iterate over ground formulas, create new factors + corresponding nodes if not yet added (also
     //add local factors for each new node
     for (FactorFormula formula : factors){
-      for (TupleValue tuple : formulas.getAllGroundFormulas(formula).value()){
-        //
+      double constantWeight = formula.getWeight() instanceof DoubleConstant ?
+        ((DoubleConstant)formula.getWeight()).getValue() : 0;
+      for (TupleValue tuple : formulas.getNewGroundFormulas(formula).value()){
+        //create Factor
+        Factor factor;
+        if (formula.isDeterministic()){
+          factor = new Factor(formula,constantWeight);
+        } else {
+          factor = new Factor(formula,weights.getWeight(tuple.intElement("index").getInt()));
+        }
+        for (int i = 0; i < formula.getQuantification().getVariables().size();++i){
+          Variable variable = formula.getQuantification().getVariables().get(i);
+          Constant constant = variable.getType().toConstant(tuple.element(formula.isDeterministic() ? i : i + 1));
+          factor.addAssignment(variable, constant);
+        }
       }
     }
   }

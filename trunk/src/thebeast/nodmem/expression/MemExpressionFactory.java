@@ -280,6 +280,10 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemArrayCreator(elements);
   }
 
+  public ArrayCreator createEmptyArray(ArrayType type) {
+    return new MemArrayCreator(type);
+  }
+
   public IntPostIncrement createIntPostIncrement(IntVariable variable) {
     return new MemIntPostIncrement(variable);
   }

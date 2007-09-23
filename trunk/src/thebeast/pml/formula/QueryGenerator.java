@@ -676,7 +676,8 @@ public class QueryGenerator {
     ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     UserPredicate predicate = acyclicityConstraint.getPredicate();
     builder.expr(groundAtoms.getGroundAtomsOf(predicate).getRelationVariable());
-    builder.cycles(predicate.getColumnName(0), predicate.getColumnName(1));
+    builder.cycles(predicate.getColumnName(acyclicityConstraint.getFrom()),
+            predicate.getColumnName(acyclicityConstraint.getTo()));
     return builder.getRelation();
   }
 

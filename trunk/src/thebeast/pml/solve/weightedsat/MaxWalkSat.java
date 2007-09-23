@@ -102,7 +102,9 @@ public class MaxWalkSat implements WeightedSatSolver {
   class NodeClauseRelation {
     Clause clause;
     Atom atom;
+    //stores in which disjunctions of the clause the node is included
     int[] containingDisjunctions;
+    //the positions within each disjunction
     int[] positions;
     private boolean changedClauseState;
 
@@ -425,13 +427,27 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   public void addClauses(WeightedSatClause... clausesToAdd) {
-    increaseClauseCapacity(clausesToAdd.length);
     for (WeightedSatClause aClausesToAdd : clausesToAdd) {
-      Clause clause = normalize(aClausesToAdd);
-      if (clause == null) continue;
-      clauses[clauseCount] = clause;
-      clause.index = clauseCount;
-      ++clauseCount;
+      if (aClausesToAdd.hasCardinalityConstraints()) {
+        WeightedSatClause[] separated = aClausesToAdd.expandCardinalityConstraints().separate();
+        //todo: more aggresive increase here?
+        increaseClauseCapacity(separated.length);
+        for (WeightedSatClause wsc : separated){
+          Clause clause = normalize(wsc);
+          if (clause == null) continue;
+          clauses[clauseCount] = clause;
+          clause.index = clauseCount;
+          ++clauseCount;
+        }
+      } else {
+        increaseClauseCapacity(clausesToAdd.length);
+        Clause clause = normalize(aClausesToAdd);
+        if (clause == null) continue;
+        clauses[clauseCount] = clause;
+        clause.index = clauseCount;
+        ++clauseCount;
+      }
+
     }
 
   }
@@ -452,7 +468,6 @@ public class MaxWalkSat implements WeightedSatSolver {
     }
   }
 
-
   public Clause normalize(WeightedSatClause clause) {
     int newDisjunctionCount = 0;
     boolean[][] newDisjunctionSigns = new boolean[clause.signs.length][];
@@ -462,6 +477,7 @@ public class MaxWalkSat implements WeightedSatSolver {
       int[] atoms = clause.atoms[disjunction];
       boolean[] signs = clause.signs[disjunction];
       int length = atoms.length;
+      if (length == 0) continue;
       boolean[] toSkip = new boolean[length];
       int toSkipCount = 0;
       boolean alwaysTrue = false;
@@ -501,7 +517,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     boolean[][] newSigns = new boolean[newDisjunctionCount][];
     System.arraycopy(newDisjunctionAtoms, 0, newAtoms, 0, newDisjunctionCount);
     System.arraycopy(newDisjunctionSigns, 0, newSigns, 0, newDisjunctionCount);
-    return new Clause(new WeightedSatClause(clause.score, newAtoms, newSigns));
+    return new Clause(new WeightedSatClause(clause.score, newAtoms, newSigns, null));
   }
 
   public int getMaxFlips() {
@@ -634,7 +650,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   public void setStates(boolean[] states) {
-    System.arraycopy(states,0,best,0,states.length);
+    System.arraycopy(states, 0, best, 0, states.length);
   }
 
   public double getBestScore() {
@@ -654,7 +670,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     }
   }
 
-  private double calculateCostOfUnsatistfied(){
+  private double calculateCostOfUnsatistfied() {
     double result = 0;
     for (int i = 0; i < unsatisfiedClauseCount; ++i)
       result += unsatisfiedClauses[i].cost;

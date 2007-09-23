@@ -188,6 +188,52 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
 
   }
 
+  public void testSolveMaxWalkSat() {
+
+    MaxWalkSat maxWalkSat = new MaxWalkSat();
+    maxWalkSat.setSeed(0);
+    maxWalkSat.setMaxRestarts(1);
+    maxWalkSat.setMaxFlips(100);
+    maxWalkSat.setGreedyProbability(0.9);
+    WeightedSatProblem wsp = new WeightedSatProblem(maxWalkSat);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(wsp);
+    cuttingPlaneSolver.configure(semtagModel, erWeights);
+    cuttingPlaneSolver.setObservation(semtagAtoms);
+    //cuttingPlaneSolver.setFullyGroundAll(true);
+    cuttingPlaneSolver.solve();
+
+    //System.out.println(cuttingPlaneSolver.getHistoryString());
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+  public void testSolveMaxWalkSatGroundAll() {
+
+    MaxWalkSat maxWalkSat = new MaxWalkSat();
+    maxWalkSat.setSeed(0);
+    maxWalkSat.setMaxRestarts(1);
+    maxWalkSat.setMaxFlips(100000);
+    maxWalkSat.setGreedyProbability(0.9);
+    WeightedSatProblem wsp = new WeightedSatProblem(maxWalkSat);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(wsp);
+    cuttingPlaneSolver.configure(semtagModel, erWeights);
+    cuttingPlaneSolver.setObservation(semtagAtoms);
+    cuttingPlaneSolver.setFullyGroundAll(true);
+    cuttingPlaneSolver.solve();
+
+    //System.out.println(cuttingPlaneSolver.getHistoryString());
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
+
+
   private void validateSolution(GroundAtoms bestAtoms) {
     Evaluation evaluation = new Evaluation(semtagModel);
     evaluation.evaluate(semtagAtoms, bestAtoms);
