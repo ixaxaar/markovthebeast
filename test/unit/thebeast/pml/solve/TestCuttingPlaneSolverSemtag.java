@@ -6,6 +6,8 @@ import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.weightedsat.MaxWalkSat;
 import thebeast.pml.solve.weightedsat.WeightedSatProblem;
+import thebeast.pml.solve.weightedsat.MaxProduct;
+import thebeast.pml.solve.weightedsat.WeightedSatClause;
 import thebeast.pml.formula.FormulaBuilder;
 
 /**
@@ -209,6 +211,30 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
     validateSolution(cuttingPlaneSolver.getBestAtoms());
 
   }
+
+  public void testSolveMaxProduct() {
+
+    MaxProduct mp = new MaxProduct();
+    mp.setMaxEps(0.0001);
+    mp.setMaxIterations(100);
+    mp.setDebug(false);
+    mp.setSeed(0);
+
+    WeightedSatProblem wsp = new WeightedSatProblem(mp);
+
+    CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(wsp);
+    cuttingPlaneSolver.configure(semtagModel, erWeights);
+    cuttingPlaneSolver.setObservation(semtagAtoms);
+    //cuttingPlaneSolver.setFullyGroundAll(true);
+    cuttingPlaneSolver.solve();
+
+    //System.out.println(cuttingPlaneSolver.getHistoryString());
+    System.out.println(cuttingPlaneSolver.getIterationCount());
+    System.out.println(cuttingPlaneSolver.getBestAtoms());
+    //validateSolution(cuttingPlaneSolver.getBestAtoms());
+
+  }
+
 
   public void testSolveMaxWalkSatGroundAll() {
 
