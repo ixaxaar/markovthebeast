@@ -98,5 +98,7 @@ public class Util {
   }
 
 
-  
+  public static String quote(String string) {
+    return "\"" + string + "\"";
+  }
 }

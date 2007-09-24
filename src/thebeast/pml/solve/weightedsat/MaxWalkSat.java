@@ -431,7 +431,7 @@ public class MaxWalkSat implements WeightedSatSolver {
       if (aClausesToAdd.hasCardinalityConstraints()) {
         WeightedSatClause[] separated = aClausesToAdd.expandCardinalityConstraints().separate();
         //todo: more aggresive increase here?
-        increaseClauseCapacity(separated.length);
+        increaseClauseCapacity(clauses.length + separated.length);
         for (WeightedSatClause wsc : separated){
           Clause clause = normalize(wsc);
           if (clause == null) continue;
@@ -440,7 +440,7 @@ public class MaxWalkSat implements WeightedSatSolver {
           ++clauseCount;
         }
       } else {
-        increaseClauseCapacity(clausesToAdd.length);
+        increaseClauseCapacity(clauses.length + clausesToAdd.length);
         Clause clause = normalize(aClausesToAdd);
         if (clause == null) continue;
         clauses[clauseCount] = clause;
@@ -645,7 +645,7 @@ public class MaxWalkSat implements WeightedSatSolver {
 
     //System.out.println(bestScore);
     //System.out.println(Arrays.toString(best));
-    System.out.print(".");
+    //System.out.print(".");
     return best;
   }
 

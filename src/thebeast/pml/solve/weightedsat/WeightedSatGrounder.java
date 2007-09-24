@@ -303,6 +303,7 @@ public class WeightedSatGrounder {
     for (SignedAtom atom : conjunction) {
       if (atom.getAtom() instanceof PredicateAtom) {
         PredicateAtom predicateAtom = (PredicateAtom) atom.getAtom();
+        if (!(predicateAtom.getPredicate() instanceof UserPredicate)) continue;
         UserPredicate predicate = (UserPredicate) predicateAtom.getPredicate();
         if (model.getHiddenPredicates().contains(predicate))
           hidden = atom;

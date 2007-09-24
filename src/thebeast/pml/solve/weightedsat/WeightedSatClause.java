@@ -95,7 +95,7 @@ public class WeightedSatClause {
             System.arraycopy(atoms[i], 0, newDis, 0, atoms[i].length);
             System.arraycopy(signs[i], 0, newSigns, 0, signs[i].length);
             System.arraycopy(nBalls[dis], 0, newDis, atoms[i].length, nBalls[dis].length);
-            Arrays.fill(newSigns, signs[i].length, nBalls[i].length, false);
+            Arrays.fill(newSigns, signs[i].length, newDisSize, false);
             allNewAtoms.add(newDis);
             allNewSigns.add(newSigns);
           }
@@ -108,7 +108,7 @@ public class WeightedSatClause {
             System.arraycopy(atoms[i], 0, newDis, 0, atoms[i].length);
             System.arraycopy(signs[i], 0, newSigns, 0, signs[i].length);
             System.arraycopy(constraint.indices, 0, newDis, atoms[i].length, constraint.indices.length);
-            Arrays.fill(newSigns, signs[i].length, constraint.indices.length, true);
+            Arrays.fill(newSigns, signs[i].length, signs[i].length+ constraint.indices.length, true);
             allNewAtoms.add(newDis);
             allNewSigns.add(newSigns);
           } else if (constraint.lb == constraint.indices.length) {
