@@ -46,6 +46,16 @@ public class WeightedSatClause {
   }
 
   /**
+   * @return true iff this clause is a conjunction (conjunction of disjunctions with single atoms).
+   */
+  public boolean isConjunction() {
+    if (hasCardinalityConstraints()) return false;
+    for (int[] dis : atoms)
+      if (dis.length > 1) return false;
+    return true;
+  }
+
+  /**
    * Creates one clause for each disjunction and distributes the score equally.
    *
    * @return an array with clauses, one clause per disjunction.
