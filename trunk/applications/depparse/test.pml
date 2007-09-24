@@ -19,9 +19,11 @@ set solver.integer = true;
 set solver.model.solver.bbDepthLimit=10;
 //set solver.order.label_geq1 = 1;
 //set solver.order.dep_link = 1;
+set solver.timeout = 100000;
 set solver.order.overlap1 = 1;
 set solver.order.overlap2 = 1;
 set solver.order.nocycles = 2;
+set solver.order.f_2nd = 1;
 
 test to ram;
 
