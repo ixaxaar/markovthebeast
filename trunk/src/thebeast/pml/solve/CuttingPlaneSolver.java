@@ -487,7 +487,7 @@ public class CuttingPlaneSolver implements Solver {
    * Creates a first solution using a greedy solve based on local scores.
    */
   private void initSolution() {
-    profiler.start("greedy", 0);
+    profiler.start("greedy");
     atoms.load(scores.greedySolve(0.0), model.getHiddenPredicates());
     initSet = true;
     profiler.end();
@@ -671,9 +671,13 @@ public class CuttingPlaneSolver implements Solver {
       setFullyGroundAll((Boolean) value);
     else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
-    else if (name.getHead().equals("profiler"))
+    else if (name.getHead().equals("profiler")){
       if (!name.isTerminal())
         profiler.setProperty(name.getTail(), value);
+      else {
+        setProfiler(TreeProfiler.createProfiler(value.toString()));   
+      }
+    }
   }
 
   public void setShowIterations(Boolean aBoolean) {

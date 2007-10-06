@@ -8,8 +8,6 @@ import thebeast.pml.HasProperties;
 public interface Profiler extends HasProperties {
   void start(String operation);
 
-  void start(String operation, int order);
-
   double getAverageTime(String operation);
 
   long getTotalTime(String operation);
