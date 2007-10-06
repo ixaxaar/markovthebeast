@@ -426,29 +426,41 @@ public class MaxWalkSat implements WeightedSatSolver {
     }
   }
 
+
+
   public void addClauses(WeightedSatClause... clausesToAdd) {
+    LinkedList<Clause> buffer = new LinkedList<Clause>();
+    int tmpCount = clauseCount;
     for (WeightedSatClause aClausesToAdd : clausesToAdd) {
       if (aClausesToAdd.hasCardinalityConstraints()) {
         WeightedSatClause[] separated = aClausesToAdd.expandCardinalityConstraints().separate();
         //todo: more aggresive increase here?
-        increaseClauseCapacity(clauses.length + separated.length);
+//        increaseClauseCapacity(clauses.length + separated.length);
         for (WeightedSatClause wsc : separated){
           Clause clause = normalize(wsc);
           if (clause == null) continue;
-          clauses[clauseCount] = clause;
-          clause.index = clauseCount;
-          ++clauseCount;
+          buffer.add(clause);
+          //clauses[clauseCount] = clause;
+          clause.index = tmpCount;
+          ++tmpCount;
         }
       } else {
-        increaseClauseCapacity(clauses.length + clausesToAdd.length);
+//        increaseClauseCapacity(clauses.length + clausesToAdd.length);
         Clause clause = normalize(aClausesToAdd);
         if (clause == null) continue;
-        clauses[clauseCount] = clause;
-        clause.index = clauseCount;
-        ++clauseCount;
+        buffer.add(clause);
+        //clauses[clauseCount] = clause;
+        clause.index = tmpCount;
+        ++tmpCount;
       }
 
     }
+    increaseClauseCapacity(buffer.size());
+    for (Clause clause : buffer){
+      clauses[clauseCount++] = clause;
+    }
+
+    
 
   }
 

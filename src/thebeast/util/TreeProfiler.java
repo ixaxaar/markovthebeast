@@ -11,8 +11,8 @@ import java.util.*;
  */
 public class TreeProfiler implements Profiler {
 
-  private ProfileNode root = new ProfileNode("root", null);
-  private ProfileNode current = root;
+  protected ProfileNode root = new ProfileNode("root", null);
+  protected ProfileNode current = root;
   private int maxPrintDepth = Integer.MAX_VALUE;
 
   public void setProperty(PropertyName name, Object value) {
@@ -33,7 +33,7 @@ public class TreeProfiler implements Profiler {
     return null;
   }
 
-  private class ProfileNode implements Comparable<ProfileNode> {
+  protected class ProfileNode implements Comparable<ProfileNode> {
     int calls;
     long totalTime;
     long startedAt;
@@ -126,7 +126,7 @@ public class TreeProfiler implements Profiler {
   }
 
 
-  public void start(String operation, int order) {
+  private void start(String operation, int order) {
     ProfileNode node = current.getNode(operation, order);
     node.startedAt = System.currentTimeMillis();
     current = node;
@@ -196,5 +196,14 @@ public class TreeProfiler implements Profiler {
   private static int op(int arg1, int arg2) {
     return arg1 + arg2;
   }
+
+  public static Profiler createProfiler(String name){
+    if (name.equals("tree")) return new TreeProfiler();
+    if (name.equals("null")) return new NullProfiler();
+    if (name.equals("live")) return new LiveProfiler(System.out);
+    return new NullProfiler();
+  }
+
+  
 
 }

@@ -435,6 +435,7 @@ public class WeightedSatProblem implements PropositionalModel {
   }
 
   private void updateSolver() {
+    profiler.start("prepare-update");
     interpreter.clear(lastTrueIndices);
     for (UserPredicate pred : model.getHiddenPredicates()) {
       interpreter.append(lastTrueIndices, getTrueIndices.get(pred));
@@ -460,7 +461,9 @@ public class WeightedSatProblem implements PropositionalModel {
     for (TupleValue tuple : newClauses.value()) {
       clauses[i++] = toClause(tuple);
     }
+    profiler.end().start("transfer");
     solver.addClauses(clauses);
+    profiler.end();
   }
 
 

@@ -374,7 +374,7 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
   public void solve(GroundAtoms solution) {
-    profiler.start("add to ilp", 0);
+    profiler.start("add to ilp");
     solver.add(newVars, newConstraints);
     if (initIntegers) {
       //System.out.println(newVars.value());
@@ -382,11 +382,11 @@ public class IntegerLinearProgram implements PropositionalModel {
       //interpreter.append(fractionals,newVars);
     }
     profiler.end();
-    profiler.start("solve", 1);
+    profiler.start("solve");
     RelationVariable result = solver.solve();
 //    System.out.println(result.value());
     profiler.end();
-    profiler.start("extract", 2);
+    profiler.start("extract");
     interpreter.assign(this.result, result);
     extractSolution(solution);
     profiler.end();

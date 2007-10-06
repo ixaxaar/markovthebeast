@@ -10,10 +10,6 @@ public class NullProfiler implements Profiler {
 
   }
 
-  public void start(String operation, int order) {
-
-  }
-
   public double getAverageTime(String operation) {
     return 0;
   }
