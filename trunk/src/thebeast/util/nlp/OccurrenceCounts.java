@@ -50,4 +50,35 @@ public class OccurrenceCounts {
     }
   }
 
+  public void loadSentences(InputStream in) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    int lineNr = 0;
+    for (String line = reader.readLine();line != null; line = reader.readLine()){
+      String[] split = line.trim().split("[ ]");
+      for (String word : split){
+        occurrences.add(word, lineNr);
+      }
+      ++lineNr;
+      if (lineNr % 1000 == 0) System.err.print(".");
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    String src = args[0];
+    String tgt = args[1];
+    String dst = args[2];
+    OccurrenceCounts counts = new OccurrenceCounts();
+    System.err.println();
+    System.err.println(src);
+    counts.loadSentences(new FileInputStream(src));
+    System.err.println();
+    System.err.println(tgt);
+    counts.loadSentences(new FileInputStream(tgt));
+    PrintStream stream = new PrintStream(dst);
+    System.err.println();
+    System.err.println(dst);
+    counts.save(stream);
+    stream.close();
+  }
+
 }
