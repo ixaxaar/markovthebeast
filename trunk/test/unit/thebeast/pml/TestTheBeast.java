@@ -1065,6 +1065,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(2.0 / 3.0, evaluation.getRecall(phrase));
     assertEquals(2.0 / 3.0, evaluation.getPrecision(phrase));
     assertEquals(2.0 / 3.0, evaluation.getF1(phrase));
+    assertEquals(2, evaluation.getNumErrors()) ;
 
     System.out.println(evaluation);
   }

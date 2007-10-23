@@ -469,6 +469,8 @@ public class OnlineLearner implements Learner, HasProperties {
           setLossFunction(new GlobalNumErrors(model));
         else if (value.equals("globalF1"))
           setLossFunction(new GlobalF1Loss(model));
+        else if (value.equals("exact"))
+          setLossFunction(new ExactMatchLoss(model));
         else
           throw new IllegalPropertyValueException(name, value);
       } else
