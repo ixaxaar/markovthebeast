@@ -18,10 +18,7 @@ import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.CategoricalConstant;
-import thebeast.pml.training.FeatureCollector;
-import thebeast.pml.training.OnlineLearner;
-import thebeast.pml.training.PerceptronUpdateRule;
-import thebeast.pml.training.TrainingInstances;
+import thebeast.pml.training.*;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.ilp.ILPSolver;
@@ -1489,7 +1486,88 @@ public class TestTheBeast extends TestCase {
     assertTrue(weights.getIndex(weightFunction3, "NP", "VP", "S") != -1);
   }
 
-  public void testOnlineLearner() throws IOException {
+  public void testOnlineLearnerMira() throws IOException {
+    GroundAtoms instance = signature.createGroundAtoms();
+    GroundAtomCollection tokens = instance.getGroundAtomsOf(token);
+    tokens.addGroundAtom(0, "the", "DT");
+    tokens.addGroundAtom(1, "man", "NN");
+    tokens.addGroundAtom(2, "likes", "VBZ");
+    tokens.addGroundAtom(3, "the", "DT");
+    tokens.addGroundAtom(4, "boat", "NN");
+
+    GroundAtomCollection phrases = instance.getGroundAtomsOf(phrase);
+    phrases.addGroundAtom(0, 1, "NP");
+    phrases.addGroundAtom(3, 4, "NP");
+    phrases.addGroundAtom(2, 4, "VP");
+    phrases.addGroundAtom(0, 4, "S");
+
+    RandomAccessCorpus corpus = new RandomAccessCorpus(signature, 1);
+    corpus.add(instance);
+
+    Weights weights = signature.createWeights();
+    weights.addWeight(weightFunction1, 0.0, "DT", "NP");
+    weights.addWeight(weightFunction1, 0.0, "VBZ", "VP");
+    weights.addWeight(weightFunction2, 0.0, "NP");
+    weights.addWeight(weightFunction2, 0.0, "VP");
+    weights.addWeight(weightFunction3, 0.0, "NP", "VP", "S");
+
+    OnlineLearner learner = new OnlineLearner(model, weights);
+    learner.setNumEpochs(1);
+    IntegerLinearProgram ilp = new IntegerLinearProgram(new ILPSolverLpSolve());
+    CuttingPlaneSolver cpSolver = new CuttingPlaneSolver(ilp);
+    learner.setSolver(cpSolver);
+    learner.setLossFunction(new GlobalNumErrors(model));
+    MiraUpdateRule miraUpdateRule = new MiraUpdateRule();
+    learner.setUpdateRule(miraUpdateRule);
+    learner.setMaxCandidates(1);
+    File file = new File(toString());
+    file.delete();
+    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), corpus,
+            1000000, new QuietProgressReporter());
+    learner.learn(instances);
+    miraUpdateRule.testLastQPResult();
+
+    //learner.learn(corpus);
+    weights.save(System.out);
+    //assertEquals(2.0, weights.getWeight(weightFunction1, "DT", "NP"));
+    //assertEquals(1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
+    //assertEquals(2.0, weights.getWeight(weightFunction2, "NP"));
+    //assertEquals(0.0, weights.getWeight(weightFunction2, "VP"));
+    //assertEquals(0.0, weights.getWeight(weightFunction3, "NP", "VP", "S"));
+    System.out.println(weights.getWeights().value());
+
+    //lets use the weights for inference on the original sentence
+    CuttingPlaneSolver solver = new CuttingPlaneSolver();
+    solver.configure(model, weights);
+    solver.setObservation(instance);
+    solver.solve(1);
+    System.out.println(solver.getBestAtoms());
+    System.out.println(solver.getBestFormulas());
+
+    //now use the new weights to train on
+
+    learner.setProfiler(new TreeProfiler());
+    learner.learn(instances);
+    miraUpdateRule.testLastQPResult();
+    //System.out.println(learner.getProfiler());
+    //learner.learn(corpus);
+    //System.out.println(weights.getWeights().value());
+    weights.save(System.out);
+
+
+    //assertEquals(-3.0, weights.getWeight(weightFunction1, "DT", "NP"));
+    //assertEquals(-1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
+    //assertEquals(-3.0, weights.getWeight(weightFunction2, "NP"));
+    //assertEquals(0.0, weights.getWeight(weightFunction2, "VP"));
+    //unfortunate: the solver turns the S phrases on (even while having a zero score). Now it does!
+    //assertEquals(3.0, weights.getWeight(weightFunction3, "NP", "VP", "S"));
+
+    file.delete();
+  }
+
+
+
+  public void testOnlineLearnerPerceptron() throws IOException {
     GroundAtoms instance = signature.createGroundAtoms();
     GroundAtomCollection tokens = instance.getGroundAtomsOf(token);
     tokens.addGroundAtom(0, "the", "DT");
@@ -1557,7 +1635,7 @@ public class TestTheBeast extends TestCase {
     assertEquals(-1.0, weights.getWeight(weightFunction1, "VBZ", "VP"));
     assertEquals(-3.0, weights.getWeight(weightFunction2, "NP"));
     assertEquals(0.0, weights.getWeight(weightFunction2, "VP"));
-    //unfortunate: the solver turns the S phrases on (even while having a zero score). Now it does!  
+    //unfortunate: the solver turns the S phrases on (even while having a zero score). Now it does!
     assertEquals(3.0, weights.getWeight(weightFunction3, "NP", "VP", "S"));
 
     file.delete();

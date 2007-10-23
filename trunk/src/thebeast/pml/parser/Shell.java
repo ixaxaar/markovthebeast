@@ -498,7 +498,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           evaluation.addRestrictionPattern(pred, pattern);
       }
       evaluation.evaluate(gold, guess);
-      out.println(evaluation);
+      printer.printEval(evaluation, out);
     } else if ("formulas".equals(parserPrint.name.head)) {
       GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.update(guess);
@@ -1224,6 +1224,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerPrinter("conll05", new CoNLL05SentencePrinter());
     registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("mt", new MTPrinter());
+    registerPrinter("align", new AlignmentPrinter());
     registerPrinter("default", new DefaultPrinter());
     registerEvaluator("F1 SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.F1));
     registerEvaluator("Recall SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.RECALL));

@@ -10,7 +10,7 @@ import java.io.PrintStream;
 /**
  * @author Sebastian Riedel
  */
-public class SemtagPrinter implements GroundAtomsPrinter {
+public class SemtagPrinter extends DefaultPrinter {
 
   public void print(GroundAtoms atoms, PrintStream out) {
     UserPredicate word = atoms.getSignature().getUserPredicate("word");

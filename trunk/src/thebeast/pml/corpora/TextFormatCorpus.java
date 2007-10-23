@@ -98,12 +98,12 @@ public abstract class TextFormatCorpus extends AbstractCollection<GroundAtoms> i
         }
         next = signature.createGroundAtoms();
         next.load(buffer.toString());
+        if (!sizeKnown) ++size;
         if (line == null) {
           hasNext = false;
           sizeKnown = true;
         } else {
           hasNext = true;
-          if (!sizeKnown) ++size;
         }
       } catch (IOException e) {
         e.printStackTrace();

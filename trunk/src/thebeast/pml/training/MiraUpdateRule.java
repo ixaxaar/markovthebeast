@@ -9,6 +9,7 @@ import thebeast.util.QP;
 import thebeast.util.TreeProfiler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,6 +27,9 @@ public class MiraUpdateRule implements UpdateRule {
   private int epoch = 0;
 
   private static Profiler profiler = new TreeProfiler();
+  private double[][] a;
+  private double[] b;
+  private double[] x;
 
   public void endEpoch() {
     epoch = 0;
@@ -76,8 +80,8 @@ public class MiraUpdateRule implements UpdateRule {
       npCount = npAllIndices.length;
     }
 
-    double[][] a = new double[candidates.size()][];
-    double[] b = new double[candidates.size()];
+    a = new double[candidates.size()][];
+    b = new double[candidates.size()];
     double[] d = new double[candidates.size()];
     SparseVector[] diffs = new SparseVector[candidates.size()];
 
@@ -114,8 +118,9 @@ public class MiraUpdateRule implements UpdateRule {
         ub[npRebased[i]] = -npWeights[i];
       }
 
-      double[] x = QP.art2(a, b, lb, ub);
+      x = QP.art2(a, b, lb, ub);
       //System.out.println(Arrays.toString(a[0]));
+      //System.out.println(losses);
       //System.out.println(Arrays.toString(b));
       weights.add(1.0, new SparseVector(base, x));
       //System.out.println(Arrays.toString(b));
@@ -138,6 +143,18 @@ public class MiraUpdateRule implements UpdateRule {
     }
 
     ++epoch;
+  }
+
+  public boolean testLastQPResult(){
+    for (int row = 0; row < a.length; ++row){
+      double dotProduct = 0;
+      for (int col = 0; col < a[row].length; ++col){
+        dotProduct += a[row][col] * x[col];
+      }
+      System.out.println("dotProduct = " + dotProduct);
+      System.out.println("b[row] = " + b[row]);
+    }
+    return true;
   }
 
   public void setProperty(PropertyName name, Object value) {

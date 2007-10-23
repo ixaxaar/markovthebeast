@@ -1,6 +1,7 @@
 package thebeast.pml.corpora;
 
 import thebeast.pml.GroundAtoms;
+import thebeast.pml.Evaluation;
 
 import java.io.PrintStream;
 
@@ -10,4 +11,7 @@ import java.io.PrintStream;
 public interface GroundAtomsPrinter {
 
   public void print(GroundAtoms atoms, PrintStream out);
+
+  public void printEval(Evaluation evaluation, PrintStream out);
+
 }
