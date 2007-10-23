@@ -2,13 +2,12 @@ package thebeast.pml.solve;
 
 import junit.framework.TestCase;
 import thebeast.pml.*;
-import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.solve.ilp.ILPSolverLpSolve;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
+import thebeast.pml.solve.weightedsat.MaxProduct;
 import thebeast.pml.solve.weightedsat.MaxWalkSat;
 import thebeast.pml.solve.weightedsat.WeightedSatProblem;
-import thebeast.pml.solve.weightedsat.MaxProduct;
-import thebeast.pml.solve.weightedsat.WeightedSatClause;
-import thebeast.pml.formula.FormulaBuilder;
 
 /**
  * @author Sebastian Riedel

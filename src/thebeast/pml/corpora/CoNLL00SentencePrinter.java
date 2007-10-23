@@ -3,6 +3,7 @@ package thebeast.pml.corpora;
 import thebeast.pml.GroundAtom;
 import thebeast.pml.GroundAtoms;
 import thebeast.pml.UserPredicate;
+import thebeast.pml.Evaluation;
 import thebeast.pml.term.IntConstant;
 
 import java.io.PrintStream;
@@ -10,7 +11,7 @@ import java.io.PrintStream;
 /**
  * @author Sebastian Riedel
  */
-public class CoNLL00SentencePrinter implements GroundAtomsPrinter {
+public class CoNLL00SentencePrinter extends DefaultPrinter {
 
   public void print(GroundAtoms atoms, PrintStream out) {
     UserPredicate word = atoms.getSignature().getUserPredicate("word");
@@ -49,4 +50,5 @@ public class CoNLL00SentencePrinter implements GroundAtomsPrinter {
     table.write(out, 0, true);
 
   }
+
 }

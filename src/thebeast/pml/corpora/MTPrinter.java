@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class MTPrinter implements GroundAtomsPrinter {
+public class MTPrinter extends DefaultPrinter {
 
   private static int BEGIN = 0;
   private static int END = 1;

@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * @author Sebastian Riedel
  */
-public class CoNLL05SentencePrinter implements GroundAtomsPrinter {
+public class CoNLL05SentencePrinter extends DefaultPrinter {
 
   public void print(GroundAtoms atoms, PrintStream out) {
     UserPredicate word = atoms.getSignature().getUserPredicate("word");
