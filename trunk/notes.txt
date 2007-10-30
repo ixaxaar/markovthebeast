@@ -1,3 +1,17 @@
+when can we normalize a factor (to be all negative/positive)
+
+let f have the variables x1,x2,... and l1,l2,... with
+
+factor: x1,x2,...,l1,l2,... : for cond(x1,...) add [formula(x1,...,ln)] * w(l1,l2,...)
+
+then f is normalizable iff for each observation o, each hidden h and each tuple x1,x2... with [[cond(x1,...)]]_o there is exactly
+ exactly one tuple l1,l2,... for which formula(x1,...,l1,...) holds (i.e. formula represents a function from x1,... to
+ l1,...).
+
+formula f(x,y) is normalizable wrt g(x) if f(x,y)=>g(x) and g(x)=> there exists exactly one y with f(x,y).
+
+a formula f is normalizable if it's normalizable wrt to "true". 
+
 format for weighted clause:
 weight  signs         indices     d    lb   items  ub
 |0.12|[[0,1][1,1]] [[1,2][3,4]] {|0|-inf|{1,2,3,4}|1|}
