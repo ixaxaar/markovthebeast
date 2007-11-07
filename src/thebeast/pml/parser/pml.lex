@@ -2,6 +2,7 @@ package thebeast.pml.parser;
 
 import java_cup.runtime.Symbol;
 %%
+%unicode
 %cup
 %line
 %state COMMENT
@@ -42,6 +43,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "add" { return symbol(sym.ADD); }
 <YYINITIAL> "include" { return symbol(sym.INCLUDE); }
 <YYINITIAL> "atoms" { return symbol(sym.ATOMS); }
+<YYINITIAL> "ground-all" { return symbol(sym.GROUND); }
 <YYINITIAL> "types" { return symbol(sym.TYPES); }
 <YYINITIAL> "corpus" { return symbol(sym.CORPUS); }
 <YYINITIAL> "scores" { return symbol(sym.SCORES); }

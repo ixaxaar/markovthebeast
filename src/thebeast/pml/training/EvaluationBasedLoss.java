@@ -1,9 +1,6 @@
 package thebeast.pml.training;
 
-import thebeast.pml.PropertyName;
-import thebeast.pml.Evaluation;
-import thebeast.pml.Model;
-import thebeast.pml.UserPredicate;
+import thebeast.pml.*;
 
 /**
  * @author Sebastian Riedel
@@ -24,7 +21,14 @@ public abstract class EvaluationBasedLoss implements LossFunction {
       }
   }
 
+  public double loss(GroundAtoms gold, GroundAtoms guess) {
+    evaluation.evaluate(gold, guess);
+    return loss(evaluation);
+  }
+
+
   public Object getProperty(PropertyName name) {
     return null;
   }
+
 }

@@ -306,7 +306,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     parserFactorFormula.weight.acceptParserTermVisitor(this);
     typeContext.pop();
     Term weight = term;
-    FactorFormula factorFormula = new FactorFormula(parserFactorFormula.name, quantification, condition, formula, weight);
+    FactorFormula factorFormula = new FactorFormula(parserFactorFormula.spec.name, quantification, condition, formula, weight);
+    factorFormula.setOrder(parserFactorFormula.spec.order);
+    factorFormula.setGround(parserFactorFormula.spec.ground);
     model.addFactorFormula(factorFormula);
     if (parserFactorFormula.quantification != null)
       popQuantification();
@@ -356,6 +358,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.print(name);
       }
       UserPredicate predicate = (UserPredicate) signature.getPredicate(name);
+      if (predicate == null) throw new ShellException("Predicate " + name + " does not exist");
       switch (parserAddPredicateToModel.type) {
         case HIDDEN:
           model.addHiddenPredicate(predicate);
@@ -580,7 +583,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         if (type.getTypeClass() == Type.Class.CATEGORICAL || type.getTypeClass() == Type.Class.CATEGORICAL_UNKNOWN) {
           file.print("type " + type + ": ");
           if (type.getTypeClass() == Type.Class.CATEGORICAL_UNKNOWN) file.print("... ");
-          file.print(Util.toStringWithDelimiters(type.getConstants(), ", "));
+          file.print(Util.toEscapedStringWithDelimiters(type.getConstants(), ", "));
           file.println(";");
         }
       file.close();
@@ -746,6 +749,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     UserPredicate predicate = signature.getUserPredicate(parserCreateIndex.name);
     predicate.addIndex(parserCreateIndex.markers);
   }
+
 
 
   public void visitLoadScores(ParserLoadScores parserLoadScores) {

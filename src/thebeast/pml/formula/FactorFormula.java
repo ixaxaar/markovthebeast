@@ -26,6 +26,8 @@ public class FactorFormula {
   private Term weight;
   private String name;
   private String toString;
+  private int order = 0;
+  private boolean ground = false;
 
   private Heading headingSolution;
 
@@ -73,16 +75,29 @@ public class FactorFormula {
 
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
 
-    toString = (name != null? (name + ":") : "") + (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
+    toString = (name != null ? (name + ":") : "") + (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
             + (condition != null ? " IF " + condition + " " : "") +
             (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 
   }
 
+  /**
+   * Some formulas only score single hidden atoms (based on some observed atoms), these are said to be local. If local,
+   * the formula part of the factor is a single atom and the condition can be anything.
+   *
+   * @return true if this formula is local.
+   */
   public boolean isLocal() {
     return formula instanceof PredicateAtom;
   }
 
+  /**
+   * If the formula has infinitive weight it is said to be deterministic (note that strictly speaking this causes the
+   * loglinear model to stop being a Markov Network (Hammersley-Clifford). However, in the context of MAP inference with
+   * ILP this does not really matter.
+   *
+   * @return true if formula is deterministic.
+   */
   public boolean isDeterministic() {
     if (!(weight instanceof DoubleConstant)) return false;
     DoubleConstant constant = (DoubleConstant) weight;
@@ -140,8 +155,7 @@ public class FactorFormula {
 
 
   /**
-   * Determines whether this factor formula uses a weight function or some static
-   * term (say some external scores)
+   * Determines whether this factor formula uses a weight function or some static term (say some external scores)
    *
    * @return true iff this factor formula uses a weight function.
    */
@@ -160,8 +174,8 @@ public class FactorFormula {
   }
 
   /**
-   * Return the weight function for this factors weight term in case it's a parametrized
-   * factor with a function application weight term.
+   * Return the weight function for this factors weight term in case it's a parametrized factor with a function
+   * application weight term.
    *
    * @return the weight function of the weight term (if this is a parametrized factor).
    */
@@ -170,8 +184,8 @@ public class FactorFormula {
   }
 
   /**
-   * If this a generator formula for auxilaries this method returns the target user predicate
-   * this formula generates ground atoms for.
+   * If this a generator formula for auxilaries this method returns the target user predicate this formula generates
+   * ground atoms for.
    *
    * @return the user predicate this generator generate ground atoms for.
    */
@@ -181,4 +195,25 @@ public class FactorFormula {
   }
 
 
+  public boolean isGround() {
+    return ground;
+  }
+
+  public void setGround(boolean ground) {
+    this.ground = ground;
+  }
+
+  /**
+   * We can define an order on formulas which can be used by inference and learning methods. The order of a formula is
+   * an integer number that is used to sort formulas.
+   *
+   * @return the order of a formula.
+   */
+  public int getOrder() {
+    return order;
+  }
+
+  public void setOrder(int order) {
+    this.order = order;
+  }
 }

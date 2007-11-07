@@ -34,7 +34,7 @@ terminal JAVA;
 terminal INVERT;
 terminal PUT,MAP,WITH;
 terminal WHILE,DO;
-terminal NULL;
+terminal NULL, GROUND;
 terminal Integer NUMBER;
 terminal Double DOUBLE;
 terminal String IDENT,STRING,JAVAID,PARAMETER,FILENAME;
@@ -62,6 +62,8 @@ non terminal ParserCreateWeightFunction createWeightFunction;
 non terminal Object object;
 non terminal List<Object> tuple;
 non terminal String factorName,filename;
+non terminal ParserFactorSpec spec;
+non terminal Integer integer;
 
 precedence nonassoc ACYCLIC;
 precedence nonassoc FOR, ADD, IF, LSQPAREN, RSQPAREN;
@@ -272,6 +274,13 @@ object ::=
     {: RESULT = p.substring(1,p.length()-1); :}
   ;
 
+integer ::=
+    NUMBER:n
+    {: RESULT = new Integer(n); :}
+  | MINUS NUMBER:n
+    {: RESULT = new Integer(-1 * n); :}
+  ;  
+
 
 markers ::=
     markers:l COMMA TIMES
@@ -343,6 +352,7 @@ quantification ::=
        RESULT = l; :}; 
 
 factor ::=
+/*
     FACTOR COLON FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
     {: RESULT = new ParserFactorFormula(q,c,f,w); :}
   | FACTOR COLON FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
@@ -353,17 +363,29 @@ factor ::=
     {: RESULT = new ParserFactorFormula(q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
   | FACTOR COLON formula:f
     {: RESULT = new ParserFactorFormula(null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+*/
+  | spec:s FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+    {: RESULT = new ParserFactorFormula(s, q,c,f,w); :}
+  | spec:s FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+    {: RESULT = new ParserFactorFormula(s, q,null,f,w); :}
+  | spec:s FOR quantification:q IF formula:c COLON formula:f
+    {: RESULT = new ParserFactorFormula(s, q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | spec:s FOR quantification:q COLON formula:f
+    {: RESULT = new ParserFactorFormula(s, q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | spec:s formula:f
+    {: RESULT = new ParserFactorFormula(s, null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+    ;
 
-  | FACTOR LOWERCASEID:name COLON FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
-    {: RESULT = new ParserFactorFormula(name, q,c,f,w); :}
-  | FACTOR LOWERCASEID:name COLON FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
-    {: RESULT = new ParserFactorFormula(name, q,null,f,w); :}
-  | FACTOR LOWERCASEID:name COLON FOR quantification:q IF formula:c COLON formula:f
-    {: RESULT = new ParserFactorFormula(name, q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
-  | FACTOR LOWERCASEID:name COLON FOR quantification:q COLON formula:f
-    {: RESULT = new ParserFactorFormula(name, q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
-  | FACTOR LOWERCASEID:name COLON formula:f
-    {: RESULT = new ParserFactorFormula(name, null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+spec ::=
+    FACTOR COLON
+    {: RESULT = new ParserFactorSpec(null, 0, false); :}
+  | FACTOR LOWERCASEID:name COLON
+    {: RESULT = new ParserFactorSpec(name, 0, false); :}
+  | FACTOR LSQPAREN GROUND RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(null, 0, true); :}
+  | FACTOR LSQPAREN integer:i RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(null, i, false); :}
+
     ;
 
 

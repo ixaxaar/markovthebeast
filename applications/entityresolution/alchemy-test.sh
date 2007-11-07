@@ -2,9 +2,9 @@
 
 experiment=pseudo-mult-mws-1m
 
-for i in 0 1 2 3 4 5 6 7 8 9; do \
-#for i in 1 2 3 4 5 6 7 8 9; do \
-#for i in 0; do \
+#for i in 0 1 2 3 4 5 6 7 8 9; do \
+for i in 1 2 3 4 5 6 7 8 9; do \
+for i in 0; do \
 weights=weights/multiple-$i.weights
 #weights=bibserv.weights
 mln=weights/hard-multiple-$i.mln

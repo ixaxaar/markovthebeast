@@ -230,7 +230,7 @@ public class OnlineLearner implements Learner, HasProperties {
   public void learn(TrainingInstances instances) {
     //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
-    progressReporter.setColumns("Loss", "Iterations", "Candidates");
+    progressReporter.setColumns("Loss", "Avg F1", "Iterations", "Candidates");
     setUpAverage();
     if (initializeWeights)
       weights.setAllWeights(initialWeight);
@@ -280,6 +280,10 @@ public class OnlineLearner implements Learner, HasProperties {
     }
   }
 
+  /**
+   * Process one training instance
+   * @param data the instance to process
+   */
   private void learn(TrainingInstance data) {
     //load the instance from the corpus into our local variable
     profiler.start("learn one");
@@ -381,7 +385,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //System.out.println(losses);
     updateAverage();
 
-    progressReporter.progressed(loss, solver.getIterationCount(), losses.size());
+    progressReporter.progressed(loss, evaluation.getF1(),solver.getIterationCount(), losses.size());
 
     //add feature vectors for reuse
     for (FeatureVector vector : allVectors) {

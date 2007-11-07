@@ -16,6 +16,26 @@ public class Util {
     }
     return buffer.toString();
   }
+  public static String toEscapedStringWithDelimiters(Collection objects, String delim) {
+    StringBuffer buffer = new StringBuffer();
+    int index = 0;
+    for (Object obj : objects) {
+      if (index++ > 0) buffer.append(delim);
+      String string = obj.toString();
+      if (string.startsWith("\"") && string.endsWith("\"")){
+        string = "\"" + replaceQuotationMarks(string.substring(1,string.length()-1)) + "\"";
+      }
+      buffer.append(string);
+    }
+    return buffer.toString();
+  }
+
+  public static String replaceQuotationMarks(String s){
+    if (s.contains("\"")){
+      return s.replaceAll("[\"]", "''");
+    }
+    return s;
+  }
 
   public static String toMemoryString(double bytes) {
     double display = bytes;

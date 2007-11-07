@@ -11,7 +11,7 @@ public class ParserFactorFormula extends ParserStatement {
   ParserFormula condition;
   ParserFormula formula;
   List<ParserTyping> quantification;
-  String name;
+  ParserFactorSpec spec;
 
 
   public ParserFactorFormula(List<ParserTyping> quantification, ParserFormula condition,
@@ -23,13 +23,13 @@ public class ParserFactorFormula extends ParserStatement {
   }
 
 
-  public ParserFactorFormula(String name, List<ParserTyping> quantification, ParserFormula condition,
+  public ParserFactorFormula(ParserFactorSpec spec, List<ParserTyping> quantification, ParserFormula condition,
                              ParserFormula formula, ParserTerm weight) {
     this.quantification = quantification;
     this.condition = condition;
     this.formula = formula;
     this.weight = weight;
-    this.name = name;
+    this.spec = spec;
   }
 
   public String toString() {

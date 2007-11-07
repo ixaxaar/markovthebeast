@@ -14,8 +14,8 @@ public class GlobalF1Loss extends EvaluationBasedLoss {
   public GlobalF1Loss(Model model){
     super(model);
   }
-  public double loss(GroundAtoms gold, GroundAtoms guess) {
-    evaluation.evaluate(gold, guess);
+
+  public double loss(Evaluation evaluation) {
     return 1.0 - evaluation.getF1();
   }
 

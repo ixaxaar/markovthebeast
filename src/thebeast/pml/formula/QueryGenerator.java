@@ -71,7 +71,7 @@ public class QueryGenerator {
     if (condition == null) condition = new True();
 
     processGlobalFormula(condition, factorFormula);
-    //if there is just one conjunction we don't need a union.
+    //if there is just one conjunction we don't need a union.                           
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
     for (ConjunctionProcessor.Context context : conjunctions) {
       BoolExpression where = factory.createAnd(context.conditions);
