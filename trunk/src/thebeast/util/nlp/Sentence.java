@@ -34,4 +34,15 @@ public class Sentence extends ArrayList<ArrayList<String>> {
     return Util.quote(get(token).get(index));
   }
 
+  public String toCharacterRelation(int index){
+    StringBuffer result = new StringBuffer();
+    for (int i = 0; i < size(); ++i){
+      int charIndex = 0;
+      for (char ch : getAttribute(i,index).toCharArray()){
+        result.append(i).append(" ").append(charIndex++).append(" \"").append(ch).append("\"\n");
+      }
+    }
+    return result.toString();    
+  }
+
 }

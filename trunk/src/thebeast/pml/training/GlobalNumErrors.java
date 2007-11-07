@@ -13,10 +13,10 @@ public class GlobalNumErrors extends EvaluationBasedLoss {
   public GlobalNumErrors(Model model){
     super(model);
   }
-  public double loss(GroundAtoms gold, GroundAtoms guess) {
-    evaluation.evaluate(gold, guess);
+
+  public double loss(Evaluation evaluation) {
     return evaluation.getNumErrors();
   }
 
- 
+
 }

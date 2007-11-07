@@ -77,7 +77,7 @@ public class CuttingPlaneSolver implements Solver {
   }
 
   /**
-   * Defines whether the given formula should be grounded in advance. Note that if there is one more formulas which have
+   * Defines whether the given formula should be grounded in advance. Note that if there is one more formula which have
    * to be grounded in advance, the solver won't do an initial greedy step. The first problem is then solved using the
    * propositional model/solver.
    *
@@ -134,8 +134,11 @@ public class CuttingPlaneSolver implements Solver {
     factorSets.clear();
     orderedFactors.clear();
 
-    for (FactorFormula formula : model.getGlobalFactorFormulas())
-      setOrder(formula, 0);
+    for (FactorFormula formula : model.getGlobalFactorFormulas()){
+      setOrder(formula, formula.getOrder());
+      if (formula.isGround()) setFullyGround(formula, true);
+    }
+
   }
 
 

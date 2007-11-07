@@ -31,6 +31,11 @@ public class ILPSolverLpSolve implements ILPSolver {
   private long timeout = 1000;
   private int bbDepthLimit = 3;
   private int count = 0;
+  private int bbRule;
+  private String paramFile;
+  private boolean bbRuleSet = false;
+  private boolean paramFileSet = false;
+  private boolean breakAtFirst = false;
 
   public void init() {
     try {
@@ -47,8 +52,8 @@ public class ILPSolverLpSolve implements ILPSolver {
     }
   }
 
-  public void delete(){
-    if (solver!=null) {
+  public void delete() {
+    if (solver != null) {
 
       solver.deleteLp();
       solver = null;
@@ -108,7 +113,7 @@ public class ILPSolverLpSolve implements ILPSolver {
     int[] indices = variables.getIntColumn("index");
     try {
       for (int index : indices)
-        solver.setInt(index+1, true);
+        solver.setInt(index + 1, true);
     } catch (LpSolveException e) {
       e.printStackTrace();
     }
@@ -117,10 +122,19 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public RelationVariable solve() {
     try {
+      if (paramFileSet) solver.readParams(paramFile, "");
+      else {
+        solver.setBreakAtFirst(breakAtFirst);
+        solver.setBbDepthlimit(bbDepthLimit);
+        solver.setTimeout(timeout);
+        if (bbRuleSet) solver.setBbRule(bbRule | LpSolve.NODE_GREEDYMODE | LpSolve.NODE_DYNAMICMODE
+                | LpSolve.NODE_RCOSTFIXING);
+      }
+      //solver.readParams();
       if (writeLp) solver.writeLp("/tmp/debug_" + count + ".lp");
+      if (writeLp) solver.writeParams("/tmp/debug_" + count + ".params", "ILPSolverLpSolve.java");
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
-      solver.setBbDepthlimit(bbDepthLimit);
-      solver.setTimeout(timeout);
+      //if (bbRuleSet) solver.setBbRule(bbRule);
       solver.solve();
       double[] solution = new double[numCols];
       solver.getVariables(solution);
@@ -173,15 +187,39 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("timeout"))
-      setTimeout((Integer)value);
+      setTimeout((Integer) value);
     else if (name.getHead().equals("bbDepthLimit"))
-      setBbDepthLimit((Integer)value);
+      setBbDepthLimit((Integer) value);
+    else if (name.getHead().equals("bbRule"))
+      setBbRule((Integer) value);
+    else if (name.getHead().equals("breakAtFirst"))
+      setBreakAtFirst((Boolean) value);
+    else if (name.getHead().equals("params"))
+      setParamFile((String) value);
     else if (name.getHead().equals("verbose"))
       setVerbose((Boolean) value);
     else if (name.getHead().equals("writeLP"))
       setWriteLp((Boolean) value);
+
   }
 
+
+  public boolean isBreakAtFirst() {
+    return breakAtFirst;
+  }
+
+  public void setBreakAtFirst(boolean breakAtFirst) {
+    this.breakAtFirst = breakAtFirst;
+  }
+
+  public int getBbRule() {
+    return bbRule;
+  }
+
+  public void setBbRule(int bbRule) {
+    this.bbRule = bbRule;
+    this.bbRuleSet = true;
+  }
 
   public boolean isWriteLp() {
     return writeLp;
@@ -189,6 +227,16 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   public void setWriteLp(boolean writeLp) {
     this.writeLp = writeLp;
+  }
+
+
+  public String getParamFile() {
+    return paramFile;
+  }
+
+  public void setParamFile(String paramFile) {
+    this.paramFile = paramFile;
+    this.paramFileSet = true;
   }
 
   public void setProperty(String name, Object value) {

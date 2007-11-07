@@ -124,7 +124,6 @@ public class ILPGrounder {
               this.formula);
 
     final ExpressionBuilder varBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
-    final ExpressionBuilder varSetBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final ExpressionBuilder constraintBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
     final HashMap<Variable, Expression> var2expr = new HashMap<Variable, Expression>();
     constraintBuilder.expr(this.groundFormulas.getNewGroundFormulas(this.formula)).from("formulas");
@@ -275,6 +274,7 @@ public class ILPGrounder {
 
         }
       }
+      //deterministic
     } else {
       if (leqQueries.size() == 0 && geqQueries.size() == 0) {
         constraintBuilder.expressions(varBuilder.lastExpressions(atoms.size()));
