@@ -230,7 +230,7 @@ public class OnlineLearner implements Learner, HasProperties {
   public void learn(TrainingInstances instances) {
     //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
-    progressReporter.setColumns("Loss", "Avg F1", "Iterations", "Candidates");
+    progressReporter.setColumns("Loss", "F1", "Iterations", "Candidates");
     setUpAverage();
     if (initializeWeights)
       weights.setAllWeights(initialWeight);

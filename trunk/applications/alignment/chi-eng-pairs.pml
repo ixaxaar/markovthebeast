@@ -52,25 +52,74 @@ weight w_reldist: RelDistance -> Double;
 factor: for Int src, Int tgt, RelDistance d
   if source(src,_) & target(tgt,_) & reldist(tgt,src, d) add [align(tgt,src)] * w_reldist(d);
 
-//pairs
+//src pairs
 weight w_srcpairbias: Double;
-factor: for Int s1, Int s2 if source(s1,_) & source(s2,_) & s2 > s1
-  add[alignsrcpair(s1,s2)] * w_srcpairbias;
+factor: for Int i1, Int i2, Int i if source(i1,_) & source(i2,_) & target(i,_) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairbias;
 
 weight w_srcpairdist: Int -> Double;
-factor: for Int s1, Int s2 if source(s1,_) & source(s2,_) & s2 > s1
-  add[alignsrcpair(s1,s2)] * w_srcpairdist(bins(0,1,2,3,4,5,10,s2 - s1));
+factor: for Int i1, Int i2, Int i if source(i1,_) & source(i2,_) & target(i,_) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairdist(bins(0,1,2,3,4,5,10,i2 - i1));
 
 weight w_srcpairword1dist: SourceWord x Int -> Double;
-factor: for Int s1, Int s2, SourceWord w1 if source(s1,w1) & source(s2,_) & s2 > s1
-  add[alignsrcpair(s1,s2)] * w_srcpairword1dist(w1, bins(0,1,2,3,4,5,10,s2 - s1));
+factor: for Int i1, Int i2, Int i, SourceWord w1 if source(i1,w1) & source(i2,_) & target(i,_) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairword1dist(w1, bins(0,1,2,3,4,5,10,i2 - i1));
 
 weight w_srcpairword2dist: SourceWord x Int -> Double;
-factor: for Int s1, Int s2, SourceWord w2 if source(s1,_) & source(s2,w2) & s2 > s1
-  add[alignsrcpair(s1,s2)] * w_srcpairword2dist(w2, bins(0,1,2,3,4,5,10,s2 - s1));
+factor: for Int i1, Int i2, Int i, SourceWord w2 if source(i1,_) & source(i2,w2) & target(i,_) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairword2dist(w2, bins(0,1,2,3,4,5,10,i2 - i1));
 
 weight w_srcpairwordsdist: SourceWord x SourceWord x Int -> Double;
-factor: for Int s1, Int s2, SourceWord w1, SourceWord w2 if source(s1,w1) & source(s2,w2) & s2 > s1
-  add[alignsrcpair(s1,s2)] * w_srcpairwordsdist(w1, w2, bins(0,1,2,3,4,5,10,s2 - s1));
+factor: for Int i1, Int i2, Int i, SourceWord w1, SourceWord w2 if source(i1,w1) & source(i2,w2) & target(i,_) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairwordsdist(w1, w2, bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_srcpairm1sdist: M1Score x M1Score x Int -> Double;
+factor: for Int i1, Int i2, Int i, M1Score w1, M1Score w2 if m1src2tgt(i1,i,w1) & m1src2tgt(i2,i,w2) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpairm1sdist(w1, w2, bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_srcpair3words: SourceWord x SourceWord x TargetWord -> Double;
+factor: for Int i1, Int i2, Int i, SourceWord w1, SourceWord w2, TargetWord w
+  if source(i1,w1) & source(i2,w2) & target(i,w) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpair3words(w1, w2, w);
+
+weight w_srcpair3wordsdist: SourceWord x SourceWord x TargetWord x Int -> Double;
+factor: for Int i1, Int i2, Int i, SourceWord w1, SourceWord w2, TargetWord w
+  if source(i1,w1) & source(i2,w2) & target(i,w) & i2 > i1
+  add[alignsrcpair(i1,i2,i)] * w_srcpair3wordsdist(w1, w2, w,bins(0,1,2,3,4,5,10,i2 - i1));
 
 
+//tgt pairs
+weight w_tgtpairbias: Double;
+factor: for Int i1, Int i2, Int i if target(i1,_) & target(i2,_) & source(i,_) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairbias;
+
+weight w_tgtpairdist: Int -> Double;
+factor: for Int i1, Int i2, Int i if target(i1,_) & target(i2,_) & source(i,_) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairdist(bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_tgtpairword1dist: TargetWord x Int -> Double;
+factor: for Int i1, Int i2, Int i, TargetWord w1 if target(i1,w1) & target(i2,_) & source(i,_) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairword1dist(w1, bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_tgtpairword2dist: TargetWord x Int -> Double;
+factor: for Int i1, Int i2, Int i, TargetWord w2 if target(i1,_) & target(i2,w2) & source(i,_) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairword2dist(w2, bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_tgtpairwordsdist: TargetWord x TargetWord x Int -> Double;
+factor: for Int i1, Int i2, Int i, TargetWord w1, TargetWord w2 if target(i1,w1) & target(i2,w2) & source(i,_) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairwordsdist(w1, w2, bins(0,1,2,3,4,5,10,i2 - i1));
+
+weight w_tgtpairm1dist: M1Score x M1Score x Int -> Double;
+factor: for Int i1, Int i2, Int i, M1Score w1, M1Score w2 if m1tgt2src(i,i1,w1) & m1tgt2src(i,i2,w2) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpairm1dist(w1, w2, bins(0,1,2,3,4,5,10,i2 - i1));
+
+
+weight w_tgtpair3words: TargetWord x TargetWord x SourceWord -> Double;
+factor: for Int i1, Int i2, Int i, TargetWord w1, TargetWord w2, SourceWord w
+  if target(i1,w1) & target(i2,w2) & source(i,w) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpair3words(w1, w2, w);
+
+weight w_tgtpair3wordsdist: TargetWord x TargetWord x SourceWord x Int -> Double;
+factor: for Int i1, Int i2, Int i, TargetWord w1, TargetWord w2, SourceWord w
+  if target(i1,w1) & target(i2,w2) & source(i,w) & i2 > i1
+  add[aligntgtpair(i1,i2,i)] * w_tgtpair3wordsdist(w1, w2, w,bins(0,1,2,3,4,5,10,i2 - i1));
