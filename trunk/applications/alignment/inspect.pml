@@ -1,12 +1,12 @@
 include "types.pml";
-include "model-pairs.pml";
+include "model.pml";
 
 //set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
-load weights from dump "/tmp/alignment.clean.weights.dmp";
+//load weights from dump "/tmp/alignment.clean.weights.dmp";
 //load weights from dump "/tmp/alignment.weights.dmp";
-//load weights from dump "/tmp/epoch_4.dmp";
+load weights from dump "/tmp/epoch_2.dmp";
 
 set solver.model.initIntegers = true;
 //set solver.model.solver.params = "/tmp/test.params";

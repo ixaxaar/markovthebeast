@@ -40,8 +40,8 @@ auxiliary: alignsrcpair, aligntgtpair;
 load global from "global.atoms";
 
 //making solutions small to begin with
-factor[0]: for Int s if source(s,_): |Int t: target(t,_) & align(s,t)| <= 4;
-factor[0]: for Int t if target(t,_): |Int s: source(s,_) & align(s,t)| <= 4;
+//factor[0]: for Int s if source(s,_): |Int t: target(t,_) & align(s,t)| <= 4;
+//factor[0]: for Int t if target(t,_): |Int s: source(s,_) & align(s,t)| <= 4;
 
 //make pairs and alignment consistent
 factor[1]: for Int s1, Int s2, Int t if source(s1,_) & source(s2,_) & target(t,_) & s2 > s1:
@@ -58,9 +58,9 @@ factor[1]: for Int t1, Int t2, Int s if target(t1,_) & target(t2,_) & source(s,_
   align(s,t1) & align(s,t2) => aligntgtpair(t1,t2,s);
 
 factor[1]: for Int t1, Int t2, Int s if target(t1,_) & target(t2,_) & source(s,_) & t2 > t1:
-  aligntgtpair(t1,t2,s) => align(t2,s);
+  aligntgtpair(t1,t2,s) => align(s,t2);
 
 factor[1]: for Int t1, Int t2, Int s if target(t1,_) & target(t2,_) & source(s,_) & t2 > t1:
-  aligntgtpair(t1,t2,s) => align(t1,s);
+  aligntgtpair(t1,t2,s) => align(s,t1);
 
 include "chi-eng-pairs.pml";

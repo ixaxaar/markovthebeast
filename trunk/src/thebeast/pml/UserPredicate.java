@@ -20,6 +20,7 @@ public class UserPredicate extends Predicate {
   private Heading heading, headingScores, headingTmpScores, headingSolution;
   protected static Attribute scoreAttribute;
   protected static Attribute indexAttribute;
+  protected static Attribute scaleAttribute;
   protected static Attribute featureIndicesAttribute;
   protected static Attribute solutionAttribute;
   private LinkedList<Attribute> attributes;
@@ -38,6 +39,7 @@ public class UserPredicate extends Predicate {
     TypeFactory factory = TheBeast.getInstance().getNodServer().typeFactory();
     indexAttribute = factory.createAttribute(INDEX_COL_NAME, factory.intType());
     scoreAttribute = factory.createAttribute("score", factory.doubleType());
+    scaleAttribute = factory.createAttribute("scale", factory.doubleType());
     solutionAttribute = factory.createAttribute("solution", factory.doubleType());
     LinkedList<Attribute> indexTableAttributes = new LinkedList<Attribute>();
     indexTableAttributes.add(indexAttribute);

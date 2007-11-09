@@ -10,6 +10,7 @@ import java.util.*;
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 24-Sep-2007 Time: 14:40:53
  */
+@SuppressWarnings({"PrimitiveArrayArgumentToVariableArgMethod"})
 public class AlignmentExtractor {
 
   private static Model1 src2tgt;
@@ -227,7 +228,7 @@ public class AlignmentExtractor {
           ++row;
         }
       } else if (line.startsWith("</seg")) {
-        extractAndWrite(alignedSentencePair, out);
+        extractAndWrite(alignedSentencePair, out, 0);
       }
     }
   }
@@ -247,12 +248,12 @@ public class AlignmentExtractor {
     while (srcLine != null) {
       AlignedSentencePair alignedSentencePair = new AlignedSentencePair();
       String[] srcSplit = srcLine.split("[ ]");
-      //alignedSentencePair.source.addToken("NULL");
+      alignedSentencePair.source.addToken("NULL");
       for (String word : srcSplit) {
         alignedSentencePair.source.addToken(word);
       }
       String[] tgtSplit = tgtLine.split("[ ]");
-      //alignedSentencePair.target.addToken("NULL");
+      alignedSentencePair.target.addToken("NULL");
       for (String word : tgtSplit) {
         alignedSentencePair.target.addToken(word);
       }
@@ -265,20 +266,20 @@ public class AlignmentExtractor {
         alignSplit = line.split("[ ]");
         sentenceNr = Integer.parseInt(alignSplit[0]);
       }
-      //alignedSentencePair.alignUnalignedTo(0);
+      alignedSentencePair.alignUnalignedTo(0);
 
       srcLine = srcReader.readLine();
       tgtLine = tgtReader.readLine();
       ++lineNr;
       if (lineNr % 10 == 0) System.err.print(".");
       if (lineNr % 1000 == 0) System.err.println(" " + lineNr);
-      extractAndWrite(alignedSentencePair, out);
+      extractAndWrite(alignedSentencePair, out, offset);
     }
 
   }
 
 
-  private static void extractAndWrite(AlignedSentencePair pair, PrintStream out) {
+  private static void extractAndWrite(AlignedSentencePair pair, PrintStream out, int offset) {
     out.println(">>");
     out.println(">source");
     //out.println("0\tNULL");
@@ -324,9 +325,9 @@ public class AlignmentExtractor {
     out.println();
 
     out.println(">reldist");
-    for (int src = 0; src < pair.source.size(); ++src) {
+    for (int src = offset; src < pair.source.size(); ++src) {
       double relsrc = src / (double) pair.source.size();
-      for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
+      for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
         double reltgt = tgt / (double) pair.target.size();
         printQuotedFeature(out, src, tgt, bin(relsrc - reltgt,
                 0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
@@ -337,7 +338,7 @@ public class AlignmentExtractor {
     if (src2tgt != null) {
       out.println(">m1src2tgt");
       for (int src = 0; src < pair.source.size(); ++src) {
-        for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
+        for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
           printQuotedFeature(out, src, tgt, bin(src2tgt.getProb(
                   pair.target.getAttribute(tgt, 0), pair.source.getAttribute(src, 0)),
                   m1bins));
@@ -547,7 +548,7 @@ public class AlignmentExtractor {
       tgtCounts = getCounts(new FileInputStream(tgt));
       System.err.println("Extract alignments");
       extractFromNAACL(new FileInputStream(src), new FileInputStream(tgt), new FileInputStream(align),
-              new PrintStream(dst), 0);
+              new PrintStream(dst), 1);
       System.err.println();
     } else {
       System.out.println("Usage: [gale|naacl|phil] <stem> <dstfile>");
