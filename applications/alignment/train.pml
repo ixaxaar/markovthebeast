@@ -1,5 +1,5 @@
 include "types.pml";
-include "model-pairs.pml";
+include "model.pml";
 
 set instancesCacheSize = 5;
 set corpusCacheSize = 20;
@@ -11,18 +11,19 @@ load weights from dump $1;
 load instances from dump "/tmp/alignment.instances.dmp";
 
 set learner.update = "mira";
-set learner.solver.model.initIntegers = true;
-//set learner.solver.integer = true;
-set learner.solver.maxIterations = 5;
+//set learner.solver.model.initIntegers = true;
+set learner.solver.integer = true;
+set learner.solver.maxIterations = 10;
 set learner.solver.model.solver.bbDepthLimit = -50;
 //set learner.solver.model.solver.breakAtFirst = true;
 set learner.maxCandidates = 1;
-set learner.loss = "globalF1";
-//set learner.loss = "globalNumErrors";
+set learner.solver.timeout = 10000;
+//set learner.loss = "globalF1";
+set learner.loss = "globalNumErrors";
 set learner.profile = true;
 set learner.solver.model.solver.timeout = 1;
 
-learn for 5 epochs;
+learn for 20 epochs;
 //set learner.solver.model.solver.breakAtFirst = false;
 //learn for 10 epochs;
 
