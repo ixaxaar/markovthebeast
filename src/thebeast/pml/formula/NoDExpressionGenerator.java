@@ -17,6 +17,7 @@ import thebeast.pml.term.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * The NoD expression generator creates database expression for boolean formulas and terms.
@@ -58,14 +59,30 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         WeightFunction f = (WeightFunction) undefinedWeight.getFunctionApplication().getFunction();
         builder.expr(weights.getRelation(f));
         int index = 0;
+        List<thebeast.nod.variable.Variable> operatorArgs = new ArrayList<thebeast.nod.variable.Variable>();
+        int conditionCount = 0;
         for (Term arg : undefinedWeight.getFunctionApplication().getArguments()) {
           if (arg != DontCare.DONTCARE) {
-            builder.id(f.getColumnName(index++));
+            thebeast.nod.variable.Variable
+                    var = interpreter.createVariable(f.getHeading().attribute(f.getColumnName(index)).type());
+            operatorArgs.add(var);
+            builder.attribute(f.getHeading().attribute(f.getColumnName(index)));
+            builder.expr(var);
+            builder.equality();
+            ++conditionCount;
+          }
+          ++index;
+        }
+        builder.and(conditionCount).restrict().count();
+        Operator<IntType> numberOfFeatures =
+                factory.createOperator("numFeatures", operatorArgs, builder.getInt());
+
+        for (Term arg : undefinedWeight.getFunctionApplication().getArguments()) {
+          if (arg != DontCare.DONTCARE) {
             arg.acceptTermVisitor(NoDExpressionGenerator.this);
           }
         }
-        builder.tupleForIds();
-        builder.contains().not();
+        builder.invokeIntOp(numberOfFeatures).num(0).equality();
 
       }
 
@@ -75,6 +92,7 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
 
         atom.getPredicate().acceptPredicateVisitor(new PredicateVisitor() {
           public void visitUserPredicate(UserPredicate userPredicate) {
+            //TODO: this doesn't work for atoms with DONTCARES (because the contains expression needs all args)
             builder.expr(groundAtoms.getGroundAtomsOf(userPredicate).getRelationVariable());
             int index = 0;
             for (Term arg : atom.getArguments()) {

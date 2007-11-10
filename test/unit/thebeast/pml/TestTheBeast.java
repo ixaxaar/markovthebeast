@@ -975,7 +975,7 @@ public class TestTheBeast extends TestCase {
             tuple(5).contains().getBool()).getBool());
     assertTrue(interpreter.evaluateBool(exprBuilder.expr(rel).
             id("arg_0").integer(3).id("arg_1").integer(4).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
-            id("index").integer(0).id("score").id("scale").num(1.0).
+            id("index").integer(0).id("scale").num(1.0).
             tuple(5).contains().getBool()).getBool());
 
 

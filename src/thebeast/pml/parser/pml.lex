@@ -32,6 +32,7 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "..." { return symbol(sym.ELLIPSIS); }
 <YYINITIAL> "hidden" { return symbol(sym.HIDDEN); }
 <YYINITIAL> "auxiliary" { return symbol(sym.AUXILIARY); }
+<YYINITIAL> "undefined" { return symbol(sym.UNDEFINED); }
 <YYINITIAL> "acyclic" { return symbol(sym.ACYCLIC); }
 <YYINITIAL> "factor" { return symbol(sym.FACTOR); }
 <YYINITIAL> "bins" { return symbol(sym.BINS); }
@@ -114,7 +115,6 @@ private Symbol symbol(int type, Object value) {
 <YYINITIAL> "in" { return symbol(sym.IN);}
 <YYINITIAL> "of" { return symbol(sym.OF);}
 <YYINITIAL> "assert" { return symbol(sym.ASSERT);}
-<YYINITIAL> "java" { return symbol(sym.JAVA);}
 <YYINITIAL> "true" { return symbol(sym.TRUE);}
 <YYINITIAL> "false" { return symbol(sym.FALSE);}
 <YYINITIAL> "with" { return symbol(sym.WITH);}
