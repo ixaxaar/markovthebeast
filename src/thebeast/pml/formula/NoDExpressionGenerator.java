@@ -296,6 +296,12 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
         builder.intMax();
       }
+
+      public void visitDoubleProduct(DoubleProduct doubleProduct) {
+        functionApplication.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+        functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
+        builder.doubleTimes();
+      }
     });
   }
 

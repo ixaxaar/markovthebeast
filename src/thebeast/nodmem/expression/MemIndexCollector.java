@@ -54,7 +54,7 @@ public class MemIndexCollector extends AbstractMemExpression<RelationType> imple
     return indexAttribute;
   }
 
-  public String valueAttribute() {
+   public String valueAttribute() {
     return valueAttribute;
   }
 }

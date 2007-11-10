@@ -715,7 +715,7 @@ public class TestTheBeast extends TestCase {
     RelationVariable grouped = features.getGroupedRelation(phrase);
     System.out.println(grouped.value());
     assertEquals(17, grouped.value().size());
-    assertTrue(grouped.contains(0, 1, "NP", new Object[]{new Object[]{0}, new Object[]{2}}));
+    assertTrue(grouped.contains(0, 1, "NP", new Object[]{new Object[]{0,1.0}, new Object[]{2,1.0}}));
 
     //test closure
     GroundAtoms closure = features.getClosure();
@@ -967,16 +967,16 @@ public class TestTheBeast extends TestCase {
     assertEquals(12, rel.value().size());
     assertTrue(interpreter.evaluateBool(exprBuilder.expr(rel).
             id("arg_0").integer(0).id("arg_1").integer(0).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
-            id("index").integer(0).
-            tuple(4).contains().getBool()).getBool());
+            id("index").integer(0).id("scale").num(1.0).
+            tuple(5).contains().getBool()).getBool());
     assertFalse(interpreter.evaluateBool(exprBuilder.expr(rel).
             id("arg_0").integer(1).id("arg_1").integer(0).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
-            id("index").integer(0).
-            tuple(4).contains().getBool()).getBool());
+            id("index").integer(0).id("scale").num(1.0).
+            tuple(5).contains().getBool()).getBool());
     assertTrue(interpreter.evaluateBool(exprBuilder.expr(rel).
             id("arg_0").integer(3).id("arg_1").integer(4).id("arg_2").categorical((CategoricalType) label.getNodType(), "NP").
-            id("index").integer(0).id("score").
-            tuple(4).contains().getBool()).getBool());
+            id("index").integer(0).id("score").id("scale").num(1.0).
+            tuple(5).contains().getBool()).getBool());
 
 
     RelationExpression queryDT = generator.generateLocalQuery(factorDT, theManLikesTheBoat, weights);
@@ -1155,9 +1155,9 @@ public class TestTheBeast extends TestCase {
     //ExpressionBuilder exprBuilder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
 
     assertEquals(14, rel.value().size());
-    assertTrue(rel.contains(0, 0, "NP", 2));
-    assertTrue(rel.contains(0, 0, "VP", 3));
-    assertFalse(rel.contains(1, 0, "NP", 0));
+    assertTrue(rel.contains(0, 0, "NP", 2,1.0));
+    assertTrue(rel.contains(0, 0, "VP", 3,1.0));
+    assertFalse(rel.contains(1, 0, "NP", 0,1.0));
     System.out.println(rel.value());
   }
 

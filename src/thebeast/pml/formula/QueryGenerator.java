@@ -246,34 +246,7 @@ public class QueryGenerator {
       context.selectBuilder.tupleForIds();
 
       //add the weight table
-      factorFormula.getWeight().acceptTermVisitor(new AbstractTermVisitor() {
-        public void visitFunctionApplication(FunctionApplication functionApplication) {
-          functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor() {
-            public void visitWeightFunction(WeightFunction weightFunction) {
-              context.prefixes.add("weights");
-              RelationVariable weightsVar = weights.getRelation(weightFunction);
-              context.relations.add(weightsVar);
-              for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
-                exprBuilder.attribute("weights", weightsVar.type().heading().attribute(entry.getKey()));
-                Term resolved = termResolver.resolve(entry.getValue(), context.var2term);
-                if (!termResolver.allResolved())
-                  throw new RuntimeException("Arguments of the weight function must all be bound but " + entry.getValue() +
-                          " is not");
-                Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
-                exprBuilder.expr(expr).equality();
-                context.conditions.add(exprBuilder.getBool());
-              }
-//              ExpressionBuilder exprBuilder = TheBeast.getInstance().getNodServer().expressionBuilder();
-//              exprBuilder.expr(weights.getRelation(weightFunction)).from("weights");
-//              exprBuilder.expr(weights.getWeights()).intAttribute("weights","index").doubleArrayElement();
-//              exprBuilder.num(0.0).inequality();
-//              context.conditions.add(exprBuilder.getBool());
-            }
-          });
-        }
-      });
-
-
+      factorFormula.getWeight().acceptTermVisitor(new GlobalFactorWeightProcessor(context));
     }
   }
 
@@ -346,7 +319,7 @@ public class QueryGenerator {
       ConjunctionProcessor.Context context = conjunctions.get(0);
       BoolExpression where = factory.createAnd(context.conditions);
       rels.add(factory.createQuery(context.prefixes, context.relations,
-              where, context.selectBuilder.getTuple(),false));
+              where, context.selectBuilder.getTuple(), false));
     }
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
 
@@ -471,21 +444,37 @@ public class QueryGenerator {
   }
 
 
+  //binds/makes consistent arguments of the weight function and adds the index of the local feature to
+  //the result table
+  //TODO: add scaling column
   private void processWeightForLocal(ConjunctionProcessor.Context context, Term weight) {
 
     if (!(weight instanceof FunctionApplication))
       throw new RuntimeException("Weight term must be the application of a weight function but it's not even a " +
               "function application");
-    FunctionApplication weightOfArg = (FunctionApplication) weight;
-    if (!(weightOfArg.getFunction() instanceof WeightFunction))
+    FunctionApplication application = (FunctionApplication) weight;
+
+    //if a product s * w(a_i,...) 
+    if (application.getFunction() instanceof DoubleProduct) {
+      Term scale = application.getArguments().get(0);
+      Term resolved = termResolver.resolve(scale, context.var2term);
+      if (!termResolver.allResolved())
+        throw new RuntimeException(termResolver.getUnresolved().toString() + " can't be resolved in " + scale);
+      Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+      context.selectBuilder.id("scale").expr(expr);
+
+      application = (FunctionApplication) application.getArguments().get(1);
+    } else if (application.getFunction() instanceof WeightFunction)
+      context.selectBuilder.id("scale").doubleValue(1.0);
+    else
       throw new RuntimeException("Weight term must be the application of a weight function but in this case it's " +
               "a different type of function");
 
     String prefix = "weights";
 
-    processWeightArgs(weightOfArg, context, prefix);
+    processWeightArgs(application, context, prefix);
 
-    WeightFunction weightFunction = (WeightFunction) weightOfArg.getFunction();
+    WeightFunction weightFunction = (WeightFunction) application.getFunction();
     //process the arguments of the hidden atom which were unbound
     processRemainingUnresolved(context);
     context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
@@ -517,6 +506,7 @@ public class QueryGenerator {
       }
     }
   }
+
 
   private void processWeightForGlobal(final ConjunctionProcessor.Context context, Term weight) {
     weight.acceptTermVisitor(new TermVisitor() {
@@ -563,24 +553,11 @@ public class QueryGenerator {
       }
     });
 
-//    if (!(weight instanceof FunctionApplication))
-//      throw new RuntimeException("Weight term must be the application of a weight function but it's not even a " +
-//              "function application");
-//    FunctionApplication weightOfArg = (FunctionApplication) weight;
-//    if (!(weightOfArg.getFunction() instanceof WeightFunction))
-//      throw new RuntimeException("Weight term must be the application of a weight function but in this case it's " +
-//              "a different type of function");
-//
-//    String prefix = "weights";
-//
-//    processWeightArgsForGlobal(weightOfArg, context, prefix);
-//
-//    WeightFunction weightFunction = (WeightFunction) weightOfArg.getFunction();
-//
-//    context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
-//    //context.selectBuilder.id("score").doubleValue(0.0);
   }
 
+  // Processes the argument terms of the function application f(t_1,t_2,...) and either binds t_i -> f_column_i if
+  // t_i has not yet been bound or adds the condition f_column_i == resolve(t_i) if t_i has been bound.
+  // If t_i contains several unresolvable variables we leave things as they are. 
   private void processWeightArgs(FunctionApplication weightOfArg, ConjunctionProcessor.Context context, String prefix) {
     WeightFunction weightFunction = (WeightFunction) weightOfArg.getFunction();
     context.prefixes.add(prefix);
@@ -610,6 +587,7 @@ public class QueryGenerator {
     }
   }
 
+  //binds unbound terms in the weight function application to columns of the weight function table
   private void processWeightArgsForGlobal(FunctionApplication weightOfArg,
                                           ConjunctionProcessor.Context context, String prefix) {
     WeightFunction weightFunction = (WeightFunction) weightOfArg.getFunction();
@@ -682,10 +660,46 @@ public class QueryGenerator {
   }
 
 
-
-
-
   public void setScores(Scores scores) {
     this.scores = scores;
+  }
+
+  private class GlobalFactorWeightProcessor extends AbstractTermVisitor {
+    private final ConjunctionProcessor.Context context;
+
+    public GlobalFactorWeightProcessor(ConjunctionProcessor.Context context) {
+      this.context = context;
+    }
+
+    public void visitFunctionApplication(final FunctionApplication functionApplication) {
+      functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor() {
+
+        public void visitDoubleProduct(DoubleProduct doubleProduct) {
+          functionApplication.getArguments().get(0).acceptTermVisitor(GlobalFactorWeightProcessor.this);
+          functionApplication.getArguments().get(1).acceptTermVisitor(GlobalFactorWeightProcessor.this);
+        }
+
+        public void visitWeightFunction(WeightFunction weightFunction) {
+          context.prefixes.add("weights");
+          RelationVariable weightsVar = weights.getRelation(weightFunction);
+          context.relations.add(weightsVar);
+          for (Map.Entry<String, Term> entry : context.remainingHiddenArgs.entrySet()) {
+            exprBuilder.attribute("weights", weightsVar.type().heading().attribute(entry.getKey()));
+            Term resolved = termResolver.resolve(entry.getValue(), context.var2term);
+            if (!termResolver.allResolved())
+              throw new RuntimeException("Arguments of the weight function must all be bound but " + entry.getValue() +
+                      " is not");
+            Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+            exprBuilder.expr(expr).equality();
+            context.conditions.add(exprBuilder.getBool());
+          }
+//              ExpressionBuilder exprBuilder = TheBeast.getInstance().getNodServer().expressionBuilder();
+//              exprBuilder.expr(weights.getRelation(weightFunction)).from("weights");
+//              exprBuilder.expr(weights.getWeights()).intAttribute("weights","index").doubleArrayElement();
+//              exprBuilder.num(0.0).inequality();
+//              context.conditions.add(exprBuilder.getBool());
+        }
+      });
+    }
   }
 }

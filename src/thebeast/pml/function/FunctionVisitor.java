@@ -16,4 +16,6 @@ public interface FunctionVisitor {
   void visitIntMin(IntMin intMin);
 
   void visitIntMax(IntMax intMax);
+
+  void visitDoubleProduct(DoubleProduct doubleProduct);
 }

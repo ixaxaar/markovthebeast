@@ -95,14 +95,14 @@ public class MemMath {
             dstSparseVector.increaseCapacity(dstSize);
           }
           dstSparseVector.intData[dstSize] = index;
-          dstSparseVector.doubleData[dstSize] = 1.0;
+          dstSparseVector.doubleData[dstSize] = indices.doubleData[i];
           ++dstSparseVector.size;
           if (chunkIndex.getLoadFactor() > 3){
             chunkIndex.increaseCapacity(chunkIndex.getCapacity());
           }
           ++dstSize;
         } else {
-          dstSparseVector.doubleData[old] += 1.0;
+          dstSparseVector.doubleData[old] += indices.doubleData[i];
         }
          
         ++indexPtr.xInt;

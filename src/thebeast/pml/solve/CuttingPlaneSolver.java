@@ -349,7 +349,7 @@ public class CuttingPlaneSolver implements Solver {
     while (propositionalModel.changed() && iteration < maxIterations && order <= maxOrder) {
       //System.out.println(iteration + " of " + maxIterations);
       if (System.currentTimeMillis() - start > timeout) {
-        System.out.println("timeout");
+        //System.out.println("timeout");
         break;
       }
       profiler.start("solvemodel");

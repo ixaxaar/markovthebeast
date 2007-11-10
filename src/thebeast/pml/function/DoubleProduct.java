@@ -7,7 +7,7 @@ import thebeast.pml.Type;
  */
 public class DoubleProduct extends Function {
 
-  public static final DoubleProduct ADD = new DoubleProduct();
+  public static final DoubleProduct PRODUCT = new DoubleProduct();
 
   protected DoubleProduct() {
     super("times", Type.DOUBLE, Type.DOUBLE, Type.DOUBLE);

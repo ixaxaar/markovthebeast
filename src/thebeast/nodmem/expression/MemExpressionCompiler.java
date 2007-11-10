@@ -763,6 +763,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     int chunkIndex = prefix2index.get(att.prefix());
     MemHeading heading = prefix2heading.get(att.prefix());
     MemPointer pointer = heading.pointerForAttribute(doubleAttribute.attribute().name());
+    if (pointer == null) throw new RuntimeException(doubleAttribute + " does not exist in " + heading);
     function = new MemFunction(chunkIndex, pointer);
   }
 

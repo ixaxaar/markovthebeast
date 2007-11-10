@@ -43,6 +43,7 @@ public class UserPredicate extends Predicate {
     solutionAttribute = factory.createAttribute("solution", factory.doubleType());
     LinkedList<Attribute> indexTableAttributes = new LinkedList<Attribute>();
     indexTableAttributes.add(indexAttribute);
+    indexTableAttributes.add(scaleAttribute);
     RelationType relType = factory.createRelationType(factory.createHeadingFromAttributes(indexTableAttributes));
     featureIndicesAttribute = factory.createAttribute("features", relType);
   }
@@ -101,6 +102,7 @@ public class UserPredicate extends Predicate {
 
     LinkedList<Attribute> attributesForIndex = new LinkedList<Attribute>(attributes);
     attributesForIndex.add(indexAttribute);
+    attributesForIndex.add(scaleAttribute);
 
     headingIndex = factory.createHeadingFromAttributes(attributesForIndex);
 

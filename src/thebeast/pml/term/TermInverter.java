@@ -50,6 +50,7 @@ public class TermInverter implements TermVisitor{
         }
       }
 
+
       public void visitIntMinus(IntMinus intMinus) {
         Term lhs = functionApplication.getArguments().get(0);
         Term rhs = functionApplication.getArguments().get(1);
@@ -60,8 +61,12 @@ public class TermInverter implements TermVisitor{
           result = new FunctionApplication(IntMinus.MINUS, lhs, result);
           rhs.acceptTermVisitor(TermInverter.this);
         }
-
       }
+
+      public void visitDoubleProduct(DoubleProduct doubleProduct) {
+        throw new RuntimeException("We can't invert product function " + doubleProduct + " in " + term + " yet!");
+      }
+      
 
       public void visitIntMin(IntMin intMin) {
         throw new RuntimeException("We can't invert min function " + intMin + " in " + term);
@@ -70,6 +75,7 @@ public class TermInverter implements TermVisitor{
       public void visitIntMax(IntMax intMax) {
         throw new RuntimeException("We can't invert max function " + intMax + " in " + term);
       }
+
     });
   }
 

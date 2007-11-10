@@ -81,7 +81,7 @@ public class Scores {
       for (int i = 0; i < predicate.getArgumentTypes().size(); ++i) {
         builder.by(predicate.getColumnName(i));
       }
-      builder.expr(weights.getWeights()).intAttribute("index").doubleArrayElement();
+      builder.expr(weights.getWeights()).intAttribute("index").doubleArrayElement().doubleAttribute("scale").doubleTimes();
       builder.summarizeAs("score", Summarize.Spec.DOUBLE_SUM).summarize();
       queries.put(predicate, builder.getRelation());
 
@@ -102,7 +102,7 @@ public class Scores {
       builder.id("score");
       builder.expr(weights.getWeights());
       builder.attribute("features", UserPredicate.getFeatureIndicesAttribute());
-      builder.indexedSum("index");
+      builder.indexedSum("index","scale");
       builder.tuple(predicate.getArity() + 1);
       builder.select().query();
       sums.put(predicate, builder.getRelation());
