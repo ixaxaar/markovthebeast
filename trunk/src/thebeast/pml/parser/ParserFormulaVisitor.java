@@ -17,4 +17,6 @@ public interface ParserFormulaVisitor {
   void visitAcyclicityConstraint(ParserAcyclicityConstraint parserAcyclicityConstraint);
 
   void visitNot(ParserNot parserNot);
+
+  void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight);
 }

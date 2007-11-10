@@ -5,7 +5,7 @@ import thebeast.pml.term.FunctionApplication;
 /**
  * @author Sebastian Riedel
  */
-public class UndefinedWeight extends Atom{
+public class UndefinedWeight extends Atom {
 
   private FunctionApplication functionApplication;
 

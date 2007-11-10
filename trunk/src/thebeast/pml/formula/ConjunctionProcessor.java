@@ -153,8 +153,9 @@ public class ConjunctionProcessor {
 
         public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
           if (!sign) throw new RuntimeException("Can't do negated undefined(...)");
+          BooleanFormula resolved = formulaResolver.resolve(undefinedWeight, context.var2term);
           context.conditions.add((BoolExpression) exprGenerator.convertFormula(
-                  builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
+                  resolved, groundAtoms, weights, context.var2expr, context.var2term));
 
         }
 

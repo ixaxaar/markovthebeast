@@ -2,6 +2,7 @@ package thebeast.pml.fixtures;
 
 import thebeast.pml.*;
 import thebeast.pml.formula.FormulaBuilder;
+import thebeast.pml.formula.FactorFormula;
 
 /**
  * @author Sebastian Riedel
@@ -37,6 +38,16 @@ public class AlignmentFixtures {
     return model;
   }
 
+  public static void addUndefinedWordPairFormula(Model model){
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.getSignature().createWeightFunction("w_undef");
+    FactorFormula result = builder.parse(("" +
+            "factor: for Int s, Int t, SourceWord ws, TargetWord wt " +
+            "if source(s,ws) & target(t,wt) & undefined(w_pair(ws,wt)) " +
+            "add [align(s,t)] * w_undef"));
+    model.addFactorFormula(result);
+  }
+
   public static void setSentences(GroundAtoms atoms, int sourceCount, int targetCount, String ... words){
     for (int i = 0; i < sourceCount; ++i)
       atoms.getGroundAtomsOf("source").addGroundAtom(i, words[i]);
@@ -54,6 +65,10 @@ public class AlignmentFixtures {
 
   public static void setModel1Weight(Weights w, double weight){
     w.addWeight("w_m1",weight);
+  }
+
+  public static void setUndefinedWordPairWeight(Weights w, double weight){
+    w.addWeight("w_undef",weight);
   }
 
   public static void setWordPairWeight(Weights weights, String source, String target, double weight){

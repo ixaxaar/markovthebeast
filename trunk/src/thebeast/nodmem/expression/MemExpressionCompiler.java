@@ -105,7 +105,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemDim dim = type.getDim();
     MemFunction[] functions = new MemFunction[size];
     MemVector[] argPointers = new MemVector[size];
-    MemDim chunkDim = MemDim.create(0,0,size);
+    MemDim chunkDim = MemDim.create(0, 0, size);
     MemChunk argHolder = new MemChunk(1, 1, chunkDim);
     int index = 0;
     for (Expression expr : relationSelector.tupleExpressions()) {
@@ -145,7 +145,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       chunkFunctions[index++] = function;
 
     }
-    MemDim dim = MemDim.create(0,0,relationCount);
+    MemDim dim = MemDim.create(0, 0, relationCount);
     MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, dim), chunkFunctions);
 
     //get index candidates for equality expressions
@@ -177,7 +177,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
 //      select = new MemFunction(new MemChunk(function.argHolder.getDim()),function.argPointersVec, function.arguments);
 //    } else
     select = new MemFunction(MemFunction.Type.TUPLE_COPY,
-              new MemChunk(1, 1, MemDim.CHUNK_DIM), new MemVector[]{new MemVector(0, 0, 0)}, function);
+            new MemChunk(1, 1, MemDim.CHUNK_DIM), new MemVector[]{new MemVector(0, 0, 0)}, function);
 
 
     if (validation == null)
@@ -263,7 +263,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
       chunkFunctions[index++] = function;
 
     }
-    MemDim dim = MemDim.create(0,0,relationCount);
+    MemDim dim = MemDim.create(0, 0, relationCount);
     MemFunction chunkFunction = new MemFunction(chunkPointer, new MemChunk(1, 1, dim), chunkFunctions);
 
     //get index candidates for equality expressions
@@ -410,13 +410,23 @@ public class MemExpressionCompiler implements ExpressionVisitor {
   }
 
   public void visitContains(Contains contains) {
-    contains.relation().acceptExpressionVisitor(this);
-    MemFunction relation = function;
-    contains.tuple().acceptExpressionVisitor(this);
-    MemFunction tuple = function;
-    //todo: test whether the tuple has all components, just some or none.
-    function = new MemFunction(MemFunction.Type.CONTAINS, new MemChunk(1, 1, MemDim.CHUNK2_DIM),
-            new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)}, relation, tuple);
+    if (!contains.tuple().type().heading().equals(contains.relation().type().heading())) {
+      //build Operator and restriction
+      List<Variable> variables = new ArrayList<Variable>();
+      for (Attribute attribute : contains.tuple().type().heading().attributes()){
+        //variables.add();
+
+      }
+      throw new RuntimeException("Can't do contain with unspecified args yet");
+    } else {
+      contains.relation().acceptExpressionVisitor(this);
+      MemFunction relation = function;
+      contains.tuple().acceptExpressionVisitor(this);
+      MemFunction tuple = function;
+      //todo: test whether the tuple has all components, just some or none.
+      function = new MemFunction(MemFunction.Type.CONTAINS, new MemChunk(1, 1, MemDim.CHUNK2_DIM),
+              new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 0, 1)}, relation, tuple);
+    }
   }
 
   public void visitArrayCreator(ArrayCreator arrayCreator) {
@@ -1053,7 +1063,7 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     MemDim returnDim = heading.getDim();
     MemFunction[] args = new MemFunction[union.arguments().size()];
     MemVector[] argPointers = new MemVector[args.length];
-    MemDim chunkDim = MemDim.create(0,0,args.length);
+    MemDim chunkDim = MemDim.create(0, 0, args.length);
     MemChunk argHolder = new MemChunk(1, 1, chunkDim);
     int index = 0;
     for (RelationExpression expr : union.arguments()) {

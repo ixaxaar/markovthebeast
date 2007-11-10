@@ -1075,6 +1075,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     formula = new Not(formula);
   }
 
+  public void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight) {
+
+  }
+
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
     term = typeContext.peek().getConstant(parserNamedConstant.name);
 //typeCheck();

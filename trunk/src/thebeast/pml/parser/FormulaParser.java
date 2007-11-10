@@ -200,6 +200,11 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     formula = new Not(formula);
   }
 
+  public void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight) {
+    parserUndefinedWeight.functionApplication.acceptParserTermVisitor(this);
+    formula = new UndefinedWeight((FunctionApplication) term);
+  }
+
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
     term = typeContext.peek().getConstant(parserNamedConstant.name);
 //typeCheck();

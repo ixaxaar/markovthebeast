@@ -177,6 +177,12 @@ public class FormulaBuilder {
     return this;
   }
 
+  public FormulaBuilder undefined(){
+    FunctionApplication app = (FunctionApplication) termStack.pop();
+    formulaStack.push(new UndefinedWeight(app));
+    return this;
+  }
+
   private Quantification popQuantification() {
     if (quantificationStack.isEmpty()) return new Quantification(new ArrayList<Variable>());
     Quantification quantification = quantificationStack.pop();
