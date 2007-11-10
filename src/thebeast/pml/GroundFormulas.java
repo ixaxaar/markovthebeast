@@ -107,7 +107,7 @@ public class GroundFormulas {
    * Builds the queries to extract ground formulas from ground atoms.
    */
   private void buildQueries() {
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     this.groundAtoms = this.weights.getSignature().createGroundAtoms();
     for (FactorFormula formula : this.model.getFactorFormulas()) {
       if (formula.isAcyclicityConstraint()) {

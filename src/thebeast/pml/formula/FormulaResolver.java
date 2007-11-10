@@ -2,10 +2,9 @@ package thebeast.pml.formula;
 
 import thebeast.pml.term.*;
 
-import java.util.Map;
-import java.util.LinkedList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * @author Sebastian Riedel
@@ -43,6 +42,12 @@ public class FormulaResolver extends FormulaCopyVisitor {
           args.add(term);
         }
         formula = new PredicateAtom(atom.getPredicate(), args);
+      }
+
+
+      public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+        undefinedWeight.getFunctionApplication().acceptTermVisitor(FormulaResolver.this);
+        formula = new UndefinedWeight((FunctionApplication) term);
       }
 
       public void visitCardinalityConstraint(CardinalityConstraint cardinalityConstraint) {

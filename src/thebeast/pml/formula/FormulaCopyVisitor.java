@@ -35,6 +35,11 @@ public class FormulaCopyVisitor implements BooleanFormulaVisitor, TermVisitor {
       public void visitTrue(True aTrue) {
         formula = aTrue;
       }
+
+      public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+        undefinedWeight.getFunctionApplication().acceptTermVisitor(FormulaCopyVisitor.this);
+        formula = new UndefinedWeight((FunctionApplication) term);
+      }
     });
   }
 

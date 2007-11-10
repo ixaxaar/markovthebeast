@@ -124,6 +124,10 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
         out.print("(forall " + forall.getQuantification() + ": " + forall.getFormula() + ")");
       }
 
+      public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+        out.print("undefined(" + undefinedWeight.getFunctionApplication() + ")");
+      }
+
       public void visitTrue(True aTrue) {
         out.print(true);
       }

@@ -29,7 +29,7 @@ public class AugmentedCorpus extends AbstractCollection<GroundAtoms> implements 
     this.model = model;
     this.delegate = delegate;
     localAtoms = model.getSignature().createGroundAtoms();
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     for (FactorFormula formula : model.getAuxiliaryGenerators()) {
       generators.add(formula.getGeneratorTarget(), generator.generateAuxiliaryQuery(formula, localAtoms, null));
     }

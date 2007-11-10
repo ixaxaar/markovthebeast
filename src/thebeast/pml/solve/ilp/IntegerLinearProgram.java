@@ -177,7 +177,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     groundFormulaGetWeight.clear();
 
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      QueryGenerator generator = new QueryGenerator(weights, atoms);
+      QueryGenerator generator = new QueryGenerator(model,weights, atoms);
       generator.setClosure(closure);
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());

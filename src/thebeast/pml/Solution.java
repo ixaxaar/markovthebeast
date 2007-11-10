@@ -59,15 +59,15 @@ public class Solution {
     localFeatures = new LocalFeatures(model, weights);
     this.model = model;
     this.weights = weights;
-    QueryGenerator queryGenerator = new QueryGenerator(this.weights, groundAtoms);
+    QueryGenerator queryGenerator = new QueryGenerator(model,this.weights, groundAtoms);
     for (FactorFormula factorFormula : model.getLocalFactorFormulas()) {
       if (!factorFormula.usesWeights()) continue;
       localExtractors.put(factorFormula,
               queryGenerator.generateLocalFeatureExtractor(factorFormula, groundAtoms, weights));
-      RelationVariable var = interpreter.createRelationVariable(factorFormula.getHeadingIndex());
+      RelationVariable var = interpreter.createRelationVariable(factorFormula.getSolutionHeading());
       tmpFeatures.put(factorFormula, var);
-      //builder.expr(var).by("index").doubleAttribute("scale").summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
-      builder.expr(var).by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+      builder.expr(var).by("index").doubleAttribute("scale").summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+      //builder.expr(var).by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
       localSummarizer.put(factorFormula, builder.getRelation());
     }
     for (FactorFormula factorFormula : model.getGlobalFactorFormulas()) {

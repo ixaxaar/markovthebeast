@@ -23,4 +23,8 @@ public class AbstractAtomVisitor implements AtomVisitor {
   public void visitForall(Forall forall) {
     forall.toLEQConstraint().acceptAtomVisitor(this);
   }
+
+  public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+
+  }
 }

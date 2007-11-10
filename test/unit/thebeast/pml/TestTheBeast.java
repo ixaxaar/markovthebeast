@@ -885,7 +885,7 @@ public class TestTheBeast extends TestCase {
 
   public void testQueryGeneratorGlobalPositive() {
     System.out.println(np_vp_s);
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     RelationExpression queryRule = generator.generateGlobalFalseQuery(np_vp_s, theManLikesTheBoat, weights);
     System.out.println(queryRule);
     GroundAtomCollection phrases = theManLikesTheBoat.getGroundAtomsOf(phrase);
@@ -941,7 +941,7 @@ public class TestTheBeast extends TestCase {
 
     RelationVariable falseFormulas = formulas.getFalseGroundFormulas(np_vp_s);
     assertEquals(1, falseFormulas.value().size());
-    assertTrue(falseFormulas.contains(4, 0, 1, 4, "NP", "VP", "S"));
+    assertTrue(falseFormulas.contains(4, 1.0, 0, 1, 4, "NP", "VP", "S"));
     //assertTrue(falseFormulas.contains(0, 4, 4, "NP", 1, "S", "VP"));
     formulas.update(theManLikesTheBoat);
     System.out.println(formulas.getNewGroundFormulas(np_vp_s).value());
@@ -954,7 +954,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(factorThe);
 
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     RelationExpression queryThe = generator.generateLocalQuery(factorThe, theManLikesTheBoat, weights);
 
     System.out.println(queryThe);
@@ -1144,7 +1144,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(factorDT);
 
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     RelationExpression queryDT = generator.generateLocalQuery(factorDT, theManLikesTheBoat, weights);
 
     System.out.println(queryDT);
@@ -1180,6 +1180,7 @@ public class TestTheBeast extends TestCase {
     FeatureVector vector = solution.extract();
     SparseVector features = vector.getLocal();
     System.out.println(features.getValuesRelation().value());
+    System.out.println(weights.toString(vector.getLocal()));
     assertTrue(features.contains(0, 2.0));
     assertTrue(features.contains(2, 2.0));
     assertTrue(vector.getFalseVector().contains(4, -1.0));
@@ -1221,7 +1222,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(factor);
 
-    QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
+    QueryGenerator generator = new QueryGenerator(model,weights, theManLikesTheBoat);
     RelationExpression query = generator.generateGlobalFalseQuery(factor, theManLikesTheBoat, weights);
     System.out.println(query);
 
@@ -1326,7 +1327,7 @@ public class TestTheBeast extends TestCase {
 
     System.out.println(factor);
 
-    QueryGenerator generator = new QueryGenerator(weights, theManLikesTheBoat);
+    QueryGenerator generator = new QueryGenerator(model,weights, theManLikesTheBoat);
     RelationExpression query = generator.generateGlobalFalseQuery(factor, theManLikesTheBoat, weights);
     System.out.println(query);
 

@@ -1,8 +1,6 @@
 package thebeast.pml;
 
-import thebeast.pml.formula.FactorFormula;
-import thebeast.pml.formula.Implication;
-import thebeast.pml.formula.PredicateAtom;
+import thebeast.pml.formula.*;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.predicate.Predicate;
 
@@ -295,4 +293,24 @@ public class Model {
   public List<FactorFormula> getDirectScoreFormulas() {
     return directScoreFormulas;
   }
+
+  /**
+   * Checks whether the formula contains hidden predicates.
+   *
+   * @param formula the formula to check.
+   * @return true iff the truth value of this formula can't be evaluated in advance.
+   */
+  public boolean isHidden(BooleanFormula formula) {
+    final boolean[] isHidden = new boolean[1];
+    formula.acceptBooleanFormulaVisitor(new FormulaDepthFirstVisitor() {
+      public void visitPredicateAtom(PredicateAtom predicateAtom) {
+        if (predicateAtom.getPredicate() instanceof UserPredicate) {
+          UserPredicate userPredicate = (UserPredicate) predicateAtom.getPredicate();
+          if (hidden.contains(userPredicate)) isHidden[0] = true;
+        }
+      }
+    });
+    return isHidden[0];
+  }
+
 }
