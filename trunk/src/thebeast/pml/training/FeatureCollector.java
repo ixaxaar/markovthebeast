@@ -74,7 +74,7 @@ public class FeatureCollector implements HasProperties {
     this.model = model;
     this.weights = weights;
     atoms = model.getSignature().createGroundAtoms();
-    QueryGenerator generator = new QueryGenerator(weights, atoms);
+    QueryGenerator generator = new QueryGenerator(model,weights, atoms);
     StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
     inserts.clear();
     updateIndices.clear();

@@ -19,6 +19,9 @@ public abstract class Term {
 
   public abstract void acceptTermVisitor(TermVisitor visitor);
 
+  public boolean usesWeights(){
+    return false;
+  }
 
   public boolean equals(Object o) {
     if (this == o) return true;

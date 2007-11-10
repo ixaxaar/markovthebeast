@@ -24,6 +24,11 @@ public class BinnedInt extends Term {
     super(Type.INT);
   }
 
+
+  public boolean usesWeights() {
+    return argument.usesWeights();
+  }
+
   public void acceptTermVisitor(TermVisitor visitor) {
     visitor.visitBinnedInt(this);
   }

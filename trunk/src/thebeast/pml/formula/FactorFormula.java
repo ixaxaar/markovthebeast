@@ -8,6 +8,7 @@ import thebeast.pml.TheBeast;
 import thebeast.pml.UserPredicate;
 import thebeast.pml.Type;
 import thebeast.pml.function.WeightFunction;
+import thebeast.pml.function.DoubleProduct;
 import thebeast.pml.term.DoubleConstant;
 import thebeast.pml.term.Term;
 import thebeast.pml.term.Variable;
@@ -29,15 +30,16 @@ public class FactorFormula {
   private int order = 0;
   private boolean ground = false;
 
-  private Heading headingSolution;
+  private Heading headingSolution, headingIndex;
 
-  private static Attribute indexAttribute, weightAttribute;
+  private static Attribute indexAttribute, weightAttribute, scaleAttribute;
   private static final TypeFactory factory = TheBeast.getInstance().getNodServer().typeFactory();
   private Heading headingILP;
 
   static {
     indexAttribute = factory.createAttribute("index", factory.intType());
     weightAttribute = factory.createAttribute("weight", factory.doubleType());
+    scaleAttribute = factory.createAttribute("scale",factory.doubleType());
 
   }
 
@@ -65,14 +67,21 @@ public class FactorFormula {
       varAttributes.add(factory.createAttribute("var" + index++, var.getType().getNodType()));
     }
 
-    if (usesWeights()) varAttributes.add(indexAttribute);
+    LinkedList<Attribute> solutionAttributes = new LinkedList<Attribute>(varAttributes);
+    LinkedList<Attribute> ilpAttributes = new LinkedList<Attribute>(varAttributes);
+    LinkedList<Attribute> indexAttributes = new LinkedList<Attribute>(varAttributes);
+
+    if (usesWeights()) {
+      solutionAttributes.add(indexAttribute);
+      solutionAttributes.add(scaleAttribute);
+      indexAttributes.add(indexAttribute);
+      ilpAttributes.add(indexAttribute);
+    }
+    ilpAttributes.add(weightAttribute);
     //varAttributes.add(weightAttribute);
 
-    headingSolution = factory.createHeadingFromAttributes(varAttributes);
-
-    LinkedList<Attribute> ilpAttributes = new LinkedList<Attribute>(varAttributes);
-    ilpAttributes.add(weightAttribute);
-
+    headingSolution = factory.createHeadingFromAttributes(solutionAttributes);
+    headingIndex = factory.createHeadingFromAttributes(indexAttributes);
     headingILP = factory.createHeadingFromAttributes(ilpAttributes);
 
     toString = (name != null ? (name + ":") : "") + (quantification.getVariables().size() > 0 ? "FOR " + quantification : "")
@@ -146,7 +155,7 @@ public class FactorFormula {
   }
 
   public Heading getHeadingIndex() {
-    return headingSolution;
+    return headingIndex;
   }
 
   public Heading getHeadingILP() {
@@ -160,8 +169,7 @@ public class FactorFormula {
    * @return true iff this factor formula uses a weight function.
    */
   public boolean usesWeights() {
-    return weight instanceof FunctionApplication &&
-            ((FunctionApplication) weight).getFunction() instanceof WeightFunction;
+    return weight.usesWeights();
   }
 
   /**
@@ -180,7 +188,10 @@ public class FactorFormula {
    * @return the weight function of the weight term (if this is a parametrized factor).
    */
   public WeightFunction getWeightFunction() {
-    return (WeightFunction) ((FunctionApplication) weight).getFunction();
+    FunctionApplication app = (FunctionApplication) weight;
+    if (app.getFunction() instanceof DoubleProduct)
+      return (WeightFunction) ((FunctionApplication)app.getArguments().get(1)).getFunction();
+    return (WeightFunction) app.getFunction();
   }
 
   /**

@@ -13,4 +13,6 @@ public interface AtomVisitor {
   void visitExists(Exists exists);
 
   void visitForall(Forall forall);
+
+  void visitUndefinedWeight(UndefinedWeight undefinedWeight);
 }

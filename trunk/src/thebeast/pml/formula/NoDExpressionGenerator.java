@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA. User: s0349492 Date: 30-Jan-2007 Time: 13:14:05
+ * The NoD expression generator creates database expression for boolean formulas and terms.
  */
 public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisitor {
 
@@ -54,7 +54,25 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
 
   public void visitAtom(final Atom atom) {
     atom.acceptAtomVisitor(new AbstractAtomVisitor() {
+      public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+        WeightFunction f = (WeightFunction) undefinedWeight.getFunctionApplication().getFunction();
+        builder.expr(weights.getRelation(f));
+        int index = 0;
+        for (Term arg : undefinedWeight.getFunctionApplication().getArguments()) {
+          if (arg != DontCare.DONTCARE) {
+            builder.id(f.getColumnName(index++));
+            arg.acceptTermVisitor(NoDExpressionGenerator.this);
+          }
+        }
+        builder.tupleForIds();
+        builder.contains().not();
+
+      }
+
       public void visitPredicateAtom(final PredicateAtom atom) {
+
+
+
         atom.getPredicate().acceptPredicateVisitor(new PredicateVisitor() {
           public void visitUserPredicate(UserPredicate userPredicate) {
             builder.expr(groundAtoms.getGroundAtomsOf(userPredicate).getRelationVariable());

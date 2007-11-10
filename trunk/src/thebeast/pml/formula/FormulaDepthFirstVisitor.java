@@ -6,8 +6,14 @@ import thebeast.pml.term.*;
  * @author Sebastian Riedel
  */
 public class FormulaDepthFirstVisitor extends AbstractAtomVisitor implements BooleanFormulaVisitor, TermVisitor {
+
+
+  public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+    undefinedWeight.getFunctionApplication().acceptTermVisitor(this);
+  }
+
   public void visitAtom(Atom atom) {
-      atom.acceptAtomVisitor(this);
+    atom.acceptAtomVisitor(this);
   }
 
   public void visitConjunction(Conjunction conjunction) {

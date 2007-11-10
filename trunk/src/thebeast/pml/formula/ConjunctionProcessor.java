@@ -133,6 +133,12 @@ public class ConjunctionProcessor {
     processConjunction(context, conjunction, true);
   }
 
+  private enum ResolveState {
+    RESOLVED, UNRESOLVED, TRIED_ALREADY
+  }
+
+  ;
+
   public void processConjunction(final Context context, List<SignedAtom> conjunction, final boolean throwException) {
     final LinkedList<SignedAtom> atoms = new LinkedList<SignedAtom>(conjunction);
     int atomIndex = 0;
@@ -144,10 +150,17 @@ public class ConjunctionProcessor {
       final boolean sign = signedAtom.isTrue();
       final int index = atomIndex;
       atom.acceptAtomVisitor(new AbstractAtomVisitor() {
+
+        public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
+          if (!sign) throw new RuntimeException("Can't do negated undefined(...)");
+          context.conditions.add((BoolExpression) exprGenerator.convertFormula(
+                  builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
+
+        }
+
         public void visitPredicateAtom(final PredicateAtom predicateAtom) {
           final String prefix = predicateAtom.getPredicate().getName() + "_" + String.valueOf(index);
           predicateAtom.getPredicate().acceptPredicateVisitor(new PredicateVisitor() {
-
             public void visitUserPredicate(UserPredicate userPredicate) {
               int argIndex = 0;
               LinkedList<BoolExpression> localConditions = new LinkedList<BoolExpression>();
@@ -158,31 +171,11 @@ public class ConjunctionProcessor {
                     ++argIndex;
                     continue;
                   }
-                  String varName = prefix + "_" + userPredicate.getColumnName(argIndex);
-                  Variable artificial = new Variable(arg.getType(), varName);
-                  context.var2expr.put(artificial, factory.createAttribute(prefix, userPredicate.getAttribute(argIndex)));
-                  Term resolved = termResolver.resolve(arg, context.var2term);
-                  if (termResolver.getUnresolved().size() == 0) {
-                    builder.var(artificial).term(resolved).equality();
-                    localConditions.add((BoolExpression) exprGenerator.convertFormula(
-                            builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
-                  } else if (termResolver.getUnresolved().size() == 1) {
-                    Variable toResolve = termResolver.getUnresolved().get(0);
-                    Term inverted = inverter.invert(resolved, artificial, toResolve);
-                    context.var2term.put(toResolve, inverted);
-                  } else {
-                    if (triedOnce.contains(signedAtom)) {
-                      //context.remainingHiddenArgs
-                      if (throwException)
-                        throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
-                      context.remainingAtoms.add(signedAtom);
-                      break main;
-
-                    }
-                    atoms.add(signedAtom);
-                    triedOnce.add(signedAtom);
-                    break;
-                  }
+                  ResolveState resolveState;
+                  resolveState = tryResolve(userPredicate, signedAtom, argIndex, arg, localConditions,
+                          prefix, context, triedOnce, throwException, atoms);
+                  if (resolveState == ResolveState.TRIED_ALREADY) break main;
+                  if (resolveState == ResolveState.UNRESOLVED) break;
                   ++argIndex;
                 }
                 context.prefixes.add(prefix);
@@ -231,14 +224,14 @@ public class ConjunctionProcessor {
                 Term rhsResolved = termResolver.resolve(rhs, context.var2term);
                 int rhsUnsresolved = termResolver.getUnresolved().size();
                 if (lhs instanceof Variable && lhsUnsresolved == 1 && rhsUnsresolved == 0) {
-                  context.var2term.put((Variable) lhs,rhsResolved);
+                  context.var2term.put((Variable) lhs, rhsResolved);
                   context.var2expr.put((Variable) lhs,
-                          exprGenerator.convertTerm(rhsResolved, groundAtoms, weights,context.var2expr, context.var2term));
+                          exprGenerator.convertTerm(rhsResolved, groundAtoms, weights, context.var2expr, context.var2term));
                   return;
                 } else if (rhs instanceof Variable && rhsUnsresolved == 1 && lhsUnsresolved == 0) {
-                  context.var2term.put((Variable) rhs,lhsResolved);
+                  context.var2term.put((Variable) rhs, lhsResolved);
                   context.var2expr.put((Variable) rhs,
-                          exprGenerator.convertTerm(lhsResolved, groundAtoms, weights,context.var2expr, context.var2term));
+                          exprGenerator.convertTerm(lhsResolved, groundAtoms, weights, context.var2expr, context.var2term));
                   return;
                 }
 
@@ -318,6 +311,40 @@ public class ConjunctionProcessor {
       });
       ++atomIndex;
     }
+  }
+
+  private ResolveState tryResolve(UserPredicate userPredicate, SignedAtom signedAtom, int argIndex, Term arg,
+                                  LinkedList<BoolExpression> localConditions, String prefix, Context context,
+                                  HashSet<SignedAtom> triedOnce, boolean throwException, LinkedList<SignedAtom> atoms) {
+    ResolveState resolveState;
+    String varName = prefix + "_" + userPredicate.getColumnName(argIndex);
+    Variable artificial = new Variable(arg.getType(), varName);
+    context.var2expr.put(artificial, factory.createAttribute(prefix, userPredicate.getAttribute(argIndex)));
+    Term resolved = termResolver.resolve(arg, context.var2term);
+    if (termResolver.getUnresolved().size() == 0) {
+      builder.var(artificial).term(resolved).equality();
+      localConditions.add((BoolExpression) exprGenerator.convertFormula(
+              builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
+      resolveState = ResolveState.RESOLVED;
+    } else if (termResolver.getUnresolved().size() == 1) {
+      Variable toResolve = termResolver.getUnresolved().get(0);
+      Term inverted = inverter.invert(resolved, artificial, toResolve);
+      context.var2term.put(toResolve, inverted);
+      resolveState = ResolveState.RESOLVED;
+    } else {
+      if (triedOnce.contains(signedAtom)) {
+        //context.remainingHiddenArgs
+        if (throwException)
+          throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+        context.remainingAtoms.add(signedAtom);
+        resolveState = ResolveState.TRIED_ALREADY;
+      } else {
+        atoms.add(signedAtom);
+        triedOnce.add(signedAtom);
+        resolveState = ResolveState.UNRESOLVED;
+      }
+    }
+    return resolveState;
   }
 
 

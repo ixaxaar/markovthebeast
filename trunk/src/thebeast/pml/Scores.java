@@ -127,7 +127,7 @@ public class Scores {
       encourageInCorrects.put(predicate, encourage);
     }
 
-    QueryGenerator generator = new QueryGenerator();
+    QueryGenerator generator = new QueryGenerator(model);
     for (FactorFormula formula : model.getDirectScoreFormulas()) {
       RelationExpression expr = generator.generateDirectLocalScoreQuery(formula, directScoreIndex, localAtoms, weights);
       directScoreQueries.add(formula.getLocalPredicate(), expr);

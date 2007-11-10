@@ -45,15 +45,18 @@ public class QueryGenerator {
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private LinkedList<ConjunctionProcessor.Context> conjunctions;
   private GroundAtoms closure;
+  private Model model;
 
-  public QueryGenerator() {
+  public QueryGenerator(Model model) {
     factory = TheBeast.getInstance().getNodServer().expressionFactory();
+    this.model = model;
   }
 
-  public QueryGenerator(Weights weights, GroundAtoms groundAtoms) {
+  public QueryGenerator(Model model, Weights weights, GroundAtoms groundAtoms) {
     factory = TheBeast.getInstance().getNodServer().expressionFactory();
     this.weights = weights;
     this.groundAtoms = groundAtoms;
+    this.model = model;
   }
 
 
@@ -70,7 +73,7 @@ public class QueryGenerator {
 
     if (condition == null) condition = new True();
 
-    processGlobalFormula(condition, factorFormula);
+    processGlobalFormula(condition, factorFormula,false);
     //if there is just one conjunction we don't need a union.                           
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
     for (ConjunctionProcessor.Context context : conjunctions) {
@@ -89,7 +92,7 @@ public class QueryGenerator {
     BooleanFormula condition = factorFormula.getCondition();
     BooleanFormula both = condition == null ?
             factorFormula.getFormula() : new Conjunction(factorFormula.getFormula(), condition);
-    processGlobalFormula(both, factorFormula);
+    processGlobalFormula(both, factorFormula,false);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
     for (ConjunctionProcessor.Context context : conjunctions) {
@@ -170,7 +173,7 @@ public class QueryGenerator {
     BooleanFormula both = condition == null ?
             negated : factorFormula.getFormula() instanceof CardinalityConstraint ?
             new Conjunction(condition, negated) : new Conjunction(negated, condition);
-    processGlobalFormula(both, factorFormula);
+    processGlobalFormula(both, factorFormula,false);
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
     for (ConjunctionProcessor.Context context : conjunctions) {
@@ -185,12 +188,11 @@ public class QueryGenerator {
     this.weights = w;
     builder = new FormulaBuilder(groundAtoms.getSignature());
 
-    WeightFunction weightFunction = (WeightFunction) ((FunctionApplication) factorFormula.getWeight()).getFunction();
     BooleanFormula condition = factorFormula.getCondition();
 
     BooleanFormula both = condition == null ?
             factorFormula.getFormula() : new Conjunction(condition, factorFormula.getFormula());
-    processGlobalFormula(both, factorFormula);
+    processGlobalFormula(both, factorFormula,true);
 
     //if there is just one conjunction we don't need a union.
     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
@@ -202,7 +204,15 @@ public class QueryGenerator {
   }
 
 
-  private void processGlobalFormula(BooleanFormula both, FactorFormula factorFormula) {
+  private void divideToHiddenAndObserved(List<SignedAtom> atoms, List<SignedAtom> hidden,
+                                         List<SignedAtom> observed){
+    for (SignedAtom atom : atoms){
+      if (model.isHidden(atom.getAtom())) hidden.add(atom);
+      else observed.add(atom);
+    }
+  }
+  
+  private void processGlobalFormula(BooleanFormula both, FactorFormula factorFormula, boolean splitHiddenObserved) {
     DNF dnf = DNFGenerator.generateDNF(both);
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();
     ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
@@ -214,39 +224,52 @@ public class QueryGenerator {
       conjunctions.add(context);
 
       //we process the weights
-      processWeightForGlobal(context, factorFormula.getWeight());
-
-      //process the condition conjunction
-      conjunctionProcessor.processConjunction(context, conjunction);
+      if (!splitHiddenObserved) {
+        //TODO: this should rather be: 1. Condition 2. Weight 3. Formula
+        processWeightForGlobal(context, factorFormula.getWeight());
+        //process the condition conjunction
+        conjunctionProcessor.processConjunction(context, conjunction);
+      } else {
+        List<SignedAtom> hidden = new ArrayList<SignedAtom>();
+        List<SignedAtom> observed = new ArrayList<SignedAtom>();
+        divideToHiddenAndObserved(conjunction, hidden, observed);
+        conjunctionProcessor.processConjunction(context, observed);
+        processWeightForGlobal(context, factorFormula.getWeight());
+        conjunctionProcessor.processConjunction(context, hidden);        
+      }
 
       //process the variables unresolved in the weight
       //processRemainingUnresolved(context);
 
       //now add the quantification variables as attributes
-      int index = 0;
-      for (Variable var : factorFormula.getQuantification().getVariables()) {
-        Term term = context.var2term.get(var);
-        if (term == null)
-          if (var.getType().isNumeric()) throw new RuntimeException(var + " is unbound in " + factorFormula);
-          else {
-            exprBuilder.allConstants((CategoricalType) var.getType().getNodType());
-            RelationExpression allConstants = exprBuilder.getRelation();
-            String prefix = var.getName();
-            context.selectBuilder.expr(allConstants).from(prefix);
-            context.prefixes.add(prefix);
-            context.relations.add(allConstants);
-            context.selectBuilder.id("var" + index++).categoricalAttribute(prefix, "value");
-          }
-        else {
-          Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
-          context.selectBuilder.id("var" + index++).expr(expression);
-        }
-      }
+      selectVariables(factorFormula.getQuantification().getVariables(), context, factorFormula);
 
       context.selectBuilder.tupleForIds();
 
       //add the weight table
       factorFormula.getWeight().acceptTermVisitor(new GlobalFactorWeightProcessor(context));
+    }
+  }
+
+  private void selectVariables(List<Variable> variables, ConjunctionProcessor.Context context, FactorFormula factorFormula) {
+    int index = 0;
+    for (Variable var : variables) {
+      Term term = context.var2term.get(var);
+      if (term == null)
+        if (var.getType().isNumeric()) throw new RuntimeException(var + " is unbound in " + factorFormula);
+        else {
+          exprBuilder.allConstants((CategoricalType) var.getType().getNodType());
+          RelationExpression allConstants = exprBuilder.getRelation();
+          String prefix = var.getName();
+          context.selectBuilder.expr(allConstants).from(prefix);
+          context.prefixes.add(prefix);
+          context.relations.add(allConstants);
+          context.selectBuilder.id("var" + index++).categoricalAttribute(prefix, "value");
+        }
+      else {
+        Expression expression = exprGenerator.convertTerm(term, groundAtoms, weights, context.var2expr, context.var2term);
+        context.selectBuilder.id("var" + index++).expr(expression);
+      }
     }
   }
 
@@ -509,49 +532,71 @@ public class QueryGenerator {
 
 
   private void processWeightForGlobal(final ConjunctionProcessor.Context context, Term weight) {
-    weight.acceptTermVisitor(new TermVisitor() {
-      public void visitVariable(Variable variable) {
+    if (weight instanceof DoubleConstant) {
+      context.selectBuilder.doubleValue(((DoubleConstant) weight).getValue());
+      return;
+    }
+    FunctionApplication app = (FunctionApplication) weight;
+    if (app.getFunction() instanceof DoubleProduct) {
+      Term scale = app.getArguments().get(0);
+      Term resolved = termResolver.resolve(scale, context.var2term);
+      if (!termResolver.allResolved())
+        throw new RuntimeException(termResolver.getUnresolved().toString() + " can't be resolved in " + scale);
+      Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+      context.selectBuilder.id("scale").expr(expr);
+      app = (FunctionApplication) app.getArguments().get(1);
+    } else {
+      context.selectBuilder.id("scale").num(1.0);
+    }
+    WeightFunction weightFunction = (WeightFunction) app.getFunction();
+    String prefix = "weights";
 
-      }
+    processWeightArgsForGlobal(app, context, prefix);
 
-      public void visitFunctionApplication(final FunctionApplication functionApplication) {
-        functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor(true) {
-          public void visitWeightFunction(WeightFunction weightFunction) {
-            String prefix = "weights";
-
-            processWeightArgsForGlobal(functionApplication, context, prefix);
-
-            context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
-
-          }
-
-        });
-      }
-
-      public void visitIntConstant(IntConstant intConstant) {
-
-      }
-
-      public void visitCategoricalConstant(CategoricalConstant categoricalConstant) {
-
-      }
-
-      public void visitDontCare(DontCare dontCare) {
-
-      }
-
-      public void visitDoubleConstant(DoubleConstant doubleConstant) {
-        context.selectBuilder.doubleValue(doubleConstant.getValue());
-      }
-
-      public void visitBinnedInt(BinnedInt binnedInt) {
-
-      }
-
-      public void visitBoolConstant(BoolConstant boolConstant) {
-
-      }
-    });
+    context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
+//    weight.acceptTermVisitor(new TermVisitor() {
+//      public void visitVariable(Variable variable) {
+//
+//      }
+//
+//      public void visitFunctionApplication(final FunctionApplication functionApplication) {
+//        functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor(true) {
+//          public void visitWeightFunction(WeightFunction weightFunction) {
+//            String prefix = "weights";
+//
+//            processWeightArgsForGlobal(functionApplication, context, prefix);
+//
+//            context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
+//
+//          }
+//
+//        });
+//      }
+//
+//      public void visitIntConstant(IntConstant intConstant) {
+//
+//      }
+//
+//      public void visitCategoricalConstant(CategoricalConstant categoricalConstant) {
+//
+//      }
+//
+//      public void visitDontCare(DontCare dontCare) {
+//
+//      }
+//
+//      public void visitDoubleConstant(DoubleConstant doubleConstant) {
+//        context.selectBuilder.doubleValue(doubleConstant.getValue());
+//      }
+//
+//      public void visitBinnedInt(BinnedInt binnedInt) {
+//
+//      }
+//
+//      public void visitBoolConstant(BoolConstant boolConstant) {
+//
+//      }
+//    });
 
   }
 
@@ -599,9 +644,15 @@ public class QueryGenerator {
       Term resolved = termResolver.resolve(arg, context.var2term);
       //if there is more than one unbound variable we leave things as they are.
       if (termResolver.getUnresolved().size() == 0) {
+        String varName = prefix + "_" + weightFunction.getColumnName(argIndex);
+        Variable artificial = new Variable(arg.getType(), varName);
+        context.var2expr.put(artificial, factory.createAttribute(prefix, weightFunction.getAttributeForArg(argIndex)));
+        builder.var(artificial).term(resolved).equality();
+        context.conditions.add((BoolExpression) exprGenerator.convertFormula(
+                builder.getFormula(), groundAtoms, weights, context.var2expr, context.var2term));
         //throw new RuntimeException("No unresolved variable for " + arg + " in " + weightOfArg);
       }
-      if (termResolver.getUnresolved().size() == 1) {
+      else if (termResolver.getUnresolved().size() == 1) {
         String varName = prefix + "_" + weightFunction.getColumnName(argIndex);
         Variable artificial = new Variable(arg.getType(), varName);
         context.var2expr.put(artificial, factory.createAttribute(prefix, weightFunction.getAttributeForArg(argIndex)));

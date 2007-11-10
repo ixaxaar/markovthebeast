@@ -3,6 +3,7 @@ package thebeast.pml.term;
 import thebeast.pml.term.Term;
 import thebeast.pml.term.TermVisitor;
 import thebeast.pml.function.Function;
+import thebeast.pml.function.WeightFunction;
 import thebeast.pml.Type;
 
 import java.util.List;
@@ -38,6 +39,12 @@ public class FunctionApplication extends Term {
     visitor.visitFunctionApplication(this);
   }
 
+
+  public boolean usesWeights() {
+    if (function instanceof WeightFunction) return true;
+    for (Term term : arguments) if (term.usesWeights()) return true;
+    return false;
+  }
 
   public boolean equals(Object o) {
     if (this == o) return true;

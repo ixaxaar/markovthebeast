@@ -48,7 +48,7 @@ public class LocalFeatureExtractor {
     this.weights = weights;
     this.model = model;
     this.features = new LocalFeatures(model, weights);
-    QueryGenerator generator = new QueryGenerator(weights, atoms);
+    QueryGenerator generator = new QueryGenerator(model,weights, atoms);
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
       if (!formula.usesWeights()) continue;
       RelationExpression query = generator.generateLocalQuery(formula, atoms, weights);
