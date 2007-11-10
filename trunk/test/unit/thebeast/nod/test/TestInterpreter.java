@@ -1032,7 +1032,7 @@ public class TestInterpreter extends NoDTest {
     int size = 10;
     for (int i = 0; i < size; ++i) {
       exprBuilder.id("a").num(i).id("rel");
-      for (int j = 0; j < 10; ++j) exprBuilder.id("value").num(j).tuple(1);
+      for (int j = 0; j < 10; ++j) exprBuilder.id("value").num(j).id("scale").num(1.0).tuple(2);
       exprBuilder.relation(10).tuple(2);
     }
     exprBuilder.relation(size);

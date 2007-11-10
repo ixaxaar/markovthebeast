@@ -1,3 +1,8 @@
+//upcoming format
+factor name [switches](order): [[source(s,ws) & target(t,wt) => align(s,t)]] * w1(ws,wt); 
+
+
+
 when can we normalize a factor (to be all negative/positive)
 
 let f have the variables x1,x2,... and l1,l2,... with

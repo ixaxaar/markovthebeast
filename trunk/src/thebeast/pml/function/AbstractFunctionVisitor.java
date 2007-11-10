@@ -48,4 +48,8 @@ public class AbstractFunctionVisitor implements FunctionVisitor {
   public void visitIntMax(IntMax intMax) {
     if (throwsException) throw new UnsupportedHostException(intMax);
   }
+
+  public void visitDoubleProduct(DoubleProduct doubleProduct) {
+    if (throwsException) throw new UnsupportedHostException(doubleProduct);
+  }
 }

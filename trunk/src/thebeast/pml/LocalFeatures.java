@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * LocalFeatures contain a mapping from ground atoms to feature indices. It can be used to represent all active features
- * for all possible ground atoms (and thus for scoring the ground atom).
+ * LocalFeatures contain a mapping from ground atoms to (local) feature indices. It can be used to represent all active
+ * features for all possible ground atoms (and thus for scoring the ground atom).
  */
 public class LocalFeatures implements HasProperties {
 
@@ -52,7 +52,7 @@ public class LocalFeatures implements HasProperties {
       RelationVariable group = interpreter.createRelationVariable(pred.getHeadingGroupedFeatures());
       grouped.put(pred, group);
       interpreter.addIndex(group, "args", Index.Type.HASH, pred.getHeading().getAttributeNames());
-      builder.expr(var).group("features", "index");
+      builder.expr(var).group("features", "index","scale");
       groupExpressions.put(pred, builder.getRelation());
 
       builder.expr(group).from("grouped");
@@ -110,14 +110,19 @@ public class LocalFeatures implements HasProperties {
   }
 
   private Object[] toTuple(int featureIndex, Object... terms) {
+    return toTuple(featureIndex, 1.0, terms);
+  }
+  private Object[] toTuple(int featureIndex, double scale, Object... terms) {
     Object[] args = new Object[terms.length + 2];
     int index = 0;
     for (Object term : terms) {
       args[index++] = term;
     }
     args[index] = featureIndex;
+    args[index+1] = scale;
     return args;
   }
+
 
   /**
    * Do we have for a given ground atom a feature with the given index.
@@ -130,6 +135,20 @@ public class LocalFeatures implements HasProperties {
   public boolean containsFeature(UserPredicate predicate, int featureIndex, Object... terms) {
     return features.get(predicate).contains(toTuple(featureIndex, terms));
   }
+
+  /**
+   * Do we have for a given ground atom a feature with the given index.
+   *
+   * @param predicate    the predicate
+   * @param featureIndex the index
+   * @param terms        the ground atom arguments
+   * @param scale        the scaling factor assiocated with the given ground atom and feature index
+   * @return true iff this object contains a mapping from the given ground atom to the given feature index.
+   */
+  public boolean containsFeatureWithScale(UserPredicate predicate, int featureIndex, double scale, Object... terms) {
+    return features.get(predicate).contains(toTuple(featureIndex, terms));
+  }
+
 
   /**
    * Gets the table that stores the feature indices for all ground atoms of a given predicate.
@@ -221,13 +240,12 @@ public class LocalFeatures implements HasProperties {
     for (TupleValue tuple : sorted) {
       int index = 0;
       result.append("for ").append(predicate.getName()).append("(");
-      for (Value value : tuple.values()) {
-        if (index < predicate.getArity()) {
-          if (index > 0) result.append(", ");
-          result.append(value);
-        } else result.append(") add ").append(weights.getFeatureString(((IntValue) value).getInt()));
-        index++;
+      for (int i = 0; i < predicate.getArity(); ++i){
+        if (i > 0) result.append(", ");
+        result.append(tuple.element(predicate.getColumnName(i)));
       }
+      result.append(") add ").append(tuple.doubleElement("scale")).append(" * ");
+      result.append(weights.getFeatureString(((IntValue) tuple.intElement("index")).getInt()));
       result.append("\n");
     }
     return result.toString();

@@ -1,10 +1,8 @@
 package thebeast.pml.formula;
 
 import thebeast.pml.*;
-import thebeast.pml.function.Function;
-import thebeast.pml.function.FunctionTypeException;
-import thebeast.pml.function.IntAdd;
-import thebeast.pml.function.IntMinus;
+import thebeast.pml.parser.FormulaParser;
+import thebeast.pml.function.*;
 import thebeast.pml.predicate.PredicateTypeException;
 import thebeast.pml.predicate.IntLEQ;
 import thebeast.pml.predicate.Predicate;
@@ -34,13 +32,16 @@ public class FormulaBuilder {
   private LinkedList<Variable> vars = new LinkedList<Variable>();
 
   private int formulaCount = 0;
+  protected FormulaParser parser;
 
   public FormulaBuilder(Signature signature) {
     this.signature = signature;
+    parser = new FormulaParser(signature);
   }
 
   public FormulaBuilder atom(String predicateName) {
     Predicate predicate = signature.getPredicate(predicateName);
+    if (predicate == null) throw new RuntimeException("No predicate with name " + predicateName);
     return atom(predicate);
   }
 
@@ -194,6 +195,10 @@ public class FormulaBuilder {
     return factorFormula;
   }
 
+  public FactorFormula parse(String string){
+    return parser.build(string);
+  }
+
   public FactorFormula produceFactorFormula() {
     return produceFactorFormula("@formula" + formulaCount++);
   }
@@ -246,6 +251,11 @@ public class FormulaBuilder {
 
   public FormulaBuilder add() {
     apply(IntAdd.ADD);
+    return this;
+  }
+
+  public FormulaBuilder multiply() {
+    apply(DoubleProduct.PRODUCT);
     return this;
   }
 

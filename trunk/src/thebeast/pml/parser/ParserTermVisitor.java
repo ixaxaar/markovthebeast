@@ -23,4 +23,6 @@ public interface ParserTermVisitor {
   void visitBins(ParserBins parserBins);
 
   void visitBoolConstant(ParserBoolConstant parserBoolConstant);
+
+  void visitParserTimes(ParserTimes parserTimes);
 }

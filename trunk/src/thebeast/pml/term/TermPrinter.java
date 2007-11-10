@@ -82,6 +82,14 @@ public class TermPrinter implements TermVisitor {
         out.print(")");
 
       }
+
+      public void visitDoubleProduct(DoubleProduct doubleProduct) {
+        out.print("(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(" * ");
+        functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
     });
   }
 

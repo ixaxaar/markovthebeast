@@ -352,18 +352,6 @@ quantification ::=
        RESULT = l; :}; 
 
 factor ::=
-/*
-    FACTOR COLON FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
-    {: RESULT = new ParserFactorFormula(q,c,f,w); :}
-  | FACTOR COLON FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
-    {: RESULT = new ParserFactorFormula(q,null,f,w); :}
-  | FACTOR COLON FOR quantification:q IF formula:c COLON formula:f
-    {: RESULT = new ParserFactorFormula(q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
-  | FACTOR COLON FOR quantification:q COLON formula:f
-    {: RESULT = new ParserFactorFormula(q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
-  | FACTOR COLON formula:f
-    {: RESULT = new ParserFactorFormula(null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
-*/
   | spec:s FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
     {: RESULT = new ParserFactorFormula(s, q,c,f,w); :}
   | spec:s FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
@@ -448,6 +436,8 @@ term ::=
     {: RESULT = new ParserAdd(l,r); :}
   | term:l MINUS term:r
     {: RESULT = new ParserMinus(l,r); :}
+  | term:l TIMES term:r
+    {: RESULT = new ParserTimes(l,r); :}
   | UNDERSCORE
     {: RESULT = new ParserDontCare(); :}
   | LOWERCASEID:name LPAREN arguments:args RPAREN

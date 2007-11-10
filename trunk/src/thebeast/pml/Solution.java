@@ -33,8 +33,6 @@ public class Solution {
   private HashMap<UserPredicate, RelationExpression>
           localCollectors = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<UserPredicate, RelationExpression>
-          localSummarizerForFeatures = new HashMap<UserPredicate, RelationExpression>();
-  private HashMap<UserPredicate, RelationExpression>
           localJoin = new HashMap<UserPredicate, RelationExpression>();
   private HashMap<FactorFormula, RelationExpression>
           globalFalseSummarizer = new HashMap<FactorFormula, RelationExpression>(),
@@ -68,6 +66,7 @@ public class Solution {
               queryGenerator.generateLocalFeatureExtractor(factorFormula, groundAtoms, weights));
       RelationVariable var = interpreter.createRelationVariable(factorFormula.getHeadingIndex());
       tmpFeatures.put(factorFormula, var);
+      //builder.expr(var).by("index").doubleAttribute("scale").summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
       builder.expr(var).by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
       localSummarizer.put(factorFormula, builder.getRelation());
     }

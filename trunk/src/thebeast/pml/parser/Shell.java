@@ -6,10 +6,7 @@ import thebeast.nod.FileSource;
 import thebeast.pml.*;
 import thebeast.pml.corpora.*;
 import thebeast.pml.formula.*;
-import thebeast.pml.function.Function;
-import thebeast.pml.function.IntAdd;
-import thebeast.pml.function.IntMinus;
-import thebeast.pml.function.WeightFunction;
+import thebeast.pml.function.*;
 import thebeast.pml.predicate.*;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.term.*;
@@ -1098,6 +1095,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     typeCheck();
   }
 
+
+  public void visitParserTimes(ParserTimes parserTimes) {
+    parserTimes.lhs.acceptParserTermVisitor(this);
+    Term lhs = term;
+    parserTimes.rhs.acceptParserTermVisitor(this);
+    Term rhs = term;
+    term = new FunctionApplication(DoubleProduct.PRODUCT, lhs, rhs);
+    typeCheck();
+  }
+
   public void visitParserMinus(ParserMinus parserMinus) {
     parserMinus.lhs.acceptParserTermVisitor(this);
     Term lhs = term;
@@ -1181,6 +1188,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     term = new BoolConstant(parserBoolConstant.value);
     typeCheck();
   }
+
 
   private void typeCheck() {
     if (!typeContext.isEmpty() && !term.getType().inherits(typeContext.peek()))
