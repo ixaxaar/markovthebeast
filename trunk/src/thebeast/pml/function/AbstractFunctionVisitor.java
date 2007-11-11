@@ -52,4 +52,8 @@ public class AbstractFunctionVisitor implements FunctionVisitor {
   public void visitDoubleProduct(DoubleProduct doubleProduct) {
     if (throwsException) throw new UnsupportedHostException(doubleProduct);
   }
+
+  public void visitDoubleCast(DoubleCast doubleCast) {
+    if (throwsException) throw new UnsupportedHostException(doubleCast);
+  }
 }

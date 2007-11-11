@@ -12,6 +12,7 @@ import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.predicate.*;
 import thebeast.pml.function.*;
 import thebeast.pml.function.IntMin;
+import thebeast.pml.function.DoubleCast;
 import thebeast.pml.term.*;
 import thebeast.pml.term.IntConstant;
 import thebeast.pml.term.CategoricalConstant;
@@ -728,6 +729,10 @@ public class QueryGenerator {
         public void visitDoubleProduct(DoubleProduct doubleProduct) {
           functionApplication.getArguments().get(0).acceptTermVisitor(GlobalFactorWeightProcessor.this);
           functionApplication.getArguments().get(1).acceptTermVisitor(GlobalFactorWeightProcessor.this);
+        }
+
+        public void visitDoubleCast(DoubleCast doubleCast) {
+          functionApplication.getArguments().get(0).acceptTermVisitor(GlobalFactorWeightProcessor.this);
         }
 
         public void visitWeightFunction(WeightFunction weightFunction) {

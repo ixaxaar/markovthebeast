@@ -35,6 +35,7 @@ public class Signature {
     name2function.put(IntMax.MAX.getName(), IntMax.MAX);    
     name2function.put(IntAdd.ADD.getName(), IntAdd.ADD);
     name2function.put(IntMinus.MINUS.getName(), IntMinus.MINUS);    
+    name2function.put(DoubleCast.CAST.getName(), DoubleCast.CAST);    
 
   }
 

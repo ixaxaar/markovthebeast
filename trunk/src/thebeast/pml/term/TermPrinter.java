@@ -64,7 +64,7 @@ public class TermPrinter implements TermVisitor {
         functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
         out.print(")");
 
-      }
+      }                  
 
       public void visitIntMin(IntMin intMin) {
         out.print("min(");
@@ -88,6 +88,12 @@ public class TermPrinter implements TermVisitor {
         functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
         out.print(" * ");
         functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
+
+      public void visitDoubleCast(DoubleCast doubleCast) {
+        out.print("double(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
         out.print(")");
       }
     });

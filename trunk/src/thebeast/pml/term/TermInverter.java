@@ -66,7 +66,11 @@ public class TermInverter implements TermVisitor{
       public void visitDoubleProduct(DoubleProduct doubleProduct) {
         throw new RuntimeException("We can't invert product function " + doubleProduct + " in " + term + " yet!");
       }
-      
+
+      public void visitDoubleCast(DoubleCast doubleCast) {
+        throw new RuntimeException("We can't invert cast function " + doubleCast + " in " + term + " yet!");
+      }
+
 
       public void visitIntMin(IntMin intMin) {
         throw new RuntimeException("We can't invert min function " + intMin + " in " + term);
