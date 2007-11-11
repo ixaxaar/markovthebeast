@@ -338,6 +338,11 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
         functionApplication.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
         builder.doubleTimes();
       }
+
+      public void visitDoubleCast(DoubleCast doubleCast) {
+        functionApplication.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+        builder.doubleCast();
+      }
     });
   }
 

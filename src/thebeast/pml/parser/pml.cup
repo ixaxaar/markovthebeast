@@ -49,7 +49,7 @@ non terminal LinkedList<Boolean> markers;
 non terminal ParserTyping typing;
 non terminal ParserName name;
 non terminal LinkedList<String> argtypes, lowercasecommalist;
-non terminal ParserTerm constant,term;
+non terminal ParserTerm constant,term,termInBrackets;
 non terminal ParserNamedConstant namedconstant;
 non terminal ParserFormula atom, formula;
 non terminal LinkedList<ParserFormula> conjunction;
@@ -74,6 +74,7 @@ precedence nonassoc LPAREN,RPAREN,UNDERSCORE;
 precedence left IMPLIES;
 precedence left AND;
 precedence left PLUS, MINUS;
+precedence left TIMES;
 
 start with begin;
 
@@ -353,9 +354,9 @@ quantification ::=
        RESULT = l; :}; 
 
 factor ::=
-  | spec:s FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+  | spec:s FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES termInBrackets:w
     {: RESULT = new ParserFactorFormula(s, q,c,f,w); :}
-  | spec:s FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES term:w
+  | spec:s FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES termInBrackets:w
     {: RESULT = new ParserFactorFormula(s, q,null,f,w); :}
   | spec:s FOR quantification:q IF formula:c COLON formula:f
     {: RESULT = new ParserFactorFormula(s, q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
@@ -448,6 +449,24 @@ term ::=
   | BINS LPAREN arguments:bins COMMA term:arg RPAREN
     {: RESULT = new ParserBins(bins, arg); :}
     ;
+
+termInBrackets ::=
+    constant:c
+    {: RESULT = c; :}
+  | termInBrackets:l PLUS termInBrackets:r
+    {: RESULT = new ParserAdd(l,r); :}
+  | termInBrackets:l MINUS termInBrackets:r
+    {: RESULT = new ParserMinus(l,r); :}
+  | termInBrackets:l TIMES termInBrackets:r
+    {: RESULT = new ParserTimes(l,r); :}
+  | UNDERSCORE
+    {: RESULT = new ParserDontCare(); :}
+  | LOWERCASEID:name LPAREN arguments:args RPAREN
+    {: RESULT = new ParserFunctionApplication(name,args); :}
+  | BINS LPAREN arguments:bins COMMA term:arg RPAREN
+    {: RESULT = new ParserBins(bins, arg); :}
+    ;
+
 
 app ::=
     LOWERCASEID:name LPAREN arguments:args RPAREN

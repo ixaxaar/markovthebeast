@@ -48,6 +48,17 @@ public class AlignmentFixtures {
     model.addFactorFormula(result);
   }
 
+  public static void addDistanceFormula(Model model){
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.getSignature().createWeightFunction("w_dist");
+    FactorFormula result = builder.parse(("" +
+            "factor: for Int s, Int t " +
+            "if source(s,_) & target(t,_)" +
+            "add [align(s,t)] * double(s - t) * w_dist"));
+    model.addFactorFormula(result);
+  }
+
+
   public static void setSentences(GroundAtoms atoms, int sourceCount, int targetCount, String ... words){
     for (int i = 0; i < sourceCount; ++i)
       atoms.getGroundAtomsOf("source").addGroundAtom(i, words[i]);

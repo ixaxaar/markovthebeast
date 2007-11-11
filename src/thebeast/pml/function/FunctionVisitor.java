@@ -18,4 +18,6 @@ public interface FunctionVisitor {
   void visitIntMax(IntMax intMax);
 
   void visitDoubleProduct(DoubleProduct doubleProduct);
+
+  void visitDoubleCast(DoubleCast doubleCast);
 }
