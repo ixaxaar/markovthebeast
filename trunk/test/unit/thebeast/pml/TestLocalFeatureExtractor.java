@@ -10,7 +10,10 @@ public class TestLocalFeatureExtractor extends TestCase {
 
   public void testExtractWithUndefined() {
     Model model = AlignmentFixtures.createAlignmentModel();
+    AlignmentFixtures.addM1Formula(model);
+    AlignmentFixtures.addWordPairFormula(model);
     AlignmentFixtures.addUndefinedWordPairFormula(model);
+    
     GroundAtoms atoms = model.getSignature().createGroundAtoms();
     Weights weights = model.getSignature().createWeights();
     AlignmentFixtures.setUndefinedWordPairWeight(weights, -1.0);

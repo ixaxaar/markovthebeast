@@ -310,6 +310,9 @@ public class QueryGenerator {
     ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
 
     FunctionApplication weight = (FunctionApplication) factorFormula.getWeight();
+    if (weight.getFunction() instanceof DoubleProduct){
+      weight = (FunctionApplication) weight.getArguments().get(1);
+    }
     WeightFunction function = (WeightFunction) weight.getFunction();
 
     for (List<SignedAtom> conjunction : dnf.getConjunctions()) {

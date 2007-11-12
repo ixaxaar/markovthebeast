@@ -465,6 +465,8 @@ termInBrackets ::=
     {: RESULT = new ParserFunctionApplication(name,args); :}
   | BINS LPAREN arguments:bins COMMA term:arg RPAREN
     {: RESULT = new ParserBins(bins, arg); :}
+  | LPAREN term:t RPAREN
+    {: RESULT = t; :}
     ;
 
 
