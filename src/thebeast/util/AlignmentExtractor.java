@@ -324,72 +324,101 @@ public class AlignmentExtractor {
     }
     out.println();
 
-    out.println(">reldist");
+//    out.println(">reldist");
+//    for (int src = offset; src < pair.source.size(); ++src) {
+//      double relsrc = src / (double) pair.source.size();
+//      for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
+//        double reltgt = tgt / (double) pair.target.size();
+//        printQuotedFeature(out, src, tgt, bin(relsrc - reltgt,
+//                0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
+//      }
+//    }
+//    out.println();
+
+    out.println(">reldistreal");
     for (int src = offset; src < pair.source.size(); ++src) {
       double relsrc = src / (double) pair.source.size();
       for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
         double reltgt = tgt / (double) pair.target.size();
-        printQuotedFeature(out, src, tgt, bin(relsrc - reltgt,
-                0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0));
+        printFeature(out, src, tgt, relsrc - reltgt);
       }
     }
     out.println();
 
     if (src2tgt != null) {
-      out.println(">m1src2tgt");
+      out.println(">m1src2tgtprob");
       for (int src = 0; src < pair.source.size(); ++src) {
         for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
-          printQuotedFeature(out, src, tgt, bin(src2tgt.getProb(
+          printFeature(out, src, tgt, bin(src2tgt.getProb(
                   pair.target.getAttribute(tgt, 0), pair.source.getAttribute(src, 0)),
                   m1bins));
         }
       }
       out.println();
 
-      out.println(">m1srcnull");
-      for (int src = 0; src < pair.source.size(); ++src) {
-        printSingleQuotedFeature(out, src, bin(src2tgt.getProb(
-                pair.source.getAttribute(src, 0), "NULL"),
-                m1bins));
-      }
-      out.println();
+//      out.println(">m1src2tgtprob");
+//      for (int src = 0; src < pair.source.size(); ++src) {
+//        for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
+//          printQuotedFeature(out, src, tgt, src2tgt.getProb(
+//                  pair.target.getAttribute(tgt, 0), pair.source.getAttribute(src, 0)));
+//        }
+//      }
+//      out.println();
+//
+//      out.println(">m1srcnull");
+//      for (int src = 0; src < pair.source.size(); ++src) {
+//        printSingleQuotedFeature(out, src, bin(src2tgt.getProb(
+//                pair.source.getAttribute(src, 0), "NULL"),
+//                m1bins));
+//      }
+//      out.println();
 
       out.println(">srchighestm1");
       printRankedTranslations(pair.source, pair.target, src2tgt, out, true);
       out.println();
 
-      out.println(">srcm1ranks");
-      printRanksAndProbs(pair.source, pair.target, src2tgt, out);
-      out.println();
+//      out.println(">srcm1ranks");
+//      printRanksAndProbs(pair.source, pair.target, src2tgt, out);
+//      out.println();
 
     }
     if (tgt2src != null) {
-      out.println(">m1tgt2src");
+      out.println(">m1tgt2srcprob");
       for (int src = 0; src < pair.source.size(); ++src) {
         for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
-          printQuotedFeature(out, src, tgt, bin(tgt2src.getProb(
+          printFeature(out, src, tgt, bin(tgt2src.getProb(
                   pair.source.getAttribute(src, 0), pair.target.getAttribute(tgt, 0)),
                   m1bins));
         }
       }
       out.println();
 
-      out.println(">m1tgtnull");
-      for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
-        printSingleQuotedFeature(out, tgt, bin(src2tgt.getProb(
-                pair.target.getAttribute(tgt, 0), "NULL"),
-                m1bins));
-      }
-      out.println();
+//      out.println(">m1tgt2srcprob");
+//      for (int src = 0; src < pair.source.size(); ++src) {
+//        for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
+//          printQuotedFeature(out, src, tgt, bin(tgt2src.getProb(
+//                  pair.source.getAttribute(src, 0), pair.target.getAttribute(tgt, 0)),
+//                  m1bins));
+//        }
+//      }
+//      out.println();
+//
+//      out.println(">m1tgtnull");
+//      for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
+//        printSingleQuotedFeature(out, tgt, bin(src2tgt.getProb(
+//                pair.target.getAttribute(tgt, 0), "NULL"),
+//                m1bins));
+//      }
+//      out.println();
 
 
       out.println(">tgthighestm1");
       printRankedTranslations(pair.target, pair.source, tgt2src, out, false);
       out.println();
 
-      out.println(">tgtm1ranks");
-      printRanksAndProbs(pair.target, pair.source, tgt2src, out);
-      out.println();
+//      out.println(">tgtm1ranks");
+//      printRanksAndProbs(pair.target, pair.source, tgt2src, out);
+//      out.println();
 
 
     }

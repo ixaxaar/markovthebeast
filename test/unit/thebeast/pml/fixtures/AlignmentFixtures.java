@@ -23,13 +23,6 @@ public class AlignmentFixtures {
     signature.createPredicate("source", "Int", "SourceWord");
     signature.createPredicate("target", "Int", "TargetWord");
     signature.createPredicate("m1", "Int", "Int", "Double");
-    signature.createWeightFunction("w_m1");
-    signature.createWeightFunctionByName("w_pair", "SourceWord", "TargetWord");
-    FormulaBuilder builder = new FormulaBuilder(signature);
-    model.addFactorFormula(builder.parse("" + "factor: for Int s, Int t, Double p " +
-            "if source(s,_) & target(t,_) & m1(s,t,p) add [align(s,t)] * p * w_m1"));
-    model.addFactorFormula(builder.parse("" + "factor: for Int s, Int t, SourceWord ws, TargetWord wt " +
-            "if source(s,ws) & target(t,wt) add [align(s,t)] * w_pair(ws,wt)"));
 
     model.addHiddenPredicate(signature.getUserPredicate("align"));
     model.addObservedPredicate(signature.getUserPredicate("source"));
@@ -37,6 +30,21 @@ public class AlignmentFixtures {
     model.addObservedPredicate(signature.getUserPredicate("m1"));
     return model;
   }
+
+  public static void addM1Formula(Model model) {
+    model.getSignature().createWeightFunction("w_m1");
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.addFactorFormula(builder.parse("" + "factor: for Int s, Int t, Double p " +
+            "if source(s,_) & target(t,_) & m1(s,t,p) add [align(s,t)] * p * w_m1"));
+  }
+
+  public static void addWordPairFormula(Model model) {
+    model.getSignature().createWeightFunctionByName("w_pair", "SourceWord", "TargetWord");
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.addFactorFormula(builder.parse("" + "factor: for Int s, Int t, SourceWord ws, TargetWord wt " +
+            "if source(s,ws) & target(t,wt) add [align(s,t)] * w_pair(ws,wt)"));
+  }
+
 
   public static void addUndefinedWordPairFormula(Model model){
     FormulaBuilder builder = new FormulaBuilder(model.getSignature());
@@ -58,6 +66,16 @@ public class AlignmentFixtures {
     model.addFactorFormula(result);
   }
 
+  public static void addM1DistanceFormula(Model model){
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.getSignature().createWeightFunction("w_m1dist");
+    FactorFormula result = builder.parse(("" +
+            "factor: for Int s, Int t, Double m1 " +
+            "if source(s,_) & target(t,_) & m1(s,t,m1)" +
+            "add [align(s,t)] * (double(s - t) * m1) * w_m1dist"));
+//            "add [align(s,t)] * (p) * w_m1dist"));
+    model.addFactorFormula(result);
+  }
 
   public static void setSentences(GroundAtoms atoms, int sourceCount, int targetCount, String ... words){
     for (int i = 0; i < sourceCount; ++i)
@@ -74,8 +92,16 @@ public class AlignmentFixtures {
     }
   }
 
+  public static void setM1DistanceWeight(Weights w, double weight){
+    w.addWeight("w_m1dist",weight);
+  }
+
   public static void setModel1Weight(Weights w, double weight){
     w.addWeight("w_m1",weight);
+  }
+
+  public static void setDistanceWeight(Weights w, double weight){
+    w.addWeight("w_dist",weight);
   }
 
   public static void setUndefinedWordPairWeight(Weights w, double weight){

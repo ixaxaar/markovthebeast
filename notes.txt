@@ -1,6 +1,11 @@
+
+
 //upcoming format
 factor name [switches](order): [[source(s,ws) & target(t,wt) => align(s,t)]] * w1(ws,wt); 
-
+or
+(annotation & alchemy inspired)
+@Order(1) @Neg @Collect
+source(s,ws) & target(t,wt) => align(s,t) [w1(ws,wt)]
 
 
 when can we normalize a factor (to be all negative/positive)

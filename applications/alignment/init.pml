@@ -3,7 +3,7 @@ include "model.pml";
 
 load corpus from $1;
 
-save corpus (0-1000) to ram;
+save corpus (0-100) to ram;
 
 //set collector.cutoff = 1;
 
