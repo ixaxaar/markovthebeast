@@ -213,7 +213,7 @@ public class QueryGenerator {
     }
   }
   
-  private void processGlobalFormula(BooleanFormula both, FactorFormula factorFormula, boolean splitHiddenObserved) {
+  private void processGlobalFormula(BooleanFormula both, FactorFormula factorFormula, boolean observedFirst) {
     DNF dnf = DNFGenerator.generateDNF(both);
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();
     ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);
@@ -225,18 +225,28 @@ public class QueryGenerator {
       conjunctions.add(context);
 
       //we process the weights
-      if (!splitHiddenObserved) {
-        //TODO: this should rather be: 1. Condition 2. Weight 3. Formula
+      if (!observedFirst) {
+//        List<SignedAtom> hidden = new ArrayList<SignedAtom>();
+//        List<SignedAtom> observed = new ArrayList<SignedAtom>();
+//        divideToHiddenAndObserved(conjunction, hidden, observed);
+//        conjunctionProcessor.processConjunction(context, hidden);
+//        conjunctionProcessor.processConjunction(context, observed);
+//        processWeightForGlobal(context, factorFormula.getWeight());
+//        processScale(factorFormula.getWeight(), context);
+//
+//        //TODO: this should rather be: 1. Condition 2. Weight 3. Formula
         processWeightForGlobal(context, factorFormula.getWeight());
         //process the condition conjunction
         conjunctionProcessor.processConjunction(context, conjunction);
+        processScale(factorFormula.getWeight(), context);
       } else {
         List<SignedAtom> hidden = new ArrayList<SignedAtom>();
         List<SignedAtom> observed = new ArrayList<SignedAtom>();
         divideToHiddenAndObserved(conjunction, hidden, observed);
         conjunctionProcessor.processConjunction(context, observed);
+        processScale(factorFormula.getWeight(), context);
         processWeightForGlobal(context, factorFormula.getWeight());
-        conjunctionProcessor.processConjunction(context, hidden);        
+        conjunctionProcessor.processConjunction(context, hidden);
       }
 
       //process the variables unresolved in the weight
@@ -534,8 +544,7 @@ public class QueryGenerator {
     }
   }
 
-
-  private void processWeightForGlobal(final ConjunctionProcessor.Context context, Term weight) {
+  private void processScale(Term weight, ConjunctionProcessor.Context context) {
     if (weight instanceof DoubleConstant) {
       context.selectBuilder.doubleValue(((DoubleConstant) weight).getValue());
       return;
@@ -552,55 +561,33 @@ public class QueryGenerator {
     } else {
       context.selectBuilder.id("scale").num(1.0);
     }
+  }
+
+
+  private void processWeightForGlobal(final ConjunctionProcessor.Context context, Term weight) {
+    if (weight instanceof DoubleConstant) return;
+//      context.selectBuilder.doubleValue(((DoubleConstant) weight).getValue());
+//      return;
+//    }
+    FunctionApplication app = (FunctionApplication) weight;
+    if (app.getFunction() instanceof DoubleProduct) {
+//      Term scale = app.getArguments().get(0);
+//      Term resolved = termResolver.resolve(scale, context.var2term);
+//      if (!termResolver.allResolved())
+//        throw new RuntimeException(termResolver.getUnresolved().toString() + " can't be resolved in " + scale);
+//      Expression expr = exprGenerator.convertTerm(resolved, groundAtoms, weights, context.var2expr, context.var2term);
+//      context.selectBuilder.id("scale").expr(expr);
+      app = (FunctionApplication) app.getArguments().get(1);
+    }
+//    else {
+//      context.selectBuilder.id("scale").num(1.0);
+//    }
     WeightFunction weightFunction = (WeightFunction) app.getFunction();
     String prefix = "weights";
 
     processWeightArgsForGlobal(app, context, prefix);
 
     context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
-//    weight.acceptTermVisitor(new TermVisitor() {
-//      public void visitVariable(Variable variable) {
-//
-//      }
-//
-//      public void visitFunctionApplication(final FunctionApplication functionApplication) {
-//        functionApplication.getFunction().acceptFunctionVisitor(new AbstractFunctionVisitor(true) {
-//          public void visitWeightFunction(WeightFunction weightFunction) {
-//            String prefix = "weights";
-//
-//            processWeightArgsForGlobal(functionApplication, context, prefix);
-//
-//            context.selectBuilder.id("index").attribute(prefix, weightFunction.getIndexAttribute());
-//
-//          }
-//
-//        });
-//      }
-//
-//      public void visitIntConstant(IntConstant intConstant) {
-//
-//      }
-//
-//      public void visitCategoricalConstant(CategoricalConstant categoricalConstant) {
-//
-//      }
-//
-//      public void visitDontCare(DontCare dontCare) {
-//
-//      }
-//
-//      public void visitDoubleConstant(DoubleConstant doubleConstant) {
-//        context.selectBuilder.doubleValue(doubleConstant.getValue());
-//      }
-//
-//      public void visitBinnedInt(BinnedInt binnedInt) {
-//
-//      }
-//
-//      public void visitBoolConstant(BoolConstant boolConstant) {
-//
-//      }
-//    });
 
   }
 

@@ -170,6 +170,7 @@ public class WeightedSatGrounder {
   private DoubleExpression getFormulaWeight(ExpressionBuilder builder, Weights weights) {
     builder.expr(weights.getWeights());
     builder.intAttribute("formulas", "index").doubleArrayElement();
+    builder.doubleAttribute("formulas", "scale").doubleTimes();
     return builder.getDouble();
   }
 

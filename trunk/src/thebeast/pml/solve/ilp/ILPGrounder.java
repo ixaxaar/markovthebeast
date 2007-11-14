@@ -2,6 +2,7 @@ package thebeast.pml.solve.ilp;
 
 import thebeast.nod.expression.*;
 import thebeast.nod.util.ExpressionBuilder;
+import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.type.TupleType;
@@ -31,6 +32,7 @@ public class ILPGrounder {
   private Weights weights;
   private GroundAtoms groundAtoms;
   private GroundAtoms closure;
+  private TypeBuilder typeBuilder = new TypeBuilder(TheBeast.getInstance().getNodServer());
 
   public ILPGrounder() {
     factory = TheBeast.getInstance().getNodServer().expressionFactory();
@@ -115,7 +117,7 @@ public class ILPGrounder {
     //we only need to consider the formula (not the condition)
     BooleanFormula booleanFormula = this.formula.getFormula();
     //normalize in case we have a deterministic constraint with Negative Infinity weight.
-    if (this.formula.isDeterministic() && this.formula.getWeight().isNonPositive())
+    if (this.formula.isDeterministic() && this.formula.isAlwaysPenalizing())
       booleanFormula = new Not(booleanFormula);
     DNF dnf = DNFGenerator.generateDNF(booleanFormula);
     CNF cnf = CNFGenerator.generateCNF(booleanFormula);
@@ -169,6 +171,8 @@ public class ILPGrounder {
       varBuilder.tuple(weight.getArguments().size());
       varBuilder.id("index").num(-1).id("count").num(0).tuple(2).get().intExtractComponent("index");
       varBuilder.doubleArrayElement();
+      varBuilder.expr(factory.createAttribute("formulas", typeBuilder.doubleType().att("scale").buildAttribute()));
+      varBuilder.doubleTimes();
       varBuilder.tuple(2);
       varBuilder.getPut().intExtractComponent("index");
     }

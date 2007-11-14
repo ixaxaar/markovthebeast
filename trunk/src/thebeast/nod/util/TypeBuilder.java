@@ -82,5 +82,9 @@ public class TypeBuilder {
   public RelationType buildRelationType() {
     return (RelationType) typeStack.pop();
   }
-  
+
+  public Attribute buildAttribute(){
+    return attributeStack.pop();
+  }
+
 }

@@ -29,6 +29,8 @@ public class FactorFormula {
   private String toString;
   private int order = 0;
   private boolean ground = false;
+  private boolean alwaysRewarding = false;
+  private boolean alwaysPenalizing = false;
 
   private Heading headingSolution, headingIndex;
 
@@ -39,7 +41,7 @@ public class FactorFormula {
   static {
     indexAttribute = factory.createAttribute("index", factory.intType());
     weightAttribute = factory.createAttribute("weight", factory.doubleType());
-    scaleAttribute = factory.createAttribute("scale",factory.doubleType());
+    scaleAttribute = factory.createAttribute("scale", factory.doubleType());
 
   }
 
@@ -57,6 +59,8 @@ public class FactorFormula {
     this.formula = formula;
     this.weight = weight;
     this.name = name == null ? "formula" : name;
+    this.alwaysRewarding = weight.isNonNegative();
+    this.alwaysPenalizing = weight.isNonPositive();
 
 //    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
 //      throw new RuntimeException("We don't support local features with non-free weights.");
@@ -88,6 +92,7 @@ public class FactorFormula {
             + (condition != null ? " IF " + condition + " " : "") +
             (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 
+    
   }
 
   /**
@@ -112,6 +117,45 @@ public class FactorFormula {
     DoubleConstant constant = (DoubleConstant) weight;
     return constant.getValue() == Double.POSITIVE_INFINITY || constant.getValue() == Double.NEGATIVE_INFINITY;
   }
+
+  /**
+   * When a formula is always rewarding it means that scores from this formula are only added to the overall score for
+   * variable assignments x1,x2... where the weight term is positive, w(x1,x2,...)>=0. This means that true ground
+   * formulas of this formula produce a reward that increases the overall score; false formulas do not affect the
+   * overall score.
+   *
+   * @return true iff the factor is always rewarding.
+   */
+  public boolean isAlwaysRewarding() {
+    return alwaysRewarding;
+  }
+
+  public void setAlwaysRewarding(boolean alwaysRewarding) {
+    this.alwaysRewarding = alwaysRewarding;
+  }
+
+  /**
+   * When a formula is always penalizing it means that scores from this formula are only added to the overall score for
+   * variable assignments x1,x2... where the weight term is negative, w(x1,x2,...)<=0. This means that true ground
+   * formulas of this formula produce a penalty that decreases the overall score; false formulas do not affect the
+   * overall score.
+   *
+   * @return true iff the factor is always penalizing.
+   */
+  public boolean isAlwaysPenalizing() {
+    return alwaysPenalizing;
+  }
+
+  public void setAlwaysPenalizing(boolean alwaysPenalizing) {
+    this.alwaysPenalizing = alwaysPenalizing;
+  }
+
+  
+
+  public boolean isRewardingAndPenalizing(){
+    return !isAlwaysPenalizing() && !isAlwaysRewarding();
+  }
+
 
   public boolean isAcyclicityConstraint() {
     return formula instanceof AcyclicityConstraint;
@@ -190,7 +234,7 @@ public class FactorFormula {
   public WeightFunction getWeightFunction() {
     FunctionApplication app = (FunctionApplication) weight;
     if (app.getFunction() instanceof DoubleProduct)
-      return (WeightFunction) ((FunctionApplication)app.getArguments().get(1)).getFunction();
+      return (WeightFunction) ((FunctionApplication) app.getArguments().get(1)).getFunction();
     return (WeightFunction) app.getFunction();
   }
 

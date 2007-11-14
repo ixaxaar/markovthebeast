@@ -10,9 +10,9 @@ public class TestSolution extends TestCase {
 
   public void testFeatureExtractionWithBinaryFeatures(){
     Model model = AlignmentFixtures.createAlignmentModel();
+    AlignmentFixtures.addWordPairFormula(model);
     GroundAtoms atoms = model.getSignature().createGroundAtoms();
     Weights weights = model.getSignature().createWeights();
-    AlignmentFixtures.setModel1Weight(weights, 0.2);
     AlignmentFixtures.setWordPairWeight(weights, "Ich", "I", 1.0);
     AlignmentFixtures.setWordPairWeight(weights, "bin", "am", 2.0);
     AlignmentFixtures.setWordPairWeight(weights, "Sebastian", "Sebastian", 3.0);
@@ -25,15 +25,16 @@ public class TestSolution extends TestCase {
     solution.load(atoms);
     FeatureVector vector = solution.extract();
     assertEquals(3, vector.getAll().size());
+    assertTrue(vector.getAll().contains(0,1.0));
     assertTrue(vector.getAll().contains(1,1.0));
     assertTrue(vector.getAll().contains(2,1.0));
-    assertTrue(vector.getAll().contains(3,1.0));
 
   }
 
 
   public void testFeatureExtractionWithRealValuedFeatures(){
     Model model = AlignmentFixtures.createAlignmentModel();
+    AlignmentFixtures.addM1Formula(model);
     GroundAtoms atoms = model.getSignature().createGroundAtoms();
     Weights weights = model.getSignature().createWeights();
     AlignmentFixtures.setModel1Weight(weights, 0.2);

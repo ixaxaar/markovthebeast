@@ -72,13 +72,13 @@ public class Solution {
     }
     for (FactorFormula factorFormula : model.getGlobalFactorFormulas()) {
       if (factorFormula.usesWeights()) {
-        if (factorFormula.getWeight().isNonNegative()) {
+        if (factorFormula.isAlwaysRewarding()) {
           builder.expr(groundFormulas.getFalseGroundFormulas(factorFormula));
           builder.by("index").num(-1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalFalseSummarizer.put(factorFormula, builder.getRelation());
         }
         else {
-//        if (factorFormula.getWeight().isNonPositive()) {
+//        if (factorFormula.isAlwaysPenalizing()) {
           builder.expr(groundFormulas.getTrueGroundFormulas(factorFormula));
           builder.by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalTrueSummarizer.put(factorFormula, builder.getRelation());
@@ -172,14 +172,14 @@ public class Solution {
       //SparseVector tmp = new SparseVector();
       tmp.clear();
       if (formula.usesWeights()) {
-        if (formula.getWeight().isNonNegative())
+        if (formula.isAlwaysRewarding())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         else
-        //if (formula.getWeight().isNonPositive())
+        //if (formula.isAlwaysPenalizing())
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
-        if (formula.getWeight().isNonNegative())
+        if (formula.isAlwaysRewarding())
           vector.getFalseVector().addInPlace(1.0,tmp);
-        else if (formula.getWeight().isNonPositive())
+        else if (formula.isAlwaysPenalizing())
           vector.getTrueVector().addInPlace(1.0,tmp);
         else
           vector.getLocal().addInPlace(1.0,tmp);
@@ -240,14 +240,14 @@ public class Solution {
       tmp.clear();
       //SparseVector tmp = new SparseVector();
       if (formula.usesWeights()) {
-        if (formula.getWeight().isNonNegative())
+        if (formula.isAlwaysRewarding())
           interpreter.insert(tmp.getValuesRelation(), globalFalseSummarizer.get(formula));
         else
-        //if (formula.getWeight().isNonPositive())
+        //if (formula.isAlwaysPenalizing())
           interpreter.insert(tmp.getValuesRelation(), globalTrueSummarizer.get(formula));
-        if (formula.getWeight().isNonNegative())
+        if (formula.isAlwaysRewarding())
           vector.getFalseVector().addInPlace(1.0,tmp);
-        else if (formula.getWeight().isNonPositive())
+        else if (formula.isAlwaysPenalizing())
           vector.getTrueVector().addInPlace(1.0,tmp);
         else
           vector.getLocal().addInPlace(1.0,tmp);

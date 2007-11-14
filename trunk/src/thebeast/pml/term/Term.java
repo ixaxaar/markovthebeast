@@ -44,9 +44,9 @@ public abstract class Term {
   public abstract boolean isNonPositive();
   public abstract boolean isNonNegative();
 
-  public boolean isFree(){
-    return !isNonNegative() && !isNonPositive();
-  }
+//  public boolean isFree(){
+//    return !isNonNegative() && !isNonPositive();
+//  }
 
 
 }

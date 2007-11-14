@@ -1,8 +1,8 @@
 package thebeast.pml.fixtures;
 
 import thebeast.pml.*;
-import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.formula.FactorFormula;
+import thebeast.pml.formula.FormulaBuilder;
 
 /**
  * @author Sebastian Riedel
@@ -66,6 +66,17 @@ public class AlignmentFixtures {
     model.addFactorFormula(result);
   }
 
+  public static void addAlignedToSameTargetFormula(Model model, String weightName){
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.getSignature().createWeightFunction(weightName, false);
+    FactorFormula result = builder.parse(("" +
+            "factor: for Int s1, Int s2, Int t " +
+            "if source(s1,_) & source(s2,_) & target(t,_) & s2 > s1 " +
+            "add [align(s1,t) & align(s2,t)] * double(s2 - s1) * w_sameTarget"));
+    result.setAlwaysPenalizing(true);
+    model.addFactorFormula(result);
+  }
+
   public static void addM1DistanceFormula(Model model){
     FormulaBuilder builder = new FormulaBuilder(model.getSignature());
     model.getSignature().createWeightFunction("w_m1dist");
@@ -73,7 +84,6 @@ public class AlignmentFixtures {
             "factor: for Int s, Int t, Double m1 " +
             "if source(s,_) & target(t,_) & m1(s,t,m1)" +
             "add [align(s,t)] * (double(s - t) * m1) * w_m1dist"));
-//            "add [align(s,t)] * (p) * w_m1dist"));
     model.addFactorFormula(result);
   }
 
