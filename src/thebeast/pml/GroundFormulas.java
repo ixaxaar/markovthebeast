@@ -92,9 +92,9 @@ public class GroundFormulas {
         } else {
           allExplicitGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
           newGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative())
+          if (formula.isAlwaysPenalizing() || !formula.isAlwaysRewarding())
             trueGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
-          else if (formula.getWeight().isNonNegative())
+          else if (formula.isAlwaysRewarding())
             falseGroundFormulas.put(formula, interpreter.createRelationVariable(formula.getSolutionHeading()));
         }
       }
@@ -116,13 +116,13 @@ public class GroundFormulas {
       } else if (!formula.isLocal()) {
         builder.expr(newGroundFormulas.get(formula)).expr(allExplicitGroundFormulas.get(formula)).relationMinus();
         minusOld.put(formula, builder.getRelation());
-        if (formula.getWeight().isNonPositive() || !formula.getWeight().isNonNegative()) {
+        if (formula.isAlwaysPenalizing() || !formula.isAlwaysRewarding()) {
           RelationExpression query = generator.generateGlobalTrueQuery(formula, groundAtoms, this.weights);
           trueQueries.put(formula, query);
           if (formula.usesWeights()) {
             addIndices(this.weights, formula.getWeightFunction(), query);
           }
-        } else if (formula.getWeight().isNonNegative()) {
+        } else if (formula.isAlwaysRewarding()) {
           RelationExpression query = generator.generateGlobalFalseQuery(formula, groundAtoms, this.weights);
           falseQueries.put(formula, query);
           if (formula.usesWeights()) {
@@ -137,7 +137,7 @@ public class GroundFormulas {
           }
         } catch (RuntimeException e) {
           //throw e;
-          if (formula.getWeight().isFree()) throw e;
+          if (formula.isRewardingAndPenalizing()) throw e;
           //throw new RuntimeException("Couldn't create groundall query for " + formula,e);
           //might happen for signed formulas and as long we don't need to fully ground them things are fine.
         }
@@ -281,14 +281,14 @@ public class GroundFormulas {
         continue;
       }
       //result.append(getExplicitGroundFormulas(formula).value().toString());
-      if (formula.getWeight().isNonNegative()) {
+      if (formula.isAlwaysRewarding()) {
         result.append("# False groundings of: ").append(formula.toString()).append("\n");
         result.append(getFalseGroundFormulas(formula).value().toString());
 //        result.append("# All groundings:\n");
 //        result.append(getExplicitGroundFormulas(formula).value().toString());
         result.append("\n");
       }
-      if (formula.getWeight().isNonPositive()) {
+      if (formula.isAlwaysPenalizing()) {
         result.append("# True groundings of: ").append(formula.toString()).append("\n");
         result.append(getTrueGroundFormulas(formula).value().toString());
         result.append("\n");
@@ -306,6 +306,23 @@ public class GroundFormulas {
     update(solution, model.getFactorFormulas());
     isDeterministic = false;
   }
+
+  public boolean containsFalseGrounding(FactorFormula formula, int index, double scale, Object ... args){
+    Object[] tuple = new Object[args.length + 2];
+    tuple[0] = index;
+    tuple[1] = scale;
+    System.arraycopy(args,0,tuple,2,args.length);
+    return getFalseGroundFormulas(formula).contains(tuple);
+  }
+
+  public boolean containsTrueGrounding(FactorFormula formula, int index, double scale, Object ... args){
+    Object[] tuple = new Object[args.length + 2];
+    tuple[0] = index;
+    tuple[1] = scale;
+    System.arraycopy(args,0,tuple,2,args.length);
+    return getTrueGroundFormulas(formula).contains(tuple);
+  }
+
 
   public void init() {
     firstUpdate = true;
@@ -409,14 +426,14 @@ public class GroundFormulas {
         boolean fullyGround = groundAll.contains(factorFormula);
         RelationVariable relation;
         Term weight = factorFormula.getWeight();
-        if (weight.isNonPositive() || !weight.isNonNegative()) {
+        if (factorFormula.isAlwaysPenalizing() || !factorFormula.isAlwaysRewarding()) {
           relation = getTrueGroundFormulas(factorFormula);
           interpreter.assign(relation, trueQueries.get(factorFormula));
         } else {
           relation = getFalseGroundFormulas(factorFormula);
           interpreter.assign(relation, falseQueries.get(factorFormula));
         }
-        if (firstUpdate && (weight.isFree() || fullyGround)) {
+        if (firstUpdate && (factorFormula.isRewardingAndPenalizing() || fullyGround)) {
           interpreter.assign(both, allQueries.get(factorFormula));
         } else {
           interpreter.assign(both, relation);
