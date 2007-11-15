@@ -39,14 +39,16 @@ observed: source, target, reldist, srcchar, tgtchar, srccount, tgtcount,
   m1src2tgt, m1tgt2src, srchighestm1, tgthighestm1, m1src2tgtprob, m1tgt2srcprob, reldistreal;
 
 factor [0]: for Int s if source(s,_) & s > 0: |Int t: target(t,_) & align(s,t)| <= 5;
-factor [1]: for Int s if source(s,_) & s > 0: |Int t: target(t,_) & align(s,t)| >= 1;
+factor [0]: for Int s if source(s,_) & s > 0: |Int t: target(t,_) & align(s,t)| >= 1;
 factor [0]: for Int t if target(t,_) & t > 0: |Int s: source(s,_) & align(s,t)| <= 5;
-factor [1]: for Int t if target(t,_) & t > 0: |Int s: source(s,_) & align(s,t)| >= 1;
-
+factor [0]: for Int t if target(t,_) & t > 0: |Int s: source(s,_) & align(s,t)| >= 1;
 
 factor [1]: for Int s, Int t if source(s,_) & target(t,_) & t > 0: !(align(s,0) & align(s,t));
 factor [1]: for Int s, Int t if source(s,_) & target(t,_) & s > 0: !(align(0,t) & align(s,t));
 
+//weight w_srcpair: Double-;
+//factor [2]: for Int s, Int t1, Int t2 if source(s,_) & target(t1,_) & target(t2,_) & t2 > t1 & s > 0
+//  add [align(s,t1) & align(s,t2)] * double(t2 - t1) * w_srcpair;
 
 /*
 factor cluster: for Int t1, Int t2, Int s1, Int s2

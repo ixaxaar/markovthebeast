@@ -1,3 +1,4 @@
+pred[now,gold,best](args)
 
 
 //upcoming format

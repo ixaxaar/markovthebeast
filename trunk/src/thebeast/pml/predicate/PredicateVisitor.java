@@ -20,5 +20,5 @@ public interface PredicateVisitor {
 
   void visitIntGEQ(IntGEQ intGEQ);
 
- 
+  void visitDoubleLEQ(DoubleLEQ doubleLEQ);
 }
