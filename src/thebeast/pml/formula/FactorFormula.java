@@ -59,8 +59,14 @@ public class FactorFormula {
     this.formula = formula;
     this.weight = weight;
     this.name = name == null ? "formula" : name;
-    this.alwaysRewarding = weight.isNonNegative();
-    this.alwaysPenalizing = weight.isNonPositive();
+    if (weight instanceof FunctionApplication) {
+      this.alwaysRewarding = getWeightFunctionApplication().isNonNegative();
+      this.alwaysPenalizing = getWeightFunctionApplication().isNonPositive();
+    } else {
+      this.alwaysRewarding = weight.isNonNegative();
+      this.alwaysPenalizing = weight.isNonPositive();
+
+    }
 
 //    if (isLocal() && isParametrized() && (weight.isNonNegative() || weight.isNonPositive()))
 //      throw new RuntimeException("We don't support local features with non-free weights.");
@@ -92,7 +98,7 @@ public class FactorFormula {
             + (condition != null ? " IF " + condition + " " : "") +
             (!isDeterministic() ? " ADD [" + formula + "] * " + weight : ": " + formula);
 
-    
+
   }
 
   /**
@@ -150,9 +156,8 @@ public class FactorFormula {
     this.alwaysPenalizing = alwaysPenalizing;
   }
 
-  
 
-  public boolean isRewardingAndPenalizing(){
+  public boolean isRewardingAndPenalizing() {
     return !isAlwaysPenalizing() && !isAlwaysRewarding();
   }
 
@@ -184,6 +189,7 @@ public class FactorFormula {
   public Term getWeight() {
     return weight;
   }
+
 
   public String toString() {
     return toString;
@@ -237,6 +243,14 @@ public class FactorFormula {
       return (WeightFunction) ((FunctionApplication) app.getArguments().get(1)).getFunction();
     return (WeightFunction) app.getFunction();
   }
+
+  public FunctionApplication getWeightFunctionApplication() {
+    FunctionApplication app = (FunctionApplication) weight;
+    if (app.getFunction() instanceof DoubleProduct)
+      return (FunctionApplication) app.getArguments().get(1);
+    return app;
+  }
+
 
   /**
    * If this a generator formula for auxilaries this method returns the target user predicate this formula generates

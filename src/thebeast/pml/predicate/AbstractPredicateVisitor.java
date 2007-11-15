@@ -51,5 +51,9 @@ public abstract class AbstractPredicateVisitor implements PredicateVisitor {
     if (throwExceptions) throw new UnsupportedHostException(intGEQ);
   }
 
-  
+  public void visitDoubleLEQ(DoubleLEQ doubleLEQ) {
+    if (throwExceptions) throw new UnsupportedHostException(doubleLEQ);
+  }
+
+
 }

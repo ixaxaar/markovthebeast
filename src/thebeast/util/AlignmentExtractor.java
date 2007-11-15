@@ -348,8 +348,8 @@ public class AlignmentExtractor {
     if (src2tgt != null) {
       out.println(">m1src2tgtprob");
       for (int src = 0; src < pair.source.size(); ++src) {
-        for (int tgt = offset; tgt < pair.target.size(); ++tgt) {
-          printFeature(out, src, tgt, bin(src2tgt.getProb(
+        for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
+          if (tgt > 0 || src > 0) printFeature(out, src, tgt, bin(src2tgt.getProb(
                   pair.target.getAttribute(tgt, 0), pair.source.getAttribute(src, 0)),
                   m1bins));
         }
@@ -386,9 +386,10 @@ public class AlignmentExtractor {
       out.println(">m1tgt2srcprob");
       for (int src = 0; src < pair.source.size(); ++src) {
         for (int tgt = 0; tgt < pair.target.size(); ++tgt) {
-          printFeature(out, src, tgt, bin(tgt2src.getProb(
-                  pair.source.getAttribute(src, 0), pair.target.getAttribute(tgt, 0)),
-                  m1bins));
+          if (tgt > 0 || src > 0)
+            printFeature(out, src, tgt, bin(tgt2src.getProb(
+                    pair.source.getAttribute(src, 0), pair.target.getAttribute(tgt, 0)),
+                    m1bins));
         }
       }
       out.println();

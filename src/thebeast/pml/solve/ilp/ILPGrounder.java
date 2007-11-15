@@ -12,6 +12,7 @@ import thebeast.pml.formula.*;
 import thebeast.pml.formula.Not;
 import thebeast.pml.*;
 import thebeast.pml.predicate.*;
+import thebeast.pml.predicate.DoubleLEQ;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.*;
 
@@ -150,8 +151,9 @@ public class ILPGrounder {
       //here we create an expression which will return the index of
       //the current feature if it exists in the ilp Or creates/puts a new
       //row in the ilp map with the proper weight and a new index.
-      FunctionApplication weight = (FunctionApplication) this.formula.getWeight();
-      WeightFunction weightFunction = (WeightFunction) weight.getFunction();
+      //FunctionApplication weight = (FunctionApplication) this.formula.getWeight();
+      FunctionApplication weight = (FunctionApplication) this.formula.getWeightFunctionApplication();
+      WeightFunction weightFunction = formula.getWeightFunction();
       varBuilder.expr(this.ilp.getGroundFormulaIndices(this.formula));
       varIndex = 0;
       for (Variable var : this.formula.getQuantification().getVariables()) {
@@ -878,6 +880,7 @@ public class ILPGrounder {
 
             }
           }
+
 
 
         });

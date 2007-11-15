@@ -142,6 +142,12 @@ public class NoDExpressionGenerator implements BooleanFormulaVisitor, TermVisito
             builder.intGEQ();
           }
 
+          public void visitDoubleLEQ(DoubleLEQ doubleLEQ) {
+            atom.getArguments().get(0).acceptTermVisitor(NoDExpressionGenerator.this);
+            atom.getArguments().get(1).acceptTermVisitor(NoDExpressionGenerator.this);
+            builder.doubleLEQ();            
+          }
+
 
         });
       }

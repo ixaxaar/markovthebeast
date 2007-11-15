@@ -83,6 +83,12 @@ public class FormulaPrinter implements BooleanFormulaVisitor {
 
           }
 
+          public void visitDoubleLEQ(DoubleLEQ doubleLEQ) {
+            atom.getArguments().get(0).acceptTermVisitor(termPrinter);
+            out.print(" <= ");
+            atom.getArguments().get(1).acceptTermVisitor(termPrinter);
+          }
+
 
         });
 

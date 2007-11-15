@@ -3,6 +3,7 @@ package thebeast.pml;
 import thebeast.pml.predicate.Predicate;
 import thebeast.pml.predicate.Equals;
 import thebeast.pml.predicate.NotEquals;
+import thebeast.pml.predicate.DoubleLEQ;
 import thebeast.pml.function.*;
 
 import java.util.*;
@@ -35,7 +36,9 @@ public class Signature {
     name2function.put(IntMax.MAX.getName(), IntMax.MAX);    
     name2function.put(IntAdd.ADD.getName(), IntAdd.ADD);
     name2function.put(IntMinus.MINUS.getName(), IntMinus.MINUS);    
-    name2function.put(DoubleCast.CAST.getName(), DoubleCast.CAST);    
+    name2function.put(DoubleCast.CAST.getName(), DoubleCast.CAST);
+
+    name2predicate.put(DoubleLEQ.DOUBLE_LEQ.getName(), DoubleLEQ.DOUBLE_LEQ);
 
   }
 

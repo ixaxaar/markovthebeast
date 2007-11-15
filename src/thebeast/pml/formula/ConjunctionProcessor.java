@@ -7,6 +7,7 @@ import thebeast.pml.*;
 import thebeast.pml.predicate.*;
 import thebeast.pml.predicate.IntGEQ;
 import thebeast.pml.predicate.IntLEQ;
+import thebeast.pml.predicate.DoubleLEQ;
 import thebeast.pml.term.*;
 
 import java.util.*;
@@ -276,6 +277,10 @@ public class ConjunctionProcessor {
 
             public void visitIntGEQ(IntGEQ intGEQ) {
               visitPredicate(intGEQ);
+            }
+
+            public void visitDoubleLEQ(DoubleLEQ doubleLEQ) {
+              visitPredicate(doubleLEQ);
             }
 
 

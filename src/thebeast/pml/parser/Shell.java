@@ -1076,7 +1076,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight) {
-
+    parserUndefinedWeight.functionApplication.acceptParserTermVisitor(this);
+    formula = new UndefinedWeight((FunctionApplication) term);
   }
 
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
