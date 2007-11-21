@@ -106,7 +106,7 @@ public class ILPSolverLpSolve implements ILPSolver {
         }
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
                 LpSolve.GE : LpSolve.LE;
-        if (values.size() < maxRank || type == LpSolve.GE) {
+        if (values.size() < maxRank || type == LpSolve.LE) {
           solver.addConstraintex(length, weights, shifted, type, type == LpSolve.LE ? ub : lb);
         } else {
           double[] costs = new double[shifted.length];
