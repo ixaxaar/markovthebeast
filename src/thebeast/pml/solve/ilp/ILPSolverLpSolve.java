@@ -96,6 +96,7 @@ public class ILPSolverLpSolve implements ILPSolver {
         int[] shifted = new int[length];
         double[] weights = new double[length];
         int index = 0;
+        int negativeWeights = 0;
         for (TupleValue nonZero : values) {
           int var = nonZero.intElement("index").getInt() + 1;
           if (var > solver.getNcolumns())
@@ -103,10 +104,11 @@ public class ILPSolverLpSolve implements ILPSolver {
                     "yet: nr " + (var - 1));
           shifted[index] = var;
           weights[index++] = nonZero.doubleElement("weight").getDouble();
+          if (weights[index-1] < 0) ++negativeWeights;
         }
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
                 LpSolve.GE : LpSolve.LE;
-        if (values.size() < maxRank || type == LpSolve.LE) {
+        if (values.size() - negativeWeights < maxRank || type == LpSolve.LE) {
           solver.addConstraintex(length, weights, shifted, type, type == LpSolve.LE ? ub : lb);
         } else {
           double[] costs = new double[shifted.length];
@@ -121,7 +123,7 @@ public class ILPSolverLpSolve implements ILPSolver {
             newIndices[i] = shifted[sorted[i]];
             newWeights[i] = weights[sorted[i]];
           }
-          solver.addConstraintex(sorted.length, newWeights, newIndices, type, type == LpSolve.LE ? ub : lb);
+          solver.addConstraintex(maxRank, newWeights, newIndices, type, type == LpSolve.LE ? ub : lb);
         }
         ++this.numRows;
       }
