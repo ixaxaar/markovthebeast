@@ -9,11 +9,14 @@ import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
+import thebeast.util.Util;
+import thebeast.util.HeapDoubleSorter;
 import thebeast.pml.TheBeast;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.PropertyName;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
@@ -36,6 +39,8 @@ public class ILPSolverLpSolve implements ILPSolver {
   private boolean bbRuleSet = false;
   private boolean paramFileSet = false;
   private boolean breakAtFirst = false;
+  private int maxRank = Integer.MAX_VALUE;
+  private HashMap<Integer, Double> costs = new HashMap<Integer, Double>();
 
   public void init() {
     try {
@@ -46,6 +51,7 @@ public class ILPSolverLpSolve implements ILPSolver {
       //solver.setBbDepthlimit(3);
       numRows = 0;
       numCols = 0;
+      costs.clear();
       solver.setVerbose(verbose ? 4 : 0);
     } catch (LpSolveException e) {
       e.printStackTrace();
@@ -76,6 +82,7 @@ public class ILPSolverLpSolve implements ILPSolver {
         int index = var.intElement("index").getInt();
         double weight = var.doubleElement("weight").getDouble();
         solver.setObj(index + 1, weight);
+        costs.put(index + 1, weight);
         solver.setBounds(index + 1, 0, 1);
         if (enforceInteger) solver.setInt(index + 1, true);
         ++this.numCols;
@@ -99,7 +106,23 @@ public class ILPSolverLpSolve implements ILPSolver {
         }
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
                 LpSolve.GE : LpSolve.LE;
-        solver.addConstraintex(length, weights, shifted, type, type == LpSolve.LE ? ub : lb);
+        if (values.size() < maxRank || type == LpSolve.GE) {
+          solver.addConstraintex(length, weights, shifted, type, type == LpSolve.LE ? ub : lb);
+        } else {
+          double[] costs = new double[shifted.length];
+          int[] sorted = new int[shifted.length];
+          for (int i = 0; i < sorted.length; ++i) sorted[i] = i;
+          for (int i = 0; i < shifted.length; ++i) costs[i] = this.costs.get(shifted[i]);
+          HeapDoubleSorter sorter = new HeapDoubleSorter();
+          sorter.sort(costs, sorted);
+          int[] newIndices = new int[maxRank];
+          double[] newWeights = new double[maxRank];
+          for (int i = 0; i < maxRank; ++i) {
+            newIndices[i] = shifted[sorted[i]];
+            newWeights[i] = weights[sorted[i]];
+          }
+          solver.addConstraintex(sorted.length, newWeights, newIndices, type, type == LpSolve.LE ? ub : lb);
+        }
         ++this.numRows;
       }
       solver.setAddRowmode(false);
@@ -192,6 +215,8 @@ public class ILPSolverLpSolve implements ILPSolver {
       setBbDepthLimit((Integer) value);
     else if (name.getHead().equals("bbRule"))
       setBbRule((Integer) value);
+    else if (name.getHead().equals("maxRank"))
+      setMaxRank((Integer) value);
     else if (name.getHead().equals("breakAtFirst"))
       setBreakAtFirst((Boolean) value);
     else if (name.getHead().equals("params"))
@@ -203,6 +228,14 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   }
 
+
+  public int getMaxRank() {
+    return maxRank;
+  }
+
+  public void setMaxRank(int maxRank) {
+    this.maxRank = maxRank;
+  }
 
   public boolean isBreakAtFirst() {
     return breakAtFirst;
