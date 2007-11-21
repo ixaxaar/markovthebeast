@@ -103,7 +103,9 @@ public class TestCuttingPlaneSolverSemtag extends TestCase {
 
   public void testSolveInitInteger() {
 
-    IntegerLinearProgram ilp = new IntegerLinearProgram(semtagModel, erWeights, new ILPSolverLpSolve());
+    ILPSolverLpSolve lpSolve = new ILPSolverLpSolve();
+    lpSolve.setMaxRank(2);
+    IntegerLinearProgram ilp = new IntegerLinearProgram(semtagModel, erWeights, lpSolve);
     ilp.setInitIntegers(true);
 
     CuttingPlaneSolver cuttingPlaneSolver = new CuttingPlaneSolver(ilp);
