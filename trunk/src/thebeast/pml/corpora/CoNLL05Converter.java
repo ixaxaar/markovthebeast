@@ -257,8 +257,8 @@ public class CoNLL05Converter {
             if (arg != null)
 //              out.println(id + "\t\"" + new Tree.SyntacticFrame(
 //                      charniakPruned, predicateTree, arg) + "\"");
-            out.println(id + "\t\"" + new ParseTree.SyntacticFrame(
-                    charniakPruned.smallestCommonAncestor(predicateTree,arg), predicateTree, arg) + "\"");
+              out.println(id + "\t\"" + new ParseTree.SyntacticFrame(
+                      charniakPruned.smallestCommonAncestor(predicateTree, arg), predicateTree, arg) + "\"");
             else out.println(id + "\tNONE");
           }
           out.println();
@@ -325,6 +325,15 @@ public class CoNLL05Converter {
           }
           out.println();
 
+          out.println(">nooverlap");
+          for (Pair<Integer, Integer> span1 : candidates) {
+            for (Pair<Integer, Integer> span2 : candidates) {
+              if (span1.arg2 < span2.arg1)
+                out.println(span2id.get(span1) + "\t" + span2id.get(span2));
+            }
+          }
+          out.println();
+
           //heads
           out.println(">head");
           for (Pair<Integer, Integer> span : spans) {
@@ -361,7 +370,6 @@ public class CoNLL05Converter {
           out.println(quote(predicateClass));
           out.println();
 
-
           //write out predicate information
           out.println(">pred");
           out.println(predicateToken + "\t\"" + predicateLemmas.get(pred) + "\"\t" +
@@ -386,7 +394,7 @@ public class CoNLL05Converter {
     HashSet<String> modifiers = new HashSet<String>();
     HashSet<String> c_args = new HashSet<String>();
     HashSet<String> r_args = new HashSet<String>();
-    for (String arg : argTypes){
+    for (String arg : argTypes) {
       if (arg.charAt(0) == 'A' && Character.isDigit(arg.charAt(1)) && arg.length() == 2)
         args.add(arg);
       else if (arg.startsWith("AM"))
@@ -397,23 +405,23 @@ public class CoNLL05Converter {
         r_args.add(arg);
     }
     global.println(">properarg");
-    for (String arg: args) global.println(quote(arg));
+    for (String arg : args) global.println(quote(arg));
     global.println();
     global.println(">modifier");
-    for (String arg: modifiers) global.println(quote(arg));
+    for (String arg : modifiers) global.println(quote(arg));
     global.println();
     global.println(">carg");
-    for (String arg: c_args) global.println(quote(arg));
+    for (String arg : c_args) global.println(quote(arg));
     global.println();
     global.println(">rarg");
-    for (String arg: r_args) global.println(quote(arg));
+    for (String arg : r_args) global.println(quote(arg));
     global.println();
     global.println(">cargpair");
-    for (String arg: c_args)
+    for (String arg : c_args)
       global.println(quote(arg) + "\t" + quote(arg.substring(2)));
     global.println();
     global.println(">rargpair");
-    for (String arg: r_args)
+    for (String arg : r_args)
       global.println(quote(arg) + "\t" + quote(arg.substring(2)));
     global.println();
     global.close();
@@ -431,20 +439,20 @@ public class CoNLL05Converter {
   }
 
   public static class DependencyTree {
-    private HashMultiMapSet<Integer,Integer> modifiers = new HashMultiMapSet<Integer, Integer>();
-    private HashMap<Integer,Integer> heads = new HashMap<Integer, Integer>();
+    private HashMultiMapSet<Integer, Integer> modifiers = new HashMultiMapSet<Integer, Integer>();
+    private HashMap<Integer, Integer> heads = new HashMap<Integer, Integer>();
     //private HashMap<ParseTree, Integer>
 
-    public DependencyTree(ParseTree tree){
+    public DependencyTree(ParseTree tree) {
 
     }
 
-    private void build(ParseTree tree, int parenthead){
+    private void build(ParseTree tree, int parenthead) {
       int myHead = headFinder.getHead(tree).begin;
       if (tree.length() == 1) {
-        heads.put(tree.begin,-1);
+        heads.put(tree.begin, -1);
       } else {
-        for (ParseTree child : tree.children){
+        for (ParseTree child : tree.children) {
           int childHead = headFinder.getHead(child).begin;
         }
 
@@ -507,12 +515,11 @@ public class CoNLL05Converter {
       for (ParseTree child : children) child.getSpans(spans);
     }
 
-    public void getYield(Collection<ParseTree> yield){
+    public void getYield(Collection<ParseTree> yield) {
       if (length() == 1) {
         yield.add(this);
         return;
-      }
-      else for (ParseTree child : children) child.getYield(yield);
+      } else for (ParseTree child : children) child.getYield(yield);
 
     }
 
@@ -803,29 +810,29 @@ public class CoNLL05Converter {
       return begin == end;
     }
 
-    public ParseTree smallestCommonAncestor(ParseTree... nodes){
+    public ParseTree smallestCommonAncestor(ParseTree... nodes) {
       return smallestCommonAncestor(Arrays.asList(nodes));
     }
 
 
-    public ParseTree smallestCommonAncestor(Collection<ParseTree> nodes){
+    public ParseTree smallestCommonAncestor(Collection<ParseTree> nodes) {
       int minLength = Integer.MAX_VALUE;
       int minDepth = Integer.MAX_VALUE;
       ParseTree minTree = null;
-      for (ParseTree child : children){
+      for (ParseTree child : children) {
         ParseTree ancestor = child.smallestCommonAncestor(nodes);
         if (ancestor == null) continue;
         int length = ancestor.length();
         int depth = ancestor.maxDepth();
-        if (length < minLength || length == minLength && depth < minDepth){
+        if (length < minLength || length == minLength && depth < minDepth) {
           minLength = length;
           minDepth = depth;
           minTree = ancestor;
         }
       }
-      if (minTree == null){
+      if (minTree == null) {
         //check whether this is a common ancestor
-        for (ParseTree node : nodes){
+        for (ParseTree node : nodes) {
           if (!covers(node)) return null;
         }
         return this;
@@ -833,13 +840,13 @@ public class CoNLL05Converter {
       return minTree;
     }
 
-    public int length(){
+    public int length() {
       return end - begin + 1;
     }
 
     public int maxDepth() {
       int max = 0;
-      for (ParseTree child : children){
+      for (ParseTree child : children) {
         int depth = child.maxDepth();
         if (depth > max) {
           max = depth;
@@ -1197,7 +1204,7 @@ public class CoNLL05Converter {
     return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
   }
 
-  public static String quote(String s){
+  public static String quote(String s) {
     return "\"" + s + "\"";
   }
 

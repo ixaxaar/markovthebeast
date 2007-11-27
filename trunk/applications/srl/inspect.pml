@@ -1,36 +1,60 @@
-include "types.pml";
-include "model.pml";
+include "types.clean.pml";
+include "model-pairs.pml";
 
-//set instancesCacheSize = 5;
-set corpusCacheSize = 20;
+//load corpus from $1;
+load corpus from "one-sentence.atoms";
 
-//load weights from dump "/tmp/srl.weights.dmp";
-load weights from dump "/tmp/epoch_0.dmp";
+save corpus to ram;
+
+collect;
+
+types to "types.pml";
+
+save corpus to instances "/tmp/srl.instances.dmp";
 
 //set learner.solver.integer = true;
+set learner.loss = "avgF1";
+//set learner.loss.restrict.arg(*,"V") = true;
+set learner.solver.model.initIntegers = true;
+set learner.solver.maxIterations = 10;
+set learner.solver.model.solver.bbDepthLimit=5;
+
+
+//set learner.average = true;
+
+//set learner.solver.history = true;
+
+//set learner.minOrder = 2;
+set learner.maxCandidates=1;
+set learner.minCandidates=1;
+
+learn for 10 epochs;
+
+//print weights.w_activeright;
+//print weights.w_positionvoice;
+//print weights.w_positionpredvoice;
+
+//set evalrestrict.arg(*,"V") = true;
+
 set solver.model.initIntegers = true;
-
-set solver.order.implyArg = 1;
-set solver.order.atLeastOne = 2;
-set solver.order.cargimpliesarg = 2;
-set solver.order.rargimpliesarg = 2;
-set solver.order.duplicatearg = 2;
-
-//set solver.order.duplicatemod = 2;
-//set solver.order.implyIsarg = 0;
-//set solver.order.argpair = 2;
-//set solver.order.argpairvoice = 2;
-//set solver.order.duplicatearg = 2;
-set solver.model.solver.bbDepthLimit=200;
-
-//load corpus from "corpora/dev-set.crp";
-load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/dev-set.crp";
-//load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/small-train-set.crp";
-
-set printer = "conll05";
-
-save corpus(0-400) to ram;
-
-//set evalrestrict.arg(*,'V') = true;
+set solver.model.solver.bbDepthLimit=5;
 
 //test to ram;
+
+/*
+next;
+
+set evalrestrict.arg(*,"V") = true;
+
+print atoms.arg;
+solve;
+print atoms.arg;
+
+print eval;
+
+next; solve; print eval;
+next; solve; print eval;
+
+//print weights.w_label;
+*/
+
