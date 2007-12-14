@@ -755,6 +755,8 @@ public class IntegerLinearProgram implements PropositionalModel {
           solver = new ILPSolverLpSolve();
         else if ("osi".equals(type))
           solver = new ILPSolverOsi();
+        else if ("mosek".equals(type))
+          solver = new ILPSolverMosek();
         else if ("cbc".equals(type))
           solver = new ILPSolverCbc();
         else

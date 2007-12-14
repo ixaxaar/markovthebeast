@@ -42,6 +42,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int count;
   private Profiler profiler = new NullProfiler();
   private int maxCandidates = 1000;
+  private int maxAtomCount = Integer.MAX_VALUE;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
   private boolean useGreedy = true;
@@ -239,7 +240,8 @@ public class OnlineLearner implements Learner, HasProperties {
       progressReporter.started("Epoch " + epoch);
       instanceNr = 0;
       for (TrainingInstance instance : instances) {
-        learn(instance);
+        //System.out.println(instanceNr + ": " + instance.getData().getGroundAtomCount());
+        if (instance.getData().getGroundAtomCount() <= maxAtomCount) learn(instance);
 //        if (instanceNr >= 550 && instanceNr <= 560)
 //          ((CuttingPlaneSolver)solver).printHistory(System.out);
         ++instanceNr;
@@ -444,6 +446,8 @@ public class OnlineLearner implements Learner, HasProperties {
       setMinOrder((Integer) value);
     } else if ("numEpochs".equals(name.getHead())) {
       setNumEpochs((Integer) value);
+    } else if ("maxAtomCount".equals(name.getHead())) {
+      setMaxAtomCount((Integer) value);
     } else if ("update".equals(name.getHead())) {
       if (name.isTerminal()) {
         if ("mira".equals(value.toString()))
@@ -508,6 +512,15 @@ public class OnlineLearner implements Learner, HasProperties {
 
   public void setInitializeWeights(boolean initializeWeights) {
     this.initializeWeights = initializeWeights;
+  }
+
+
+  public int getMaxAtomCount() {
+    return maxAtomCount;
+  }
+
+  public void setMaxAtomCount(int maxAtomCount) {
+    this.maxAtomCount = maxAtomCount;
   }
 
   public Object getProperty(PropertyName name) {

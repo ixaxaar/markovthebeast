@@ -42,6 +42,12 @@ public class TestInterpreter extends NoDTest {
     assertEquals(20.0, interpreter.evaluateDouble(exprBuilder.getDouble()).getDouble());
   }
 
+  public void testDoubleAbs() {
+    exprBuilder.num(5).doubleCast().num(2.0).doubleTimes().num(-30.0).doubleAdd().doubleAbs();
+    assertEquals(20.0, interpreter.evaluateDouble(exprBuilder.getDouble()).getDouble());
+  }
+
+
   public void testBoolVariable() {
     BoolVariable var = interpreter.createBoolVariable(exprBuilder.bool(true).getBool());
     assertEquals(true, var.value().getBool());

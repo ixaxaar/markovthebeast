@@ -290,6 +290,10 @@ public abstract class AbstractExpressionVisitor implements ExpressionVisitor {
     visitExpression(indexCollector);
   }
 
+  public void visitDoubleAbs(DoubleAbs doubleAbs) {
+    visitExpression(doubleAbs);
+  }
+
   public void visitRelationSelector(RelationSelector relationSelector) {
     visitExpression(relationSelector);
   }

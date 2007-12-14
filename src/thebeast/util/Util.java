@@ -1,6 +1,6 @@
 package thebeast.util;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * @author Sebastian Riedel
@@ -23,6 +23,7 @@ public class Util {
       if (index++ > 0) buffer.append(delim);
       String string = obj.toString();
       if (string.startsWith("\"") && string.endsWith("\"")){
+        if (string.length() <= 2) string = "\" \" "; else        
         string = "\"" + replaceQuotationMarks(string.substring(1,string.length()-1)) + "\"";
       }
       buffer.append(string);
@@ -71,6 +72,39 @@ public class Util {
 
   public static String unquote(String label) {
     return (label.startsWith("\"")) ? label.substring(1, label.length() - 1) : label;
+  }
+
+  public static <T> Set<Pair<T,T>> transitiveReflexiveClosure(Set<Pair<T,T>> graph){
+    Set<Pair<T,T>> result = new HashSet<Pair<T,T>>();
+    HashMultiMapSet<T, T> incoming = new HashMultiMapSet<T, T>();
+    HashMultiMapSet<T, T> outgoing = new HashMultiMapSet<T, T>();
+
+    for (Pair<T,T> match : graph) {
+      Set<T> srcs = new HashSet<T>(incoming.get(match.arg1));
+      Set<T> tgts = new HashSet<T>(outgoing.get(match.arg2));
+      incoming.add(match.arg2, match.arg1);
+      outgoing.add(match.arg1, match.arg2);
+      //closure.add(match.arg1, match.arg1);
+      //closure.add(match.arg2, match.arg2);
+      for (T src : srcs) {
+        incoming.add(match.arg2, src);
+        outgoing.add(src, match.arg2);
+      }
+      for (T tgt : tgts) {
+        incoming.add(tgt, match.arg1);
+        outgoing.add(match.arg1, tgt);
+      }
+      for (T src : srcs)
+        for (T tgt : tgts) {
+          incoming.add(tgt, src);
+          outgoing.add(src, tgt);
+        }
+    }
+    for (T from : outgoing.keySet()){
+      for (T to: outgoing.get(from))
+        result.add(new Pair<T,T>(from,to));
+    }
+    return result;
   }
 
   public static int fakultaet(int n, int k){

@@ -96,6 +96,28 @@ public class TermPrinter implements TermVisitor {
         functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
         out.print(")");
       }
+
+      public void visitDoubleAbs(DoubleAbs doubleAbs) {
+        out.print("abs(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
+
+      public void visitDoubleAdd(DoubleAdd doubleAdd) {
+        out.print("(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(" + ");
+        functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
+
+      public void visitDoubleMinus(DoubleMinus doubleMinus) {
+        out.print("(");
+        functionApplication.getArguments().get(0).acceptTermVisitor(TermPrinter.this);
+        out.print(" - ");
+        functionApplication.getArguments().get(1).acceptTermVisitor(TermPrinter.this);
+        out.print(")");
+      }
     });
   }
 

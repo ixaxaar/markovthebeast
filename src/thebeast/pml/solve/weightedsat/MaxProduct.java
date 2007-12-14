@@ -1,6 +1,7 @@
 package thebeast.pml.solve.weightedsat;
 
 import thebeast.pml.PropertyName;
+import thebeast.util.Profiler;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -156,7 +157,10 @@ public class MaxProduct implements WeightedSatSolver {
     }
 
     public String toString() {
-      return String.format("%-10s%-10s(%4.2f)%5s %-6.2f%5s %-6.2f", node, factor, maxContribution, "<-", current.factor2node, "->", current.node2factor);
+      return String.format("%-10s%-10s(%4.2f)%5s %-6.2f%5s %-6.2f",
+              node, factor, maxContribution,
+              "<-", current.factor2node,
+              "->", current.node2factor);
     }
 
   }
@@ -205,7 +209,7 @@ public class MaxProduct implements WeightedSatSolver {
         if (delta > eps) eps = delta;
         delta = edge.updateMessagesToNode();
         if (delta > eps) eps = delta;
-        if (debug) System.out.println(edge);
+        //if (debug) System.out.println(edge);
       }
       for (Edge edge : edges) {
         edge.makeCurrentPrevious();
@@ -290,6 +294,10 @@ public class MaxProduct implements WeightedSatSolver {
   }
 
   public void setStates(boolean[] states) {
+
+  }
+
+  public void setProfiler(Profiler profiler) {
 
   }
 

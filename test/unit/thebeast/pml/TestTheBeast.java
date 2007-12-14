@@ -1200,6 +1200,14 @@ public class TestTheBeast extends TestCase {
     assertTrue(extracted.getFalseVector().contains(4, -1.0));
     assertEquals(2, features.size());
 
+    FeatureVector all = solution.extract();
+    System.out.println(all.getAll());
+    double score = weights.score(all);
+    System.out.println(score);
+
+
+    
+
   }
 
   public void testLEQConstraint() {

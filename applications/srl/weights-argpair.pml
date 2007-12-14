@@ -1,8 +1,27 @@
-weight w_pair_bias: Argument x Argument -> Double-;
+weight w_pair_bias: Argument x Argument -> Double;
   factor: for Int c1, Int c2, Argument a1, Argument a2 if nooverlap(c1,c2)
   add [argpair(c1,c2,a1,a2)] * w_pair_bias(a1,a2);
 
-set collector.all.w_pair_bias = true;
+//weight w_pair_undef: Double-;
+//factor[1]:
+//  for Int c1, Int c2, Argument a1, Argument a2
+//  if nooverlap(c1,c2) & undefined(w_pair_bias(a1,a2))
+//  add [arg(c1,a1) & arg(c2,a2)] * w_pair_undef;
+
+//weight w_arg_pair: Argument x Argument -> Double-;
+//factor[1]:
+//  for Int c1, Int c2, Argument a1, Argument a2
+//  if nooverlap(c1,c2)
+//  add [arg(c1,a1) & arg(c2,a2)] * w_arg_pair(a1,a2);
+
+//set collector.all.w_arg_pair = true;
+
+//set collector.all.w_pair_bias = true;
+                                                                                                                 
+weight w_pair_undef: Double-;
+  factor: for Int c1, Int c2, Argument a1, Argument a2
+  if nooverlap(c1,c2) & allargs(a1) & allargs(a2) & undefined(w_pair_bias(a1,a2))
+  add [argpair(c1,c2,a1,a2)] * w_pair_undef;
 
 weight w_pair_voice: Voice x Argument x Argument -> Double;
 factor: for Int c1, Int c2, Voice v, Argument a1, Argument a2

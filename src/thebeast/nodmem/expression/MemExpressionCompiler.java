@@ -1095,6 +1095,13 @@ public class MemExpressionCompiler implements ExpressionVisitor {
     function.groupAtt = groupAttribute;
   }
 
+  public void visitDoubleAbs(DoubleAbs doubleAbs) {
+    doubleAbs.argument().acceptExpressionVisitor(this);
+    MemFunction argument = function;
+    function = new MemFunction(MemFunction.Type.DOUBLE_ABS, new MemChunk(1, 1, MemDim.DOUBLE_DIM),
+            new MemVector[]{new MemVector(0, 0, 0), new MemVector(0, 1, 0)}, argument);
+  }
+
   public void visitArrayAccess(ArrayAccess arrayAccess) {
     MemChunk argHolder = new MemChunk(1, 1, MemDim.INT_CHUNK_DIM);
     arrayAccess.array().acceptExpressionVisitor(this);

@@ -141,6 +141,9 @@ public interface ExpressionFactory {
 
   DoubleCast createDoubleCast(IntExpression expr);
 
+  DoubleAbs createDoubleAbs(DoubleExpression expr);
+
+
   IntBins createIntBins(IntExpression argument, List<Integer> bins);
 
   IndexCollector createIndexCollector(RelationExpression relation,String groupAttribute,

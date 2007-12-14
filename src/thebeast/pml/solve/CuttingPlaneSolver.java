@@ -33,6 +33,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private Weights weights;
   private int iteration;
+  private int integerEnforcements;
   private boolean done, scoresSet, initSet;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
@@ -134,7 +135,7 @@ public class CuttingPlaneSolver implements Solver {
     factorSets.clear();
     orderedFactors.clear();
 
-    for (FactorFormula formula : model.getGlobalFactorFormulas()){
+    for (FactorFormula formula : model.getGlobalFactorFormulas()) {
       setOrder(formula, formula.getOrder());
       if (formula.isGround()) setFullyGround(formula, true);
     }
@@ -170,7 +171,6 @@ public class CuttingPlaneSolver implements Solver {
    */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
-    System.out.println("maxIterations = " + this.maxIterations);
   }
 
 
@@ -326,6 +326,7 @@ public class CuttingPlaneSolver implements Solver {
     if (!scoresSet) score();
     propositionalModel.setClosure(scores.getClosure());
 
+    integerEnforcements = 0;
     int order = 0;
 
     if (groundAll.isEmpty()) {
@@ -362,6 +363,7 @@ public class CuttingPlaneSolver implements Solver {
       addCandidate(order);
       if (enforceIntegers && !propositionalModel.changed() && propositionalModel.isFractional()) {
         propositionalModel.enforceIntegerSolution();
+        ++integerEnforcements;
       }
       if (showIterations) System.out.print("+");
     }
@@ -376,6 +378,16 @@ public class CuttingPlaneSolver implements Solver {
 
   }
 
+
+  /**
+   * In integer mode the solver checks each solution for fractionals and adds integer constraints if needed. This method
+   * returns how often integer constraints were added to the problem
+   *
+   * @return number of times integer constraints were added.
+   */
+  public int getIntegerEnforcementsCount() {
+    return integerEnforcements;
+  }
 
   /**
    * This method returns the set of ground formulas for the given candidate solution index. Note that this method might
@@ -514,7 +526,7 @@ public class CuttingPlaneSolver implements Solver {
     profiler.start("score");
     scores.score(features, atoms);
     profiler.end();
-    profiler.start("ilp.init");
+    profiler.start("init-prop-model");
     propositionalModel.init(scores);
     profiler.end();
     scoresSet = true;
@@ -674,11 +686,11 @@ public class CuttingPlaneSolver implements Solver {
       setFullyGroundAll((Boolean) value);
     else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
-    else if (name.getHead().equals("profiler")){
+    else if (name.getHead().equals("profiler")) {
       if (!name.isTerminal())
         profiler.setProperty(name.getTail(), value);
       else {
-        setProfiler(TreeProfiler.createProfiler(value.toString()));   
+        setProfiler(TreeProfiler.createProfiler(value.toString()));
       }
     }
   }
@@ -686,7 +698,7 @@ public class CuttingPlaneSolver implements Solver {
   public void setShowIterations(Boolean aBoolean) {
     showIterations = aBoolean;
   }
-  
+
   public void setPrintHistory(boolean printHistory) {
     this.printHistory = printHistory;
   }

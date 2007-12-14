@@ -176,7 +176,7 @@ public class CbcModel {
     solver.addRow(1, new int[]{0}, new double[]{1.0}, 0.2, 0.4);
     //solver.setInteger(1);
     model.resetToReferenceSolver();
-    model.addCglProbing(true, 1, 5, 10, 1000, 50, 500, 200, 3);
+    //model.addCglProbing(true, 1, 5, 10, 1000, 50, 500, 200, 3);
     model.addCglGomory(300);
     model.addCglKnapsackCover();
     model.addCglMixedIntegerRounding2();

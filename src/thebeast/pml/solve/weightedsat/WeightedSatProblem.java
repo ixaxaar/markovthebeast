@@ -216,7 +216,7 @@ public class WeightedSatProblem implements PropositionalModel {
       }
       interpreter.assign(newAtomCosts, newAtomCostsQuery);
     } else {
-      System.out.println("Single-Call-Mode");
+      //System.out.println("Single-Call-Mode");
       for (FactorFormula factor : factors) {
         interpreter.append(newClauses, groundingQueries.get(factor));
       }
@@ -378,6 +378,8 @@ public class WeightedSatProblem implements PropositionalModel {
       if (name.isTerminal()) {
         if ("maxwalksat".equals(value))
           solver = new MaxWalkSat();
+        else if ("maxproduct".equals(value))
+          solver = new MaxProduct();
       } else
         solver.setProperty(name.getTail(), value);
     } else if (name.getHead().equals("singleCallMode")) {
@@ -391,6 +393,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
   public void setProfiler(Profiler profiler) {
     this.profiler = profiler;
+    if (solver != null) solver.setProfiler(profiler);
   }
 
   private static WeightedSatClause toClause(TupleValue tuple) {

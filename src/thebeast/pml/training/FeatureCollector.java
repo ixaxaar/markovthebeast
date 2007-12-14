@@ -177,7 +177,7 @@ public class FeatureCollector implements HasProperties {
     if (cutoff > 0) {
       progressReporter.started("Cutoff features");
       for (WeightFunction w : model.getLocalWeightFunctions()) {
-        if (!collectAll.contains(w)) {
+        if (!collectAll.contains(w) && w.getArity() > 0) {
           RelationVariable relation = weights.getRelation(w);
           RelationVariable tmp = interpreter.createRelationVariable(w.getIndexedHeading());
           builder.expr(relation).intAttribute("count").num(cutoff).intGreaterThan().restrict();

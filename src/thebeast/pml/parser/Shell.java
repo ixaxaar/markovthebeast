@@ -1,6 +1,7 @@
 package thebeast.pml.parser;
 
 import jline.ConsoleReader;
+import jline.SimpleCompletor;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
 import thebeast.pml.*;
@@ -59,6 +60,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private boolean signatureUpdated = false;
   private boolean modelUpdated = true;
   private boolean weightsUpdated = false;
+  private boolean evalScores = false;
 
   private boolean printStackTraces = true;
   private boolean printModelChanges = true;
@@ -78,6 +80,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private String[] args;
 
   private UserPredicate predicateForSize;
+  private SimpleCompletor completor = new SimpleCompletor("");
+  private int maxTabComplete = 50;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -90,6 +94,14 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     try {
       console = new ConsoleReader(System.in, new OutputStreamWriter(System.out));
       console.getHistory().setHistoryFile(new File(System.getProperty("user.home") + "/.thebeasthistory"));
+      console.addCompletor(completor);
+      List historyList = console.getHistory().getHistoryList();
+      ListIterator listIterator = historyList.listIterator(historyList.size());
+      while (completor.getCandidates().size() < maxTabComplete && listIterator.hasPrevious())
+        completor.addCandidateString((String) listIterator.previous());
+//        for (Object o : historyList)
+//        if (completor.getCandidates().size() > maxTabComplete) break;
+//        else completor.addCandidateString((String) o);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -165,6 +177,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (printPrompt) out.print("# ");
     for (String line = console.readLine(); line != null; line = console.readLine()) {
       PMLParser parser = new PMLParser(new Yylex(new ByteArrayInputStream(line.getBytes())));
+      completor.addCandidateString(line);
       try {
         for (Object obj : ((List) parser.parse().value)) {
           ParserStatement statement = (ParserStatement) obj;
@@ -554,10 +567,12 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 //    solver.solve(parserSolve.numIterations);
 //    solutionAvailable = false;
 //    guess.load(solver.getAtoms(), model.getHiddenPredicates());
-    if (solver.getIterationCount() == 0)
+    if (solver.getIterationCount() == 1)
       out.println("Solved locally in " + time + "ms.");
-    else
-      out.println("Solved in " + solver.getIterationCount() + " step(s) and " + time + "ms.");
+    else {
+      out.println("Solved with " + solver.getIterationCount() + " steps (" + solver.getIntegerEnforcementsCount()
+              + " integer enforcements) in " + time + "ms.");
+    }
   }
 
   public void visitGenerateTypes(ParserGenerateTypes parserGenerateTypes) {
@@ -695,9 +710,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
     }
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
-    if (evalFunction != null){
+    if (evalFunction != null) {
       CorpusEvaluationFunction function = evalFunctions.get(evalFunction);
-      if (function != null){
+      if (function != null) {
         corpusEvaluation.addCorpusEvaluationFunction(evalFunction, function);
       }
     }
@@ -707,38 +722,53 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         evaluation.addRestrictionPattern(pred, pattern);
     }
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
-    reporter.setColumns("Loss", "Iterations");
+    if (evalScores)
+      reporter.setColumns("Loss", "Iterations", "Gold Score", "Guess Score", "Violations");
+    else
+      reporter.setColumns("Loss", "Iterations");
+
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
     Counter<Integer> iterations = new Counter<Integer>();
+    Solution goldSolution = new Solution(model, weights);
+    Solution guessSolution = new Solution(model, weights);
     for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
       if (predicateForSize != null)
         solver.getProfiler().start(String.valueOf(gold.getGroundAtomsOf(predicateForSize).size()));
       solver.solve();
-      if (predicateForSize != null){
+      if (predicateForSize != null) {
         solver.getProfiler().end();
-        iterations.increment(gold.getGroundAtomsOf(predicateForSize).size(),solver.getIterationCount());
+        iterations.increment(gold.getGroundAtomsOf(predicateForSize).size(), solver.getIterationCount());
       }
-      evaluation.evaluate(gold, solver.getBestAtoms());
+
 //      for (UserPredicate pred : model.getHiddenPredicates()){
 //        System.out.println(gold.getGroundAtomsOf(pred));
 //        System.out.println(solver.getBestAtoms().getGroundAtomsOf(pred));
 //      }
-      corpusEvaluation.add(evaluation);
       dst.append(solver.getBestAtoms());
       double loss = lossFunction.loss(gold, solver.getBestAtoms());
-      reporter.progressed(loss, solver.getIterationCount());
+      evaluation.evaluate(gold, solver.getBestAtoms());
+      corpusEvaluation.add(evaluation);
+      if (evalScores) {
+        goldSolution.load(gold);
+        goldSolution.updateGroundFormulas();
+        GroundFormulas formulas = new GroundFormulas(model,weights);
+        formulas.update(solver.getBestAtoms());
+        guessSolution.load(solver.getBestAtoms(), formulas);
+        double goldScore = weights.score(goldSolution.extract());
+        double guessScore = weights.score(guessSolution.extract());
+        int violations = guessSolution.getGroundFormulas().getViolationCount();
+        reporter.progressed(loss, solver.getIterationCount(), goldScore, guessScore,violations);
+      } else
+        reporter.progressed(loss, solver.getIterationCount());
+
       //System.out.println(loss);
     }
     reporter.finished();
     out.print(corpusEvaluation);
-    if (predicateForSize != null){
-      try {
-        iterations.save(System.out);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      }
+    if (predicateForSize != null) {
+      iterations.save(System.out);
     }
   }
 
@@ -746,7 +776,6 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     UserPredicate predicate = signature.getUserPredicate(parserCreateIndex.name);
     predicate.addIndex(parserCreateIndex.markers);
   }
-
 
 
   public void visitLoadScores(ParserLoadScores parserLoadScores) {
@@ -886,7 +915,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     try {
       int number = Integer.parseInt(name);
       if (number >= args.length)
-        throw new ShellException("You are using " + name + " parameters but there are only " + (args.length-1) + " " +
+        throw new ShellException("You are using " + name + " parameters but there are only " + (args.length - 1) + " " +
                 "parameters available!");
       stringValue = args[number];
     }
@@ -904,7 +933,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     }
   }
 
-  private Object resolveParam(Object value){
+  private Object resolveParam(Object value) {
     if (value instanceof String && ((String) value).startsWith("$")) {
       String param = ((String) value).substring(1);
       return getParameter(param);
@@ -932,10 +961,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       collector.setProperty(toPropertyName(parserSet.propertyName.tail), value);
     else if ("printer".equals(parserSet.propertyName.head))
       printer = printers.get(value.toString());
-    else if ("sizePred".equals(parserSet.propertyName.head)){
+    else if ("sizePred".equals(parserSet.propertyName.head)) {
       predicateForSize = signature.getUserPredicate(value.toString());
-    }
-    else if ("eval".equals(parserSet.propertyName.head))
+    } else if ("evalScores".equals(parserSet.propertyName.head)) {
+      evalScores = (Boolean) value;
+    } else if ("eval".equals(parserSet.propertyName.head))
       evalFunction = value.toString();
     else
       throw new RuntimeException("There is no property named " + parserSet.propertyName);
@@ -1096,7 +1126,11 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     Term lhs = term;
     parserAdd.rhs.acceptParserTermVisitor(this);
     Term rhs = term;
-    term = new FunctionApplication(IntAdd.ADD, lhs, rhs);
+    if (lhs.getType().getTypeClass() == Type.Class.DOUBLE && rhs.getType().getTypeClass() == Type.Class.DOUBLE)
+      term = new FunctionApplication(DoubleAdd.ADD, lhs, rhs);
+    else
+      term = new FunctionApplication(IntAdd.ADD, lhs, rhs);
+
     typeCheck();
   }
 
@@ -1115,7 +1149,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     Term lhs = term;
     parserMinus.rhs.acceptParserTermVisitor(this);
     Term rhs = term;
-    term = new FunctionApplication(IntMinus.MINUS, lhs, rhs);
+    if (lhs.getType().getTypeClass() == Type.Class.DOUBLE && rhs.getType().getTypeClass() == Type.Class.DOUBLE)
+      term = new FunctionApplication(DoubleMinus.MINUS, lhs, rhs);
+    else
+      term = new FunctionApplication(IntMinus.MINUS, lhs, rhs);
     typeCheck();
   }
 
@@ -1241,6 +1278,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerPrinter("conll05", new CoNLL05SentencePrinter());
     registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("mt", new MTPrinter());
+    registerPrinter("mtm4", new MTModel4Printer());
     registerPrinter("align", new AlignmentPrinter());
     registerPrinter("default", new DefaultPrinter());
     registerEvaluator("F1 SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.F1));
@@ -1248,8 +1286,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerEvaluator("Precision SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.PRECISION));
   }
 
-  public void registerEvaluator(String name, CorpusEvaluationFunction function){
-    evalFunctions.put(name,function);
+  public void registerEvaluator(String name, CorpusEvaluationFunction function) {
+    evalFunctions.put(name, function);
   }
 
   public void registerPrinter(String name, GroundAtomsPrinter printer) {

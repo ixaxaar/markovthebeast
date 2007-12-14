@@ -71,6 +71,18 @@ public class TermInverter implements TermVisitor{
         throw new RuntimeException("We can't invert cast function " + doubleCast + " in " + term + " yet!");
       }
 
+      public void visitDoubleAbs(DoubleAbs doubleAbs) {
+        throw new RuntimeException("We can't invert abs function " + doubleAbs + " in " + term + " yet!");
+      }
+
+      public void visitDoubleAdd(DoubleAdd doubleAdd) {
+        throw new RuntimeException("We can't invert double add function " + doubleAdd+ " in " + term + " yet!");
+      }
+
+      public void visitDoubleMinus(DoubleMinus doubleMinus) {
+        throw new RuntimeException("We can't invert double minus function " + doubleMinus+ " in " + term + " yet!");
+      }
+
 
       public void visitIntMin(IntMin intMin) {
         throw new RuntimeException("We can't invert min function " + intMin + " in " + term);
