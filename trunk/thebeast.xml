@@ -69,6 +69,7 @@
   <path id="thebeast.module.classpath">
     <path refid="library.junit.classpath"/>
     <pathelement location="${module.thebeast.basedir}/lib/java-cup-11a.jar"/>
+    <pathelement location="${module.thebeast.basedir}/bin/linux/mosek.jar"/>
     <pathelement location="${module.thebeast.basedir}/lib/JSAP-2.1.jar"/>
     <pathelement location="${module.thebeast.basedir}/lib/lpsolve55j.jar"/>
     <pathelement location="${module.thebeast.basedir}/lib/JLex"/>

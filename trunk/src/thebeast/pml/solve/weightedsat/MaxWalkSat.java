@@ -3,6 +3,8 @@ package thebeast.pml.solve.weightedsat;
 import thebeast.pml.PropertyName;
 import thebeast.util.HashMultiMapList;
 import thebeast.util.TreeProfiler;
+import thebeast.util.Profiler;
+import thebeast.util.NullProfiler;
 
 import java.util.*;
 
@@ -36,6 +38,9 @@ public class MaxWalkSat implements WeightedSatSolver {
   private long timeOut = Long.MAX_VALUE;
   private int calls;
   private DeltaScoredAtom deltaScoredAtom = new DeltaScoredAtom(null, 0);
+  private Profiler profiler = new NullProfiler();
+
+
 
   public void setProperty(PropertyName name, Object value) {
     if ("maxFlips".equals(name.getHead()))
@@ -558,7 +563,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     //System.out.println("maxFlips = " + maxFlips);
     //System.out.println(random.);
     //random.setSeed(0);
-    TreeProfiler profiler = new TreeProfiler();
+
     bestScore = Double.NEGATIVE_INFINITY;
     long time = System.currentTimeMillis();
     ++calls;
@@ -588,7 +593,7 @@ public class MaxWalkSat implements WeightedSatSolver {
       //System.out.println("Flipping..");
       for (int flip = 0; flip < maxFlips && bestScore < target && System.currentTimeMillis() - time < timeOut; ++flip) {
         MaxWalkSat.Clause clause;
-        //profiler.start("pick-clause");
+        profiler.start("pick-clause");
         if (pickFromUnsatisfied) {
           clause = pickRandomClause(random, unsatisfiedClauses, unsatisfiedClauseCount);
         } else
@@ -597,23 +602,27 @@ public class MaxWalkSat implements WeightedSatSolver {
         double uniform = random.nextDouble();
         Atom atom;
         double delta;
-        //profiler.end().start("pick-node");
+        profiler.end().start("pick-node");
         if (uniform > this.greedy) {
+          profiler.start("random");
           atom = pickRandomNode(random, clause);
           delta = calculateDeltaCost(atom);
+          profiler.end();
         } else {
+          profiler.start("greedy");
           findHighestDeltaNode(clause, deltaScoredAtom);
           atom = deltaScoredAtom.atom;
           delta = deltaScoredAtom.delta;
+          profiler.end();
         }
         ///System.out.println("Changed: " + atom.index);
 
-        //profiler.end().start("flip-node");
+        profiler.end().start("flip-node");
         flipNode(atom);
         //System.out.println("unsatisfiedClauseCount = " + unsatisfiedClauseCount);
 
         score += delta;
-        //profiler.end().start("update-best");
+        profiler.end().start("update-best");
         if (score > bestScore) {
           fill(atoms, best);
           bestScore = score;
@@ -626,7 +635,7 @@ public class MaxWalkSat implements WeightedSatSolver {
           //System.out.println("calculateCostOfUnsatistfied() = " + calculateCostOfUnsatistfied());
           //System.out.println("sum = " + (score + calculateCostOfUnsatistfied()));
         }
-        //profiler.end();
+        profiler.end();
 //        profiler.end().start("update-clauses");
         //updateUnsatisfiedClausesIncrementally();
 //        profiler.end();
@@ -663,6 +672,10 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public void setStates(boolean[] states) {
     System.arraycopy(states, 0, best, 0, states.length);
+  }
+
+  public void setProfiler(Profiler profiler) {
+    this.profiler = profiler;
   }
 
   public double getBestScore() {

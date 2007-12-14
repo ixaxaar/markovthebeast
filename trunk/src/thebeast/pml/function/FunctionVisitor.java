@@ -20,4 +20,10 @@ public interface FunctionVisitor {
   void visitDoubleProduct(DoubleProduct doubleProduct);
 
   void visitDoubleCast(DoubleCast doubleCast);
+
+  void visitDoubleAbs(DoubleAbs doubleAbs);
+
+  void visitDoubleAdd(DoubleAdd doubleAdd);
+
+  void visitDoubleMinus(DoubleMinus doubleMinus);
 }

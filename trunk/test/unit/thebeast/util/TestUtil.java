@@ -2,6 +2,11 @@ package thebeast.util;
 
 import junit.framework.TestCase;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 /**
  * @author Sebastian Riedel
  */
@@ -31,6 +36,20 @@ public class TestUtil extends TestCase {
     assertEquals(result[9][0],4);
     assertEquals(result[9][1],5);
     System.out.println(result);
+  }
+
+  public void testClosure(){
+    Set<Pair<Integer,Integer>> graph = new HashSet<Pair<Integer, Integer>>();
+    graph.add(new Pair<Integer, Integer>(0,2));
+    graph.add(new Pair<Integer, Integer>(2,4));
+    graph.add(new Pair<Integer, Integer>(2,6));
+    Set<Pair<Integer,Integer>> result = Util.transitiveReflexiveClosure(graph);
+    System.out.println(result);
+    assertTrue(result.contains(new Pair<Integer,Integer>(0,4)));
+    assertTrue(result.contains(new Pair<Integer,Integer>(0,2)));
+    assertTrue(result.contains(new Pair<Integer,Integer>(0,6)));
+    assertTrue(result.contains(new Pair<Integer,Integer>(2,4)));
+    assertTrue(result.contains(new Pair<Integer,Integer>(2,6)));
   }
 
 }

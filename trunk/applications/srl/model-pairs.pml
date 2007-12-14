@@ -26,8 +26,10 @@ predicate properarg: Argument;
 predicate modifier: Argument;
 predicate carg: Argument;
 predicate rarg: Argument;
+predicate allargs: Argument;
 predicate cargpair: Argument x Argument;
 predicate rargpair: Argument x Argument;
+
 
 predicate arg: Int x Argument;
 predicate isarg: Int;
@@ -38,7 +40,7 @@ predicate argpair: Int x Int x Argument x Argument;
 hidden: arg,isarg, argpair;//,class;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,pathlength,shortframe,
   frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead,distance,nooverlap;
-global: properarg, modifier, carg, rarg, cargpair, rargpair;
+global: properarg, modifier, carg, rarg, cargpair, rargpair,allargs;
 
 auxiliary: argpair;
 
@@ -52,30 +54,27 @@ include "weights-argpair.pml";
 load global from "global.atoms";
 
 
-//weight w_argpair: Argument x Argument -> Double-;
+//weight w_argpair[2]: Argument x Argument -> Double-;
 //factor argpair:
 //  for Int c1, Int c2, Argument a1, Argument a2, Int b1, Int b2
 //  if candidate(c1) & candidate(c2) & span(c1,b1,_) & span(c2,b2,_) & b2 > b1
 //  add [arg(c1,a1) & arg(c2,a2)] * w_argpair(a1,a2);
 //set collector.all.w_argpair = true;
 
-
 //induce non overlapping candidates
 //factor : for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2
 //  if span(c1,b1,e1) & span(c2,b2,e2) & b1 < b2 & e1 < b2 : nooverlap(c1,c2);
 
 //induce argpairs
-factor[2]: for Int c1, Int c2, Argument a1, Argument a2
+factor[0]: for Int c1, Int c2, Argument a1, Argument a2
   if nooverlap(c1,c2) : arg(c1,a1) & arg(c2,a2) => argpair(c1,c2,a1,a2);
 
 //induce args
-factor[2]: for Int c1, Int c2, Argument a1, Argument a2
+factor[0]: for Int c1, Int c2, Argument a1, Argument a2
   if nooverlap(c1,c2) : argpair(c1,c2,a1,a2) => arg(c1,a1);
 
-factor[2]: for Int c1, Int c2, Argument a1, Argument a2
+factor[0]: for Int c1, Int c2, Argument a1, Argument a2
   if nooverlap(c1,c2) : argpair(c1,c2,a1,a2) => arg(c2,a2);
-
-
 
 //no overlaps
 factor [1]: for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2, Argument a1, Argument a2
@@ -83,6 +82,11 @@ factor [1]: for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2, Argument a1, Arg
 
 factor [1]: for Int c1, Int c2, Int b1, Int e1, Int b2, Int e2
   if span(c1,b1,e1) & span(c2,b2,e2) & b1 < b2 & e1 >= b2 : !(isarg(c1) & isarg(c2));
+
+factor [0]: for Argument a if properarg(a) : |Int c: arg(c,a)| <= 1;
+
+factor [0]: for Argument a1 if properarg(a1) : |Int c1, Int c2, Argument a2: nooverlap(c1,c2) & argpair(c1,c2,a1,a2)| <= 1;
+factor [0]: for Argument a1 if properarg(a1) : |Int c1, Int c2, Argument a2: nooverlap(c1,c2) & argpair(c1,c2,a2,a1)| <= 1;
 
 
 //not more than one argument for a candidate
@@ -92,6 +96,7 @@ factor [0]: for Int c1, Int c2 if nooverlap(c1,c2): |Argument a1, Argument a2: a
 
 //if there is an isarg there has to be an arg
 factor [1]: for Int c if candidate(c): isarg(c) => |Argument a: arg(c,a)| >= 1;
+
 
 //if there is an arg there has to be a isarg
 //factor implyIsarg: for Int c, Argument a if candidate(c): arg(c,a) => isarg(c);

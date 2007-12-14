@@ -66,6 +66,16 @@ public class AlignmentFixtures {
     model.addFactorFormula(result);
   }
 
+  public static void addAbsoluteDistanceFormula(Model model, String weightName){
+    FormulaBuilder builder = new FormulaBuilder(model.getSignature());
+    model.getSignature().createWeightFunction(weightName);
+    FactorFormula result = builder.parse(("" +
+            "factor: for Int s, Int t " +
+            "if source(s,_) & target(t,_)" +
+            "add [align(s,t)] * abs(double(s - t)) * " + weightName));
+    model.addFactorFormula(result);
+  }
+
   public static void addAlignedToSameTargetFormula(Model model, String weightName){
     FormulaBuilder builder = new FormulaBuilder(model.getSignature());
     model.getSignature().createWeightFunction(weightName, false);

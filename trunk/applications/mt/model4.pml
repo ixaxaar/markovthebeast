@@ -19,27 +19,33 @@ predicate follows: Int x Int;
 //Target-Id
 predicate activeTarget: Int;
 
+predicate zeroferts: Int x Int x TargetWord;
+
 index: follows(*,*);
 index: followsScore(*,*,_);
+
+hidden: follows, activeTarget;
+observed: followsScore, source, target, mapping, zeroferts;
 
 factor atMostOneTarget: for Int i if source(i,_) :
   |Int target: mapping(i,target) & activeTarget(target)| <= 1;
 
-factor atLeastOneTarget: for Int i if source(i,_) :
+factor atLeastOneTarget[ground-all]: for Int i if source(i,_) :
   |Int target: mapping(i,target) & activeTarget(target)| >= 1;
 
-factor atLeastOneEnd: for Int begin if target(begin,_,_) & begin != 1 & begin >= 0:
+factor atLeastOneEnd[ground-all]: for Int begin if target(begin,_,_) & begin != 1 & begin >= 0:
   activeTarget(begin) => |Int end: target(end,_,_) & follows(begin,end) & followsScore(begin,end,_)| >= 1;
 
 factor atMostOneEnd: for Int begin if target(begin,_,_):
   |Int end: follows(begin,end) & target(end,_,_) & followsScore(begin,end,_)| <= 1;
 
-factor atLeastOneBegin: for Int end if target(end,_,_) & end > 0:
+factor atLeastOneBegin[ground-all]: for Int end if target(end,_,_) & end > 0:
   activeTarget(end) => |Int begin: target(begin,_,_) & follows(begin,end)& followsScore(begin,end,_)| >= 1;
 
 factor atMostOneBegin: for Int end if target(end,_,_):
   |Int begin: follows(begin,end) & target(begin,_,_) & followsScore(begin,end,_)| <= 1;
   
+factor noMoreThanOneNull: |Int t: activeTarget(t) & target(t,_,_) & t < 0| <= 1;
 
 factor followsActiveBegin: for Int begin, Int end if followsScore(begin,end,_):
   follows(begin,end) => activeTarget(begin);

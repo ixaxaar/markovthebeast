@@ -4,6 +4,7 @@ import thebeast.nod.variable.*;
 import thebeast.nodmem.expression.MemDoubleDivide;
 import thebeast.nodmem.expression.MemIntMin;
 import thebeast.nodmem.expression.MemIntMax;
+import thebeast.nodmem.expression.MemDoubleAbs;
 
 /**
  * @author Sebastian Riedel
@@ -140,4 +141,5 @@ public interface ExpressionVisitor {
 
   void visitIndexCollector(IndexCollector indexCollector);
 
+  void visitDoubleAbs(DoubleAbs doubleAbs);
 }

@@ -40,7 +40,7 @@ public class Counter<T> extends HashMap<T, Integer> {
     return sorted;    
   }
 
-  public void save(OutputStream outputStream) throws FileNotFoundException {
+  public void save(OutputStream outputStream)  {
     PrintStream out = new PrintStream(outputStream);
     for (Map.Entry<T,Integer> entry : sorted(true)){
       out.println(entry.getKey() + "\t" + entry.getValue());

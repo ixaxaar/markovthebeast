@@ -146,7 +146,7 @@ public class LocalFeatures implements HasProperties {
    * @return true iff this object contains a mapping from the given ground atom to the given feature index.
    */
   public boolean containsFeatureWithScale(UserPredicate predicate, int featureIndex, double scale, Object... terms) {
-    return features.get(predicate).contains(toTuple(featureIndex, terms));
+    return features.get(predicate).contains(toTuple(featureIndex, scale, terms));
   }
 
 

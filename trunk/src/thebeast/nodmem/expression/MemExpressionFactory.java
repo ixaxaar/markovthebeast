@@ -97,6 +97,10 @@ public class MemExpressionFactory implements ExpressionFactory {
     return new MemDoubleCast(MemDoubleType.DOUBLE, expr);
   }
 
+  public DoubleAbs createDoubleAbs(DoubleExpression expr) {
+    return new MemDoubleAbs(MemDoubleType.DOUBLE, expr);
+  }
+
   public IntBins createIntBins(IntExpression argument, List<Integer> bins) {
     return new MemIntBins(MemIntType.INT, argument, bins);
   }

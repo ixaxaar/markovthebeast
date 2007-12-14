@@ -27,4 +27,8 @@ public class DepthFirstExpressionVisitor extends AbstractExpressionVisitor {
   public void visitIntBin(IntBins intBins) {
     intBins.argument().acceptExpressionVisitor(this);
   }
+
+  public void visitDoubleAbs(DoubleAbs doubleAbs) {
+    doubleAbs.argument().acceptExpressionVisitor(this);
+  }
 }

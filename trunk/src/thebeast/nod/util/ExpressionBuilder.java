@@ -820,6 +820,12 @@ public class ExpressionBuilder {
     return this;
   }
 
+  public ExpressionBuilder doubleAbs(){
+    DoubleExpression expr = (DoubleExpression) pop();
+    expressionStack.push(expressionFactory.createDoubleAbs(expr));
+    return this;
+  }
+
   public boolean isEmpty() {
     return expressionStack.isEmpty();
   }

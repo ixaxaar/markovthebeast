@@ -37,6 +37,8 @@ public class Signature {
     name2function.put(IntAdd.ADD.getName(), IntAdd.ADD);
     name2function.put(IntMinus.MINUS.getName(), IntMinus.MINUS);    
     name2function.put(DoubleCast.CAST.getName(), DoubleCast.CAST);
+    name2function.put(DoubleAbs.ABS.getName(), DoubleAbs.ABS);
+    name2function.put(DoubleAdd.ADD.getName(), DoubleAdd.ADD);
 
     name2predicate.put(DoubleLEQ.DOUBLE_LEQ.getName(), DoubleLEQ.DOUBLE_LEQ);
 

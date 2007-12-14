@@ -373,6 +373,8 @@ spec ::=
     {: RESULT = new ParserFactorSpec(name, 0, false); :}
   | FACTOR LSQPAREN GROUND RSQPAREN COLON
     {: RESULT = new ParserFactorSpec(null, 0, true); :}
+  | FACTOR LOWERCASEID:name LSQPAREN GROUND RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(name, 0, true); :}
   | FACTOR LSQPAREN integer:i RSQPAREN COLON
     {: RESULT = new ParserFactorSpec(null, i, false); :}
 
@@ -465,7 +467,7 @@ termInBrackets ::=
     {: RESULT = new ParserFunctionApplication(name,args); :}
   | BINS LPAREN arguments:bins COMMA term:arg RPAREN
     {: RESULT = new ParserBins(bins, arg); :}
-  | LPAREN term:t RPAREN
+  | LPAREN termInBrackets:t RPAREN
     {: RESULT = t; :}
     ;
 

@@ -64,7 +64,7 @@ public class GroundAtom {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     PrintStream out = new PrintStream(bos);
     for (Constant constant : arguments)
-      out.printf("%-10s",constant.toString());
+      out.printf("%-10s ",constant.toString());
     return bos.toString();
   }
 

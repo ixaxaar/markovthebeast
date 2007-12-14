@@ -7,15 +7,12 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.RelationVariable;
-import thebeast.util.Profiler;
-import thebeast.util.NullProfiler;
-import thebeast.util.Util;
-import thebeast.util.HeapDoubleSorter;
-import thebeast.pml.TheBeast;
-import thebeast.pml.solve.ilp.IntegerLinearProgram;
 import thebeast.pml.PropertyName;
+import thebeast.pml.TheBeast;
+import thebeast.util.HeapDoubleSorter;
+import thebeast.util.NullProfiler;
+import thebeast.util.Profiler;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -25,7 +22,6 @@ public class ILPSolverLpSolve implements ILPSolver {
 
   private LpSolve solver;
   private int numRows, numCols;
-  private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private boolean enforceInteger = false;
   private boolean verbose = false;
@@ -72,7 +68,7 @@ public class ILPSolverLpSolve implements ILPSolver {
       throw new RuntimeException("Solver not initialized, please call init() first");
     try {
       int numRows = solver.getNrows() + constraints.value().size();
-      int numCols = solver.getNcolumns() + constraints.value().size();
+      int numCols = solver.getNcolumns() + variables.value().size();
       //System.out.println(variables.value());
       //System.out.println(numRows);
       solver.resizeLp(numRows, numCols);

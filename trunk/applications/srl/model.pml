@@ -19,6 +19,7 @@ predicate sister: Int x Int x Int;
 predicate pprightmosthead: Int x Int;
 predicate distance: Int x Int;
 predicate class: Class;
+predicate nooverlap: Int x Int;
 
 //global predicates
 predicate properarg: Argument;

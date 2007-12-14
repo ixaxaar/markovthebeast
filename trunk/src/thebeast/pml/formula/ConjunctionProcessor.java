@@ -155,9 +155,22 @@ public class ConjunctionProcessor {
         public void visitUndefinedWeight(UndefinedWeight undefinedWeight) {
           if (!sign) throw new RuntimeException("Can't do negated undefined(...)");
           BooleanFormula resolved = formulaResolver.resolve(undefinedWeight, context.var2term);
-          context.conditions.add((BoolExpression) exprGenerator.convertFormula(
-                  resolved, groundAtoms, weights, context.var2expr, context.var2term));
+          if (resolved == null) {
+            if (triedOnce.contains(signedAtom)) {
+              //context.remainingHiddenArgs
+              if (throwException)
+                throw new RuntimeException("Seems like we really can't resolve " + signedAtom);
+              context.remainingAtoms.add(signedAtom);
+              return;
+            }
+            atoms.add(signedAtom);
+            triedOnce.add(signedAtom);
 
+          } else {
+            context.conditions.add((BoolExpression) exprGenerator.convertFormula(
+                    resolved, groundAtoms, weights, context.var2expr, context.var2term));
+
+          }
         }
 
         public void visitPredicateAtom(final PredicateAtom predicateAtom) {

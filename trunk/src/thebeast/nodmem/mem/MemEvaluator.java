@@ -140,6 +140,9 @@ public class MemEvaluator {
         case DOUBLE_CAST:
           double_cast(argChunk, returnChunk, argPointerVec);
           break;
+        case DOUBLE_ABS:
+          double_abs(argChunk, returnChunk, argPointerVec);
+          break;
         case DOUBLE_ATTRIBUTE:
           double_attribute(chunks, f, rows, returnChunk, argPointerVec);
           break;
@@ -570,6 +573,12 @@ public class MemEvaluator {
   private static void double_cast(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     returnChunk.doubleData[argPointerVec.xDouble] = argChunk.intData[0];
   }
+
+  private static void double_abs(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
+    double arg = argChunk.doubleData[0];
+    returnChunk.doubleData[argPointerVec.xDouble] = arg < 0 ? -arg : arg;
+  }
+
 
   private static void double_times(MemChunk argChunk, MemChunk returnChunk, MemVector argPointerVec) {
     returnChunk.doubleData[argPointerVec.xDouble] = argChunk.doubleData[0] * argChunk.doubleData[1];
