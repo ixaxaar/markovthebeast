@@ -138,7 +138,7 @@ statement ::= createType:s
             | LOAD CORPUS FROM LOWERCASEID:factory filename:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
               {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
-            | TEST TO LOWERCASEID:f STRING:s
+            | TEST TO LOWERCASEID:f filename:s
               {: RESULT = new ParserTest(f, s.substring(1,s.length()-1)); :}
             | TEST TO STRING:s
               {: RESULT = new ParserTest(null, s.substring(1,s.length()-1)); :}
