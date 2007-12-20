@@ -5,7 +5,7 @@ include "model4.pml";
 
 load corpus from $1;
 
-set printer = "mtm4";
+set printer = "mtm4out";
 
 save corpus to ram;
 
@@ -35,5 +35,7 @@ print solver.profiler;
 //print solver.model.fractionals;
 //print solver.model;
 //print solver.history;
+
+test to printer "/tmp/mt.out";
 
 
