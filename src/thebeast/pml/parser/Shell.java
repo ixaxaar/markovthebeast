@@ -701,9 +701,17 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitTest(ParserTest parserTest) {
-    Corpus dst = null;
+    Corpus dst =null;
     if ("ram".equals(parserTest.mode)) {
       dst = new RandomAccessCorpus(signature, 1000);
+    } else if ("printer".equals(parserTest.mode)){
+      File file = new File(parserTest.file);
+      file.delete();
+      try {
+        dst = new PrinterCorpus(printer, new PrintStream(file));
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
     } else {
       File file = new File(parserTest.file);
       file.delete();
