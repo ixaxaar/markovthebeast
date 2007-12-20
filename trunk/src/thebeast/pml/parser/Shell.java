@@ -705,7 +705,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if ("ram".equals(parserTest.mode)) {
       dst = new RandomAccessCorpus(signature, 1000);
     } else if ("printer".equals(parserTest.mode)){
-      File file = new File(parserTest.file);
+      String filename = filename(resolveParam(parserTest.file).toString());
+      File file = new File(filename);
       file.delete();
       try {
         dst = new PrinterCorpus(printer, new PrintStream(file));
@@ -713,7 +714,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         e.printStackTrace();
       }
     } else {
-      File file = new File(parserTest.file);
+      String filename = filename(resolveParam(parserTest.file).toString());
+      File file = new File(filename);
       file.delete();
       dst = corpusFactories.get(parserTest.mode).createCorpus(signature, file);
     }
