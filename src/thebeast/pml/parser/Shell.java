@@ -1287,6 +1287,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     registerPrinter("semtag", new SemtagPrinter());
     registerPrinter("mt", new MTPrinter());
     registerPrinter("mtm4", new MTModel4Printer());
+    registerPrinter("mtm4out", new MTModel4Printer(false));
     registerPrinter("align", new AlignmentPrinter());
     registerPrinter("default", new DefaultPrinter());
     registerEvaluator("F1 SRL", new CoNLL05Evaluator(CoNLL05Evaluator.Type.F1));

@@ -68,7 +68,7 @@ public class MTModel4Printer extends DefaultPrinter {
       int from = atom.getArguments().get(0).asInt();
       int to = atom.getArguments().get(1).asInt();
       Integer mappedTo = followsMap.get(from);
-      if (to == mappedTo)
+      if (mappedTo != null && to == mappedTo)
         score += atom.getArguments().get(2).asDouble();
     }
 
@@ -93,7 +93,6 @@ public class MTModel4Printer extends DefaultPrinter {
 
     out.print("\n");
 
-    out.println(score);
 
     ArrayList<Integer> targetSentence = new ArrayList<Integer>();
     //print target
@@ -110,7 +109,8 @@ public class MTModel4Printer extends DefaultPrinter {
       from = to;
     } while (from != END);
 
-    out.print("\n\n");
+    out.println();
+    out.println(score);
 
     if (details) {
 
