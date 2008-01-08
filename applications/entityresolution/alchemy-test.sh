@@ -1,10 +1,10 @@
 #!/bin/bash
 
-experiment=cora-mcsat-default
+experiment=cora-mws-1m-best
 
 for i in 0 1 2 3 4 5 6 7 8 9; do \
 #for i in 1 2 3 4 5 6 7 8 9; do \
-#for i in 2; do \
+#for i in 0; do \
 weights=weights/multiple-$i.weights
 #weights=weights/multiple-$i.nonneg.weights
 #weights=bibserv.weights
@@ -20,17 +20,17 @@ processed=/tmp/$experiment-$i.processed
 echo Fold $i
 echo "Inference"
 
-~/opt/alchemy/bin/infer -seed 1 -i $mln -e $db -r $out \
- -q SameBib,SameTitle,SameAuthor,SameVenue -ms > acl/$experiment-$i.alchemy.output
+#~/opt/alchemy/bin/infer -seed 1 -i $mln -e $db -r $out \
+# -q SameBib,SameTitle,SameAuthor,SameVenue -ms > acl/$experiment-$i.alchemy.output
 #~/opt/alchemy/bin/infer -seed 1 -i $mln -e $db -r $out \
 # -q SameBib,SameTitle,SameAuthor,SameVenue -simtp > results/$experiment-$i.alchemy.output
-##~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 1000000 -heuristic 2 -breakHardClauses true -tries 1 -i $mln -e $db -r $out \
-# -q SameBib,SameTitle,SameAuthor,SameVenue -m > acl/$experiment-$i.alchemy.output
-#cp $out $det
-echo "Converting to deterministic db..."
-java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyProb2Det \
-  < $out \
-  > $det
+~/opt/alchemy/bin/infer -seed 1 -mwsMaxSteps 1000000 -heuristic 1 -breakHardClauses true -tries 1 -i $mln -e $db -r $out \
+ -q SameBib,SameTitle,SameAuthor,SameVenue -m > acl/$experiment-$i.alchemy.output
+cp $out $det
+#echo "Converting to deterministic db..."
+#java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyProb2Det \
+#  < $out \
+#  > $det
 echo "Postprocessing..."
 cp $det $processed
 #java -Xmx500m -cp ../../classes/production thebeast.util.alchemy.AlchemyTransitivityEnforcer \

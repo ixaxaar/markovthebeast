@@ -1,11 +1,11 @@
 include "types.pml";
-include "model-pairs.pml";
+include $1;
 
 set instancesCacheSize = 5;
 set corpusCacheSize = 20;
 
 //load weights from dump "/tmp/epoch_6.dmp";
-load weights from dump $1;
+load weights from dump $2;
 //load weights from dump "/tmp/srl.weights.dmp";
 
 load instances from dump "/disk/home/dendrite/s0349492/tmp/srl.instances.dmp";

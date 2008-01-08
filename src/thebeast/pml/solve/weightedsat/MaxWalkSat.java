@@ -1,10 +1,7 @@
 package thebeast.pml.solve.weightedsat;
 
 import thebeast.pml.PropertyName;
-import thebeast.util.HashMultiMapList;
-import thebeast.util.TreeProfiler;
-import thebeast.util.Profiler;
-import thebeast.util.NullProfiler;
+import thebeast.util.*;
 
 import java.util.*;
 
@@ -39,7 +36,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   private int calls;
   private DeltaScoredAtom deltaScoredAtom = new DeltaScoredAtom(null, 0);
   private Profiler profiler = new NullProfiler();
-
+  private boolean debug = false;
 
 
   public void setProperty(PropertyName name, Object value) {
@@ -51,6 +48,8 @@ public class MaxWalkSat implements WeightedSatSolver {
       setInitRandom((Boolean) value);
     else if ("updateRandom".equals(name.getHead()))
       setUpdateRandom((Boolean) value);
+    else if ("debug".equals(name.getHead()))
+      debug = (Boolean) value;
     else if ("maxRestarts".equals(name.getHead()))
       setMaxRestarts((Integer) value);
     else if ("timeout".equals(name.getHead()))
@@ -169,11 +168,12 @@ public class MaxWalkSat implements WeightedSatSolver {
     }
 
     Clause(WeightedSatClause clause) {
+      //profiler.start("CreateClause");
       signs = clause.signs;
       cost = clause.score;
       trueLiteralCounts = new int[signs.length];
-      HashMultiMapList<Atom, Integer> atom2positions = new HashMultiMapList<Atom, Integer>();
-      HashMultiMapList<Atom, Integer> atom2disjunctions = new HashMultiMapList<Atom, Integer>();
+      HashMultiMapArrayList<Atom, Integer> atom2positions = new HashMultiMapArrayList<Atom, Integer>();
+      HashMultiMapArrayList<Atom, Integer> atom2disjunctions = new HashMultiMapArrayList<Atom, Integer>();
       for (int disjunction = 0; disjunction < clause.atoms.length; ++disjunction) {
         for (int position = 0; position < clause.atoms[disjunction].length; ++position) {
           MaxWalkSat.Atom atom = atoms[clause.atoms[disjunction][position]];
@@ -183,13 +183,13 @@ public class MaxWalkSat implements WeightedSatSolver {
       }
       nodes = new NodeClauseRelation[atom2positions.size()];
       int node = 0;
-      ArrayList<Atom> sorted = new ArrayList<Atom>(atom2positions.keySet());
-      Collections.sort(sorted, new Comparator<Atom>() {
-        public int compare(Atom o1, Atom o2) {
-          return o1.index - o2.index;
-        }
-      });
-      for (Atom atom : sorted) {
+//      ArrayList<Atom> sorted = new ArrayList<Atom>(atom2positions.keySet());
+//      Collections.sort(sorted, new Comparator<Atom>() {
+//        public int compare(Atom o1, Atom o2) {
+//          return o1.index - o2.index;
+//        }
+//      });
+      for (Atom atom : atom2positions.keySet()) {
         List<Integer> disjunctions = atom2disjunctions.get(atom);
         List<Integer> positionList = atom2positions.get(atom);
         int[] containingDisjunctions = new int[disjunctions.size()];
@@ -202,6 +202,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         nodes[node++] = rel;
         atom.clauses.add(rel);
       }
+      //profiler.end();
     }
 
   }
@@ -432,8 +433,8 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
 
-
   public void addClauses(WeightedSatClause... clausesToAdd) {
+    profiler.start("addClauses");
     LinkedList<Clause> buffer = new LinkedList<Clause>();
     int tmpCount = clauseCount;
     for (WeightedSatClause aClausesToAdd : clausesToAdd) {
@@ -441,7 +442,7 @@ public class MaxWalkSat implements WeightedSatSolver {
         WeightedSatClause[] separated = aClausesToAdd.expandCardinalityConstraints().separate();
         //todo: more aggresive increase here?
 //        increaseClauseCapacity(clauses.length + separated.length);
-        for (WeightedSatClause wsc : separated){
+        for (WeightedSatClause wsc : separated) {
           Clause clause = normalize(wsc);
           if (clause == null) continue;
           buffer.add(clause);
@@ -453,19 +454,24 @@ public class MaxWalkSat implements WeightedSatSolver {
 //        increaseClauseCapacity(clauses.length + clausesToAdd.length);
         Clause clause = normalize(aClausesToAdd);
         if (clause == null) continue;
+        //profiler.start("addToBuffer");
         buffer.add(clause);
+        //profiler.end();
         //clauses[clauseCount] = clause;
         clause.index = tmpCount;
         ++tmpCount;
       }
 
     }
+    //profiler.start("increaseCapacity");
     increaseClauseCapacity(buffer.size());
-    for (Clause clause : buffer){
+    for (Clause clause : buffer) {
       clauses[clauseCount++] = clause;
     }
+    //profiler.end();
 
-    
+    profiler.end();
+
 
   }
 
@@ -486,6 +492,7 @@ public class MaxWalkSat implements WeightedSatSolver {
   }
 
   public Clause normalize(WeightedSatClause clause) {
+    //profiler.start("normalize");
     int newDisjunctionCount = 0;
     boolean[][] newDisjunctionSigns = new boolean[clause.signs.length][];
     int[][] newDisjunctionAtoms = new int[clause.signs.length][];
@@ -534,6 +541,7 @@ public class MaxWalkSat implements WeightedSatSolver {
     boolean[][] newSigns = new boolean[newDisjunctionCount][];
     System.arraycopy(newDisjunctionAtoms, 0, newAtoms, 0, newDisjunctionCount);
     System.arraycopy(newDisjunctionSigns, 0, newSigns, 0, newDisjunctionCount);
+    //profiler.end();    
     return new Clause(new WeightedSatClause(clause.score, newAtoms, newSigns, null));
   }
 
@@ -586,7 +594,6 @@ public class MaxWalkSat implements WeightedSatSolver {
       if (score > bestScore) {
         fill(atoms, best);
         bestScore = score;
-        //System.out.println(bestScore);
       }
       //System.out.println("clauseCount = " + clauseCount);
       //System.out.println("score = " + score);
@@ -626,6 +633,10 @@ public class MaxWalkSat implements WeightedSatSolver {
         if (score > bestScore) {
           fill(atoms, best);
           bestScore = score;
+          if (debug) {
+            int violationCount = getHardClauseViolations();
+            System.out.printf("%10f%10d\n", score, violationCount);
+          }
           //System.out.println(bestScore);
 //          for (int i = 0; i < unsatisfiedClauseCount; ++i) {
 //            System.out.print(i == clause.index ? ">" : " ");
@@ -758,6 +769,13 @@ public class MaxWalkSat implements WeightedSatSolver {
     for (int i = 0; i < clauseCount; ++i)
       if (clauses[i].state) sum += clauses[i].cost;
     return sum;
+  }
+
+  public int getHardClauseViolations() {
+    int count = 0;
+    for (int i = 0; i < clauseCount; ++i)
+      if (clauses[i].cost > 100 && !clauses[i].state) ++count;
+    return count;
   }
 
   public double getNormalizedScore() {

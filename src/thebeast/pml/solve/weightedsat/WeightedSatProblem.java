@@ -6,6 +6,7 @@ import thebeast.pml.formula.FactorFormula;
 import thebeast.util.Profiler;
 import thebeast.util.NullProfiler;
 import thebeast.util.HashMultiMapList;
+import thebeast.util.Util;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.Index;
@@ -223,7 +224,7 @@ public class WeightedSatProblem implements PropositionalModel {
       //interpreter.assign(newClauses, newClausesQuery);
       //interpreter.
 //    System.out.println("newClauses.byteSize() = " + newClauses.byteSize());
-      interpreter.assign(clauses, newClauses);
+      //interpreter.assign(clauses, newClauses);
 //    System.out.println("clauses.byteSize() = " + clauses.byteSize());
       interpreter.assign(oldAtomCosts, atomCosts);
       interpreter.clear(atomCosts);
@@ -384,6 +385,8 @@ public class WeightedSatProblem implements PropositionalModel {
         solver.setProperty(name.getTail(), value);
     } else if (name.getHead().equals("singleCallMode")) {
       setSingleCallMode((Boolean) value);
+    } else if (name.getHead().equals("detWeight")) {
+      grounder.setDetWeight((Double)value);
     }
   }
 
@@ -459,12 +462,19 @@ public class WeightedSatProblem implements PropositionalModel {
     solver.addAtoms(ordered);
     solver.setStates(states);
 
+    //System.err.println("Before transformation we use " + Util.toMemoryString(Runtime.getRuntime().totalMemory()));    
     WeightedSatClause[] clauses = new WeightedSatClause[newClauses.value().size()];
     int i = 0;
     for (TupleValue tuple : newClauses.value()) {
       clauses[i++] = toClause(tuple);
     }
     profiler.end().start("transfer");
+    if (singleCallMode){
+      interpreter.clear(newClauses);
+      interpreter.compactify(newClauses);
+    }
+    //System.err.println("transferring " + clauses.length + " clauses to solver");
+    //System.err.println("Using " + Util.toMemoryString(Runtime.getRuntime().totalMemory()));
     solver.addClauses(clauses);
     profiler.end();
   }

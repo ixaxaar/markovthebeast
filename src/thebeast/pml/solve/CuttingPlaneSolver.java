@@ -37,8 +37,10 @@ public class CuttingPlaneSolver implements Solver {
   private boolean done, scoresSet, initSet;
   private Profiler profiler = new NullProfiler();
   private boolean enforceIntegers;
+  private boolean checkScores = false;
 
   private long timeout = Long.MAX_VALUE; //10000;
+  private long timeSpent = 0;
 
   private int maxOrder = Integer.MAX_VALUE;
 
@@ -303,6 +305,55 @@ public class CuttingPlaneSolver implements Solver {
 
 
   /**
+   * Should we check the score of all solutions during the solving process and return solution with highest
+   * score at the end (instead of the last one).
+   * @return true if highest scoring solution is returned.
+   */
+  public boolean isCheckScores() {
+    return checkScores;
+  }
+
+  /**
+   * Should we check the score of all solutions during the solving process and return solution with highest
+   * score at the end (instead of the last one). For exact base solvers ran to convergence (no more
+   * new ground formulas) this is not necessary and can be switched off for efficiency.
+   * @param checkScores true if highest scoring solution should be returned.
+   */
+  public void setCheckScores(boolean checkScores) {
+    this.checkScores = checkScores;
+  }
+
+  /**
+   * Checks the scores of all candidate solutions and picks the one with highest score as best solution.
+   */
+  private void checkScores(){
+    profiler.start("check scores");
+    Solution solution = new Solution(model, weights);
+    double maxScore = Double.NEGATIVE_INFINITY;
+    int minViolations = Integer.MAX_VALUE;
+    int maxIndex = -1;
+    for (int i = 0; i < getCandidateCount(); ++i) {
+      GroundFormulas formulas = new GroundFormulas(model, weights);
+      formulas.update(getCandidateAtoms(i));
+      int violations = formulas.getViolationCount();
+      if (violations <= minViolations){
+        solution.load(getCandidateAtoms(i), formulas);
+        //solution.load(solver.getCandidateAtoms(i), solver.getCandidateFormulas(i));
+        FeatureVector vector = solution.extract(getLocalFeatures());
+        double score = weights.score(vector);
+        if (violations < minViolations || score > maxScore){
+          maxScore = score;
+          minViolations = violations;
+          maxIndex = i;
+        }
+      }
+    }
+    atoms.load(getCandidateAtoms(maxIndex));
+    formulas.load(getCandidateFormulas(maxIndex));
+    profiler.end();
+  }
+
+  /**
    * Solves the current problem with the given number of iterations or less if optimal before. If the solver has a
    * initial guess (either from the last time this method was called or through external specification) this guess is
    * used as a starting point. If not a greedy solution is used as a starting point.
@@ -371,13 +422,21 @@ public class CuttingPlaneSolver implements Solver {
 
     done = propositionalModel.changed();
 
+    if (checkScores) checkScores();
     profiler.end();
     //System.out.println("!");
-
+    timeSpent = System.currentTimeMillis() - start;
     if (printHistory) printHistory();
 
   }
 
+
+  /**
+   * @return the time in ms that solver took. 
+   */
+  public long getTimeSpent() {
+    return timeSpent;
+  }
 
   /**
    * In integer mode the solver checks each solution for fractionals and adds integer constraints if needed. This method
@@ -682,6 +741,8 @@ public class CuttingPlaneSolver implements Solver {
       setShowIterations((Boolean) value);
     else if (name.getHead().equals("history"))
       setPrintHistory((Boolean) value);
+    else if (name.getHead().equals("checkScores"))
+      setCheckScores((Boolean)value);
     else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
     else if (name.getHead().equals("profile"))

@@ -5,22 +5,22 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class HashMultiMapList<K, V> extends HashMap<K, List<V>> {
+public class HashMultiMapArrayList<K, V> extends HashMap<K, List<V>> {
   protected List<V> emptyList = Collections.unmodifiableList(new ArrayList<V>(0));
 
   public void add(K key, V value) {
     List<V> list = get(key);
     if (list.size() == 0) {
-      list = new LinkedList<V>();
+      list = new ArrayList<V>();
       put(key, list);
     }
     list.add(value);
   }
 
-  public HashMultiMapList<K, V> deepcopy() {
-    HashMultiMapList<K, V> result = new HashMultiMapList<K, V>();
+  public HashMultiMapArrayList<K, V> deepcopy() {
+    HashMultiMapArrayList<K, V> result = new HashMultiMapArrayList<K, V>();
     for (Map.Entry<K, List<V>> entry : entrySet())
-      result.put(entry.getKey(), new LinkedList<V>(entry.getValue()));
+      result.put(entry.getKey(), new ArrayList<V>(entry.getValue()));
     return result;
   }
 

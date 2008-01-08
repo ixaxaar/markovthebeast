@@ -35,7 +35,7 @@ predicate allargs: Argument;
 
 //index: span(*,*,_);
 
-hidden: arg,isarg;//,class;
+hidden: arg,isarg,class;
 observed: word,pos,span,label,head,candidate,pred,path,subcat,position,pathlength,shortframe,
   frame,chunkdistance,framepattern,parentlabel,parenthead,sister,pprightmosthead,distance;
 global: properarg, modifier, carg, rarg, cargpair, rargpair,allargs;
@@ -43,7 +43,7 @@ global: properarg, modifier, carg, rarg, cargpair, rargpair,allargs;
 
 include "weights-arg.pml";
 include "weights-isarg.pml";
-//include "weights-class.pml";
+include "weights-class.pml";
 //include "weights-isarg-compact.pml";
 
 load global from "global.atoms";

@@ -117,4 +117,6 @@ public interface Interpreter {
   void append(RelationVariable relVar, RelationExpression expression);
 
   String getMemoryString();
+
+  void compactify(RelationVariable var);
 }
