@@ -1,6 +1,7 @@
 include "types.clean.pml";
-include "model-pairs.pml";
+//include "model-pairs.pml";
 //include "model.pml";
+include $1;
 
 set instancesCacheSize = 5;
 set corpusCacheSize = 20;
@@ -8,11 +9,11 @@ set corpusCacheSize = 20;
 //load corpus from "one-sentence.crp";
 //load corpus from "corpora/small-train-set.crp";
 //load corpus from "corpora/train-set.crp";
-load corpus from $1;
+load corpus from $2;
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/train-set.crp";
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/small-train-set.crp";
 
-save corpus (0-100) to ram;
+save corpus (0-1000) to ram;
 
 set collector.cutoff = 1;
 

@@ -28,7 +28,8 @@ set solver.order.duplicatearg = 2;
 //set solver.order.duplicatearg = 2;
 
 //load corpus from "corpora/dev-set.crp";
-load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/dev-set.crp";
+load corpus from $2;
+//load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/dev-set.crp";
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/test-set-wsj.crp";
 //save corpus(0-400) to ram;
 

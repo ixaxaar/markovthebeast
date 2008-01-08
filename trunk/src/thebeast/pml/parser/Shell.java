@@ -334,8 +334,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     printModelChanges = false;
     printSignagureChanges = false;
     String oldDir = directory;
+    String filename = filename((String) resolveParam(parserImport.filename));
     try {
-      file = new File(filename(parserImport.filename));
+      file = new File(filename);
       if (file.getParentFile() != null) directory = file.getParentFile().getPath();
       PMLParser parser = new PMLParser(new Yylex(new FileInputStream(file)));
       for (Object obj : ((List) parser.parse().value)) {
@@ -354,7 +355,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       directory = oldDir;
     }
 
-    out.println("File \"" + parserImport.filename + "\" included.");
+    out.println("File \"" + filename + "\" included.");
     printModelChanges = previousPrintModelChanges;
     printSignagureChanges = previousPrintSignatureChanges;
   }
@@ -484,6 +485,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       collector.configure(model, weights);
       //instances = new TrainingInstances();
       modelUpdated = false;
+      out.println("All components updated");
     }
 
   }
@@ -1320,19 +1322,40 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     for (int i = 0; i < 55; ++i) out.print("-");
     out.println();
     for (int i = 0; i < solver.getCandidateCount(); ++i) {
-      solution.load(solver.getCandidateAtoms(i), solver.getCandidateFormulas(i));
+      GroundFormulas formulas = new GroundFormulas(model, weights);
+      formulas.update(solver.getCandidateAtoms(i));
+      solution.load(solver.getCandidateAtoms(i), formulas);
+      //solution.load(solver.getCandidateAtoms(i), solver.getCandidateFormulas(i));
       FeatureVector vector = solution.extract(solver.getLocalFeatures());
       evaluation.evaluate(gold, solution.getGroundAtoms());
       out.printf("%-10d %-10.3f %-10.4f %-10d %-10d\n", i, evaluation.getF1(), weights.score(vector),
-              solution.getGroundFormulas().getViolationCount(), solver.getCandidateFormulas(i).getNewCount());
+              formulas.getViolationCount(), solver.getCandidateFormulas(i).getNewCount());
       //System.out.println(solver.getCandidateFormulas().get(i));
     }
 
     out.println();
-
-    GroundAtoms bestAtoms = solver.getCandidateAtoms(0);
-    solution.load(bestAtoms, solver.getCandidateFormulas(0));
+    out.println("Best Solution");
+    out.printf("%-10s %-10s %-10s %-10s\n", "F1", "Score", "Violated", "Total");
+    for (int i = 0; i < 55; ++i) out.print("-");
+    out.println();
+    GroundFormulas formulas = new GroundFormulas(model, weights);
+    formulas.update(solver.getBestAtoms());
+    solution.load(solver.getBestAtoms(), formulas);
+    //solution.load(solver.getCandidateAtoms(i), solver.getCandidateFormulas(i));
+    FeatureVector vector = solution.extract(solver.getLocalFeatures());
     evaluation.evaluate(gold, solution.getGroundAtoms());
+    out.printf("%-10.3f %-10.4f %-10d %-10d\n", evaluation.getF1(), weights.score(vector),
+            formulas.getViolationCount(), solver.getBestFormulas().getNewCount());
+    out.println();
+    out.println("Memory usage (bytes): " + Runtime.getRuntime().totalMemory());
+    out.println("Time spent (ms): " + solver.getTimeSpent());
+    out.println("Iterations: " + solver.getIterationCount());
+    out.println();
+
+    //GroundAtoms bestAtoms = solver.getCandidateAtoms(0);
+    GroundAtoms bestAtoms = solver.getBestAtoms();
+    //solution.load(bestAtoms, solver.getBestFormulas());
+    evaluation.evaluate(gold, bestAtoms);
     for (UserPredicate pred : model.getHiddenPredicates()) {
       System.out.println(pred.getName());
       for (int i = 0; i < 20; ++i) out.print("-");

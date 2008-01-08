@@ -28,7 +28,7 @@ public class WeightedSatGrounder {
   private ExpressionFactory factory = TheBeast.getInstance().getNodServer().expressionFactory();
   private static RelationType constraintType;
   private static ArrayType signArrayType, indexArrayType;
-  private static final double DET_WEIGHT = 20.0;
+  private double det_weight = 1E8;//20.0;
 
   static {
     TypeBuilder builder = new TypeBuilder(TheBeast.getInstance().getNodServer());
@@ -96,7 +96,7 @@ public class WeightedSatGrounder {
 
     //get the weight
     DoubleExpression weight = formula.isDeterministic() ?
-            builder.num(DET_WEIGHT).getDouble() : getFormulaWeight(builder, wsp.getWeights());
+            builder.num(det_weight).getDouble() : getFormulaWeight(builder, wsp.getWeights());
 
     builder.id("weight").expr(weight);
     builder.id("signs").expr(disjunctionSigns);
@@ -106,6 +106,8 @@ public class WeightedSatGrounder {
 
     return builder.getRelation();
   }
+
+
 
   private RelationExpression getCardinalityAtoms(CNF cnf, WeightedSatProblem wsp, Weights weights, boolean groundAll,
                                                  GroundAtoms atoms, Map<Variable, Expression> term2expr) {
@@ -138,6 +140,14 @@ public class WeightedSatGrounder {
     return builder.getRelation();
   }
 
+
+  public double getDetWeight() {
+    return det_weight;
+  }
+
+  public void setDetWeight(double det_weight) {
+    this.det_weight = det_weight;
+  }
 
   /**
    * Creates a mapping from PML variables to database expression using the columns of the ground formula table (which

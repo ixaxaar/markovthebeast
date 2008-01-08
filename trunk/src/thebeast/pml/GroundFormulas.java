@@ -15,6 +15,7 @@ import thebeast.pml.function.WeightFunction;
 import thebeast.pml.term.Term;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
+import thebeast.util.Util;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -425,7 +426,6 @@ public class GroundFormulas {
         interpreter.clear(both);
         boolean fullyGround = groundAll.contains(factorFormula);
         RelationVariable relation;
-        Term weight = factorFormula.getWeight();
         if (factorFormula.isAlwaysPenalizing() || !factorFormula.isAlwaysRewarding()) {
           relation = getTrueGroundFormulas(factorFormula);
           interpreter.assign(relation, trueQueries.get(factorFormula));
@@ -434,7 +434,12 @@ public class GroundFormulas {
           interpreter.assign(relation, falseQueries.get(factorFormula));
         }
         if (firstUpdate && (factorFormula.isRewardingAndPenalizing() || fullyGround)) {
+          //System.out.println("Bib size: " + model.getSignature().getType("Bib").getSize());
+          //System.out.println(factorFormula);
+          //System.out.println(allQueries.get(factorFormula));
           interpreter.assign(both, allQueries.get(factorFormula));
+          //System.err.println("count: " + both.value().size());
+          //System.err.println("bytesize: " + Util.toMemoryString(both.byteSize()));
         } else {
           interpreter.assign(both, relation);
         }

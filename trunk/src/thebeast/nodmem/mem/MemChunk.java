@@ -213,6 +213,9 @@ public final class MemChunk extends MemHolder {
   }
 
   public void increaseCapacity(int howMuch) {
+//    System.out.println("howMuch = " + howMuch);
+//    System.out.println("size = " + size);
+//    System.out.println("byteSize() = " + byteSize());
     if (howMuch < 0) return;
     //System.out.print("");    
     capacity += howMuch;

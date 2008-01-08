@@ -283,6 +283,10 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemClearRelationVariable((MemRelationVariable) var));
   }
 
+  public void compactify(RelationVariable var){
+    ((MemRelation)var.value()).getChunk().compactify();
+  }
+
   public void clear(ArrayVariable variable) {
     AbstractMemVariable var = (AbstractMemVariable) variable;
     var.getContainerChunk().chunkData[var.getPointer().xChunk].clear();
@@ -425,6 +429,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     var.getContainerChunk().chunkData[var.getPointer().xChunk].clear();
     var.invalidate();
   }
+
+  
 
   public void visitArraySparseAdd(ArraySparseAdd arraySparseAdd) {
     MemArrayVariable var = (MemArrayVariable) arraySparseAdd.variable();
