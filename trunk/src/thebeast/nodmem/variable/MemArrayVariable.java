@@ -71,6 +71,15 @@ public class MemArrayVariable extends AbstractMemVariable<ArrayValue, ArrayType>
 
   }
 
+  public void enforceBound(int[] indices, boolean lower, double bound) {
+    MemChunk memChunk = chunk.chunkData[pointer.xChunk];
+    for (int i : indices){
+      double value = memChunk.doubleData[i];
+      if (lower && value < bound || !lower && value > bound)
+        memChunk.doubleData[i] = bound;
+    }
+   }
+
   public int nonZeroCount(double eps) {
     MemChunk memChunk = chunk.chunkData[pointer.xChunk];
     int count = 0;

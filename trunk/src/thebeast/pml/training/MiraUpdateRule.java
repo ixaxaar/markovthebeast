@@ -158,7 +158,7 @@ public class MiraUpdateRule implements UpdateRule {
   }
 
   public void setProperty(PropertyName name, Object value) {
-    if (name.getHead().equals("signed"))
+    if (name.getHead().equals("signs"))
       enforceSigns = (Boolean) value;
   }
 

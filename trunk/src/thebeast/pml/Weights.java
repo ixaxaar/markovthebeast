@@ -330,6 +330,17 @@ public class Weights implements HasProperties {
     return var.value().getDouble();
   }
 
+  /**
+   * Makes sure that the values at the given indices are within the provided lower (upper) bound.
+   *
+   * @param indices the indices to enforce the bounds
+   * @param lower   if true we enforce lower bounds, else upper bounds
+   * @param bound   the bound to enforce
+   */
+  public void enforceBound(int[] indices, boolean lower, double bound) {
+    weights.enforceBound(indices, lower, bound);
+  }
+
   public String getFeatureString(int featureIndex) {
     for (Map.Entry<WeightFunction, RelationVariable> entry : relations.entrySet()) {
       builder.expr(entry.getValue());
@@ -361,7 +372,7 @@ public class Weights implements HasProperties {
   public int getFeatureCount() {
     int count = 0;
     for (RelationVariable var : relations.values())
-      count+= var.value().size();
+      count += var.value().size();
     return count;
   }
 
