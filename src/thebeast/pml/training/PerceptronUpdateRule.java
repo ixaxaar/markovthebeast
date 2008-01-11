@@ -26,6 +26,10 @@ public class PerceptronUpdateRule implements UpdateRule {
       //FeatureVector guess = candidates.get(candidates.size() - 1);
       SparseVector diffFree = gold.getLocal().add(-scale, guess.getLocal());
       weights.add(learningRate, diffFree);
+      if (enforceSigns) {
+        weights.enforceBound(gold.getLocalNonnegativeIndices(), true, 0.0);
+        weights.enforceBound(gold.getLocalNonpositiveIndices(), false, 0.0);
+      }
       SparseVector diffNN = gold.getFalseVector().add(-scale, guess.getFalseVector());
       if (enforceSigns) weights.add(learningRate, diffNN, true);
       else weights.add(learningRate, diffNN);
@@ -36,7 +40,8 @@ public class PerceptronUpdateRule implements UpdateRule {
   }
 
   public void setProperty(PropertyName name, Object value) {
-
+    if (name.getHead().equals("signs"))
+      enforceSigns = (Boolean) value;
   }
 
   public Object getProperty(PropertyName name) {
