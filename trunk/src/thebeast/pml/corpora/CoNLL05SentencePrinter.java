@@ -80,6 +80,9 @@ public class CoNLL05SentencePrinter extends DefaultPrinter {
 
 
   public void printEval(Evaluation evaluation, PrintStream out) {
+
+    out.println(evaluation);
+
     GroundAtoms atoms = evaluation.getGuess();
     UserPredicate word = atoms.getSignature().getUserPredicate("word");
     UserPredicate pos = atoms.getSignature().getUserPredicate("pos");
