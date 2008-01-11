@@ -1,5 +1,5 @@
-#LyX 1.5.0rc1 created this file. For more info see http://www.lyx.org/
-\lyxformat 271
+#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
 \begin_document
 \begin_header
 \textclass scrbook
@@ -36,7 +36,7 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "Sebastian Riedel" 
+\author "" 
 \end_header
 
 \begin_body
@@ -146,8 +146,8 @@ the
 \emph on
 sh
 \emph default
-): a scripting language and interpreter that allows to access all the essential
- functionality of the beast.
+): a very simple scripting language and interpreter that allows to access
+ all the essential functionality of the beast.
  It can be used to 
 \end_layout
 
@@ -180,7 +180,7 @@ This leaves you with a prompt like
 \end_layout
 
 \begin_layout LyX-Code
-Markov TheBeast v0.0.1
+Markov TheBeast v0.x.y
 \end_layout
 
 \begin_layout LyX-Code
@@ -459,16 +459,582 @@ name "cha:Signatures"
 Signatures
 \end_layout
 
+\begin_layout Standard
+Every model maintains a 
+\emph on
+signature
+\emph default
+, a collection of symbols to be used in the formulas that describe the domain.
+ 
+\end_layout
+
 \begin_layout Section
 Types
+\end_layout
+
+\begin_layout Standard
+TheBeast allows typed predicates and formulas.
+ That is, constants are divided into sets (types) and predicates are defined
+ over Cartesian Products of these types.
+ 
+\end_layout
+
+\begin_layout Standard
+Say we want to perform Semantic Role Labelling.
+ Here we are asked to label constiuents of a parse tree with the semantic
+ role these constiuents play with respect to a given verb of the sentence.
+ For example, 
+\end_layout
+
+\begin_layout Quote
+[
+\begin_inset Formula $_{\text{A0}}$
+\end_inset
+
+He] [
+\begin_inset Formula $_{\text{AM-MOD}}$
+\end_inset
+
+would] [
+\begin_inset Formula $_{\text{AM-NEG}}$
+\end_inset
+
+n't] [
+\begin_inset Formula $_{\text{V}}$
+\end_inset
+
+accept] [
+\begin_inset Formula $_{\text{A1}}$
+\end_inset
+
+anything of value] from [
+\begin_inset Formula $_{\text{A2}}$
+\end_inset
+
+those he was writing about] .
+\end_layout
+
+\begin_layout Standard
+is a sentence that has been role-labelled wrt to the verb 
+\begin_inset Quotes eld
+\end_inset
+
+accept
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Here the roles names are generic terms that have different meanings for
+ different verb: A0 refers to the acceptor, A1 refers to the thing being
+ accepted and so forth.
+ 
+\end_layout
+
+\begin_layout Standard
+In this setting it will come in handy to define a type label as follows
+\end_layout
+
+\begin_layout LyX-Code
+type Label: A0,A1,A2,
+\begin_inset Quotes erd
+\end_inset
+
+AM-MOD
+\begin_inset Quotes erd
+\end_inset
+
+,''AM-NEG
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+somelabel
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+Note that constants are
+\end_layout
+
+\begin_layout Itemize
+either words starting with a capital letter adn without any special characters
+ or
+\end_layout
+
+\begin_layout Itemize
+quoted strings
+\end_layout
+
+\begin_layout Standard
+Type names have to be capitalized.
+\end_layout
+
+\begin_layout Standard
+It can be tiresome to define all constants of a type in advance, especially
+ when they are already specified implicitely in your training data.
+ To make life easier thebeast allows you to write
+\end_layout
+
+\begin_layout LyX-Code
+type Label: ...
+ ;
+\end_layout
+
+\begin_layout Standard
+In this case the type is automatically augmented whenever a new constant
+ is encountered.
+ However, in order to reuse a model that has been trained using these open
+ types one has to make sure to call 
+\end_layout
+
+\begin_layout LyX-Code
+save types to 
+\begin_inset Quotes eld
+\end_inset
+
+<filename>
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+after training and to load the generated script file before testing with
+ 
+\end_layout
+
+\begin_layout LyX-Code
+include 
+\begin_inset Quotes eld
+\end_inset
+
+<filename>
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Subsection
+Built-In Types
+\end_layout
+
+\begin_layout Standard
+Thebeast comes with a set of buillt-in types.
+ For now these only include an integer type
+\end_layout
+
+\begin_layout LyX-Code
+Int
+\end_layout
+
+\begin_layout Standard
+and a Double type 
+\end_layout
+
+\begin_layout LyX-Code
+Double
 \end_layout
 
 \begin_layout Section
 Predicates
 \end_layout
 
+\begin_layout Standard
+Having defined our types, we are ready to set up predicates.
+ In our example introduced above we could define a predicate 
+\emph on
+label 
+\emph default
+that maps constiuents to labels using 
+\end_layout
+
+\begin_layout LyX-Code
+predicate label: Int x Label;
+\end_layout
+
+\begin_layout Standard
+Note that we use integers to represent the constiuents.
+ As the integer type contains a vast amount of constants grouding of such
+ a predicate can become prohibitive.
+ One could overcome this with two possible ways: have a special type with
+ one constant for each constituent or have an additional predicate that
+ denotes integers which are representing constituents.
+ The first way is a bit troublesome because it requires to have a different
+ type for each problem instance and types.
+ However, we see types as a rather static concept, dynamic information is
+ exclusively handled by predicates and their atoms.
+ Thus we go for the latter option and define another predicate 
+\emph on
+candidate
+\emph default
+: 
+\end_layout
+
+\begin_layout LyX-Code
+predicate candidate: Int;
+\end_layout
+
+\begin_layout Standard
+We differentiate between three types of predicates: hidden, observed and
+ global ones.
+\end_layout
+
+\begin_layout Subsection
+Hidden Predicates
+\end_layout
+
+\begin_layout Subsection
+Observed Predicates
+\end_layout
+
+\begin_layout Subsection
+Global Predicates
+\end_layout
+
 \begin_layout Section
 Weight Functions
+\end_layout
+
+\begin_layout Standard
+The final part of a signature consists of its 
+\emph on
+weight functions
+\emph default
+.
+ They will be used to map (ground) formulas to weights that penalize or
+ reward violations of these formulas.
+ For example, it will be useful to reward or penalize the existance of particula
+r labels in a solution.
+ For this we could define a weight function
+\end_layout
+
+\begin_layout LyX-Code
+weight w_label: Label -> Double;
+\end_layout
+
+\begin_layout Standard
+This defines 
+\emph on
+w_label
+\emph default
+ to map labels to double values.
+ Note that weight functions, just as predicates, have to start with lowercase
+ letters and can contain underscores.
+\end_layout
+
+\begin_layout Standard
+If we were are sure tha the existence of labels should only be rewarded
+ we can write
+\end_layout
+
+\begin_layout LyX-Code
+weight w_label: Label -> Double+;
+\end_layout
+
+\begin_layout Standard
+This ensures that the weight function maps labels to non-negative real values.
+ Correspondingly, 
+\end_layout
+
+\begin_layout LyX-Code
+weight w_label: Label -> Double-;
+\end_layout
+
+\begin_layout Standard
+makes sure that the existence of labels are always penalized.
+ Constraining the sign of a weight function will be very important for efficient
+ inference.
+\end_layout
+
+\begin_layout Chapter
+Models
+\end_layout
+
+\begin_layout Standard
+Once we have defined the symbols of our language we are ready to use these
+ to make statements about the domain.
+ We call these statements 
+\emph on
+factor formulas
+\emph default
+.
+ A collection of such statements is called a 
+\emph on
+model
+\emph default
+.
+ Before we can describe these statements we need to introduce their main
+ building blocks: terms and boolean formulas.
+ 
+\end_layout
+
+\begin_layout Section
+Terms
+\end_layout
+
+\begin_layout Standard
+The most atomic building blocks of models are 
+\emph on
+terms
+\emph default
+.
+ A term is a symbol that describes an entity of the domain.
+ Terms always have a type associated with them.
+\end_layout
+
+\begin_layout Subsection
+Constants
+\end_layout
+
+\begin_layout Standard
+All constants are terms.
+ For example, A0, A1 and 
+\begin_inset Quotes eld
+\end_inset
+
+AM-MOD
+\begin_inset Quotes erd
+\end_inset
+
+ are all terms.
+\end_layout
+
+\begin_layout Subsection
+Variables
+\end_layout
+
+\begin_layout Standard
+Variables serve as placeholders for other terms.
+ Their type constraints the type of terms they can be replaced with.
+ Variables are words that begin a lowercase letter and may contain underscores.
+ 
+\end_layout
+
+\begin_layout Subsection
+Function Applications
+\end_layout
+
+\begin_layout Standard
+Function applications are terms that apply a function to some argument terms.
+ The type of a function application is the return type of the function.
+ Thebeast comes with a set of build-in functions, such as +,-,/,* etc that
+ can be used with infix notation.
+ For now no own functions can be defined.
+ Later versions will lift this restriction.
+ 
+\end_layout
+
+\begin_layout Subsection
+Weight Terms
+\end_layout
+
+\begin_layout Standard
+Finally, weight terms are weight functions applied to terms typed according
+ to the signature of the function.
+ 
+\end_layout
+
+\begin_layout Section
+Boolean Formulas
+\end_layout
+
+\begin_layout Standard
+Terms can be assembled into boolean formulas using atoms, logical connectives
+ and quantifiers.
+ We can write 
+\end_layout
+
+\begin_layout LyX-Code
+candidate(c)
+\end_layout
+
+\begin_layout LyX-Code
+candidate(c) => label(c,A0)
+\end_layout
+
+\begin_layout LyX-Code
+candidate(c) & label(c,A0)
+\end_layout
+
+\begin_layout LyX-Code
+candidate(c) | label(c,A0)
+\end_layout
+
+\begin_layout LyX-Code
+forall Label l: exist Int c: candidate(c) => label(c,l)
+\end_layout
+
+\begin_layout Standard
+Thebeast also allows us to use cardinal constraints such as 
+\end_layout
+
+\begin_layout LyX-Code
+forall Int c: candidate(c) => |Label l: label(c,l)| <= 1
+\end_layout
+
+\begin_layout Standard
+indicating that for each candidate node there are no more than 1 label.
+ Say we also have a hidden predicate 
+\emph on
+hasLabel
+\emph default
+ that indicates whether a node should have a label we can write 
+\end_layout
+
+\begin_layout LyX-Code
+forall Int c: hasLabel(c) => |Label l: label(c,l)| >= 1
+\end_layout
+
+\begin_layout Standard
+As of now equality constraints are not allowed but can be easily encoded
+ via a 
+\begin_inset Formula $\leq$
+\end_inset
+
+ and a 
+\begin_inset Formula $\geq$
+\end_inset
+
+ constraint.
+ 
+\end_layout
+
+\begin_layout Section
+Factor Formulas
+\end_layout
+
+\begin_layout Standard
+A model is essentially a collection of factor formulas.
+ Each factor formula describes a set of similar factors in the probabilistic
+ model.
+ It can be seen as a 
+\emph on
+parametrized
+\emph default
+ factor.
+ A factor formula has the following form
+\begin_inset Foot
+status collapsed
+
+\begin_layout Standard
+Lines can be arbitarily broken
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+factor: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+if <CONDITION> add [<FORMULA>] * <WEIGHT>;
+\end_layout
+
+\begin_layout Standard
+where QUANTIFICATION is a list of variables with types, CONDITION a boolean
+ formula that only contains observed predicates, FORMULA a boolean formula
+ that contains at least one hidden predicate and WEIGHT a term to type 
+\emph on
+Double
+\emph default
+.
+ CONDITION, FORMULA and WEIGHT may not contain variables not quantified
+ in QUANTIFICATION.
+ 
+\end_layout
+
+\begin_layout Standard
+For example
+\end_layout
+
+\begin_layout LyX-Code
+factor: for Int c, Label l 
+\end_layout
+
+\begin_layout LyX-Code
+if candidate(c) add [label(c,l)] * w_label(l);
+\end_layout
+
+\begin_layout Standard
+This reads as follows: for each label l and integer c where c must be a
+ candidate we add the value 
+\emph on
+w_label(l)
+\emph default
+ to the total score if 
+\emph on
+c
+\emph default
+ is labelled with 
+\emph on
+l
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+More general, for each variable assignment for the given quantification
+ that satisfies both the 
+\emph on
+condition
+\emph default
+ and the 
+\emph on
+formula 
+\emph default
+we add to the total score a weight which is a function of the variables.
+ 
+\end_layout
+
+\begin_layout Standard
+Note that one could potentially write
+\end_layout
+
+\begin_layout LyX-Code
+factor: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+add [<CONDITION> & <FORMULA>] * <WEIGHT>;
+\end_layout
+
+\begin_layout Standard
+to get the same semantics.
+ However the main complexity of a model comes from how hidden predicates
+ are involved; splitting hidden and observed part of a formula as we did
+ in the example helps thebeast to optimize inference.
+ In future versions this splitting might be done automatically.
+\end_layout
+
+\begin_layout Standard
+We can also name a factor formula
+\end_layout
+
+\begin_layout LyX-Code
+factor <NAME>: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+if <CONDITION> add [<FORMULA>] * <WEIGHT>;
+\end_layout
+
+\begin_layout Standard
+where NAME is a lowercase string.
+ This helps while debugging or when some components (learner, solver, feature
+ collector) should behave differently for different formulas.
+ 
 \end_layout
 
 \begin_layout Chapter
@@ -478,38 +1044,6 @@ name "cha:Corpora"
 \end_inset
 
 Corpora
-\end_layout
-
-\begin_layout Chapter
-Models
-\end_layout
-
-\begin_layout Section
-Factor Formulas
-\end_layout
-
-\begin_layout Section
-Boolean Formulas
-\end_layout
-
-\begin_layout Section
-Terms
-\end_layout
-
-\begin_layout Subsection
-Variables
-\end_layout
-
-\begin_layout Subsection
-Function Applications
-\end_layout
-
-\begin_layout Subsection
-Weight Terms
-\end_layout
-
-\begin_layout Section
-Functions
 \end_layout
 
 \begin_layout Chapter
