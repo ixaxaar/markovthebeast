@@ -76,7 +76,7 @@ factor cargimpliesarg: for Argument start, Argument ca, Int c, Int bc
   arg(c,ca) => |Int a, Int ba: candidate(a) & span(a,ba,_) & ba < bc & arg(a,start)| >= 1;
 
 factor rargimpliesarg: for Argument start, Argument ra, Int c
-  if carg(ra) & rargpair(ra,start) & candidate(c) :
+  if rarg(ra) & rargpair(ra,start) & candidate(c) :
   arg(c,ra) => |Int a: candidate(a) & arg(a,start)| >= 1;
 
 

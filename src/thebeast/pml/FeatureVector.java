@@ -50,6 +50,7 @@ public class FeatureVector {
     return nonpositive;
   }
 
+  
   /**
    * Tells the vector which indices of local features refer to signed/bounded features
    * @param model model to take the weight functions from
