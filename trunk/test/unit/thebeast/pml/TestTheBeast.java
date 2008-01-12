@@ -786,7 +786,7 @@ public class TestTheBeast extends TestCase {
     gold.getGroundAtomsOf(phrase).addGroundAtom(3, 4, "NP");
     gold.getGroundAtomsOf(phrase).addGroundAtom(2, 4, "VP");
 
-    byGrouping.penalize(gold);
+    byGrouping.penalizeGood(gold);
     assertEquals(8.0, byGrouping.getScore(phrase, 0, 0, "NP"));
     assertEquals(6.0, byGrouping.getScore(phrase, 0, 1, "NP"));
     assertEquals(6.0, byGrouping.getScore(phrase, 3, 4, "NP"));

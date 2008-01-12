@@ -45,6 +45,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int maxAtomCount = Integer.MAX_VALUE;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
+  private boolean rewardBad = false;
   private boolean useGreedy = true;
   private boolean saveAfterEpoch = true;
   private boolean initializeWeights = false;
@@ -266,17 +267,22 @@ public class OnlineLearner implements Learner, HasProperties {
 
   private void saveCurrentWeights(int epoch) {
     try {
+      //write plain weights
       File file = new File(savePrefix + epoch + ".dmp");
       file.delete();
       FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
-      if (averaging) {
-        Weights copy = weights.copy();
-        finalizeAverage(copy);
-        copy.write(sink);
-      } else {
-        weights.write(sink);
-      }
+      weights.write(sink);
       sink.flush();
+
+      //write averaged weights
+      File avgFile = new File(savePrefix + epoch + ".avg.dmp");
+      avgFile.delete();
+      FileSink avgSink = TheBeast.getInstance().getNodServer().createSink(avgFile, 1024);
+      Weights copy = weights.copy();
+      finalizeAverage(copy);
+      copy.write(avgSink);
+      avgSink.flush();
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -284,6 +290,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
   /**
    * Process one training instance
+   *
    * @param data the instance to process
    */
   private void learn(TrainingInstance data) {
@@ -300,7 +307,9 @@ public class OnlineLearner implements Learner, HasProperties {
     //scores.score(features, this.weights);
     scores.scoreWithGroups(features, data.getData());
     if (penalizeGold)
-      scores.penalize(goldAtoms);
+      scores.penalizeGood(goldAtoms);
+    if (rewardBad)
+      scores.rewardBad(goldAtoms);
     profiler.end();
 
     //use the scores to solve the model
@@ -387,7 +396,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //System.out.println(losses);
     updateAverage();
 
-    progressReporter.progressed(loss, evaluation.getF1(),solver.getIterationCount(), losses.size());
+    progressReporter.progressed(loss, evaluation.getF1(), solver.getIterationCount(), losses.size());
 
     //add feature vectors for reuse
     for (FeatureVector vector : allVectors) {
@@ -463,6 +472,8 @@ public class OnlineLearner implements Learner, HasProperties {
       setAveraging((Boolean) value);
     } else if ("penalizeGold".equals(name.getHead())) {
       setPenalizeGold((Boolean) value);
+    } else if ("rewardBad".equals(name.getHead())) {
+      setRewardBad((Boolean) value);
     } else if ("useGreedy".equals(name.getHead())) {
       setUseGreedy((Boolean) value);
     } else if ("initWeights".equals(name.getHead())) {
@@ -490,6 +501,10 @@ public class OnlineLearner implements Learner, HasProperties {
     } else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
 
+  }
+
+  private void setRewardBad(Boolean rewardBad) {
+    this.rewardBad = rewardBad;
   }
 
 

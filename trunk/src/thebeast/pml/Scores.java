@@ -102,7 +102,7 @@ public class Scores {
       builder.id("score");
       builder.expr(weights.getWeights());
       builder.attribute("features", UserPredicate.getFeatureIndicesAttribute());
-      builder.indexedSum("index","scale");
+      builder.indexedSum("index", "scale");
       builder.tuple(predicate.getArity() + 1);
       builder.select().query();
       sums.put(predicate, builder.getRelation());
@@ -329,15 +329,20 @@ public class Scores {
     }
   }
 
-  public void penalize(GroundAtoms gold) {
+  public void penalizeGood(GroundAtoms gold) {
     this.gold.load(gold, model.getHiddenPredicates());
-    //add 1 to each wrong ground atom, add -1 to each corrent one.
+    //add -1 to each correct one.
     for (RelationUpdate update : penalizeCorrects.values()) {
       interpreter.interpret(update);
     }
-    //for (RelationUpdate update : encourageInCorrects.values()) {
-    //  interpreter.interpret(update);
-    //}
+  }
+
+  public void rewardBad(GroundAtoms gold) {
+    this.gold.load(gold, model.getHiddenPredicates());
+    //add 1 to each wrong ground atom
+    for (RelationUpdate update : encourageInCorrects.values()) {
+      interpreter.interpret(update);
+    }
   }
 
 
