@@ -13,6 +13,7 @@ import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.nod.variable.IntVariable;
+import thebeast.nod.variable.DoubleVariable;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
 import thebeast.util.HashMultiMapList;
@@ -39,6 +40,9 @@ public class Scores {
           directScoreQueries = new HashMultiMapList<UserPredicate, RelationExpression>();
 
   private IntVariable directScoreIndex;
+
+  private DoubleVariable penalizeGoldScale;
+  private DoubleVariable rewardBadScale;
 
   private HashMap<UserPredicate, RelationVariable>
           atomScores = new HashMap<UserPredicate, RelationVariable>();
@@ -70,6 +74,10 @@ public class Scores {
     closure = signature.createGroundAtoms();
     Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
     directScoreIndex = interpreter.createIntVariable(builder.num(weights.getFeatureCount()).getInt());
+    rewardBadScale = interpreter.createDoubleVariable(builder.num(1.0).getDouble());
+    penalizeGoldScale = interpreter.createDoubleVariable(builder.num(-1.0).getDouble());
+
+
     for (UserPredicate predicate : model.getHiddenPredicates()) {
 
       RelationVariable directScoreTable = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
@@ -115,13 +123,13 @@ public class Scores {
       builder.contains();
       BoolExpression whereGold = builder.getBool();
       StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
-      DoubleExpression minus1 = builder.doubleAttribute("score").num(-1.0).doubleAdd().getDouble();
+      DoubleExpression minus1 = builder.doubleAttribute("score").expr(penalizeGoldScale).doubleAdd().getDouble();
       AttributeAssign substract = statementFactory.createAttributeAssign("score", minus1);
       RelationUpdate penalize = statementFactory.createRelationUpdate(scores, whereGold, substract);
       penalizeCorrects.put(predicate, penalize);
 
       BoolExpression whereNotGold = builder.expr(whereGold).not().getBool();
-      DoubleExpression plus1 = builder.doubleAttribute("score").num(1.0).doubleAdd().getDouble();
+      DoubleExpression plus1 = builder.doubleAttribute("score").expr(rewardBadScale).doubleAdd().getDouble();
       AttributeAssign add = statementFactory.createAttributeAssign("score", plus1);
       RelationUpdate encourage = statementFactory.createRelationUpdate(scores, whereNotGold, add);
       encourageInCorrects.put(predicate, encourage);
@@ -329,7 +337,16 @@ public class Scores {
     }
   }
 
-  public void penalizeGood(GroundAtoms gold) {
+  public void setPenalizeGoldScale(double scale){
+    interpreter.assign(penalizeGoldScale, builder.num(-scale).getDouble());
+  }
+
+  public void setRewardBadScale(double scale){
+    interpreter.assign(rewardBadScale, builder.num(scale).getDouble());
+  }
+
+
+  public void penalizeGold(GroundAtoms gold) {
     this.gold.load(gold, model.getHiddenPredicates());
     //add -1 to each correct one.
     for (RelationUpdate update : penalizeCorrects.values()) {
