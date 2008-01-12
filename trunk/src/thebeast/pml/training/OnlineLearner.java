@@ -46,6 +46,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
   private boolean rewardBad = false;
+  private boolean maxLossScaling = false;
   private boolean useGreedy = true;
   private boolean saveAfterEpoch = true;
   private boolean initializeWeights = false;
@@ -239,8 +240,8 @@ public class OnlineLearner implements Learner, HasProperties {
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
       progressReporter.started("Epoch " + epoch);
-      scores.setPenalizeGoldScale(epoch / (numEpochs-1.0));
-      scores.setRewardBadScale(epoch / (numEpochs-1.0));
+      scores.setPenalizeGoldScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
+      scores.setRewardBadScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       instanceNr = 0;
       for (TrainingInstance instance : instances) {
         //System.out.println(instanceNr + ": " + instance.getData().getGroundAtomCount());
@@ -435,6 +436,14 @@ public class OnlineLearner implements Learner, HasProperties {
   }
 
 
+  public boolean isMaxLossScaling() {
+    return maxLossScaling;
+  }
+
+  public void setMaxLossScaling(boolean maxLossScaling) {
+    this.maxLossScaling = maxLossScaling;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if ("solver".equals(name.getHead())) {
       if (!name.isTerminal())
@@ -476,6 +485,8 @@ public class OnlineLearner implements Learner, HasProperties {
       setPenalizeGold((Boolean) value);
     } else if ("rewardBad".equals(name.getHead())) {
       setRewardBad((Boolean) value);
+    } else if ("maxLossScaling".equals(name.getHead())) {
+      setMaxLossScaling((Boolean) value);
     } else if ("useGreedy".equals(name.getHead())) {
       setUseGreedy((Boolean) value);
     } else if ("initWeights".equals(name.getHead())) {
