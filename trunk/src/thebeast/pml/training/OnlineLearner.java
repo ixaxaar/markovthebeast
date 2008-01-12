@@ -239,6 +239,8 @@ public class OnlineLearner implements Learner, HasProperties {
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
       progressReporter.started("Epoch " + epoch);
+      scores.setPenalizeGoldScale(epoch / (numEpochs-1.0));
+      scores.setRewardBadScale(epoch / (numEpochs-1.0));
       instanceNr = 0;
       for (TrainingInstance instance : instances) {
         //System.out.println(instanceNr + ": " + instance.getData().getGroundAtomCount());
@@ -307,7 +309,7 @@ public class OnlineLearner implements Learner, HasProperties {
     //scores.score(features, this.weights);
     scores.scoreWithGroups(features, data.getData());
     if (penalizeGold)
-      scores.penalizeGood(goldAtoms);
+      scores.penalizeGold(goldAtoms);
     if (rewardBad)
       scores.rewardBad(goldAtoms);
     profiler.end();
