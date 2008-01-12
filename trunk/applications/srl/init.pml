@@ -13,7 +13,7 @@ load corpus from $2;
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/train-set.crp";
 //load corpus from "/disk/home/dendrite/s0349492/corpora/conll05/small-train-set.crp";
 
-save corpus (0-1000) to ram;
+//save corpus (0-10000) to ram;
 
 set collector.cutoff = 1;
 

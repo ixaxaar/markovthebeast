@@ -454,6 +454,8 @@ public class OnlineLearner implements Learner, HasProperties {
           setUpdateRule(new MiraUpdateRule());
         else if ("perceptron".equals(value.toString()))
           setUpdateRule(new PerceptronUpdateRule());
+        else if ("pa".equals(value.toString()))
+          setUpdateRule(new PassiveAggressiveUpdateRule());
         else throw new IllegalPropertyValueException(name, value);
       } else
         updateRule.setProperty(name.getTail(), value);

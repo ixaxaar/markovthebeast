@@ -144,6 +144,13 @@ public class SparseVector {
     return count;
   }
 
+  public double norm(){
+    double[] values = getValueArray();
+    double norm = 0;
+    for (double value : values)
+      norm += value * value;
+    return norm;
+  }
 
 
   public SparseVector add(double scale, SparseVector other) {

@@ -335,9 +335,9 @@ public class Scores {
     for (RelationUpdate update : penalizeCorrects.values()) {
       interpreter.interpret(update);
     }
-    for (RelationUpdate update : encourageInCorrects.values()) {
-      interpreter.interpret(update);
-    }
+    //for (RelationUpdate update : encourageInCorrects.values()) {
+    //  interpreter.interpret(update);
+    //}
   }
 
 

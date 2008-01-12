@@ -1,10 +1,10 @@
 weight w_bias: Argument -> Double-;
   factor: for Int c, Argument a if candidate(c) add [arg(c,a)] * w_bias(a);
 
-//set collector.all.w_bias = true;
+set collector.all.w_bias = true;
 
-weight w_bias_undef: Double-;
-  factor: for Int c, Argument a if candidate(c) & allargs(a) & undefined(w_bias(a)) add [arg(c,a)] * w_bias_undef;
+//weight w_bias_undef: Double-;
+//  factor: for Int c, Argument a if candidate(c) & allargs(a) & undefined(w_bias(a)) add [arg(c,a)] * w_bias_undef;
 
 weight w_path: Path x Argument -> Double;
 factor: for Int c, Path p, Argument a
