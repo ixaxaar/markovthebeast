@@ -77,10 +77,15 @@ public class ILPSolverLpSolve implements ILPSolver {
       for (TupleValue var : variables.value()) {
         int index = var.intElement("index").getInt();
         double weight = var.doubleElement("weight").getDouble();
-        solver.setObj(index + 1, weight);
-        costs.put(index + 1, weight);
-        solver.setBounds(index + 1, 0, 1);
-        if (enforceInteger) solver.setInt(index + 1, true);
+        try {
+          solver.setObj(index + 1, weight);
+          costs.put(index + 1, weight);
+          solver.setBounds(index + 1, 0, 1);
+          if (enforceInteger) solver.setInt(index + 1, true);
+        } catch (LpSolveException e) {
+          throw new RuntimeException("Error when adding new variable " + index + " - num cols: "
+                  + numCols + " num rows: " + numRows,e);
+        }
         ++this.numCols;
       }
       solver.setAddRowmode(true);
@@ -100,7 +105,7 @@ public class ILPSolverLpSolve implements ILPSolver {
                     "yet: nr " + (var - 1));
           shifted[index] = var;
           weights[index++] = nonZero.doubleElement("weight").getDouble();
-          if (weights[index-1] < 0) ++negativeWeights;
+          if (weights[index - 1] < 0) ++negativeWeights;
         }
         int type = ub == lb ? LpSolve.EQ : ub == Double.POSITIVE_INFINITY ?
                 LpSolve.GE : LpSolve.LE;

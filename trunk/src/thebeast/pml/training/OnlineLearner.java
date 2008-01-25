@@ -501,6 +501,8 @@ public class OnlineLearner implements Learner, HasProperties {
           setLossFunction(new AverageNumErrors(model));
         else if (value.equals("globalNumErrors"))
           setLossFunction(new GlobalNumErrors(model));
+        else if (value.equals("fpnp"))
+          setLossFunction(new GlobalNumErrors(model));
         else if (value.equals("falseNegatives"))
           setLossFunction(new GlobalNumErrors(model));
         else if (value.equals("globalF1"))
