@@ -1,4 +1,4 @@
-#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 276
 \begin_document
 \begin_header
@@ -37,9 +37,306 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\R}{\mathcal{R}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\T}{\mathcal{T}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bv}{\mathbf{v}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\score}{s}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\obs}{\x_{o}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\imp}{\Rightarrow}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\equi}{\Leftrightarrow}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\boldc}{\mathbf{c}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\boldv}{\mathbf{v}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\w}{\mathbf{w}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Y}{\mathcal{Y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Yvar}{\mathbf{Y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\F}{F}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\opti}{\hat{\x}_{h}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\f}{\mathbf{f}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\x}{\mathbf{x}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\y}{\mathbf{y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ybest}{\hat{\y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\h}{\mathbf{h}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\X}{\mathbf{X}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\D}{\mathcal{D}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\argmax}[1]{\underset{#1}{\text{arg max}}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\guess}{\y'}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Real}{\mathbb{R}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Int}{\mathbb{N}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\bilevel}{\left\langle \Gamma,M\right\rangle }
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\vocab}{\text{Vocabulary}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\reduct}{\text{Reduct}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\lforall}{\dot{\forall}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\sscore}{\varsigma_{M}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\cand}{\text{Cand}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\unroll}{\text{Unroll}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ground}{\text{Ground}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\mater}{\text{Materialize}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\inner}{\text{Inner}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\mapmodel}{\hat{N}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\prob}{p}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\separate}{\text{Separate}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\solve}{\text{solve}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\MAP}{\text{MAP}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\boldG}{\mathbf{G}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\round}{\text{Round}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\fracsolve}{\text{fractional-solve}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\fractionals}{\text{Fractionals}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\atoms}{\text{Atoms}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\aux}{\lambda}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\smokes}{\forall x.\forall y.friends\left(x,y\right)\wedge smokes\left(x\right)\Rightarrow smokes\left(y\right)}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\data}{\mathcal{D}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\I}{\mathbb{I}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Cliques}{\mathcal{C}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\weightedsmokes}{\forall x.\forall y.\left(friends\left(x,y\right)\wedge smokes\left(x\right)\Rightarrow smokes\left(y\right)\left[w_{smokes}\right]\right)}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\ilpy}{\mathbf{a}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\powerset}{\mathcal{P}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\innersmokes}{friends\left(x,y\right)\wedge smokes\left(x\right)\Rightarrow smokes\left(y\right)}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\annasmokes}{smokes\left(Anna\right),friends\left(Anna,Peter\right)}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\finitevocab}{\left\{  \left\{  smokes,friends\right\}  ,\left\{  \right\}  ,\left\{  Anna,Peter\right\}  ,\left\{  x,y\right\}  \right\}  }
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\determin}{\text{Deterministic}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\nondeter}{\text{Nondeterministic}}
+\end_inset
+
+
+\end_layout
 
 \begin_layout Title
 Markov TheBeast User Manual
@@ -691,12 +988,98 @@ We differentiate between three types of predicates: hidden, observed and
 Hidden Predicates
 \end_layout
 
+\begin_layout Standard
+The ground atoms of 
+\emph on
+hidden predicates
+\emph default
+ are not seen during test time.
+ Instead they have to be predicted using MAP inference (chapter 
+\begin_inset LatexCommand ref
+reference "cha:Inference"
+
+\end_inset
+
+).
+ However, when learning weights the ground atoms of the hidden predicates
+ are given and used to optimize parameters in order to reproduce these atoms
+ for the given input.
+ In our example above 
+\emph on
+label
+\emph default
+ is a hidden predicate because it is the predicate whose ground atoms we
+ try to predict.
+ 
+\end_layout
+
+\begin_layout Standard
+In order to declare a predicate to be hidden it has to be listed in the
+ set of hidden predicates using the following command:
+\end_layout
+
+\begin_layout LyX-Code
+hidden: label, otherhiddenpredicate;
+\end_layout
+
 \begin_layout Subsection
 Observed Predicates
 \end_layout
 
+\begin_layout Standard
+The ground atoms of 
+\emph on
+observed predicates
+\emph default
+ are seen both during testing and training.
+ In our example candidate is an observed predicate because even at test
+ and training time we always know which constituents are candidate arguments.
+\end_layout
+
+\begin_layout Standard
+To declare a predicate to be hidden, use the following command
+\end_layout
+
+\begin_layout LyX-Code
+observed: candidate, otherobersevedpredicate;
+\end_layout
+
 \begin_layout Subsection
 Global Predicates
+\end_layout
+
+\begin_layout Standard
+Finally, we can declare a predicate to be 
+\emph on
+global
+\emph default
+.
+ Usually ground atoms only hold for one problem instance.
+ For the next one we need to add all atoms from scratch.
+ However, sometimes the same ground atoms should exist for all problem instances.
+ These atoms and their corresponding predicates will be called global.
+ For example, imagine we want to distinguish labels by whether they are
+ denoting modifiers or complements.
+ This can be done by introducing the unary predicates 
+\emph on
+modifier
+\emph default
+ and 
+\emph on
+complement 
+\emph default
+and marking them as global by writing
+\end_layout
+
+\begin_layout LyX-Code
+global: complement, modifier;
+\end_layout
+
+\begin_layout Standard
+Now we can globally define which labels are complements and modifiers.
+ This means a) less work for us (atoms have to only be added once) and b)
+ less memory/disk usage (because we don't need to save the same atoms for
+ each instance in a training/test set).
 \end_layout
 
 \begin_layout Section
@@ -1037,17 +1420,767 @@ where NAME is a lowercase string.
  
 \end_layout
 
+\begin_layout Section
+Semantics
+\end_layout
+
+\begin_layout Standard
+The set of formulas of a model have well-defined se mantics.
+ They define a probability distribution over sets of ground atoms, or 
+\emph on
+possible worlds
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+an MLN 
+\begin_inset Formula $M$
+\end_inset
+
+ as set of pairs 
+\begin_inset Formula $\left\{ \left(\phi_{i},w_{i}\right)\right\} _{i}$
+\end_inset
+
+ where each 
+\begin_inset Formula $\phi_{i}$
+\end_inset
+
+ is a formula in First-Order Logic and 
+\begin_inset Formula $w_{i}$
+\end_inset
+
+ is a weight function.
+ Together with a 
+\emph on
+finite
+\emph default
+ set of constants 
+\begin_inset Formula $C$
+\end_inset
+
+, an MLN 
+\begin_inset Formula $M$
+\end_inset
+
+ then defines a log-linear probability distribution over possible worlds
+ 
+\begin_inset Formula $\y\in\Y_{P,C}$
+\end_inset
+
+ as follows
+\begin_inset Formula \begin{equation}
+\prob\left(\y\right)=\frac{1}{Z}\exp\left(\sum_{\left(\phi,w\right)\in M}\sum_{\boldc:cond\left[\boldv/\boldc\right]}f_{\boldc}^{\phi}\left(\y\right)\cdot w\left(\boldc\right)\right)\label{eq:prob}\end{equation}
+
+\end_inset
+
+where the feature function 
+\begin_inset Formula $f_{\boldc}^{\phi}$
+\end_inset
+
+ is defined as
+\begin_inset Formula \[
+f_{\boldc}^{\phi}\left(\y\right)=\I\left(\vDash_{\y}\phi\left[v_{1}/c_{1},\ldots,v_{n_{\phi}}/c_{n_{\phi}}\right]\right)\]
+
+\end_inset
+
+
+\begin_inset Formula $Z$
+\end_inset
+
+ is a normalisation constant, 
+\begin_inset Formula $\I\left(true\right)=1$
+\end_inset
+
+ and 
+\begin_inset Formula $\I\left(false\right)=0$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+This distribution is strictly positive and corresponds to a Markov Network
+ which is referred to as the 
+\emph on
+Ground Markov Network
+\emph default
+.
+ It is also equivalent to a Weighted Satisfiability (SAT) Problem.
+ Many applications, including the two presented in this work, contain determinis
+tic constraints.
+ These will be realized using very large weights that result in areas with
+ near-zero probability.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, with 
+\begin_inset Formula $M=\left\{ \left(\phi_{1},2.5\right),\left(\phi_{2},1.2\right)\right\} $
+\end_inset
+
+ and the finite set of constants 
+\begin_inset Formula $C=\left\{ n_{1},n{}_{2},\ldots\right\} $
+\end_inset
+
+ that represent the nodes of the parse tree, the log-linear model would
+ contain, among others, the feature
+\begin_inset Formula \[
+f_{n_{1}}^{\phi_{1}}\left(\y\right)=\I\left(\vDash_{\y}agent\left(n_{1}\right)\imp left\left(n_{1}\right)\right)\]
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Chapter
 \begin_inset LatexCommand label
 name "cha:Corpora"
 
 \end_inset
 
-Corpora
+Data
+\end_layout
+
+\begin_layout Standard
+So far we haven't described how to feed thebeast with data.
+ Thus, in this chapter we will give an overview how to load and save data,
+ both for training and testing.
+ 
+\end_layout
+
+\begin_layout Standard
+Data for thebeast is stored in 
+\emph on
+instances
+\emph default
+.
+ Each instance contains ground atoms for the predicates we have defined
+ in our signature.
+ During training we need to provide thebeast with ground atoms for both
+ hidden and observed atoms.
+ During testing the latter is sufficient -- hidden atoms will be predicted
+ by the inference method.
+ 
+\end_layout
+
+\begin_layout Standard
+An instance can be saved and loaded from a text file with the following
+ format:
+\end_layout
+
+\begin_layout LyX-Code
+>>
+\end_layout
+
+\begin_layout LyX-Code
+>candidate
+\end_layout
+
+\begin_layout LyX-Code
+1
+\end_layout
+
+\begin_layout LyX-Code
+2
+\end_layout
+
+\begin_layout LyX-Code
+3
+\end_layout
+
+\begin_layout LyX-Code
+4
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+>label
+\end_layout
+
+\begin_layout LyX-Code
+2   A0
+\end_layout
+
+\begin_layout LyX-Code
+3   A1
+\end_layout
+
+\begin_layout Standard
+Here a 
+\begin_inset Quotes eld
+\end_inset
+
+>>
+\begin_inset Quotes erd
+\end_inset
+
+ starts an instance and each single 
+\begin_inset Quotes eld
+\end_inset
+
+>
+\begin_inset Quotes erd
+\end_inset
+
+ followed by a predicate names starts a table of ground atoms for the given
+ predicate.
+ Each row of the table represents one ground atom, and the n-th column of
+ the table represents the n-th argument of this atom.
+ The table is terminated with an empty line.
+ In the above example we have encoded the fact that the integers 1-4 are
+ referring to candidate nodes in a parse tree and that node 2 is labelled
+ as 
+\begin_inset Quotes eld
+\end_inset
+
+A0
+\begin_inset Quotes erd
+\end_inset
+
+ and node 3 as 
+\begin_inset Quotes eld
+\end_inset
+
+A1
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In order to save multiple instances in one file (for example, if we want
+ to give a set of training instances to thebeast) we can just concatenate
+ multiple instances by simply starting each new instance with a new 
+\begin_inset Quotes eld
+\end_inset
+
+>>
+\begin_inset Quotes erd
+\end_inset
+
+.
+ For example, the following text file contains two instances:
+\end_layout
+
+\begin_layout LyX-Code
+>>
+\end_layout
+
+\begin_layout LyX-Code
+>candidate
+\end_layout
+
+\begin_layout LyX-Code
+1
+\end_layout
+
+\begin_layout LyX-Code
+2
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+>label
+\end_layout
+
+\begin_layout LyX-Code
+2   A0
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+>>
+\end_layout
+
+\begin_layout LyX-Code
+>candidate
+\end_layout
+
+\begin_layout LyX-Code
+3
+\end_layout
+
+\begin_layout LyX-Code
+5
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+>label
+\end_layout
+
+\begin_layout LyX-Code
+5   A1
+\end_layout
+
+\begin_layout Section
+Loading Data
+\end_layout
+
+\begin_layout Standard
+In order to load data into thebeast we save the above text into a file (say,
+ 
+\begin_inset Quotes eld
+\end_inset
+
+example.atoms
+\begin_inset Quotes erd
+\end_inset
+
+) and execute
+\end_layout
+
+\begin_layout LyX-Code
+load corpus from 
+\begin_inset Quotes eld
+\end_inset
+
+example.atoms
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+Now the beast will use the provided data for learning and/or inference,
+ depending on the commands that will follow.
+ 
+\end_layout
+
+\begin_layout Section
+Inspecting Data
+\end_layout
+
+\begin_layout Standard
+After loading the corpus thebeast has access to the data but it hasn't fully
+ loaded it into memory.
+ When training and testing this is no problem because data is processed
+ sequentially and read in one-by-one or loaded completely, depending on
+ the training mode given.
+ This is automatically handled by thebeast.
+ However, if the user wants to inspect the corpus and randomly jump around
+ it is necessary to explicitely tell thebeast to load the full data into
+ memory.
+ This is done by calling
+\end_layout
+
+\begin_layout LyX-Code
+save corpus to ram;
+\end_layout
+
+\begin_layout Standard
+after the corpus was loaded using the 
+\begin_inset Quotes eld
+\end_inset
+
+load corpus
+\begin_inset Quotes erd
+\end_inset
+
+ command.
+ Now one can move around the corpus using the 
+\begin_inset Quotes eld
+\end_inset
+
+next
+\begin_inset Quotes erd
+\end_inset
+
+ command that moves the current pointer around the corpus.
+ For example,
+\end_layout
+
+\begin_layout LyX-Code
+next 5;
+\end_layout
+
+\begin_layout Standard
+moves the pointer to the current instances 5 instances further.
+ Correspondingly, 
+\end_layout
+
+\begin_layout LyX-Code
+next -4;
+\end_layout
+
+\begin_layout Standard
+moves the pointer 4 instances backwards.
+\end_layout
+
+\begin_layout Section
+Printing Data
+\end_layout
+
+\begin_layout Standard
+We can use thebeast to print out the current instance using 
+\end_layout
+
+\begin_layout LyX-Code
+print atoms;
+\end_layout
+
+\begin_layout Standard
+This renders the current instance using the format we introduced above.
+ Alternatively, one can override the default print format with specific
+ formats for specific tasks.
+ This requires the implementation of a Java interface and is outside the
+ scope of this manual for now.
+\end_layout
+
+\begin_layout Section
+Evaluation
+\end_layout
+
+\begin_layout Standard
+Often we are interested in how well our model and inference method does
+ in comparison with a gold standard.
+ When thebeast loads in a test corpus that contains (hidden) gold atoms
+ these can be used to compare the solutions thebeast generates to thos gold
+ atoms.
+ 
+\end_layout
+
+\begin_layout Standard
+Say we have moved the cursor to a particular instance and have performed
+ inference on this instance (more on this in chapter 
+\begin_inset LatexCommand ref
+reference "cha:Inference"
+
+\end_inset
+
+) then we can evaluate how well we do using
+\end_layout
+
+\begin_layout LyX-Code
+print eval;
+\end_layout
+
+\begin_layout Standard
+This prints out information such as precision, recall and F1-measure for
+ each individual predicate as well as global versions over the ground atoms
+ of all predicates.
+ In addition the false negative and positive atoms for each predicate are
+ printed.
+\end_layout
+
+\begin_layout Standard
+Again we can adapt the output format and the type of information printed
+ for different tasks.
+ This requires Java classes to be implemented and again falls outside of
+ the scope of this manual.
 \end_layout
 
 \begin_layout Chapter
-Learning Weights
+Weights
+\end_layout
+
+\begin_layout Standard
+In our model we use weight functions to allow formulas to be violated with
+ some penalty.
+ However, the actual mappings these weight functions describe are left unspecifi
+ed.
+ This is an important aspect of the architecture of thebeast: weights are
+ not part of the model.
+ When we use formulas to describe our domain this should only involve its
+ qualitative properties.
+ The quantitative aspect is handled by the learning algorithm that estimates
+ the weights.
+ This separation comes in particularly handy when we deal with millions
+ of possible weight function arguments (i.e.
+ features).
+ In this case a file that contains both weights and formulas is effectively
+ undreadable.
+\end_layout
+
+\begin_layout Standard
+At initializing all weights are zero, or rather, all weight function arguments
+ are mapped to zero.
+ We can change this in two ways, either we learn weights using data or we
+ load weights from a file.
+ We will describe the first way in chapter 
+\begin_inset LatexCommand ref
+reference "cha:Learning"
+
+\end_inset
+
+.
+ Here we show how to load weights from a file.
+ 
+\end_layout
+
+\begin_layout Section
+Loading Weights
+\end_layout
+
+\begin_layout Standard
+The format of a weight file is almost identical to the format of a data/ground
+ atoms file.
+ Simply write a 
+\begin_inset Quotes eld
+\end_inset
+
+>>
+\begin_inset Quotes erd
+\end_inset
+
+ (can be omitted) to begin the weight file and a 
+\begin_inset Quotes eld
+\end_inset
+
+>
+\begin_inset Quotes erd
+\end_inset
+
+ followed by the weight function name to start a table of weight mappings.
+ Each row in this table represents a weight mapping.
+ If the weight function has arity 
+\begin_inset Formula $n$
+\end_inset
+
+ then for 
+\begin_inset Formula $i\leq n$
+\end_inset
+
+ the 
+\begin_inset Formula $i$
+\end_inset
+
+-th column represents the 
+\begin_inset Formula $i$
+\end_inset
+
+-th argument of the weight function.
+ The 
+\begin_inset Formula $n+1$
+\end_inset
+
+-th column is a double number representing the weight the argument tuple
+ is mapped to.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, for a model that contains the weight function
+\end_layout
+
+\begin_layout LyX-Code
+weight w_label: Label -> Double;
+\end_layout
+
+\begin_layout Standard
+the following text represents a weight mapping
+\end_layout
+
+\begin_layout LyX-Code
+>>
+\end_layout
+
+\begin_layout LyX-Code
+>w_label
+\end_layout
+
+\begin_layout LyX-Code
+A0  0.123
+\end_layout
+
+\begin_layout LyX-Code
+A1  -0.41
+\end_layout
+
+\begin_layout Standard
+If we save this text in a text file, say 
+\begin_inset Quotes eld
+\end_inset
+
+example.weights
+\begin_inset Quotes erd
+\end_inset
+
+, we can use
+\end_layout
+
+\begin_layout LyX-Code
+load weights from 
+\begin_inset Quotes eld
+\end_inset
+
+example.weights
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+in order to load this mapping.
+ 
+\end_layout
+
+\begin_layout Standard
+Alternatively we can load weights from a binary format.
+ Files of this format can be generated with thebeast, for example are training
+ in order to reuse them later.
+ Loading from the binary format is much faster, but such weight files cannot
+ be created manually.
+ In case we have a binary weight file 
+\begin_inset Quotes eld
+\end_inset
+
+example.dmp
+\begin_inset Quotes erd
+\end_inset
+
+ we can use
+\end_layout
+
+\begin_layout LyX-Code
+load weights from dump 
+\begin_inset Quotes eld
+\end_inset
+
+example.dmp
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Section
+Saving Weights
+\end_layout
+
+\begin_layout Standard
+One of the most common use cases of thebeast is to learn weights using a
+ training set.
+ If we want to reuse these weights on a test set later on we need to be
+ able to save them after training.
+ This is done by
+\end_layout
+
+\begin_layout LyX-Code
+save weights to 
+\begin_inset Quotes eld
+\end_inset
+
+learnt.weights
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+This writes the weights to a file 
+\begin_inset Quotes eld
+\end_inset
+
+learnt.weights
+\begin_inset Quotes erd
+\end_inset
+
+ using the text format introduced above.
+ Alternatively one can store to a binary file using
+\end_layout
+
+\begin_layout LyX-Code
+save weights to dump 
+\begin_inset Quotes eld
+\end_inset
+
+learnt.dmp
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+These files are faster to load and save but can't be manually inspected.
+ However, one can inspect using thebeast once their are loaded.
+\end_layout
+
+\begin_layout Section
+Inspecting Weights
+\end_layout
+
+\begin_layout Standard
+Often it is helpful to see the numerical values of some weights.
+ This can be done using
+\end_layout
+
+\begin_layout LyX-Code
+print weights;
+\end_layout
+
+\begin_layout Standard
+which prints out all weight mappings of all weight functions.
+ As there might be millions of these mappings printing all of them can become
+ prohibitive.
+ Instead one can use the name of a particular weight function to only get
+ the mappings of this weight function
+\end_layout
+
+\begin_layout LyX-Code
+print weights.w_label;
+\end_layout
+
+\begin_layout Standard
+Sometimes one is actually looking for the weight of a one particular argument
+ tuple.
+ In this case one can use the predicate name and the tuple in question:
+\end_layout
+
+\begin_layout LyX-Code
+print weights.w_label(A0);
+\end_layout
+
+\begin_layout Chapter
+\begin_inset LatexCommand label
+name "cha:Inference"
+
+\end_inset
+
+Inference
+\end_layout
+
+\begin_layout Standard
+There are several types of inference one could conduct in Statistical Relational
+ Learning.
+ For example, given 
+\end_layout
+
+\begin_layout Section
+Propositional Models
+\end_layout
+
+\begin_layout Section
+Cutting Plane Solver
+\end_layout
+
+\begin_layout Chapter
+\begin_inset LatexCommand label
+name "cha:Learning"
+
+\end_inset
+
+Learning
 \end_layout
 
 \begin_layout Section
@@ -1056,18 +2189,6 @@ Instantiating Weights
 
 \begin_layout Section
 Estimating Weights
-\end_layout
-
-\begin_layout Chapter
-Inference
-\end_layout
-
-\begin_layout Section
-Cutting Plane Solver
-\end_layout
-
-\begin_layout Section
-Propositional Models
 \end_layout
 
 \end_body
