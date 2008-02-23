@@ -1,4 +1,4 @@
-package thebeast.pml.corpora;
+package thebeast.pml;
 
 import thebeast.pml.*;
 import thebeast.pml.formula.FactorFormula;
