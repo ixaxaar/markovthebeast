@@ -5,6 +5,7 @@ import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.FormulaBuilder;
 import thebeast.pml.function.WeightFunction;
 import thebeast.pml.solve.CuttingPlaneSolver;
+import thebeast.pml.solve.ilp.IntegerLinearProgram;
 
 import java.io.PrintStream;
 import java.util.Random;
@@ -71,6 +72,7 @@ public class Analysis {
 
     CuttingPlaneSolver solver = new CuttingPlaneSolver();
     solver.configure(model, weights);
+    ((IntegerLinearProgram)solver.getPropositionalModel()).setInitIntegers(true);
 
     solver.setObservation(observation);
     solver.solve();
