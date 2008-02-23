@@ -126,6 +126,13 @@ public class GroundAtoms implements Dumpable, SignatureListener {
   }
 
   /**
+   * Removes all atoms.
+   */
+  public void clear(){
+    clear(signature.getUserPredicates());
+  }
+
+  /**
    * Load a set of ground atoms from the given input stream.
    *
    * @param is input stream with PML data format

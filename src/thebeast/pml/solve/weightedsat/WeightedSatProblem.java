@@ -278,6 +278,14 @@ public class WeightedSatProblem implements PropositionalModel {
     groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, atoms, fullyGround, weights, this));
   }
 
+  public int getGroundAtomCount() {
+    return atomCosts.value().size();
+  }
+
+  public int getGroundFormulaCount() {
+    return clauses.value().size();
+  }
+
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;

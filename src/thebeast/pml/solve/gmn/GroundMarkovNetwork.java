@@ -80,6 +80,14 @@ public class GroundMarkovNetwork implements PropositionalModel {
 
   }
 
+  public int getGroundAtomCount() {
+    return 0;
+  }
+
+  public int getGroundFormulaCount() {
+    return 0;
+  }
+
   public void setClosure(GroundAtoms closure) {
 
   }
