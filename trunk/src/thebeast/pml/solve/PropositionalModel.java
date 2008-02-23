@@ -58,10 +58,30 @@ public interface PropositionalModel extends HasProperties, Profilable {
    */
   void enforceIntegerSolution();
 
+  /**
+   * Set this propositional model to fully ground the specified formula if the corresponding flat is true
+   *
+   * @param formula     formula to fully ground
+   * @param fullyGround if true the formula will be fully grounded in advance, otherwise only in updates.
+   */
   void setFullyGround(FactorFormula formula, boolean fullyGround);
 
-  void setClosure(GroundAtoms closure);
+  /**
+   * Returns the number of ground atoms used in this model.
+   *
+   * @return the number of ground atoms instantiated in this model
+   */
+  int getGroundAtomCount();
 
+  /**
+   * Returns how many ground formulas have been instantiated in the propositional model
+   *
+   * @return the number of ground formulas instantiated so far.
+   */
+  int getGroundFormulaCount();
+
+
+  void setClosure(GroundAtoms closure);
 
   void configure(Model model, Weights weights);
 

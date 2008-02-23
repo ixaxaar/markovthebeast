@@ -73,6 +73,7 @@ precedence left X;
 precedence nonassoc LPAREN,RPAREN,UNDERSCORE;
 precedence left IMPLIES;
 precedence left AND;
+precedence nonassoc EXCL;
 precedence left PLUS, MINUS;
 precedence left TIMES;
 

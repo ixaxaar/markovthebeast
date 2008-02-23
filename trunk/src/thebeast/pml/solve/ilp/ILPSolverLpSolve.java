@@ -77,6 +77,8 @@ public class ILPSolverLpSolve implements ILPSolver {
       for (TupleValue var : variables.value()) {
         int index = var.intElement("index").getInt();
         double weight = var.doubleElement("weight").getDouble();
+        if (index >= numCols) throw new RuntimeException("Trying to add variable with index " + index + " but " +
+                "there are only " + numCols + " columns");
         try {
           solver.setObj(index + 1, weight);
           costs.put(index + 1, weight);

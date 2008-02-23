@@ -577,6 +577,14 @@ public class IntegerLinearProgram implements PropositionalModel {
     configureFormula(formula, fullyGround);
   }
 
+  public int getGroundAtomCount() {
+    return vars.value().size();
+  }
+
+  public int getGroundFormulaCount() {
+    return constraints.value().size();
+  }
+
   /**
    * Returns a string for introspection of this ilp.
    *
