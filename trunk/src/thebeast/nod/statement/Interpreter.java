@@ -119,4 +119,6 @@ public interface Interpreter {
   String getMemoryString();
 
   void compactify(RelationVariable var);
+
+  void defragment();
 }

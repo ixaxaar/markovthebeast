@@ -80,6 +80,14 @@ public interface PropositionalModel extends HasProperties, Profilable {
    */
   int getGroundFormulaCount();
 
+  /**
+   * Returns a string with the properties (configuration) of this model.
+   * In contrast toString() produces a String with the actual state of this model.
+   *
+   * @return a string with configuration properties.
+   */
+  String getPropertyString();
+
 
   void setClosure(GroundAtoms closure);
 

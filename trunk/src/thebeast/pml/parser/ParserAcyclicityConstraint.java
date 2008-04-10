@@ -20,6 +20,12 @@ public class ParserAcyclicityConstraint extends ParserFormula{
     
   }
 
+  public ParserAcyclicityConstraint(String predicate, List<Boolean> markers) {
+    this.predicate = predicate;
+    this.markers = new ArrayList<Boolean>(markers);    
+  }
+
+
   public void acceptParserFormulaVisitor(ParserFormulaVisitor visitor) {
     visitor.visitAcyclicityConstraint(this);    
   }

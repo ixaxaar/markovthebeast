@@ -585,6 +585,12 @@ public class IntegerLinearProgram implements PropositionalModel {
     return constraints.value().size();
   }
 
+  public String getPropertyString() {
+    StringBuffer result = new StringBuffer();
+    result.append(String.format("%-20s: %-5b\n", "InitIntegers", initIntegers));
+    return result.toString();
+  }
+
   /**
    * Returns a string for introspection of this ilp.
    *

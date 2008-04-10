@@ -36,13 +36,11 @@ public class OnlineLearner implements Learner, HasProperties {
   private Weights weights;
   private Model model;
   private ProgressReporter progressReporter = new QuietProgressReporter();
-  private boolean averaging = false;
+  private boolean averaging = true;
   private ArrayVariable average;
   private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
   private int count;
   private Profiler profiler = new NullProfiler();
-  private int maxCandidates = 1000;
-  private int maxAtomCount = Integer.MAX_VALUE;
   private LossFunction lossFunction;
   private boolean penalizeGold = false;
   private boolean rewardBad = false;
@@ -56,15 +54,33 @@ public class OnlineLearner implements Learner, HasProperties {
   private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
   private int numEpochs;
-  private int instanceNr;
-  private int minOrder = 0;
-  private int minCandidates = 0;
+  private int minOrder = 1;
+  private int minCandidates = 1;
+  private int maxCandidates = 1;
+  private int maxAtomCount = Integer.MAX_VALUE;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
     setSolver(new CuttingPlaneSolver());
   }
 
+
+  /**
+   * Returns a string with properties of this learner;
+   * @return string with properties
+   */
+  public String toString() {
+    StringBuffer result = new StringBuffer();
+    result.append(String.format("%-20s: %-5b\n", "averaging", averaging));
+    result.append(String.format("%-20s: %-5b\n", "penalizeGold", penalizeGold));
+    result.append(String.format("%-20s: %-5b\n", "rewardBad", rewardBad));
+    result.append(String.format("%-20s: %-5d\n", "MinOrder", minOrder));
+    result.append(String.format("%-20s: %-5d\n", "MaxCandidates", maxCandidates));
+    result.append(String.format("%-20s: %-20s\n", "Loss", lossFunction.getClass().getName()));
+    result.append("Solver:\n");
+    result.append(solver);
+    return result.toString();
+  }
 
   public ProgressReporter getProgressReporter() {
     return progressReporter;
@@ -242,13 +258,11 @@ public class OnlineLearner implements Learner, HasProperties {
       progressReporter.started("Epoch " + epoch);
       scores.setPenalizeGoldScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       scores.setRewardBadScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
-      instanceNr = 0;
       for (TrainingInstance instance : instances) {
         //System.out.println(instanceNr + ": " + instance.getData().getGroundAtomCount());
         if (instance.getData().getGroundAtomCount() <= maxAtomCount) learn(instance);
 //        if (instanceNr >= 550 && instanceNr <= 560)
 //          ((CuttingPlaneSolver)solver).printHistory(System.out);
-        ++instanceNr;
 //        if (instanceNr % 100 == 99)
 //          System.out.println(instances.getUsedMemory());
         //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());

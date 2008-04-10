@@ -47,4 +47,11 @@ public class Counter<T> extends HashMap<T, Integer> {
     }
   }
 
+  public int getMaximum(){
+    int max = 0;
+    for (Integer value : values())
+      if (value > max) max = value;
+    return max;
+  }
+
 }

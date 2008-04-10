@@ -8,6 +8,8 @@ import thebeast.nod.value.DoubleValue;
 import thebeast.nod.value.IntValue;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.variable.*;
+import thebeast.nod.FileSink;
+import thebeast.nod.FileSource;
 import thebeast.nodmem.MemNoDServer;
 import thebeast.nodmem.expression.AbstractMemExpression;
 import thebeast.nodmem.expression.MemDoubleConstant;
@@ -20,6 +22,7 @@ import thebeast.util.Util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -174,6 +177,30 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     return memRelationVariable;
   }
 
+  public void defragment() {
+    try {
+      File tmpFile = new File("/tmp/_thebeast.defrag");
+      FileSink sink = server.createSink(tmpFile, 10000);
+      for (WeakReference<RelationVariable> ref : relVarReferences) {
+        MemRelationVariable var = (MemRelationVariable) ref.get();
+        var.own();
+        sink.write(var, true);
+        var.getContainerChunk().clear();
+      }
+      sink.close();
+      Runtime.getRuntime().gc();
+      FileSource source = server.createSource(tmpFile,10000);
+      for (WeakReference<RelationVariable> ref : relVarReferences) {
+        MemRelationVariable var = (MemRelationVariable) ref.get();
+        source.read(var);
+      }
+      tmpFile.delete();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+
   public CategoricalVariable createCategoricalVariable(CategoricalExpression categorical) {
     MemCategoricalVariable var = new MemCategoricalVariable(server, categorical.type(), new MemChunk(1, 1, MemDim.INT_DIM));
     ++relVarCount;
@@ -283,8 +310,8 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     interpret(new MemClearRelationVariable((MemRelationVariable) var));
   }
 
-  public void compactify(RelationVariable var){
-    ((MemRelation)var.value()).getChunk().compactify();
+  public void compactify(RelationVariable var) {
+    ((MemRelation) var.value()).getChunk().compactify();
   }
 
   public void clear(ArrayVariable variable) {
@@ -328,7 +355,7 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
       MemInserter.insert(src, result);
     else {
       var.buildCountIndex();
-      MemInserter.insertWithCounts(src,result, var.getCountCol(), var.getNonCountCols(), var.getCountIndex());
+      MemInserter.insertWithCounts(src, result, var.getCountCol(), var.getNonCountCols(), var.getCountIndex());
       var.invalidateNotCounting();
     }
     //var.invalidate();
@@ -430,7 +457,6 @@ public class MemInterpreter implements Interpreter, StatementVisitor {
     var.invalidate();
   }
 
-  
 
   public void visitArraySparseAdd(ArraySparseAdd arraySparseAdd) {
     MemArrayVariable var = (MemArrayVariable) arraySparseAdd.variable();

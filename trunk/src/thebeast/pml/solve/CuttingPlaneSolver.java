@@ -842,6 +842,24 @@ public class CuttingPlaneSolver implements Solver {
     return features;
   }
 
+
+  /**
+   * Prints out all properties of this solver
+   * @return a string with properties of the solver.
+   */
+  public String toString() {
+    StringBuffer result = new StringBuffer();
+    result.append(String.format("%-20s: %-5b\n", "EnforceIntegers", enforceIntegers));
+    result.append(String.format("%-20s: %-5b\n", "CheckScores", checkScores));
+    result.append(String.format("%-20s: %-5d\n", "Timeout", timeout));
+    result.append(String.format("%-20s: %-5d\n", "MaxOrder", maxOrder));
+    result.append(String.format("%-20s: %-5d\n", "Maxiterations", maxIterations));
+    result.append(String.format("%-20s: %-20s\n", "Prop. Class", propositionalModel.getClass().getName()));
+    result.append("Prop. configuration:\n");
+    result.append(propositionalModel.getPropertyString());
+    return result.toString();
+  }
+
   /**
    * A FactorSet is a set of factors along with a number that determines when the factors of the set are first checked
    * for in the current solution.
@@ -883,5 +901,8 @@ public class CuttingPlaneSolver implements Solver {
       return order - factorSet.order;
     }
   }
+
+
+
 
 }
