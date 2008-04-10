@@ -46,7 +46,7 @@
   </path>
   
   
-  <!-- Global Libraries -->
+  <!-- Application Server Libraries -->
   
   <!-- Modules -->
   
@@ -68,13 +68,13 @@
   
   <path id="thebeast.module.classpath">
     <path refid="library.junit.classpath"/>
-    <pathelement location="${module.thebeast.basedir}/lib/java-cup-11a.jar"/>
-    <pathelement location="${module.thebeast.basedir}/bin/linux/mosek.jar"/>
-    <pathelement location="${module.thebeast.basedir}/lib/JSAP-2.1.jar"/>
-    <pathelement location="${module.thebeast.basedir}/lib/lpsolve55j.jar"/>
     <pathelement location="${module.thebeast.basedir}/lib/JLex"/>
+    <pathelement location="${module.thebeast.basedir}/lib/java-cup-11a.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/lpsolve55j.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/JSAP-2.1.jar"/>
     <pathelement location="${module.thebeast.basedir}/lib/jline-0.9.9.jar"/>
-    <pathelement location="${module.thebeast.basedir}/lib/trove-2.0.1.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/mosek.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/trove-2.0.3.jar"/>
   </path>
   
   
