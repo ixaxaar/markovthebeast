@@ -111,6 +111,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     solver = new CuttingPlaneSolver();
     solver.setProfiler(new TreeProfiler());
     solver4Learner = new CuttingPlaneSolver();
+    solver4Learner.setMaxIterations(20);
     learner = new OnlineLearner(model, weights, solver4Learner);
     learner.setProfiler(new TreeProfiler());
     learner.setProgressReporter(new DotProgressReporter(out, 5, 5, 5));
@@ -288,7 +289,9 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     LinkedList<Variable> quantification = new LinkedList<Variable>();
     HashMap<String, Variable> map = new HashMap<String, Variable>();
     for (ParserTyping typing : vars) {
-      Variable variable = new Variable(signature.getType(typing.type), typing.var);
+      Type type = signature.getType(typing.type);
+      if (type == null) throw new ShellException("There is no type with name " + typing.type);
+      Variable variable = new Variable(type, typing.var);
       quantification.add(variable);
       map.put(typing.var, variable);
     }
@@ -491,6 +494,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitPrint(ParserPrint parserPrint) {
+    PropertyName propertyName = toPropertyName(parserPrint.name);
     if ("atoms".equals(parserPrint.name.head)) {
       if (parserPrint.name.tail == null)
         printer.print(guess, out);
@@ -502,10 +506,16 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.println(scores);
     } else if ("history".equals(parserPrint.name.head)) {
       printHistory();
+    } else if ("collector".equals(parserPrint.name.head)) {
+      out.println(collector);
     } else if ("solver".equals(parserPrint.name.head)) {
-      out.println(solver.getProperty(toPropertyName(parserPrint.name).getTail()));
+      if (propertyName.isTerminal()) out.println(solver);
+      else
+        out.println(solver.getProperty(propertyName.getTail()));
     } else if ("learner".equals(parserPrint.name.head)) {
-      out.println(learner.getProperty(toPropertyName(parserPrint.name).getTail()));
+      if (propertyName.isTerminal()) out.println(learner);
+      else
+        out.println(learner.getProperty(propertyName.getTail()));
     } else if ("eval".equals(parserPrint.name.head)) {
       Evaluation evaluation = new Evaluation(model);
       for (UserPredicate pred : evaluationRestrictions.keySet()) {
@@ -703,10 +713,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   }
 
   public void visitTest(ParserTest parserTest) {
-    Corpus dst =null;
+    Corpus dst = null;
     if ("ram".equals(parserTest.mode)) {
       dst = new RandomAccessCorpus(signature, 1000);
-    } else if ("printer".equals(parserTest.mode)){
+    } else if ("printer".equals(parserTest.mode)) {
       String filename = filename(resolveParam(parserTest.file).toString());
       File file = new File(filename);
       file.delete();
@@ -765,13 +775,13 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       if (evalScores) {
         goldSolution.load(gold);
         goldSolution.updateGroundFormulas();
-        GroundFormulas formulas = new GroundFormulas(model,weights);
+        GroundFormulas formulas = new GroundFormulas(model, weights);
         formulas.update(solver.getBestAtoms());
         guessSolution.load(solver.getBestAtoms(), formulas);
         double goldScore = weights.score(goldSolution.extract());
         double guessScore = weights.score(guessSolution.extract());
         int violations = guessSolution.getGroundFormulas().getViolationCount();
-        reporter.progressed(loss, solver.getIterationCount(), goldScore, guessScore,violations);
+        reporter.progressed(loss, solver.getIterationCount(), goldScore, guessScore, violations);
       } else
         reporter.progressed(loss, solver.getIterationCount());
 

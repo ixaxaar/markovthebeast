@@ -286,6 +286,10 @@ public class WeightedSatProblem implements PropositionalModel {
     return clauses.value().size();
   }
 
+  public String getPropertyString() {
+    return null;
+  }
+
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;

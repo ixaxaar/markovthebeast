@@ -88,6 +88,10 @@ public class GroundMarkovNetwork implements PropositionalModel {
     return 0;
   }
 
+  public String getPropertyString() {
+    return null;
+  }
+
   public void setClosure(GroundAtoms closure) {
 
   }

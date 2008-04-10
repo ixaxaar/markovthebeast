@@ -128,6 +128,8 @@ public class MemRelationVariable extends AbstractMemVariable<RelationValue, Rela
     //((MemRelation) value).removeOwner();
   }
 
+  
+
   public IndexInformation indexInformation() {
     return information;
   }

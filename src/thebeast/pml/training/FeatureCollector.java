@@ -53,6 +53,12 @@ public class FeatureCollector implements HasProperties {
   private double initialWeight;
 
 
+  public String toString() {
+    StringBuffer result = new StringBuffer();
+    result.append(String.format("%-20s: %-5d\n", "Cutoff", cutoff));
+    return result.toString();
+  }
+
   /**
    * Creates a new FeatureCollector for a given model
    *
@@ -74,7 +80,7 @@ public class FeatureCollector implements HasProperties {
     this.model = model;
     this.weights = weights;
     atoms = model.getSignature().createGroundAtoms();
-    QueryGenerator generator = new QueryGenerator(model,weights, atoms);
+    QueryGenerator generator = new QueryGenerator(model, weights, atoms);
     StatementFactory statementFactory = TheBeast.getInstance().getNodServer().statementFactory();
     inserts.clear();
     updateIndices.clear();

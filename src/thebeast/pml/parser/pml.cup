@@ -398,6 +398,8 @@ formula ::=
     {: RESULT = new ParserCardinalityConstraint(lb, q, f, new ParserIntConstant(Integer.MAX_VALUE), true); :}
   | LOWERCASEID:pred ACYCLIC
     {: RESULT = new ParserAcyclicityConstraint(pred); :}
+  | LOWERCASEID:pred ACYCLIC LPAREN markers:m RPAREN 
+    {: RESULT = new ParserAcyclicityConstraint(pred,m); :}
   | term:lhs LESSTHAN term:rhs
     {: RESULT = new ParserComparison(ParserComparison.Type.LT, lhs, rhs); :}
   | term:lhs GREATER term:rhs

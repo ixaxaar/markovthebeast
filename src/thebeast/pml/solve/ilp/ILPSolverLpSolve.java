@@ -28,7 +28,7 @@ public class ILPSolverLpSolve implements ILPSolver {
   private Profiler profiler = new NullProfiler();
   private boolean writeLp = false;
   private long timeout = 1000;
-  private int bbDepthLimit = 3;
+  private int bbDepthLimit = -50;//3;
   private int count = 0;
   private int bbRule;
   private String paramFile;

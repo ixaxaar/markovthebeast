@@ -1,4 +1,4 @@
-#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.4 created this file. For more info see http://www.lyx.org/
 \lyxformat 276
 \begin_document
 \begin_header
@@ -552,7 +552,7 @@ s and resources.
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Standard
 \align center
@@ -1082,7 +1082,70 @@ Now we can globally define which labels are complements and modifiers.
  each instance in a training/test set).
 \end_layout
 
+\begin_layout Subsection
+Built-In Predicates
+\end_layout
+
+\begin_layout Description
+leq(Int,Int)[<=] this predicate holds for two integers if and only if the
+ first is less or equal to the second.
+\end_layout
+
+\begin_layout Description
+geq(Int,Int)[>=] this predicate holds for two integers if and only if the
+ first is greater or equal to the second.
+\end_layout
+
+\begin_layout Description
+eq(*,*)[==] this predicate holds between terms if and only if both refer
+ to the same constant.
+\end_layout
+
+\begin_layout Description
+undefined(WeightFunction(args...)) this predicate holds if the given weight
+ function is not defined (=always returns 0.0) for the given arguments.
+ 
+\end_layout
+
 \begin_layout Section
+Functions
+\end_layout
+
+\begin_layout Subsection
+Built-In Functions
+\end_layout
+
+\begin_layout Description
+add(Int,Int)->Int[+] this function returns the sum of two integers.
+\end_layout
+
+\begin_layout Description
+minus(Int,Int)->Int[-] this function returns the substraction of two integers.
+\end_layout
+
+\begin_layout Description
+product(Double,Double)[*] this function returns the product of two double
+ values.
+\end_layout
+
+\begin_layout Description
+double(Int) this function casts an integer to a double.
+\end_layout
+
+\begin_layout Description
+abs(Double) this function returns the absolute value of a double.
+\end_layout
+
+\begin_layout Description
+bins(Integer,...,Integer) this function puts the last integer into one of the
+ bins defined by arg0,arg1,arg2,argi-1 and returns the number of this bin.
+ If the argument to bin is negative its sign is changed and the number of
+ the bin it falls into is multiplied by -1 before it is returned.
+ For example, bins(0,1,2,10,5) returns 2 because bin 0 is [0,1[, bin 1 is
+ [1,2[ and bin 2 is [2,10[ (and bin 3 is [10,inf[).
+\end_layout
+
+\begin_layout Subsection
 Weight Functions
 \end_layout
 
@@ -1138,7 +1201,7 @@ makes sure that the existence of labels are always penalized.
 \end_layout
 
 \begin_layout Chapter
-Models
+Markov Logic Networks
 \end_layout
 
 \begin_layout Standard
@@ -1350,8 +1413,23 @@ if candidate(c) add [label(c,l)] * w_label(l);
 \end_layout
 
 \begin_layout Standard
-This reads as follows: for each label l and integer c where c must be a
- candidate we add the value 
+This reads as follows: 
+\end_layout
+
+\begin_layout Quote
+For each label 
+\emph on
+l
+\emph default
+ and integer 
+\emph on
+c
+\emph default
+ where 
+\emph on
+candidate(c)
+\emph default
+ holds we add the weight value 
 \emph on
 w_label(l)
 \emph default
@@ -1390,7 +1468,7 @@ factor: for <QUANTIFICATION>
 \end_layout
 
 \begin_layout LyX-Code
-add [<CONDITION> & <FORMULA>] * <WEIGHT>;
+add [<CONDITION> => <FORMULA>] * <WEIGHT>;
 \end_layout
 
 \begin_layout Standard
@@ -1399,6 +1477,75 @@ to get the same semantics.
  are involved; splitting hidden and observed part of a formula as we did
  in the example helps thebeast to optimize inference.
  In future versions this splitting might be done automatically.
+\end_layout
+
+\begin_layout Subsection
+Real-Valued Formulas
+\end_layout
+
+\begin_layout Standard
+It can be helpful to scale the contribution of a true ground formula with
+ some double value that depends on the arguments of the ground formula.
+ This is the Pseudo Markov Logic equivalent of real-valued features.
+ In PML we write the following to achieve this:
+\end_layout
+
+\begin_layout LyX-Code
+factor: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+if <CONDITION> add [<FORMULA>] * <DOUBLETERM> <WEIGHT>;
+\end_layout
+
+\begin_layout Standard
+For example, whether a certain candidate phrase 
+\begin_inset Formula $c$
+\end_inset
+
+ should be labelled as role 
+\begin_inset Formula $l$
+\end_inset
+
+, i.e.
+ 
+\emph on
+label(c,l)
+\emph default
+, depends on its distance 
+\begin_inset Formula $d$
+\end_inset
+
+ from the predicate verb.
+ We incorporate this knowledge by adding the term 
+\begin_inset Formula $d$
+\end_inset
+
+ times a weight that depends on the label 
+\begin_inset Formula $l$
+\end_inset
+
+ whenever 
+\emph on
+label(c,l) 
+\emph default
+holds: 
+\end_layout
+
+\begin_layout LyX-Code
+factor: for Int c, Label l, Double d 
+\end_layout
+
+\begin_layout LyX-Code
+if candidate(c) & distance(d) 
+\end_layout
+
+\begin_layout LyX-Code
+add [label(c,l)] * d * w_distance(l);
+\end_layout
+
+\begin_layout Subsection
+Named Formulas
 \end_layout
 
 \begin_layout Standard
@@ -1420,12 +1567,74 @@ where NAME is a lowercase string.
  
 \end_layout
 
+\begin_layout Subsection
+Formula Processing Hints
+\end_layout
+
+\begin_layout Standard
+Ideally thebeast will find the best way of inference and learning for a
+ given model automatically.
+ However, sometimes it will be necessary to give certain hints about how
+ to process specific parts of the model.
+ In the following we present how give these hints.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Inference Order 
+\end_layout
+
+\begin_layout Standard
+Sometimes the order in which formulas are processed during inference can
+ make a significant difference in efficiency.
+ The model developer can control the order in which formulas are processed
+ by annotating the factor formula as follows: 
+\end_layout
+
+\begin_layout LyX-Code
+factor[<ORDER>]: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+if <CONDITION> add [<FORMULA>] * <WEIGHT>;
+\end_layout
+
+\begin_layout Standard
+where <ORDER> can be any integer value.
+ More information on processing order can be found in chapter 
+\begin_inset LatexCommand ref
+reference "cha:Inference"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Grounding
+\end_layout
+
+\begin_layout Standard
+In Cutting Plane Inference it can also make sense to ground certain formulas
+ from the start.
+ This can be achieved by writing: 
+\end_layout
+
+\begin_layout LyX-Code
+factor[ground-all]: for <QUANTIFICATION> 
+\end_layout
+
+\begin_layout LyX-Code
+if <CONDITION> add [<FORMULA>] * <WEIGHT>;
+\end_layout
+
 \begin_layout Section
 Semantics
 \end_layout
 
 \begin_layout Standard
-The set of formulas of a model have well-defined se mantics.
+The set of formulas of a model have well-defined semantics.
  They define a probability distribution over sets of ground atoms, or 
 \emph on
 possible worlds
@@ -2151,6 +2360,24 @@ Sometimes one is actually looking for the weight of a one particular argument
 print weights.w_label(A0);
 \end_layout
 
+\begin_layout Standard
+
+\series bold
+Note
+\series default
+: If a constant is quoted, such as 
+\begin_inset Quotes eld
+\end_inset
+
+A0
+\begin_inset Quotes erd
+\end_inset
+
+ then it needs to be referred to using single quotation marks, i.e.
+ 'A0', in the above command.
+ 
+\end_layout
+
 \begin_layout Chapter
 \begin_inset LatexCommand label
 name "cha:Inference"
@@ -2161,17 +2388,227 @@ Inference
 \end_layout
 
 \begin_layout Standard
-There are several types of inference one could conduct in Statistical Relational
- Learning.
- For example, given 
+There are several types of Inference one can perform for Markov Logic Networks.
+ One is to calculate the probabilities of certain ground atoms to be true
+ given some evidence atoms.
+ Another is to find the most likely possible world given some evidence.
+ This is usually referred to as Maximum A Posteriori Inference (MAP).
+ So far only MAP inference has been implemented for thebeast.
 \end_layout
 
-\begin_layout Section
-Propositional Models
+\begin_layout Standard
+MAP Inference in thebeast should mainly performed using Cutting Plane Inference.
+ In a nutshell this mode of inference incrementally instantiates fractions
+ of the complete Markov Network the Markov Logic Network describes.
+ When used in combination with Integer Linear Programming this yields exact
+ solutions that are often found in a very short amount of time.
+ In the following we briefly describe this inference method.
+ This will help the user to fine tune the efficiency of thebeast in case
+ runtimes become too large.
 \end_layout
 
 \begin_layout Section
 Cutting Plane Solver
+\end_layout
+
+\begin_layout Standard
+Cutting Plane Inference proceeds as follows:
+\end_layout
+
+\begin_layout Enumerate
+Solve an initial part of the MLN 
+\end_layout
+
+\begin_layout Enumerate
+Find all ground formulas that do not contribute maximally to the total probabili
+ty of the solution, if none are found return the solution produced during
+ all iterations that has the maximal score
+\end_layout
+
+\begin_layout Enumerate
+Add these formulas to the former partial model
+\end_layout
+
+\begin_layout Enumerate
+resolve the new partial problem and return to 2.
+\end_layout
+
+\begin_layout Standard
+The algorithm acts as a 
+\emph on
+meta
+\emph default
+ method that uses another solver to solve the actual partial problems.
+ We will refer to this solver as 
+\emph on
+base
+\emph default
+ 
+\emph on
+solver.
+
+\emph default
+ Provided that two solvers have the same accuracy, it does not matter which
+ one to use.
+ Moreover, if the used solver is exact Cutting Plane Inference is exact,
+ too.
+ 
+\end_layout
+
+\begin_layout Subsection
+Different Processing Orders
+\end_layout
+
+\begin_layout Standard
+It often makes sense to first enforce formulas that make the solution small
+ (such as formulas including 
+\begin_inset Formula $\leq$
+\end_inset
+
+ constraints).
+ In general thebeast will try to predict a good order for a formula but
+ it can be necessary to manually fine tune orders.
+ [get section from MLN chapter]
+\end_layout
+
+\begin_layout Subsection
+Other Parameters
+\end_layout
+
+\begin_layout Description
+maxIterations [100] This is an integer parameter that controls the maximum
+ number of Cutting Plane iterations the solver will perform.
+ By default this parameter is set to 100 for testing and to 20 for training.
+ If your model needs more iterations you might want to try and improve the
+ local part of your model.
+\end_layout
+
+\begin_layout Description
+integer [false] A boolean parameter which, if set to true, causes the solver
+ to incrementally add integer constraints for those variables which are
+ fractional in the current solution.
+ If set to false integer constraints are never added.
+ Note that this does not mean that results are necessarily fractional --
+ if the propositional solver is configured to always return integer solutions
+ this parameter has no effect on whether results are fractional or not.
+ 
+\end_layout
+
+\begin_layout Description
+checkScores [false] If the cutting plane algorithm converges and uses an
+ exact base solver the last result will always be optimal.
+ However, when we stop before convergence or when we are using an approximate
+ base solver this is not guaranteed.
+ For this case any solution produced along the way can be optimal and we
+ have to check their scores to determine which one it is.
+ This boolean parameter controls whether this checking is performed or whether
+ the last solution is returned.
+ 
+\end_layout
+
+\begin_layout Section
+Base Solvers
+\end_layout
+
+\begin_layout Standard
+The Cutting Plane Solver creates a Ground Markov Network with increasing
+ size during inference.
+ There are different types of propositional models that can be used to represent
+ a Ground Markov Network.
+ For example, one can represent Ground Markov Networks using a Weighted
+ SAT Problem.
+ Likewise, Integer Linear Programs can represent Ground Markov Networks,
+ too.
+ 
+\end_layout
+
+\begin_layout Standard
+thebeast allows to define what kind of propositional models the Cutting
+ Plane Solver should create and what kind of Inference method should be
+ used for the specified type of models.
+ For example, if we choose Weighted Sat as representation we can choose
+ MaxWalkSAT as inference method.
+ If we choose Integer Linear Programs as propositional model we can use
+ the (free, open source) ILP solver 
+\emph on
+lp_solve
+\emph default
+ as inference method.
+ In the following we describe how to configure the propositional model.
+\end_layout
+
+\begin_layout Subsection
+Integer Linear Program
+\end_layout
+
+\begin_layout Standard
+It is recommended to use Integer Linear Programs (ILPs) as propositional
+ representation for Ground Markov Networks.
+ Thus, by default, thebeast uses ILPs.
+ However, if this configuration was changed by the user at some point and
+ should be changed back one can write
+\end_layout
+
+\begin_layout LyX-Code
+set solver.model = 
+\begin_inset Quotes eld
+\end_inset
+
+ILP
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Subsubsection
+Relaxing Integer Constraints
+\end_layout
+
+\begin_layout Standard
+The ILP represents ground atom states using 0-1 variables.
+ By default these are set to be integers.
+ However, sometimes it can be okay to remove the integer constraints (or
+ add the later).
+ This can be achieved by writing 
+\end_layout
+
+\begin_layout LyX-Code
+set solver.model.initIntegers = false;
+\end_layout
+
+\begin_layout Standard
+To change it back use 
+\begin_inset Quotes eld
+\end_inset
+
+true
+\begin_inset Quotes erd
+\end_inset
+
+ instead of 
+\begin_inset Quotes eld
+\end_inset
+
+false
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Other Solvers
+\end_layout
+
+\begin_layout Standard
+thebeast supports ILP and WSP representations of Ground Markov Networks.
+ However, for the time being ILP is highly recommended as inference because
+ the only WSP solver implemented, MaxWalkSAT, is not as accurate.
 \end_layout
 
 \begin_layout Chapter
@@ -2183,12 +2620,119 @@ name "cha:Learning"
 Learning
 \end_layout
 
+\begin_layout Standard
+In Markov Logic learning can refer to three things: 
+\end_layout
+
+\begin_layout Enumerate
+Learning what are good formulas
+\end_layout
+
+\begin_layout Enumerate
+Learning whar are good weights (or more general, weight functions) for formulas
+\end_layout
+
+\begin_layout Enumerate
+Learning both good formulas and good weights at the same time
+\end_layout
+
+\begin_layout Standard
+However, as of now thebeast only supports the second case.
+ We assume that the user has designed a good set of formulas (aka feature
+ templates in other frameworks) and has some training corpus at hand that
+ can be used to optimize the weights for each formula.
+ 
+\end_layout
+
+\begin_layout Standard
+There is a multitude of possible training methods to pick from.
+ Yet, many of these require the problem to a have a particular structure
+ in order to be efficient.
+ Online Learning methods, on the other hand, only need efficient MAP inference
+ in order to be applicable.
+ Since Cutting Plane Inference can provide exact and efficient inference
+ for several interesting problems for the time being thebeast's only learning
+ method is Online Learning.
+ 
+\end_layout
+
+\begin_layout Standard
+An Online learner roughly works as follows: 
+\end_layout
+
+\begin_layout Enumerate
+set number of epochs to 0.
+\end_layout
+
+\begin_layout Enumerate
+for each instance 
+\begin_inset Formula $x_{i},y_{i}$
+\end_inset
+
+ of the training corpus do
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+run inference to calculate 
+\begin_inset Formula $\hat{y}=\argmax{y}s\left(x_{i},y\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+update current weights 
+\begin_inset Formula $w_{i}$
+\end_inset
+
+ by comparing 
+\begin_inset Formula $\hat{y}$
+\end_inset
+
+ to 
+\begin_inset Formula $y_{i}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+if averaging: add 
+\begin_inset Formula $w_{i}$
+\end_inset
+
+ to global weight vector 
+\begin_inset Formula $w$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+if number of epochs is larger than some predefined value go to 4), otherwise
+ increase number of epochs and go to 2).
+\end_layout
+
+\begin_layout Enumerate
+If averaging return 
+\begin_inset Formula $w/epochs/instances$
+\end_inset
+
+ otherwise return last solution
+\end_layout
+
 \begin_layout Section
-Instantiating Weights
+Collecting Features
 \end_layout
 
 \begin_layout Section
 Estimating Weights
+\end_layout
+
+\begin_layout Chapter
+Tutorial
 \end_layout
 
 \end_body
