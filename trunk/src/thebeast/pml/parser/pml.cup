@@ -141,7 +141,7 @@ statement ::= createType:s
                                                Integer.valueOf(f), Integer.valueOf(t)); :}
             | TEST TO LOWERCASEID:f filename:s
               {: RESULT = new ParserTest(f, s.substring(1,s.length()-1)); :}
-            | TEST TO STRING:s
+            | TEST TO filename:s
               {: RESULT = new ParserTest(null, s.substring(1,s.length()-1)); :}
             | TEST TO LOWERCASEID:f
               {: RESULT = new ParserTest(f, null); :}
