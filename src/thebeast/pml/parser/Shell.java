@@ -73,7 +73,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private FeatureCollector collector;
 
   private int defaultCorpusCacheSize = 20 * 1024 * 1024;
-  private int defaultTrainingCacheSize = 10 * 1024 * 1024;
+  private int defaultInstanceCacheSize = 5 * 1024 * 1024;
 
   private HashMap<String, GroundAtomsPrinter> printers = new HashMap<String, GroundAtomsPrinter>();
   private HashMultiMapList<UserPredicate, Object[]> evaluationRestrictions = new HashMultiMapList<UserPredicate, Object[]>();
@@ -442,7 +442,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.println("Global atoms loaded.");
         //System.out.println(model.getGlobalAtoms());
       } else if ("instances".equals(parserLoad.target.head)) {
-        instances = new TrainingInstances(model, new File(filename(filename)), defaultTrainingCacheSize);
+        instances = new TrainingInstances(model, new File(filename(filename)), defaultInstanceCacheSize);
         out.println(instances.size() + " instances loaded.");
       } else if ("weights".equals(parserLoad.target.head)) {
         if ("dump".equals(parserLoad.mode)) {
@@ -672,7 +672,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         if (parserSaveCorpus.from != -1) {
           throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
         } else
-          instances = new TrainingInstances(file, extractor, corpus, defaultTrainingCacheSize,
+          instances = new TrainingInstances(file, extractor, corpus, defaultInstanceCacheSize,
                   new DotProgressReporter(out, 5, 5, 5));
         //iterator = corpus.iterator();
         out.println(instances.size() + " instances generated.");
@@ -966,7 +966,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitSet(ParserSet parserSet) {
     Object value = resolveParam(parserSet.value);
     if ("instancesCacheSize".equals(parserSet.propertyName.head))
-      defaultTrainingCacheSize = 1024 * 1024 * (Integer) value;
+      defaultInstanceCacheSize = 1024 * 1024 * (Integer) value;
     else if ("corpusCacheSize".equals(parserSet.propertyName.head))
       defaultCorpusCacheSize = 1024 * 1024 * (Integer) value;
     else if ("solver".equals(parserSet.propertyName.head))
