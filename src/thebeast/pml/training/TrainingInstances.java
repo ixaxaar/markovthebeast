@@ -35,13 +35,15 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
   private File file;
   private Signature signature;
   private boolean loadedFromFile;
+  private boolean saveFeatures;
   private Stack<LocalFeatures> allFeatures = new Stack<LocalFeatures>();
   private Stack<LocalFeatures> usableFeatures = new Stack<LocalFeatures>();
   private Stack<FeatureVector> allVectors = new Stack<FeatureVector>();
   private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
 
-  public TrainingInstances(Model model, File file, int maxByteSize) {
+  public TrainingInstances(Model model, File file, int maxByteSize, boolean saveFeatures) {
+    this.saveFeatures = saveFeatures;
     this.file = file;
     this.signature = model.getSignature();
     this.model = model;
@@ -55,7 +57,7 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
       active = new ArrayList<TrainingInstance>(10000);
       for (int i = 0; i < size && byteSize < maxByteSize; ++i) {
         TrainingInstance trainingInstance = new TrainingInstance(signature.createGroundAtoms(),
-                new LocalFeatures(model, weights), new FeatureVector());
+                saveFeatures ? new LocalFeatures(model, weights) : null, new FeatureVector());
         trainingInstance.read(fileSource);
         byteSize += trainingInstance.getMemoryUsage();
         active.add(trainingInstance);
@@ -68,11 +70,20 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
 
   }
 
+  public boolean isSaveFeatures() {
+    return saveFeatures;
+  }
+
+  public void setSaveFeatures(boolean saveFeatures) {
+    this.saveFeatures = saveFeatures;
+  }
+
   public TrainingInstances() {
   }
 
-  public TrainingInstances(File file, LocalFeatureExtractor extractor,
+  public TrainingInstances(File file, LocalFeatureExtractor extractor, boolean saveFeatures,
                            Corpus corpus, int maxByteSize, ProgressReporter reporter) throws IOException {
+    this.saveFeatures = saveFeatures;
     Signature signature = extractor.getModel().getSignature();
     Solution solution = new Solution(extractor.getModel(), extractor.getWeights());
     FileSink fileSink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
@@ -107,10 +118,16 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
         features = usableFeatures.pop();
         vector = usableVectors.pop();
       }
-      extractor.extract(atoms, features);
-      solution.extractInPlace(features,vector);
+      if (saveFeatures){
+        extractor.extract(atoms, features);
+        solution.extractInPlace(features,vector);
+      } else {
+        solution.load(atoms);
+        solution.extractInPlace(vector);
+      }
+
       //TrainingInstance instance = new TrainingInstance(atoms, features, solution.extract(features));
-      TrainingInstance instance = new TrainingInstance(atoms, features, vector);
+      TrainingInstance instance = new TrainingInstance(atoms, saveFeatures ? features : null, vector);
       active.add(instance);
       byteSize += instance.getMemoryUsage();
       //++size;
@@ -120,16 +137,11 @@ public class TrainingInstances extends AbstractCollection<TrainingInstance> {
     dump(fileSink);
     for (int i = 0; i < activeCount; ++i) {
       active.add(new TrainingInstance(signature.createGroundAtoms(),
-              new LocalFeatures(model, weights), new FeatureVector()));
+              saveFeatures ? new LocalFeatures(model, weights) : null, new FeatureVector()));
     }
     fileSink.flush();
     fileSource = TheBeast.getInstance().getNodServer().createSource(file, 1024);
     reporter.finished();
-  }
-
-  public void add(GroundAtoms data, LocalFeatures features, FeatureVector gold) {
-    TrainingInstance trainingInstance = new TrainingInstance(data, features, gold);
-    //active.add(trainingInstance);
   }
 
   private void dump(FileSink fileSink) throws IOException {

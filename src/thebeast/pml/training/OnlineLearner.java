@@ -67,6 +67,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
   /**
    * Returns a string with properties of this learner;
+   *
    * @return string with properties
    */
   public String toString() {
@@ -247,7 +248,6 @@ public class OnlineLearner implements Learner, HasProperties {
    * @param instances the training instances to use.
    */
   public void learn(TrainingInstances instances) {
-    //System.out.println("useGreedy = " + useGreedy);
     profiler.start("learn");
     progressReporter.setColumns("Loss", "F1", "Iterations", "Candidates");
     setUpAverage();
@@ -259,23 +259,11 @@ public class OnlineLearner implements Learner, HasProperties {
       scores.setPenalizeGoldScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       scores.setRewardBadScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       for (TrainingInstance instance : instances) {
-        //System.out.println(instanceNr + ": " + instance.getData().getGroundAtomCount());
         if (instance.getData().getGroundAtomCount() <= maxAtomCount) learn(instance);
-//        if (instanceNr >= 550 && instanceNr <= 560)
-//          ((CuttingPlaneSolver)solver).printHistory(System.out);
-//        if (instanceNr % 100 == 99)
-//          System.out.println(instances.getUsedMemory());
-        //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
-        //((ILPSolverLpSolve)((IntegerLinearProgram)((CuttingPlaneSolver)solver).getPropositionalModel()).getSolver()).delete();
-//        solver = new CuttingPlaneSolver(new IntegerLinearProgram(model,weights, new ILPSolverLpSolve()));
-//        solver.configure(model,weights);
-        //System.out.println("Instance: " + instanceNr);
-
       }
       updateRule.endEpoch();
       progressReporter.finished();
       profiler.end();
-      //System.out.println(TheBeast.getInstance().getNodServer().interpreter().getMemoryString());
       if (saveAfterEpoch) saveCurrentWeights(epoch);
     }
     finalizeAverage(weights);
@@ -317,12 +305,17 @@ public class OnlineLearner implements Learner, HasProperties {
     goldAtoms.load(data.getData(), model.getInstancePredicates());
 
     //either load the feature vector or extract it
-    features.load(data.getFeatures());
+    if (data.getFeatures() == null)
+      extractor.extract(data.getData(), features);
+    else
+      features.load(data.getFeatures());
 
     //use the feature vector and weight to score ground atoms
     profiler.start("score");
-    //scores.score(features, this.weights);
-    scores.scoreWithGroups(features, data.getData());
+    if (data.getFeatures() == null)
+      scores.score(features, data.getData());
+    else
+      scores.scoreWithGroups(features, data.getData());
     if (penalizeGold)
       scores.penalizeGold(goldAtoms);
     if (rewardBad)
@@ -380,29 +373,6 @@ public class OnlineLearner implements Learner, HasProperties {
         //System.out.println("Guess " + i + ": " + weights.toString(features));
       }
     }
-
-//    if (useGreedy && solver.getGreedyFormulas().getViolationCount() <= maxViolations
-//            && candidates.size() < maxCandidates && solver.doesOwnLocalSearch()) {
-//      solution.getGroundAtoms().load(solver.getGreedyAtoms());
-//      solution.getGroundFormulas().load(solver.getGreedyFormulas());
-//      FeatureVector features;
-//      if (usableVectors.isEmpty()){
-//        features = new FeatureVector();
-//        allVectors.push(features);
-//      } else {
-//        features = usableVectors.pop();
-//      }
-//      solution.extractInPlace(this.features,features);
-//      //FeatureVector features = solution.extract(this.features);
-//      //System.out.println(features.getLocal());
-//      //features.getNonnegative().load(gold.getNonnegative());
-//      //features.getNonpositive().load(gold.getNonpositive());
-//      candidates.add(features);
-//      losses.add(lossFunction.loss(goldAtoms, solver.getGreedyAtoms()));
-//    }
-    //System.out.println(losses);
-
-    //guess.load(solution.extract(features));
     profiler.end();
 
     //update the weights
@@ -420,17 +390,19 @@ public class OnlineLearner implements Learner, HasProperties {
       vector.clear();
       usableVectors.add(vector);
     }
-//    System.out.println("Gold:");
-//    for (UserPredicate pred : model.getHiddenPredicates()) {
-//      System.out.println(goldAtoms.getGroundAtomsOf(pred));
-//      //System.out.println(candidateAtoms.get(0).getGroundAtomsOf(pred));
-//    }
-    //System.out.println(losses);
 
 
     profiler.end();
   }
 
+
+  public boolean isSaveAfterEpoch() {
+    return saveAfterEpoch;
+  }
+
+  public void setSaveAfterEpoch(boolean saveAfterEpoch) {
+    this.saveAfterEpoch = saveAfterEpoch;
+  }
 
   public boolean isAveraging() {
     return averaging;
@@ -501,8 +473,8 @@ public class OnlineLearner implements Learner, HasProperties {
       setRewardBad((Boolean) value);
     } else if ("maxLossScaling".equals(name.getHead())) {
       setMaxLossScaling((Boolean) value);
-    } else if ("useGreedy".equals(name.getHead())) {
-      setUseGreedy((Boolean) value);
+    } else if ("saveAfterEpoch".equals(name.getHead())) {
+      setSaveAfterEpoch((Boolean)value);
     } else if ("initWeights".equals(name.getHead())) {
       setInitializeWeights((Boolean) value);
     } else if ("initWeight".equals(name.getHead())) {

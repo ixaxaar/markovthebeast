@@ -34,18 +34,18 @@ public class TrainingInstance implements Dumpable {
   }
 
   public int getMemoryUsage(){
-    return data.getMemoryUsage() + features.getMemoryUsage() + gold.getMemoryUsage();
+    return data.getMemoryUsage() + (features != null ? features.getMemoryUsage() : 0) + gold.getMemoryUsage();
   }
 
   public void write(FileSink fileSink) throws IOException {
     data.write(fileSink);
-    features.write(fileSink);
+    if (features != null) features.write(fileSink);
     gold.write(fileSink);
   }
 
   public void read(FileSource fileSource) throws IOException {
     data.read(fileSource);
-    features.read(fileSource);
+    if (features != null) features.read(fileSource);
     gold.read(fileSource);
   }
 }

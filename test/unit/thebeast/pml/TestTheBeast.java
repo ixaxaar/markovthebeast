@@ -1533,7 +1533,7 @@ public class TestTheBeast extends TestCase {
     learner.setMaxCandidates(1);
     File file = new File(toString());
     file.delete();
-    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), corpus,
+    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), true, corpus,
             1000000, new QuietProgressReporter());
     learner.learn(instances);
     miraUpdateRule.testLastQPResult();
@@ -1610,10 +1610,11 @@ public class TestTheBeast extends TestCase {
     learner.setSolver(cpSolver);
     learner.setUpdateRule(new PerceptronUpdateRule());
     learner.setMaxCandidates(1);
-    learner.setUseGreedy(true);
+    learner.setMinCandidates(1);
+    learner.setAveraging(false);
     File file = new File(toString());
     file.delete();
-    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), corpus,
+    TrainingInstances instances = new TrainingInstances(file, new LocalFeatureExtractor(model, weights), true, corpus,
             1000000, new QuietProgressReporter());
     learner.learn(instances);
 
