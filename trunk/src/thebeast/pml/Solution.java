@@ -144,7 +144,7 @@ public class Solution {
     return vector;
   }
 
-  private void extractInPlace(FeatureVector vector) {
+  public void extractInPlace(FeatureVector vector) {
     profiler.start("local");
     for (FactorFormula formula : model.getLocalFactorFormulas()) {
       profiler.start("formula");
