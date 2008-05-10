@@ -18,6 +18,7 @@ import thebeast.pml.formula.QueryGenerator;
 import thebeast.pml.function.WeightFunction;
 import thebeast.util.ProgressReporter;
 import thebeast.util.QuietProgressReporter;
+import thebeast.util.Counter;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ public class FeatureCollector implements HasProperties {
           collectAll = new HashSet<WeightFunction>();
 
   private int cutoff = 0;
+  private HashMap<WeightFunction, Integer> cutoffs = new HashMap<WeightFunction, Integer>();
 
   private double initialWeight;
 
@@ -132,6 +134,16 @@ public class FeatureCollector implements HasProperties {
     this.cutoff = cutoff;
   }
 
+
+  public void setCutoff(WeightFunction weightFunction, int cutoff) {
+    cutoffs.put(weightFunction, cutoff);
+  }
+
+  public int getCutoff(WeightFunction weightFunction) {
+    Integer result = cutoffs.get(weightFunction);
+    return result == null ? cutoff : result;
+  }
+
   /**
    * Collects a set of weight function arguments which later learners then can learn the weights for.
    *
@@ -180,20 +192,19 @@ public class FeatureCollector implements HasProperties {
     progressReporter.finished();
 
     //cutoff features
-    if (cutoff > 0) {
-      progressReporter.started("Cutoff features");
-      for (WeightFunction w : model.getLocalWeightFunctions()) {
-        if (!collectAll.contains(w) && w.getArity() > 0) {
-          RelationVariable relation = weights.getRelation(w);
-          RelationVariable tmp = interpreter.createRelationVariable(w.getIndexedHeading());
-          builder.expr(relation).intAttribute("count").num(cutoff).intGreaterThan().restrict();
-          interpreter.assign(tmp, builder.getRelation());
-          interpreter.assign(relation, tmp);
-          progressReporter.progressed();
-        }
+    progressReporter.started("Cutoff features");
+    for (WeightFunction w : model.getLocalWeightFunctions()) {
+      int cutoff = getCutoff(w);
+      if (cutoff > 0 && !collectAll.contains(w) && w.getArity() > 0) {
+        RelationVariable relation = weights.getRelation(w);
+        RelationVariable tmp = interpreter.createRelationVariable(w.getIndexedHeading());
+        builder.expr(relation).intAttribute("count").num(cutoff).intGreaterThan().restrict();
+        interpreter.assign(tmp, builder.getRelation());
+        interpreter.assign(relation, tmp);
+        progressReporter.progressed();
       }
-      progressReporter.finished();
     }
+    progressReporter.finished();
 
     for (FactorFormula factor : updateIndices.keySet()) {
       interpreter.update(weights.getRelation(factor.getWeightFunction()), updateIndices.get(factor));
@@ -242,7 +253,12 @@ public class FeatureCollector implements HasProperties {
     } else if (name.getHead().equals("init")) {
       setInitialWeight((Double) value);
     } else if (name.getHead().equals("cutoff")) {
-      setCutoff((Integer) value);
+      if (name.isTerminal())
+        setCutoff((Integer) value);
+      else {
+        WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
+        setCutoff(weightFunction, (Integer) value);
+      }
     }
   }
 
