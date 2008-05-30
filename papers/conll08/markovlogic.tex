@@ -1,0 +1,55 @@
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
+
+Markov Logic~\citep[ML,][]{richardson05markov} is a Statistical Relational Learning language based on First Order Logic and Markov Networks. It can be seen as a formalism that extends First Order Logic to allow formulae that can be violated
+with some penalty. From an alternative point of view, it is an expressive
+template language that uses First Order Logic formulae to instantiate
+Markov Networks of repetitive structure. 
+
+Let us describe Markov Logic by considering the predicate identification task. In Markov Logic we can model this task by first introducing a set of logical predicates\footnote{Notice that both the SRL task and in ML the notion of \emph{predicate} and \emph{argument} are used. Thus in the cases were is not obvious to which concept we refer we precede the prefix SRL or MLN, respectively.} such as \emph{isPredicate(Token)} or \emph{word(Token,Word)}. Then we specify a set of weighted first order formulae that define a distribution over sets of ground atoms of these predicates (or so-called \emph{possible worlds}). 
+
+Ideally, the distribution we define through these weighted formulae assigns high probability to possible worlds where SRL predicates are correctly identified and a low probability to worlds where this is not the case. For example, a suitable set of weighted formulae would assign a high probability to the world\footnote{``Haag plays Elianti'' is a segment of a sentence in training corpus.}
+\begin{eqnarray*}
+ &\{ word\left(1,Haag\right),word(2,plays),\\
+ & word(3,Elianti),isPredicate(2) \}& \end{eqnarray*}
+and a low one to
+\begin{eqnarray*}
+& \{ word\left(1,Haag\right),word(2,plays),\\
+ & word(3,Elianti),isPredicate(3) \} &\end{eqnarray*}
+In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It assigns a probability
+\begin{equation}
+\prob\left(\y\right)=\frac{1}{Z}\exp\left(
+\sum_{\left(\phi,w\right)\in M} w
+\sum_{\boldc\in C^{n_{\phi}}}f_{\boldc}^{\phi}\left(\y\right)
+\right)
+\label{eq:prob}
+\end{equation}
+to the possible world $\y$. Here $f_{\boldc}^{\phi}$ is a feature
+function that returns 1.0 if in the possible world $\y$ the ground
+formula we get by replacing the free variables in $\phi$ by the constants
+in $\boldc$ is true and 0.0 otherwise. $C^{n_{\phi}}$ is the set
+of all tuples of constants we can replace the free variables in $\phi$
+with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network where nodes represent ground atoms and factors represent ground formulae.
+
+For example, if $M$ contains the formula $\phi$ \[
+word\left(x,'take'\right)\Rightarrow isPredicate\left(x\right)\]
+then its corresponding log-linear model has, among others, a feature 
+$f_{t1}^{\phi}$ for which $x$ in $phi$ has been replaced by the constant $t_1$ and that returns 1.0 if \[
+word\left(1,'take'\right)\Rightarrow isPredicate\left(1\right)\]
+is true in $\y$ and 0.0 otherwise.
+
+We will refer predicates such as \emph{word} as \emph{observed} because they are known in advance. In contrast, \emph{isPredicate} is \emph{hidden} because we need to infer it at test time.
+
+\subsection{Learning}
+
+An MLN we use to model the collective SRL task is presented in section \ref{sec:model}. We learn the weights associated this MLN using 1-best MIRA~\citep{crammer01ultraconservative} Online Learning method. %Note that we only consider formulae that appear more than once in the training set.
+
+\subsection{Inference}
+
+Assuming that we have an MLN with a set of suitable weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
+
+Assuming that we have an MLN, a set of weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
+

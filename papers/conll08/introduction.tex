@@ -1,0 +1,26 @@
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
+ 
+Many SRL systems use a two-stage pipeline that first extracts possible argument candidates (argument identification) and then assigns argument labels to these candidates (argument classification)~\citep{xue04calibrating}. If we also consider the necessary previous step of identifying the predicates and their senses (predicate identification) this yields a three-stage pipeline: predicate identification, argument identification and argument classification. 
+
+Our system, on the other hand, follows or joint approach in the spirit of \cite{toutanova05joint} that performs the above steps \emph{collectively} . We decided to use Markov Logic~\citep[ML,][]{richardson05markov}, a First Order Probabilistic Language, to develop a global probabilistic model of SRL. By using ML we are able to incorporate the dependencies between the decisions of different stages in the pipeline and the well-known constraints that hold among the argument of a single predicate~\citep{punyakanok05generalized}. And since both learning and inference is provided by the ML engine we use, only minimal engineering efforts had to be done.
+
+%this might go, not necessary to sell the approach here.
+In contrast to the work of \cite{toutanova05joint} our system applies online learning to train its parameters and exact inference to predict a collective role labelling. Moreover, we jointly label the arguments of \emph{all} predicates in a sentence. This allows us, for example, to require that certain tokens have to be an argument of some predicate in the sentence.  
+
+In this paper we also investigate the impact of different levels of interaction between the layers of the joint SRL model. We find that a probabilistic model which resembles traditional bottom-up pipeline (though jointly trained and globally normalised) performs better than the complete joint model on the WSJ test set and worse on the Brown test set. Worst performance is observed when there is no interaction between SRL stages is allowed.
+
+In terms of semantic F-score (74.59\%) our submitted results are the second best in the Open Track of the Shared Task. Our error analysis indicates a) the training regime can be improved and b) nominalizations are difficult to handle for the model as it is. 
+
+In the next sections we will first briefly introduce Markov Logic. Then we present our Markov Logic model we used in our final submission. We present and analyse our results in section \ref{sec:results} before we conclude in Section \ref{sec:conclusion}.
+
+%Many SRL sytems use a two-stage pipeline that first extracts possible argument candidates (argument identification) and then assigns argument labels to these candidates (argument classification)~\citep{xue04calibrating}. Moreover, these approaches assume the target predicates of a sentence to be given. If we also consider the necessary previous step of identifying the predicates (predicate identification)  of a sentence this yields a three-stage pipeline: predicate idenfication, argument identification and argument classification. 
+
+In the next sections we will first briefly introduce Markov Logic. Then we present our Markov Logic model we used in our final submission. We present and analyse our results in section \ref{sec:results} before we conclude in Section \ref{sec:conclusion}.
+
+%Many SRL sytems use a two-stage pipeline that first extracts possible argument candidates (argument identification) and then assigns argument labels to these candidates (argument classification)~\citep{xue04calibrating}. Moreover, these approaches assume the target predicates of a sentence to be given. If we also consider the necessary previous step of identifying the predicates (predicate identification)  of a sentence this yields a three-stage pipeline: predicate idenfication, argument identification and argument classification. 
+
+

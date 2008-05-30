@@ -1,0 +1,49 @@
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
+
+%There are two particular types of errors our system produces. First, errors that assing seemingly random ``R-AA'' label to token pairs. And second, errors on nominal predicates. 
+
+A substantial amount of errors in our submitted results~(Full) can be attributed to the seemingly random assignment of the very low frequency label ``R-AA'' (appears once in the training set) to token pairs that should either have a different role or no role at all. Without these false positives precision would increase by about 1\%. Interestingly, this type of error completely disappears for the bottom-up model~(Up) and thus seem to be crucial in order understand why this model can outperform the full model. 
+
+We believe that this type of error is an artifact of the training regime. For the full model the weights of the \emph{role} predicate only have ensure that the right (true positive) role is the relative winner among all roles. In the bottom-up model they also have to make sure that their cumulative weight is nonnegative -- otherwise simply not assigning a role $r$ for $(p,a)$ would increase the score even if \emph{hasRole(p,a)} is predicted with high confidence. Thus more weight is shifted towards the proper roles. This helps the right label to win more likely over the ``R-AA'' label, whose weights have rarely been touched and are closer to zero.
+
+Likewise, in the bottom-up model the total weight of the \emph{hasRole} features of a wrong (false positive) candidate token pair must be nonpositive. Otherwise picking the wrong candidate would increase overall score and no \emph{role} features can reject this decision because the corresponding structural constraints are missing. Thus more weight is shifted away from false positive candidates, resulting in a higher precision of the \emph{hasRole} predicate. This also means that less wrong candidates are proposed, for which a ``R-AA'' role is more likely to be picked because its weights have hardly been touched.
+
+% In our results of joint model for the development set the label ``R-AA'' (meaning a reference to an AA argument) was assigned 351 times. However, the gold data does not contain this label at all and thus this behaviour amounts to a HOWMUCH loss of precision. This error happens in cases where a label has to be assigned to a token pair in context that is substantially different from those seen in the training set\footnote{For example, when the \emph{hasLabel} requires a label for the pair $(p,a)$ and $p$ is not even a predicate.} and for which only very general high frequency features are active. 
+
+% To explain this behaviour let us consider that roles have low and high frequency roles (such as ``A1'' and ``R-AA'') and features (such as lexicalised and POS tag features). During online learning the current model will sometimes wrongly predict a high frequency role instead of another high frequency role(for example because in certain cases ``A1'' and ``A2'' labels can be confused). In these cases the features weights for this role label are decreased. However, we will hardly ever predict ``R-AA'' instead of a high frequency role such as ``A1'' because there will be certain features that support ``A1''. Thus the weights for the low frequency role ``R-AA'' are decreased less likely. 
+
+% Likewise, in the top-down pipeline the weights of the \emph{hasLabel} features need to ensure that by classifying a wrong token pair as candidate the overall score is not increased -- otherwise classifying it as candidate improves the solution. Again, for the joint model this does not hold: even if the contribution of the \emph{hasLabel} features might increase the score, the \emph{role} features can penalise this decision by penalising all possible roles. Thus (high frequency) features appearing in false positives candidates have less weight, causing higher precision for the \emph{hasLabel} predicate. 
+
+% When we encounter a context with many low frequency features then it is likely that most of their weights are untouched and still at zero. What remains are the high frequency features. In the case of high frequency roles the weights of these features have been decreased often. However, for low-frequency roles the high frequency feature weights weren't touched that often. Thus we observe that these weights are larger than those of the high frequency roles. This results in a low frequency roles predicted in a unknown context.
+
+% Interestingly, this type of error is completely avoided when using the ``top-down-pipeline'' discussed above -- the label ``R-AA'' is not assigned at all. During the training of this model it is not enough for low frequency features to make their corresponding role label the \emph{relative} winner among all roles. They must also ensure that by assigning their label the global solution does not loose score -- otherwise simply not assigning a role always improves the solution. In the case of the joint model this does not hold: while the features of each role might reduce the score of the global solution removing them would also remove the corresponding hasLabel decision, which could reduce the score more dramatically. Thus low frequency features will have more weight and produce higher precision in unlikely contexts. 
+
+% Likewise, in the top-down pipeline the weights of the \emph{hasLabel} features need to ensure that by classifying a wrong token pair as candidate the overall score is not increased -- otherwise classifying it as candidate improves the solution. Again, for the joint model this does not hold: even if the contribution of the \emph{hasLabel} features might increase the score, the \emph{role} features can penalise this decision by penalising all possible roles. Thus (high frequency) features appearing in false positives candidates have less weight, causing higher precision for the \emph{hasLabel} predicate. 
+
+Another prominent type of errors appear for nominal predicates. Our system only recovers only about 80\% of predicates with ``NN'', ``NNS'' and ``NNP'' tags (and classifies about 90\% of these with the right predicate sense). Argument identification and classification performs equally bad. For example, for the ``A0'' argument of ``VB'' predicates we get an F-score of 82.00\%. For the ``A0'' of ``NN'' predicates F-score is 65.92\%. The features of our system are essentially taken from the work done on PropBank predicates and we did only little work to adapt these to the case of nominal predicates. Putting more effort into designing features specific to the case of nominal predicates might improve this situation.
+
+
+% More importantly, the top-down pipeline also shifts more weight from the wrong \emph{hasLabel} decisions because when the \emph{hasLabel} formulas predict a false positive the \emph{role} formulas cannot overrule this to make the decision right. 
+
+% Model 1: 
+%   - role has to be relative winner
+%   - hasLabel 
+% Model 3: 
+%   - role has to be relative winner and must not decrease score (delta s > 0)
+%   - hasLabel (classifies 
+
+% We believe that this is because during training 
+
+% Model 3 shifts weight more often on the true \emph{role} labels because even though the \emph{hasLabel} predicate predicts the existence of a label the \emph{role} predicate is not required to pick one an will make a mistake even the score of the right label is not high enough even though its relative score is higher than the rest. It also shifts more weight from the wrong \emph{hasLabel} decisions because when the \emph{hasLabel} formulas predict a false positive the \emph{role} formulas cannot overrule this to make the decision right. 
+
+% In the course of MIRA online learning the high frequency roles are sometimes incorrectly assigned to token pair candidates. In these cases the weights of high frequency features of these roles are decreased. 
+
+%  for which no or very few features fire. For example, this is the case if the \emph{isPredicate} and \emph{hasLabel} features predict a token pair to be labelled even though the proposed predicate is a preposition. In this case only very general features compete against each other; however while the general weights for high frequency roles have been touched during training whenever for every false positive that appears during online learning, the general weights for low frequency roles did not come up as often because false positive ``R-AA'' scores are usually outscored by the true positive scores of the right labels. Thus ``R-AA'' is likely to have a higher score than the high frequency/more likely labels in such contexts. 
+
+
+
+

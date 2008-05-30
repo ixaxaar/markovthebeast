@@ -1,0 +1,35 @@
+% We will put the results here
+We only submitted results for the Open Track of the Shared Task. Moreover, we focused on SRL and did not infer dependencies; instead we used the MALT dependencies parses provided in the Open Track dataset. Our submission was ranked second out of five with a semantic F1-score of 74.59\%.\footnote{While we did use information of the open dataset we do believe that it is possible to train a two-stage parsing-SRL system that would perform similarily. If so, our system would have the 5th best semantic scores among the 20 participants of the closed track. }  
+
+After submission we also set up additional experiments to evaluate different types and degrees of connectivity between the decisions made by our model. To this end we created four new models: a model that omits top-down structural constraints and thus resembles a (globally trained) bottom-up pipeline~(Up); a model that does not contain bottom-up structural constraints and thus resembles a top-down architecture~(Down); a model in which stages are not connected at all~(Isolated); and finally, a model in which additional global formulae are omitted and the only remaining global formulae are structural~(Structural). The results we submitted were generated using the full model~(Full).
+
+%We only participated in the Open Track of the Shared Task. In particular, we focus on the SRL task, while using the dependencies parses provided in the dataset. As previously explained, we implemented the three stages pipeline of the SRL as a joint model in the form of a MLN. Our main goal was to test this model. Additionally, we investigated different configurations of the global rules.
+
+% The first experiment was to test the MLN model conformed by the local and global rules described in the previous section. We used this model to label the results submitted to the CoNLL 2008 Shared task. At this point, we were interested in the effect of the global rules and their relation to the architecture of the task. For this, we create three additional models: a model where the rules of the 3rd group of global rules were omitted, this is equivalente to a bottom-up architecture; a model where the rules of the 2nd group of global features were omitted, this is equivalente to a top-down architecture, and a model where both groups were omitted, this is the stages are independent among them. Finally, we create a model where the rules of the 4th group were omitted.
+
+Table \ref{tbl:results} summarises the results for each of these models. We report the F-scores for the WSJ and Brown test corpora provided for the task. In addition we show training and test times for each system. 
+
+There four findings we take from this. First, and somewhat surprisingly, the jointly trained bottom-up model~(UP) does perform substantially better than the full model. We will try to give an explanation for this in the next section. Second, the bottom-up model is twice as fast compared to both the full and the top-down model. This is due to the removal of formulae with existential quantifiers that would result in large clique sizes of the ground Markov Network. Third, the isolated model performs extremely poor, particularly for argument classification. Here features defined for the \emph{role} predicate can not make any use of the information in previous stages. Finally, the additional global formulae do improve performance, although not substantially.
+
+%An interesting result is the obtained by the top-down model. This model provided the best performance for the $WSJ$ corpus (maybe an explanation why this happens). As expected, the worst results happens with the model with independent stages, where the predicates of each stage are choosen independently of the other choices. The results also show the benefits of using global features, as you can see without them, the performance slighly drops. 
+
+\begin{table}
+\begin{center}
+\small
+\begin{tabular}{|l|l|l|c|c|}\hline
+Model                & WSJ                & Brown              & Train & Test\\
+                     &                    &                    & Time & Time\\\hline\hline
+Full         & $75.72\%$          & $\mathbf{65.38}\%$ & 25h & 24m\\\hline
+Up            & $\mathbf{76.96\%}$ & $63.86\%$          & 11h & 14m\\\hline
+Down             & $73.48\%$          & $59.34\%$          & 22h & 23m\\\hline
+Isolated   & $60.49\%$          & $48.12\%$          & 11h & 14m\\\hline
+Structural & $74.93\%$       & $64.23\%$          & 22h & 33m\\\hline   
+\end{tabular}
+\caption{F-scores for different models}
+\label{tbl:results}
+\normalsize
+\end{center}
+\end{table}
+
+
+

@@ -1,0 +1,41 @@
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
+
+Bottom up:
+
+\[
+isPredicate\left(p\right)\Rightarrow\exists a.hasLabel\left(p,a\right)\]
+
+
+\[
+hasLabel\left(p,a\right)\Rightarrow\exists r.role\left(p,a,r\right)\]
+
+
+Top Down:
+
+\[
+role\left(p,a,r\right)\Rightarrow hasLabel\left(p,a\right)\]
+
+
+Not more than one role
+
+\[
+role\left(p,a,r_{1}\right)\wedge r_{1}\neq r_{2}\Rightarrow\neg role\left(p,a,r_{2}\right)\]
+
+
+Note more than one proper arg
+
+\begin{eqnarray*}
+ & role\left(p,a_{1},r\right)\wedge arg\left(r\right)\wedge a_{1}\neq a_{2} & \Rightarrow\\
+ & \neg role\left(p,a_{2},r\right)\end{eqnarray*}
+
+
+local formula for hasLabel based on lemmas
+
+\[
+lemma\left(p,!l_{p}\right)\wedge lemma\left(a,!l_{a}\right)\Rightarrow hasLabel\left(p,a\right)\]
+
+Note that the $!$-symbol indicates that we add a formula for each possible assignment of the $!$-variables.

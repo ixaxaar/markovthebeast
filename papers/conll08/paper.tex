@@ -1,0 +1,66 @@
+%
+% File coling08.tex
+%
+% Contact: R.P.Evans@brighton.ac.uk
+
+\documentclass[11pt]{article}
+\usepackage{coling08}
+\usepackage{times} 
+\usepackage{latexsym}
+\usepackage[round]{natbib} 
+\usepackage{amsmath}
+\usepackage{amssymb} 
+\usepackage[pdftex]{graphicx} 
+
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+\title{Collective Semantic Role Labelling with Markov Logic}
+
+\author{Sebastian Riedel \qquad Ivan Meza-Ruiz\\
+  Institute for Collaborating and Communicating Systems\\
+  School of Informatics\\
+  University of Edinburgh, Scotland\\
+  {\tt\{S.R.Riedel,I.V.Meza-Ruiz\}@sms.ed.ac.uk} }
+
+\date{} 
+
+\begin{document} 
+
+\input{macros.tex}
+\maketitle
+\begin{abstract}
+  This paper presents our system for the Open Track of the CoNLL 2008 Shared Task~\citep{surdeanu08conll} in Joint Dependency Parsing\footnote{Note that in this work we do not consider the parsing task; instead we use the provided dependencies of the open track datatsets.} and Semantic Role Labelling. We use Markov Logic to define a joint SRL model and achieve a semantic F-score of 74.59\%, the second best in the Open Track.
+\end{abstract}
+
+\section{Introduction}
+
+\input{introduction.tex}
+
+\section{Markov Logic} \label{sec:markovlogic}
+
+\input{markovlogic.tex}
+
+\section{Model} \label{sec:model} 
+\input{model.tex}
+
+\subsection{Local features}
+
+\input{local.tex}
+
+\subsection{Global features}
+
+\input{global.tex}
+
+\section{Results}\label{sec:results}
+
+\input{results.tex}
+\subsection{Analysis}
+\input{analysis}
+
+\section{Conclusion} \label{sec:conclusion}
+
+\input{conclusions.tex}
+\bibliographystyle{plainnat}
+
+\bibliography{seb}
+\end{document}
