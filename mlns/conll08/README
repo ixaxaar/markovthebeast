@@ -1,0 +1,53 @@
+These directores contains the MLN formulae (pml files) used in the paper:
+"Collective Semantic Role Labelling with Markov Logic" submited to the Open 
+Track of the CoNLL 2008 Shared Task.
+
+Directories:
+full      : Full system
+up        : Top-down formulae is commented. It resembles a bottom-up system.
+downi     : Bottom-up formulae is commented. It resembles a top-down system.
+isolated  : Both, Top-down and bottom-up formulae are commented. There are not
+    structural relation between predicates.
+structural: Without additional global formulae, only structural.
+
+Note:
+ The predicates hasRole and sense which are mention in the paper, appear on 
+ these files as, hasLabel and frameLabel.
+
+Descriptions of pml files:
+ model1.pml                 : Main pml file
+ model1-frameLabel.pml      : Main pml for the frameLabel predicate
+ model1-hasLabel.pml        : Main pml for the hasLabel predicate
+ model1-isArgument.pml      : Main pml for the isArgument predicate
+ model1-isPredicate.pml     : Main pml for the isPredicate predicate
+ model1-role.pml            : Main pml for the role predicate
+ frameLabel-global.pml      : Soft global formulae for the frameLabel predicate
+ frameLabel-hard.pml        : Hard structural formulae for the frameLabel
+                              predicate
+ frameLabel-local.pml       : Local formulae for the frameLabel predicate
+ hasLabel-basic.pml         : Local formulae for the hasLabel predicate (close
+                              track predicates)
+ hasLabel-dep.pml           : Local formulae for the hasLabel predicate (open
+                              predicates)
+ hasLabel-hard.pml          : Hard structural formulae for hasLabel pedicate
+
+ isArgument-hard.pml        : Hard structural formulae for isArgument predicate
+ isArgument-local.pml       : Local formulae for isArgument predicate
+ isPredicate-hard.pml       : Hard structural formulae for isPredicate predicate
+ isPredicate-local.pml      : Local formulae for isPredicate predicate
+ role-simple.pml            : Local formulae for role predicate (close track
+                               predicates)
+ role-path.pml              : Local formulae for role predicate (depency parses
+                              predicates)
+ role-hard.pml              : Hard structural formulae for role predicate.
+ role-pp-attach.pml         : Local formulae for prepositiona attachment for the
+                              role predicate (unused).
+ 
+ 
+ role-dep.pml, role-basic.pml, isArgument-global.pml, model1-both.pml, 
+ model1-dep.pml, dep-bigram.pml, dep-malt.pml, init.pml, inspect.pml, 
+ scratch.pml, scratch-whole.pml, seb-inspect.pml, test.pml, train.pml
+ types.pml aren't used for these models.
+
+
+
