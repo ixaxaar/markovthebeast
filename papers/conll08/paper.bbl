@@ -1,0 +1,54 @@
+\begin{thebibliography}{7}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Crammer and Singer(2003)]{crammer01ultraconservative}
+Koby Crammer and Yoram Singer.
+\newblock Ultraconservative online algorithms for multiclass problems.
+\newblock \emph{Journal of Machine Learning Research}, 2003.
+
+\bibitem[Punyakanok et~al.(2005)Punyakanok, Roth, and
+  Yih]{punyakanok05generalized}
+V.~Punyakanok, D.~Roth, and W.~Yih.
+\newblock Generalized inference with multiple semantic role labeling systems.
+\newblock In \emph{Proceedings of
+  the Annual Conference on Computational Natural Language Learning}, 2005.
+
+\bibitem[Richardson and Domingos(2005)]{richardson05markov}
+Matthew Richardson and Pedro Domingos.
+\newblock Markov logic networks.
+\newblock Technical report, University of Washington, 2005.
+
+\bibitem[Riedel(2008)]{riedel08improving}
+Sebastian Riedel.
+\newblock Improving the accuracy and efficiency of map inference for markov
+  logic.
+\newblock In \emph{Proceedings of the Annual Conference on Uncertainty
+  in AI}, 2008.
+
+\bibitem[Surdeanu et~al.(2008)Surdeanu, Johansson, Meyers, M\`{a}rquez, and
+  Nivre]{surdeanu08conll}
+Mihai Surdeanu, Richard Johansson, Adam Meyers, Llu\'{i}s M\`{a}rquez, and
+  Joakim Nivre.
+\newblock The {CoNLL}-2008 shared task on joint parsing of syntactic and
+  semantic dependencies.
+\newblock In \emph{Proceedings of the 12th Conference on Computational Natural
+  Language Learning ({CoNLL-2008})}, 2008.
+
+\bibitem[Toutanova et~al.(2005)Toutanova, Haghighi, and
+  Manning]{toutanova05joint}
+Kristina Toutanova, Aria Haghighi, and Christopher~D. Manning.
+\newblock Joint learning improves semantic role labeling.
+\newblock In \emph{Proceedings of the 43rd Annual Meeting on
+  Association for Computational Linguistics}, 2005.
+
+\bibitem[Xue and Palmer(2004)]{xue04calibrating}
+Nianwen Xue and Martha Palmer.
+\newblock Calibrating features for semantic role labeling.
+\newblock In \emph{Proceedings of the Annual Conference on Empirical
+  Methods in Natural Language Processing}, 2004.
+
+\end{thebibliography}

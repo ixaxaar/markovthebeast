@@ -4,10 +4,10 @@
 %%% TeX-master: "paper"
 %%% End: 
 
-We presented a Markov Logic Network that jointly performs predicate identification,argument identification and argument classification for SRL. This Network achieves the second best semantic F-scores in the Open Track of the CoNLL shared task. 
+We presented a Markov Logic Network that jointly performs predicate identification, argument identification and argument classification for SRL. This Network achieves the second best semantic F-scores in the Open Track of the CoNLL shared task. 
 
-Experimentally we show that results can be further improved by using an MLN that resembles a conventional SRL bottom-up pipeline (yet still jointly trained and globally normalised) instead of a fully connected model. We hypothesise that when training this model more weight is shifted away from wrong argument candidates and more weight is shifted towards correct role labels. This results in higher precision for argument identification and better accuracy for argument classification. 
+Experimentally we show that results can be further improved by using an MLN that resembles a conventional SRL bottom-up pipeline (but is still jointly trained and globally normalised) instead of a fully connected model. We hypothesise that when training this model more weight is shifted away from wrong argument candidates and more weight is shifted towards correct role labels. This results in higher precision for argument identification and better accuracy for argument classification. 
 
-Possible future work includes better treatment of nominal predicates, for which we perform quite poorly. We would also like to investigate the impact of linguistically motivated global formulae more thoroughly. So far our model benefit from them, albeit not substantially. 
+Possible future work includes better treatment of nominal predicates, for which we perform quite poorly. We would also like to investigate the impact of linguistically motivated global formulae more thoroughly. So far our model benefits from them, albeit not substantially. 
 
 %We can motivate it by saying that the sense of a predicate depends on the nature of its arguments, partly described by their POS tags. 

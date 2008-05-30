@@ -9,9 +9,9 @@ with some penalty. From an alternative point of view, it is an expressive
 template language that uses First Order Logic formulae to instantiate
 Markov Networks of repetitive structure. 
 
-Let us describe Markov Logic by considering the predicate identification task. In Markov Logic we can model this task by first introducing a set of logical predicates\footnote{Notice that both the SRL task and in ML the notion of \emph{predicate} and \emph{argument} are used. Thus in the cases were is not obvious to which concept we refer we precede the prefix SRL or MLN, respectively.} such as \emph{isPredicate(Token)} or \emph{word(Token,Word)}. Then we specify a set of weighted first order formulae that define a distribution over sets of ground atoms of these predicates (or so-called \emph{possible worlds}). 
+Let us describe Markov Logic by considering the predicate identification task. In Markov Logic we can model this task by first introducing a set of logical predicates\footnote{In the cases were is not obvious whether we refer to SRL or ML predicates we add the prefix SRL or ML, respectively.} such as \emph{isPredicate(Token)} or \emph{word(Token,Word)}. Then we specify a set of weighted first order formulae that define a distribution over sets of ground atoms of these predicates (or so-called \emph{possible worlds}). 
 
-Ideally, the distribution we define through these weighted formulae assigns high probability to possible worlds where SRL predicates are correctly identified and a low probability to worlds where this is not the case. For example, a suitable set of weighted formulae would assign a high probability to the world\footnote{``Haag plays Elianti'' is a segment of a sentence in training corpus.}
+Ideally, the distribution we define with these weighted formulae assigns high probability to possible worlds where SRL predicates are correctly identified and a low probability to worlds where this is not the case. For example, a suitable set of weighted formulae would assign a high probability to the world\footnote{``Haag plays Elianti'' is a segment of a sentence in training corpus.}
 \begin{eqnarray*}
  &\{ word\left(1,Haag\right),word(2,plays),\\
  & word(3,Elianti),isPredicate(2) \}& \end{eqnarray*}
@@ -19,7 +19,7 @@ and a low one to
 \begin{eqnarray*}
 & \{ word\left(1,Haag\right),word(2,plays),\\
  & word(3,Elianti),isPredicate(3) \} &\end{eqnarray*}
-In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It assigns a probability
+In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It assigns the probability
 \begin{equation}
 \prob\left(\y\right)=\frac{1}{Z}\exp\left(
 \sum_{\left(\phi,w\right)\in M} w
@@ -49,7 +49,7 @@ An MLN we use to model the collective SRL task is presented in section \ref{sec:
 
 \subsection{Inference}
 
-Assuming that we have an MLN with a set of suitable weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
+%Assuming that we have an MLN with a set of suitable weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
 
 Assuming that we have an MLN, a set of weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
 
