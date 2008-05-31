@@ -330,7 +330,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     if (printModelChanges) out.println("Factor added: " + factorFormula);
   }
 
-  public void visitImport(ParserImport parserImport) {
+  public synchronized void visitImport(ParserImport parserImport) {
     File file = null;
     //out = new PrintStream(new ByteArrayOutputStream(1024));
     boolean previousPrintModelChanges = printModelChanges;
@@ -426,7 +426,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
     return directory + "/" + name;
   }
 
-  public void visitLoad(ParserLoad parserLoad) {
+  public synchronized void visitLoad(ParserLoad parserLoad) {
     update();
     try {
       String filename = resolveParam(parserLoad.file).toString();
@@ -1322,6 +1322,10 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
 
   public void setArgs(String[] args) {
     this.args = args;
+  }
+
+  public String getDirectory() {
+    return directory;
   }
 
   public static interface PropertySetter {
