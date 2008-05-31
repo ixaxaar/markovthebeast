@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="parser" default="parser">
+
+    <path id="cupclasspath">
+        <fileset file="${basedir}/lib/java-cup-11a.jar"/>
+    </path>
+
+    <taskdef name="cup"
+             classname="java_cup.anttask.CUPTask"
+             classpathref="cupclasspath"/>
+
+    <target name="parser" depends="scanner">
+        <cup
+                srcfile="src/thebeast/pml/parser/pml.cup"
+                destdir="src"
+                expect="150"
+                parser="PMLParser"/>
+      <!--        dump="true"
+              force="true" -->
+
+    </target>
+
+    <target name="scanner">
+        <java classname="JLex.Main"
+            classpath="${basedir}/lib">
+                <arg value="src/thebeast/pml/parser/pml.lex"/>
+            </java>
+
+    </target>
+
+
+</project>
