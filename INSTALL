@@ -1,0 +1,26 @@
+Markov TheBeast Install Instructions
+------------------------------------
+
+1. Compilation
+--------------
+Simply unpack the distribution file and call
+
+$ ant
+
+This will compile the sources and place them in the classes directory
+under the directory you extracted the release file to.
+
+2. Starting TheBeast
+--------------------
+To start theBeast shell call
+
+$ bin/thebeast
+
+To execute a script enter
+
+$ bin/thebeast <filename>
+
+It might be more convenient to place the bin directory in your system path.
+
+
+

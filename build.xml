@@ -92,7 +92,6 @@
     </dirset>
   </path>
 
-
   <target name="compile.module.thebeast" depends="compile.module.thebeast.production,compile.module.thebeast.tests"
           description="Compile module thebeast"/>
 
@@ -137,7 +136,7 @@
     <junit printsummary="yes" haltonfailure="no" dir="bin">
       <classpath>
         <path refid="thebeast.module.classpath"/>
-        <pathelement location="${module.thebeast.basedir}/classes/production"/>        
+        <pathelement location="${module.thebeast.basedir}/classes/production"/>
       </classpath>
 
       <formatter type="plain"/>
@@ -151,5 +150,69 @@
     </junit>
   </target>
 
-  <target name="all" depends="init, clean, compile.module.thebeast" description="build all"/>
+  <!-- the files to be released -->
+  <fileset id="thebeast.releasefiles" dir="${module.thebeast.basedir}">
+    <!-- build files -->
+    <include name="thebeast.properties"/>
+    <include name="build.xml"/>
+
+    <!-- etc -->
+    <include name="README"/>
+    <include name="INSTALL"/>
+    <include name="LICENSE"/>
+    <include name="cup.xml"/>
+
+    <!-- release files -->
+    <include name="bin/*"/>
+    <include name="src/**/*.java"/>
+    <include name="src/**/*.cup"/>
+    <include name="src/**/*.lex"/>
+    <include name="test/**/*.java"/>
+    <include name="doc/**"/>
+    <include name="lib/**"/>
+
+    <!-- some legacy we don't want in the distribution -->
+    <exclude name="bin/thebeast"/>
+    <exclude name="bin/linux"/>
+    <exclude name="bin/mac"/>
+    <exclude name="lib/mosek.jar"/>
+    <exclude name="src/thebeast/pml/solve/ilp/ILPSolverMosek.java"/>
+  </fileset>
+
+  <target name="dist">
+    <delete dir="${distdir}/${target}"/>
+    <mkdir dir="${distdir}/${target}"/>
+    <copy todir="${distdir}/${target}">
+      <fileset refid="thebeast.releasefiles"/>
+    </copy>
+    <tar destfile="${distdir}/${target}.tar.gz" basedir="${distdir}"
+         compression="gzip" includes="${target}/**">
+    </tar>
+    <zip destfile="${distdir}/${target}.zip" basedir="${distdir}"
+         includes="${target}/**">
+    </zip>
+  </target>
+
+
+  <!-- determine OS family -->
+  <condition property="onmac">
+    <os family="mac"/>
+  </condition>
+  <condition property="onunix">
+    <os family="unix"/>
+  </condition>
+
+  <!-- OS specific tasks -->
+  <target name = "conf-os" depends="conf-mac,conf-unix"/>
+
+  <target name ="conf-mac" if="onmac">
+    <copy file="bin/thebeast.mac" tofile="bin/thebeast"/>
+    <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+  <target name ="conf-unix" if="onunix">
+    <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
+    <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+
+  <target name="all" depends="init, clean, compile.module.thebeast, conf-os" description="build all"/>
 </project>
