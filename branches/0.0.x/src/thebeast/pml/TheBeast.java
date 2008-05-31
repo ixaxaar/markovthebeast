@@ -15,6 +15,7 @@ public class TheBeast {
 
   private final static TheBeast singleton = new TheBeast();
 
+  public final static String VERSION = "0.0.1";
 
   /**
    * Private constructor as TheBeast is a singleton.
