@@ -668,7 +668,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         listIterator = ramCorpus.listIterator();
       } else if ("instances".equals(parserSaveCorpus.factory)) {
         if (corpus == null) throw new ShellException("Corpus must be loaded before training instances can generated");
-        File file = new File(parserSaveCorpus.file);
+        File file = new File(filename(parserSaveCorpus.file));
         file.delete();
         if (parserSaveCorpus.from != -1) {
           throw new RuntimeException("Instances can only be created for the complete corpus (no range allowed).");
