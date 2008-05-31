@@ -14,17 +14,12 @@ import thebeast.nod.value.Value;
 import thebeast.nod.variable.Index;
 import thebeast.nod.variable.IntVariable;
 import thebeast.nod.variable.RelationVariable;
+import thebeast.pml.*;
 import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.formula.QueryGenerator;
-import thebeast.pml.solve.ilp.ILPSolver;
-import thebeast.pml.solve.ilp.ILPSolverLpSolve;
-import thebeast.pml.solve.ilp.ILPSolverOsi;
-import thebeast.pml.solve.ilp.ILPSolverCbc;
 import thebeast.pml.solve.PropositionalModel;
-import thebeast.pml.*;
 import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
-import thebeast.nodmem.variable.MemRelationVariable;
 
 import java.util.*;
 
@@ -767,12 +762,12 @@ public class IntegerLinearProgram implements PropositionalModel {
         String type = (String) value;
         if ("lpsolve".equals(type))
           solver = new ILPSolverLpSolve();
-        else if ("osi".equals(type))
-          solver = new ILPSolverOsi();
-        else if ("mosek".equals(type))
-          solver = new ILPSolverMosek();
-        else if ("cbc".equals(type))
-          solver = new ILPSolverCbc();
+//        else if ("osi".equals(type))
+//          solver = new ILPSolverOsi();
+//        else if ("mosek".equals(type))
+//          solver = new ILPSolverMosek();
+//        else if ("cbc".equals(type))
+//          solver = new ILPSolverCbc();
         else
           throw new IllegalPropertyValueException(name, value);
       } else
