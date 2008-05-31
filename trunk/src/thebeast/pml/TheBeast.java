@@ -92,14 +92,15 @@ public class TheBeast {
    * @throws java.io.IOException if the input stream breaks.
    */
   public static void main(String[] args) throws IOException {
-    String home = System.getProperty("home");
     if (args.length > 0) {
       File file = new File(args[0]);
       Shell shell = new Shell(new FileInputStream(file), System.out, System.err);
       shell.setArgs(args);
-      shell.setDirectory(home != null ? home : file.getParentFile() == null ? null : file.getParentFile().getPath());
+      shell.setDirectory(file.getParentFile() == null ? System.getProperty("user.dir") :
+              file.getParentFile().getPath());
       shell.execute();
     } else {
+      String home = System.getProperty("home");
       Shell shell = new Shell();
       if (home != null) shell.setDirectory(home);
       shell.interactive();
