@@ -9,9 +9,6 @@
    -->
 
 
-
-  
-
   <!-- Compiler options -->
 
   <property name="compiler.debug" value="on"/>
@@ -154,50 +151,50 @@
     </junit>
   </target>
 
-   <!-- the files to be released -->
-    <fileset id="thebeast.releasefiles" dir="${module.thebeast.basedir}">
-      <!-- build files -->
-      <include name="thebeast.properties"/>
-      <include name="build.xml"/>
+  <!-- the files to be released -->
+  <fileset id="thebeast.releasefiles" dir="${module.thebeast.basedir}">
+    <!-- build files -->
+    <include name="thebeast.properties"/>
+    <include name="build.xml"/>
 
-      <!-- etc -->
-      <include name="README"/>
-      <include name="INSTALL"/>
-      <include name="LICENSE"/>
-      <include name="cup.xml"/>
+    <!-- etc -->
+    <include name="README"/>
+    <include name="INSTALL"/>
+    <include name="LICENSE"/>
+    <include name="cup.xml"/>
 
-      <!-- release files -->
-      <include name="bin/*"/>
-      <include name="examples/srl/**"/>
-      <include name="src/**/*.java"/>
-      <include name="src/**/*.cup"/>
-      <include name="src/**/*.lex"/>
-      <include name="test/**/*.java"/>
-      <include name="doc/**"/>
-      <include name="lib/**"/>
+    <!-- release files -->
+    <include name="bin/*"/>
+    <include name="examples/srl/**"/>
+    <include name="src/**/*.java"/>
+    <include name="src/**/*.cup"/>
+    <include name="src/**/*.lex"/>
+    <include name="test/**/*.java"/>
+    <include name="doc/**"/>
+    <include name="lib/**"/>
 
-      <!-- some legacy we don't want in the distribution -->
-      <exclude name="bin/thebeast"/>
-      <exclude name="bin/linux"/>
-      <exclude name="bin/mac"/>
-      <exclude name="lib/mosek.jar"/>
-      <exclude name="examples/**/system.atoms"/>
-      <exclude name="examples/**/*.weights"/>
-      <exclude name="examples/**/*.instances"/>
-      <exclude name="examples/**/types.pml"/>
-      <exclude name="src/thebeast/pml/solve/ilp/ILPSolverMosek.java"/>
-    </fileset>
+    <!-- some legacy we don't want in the distribution -->
+    <exclude name="bin/thebeast"/>
+    <exclude name="bin/linux"/>
+    <exclude name="bin/mac"/>
+    <exclude name="lib/mosek.jar"/>
+    <exclude name="examples/**/system.atoms"/>
+    <exclude name="examples/**/*.weights"/>
+    <exclude name="examples/**/*.instances"/>
+    <exclude name="examples/**/types.pml"/>
+    <exclude name="src/thebeast/pml/solve/ilp/ILPSolverMosek.java"/>
+  </fileset>
 
   <target name="dist">
     <delete dir="${distdir}/${target}"/>
     <mkdir dir="${distdir}/${target}"/>
-    <copy todir="${distdir}/${target}">
+    <copy todir="${fulltarget}">
       <fileset refid="thebeast.releasefiles"/>
     </copy>
-    <tar destfile="${distdir}/${target}.tar.gz" basedir="${distdir}"
+    <tar destfile="${fulltargetgz}" basedir="${distdir}"
          compression="gzip" includes="${target}/**">
     </tar>
-    <zip destfile="${distdir}/${target}.zip" basedir="${distdir}"
+    <zip destfile="${fulltargetzip}" basedir="${distdir}"
          includes="${target}/**">
     </zip>
   </target>
@@ -212,15 +209,26 @@
   </condition>
 
   <!-- OS specific tasks -->
-  <target name = "conf-os" depends="conf-mac,conf-unix"/>
+  <target name="conf-os" depends="conf-mac,conf-unix"/>
 
-  <target name ="conf-mac" if="onmac">
+  <target name="conf-mac" if="onmac">
     <copy file="bin/thebeast.mac" tofile="bin/thebeast"/>
     <chmod file="bin/thebeast" perm="+x"/>
   </target>
-  <target name ="conf-unix" if="onunix">
+  <target name="conf-unix" if="onunix">
     <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
     <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+
+  <!-- Runs the fullrelease task and uploads the nightly release on google code. -->
+  <target name="upload" depends="dist">
+    <exec executable="python">
+      <arg value='tools/googlecode_upload.py'/>
+      <arg value='-p thebeast'/>
+      <arg value='-s Markov TheBeast version ${version} src distribution'/>
+      <arg value='-l Type-Archive,OpSys-All'/>
+      <arg value='${fulltargetgz}'/>
+    </exec>
   </target>
 
   <target name="all" depends="init, clean, compile.module.thebeast, conf-os" description="build all"/>
