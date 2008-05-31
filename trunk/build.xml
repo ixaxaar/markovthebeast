@@ -183,6 +183,8 @@
       <exclude name="lib/mosek.jar"/>
       <exclude name="examples/**/system.atoms"/>
       <exclude name="examples/**/*.weights"/>
+      <exclude name="examples/**/*.instances"/>
+      <exclude name="examples/**/types.pml"/>
       <exclude name="src/thebeast/pml/solve/ilp/ILPSolverMosek.java"/>
     </fileset>
 
