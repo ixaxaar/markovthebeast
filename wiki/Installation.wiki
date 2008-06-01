@@ -7,7 +7,7 @@ Click on the featured download link on the project home page or go to the Downlo
 
 = Unpacking =
 
-Go to the directory your download the distribution to and call
+Go to the directory your downloaded the distribution to and call
 {{{
 $ tar xvzf thebeast-x.y.z.tar.gz
 }}}
