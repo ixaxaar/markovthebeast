@@ -1,6 +1,6 @@
-Version 0.0.1
+= Version 0.0.1 =
 
-Features
+== Features ==
   * MAP Inference using Cutting Plane Inference and two possible base solvers
     * Integer Linear Programming using lp_solve
     * MaxWalkSAT
