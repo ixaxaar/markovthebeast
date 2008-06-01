@@ -1,0 +1,343 @@
+pred[now,gold,best](args)
+
+
+//upcoming format
+factor name [switches](order): [[source(s,ws) & target(t,wt) => align(s,t)]] * w1(ws,wt); 
+or
+(annotation & alchemy inspired)
+@Order(1) @Neg @Collect
+source(s,ws) & target(t,wt) => align(s,t) [w1(ws,wt)]
+
+
+when can we normalize a factor (to be all negative/positive)
+
+let f have the variables x1,x2,... and l1,l2,... with
+
+factor: x1,x2,...,l1,l2,... : for cond(x1,...) add [formula(x1,...,ln)] * w(l1,l2,...)
+
+then f is normalizable iff for each observation o, each hidden h and each tuple x1,x2... with [[cond(x1,...)]]_o there is exactly
+ exactly one tuple l1,l2,... for which formula(x1,...,l1,...) holds (i.e. formula represents a function from x1,... to
+ l1,...).
+
+formula f(x,y) is normalizable wrt g(x) if f(x,y)=>g(x) and g(x)=> there exists exactly one y with f(x,y).
+
+a formula f is normalizable if it's normalizable wrt to "true". 
+
+format for weighted clause:
+weight  signs         indices     d    lb   items  ub
+|0.12|[[0,1][1,1]] [[1,2][3,4]] {|0|-inf|{1,2,3,4}|1|}
+
+d=disjunction index
+
+SRL:
+- local features:
+  - position+predicate
+  - position+predicate+voice
+- hard constraint: there has to be one V
+- soft cardinality/existential constraints for arguments
+
+cutting plane solving+learning:
+- order of a formula: defined by user
+- order of a set of ground formulas: lowest order of formulas in it, or INF if it contains no ground formulas
+- minimum-order m of online learner: use for training all candidates with ground formula order >= m
+
+kyu 02072248555
+
+------------------------------
+x1 + ... + xn >= k | a1 | ... | am
+c = x1 + ... + xn;
+a = a1 + ... + am;
+
+1) c/k + a + (1-s) >= 1
+   c + a * k + k - k * s >=1
+   c + a * k - k * s >= 1 - k
+
+2) -((c+1)/k + a - 1)/((n+1)/k + m - 1) + s >= 0
+   -((c+1)/k + a - 1) + s * ((n+1)/k + m - 1) >=0
+   -(c+1)/k - a + 1 + s * ((n+1)/k + m - 1) >=0
+   max = ((n+1)/k + m - 1)
+   -c - 1 - k * a + k + s * max * k >=0
+   -c - k*a + s * max * k >= 1 - k
+
+
+--------------------------------
+
+x1 + ... + xn <= k | a1 | ... | am
+c = x1 + ... + xn;
+a = a1 + ... + am;
+
+1) (n-c)/(n-k) + a + (1-s) >= 1 or
+   (n-c) + a * (n-k) + (1-s) * (n-k) >= n-k
+   -c + a * (n-k) + (1-s) * (n-k) >= -k
+   c - a * (n-k) - (1-s) * (n-k) <= k
+   c - a * (n-k) - n + k + s * (n-k) <= k
+   c - a * (n-k) + s * (n-k) <= n
+2) -((n-c+1)/(n-k) + a - 1)/((n+1)/(n-k) + m - 1) + s >= 0
+   -(n-c+1)/(n-k) - a + 1 + s * ((n+1)/(n-k) + m - 1) >= 0
+
+
+   -n + c - 1 - a * (n-k) + n-k + s * ((n+1)/(n-k) + m - 1) * (n-k) >= 0
+   c - 1 - a * (n-k) - k + s * ((n+1)/(n-k) + m - 1) * (n-k) >= 0
+   c - a * (n-k) + s * ((n+1)/(n-k) + m - 1) * (n-k) >= k + 1
+
+
+-------------------------------------
+
+x1 + ... + xn <= k & a1 & ... & am
+
+!(x1 + ... + xn >= k + 1 | !a1 | ... | !am)
+
+¬a = (1-a1) + ... + (1-a2)
+
+max = max(c/(k+1) + ¬a)
+
+1) c/(k+1) + ¬a + (s * max - max) <= k/(k+1)
+2) (c/(k+1) + ¬a - k/(k+1))/ (n/(k+1) + m - k/(k+1)) + s >= 0
+
+--------------------------------------------
+x1 + ... + xn >= k & a1 & ... & am
+
+!(x1 + ... + xn <= k - 1 | !a1 | ... | !am)
+
+max = max(c/(k+1) + ¬a)
+
+1) (n-c)/(n-(k-1)) + a + (s * max - max) <= (n-k)/(k-1)
+2) ...
+
+
+
+
+--------------------------------------------
+
+forall x : pred(x) <=> ! exists x : !pred(x) <=> |x:!pred(x)| <= 0
+
+
+model m {
+  type Slot : ...;
+  factor blah : Int t, Slot s add [slot(t,s)] * 123.123;
+}
+
+model m {
+  factor blub : Int t, Slot s add [slot(t,s)] * 123.123;
+}
+
+
+drop m.blah;
+m.drop("blah");
+ 
+
+
+m         = normalize(m);
+w         = weights(m,s);
+corpus    = corpus("$filename", s);
+collector.collect(corpus,w);
+instances = instances(corpus,"$2");
+learner   = onlineLearner(w);
+learner.solver.ground.asLeastOne = true;
+learner.solver.setGround(m.atLeastOne,true);
+learner.learn(instances);
+w.save("$3");
+
+gold  = corpus.get(0);
+guess = solver.solve();
+
+result = conll("w","result.conll");
+result.append(guess);
+
+//or
+solve.solve(corpus,result);
+
+
+
+corpus = conll("$1");
+gold = ram(corpus,1,100);
+guess = solver.solve(gold);
+instances = instances(ram,int($2));
+learner.solver.model = sat();
+learner.solver.model.solver = maxWalkSat();
+collector.collect(corpus,weights);
+
+collector = default();
+
+print learner.solver;
+
+query guess {Int t, Word w: word(t,w)};
+query guess {Word w, Double s: s=w_word(w) & word(_,w)};
+query {Token t, Pos p, Double s: s=<pos(t,p>};
+
+collector.collect(corpus);
+learner.learn(instances);
+
+next(5);
+solver.solve();
+
+
+
+|Slot s: slot(t,s)| >= |Slot s|
+
+
+Nips:
+
+Core:
+Exact vs Approximate
+- Score + F1: ICP-ILP vs MWS (with good parameters, for datasets 50 - 150?)
+
+ILP Speed vs MWS
+- Speed: Full-MWS vs Full-ILP, MWS vs (I)CP-ILP
+- overhead + iterations separately
+
+ILP Speed: Full vs CP vs ICP
+- Speed (iterations/overhead): CP-ILP vs ILP vs ICP-ILP
+
+
+Add-On:
+- Score + F1: CP-MWS vs MWS (what maxFlip value?)
+- Score + F1: CP-ILP vs CP-MWS
+-
+
+
+class IntData {
+}
+
+class DoubleData {
+}
+
+class StringData {
+
+}
+
+class Table {
+  int[] intData;
+  String[] stringData;
+  double[] doubleData;
+  
+}
+
+
+
+class Runtime {
+  - Corpus (for training and testing)
+  - RamCorpus (for inspection)
+  - Learner
+  - Solver
+  - Feature Collector
+  - Current
+    - index in ram corpus
+    - gold atoms
+    - guess atoms
+
+}
+
+
+chunk features (pos):
+
+ |WORD| (word is not rare)
+ |contained in gazetteer| 
+
+chunk features (pos):
+
++ POS|POS ... POS|POS  until length 6
+
++ |POS POS|
++ |POS POS POS|
++ |POS POS POS POS|
+
+- |... POS ...|
+- |... POS POS ...|
+
+
+w=(w_s,w_h)
+
+w * df > L
+w_s * df > L
+
+
+f = feature vector of violation
+f = f1 + f2 (f1 and f2 don't violate)
+
+(fg-f) * w > L
+
+(fg-(f1+f2)) * w > L
+
+(fg - f1 - f2) * w > L
+fg * w - f1 * w - f2 * w > L
+(fg-f1)*w - f2 * w > L
+
+
+
+44,44,12,6,2
+
+85:312844
+29:159420
+781:609532
+317:272356
+327:88000
+139:42952
+1767:450500
+792:216624
+463:312844
+212:159420
+86:609532
+58:272356
+119:88000
+50:42952
+593:450500
+285:216624
+.1229:312844
+590:159420
+2400:609532
+989:272356
+.
+index: dep(*,*,_);
+
+to conll06 "test.conll";
+
+load corpus.gold from "...";
+load corpus.guess from "...";
+
+save corpus to 
+
+test to conll06 "test.conll"; //goes over the gold corpus and create a guess corpus;
+test to ram;
+
+TheRuntime: will contain runtime object
+
+
+1. Model
+2. Corpus
+3. Gold atoms (if corpus has hidden atoms)
+4. Guess atoms
+5. Training instances (if produced before)
+6. Scores
+7. RAM Corpus (for playing around)
+
+
+
+
+//projectivity
+factor: for Int h1, Int m1, Int h2, Int m2: if h1 < h2 & m1 > h2 & m2 > m1 :!(link(h1,m1) & link(h2,m2));
+factor: for Int h1, Int m1, Int h2, Int m2: if h1 > h2 & m1 < h2 & m2 > h1 :!(link(h1,m1) & link(h2,m2));
+
+
+load corpus from conll06 "asdasd";
+save corpus (1-100) to ram;
+save corpus (1-100) to dump "dump.txt" (100);
+save corpus (1-100) to text "text.txt";
+
+corpus from dump "dump.txt";
+
+set guess = load("asdasd");
+set guess = greedy();
+set scores = score();
+set scores = load("scores");
+
+Dump dump = server.createDump("/tmp/dmp");
+
+dump.save(var1);
+dump.save(var2);
+dump.close();
+dump.load(var);
+
+groundatoms:
+dump.save(count);
+dump.save(relation);

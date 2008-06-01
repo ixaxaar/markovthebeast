@@ -1,0 +1,412 @@
+package markof.theparser;
+
+import java.util.LinkedList;
+import java_cup.runtime.*;
+import markof.thelanguage.*;
+import markof.thelanguage.expressions.*;
+import markof.thelanguage.constants.*;
+import markof.thelanguage.names.*;
+import markof.thelanguage.patterns.*;
+
+parser code {:
+
+    public MAMMLParserListener listener;
+
+    public void setMAMMLParserListener(MAMMLParserListener listener){
+        this.listener = listener;
+    }
+
+    public void unrecovered_syntax_error(Symbol cur_token){
+        System.out.println(cur_token.value);
+        if (listener!=null) listener.syntaxError();
+        try {
+            parse();
+        } catch (Exception e){
+
+        }
+    }
+
+:}
+
+terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
+terminal PLUS, MINUS, TIMES;
+terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER;
+terminal EXCL;
+terminal TILDE, HASH, AT;
+terminal EQUIVALENCE, AND, IMPLIES, DOUBLEAND, DOUBLEBAR;
+terminal LPAREN, RPAREN, LSQPAREN, RSQPAREN, LCLPAREN, RCLPAREN, LCLPARENSTAR, RCLPARENSTAR;
+terminal LCLPARENPLUS, RCLPARENPLUS, LCLPARENEXCL, RCLPARENEXCL;
+terminal BAR,ARROW,CURLYARROW;
+terminal FUNCTION,LET,WHEN,ASSERT,IN,OF,LAMBDA,DOLLAR;
+terminal TRUE,FALSE;
+terminal JAVA;
+terminal INVERT;
+terminal PUT,MAP,WITH;
+terminal WHILE,DO;
+terminal NULL;
+terminal Integer NUMBER;
+terminal Double DOUBLE;
+terminal String IDENT,STRING,JAVAID,ARGIDENT;
+
+non terminal Expression expression,atom;
+non terminal FunctionApplication application;
+non terminal Argument argument;
+non terminal input,program;
+non terminal TopLevelPhrase toplevel;
+non terminal Definition definition;
+non terminal Assertion assertion;
+non terminal Directive directive;
+non terminal LinkedList<Expression> tuple,cartesian;
+non terminal LinkedList<PatternMatching> patternmatchings;
+non terminal PatternMatching patternmatching;
+non terminal LinkedList<Argument> arguments;
+non terminal LinkedList<ExpressionPattern> patternargs;
+non terminal LinkedList<ExpressionPattern> patterns;
+non terminal ExpressionPattern pattern, patternapp, patternarg,patternrhs,argid;
+non terminal Name name;
+non terminal Ident ident;
+non terminal Name operatorname, infixname, prefixname;
+non terminal Constant constant;
+non terminal LetBinding letbinding;
+
+precedence nonassoc FUNCTION,OF,MAP,WITH;
+precedence left BAR;
+precedence left TILDE;
+precedence left COMMA,AT;
+precedence left DOT;
+precedence nonassoc PUT;
+precedence nonassoc EQUALS, LESSTHAN, GREATER, NOTEQUALS;
+precedence left EQUIVALENCE;
+precedence left IMPLIES;
+precedence left DOUBLEBAR;
+precedence left AND,DOUBLEAND;
+precedence left COLON;
+precedence nonassoc CURLYARROW;
+precedence nonassoc HASH;
+precedence nonassoc DOUBLEDOT;
+precedence left PLUS,MINUS;
+precedence left TIMES;
+precedence left UMINUS,EXCL,JAVA,UAND;
+precedence nonassoc INVERT;
+precedence nonassoc ASSIGN,LCLPAREN,LSQPAREN;
+
+start with program;
+
+program ::= input program
+          | input;
+
+input ::= toplevel:t
+          {: if (parser.listener!=null) parser.listener.topLevelPhraseParsed(t); :}
+          DOUBLESEMI
+;
+
+toplevel ::= expression:e
+             {: RESULT=e; :}
+           | definition:d
+             {: RESULT=d; :}                 
+           | assertion:a
+             {: RESULT=a; :}
+           | directive:d
+             {: RESULT=d; :}
+;
+
+
+//directive
+directive ::= HASH ident:id expression:e
+               {: RESULT = new Directive(id,e); :}
+;
+
+//definition
+definition ::= LET letbinding:b
+               {: RESULT = new LetDefinition(b); :}
+
+;
+
+letbinding ::= pattern:p ASSIGN expression:e
+               {: RESULT = new PatternAssignment(p,e); :}
+             | name:n pattern:p ASSIGN expression:e
+               {: RESULT = new NameAssignment(n,p,e); :}
+             | name:n ASSIGN expression:e
+               {: RESULT = new NameAssignment(n,e); :}
+;
+
+
+//assertions
+assertion ::= ASSERT expression:e
+              {: RESULT = new Assertion(e); :}
+;
+
+
+
+expression ::= atom:a
+               {: RESULT = a; :}
+             | application:a
+               {: RESULT = a; :}
+             | tuple:t
+               {: RESULT = new TupleExpression(t); :}
+             | cartesian:c
+               {: RESULT = new CartesianProductExpression(c); :}
+             | FUNCTION patternmatchings:pms
+               {: RESULT = new FunctionExpression(pms); :}
+             | JAVA expression:s
+               {: RESULT = new JavaValueExpression(s); :}
+             | IDENT:id LSQPAREN pattern:p COLON expression:s RSQPAREN expression:f
+               {: RESULT = new QuantificationExpression(new QuantifierName(id), p, s, f); :}
+             | expression:f INVERT expression:arg IN expression:set
+               {: RESULT = new InversionExpression(f,arg,set); :}
+             | application:a PUT expression:v
+               {: RESULT = new PutExpression(a,v); :}
+             | atom:a PUT expression:v
+               {: RESULT = new AssignExpression(a,v); :}
+             | WHILE expression:c DO expression:p
+               {: RESULT = new WhileDoExpression(c,p); :}
+;
+
+
+
+expression ::= EXCL expression:e
+               {: RESULT = new PrefixApplication(new PrefixOperatorName("!"), e); :}
+             | MINUS expression:e
+               {: RESULT = new PrefixApplication(new PrefixOperatorName("-"), e); :}
+               %prec UMINUS
+             | AND expression:e
+               {: RESULT = new PrefixApplication(new PrefixOperatorName("&"), e); :}
+               %prec UAND
+;
+
+expression ::= expression:l PLUS expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("+"),r); :}
+             | expression:l MINUS expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("-"),r); :}
+             | expression:l TIMES expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("*"),r); :}
+             | expression:l EQUALS expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("=="),r); :}
+             | expression:l NOTEQUALS expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("!="),r); :}
+             | expression:l LESSTHAN expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("<"),r); :}
+             | expression:l GREATER expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName(">"),r); :}
+             | expression:l AND expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("&"),r); :}
+             | expression:l BAR expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("|"),r); :}
+             | expression:l DOUBLEAND expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("&&"),r); :}
+             | expression:l DOUBLEBAR expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("||"),r); :}
+             | expression:l IMPLIES expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("=>"),r); :}
+             | expression:l EQUIVALENCE expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("<=>"),r); :}
+             | expression:l TILDE expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("~"),r); :}
+             | expression:l HASH expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("#"),r); :}
+             | expression:l COLON expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName(":"),r); :}
+             | expression:l CURLYARROW expression:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("~>"),r); :}
+             | expression:l DOUBLEDOT expression:r
+               {: RESULT = new IntIntervalExpression(l,r); :}
+;
+
+
+atom       ::= constant:c
+               {: RESULT =c; :}
+             | LPAREN expression:e RPAREN
+               {: RESULT = e; :}
+             | atom:l DOT atom:r
+               {: RESULT = new InfixApplication(l,new InfixOperatorName("."),r); :}
+             | name:n
+               {: RESULT = n; :}
+;
+
+constant   ::= NUMBER:i
+               {: RESULT = new IntConstant(i.intValue()); :}
+             | DOUBLE:d
+               {: RESULT = new DoubleConstant(d.doubleValue()); :}
+             | STRING:s
+               {: RESULT = new StringConstant(s.substring(1,s.length()-1)); :}
+             | TRUE
+               {: RESULT = new BoolConstant(true); :}
+             | FALSE
+               {: RESULT = new BoolConstant(false); :}
+             | NULL
+               {: RESULT = new NullConstant(); :}
+
+;
+
+
+application ::= atom:f arguments:a
+                {: RESULT = new FunctionApplication(f,a); :}
+;
+
+
+arguments ::= arguments:l atom:r
+              {: l.add(r);
+                 RESULT = l; :}
+            | atom:a
+              {: LinkedList<Argument> result = new LinkedList<Argument>();
+                 result.add(a);
+                 RESULT = result;:}
+;
+
+
+tuple ::= expression:l COMMA expression:r
+          {: LinkedList<Expression> result = new LinkedList<Expression>();
+             result.add(l);
+             result.add(r);
+             RESULT = result; :}
+        | tuple:t COMMA expression:e
+          {: t.add(e);
+             RESULT = t; :}
+;
+
+cartesian ::= expression:l AT expression:r
+              {: LinkedList<Expression> result = new LinkedList<Expression>();
+                 result.add(l);
+                 result.add(r);
+                 RESULT = result; :}
+            | cartesian:t AT expression:e
+              {: t.add(e);
+                 RESULT = t; :}
+;
+
+
+//names
+name ::= ident:id
+         {: RESULT = id; :}
+       | operatorname:n
+         {: RESULT = n; :}
+;
+
+ident ::= IDENT:id
+          {: RESULT = new Ident(id); :}
+;
+
+
+operatorname ::= LPAREN infixname:i RPAREN
+                 {: RESULT = i; :}
+               | LCLPARENPLUS prefixname:p RCLPARENPLUS
+                 {: RESULT = p; :}
+               | LCLPARENSTAR IDENT:id RCLPARENSTAR
+                 {: RESULT = new QuantifierName(id); :}
+;
+
+prefixname   ::= EXCL
+                 {: RESULT = new PrefixOperatorName("!"); :}
+               | MINUS
+                 {: RESULT = new PrefixOperatorName("-"); :}
+               | AND
+                 {: RESULT = new PrefixOperatorName("&"); :}
+;
+
+infixname    ::= EQUALS
+                 {: RESULT = new InfixOperatorName("=="); :}
+               | PLUS
+                 {: RESULT = new InfixOperatorName("+"); :}
+               | MINUS
+                 {: RESULT = new InfixOperatorName("-"); :}
+               | NOTEQUALS
+                 {: RESULT = new InfixOperatorName("!="); :}
+               | LESSTHAN
+                 {: RESULT = new InfixOperatorName("<"); :}
+               | GREATER
+                 {: RESULT = new InfixOperatorName(">"); :}
+               | DOUBLEAND
+                 {: RESULT = new InfixOperatorName("&&"); :}
+               | DOUBLEBAR
+                 {: RESULT = new InfixOperatorName("||"); :}
+               | BAR
+                 {: RESULT = new InfixOperatorName("|"); :}
+               | TILDE
+                 {: RESULT = new InfixOperatorName("~"); :}
+               | HASH
+                 {: RESULT = new InfixOperatorName("#"); :}
+               | COLON
+                 {: RESULT = new InfixOperatorName(":"); :}
+               | DOT
+                 {: RESULT = new InfixOperatorName("."); :}
+               | CURLYARROW
+                 {: RESULT = new InfixOperatorName("~>"); :}
+;
+
+
+//patternmatching
+
+patternmatchings ::= patternmatching:pm
+                     {: LinkedList<PatternMatching> result = new LinkedList<PatternMatching>();
+                        result.add(pm);
+                        RESULT = result; :}
+                   | patternmatchings:pms BAR patternmatching:pm
+                     {: pms.add(pm);
+                        RESULT = pms; :}
+;
+
+patternmatching ::= pattern:p ARROW expression:e
+                    {: RESULT = new PatternMatching(p,null,e); :}
+                  | pattern:p WHEN expression:g ARROW expression:e
+                    {: RESULT = new PatternMatching(p,g,e); :}
+;
+
+pattern ::= name:n
+            {: RESULT = n; :}
+          | constant:c
+            {: RESULT = c; :}
+          | patterns:p
+            {: RESULT = new TupleExpressionPattern(p); :}
+          | LPAREN pattern:p RPAREN
+            {: RESULT = p; :}
+          | LAMBDA pattern:p DOT patternrhs:r
+            {: RESULT = new LambdaFunctionExpressionPattern(p,r); :}
+          | argid:p
+            {: RESULT =p; :}
+
+
+;
+
+patternrhs ::=  patternarg:p
+                       {: RESULT = p; :}
+                     | patternarg:f  patternarg:a
+                       {: RESULT = new FunctionApplicationExpressionPattern(f,a); :}
+                     | name:n TILDE pattern:p
+                       {: RESULT = new TransformationExpressionPattern(n,p); :}
+;
+
+patternarg ::= name:n
+            {: RESULT = n; :}
+          | constant:c
+            {: RESULT = c; :}
+          | LPAREN pattern:p RPAREN
+            {: RESULT = p; :}
+;
+
+
+
+patternargs ::= patternarg:l patternarg:r
+                    {: LinkedList<ExpressionPattern> result = new LinkedList<ExpressionPattern>();
+                       result.add(l);
+                       result.add(r);
+                       RESULT = result;:}
+                   | patternargs:l patternarg:r
+                     {: l.add(r);
+                        RESULT = l; :}
+;
+
+
+patterns ::= pattern:l COMMA pattern:r
+             {: LinkedList<ExpressionPattern> result = new LinkedList<ExpressionPattern>();
+                result.add(l);
+                result.add(r);
+                RESULT = result;:}
+           | patterns:l COMMA pattern:r
+             {: l.add(r);
+                RESULT = l; :}
+;
+
+argid ::= ARGIDENT:s
+              {: RESULT = new ArgumentExpressionPattern(s.substring(1,s.length())); :}
+;
+

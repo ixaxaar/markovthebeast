@@ -1,0 +1,13 @@
+= Version 0.0.1 =
+
+== Features ==
+  * MAP Inference using Cutting Plane Inference and two possible base solvers
+    * Integer Linear Programming using lp_solve
+    * MaxWalkSAT
+  * Online Learning with three possible update rules:
+    * MIRA
+    * Perceptron
+    * Passive-Aggressive
+  * Interactive shell to inspect data and model
+
+

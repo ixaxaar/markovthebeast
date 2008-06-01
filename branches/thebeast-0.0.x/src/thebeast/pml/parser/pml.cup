@@ -1,0 +1,519 @@
+package thebeast.pml.parser;
+
+import java.util.LinkedList;
+import java.util.List;
+import java_cup.runtime.*;
+import thebeast.pml.*;
+import thebeast.pml.formula.*;
+import thebeast.pml.term.*;
+
+parser code {:
+
+  public void syntax_error(Symbol cur_token){
+    throw new PMLParseException("Syntax error", cur_token);
+  }
+:}
+
+terminal TYPE,PREDICATE, WEIGHT, X, IF, FOR, ADD, UNDERSCORE, INSPECT, ATOMS, GOLD, CORPUS, FROM, PRINT;
+terminal SOLVE, LEARN, TYPES, TO, ELLIPSIS, JUMP, FACTOR, ACYCLIC, SCORES, GREEDY, WEIGHTS;
+terminal COLLECT, ARG, SEQ, EPOCHS, SET, CLEAR, BINS, LOAD, SAVE, TEST, INDEX, GLOBAL, ESCAPEQUOTE;
+terminal String LOWERCASEID, UPPERCASEID;
+terminal INF, INCLUDE, DOUBLETYPE,INTTYPE, HIDDEN, OBSERVED, AUXILIARY;
+terminal DOUBLESEMI, SEMI, UMINUS, UAND, COMMA, ASSIGN, DOUBLEDOT, COLON, DOT;
+terminal PLUS, MINUS, TIMES;
+terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER, GEQ, GEQCLOSURE, LEQ;
+terminal EXCL;
+terminal TILDE, HASH, AT;
+terminal EQUIVALENCE, AND, IMPLIES, DOUBLEAND, DOUBLEBAR;
+terminal LPAREN, RPAREN, LSQPAREN, RSQPAREN, LCLPAREN, RCLPAREN, LCLPARENSTAR, RCLPARENSTAR;
+terminal LCLPARENPLUS, RCLPARENPLUS, LCLPARENEXCL, RCLPARENEXCL;
+terminal BAR,ARROW,CURLYARROW;
+terminal FUNCTION,LET,WHEN,ASSERT,IN,OF,LAMBDA,DOLLAR;
+terminal TRUE,FALSE;
+terminal UNDEFINED;
+terminal INVERT;
+terminal PUT,MAP,WITH;
+terminal WHILE,DO;
+terminal NULL, GROUND;
+terminal Integer NUMBER;
+terminal Double DOUBLE;
+terminal String IDENT,STRING,JAVAID,PARAMETER,FILENAME;
+
+non terminal LinkedList<ParserStatement> begin;
+non terminal LinkedList<ParserStatement> program;
+non terminal LinkedList<ParserConstant> constantlist;
+non terminal LinkedList<ParserNamedConstant> namedconstantlist;
+non terminal LinkedList<ParserTerm> arguments;
+non terminal LinkedList<ParserTyping> quantification;
+non terminal LinkedList<Boolean> markers;
+non terminal ParserTyping typing;
+non terminal ParserName name;
+non terminal LinkedList<String> argtypes, lowercasecommalist;
+non terminal ParserTerm constant,term,termInBrackets;
+non terminal ParserNamedConstant namedconstant;
+non terminal ParserFormula atom, formula;
+non terminal LinkedList<ParserFormula> conjunction;
+non terminal ParserFactorFormula factor;
+non terminal ParserIntConstant intconstant;
+non terminal ParserStatement statement;
+non terminal ParserCreateType createType;
+non terminal ParserFunctionApplication app;
+non terminal ParserCreatePredicate createPredicate;
+non terminal ParserCreateWeightFunction createWeightFunction;
+non terminal Object object;
+non terminal List<Object> tuple;
+non terminal String factorName,filename;
+non terminal ParserFactorSpec spec;
+non terminal Integer integer;
+
+precedence nonassoc ACYCLIC;
+precedence nonassoc FOR, ADD, IF, LSQPAREN, RSQPAREN;
+precedence left COMMA;
+precedence left X;
+precedence nonassoc LPAREN,RPAREN,UNDERSCORE;
+precedence left IMPLIES;
+precedence left AND;
+precedence nonassoc EXCL;
+precedence left PLUS, MINUS;
+precedence left TIMES;
+
+start with begin;
+
+begin ::= program:p SEMI
+          {: RESULT = p; :}
+        |
+          {: RESULT = new LinkedList<ParserStatement>(); :}
+          ;
+
+program ::= program:program SEMI statement:stmt
+            {: program.add(stmt);
+               RESULT = program; :}
+          | statement:stmt
+            {: LinkedList<ParserStatement> statements = new LinkedList<ParserStatement>();
+               statements.add(stmt);
+               RESULT = statements; :};
+
+statement ::= createType:s
+              {: RESULT = s; :}
+            | createPredicate:s
+              {: RESULT = s; :}
+            | createWeightFunction:s
+              {: RESULT = s; :}
+            | factor:f
+              {: RESULT = f; :}
+            | INDEX COLON LOWERCASEID:pred LPAREN markers:m RPAREN
+              {: RESULT = new ParserCreateIndex(pred,m); :}
+            | INCLUDE filename:s
+              {: RESULT = new ParserImport(s.substring(1,s.length()-1)); :}
+            | HIDDEN COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.HIDDEN,a); :}
+            | AUXILIARY COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.AUXILIARY,a); :}
+            | GLOBAL COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.GLOBAL,a); :}
+            | OBSERVED COLON lowercasecommalist:a
+              {: RESULT = new ParserAddPredicateToModel(ParserAddPredicateToModel.Type.OBSERVED,a); :}
+            | INSPECT LOWERCASEID:id
+              {: RESULT = new ParserInspect(id, false); :}
+            | INSPECT UPPERCASEID:id
+              {: RESULT = new ParserInspect(id, true); :}
+            | PRINT name:n
+              {: RESULT = new ParserPrint(n); :}
+            | ATOMS FROM STRING:s
+              {: RESULT = new ParserLoad(null, null, s.substring(1,s.length()-1)); :}
+            | SCORES FROM STRING:s
+              {: RESULT = new ParserLoadScores(s.substring(1,s.length()-1)); :}
+            | WEIGHTS FROM STRING:s
+              {: RESULT = new ParserLoadWeights(s.substring(1,s.length()-1)); :}
+            | LOAD name:n FROM filename:s
+              {: RESULT = new ParserLoad(n, null, s.substring(1,s.length()-1)); :}
+            | LOAD name:n FROM LOWERCASEID:m filename:s
+              {: RESULT = new ParserLoad(n, m, s.substring(1,s.length()-1)); :}
+            | LOAD CORPUS FROM filename:s
+              {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1)); :}
+            | LOAD CORPUS FROM STRING:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
+              {: RESULT = new ParserLoadCorpus(null, s.substring(1,s.length()-1), 
+                                               Integer.valueOf(f), Integer.valueOf(t)); :}
+            | LOAD CORPUS FROM LOWERCASEID:f filename:s
+              {: RESULT = new ParserLoadCorpus(f, s.substring(1,s.length()-1)); :}
+            | LOAD CORPUS FROM LOWERCASEID:factory filename:s LPAREN NUMBER:f MINUS NUMBER:t RPAREN
+              {: RESULT = new ParserLoadCorpus(factory, s.substring(1,s.length()-1), 
+                                               Integer.valueOf(f), Integer.valueOf(t)); :}
+            | TEST TO LOWERCASEID:f filename:s
+              {: RESULT = new ParserTest(f, s.substring(1,s.length()-1)); :}
+            | TEST TO filename:s
+              {: RESULT = new ParserTest(null, s.substring(1,s.length()-1)); :}
+            | TEST TO LOWERCASEID:f
+              {: RESULT = new ParserTest(f, null); :}
+            | SAVE name:n TO LOWERCASEID:f STRING:s
+              {: RESULT = new ParserSave(n, f, s.substring(1,s.length()-1)); :}
+            | SAVE CORPUS TO LOWERCASEID:f STRING:s
+              {: RESULT = new ParserSaveCorpus(f, s.substring(1,s.length()-1)); :}
+            | SAVE CORPUS TO LOWERCASEID:f
+              {: RESULT = new ParserSaveCorpus(f, null); :}
+            | SAVE CORPUS LPAREN NUMBER:f MINUS NUMBER:t RPAREN TO LOWERCASEID:factory STRING:s
+              {: RESULT = new ParserSaveCorpus(factory, s.substring(1,s.length()-1),Integer.valueOf(f), Integer.valueOf(t)); :}
+            | SAVE CORPUS LPAREN NUMBER:f MINUS NUMBER:t RPAREN TO LOWERCASEID:factory
+              {: RESULT = new ParserSaveCorpus(factory, null,Integer.valueOf(f), Integer.valueOf(t)); :}
+            | TYPES FROM LOWERCASEID:g STRING:s
+              {: RESULT = new ParserGenerateTypes(g, s.substring(1,s.length()-1)); :}
+            | TYPES TO STRING:s
+              {: RESULT = new ParserSaveTypes(s.substring(1,s.length()-1)); :}
+            | ATOMS LOWERCASEID:id FROM STRING:s
+              {: RESULT = new ParserLoad(null,null, s.substring(1,s.length()-1)); :}
+            | SOLVE NUMBER:n
+              {: RESULT = new ParserSolve(Integer.valueOf(n)); :}
+            | SOLVE
+              {: RESULT = new ParserSolve(-1); :}
+            | GREEDY
+              {: RESULT = new ParserGreedy(); :}
+            | COLLECT
+              {: RESULT = new ParserCollect(); :}
+            | LEARN 
+              {: RESULT = new ParserLearn(-1,-1); :}
+            | LEARN FOR NUMBER:n EPOCHS
+              {: RESULT = new ParserLearn(-1,Integer.valueOf(n)); :}
+            | LEARN NUMBER:i FOR NUMBER:e EPOCHS
+              {: RESULT = new ParserLearn(Integer.valueOf(i),Integer.valueOf(e)); :}
+            | LEARN NUMBER:i
+              {: RESULT = new ParserLearn(Integer.valueOf(i),-1); :}
+            | JUMP NUMBER:n
+              {: RESULT = new ParserShift(Integer.valueOf(n)); :}
+            | JUMP MINUS NUMBER:n
+              {: RESULT = new ParserShift(-Integer.valueOf(n)); :}
+            | JUMP
+              {: RESULT = new ParserShift(1); :}
+            | SET name:p ASSIGN object:o
+              {: RESULT = new ParserSet(p, o); :}
+            | CLEAR ATOMS
+              {: RESULT = new ParserClear("atoms"); :}
+            | CLEAR SCORES
+              {: RESULT = new ParserClear("scores"); :}
+              ;
+
+createType ::= TYPE UPPERCASEID:id COLON namedconstantlist:l
+               {: RESULT = new ParserCreateType(id,false,l); :}
+             | TYPE UPPERCASEID:id COLON ELLIPSIS namedconstantlist:l
+               {: RESULT = new ParserCreateType(id,true,l); :}
+             | TYPE UPPERCASEID:id COLON ELLIPSIS
+               {: RESULT = new ParserCreateType(id,true,new LinkedList<ParserNamedConstant>()); :}
+               ;
+
+createPredicate ::= PREDICATE LOWERCASEID:id COLON argtypes:l
+                    {: RESULT = new ParserCreatePredicate(id,l,-1); :}
+                  | PREDICATE LOWERCASEID:id COLON argtypes:l LPAREN SEQ COLON NUMBER:seq RPAREN
+                    {: RESULT = new ParserCreatePredicate(id,l,Integer.valueOf(seq)); :}
+                    ;
+
+
+createWeightFunction ::= WEIGHT LOWERCASEID:id COLON argtypes:l ARROW UPPERCASEID:r
+               {: RESULT = new ParserCreateWeightFunction(id,l,r); :}
+             | WEIGHT LOWERCASEID:id COLON UPPERCASEID:r
+               {: RESULT = new ParserCreateWeightFunction(id,new LinkedList<String>(),r); :}
+               ;
+
+createWeightFunction ::= WEIGHT LOWERCASEID:id COLON argtypes:l ARROW UPPERCASEID:r PLUS
+               {: RESULT = new ParserCreateWeightFunction(id,l,r+"+"); :}
+             | WEIGHT LOWERCASEID:id COLON UPPERCASEID:r PLUS
+               {: RESULT = new ParserCreateWeightFunction(id,new LinkedList<String>(),r + "+"); :}
+
+               ;
+               
+createWeightFunction ::= WEIGHT LOWERCASEID:id COLON argtypes:l ARROW UPPERCASEID:r MINUS
+               {: RESULT = new ParserCreateWeightFunction(id,l,r+"-"); :}
+             | WEIGHT LOWERCASEID:id COLON UPPERCASEID:r MINUS
+               {: RESULT = new ParserCreateWeightFunction(id,new LinkedList<String>(),r + "-"); :}
+               ;
+
+
+namedconstantlist ::=
+    namedconstantlist:l COMMA namedconstant:c 
+    {: l.add(c);
+       RESULT = l ; :}
+  | namedconstant:c
+    {: LinkedList<ParserNamedConstant> l = new LinkedList<ParserNamedConstant>();
+       l.add(c);
+       RESULT = l; :};
+
+argtypes ::=
+    argtypes:l X UPPERCASEID:c 
+    {: l.add(c);
+       RESULT = l ; :}
+  | UPPERCASEID:c
+    {: LinkedList<String> l = new LinkedList<String>();
+       l.add(c);
+       RESULT = l; :};
+
+tuple ::=
+    tuple:l COMMA object:o
+    {: l.add(o);
+       RESULT = l ; :}
+  | object:o
+    {: LinkedList<Object> l = new LinkedList<Object>();
+       l.add(o);
+       RESULT = l; :}
+  ;
+
+object ::=
+    NUMBER:n
+    {: RESULT = new Integer(n); :}
+  | MINUS NUMBER:n
+    {: RESULT = new Integer(-1 * n); :}
+  | DOUBLE:d
+    {: RESULT = d; :}
+  | MINUS DOUBLE:d
+    {: RESULT = -1 * d; :}
+  | STRING:s
+    {: RESULT = s.substring(1,s.length()-1); :}
+  | LPAREN tuple:t RPAREN
+    {: RESULT = t; :}
+  | TIMES
+    {: RESULT = null; :}
+  | TRUE
+    {: RESULT = true; :}
+  | FALSE
+    {: RESULT = false; :}
+  | PARAMETER:p
+    {: RESULT = p.substring(1,p.length()-1); :}
+  ;
+
+integer ::=
+    NUMBER:n
+    {: RESULT = new Integer(n); :}
+  | MINUS NUMBER:n
+    {: RESULT = new Integer(-1 * n); :}
+  ;  
+
+
+markers ::=
+    markers:l COMMA TIMES
+    {: l.add(true);
+       RESULT = l ; :}
+  | markers:l COMMA UNDERSCORE
+    {: l.add(false);
+       RESULT = l ; :}
+  | TIMES
+    {: LinkedList<Boolean> l = new LinkedList<Boolean>();
+       l.add(true);
+       RESULT = l; :}
+  | UNDERSCORE
+    {: LinkedList<Boolean> l = new LinkedList<Boolean>();
+       l.add(false);
+       RESULT = l; :}
+
+
+       ;
+
+
+name ::=
+    LOWERCASEID:n
+    {: RESULT = new ParserName(n,null); :}
+  | LOWERCASEID:n LPAREN tuple:t RPAREN
+    {: RESULT = new ParserName(n,null,t); :}
+  | LOWERCASEID:n DOT name:t
+    {: RESULT = new ParserName(n,t); :}
+  | ATOMS
+    {: RESULT = new ParserName("atoms",null); :}
+  | ATOMS DOT name:t
+    {: RESULT = new ParserName("atoms",t); :}
+  | WEIGHTS
+    {: RESULT = new ParserName("weights",null); :}
+  | WEIGHTS DOT name:t
+    {: RESULT = new ParserName("weights",t); :}
+  | GLOBAL
+    {: RESULT = new ParserName("global",null); :}
+  | GLOBAL DOT name:t
+    {: RESULT = new ParserName("global",t); :}
+  | SCORES
+    {: RESULT = new ParserName("scores",null); :}
+  | SCORES DOT name:t
+    {: RESULT = new ParserName("scores",t); :}
+    ;
+
+lowercasecommalist ::=
+    lowercasecommalist:l COMMA LOWERCASEID:c
+    {: l.add(c);
+       RESULT = l ; :}
+  | LOWERCASEID:c
+    {: LinkedList<String> l = new LinkedList<String>();
+       l.add(c);
+       RESULT = l; :};
+
+
+typing ::=
+    UPPERCASEID:type LOWERCASEID:var
+    {: RESULT = new ParserTyping(type,var); :}
+    ;
+
+quantification ::=
+    quantification:l COMMA typing:c
+    {: l.add(c);
+       RESULT = l ; :}
+  | typing:c
+    {: LinkedList<ParserTyping> l = new LinkedList<ParserTyping>();
+       l.add(c);
+       RESULT = l; :}; 
+
+factor ::=
+  | spec:s FOR quantification:q IF formula:c ADD LSQPAREN formula:f RSQPAREN TIMES termInBrackets:w
+    {: RESULT = new ParserFactorFormula(s, q,c,f,w); :}
+  | spec:s FOR quantification:q ADD LSQPAREN formula:f RSQPAREN TIMES termInBrackets:w
+    {: RESULT = new ParserFactorFormula(s, q,null,f,w); :}
+  | spec:s FOR quantification:q IF formula:c COLON formula:f
+    {: RESULT = new ParserFactorFormula(s, q,c,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | spec:s FOR quantification:q COLON formula:f
+    {: RESULT = new ParserFactorFormula(s, q,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+  | spec:s formula:f
+    {: RESULT = new ParserFactorFormula(s, null,null,f,new ParserDoubleConstant(Double.POSITIVE_INFINITY)); :}
+    ;
+
+spec ::=
+    FACTOR COLON
+    {: RESULT = new ParserFactorSpec(null, 0, false); :}
+  | FACTOR LOWERCASEID:name COLON
+    {: RESULT = new ParserFactorSpec(name, 0, false); :}
+  | FACTOR LSQPAREN GROUND RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(null, 0, true); :}
+  | FACTOR LOWERCASEID:name LSQPAREN GROUND RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(name, 0, true); :}
+  | FACTOR LSQPAREN integer:i RSQPAREN COLON
+    {: RESULT = new ParserFactorSpec(null, i, false); :}
+
+    ;
+
+
+
+formula ::=
+    LOWERCASEID:name LPAREN arguments:args RPAREN
+    {: RESULT = new ParserAtom(name,args); :}
+  | formula:l AND formula:r
+    {: RESULT = new ParserConjunction(l,r); :}
+  | formula:l IMPLIES formula:r
+    {: RESULT = new ParserImplies(l,r); :}
+  | BAR quantification:q COLON formula:f BAR LEQ term:ub
+    {: RESULT = new ParserCardinalityConstraint(new ParserIntConstant(Integer.MIN_VALUE),q,f,ub); :}
+  | BAR quantification:q COLON formula:f BAR GEQ term:lb
+    {: RESULT = new ParserCardinalityConstraint(lb, q, f, new ParserIntConstant(Integer.MAX_VALUE)); :}
+  | BAR quantification:q COLON formula:f BAR GEQCLOSURE term:lb
+    {: RESULT = new ParserCardinalityConstraint(lb, q, f, new ParserIntConstant(Integer.MAX_VALUE), true); :}
+  | LOWERCASEID:pred ACYCLIC
+    {: RESULT = new ParserAcyclicityConstraint(pred); :}
+  | LOWERCASEID:pred ACYCLIC LPAREN markers:m RPAREN 
+    {: RESULT = new ParserAcyclicityConstraint(pred,m); :}
+  | term:lhs LESSTHAN term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.LT, lhs, rhs); :}
+  | term:lhs GREATER term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.GT, lhs, rhs); :}
+  | term:lhs LEQ term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.LEQ, lhs, rhs); :}
+  | term:lhs GEQ term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.GEQ, lhs, rhs); :}
+  | term:lhs NOTEQUALS term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.NEQ, lhs, rhs); :}
+  | term:lhs EQUALS term:rhs
+    {: RESULT = new ParserComparison(ParserComparison.Type.EQ, lhs, rhs); :}
+  | UNDEFINED LPAREN app:a RPAREN
+    {: RESULT = new ParserUndefinedWeight(a); :}
+  | EXCL formula:f
+    {: RESULT = new ParserNot(f); :}
+  | LPAREN formula:f RPAREN
+    {: RESULT = f; :}  
+    ;
+
+conjunction ::=
+    conjunction:l AND formula:c
+    {: l.add(c);
+       RESULT = l ; :}
+  | formula:c
+    {: LinkedList<ParserFormula> l = new LinkedList<ParserFormula>();
+       l.add(c);
+       RESULT = l; :};
+
+arguments ::=
+    arguments:l COMMA term:c
+    {: l.add(c);
+       RESULT = l ; :}
+  | term:c
+    {: LinkedList<ParserTerm> l = new LinkedList<ParserTerm>();
+       l.add(c);
+       RESULT = l; :};
+
+term ::=
+    constant:c
+    {: RESULT = c; :}
+  | term:l PLUS term:r
+    {: RESULT = new ParserAdd(l,r); :}
+  | term:l MINUS term:r
+    {: RESULT = new ParserMinus(l,r); :}
+  | term:l TIMES term:r
+    {: RESULT = new ParserTimes(l,r); :}
+  | UNDERSCORE
+    {: RESULT = new ParserDontCare(); :}
+  | app:a
+    {: RESULT = a; :}
+  | BINS LPAREN arguments:bins COMMA term:arg RPAREN
+    {: RESULT = new ParserBins(bins, arg); :}
+    ;
+
+termInBrackets ::=
+    constant:c
+    {: RESULT = c; :}
+  | termInBrackets:l PLUS termInBrackets:r
+    {: RESULT = new ParserAdd(l,r); :}
+  | termInBrackets:l MINUS termInBrackets:r
+    {: RESULT = new ParserMinus(l,r); :}
+  | termInBrackets:l TIMES termInBrackets:r
+    {: RESULT = new ParserTimes(l,r); :}
+  | UNDERSCORE
+    {: RESULT = new ParserDontCare(); :}
+  | LOWERCASEID:name LPAREN arguments:args RPAREN
+    {: RESULT = new ParserFunctionApplication(name,args); :}
+  | BINS LPAREN arguments:bins COMMA term:arg RPAREN
+    {: RESULT = new ParserBins(bins, arg); :}
+  | LPAREN termInBrackets:t RPAREN
+    {: RESULT = t; :}
+    ;
+
+
+app ::=
+    LOWERCASEID:name LPAREN arguments:args RPAREN
+    {: RESULT = new ParserFunctionApplication(name,args); :}
+    ;
+    
+constant ::=
+    namedconstant:c
+    {: RESULT = c; :}
+  | LOWERCASEID:v
+    {: RESULT = new ParserVariable(v); :}
+  | NUMBER:c
+    {: RESULT = new ParserIntConstant(Integer.valueOf(c)); :}
+  | TRUE
+    {: RESULT = new ParserBoolConstant(true); :}
+  | FALSE
+    {: RESULT = new ParserBoolConstant(false); :}
+  | MINUS NUMBER:c
+    {: RESULT = new ParserIntConstant(-Integer.valueOf(c)); :}
+  | DOUBLE:c
+    {: RESULT = new ParserDoubleConstant(Double.valueOf(c)); :}
+  | MINUS DOUBLE:c
+    {: RESULT = new ParserDoubleConstant(-Double.valueOf(c)); :}
+  | INF
+    {: RESULT = new ParserDoubleConstant(Double.POSITIVE_INFINITY); :}
+  | MINUS INF
+    {: RESULT = new ParserDoubleConstant(Double.NEGATIVE_INFINITY); :}
+
+    ;
+
+
+namedconstant ::=
+    STRING:s
+    {: RESULT = new ParserNamedConstant(s); :}
+  | UPPERCASEID:s
+    {: RESULT = new ParserNamedConstant(s); :};
+
+filename ::=
+    STRING:s
+    {: RESULT = s; :}
+  | PARAMETER:s
+    {: RESULT = s; :};
+
