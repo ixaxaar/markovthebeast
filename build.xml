@@ -161,6 +161,7 @@
     <include name="README"/>
     <include name="INSTALL"/>
     <include name="LICENSE"/>
+    <include name="CHANGES"/>
     <include name="cup.xml"/>
 
     <!-- release files -->
