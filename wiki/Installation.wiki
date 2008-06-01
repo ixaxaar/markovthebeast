@@ -1,4 +1,5 @@
 #summary How to Install and run TheBeast
+#labels Featured,Phase-Deploy
 
 = Download =
 
