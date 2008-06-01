@@ -1,0 +1,12 @@
+include "mcd-bias.pml";
+include "mcd-unigram.pml";
+include "mcd-bigram.pml";
+//include "mst-between-pos.pml";
+//include "mst-outer-pos.pml";
+//include "mst-outer-cpos.pml";
+//include "mst-inner-pos.pml";
+//include "mst-inner-cpos.pml";
+//include "mst-left-pos.pml";
+//include "mst-left-cpos.pml";
+//include "mst-right-pos.pml";
+//include "mst-right-cpos.pml";
