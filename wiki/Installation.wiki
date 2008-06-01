@@ -32,3 +32,4 @@ $ bin/thebeast <filename>
 }}}
 to execute the script in {{{filename}}}
 
+Find more information in {{{examples/srl/README}}} and {{{doc/manual.pdf}}}
