@@ -210,6 +210,28 @@ Depending on the settings we made before (such as the {{{set collect.all...}}} s
 print weights;
 }}}
 
+This should produce the following screen output
+{{{
+>w_left
+"A0"            0.000000        
+
+>w_pos_p
+"NNP"           "A0"            0.000000        
+"NNP"           "A1"            0.000000        
+"VBZ"           "A0"            0.000000        
+"VBZ"           "A1"            0.000000        
+"P"             "A0"            0.000000        
+"P"             "A1"            0.000000        
+"DT"            "A0"            0.000000        
+"DT"            "A1"            0.000000        
+"NN"            "A0"            0.000000        
+"NN"            "A1"            0.000000        
+
+>w_pos_pa
+"VBZ"           "NNP"           "A0"            0.000000        
+"VBZ"           "NNP"           "A1"            0.000000        
+"VBZ"           "NN"            "A1"            0.000000     
+}}}
 = Estimating Weights = 
 Now we save the corpus we loaded above as training instances to a temporary file  because some preprocessing is done to speed up training. You can also reuse this in later sessions.
 {{{
@@ -331,5 +353,3 @@ Precision           0.400
 F1                  0.444
 }}}
 and a new file {{{system.atoms}}} that contains the predictions of our MLN.
-
-
