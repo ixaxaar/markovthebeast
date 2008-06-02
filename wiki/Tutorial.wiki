@@ -99,10 +99,10 @@ Finally we add
 {{{
 include "srl-global.pml";
 }}}
-to {{{toy.pml}}}
+to {{{srl.pml}}}. This concludes our model of the SRL task in {{{srl.pml}}} 
 
 = Adding Training Data ==
-Now we will add some training data. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
+Now we will add some training data in order to train the weights of our MLN. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
 {{{
 >>
 >word
@@ -141,4 +141,3 @@ Now we will add some training data. In Markov Logic data is defined in terms of 
 4 "P"
 }}}
 
-and a slightly different set of atoms into {{{test.atoms}}}.
