@@ -5,7 +5,7 @@
 
 This page will give a brief tutorial that covers some of thebeast's features. As task we look at a vanilla version of Semantic Role Labelling (SRL): finding out which are arguments of a verb and what roles do they play. For example, in
 
- Haag plays Elianti
+ Haag,,A0,, plays Elianti,,A1,,
 
 Haag is the agent ("A0") and Elianti the patient ("A1") of the verb "play". 
 
