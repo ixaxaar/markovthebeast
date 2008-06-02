@@ -47,7 +47,21 @@ predicate role: Int x Int x Role;
 predicate unique: Role;
 }}} 
 
+= Defining Formulae =
+We are now ready to define some MLN formulae that describes our intuition of Semantic Role Labelling. 
 
+== Global Formulae ==
+The main aim of languages such as Markov Logic is to allow in incorporation of global correlations between 
+decisions that go beyond the linear dependencies of linear-chain CRFs etc. In this tutorial we will use two of such correlations and save them in {{{srl-global.pml}}}.
+{{{
+// this formula ensures that an argument cannot be have more than one role wrt to
+// one predicate.
+factor: for Int p, Int a if word(p,_) & word(a,_) : |Role r: role(p,a,r)| <=1;
+
+// this formula ensures that an SRL predicate cannot have more than one argument with
+// a unique role, such as "A0"
+factor: for Int p, Role r if word(p,_) & unique(r) : |Int a: word(a,_) & role(p,a,r)| <=1;
+}}}
 
 = Adding Data ==
 Now we will add some training data. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
