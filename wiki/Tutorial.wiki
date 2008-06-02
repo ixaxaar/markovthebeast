@@ -1,4 +1,4 @@
-#summary One-sentence Tutorial using Semantic Role Labelling
+#summary Tutorial using Semantic Role Labelling
 
 = Introduction =
 
@@ -140,4 +140,3 @@ Now we will add some training data in order to train the weights of our MLN. In 
 3 "NN"
 4 "P"
 }}}
-
