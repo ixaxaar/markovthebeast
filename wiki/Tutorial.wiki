@@ -24,10 +24,45 @@ Note that Instead of explicitely defining the constants we use the "..." notatio
 type Role: "A0","A1";
 }}}
 
+= Adding Data ==
+Now we will add some training data. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
+{{{
+>>
+>word
+0 "Haag"
+1 "plays"
+2 "Elianti"
+3 "."
 
-= Details =
+>role
+1 0 "A0"
+1 2 "A1"
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+>pos
+0 "NNP"
+1 "VBZ"
+2 "NNP"
+3 "P"
+
+>>
+>word
+0 "He"
+1 "plays"
+2 "the"
+3 "fool"
+4 "."
+
+>role
+1 0 "A0"
+1 3 "A1"
+
+>pos
+0 "NNP"
+1 "VBZ"
+2 "DT"
+3 "NN"
+4 "P"
+}}}
+
+and a slightly different set of atoms into {{{test.atoms}}}.
+
