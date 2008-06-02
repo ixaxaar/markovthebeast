@@ -1,8 +1,28 @@
-#summary One-sentence summary of this page.
+#summary One-sentence Tutorial using Semantic Role Labelling
 
 = Introduction =
 
-Add your content here.
+This page will give a brief tutorial that covers some of thebeast's features. As task we look at a vanilla version of Semantic Role Labelling (SRL): finding out which are arguments of a verb and what roles do they play. For example, in
+
+ Haag plays Elianti
+
+Haag is the agent ("A0") and Elianti the patient ("A1") of the verb "play". 
+
+The MLN we describe here can be found in {{{examples/srl/toy.pml}}}. 
+
+= Defining Types =
+First we define the types of constants that will appear in our world. We will save these definitions in an external file {{{srl-types.pml}}} (this is not mandatory, they could also be in {{{toy.pml}}}.
+{{{
+type Word: ...;
+type Pos: ...;
+type Role: ...;
+}}}
+Here {{{Word}}} is a set of words, {{{Pos}}} a set of Part Of Speech tags and {{{Role}}} the set of possible roles arguments can have. 
+
+Note that Instead of explicitely defining the constants we use the "..." notation to indicate that constants should be added when seen in the data. We could also write 
+{{{
+type Role: "A0","A1";
+}}}
 
 
 = Details =
