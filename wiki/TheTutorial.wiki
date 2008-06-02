@@ -1,4 +1,5 @@
 #summary A thebeast tutorial based on semantic tagging
+#labels Deprecated
 = Introduction =
 
 This is a thebeast tutorial. We use a semantic tagger as example application. The task is to label words with semantic slots. For example we want to get a tagging such as
