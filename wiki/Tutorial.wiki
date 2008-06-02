@@ -247,6 +247,28 @@ Let us print out the weights again:
 {{{
 print weights;
 }}}
+Now we should see 
+{{{
+>w_left
+"A0"            0.829904        
+
+>w_pos_p
+"NNP"           "A0"            -1.138654       
+"NNP"           "A1"            0.000000        
+"VBZ"           "A0"            0.400000        
+"VBZ"           "A1"            0.400000        
+"P"             "A0"            -1.965481       
+"P"             "A1"            0.000000        
+"DT"            "A0"            -1.965481       
+"DT"            "A1"            0.000000        
+"NN"            "A0"            -1.965481       
+"NN"            "A1"            0.000000        
+
+>w_pos_pa
+"VBZ"           "NNP"           "A0"            0.400000        
+"VBZ"           "NNP"           "A1"            0.400000        
+"VBZ"           "NN"            "A1"            0.453077        
+}}}
 
 = Loading the test data =
 Now we add some test data to see how our model is doing. We create a file called {{{test.atoms}}} and write
