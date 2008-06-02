@@ -99,7 +99,17 @@ Finally we add
 {{{
 include "srl-global.pml";
 }}}
-to {{{srl.pml}}}. This concludes our model of the SRL task in {{{srl.pml}}} 
+to {{{srl.pml}}}. 
+
+= Defining Hidden, Observed and Global Predicates =
+Now we specify which information has to be inferred (hidden), which is given but different for every possible world (observed) and which is static and holds for all possible worlds (global). 
+{{{
+observed: word,pos;
+hidden: role;
+global: unique;
+}}}
+
+This concludes our model of the SRL task in {{{srl.pml}}} 
 
 = Adding Training Data ==
 Now we will add some training data in order to train the weights of our MLN. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
