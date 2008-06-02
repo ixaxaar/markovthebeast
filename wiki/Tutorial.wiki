@@ -309,3 +309,27 @@ Finally let us write out the results our model produces for the test data.
    some statistics. */
 test to "system.atoms";
 }}}
+
+This should give you screen output like
+{{{
+Processed:     2
+Time:          44.0ms
+Avg. time:     22.0ms
+Memory use:    6.1mb
+Loss           0.500
+Iterations     2.000
+Global
+-------------------------
+Recall              0.500
+Precision           0.400
+F1                  0.444
+Correct             0.500
+role
+-------------------------
+Recall              0.500
+Precision           0.400
+F1                  0.444
+}}}
+and a new file {{{system.atoms}}} that contains the predictions of our MLN.
+
+
