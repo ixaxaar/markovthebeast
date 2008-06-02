@@ -15,7 +15,7 @@ While {{{toy.pml}}} helps to get a rough overview, it does reflect the normal Ma
 usually we would train a model and then run tests with the same model on several datasets. However,
 with toy.pml we would need to train again everytime we want to test our model on a new test corpus.
 
-Thus this directory also contains three more files: init.pml, train.pml and test.pml.
+Thus this directory also contains three more files: {{{init.pml}}}, {{{train.pml}}} and {{{test.pml}}}.
 Calling them in this order will first do some data preprocessing, then training and  finally testing.
 This setup allows to do test the same model on different test tests. Moreover, unless the formulae
 of the MLN have been changed the init.pml file does not need to be executed when we train
