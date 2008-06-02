@@ -232,6 +232,8 @@ This should produce the following screen output
 "VBZ"           "NNP"           "A1"            0.000000        
 "VBZ"           "NN"            "A1"            0.000000     
 }}}
+Notice that for {{{w_pos_p}}} all possible argument combinations have weights before we set {{{set collector.all.w_pos_p=true}}} before. For the other weights we only see those argument tuples that exist in the training corpus.
+
 = Estimating Weights = 
 Now we save the corpus we loaded above as training instances to a temporary file  because some preprocessing is done to speed up training. You can also reuse this in later sessions.
 {{{
