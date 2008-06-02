@@ -45,16 +45,6 @@ predicate role: Int x Int x Role;
 
 // the unique predicate denotes roles which cannot appear more than once (like "A0")
 predicate unique: Role;
-
-/* Loading the MLN formulae (local and global ones) */
-include "srl-global.pml";
-include "srl-local.pml";
-
-/* Defining which predicates are hidden, observed and global. Do not forget this! */
-observed: word,pos;
-hidden: role;
-global: unique;
-
 }}} 
 
 
@@ -100,4 +90,3 @@ Now we will add some training data. In Markov Logic data is defined in terms of 
 }}}
 
 and a slightly different set of atoms into {{{test.atoms}}}.
-
