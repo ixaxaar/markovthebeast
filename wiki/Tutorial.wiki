@@ -111,6 +111,22 @@ global: unique;
 
 This concludes our model of the SRL task in {{{srl.pml}}} 
 
+= Defining Global Static Data =
+Which arguments roles have to be unique with respect to one verb is information that is static for all worlds. Thus we defined {{{unique}}} as a global predicate. In order to specify which roles are supposed to be unique we create a file {{{global.atoms}}} with 
+{{{
+>unique
+"A0"
+"A1"
+}}}
+Note that we don't need {{{>>}}} lines because there is only one world we need to specify.
+
+We load this data by calling 
+{{{
+load global from "global.atoms";
+}}}
+in {{{toy.pml}}}
+
+
 = Adding Training Data ==
 Now we will add some training data in order to train the weights of our MLN. In Markov Logic data is defined in terms of possible worlds: collections of ground atoms. We write a set of possible worlds into a {{{train.atoms}}} file:
 {{{
@@ -150,3 +166,27 @@ Now we will add some training data in order to train the weights of our MLN. In 
 3 "NN"
 4 "P"
 }}}
+
+We load this data by calling 
+{{{
+load corpus from "train.atoms";
+}}}
+in {{{toy.pml}}}
+
+= Instantiating Formulae =
+Different weights are assigned to different groundings of our formulae. For example in the second local formulae we use different weights for different combinations of POS tags of the verb and argument and the role given to the argument. Before we learn this weights we would like to define which of these weights are allowed to be nonzero. For example, it is common to only use features that have been seen in training data at least once (or {{{k}}} times).  
+
+To define which weights are allowed to be nonzero we collect all active features from the training set and count them using
+{{{
+collect;
+}}}
+
+Depending on the settings we made before (such as the {{{set collect.all...}}} statement in {{{srl-local.pml}}} we now get a set of weights which are allowed to be nonzero. We can print them out by calling
+{{{
+print weights;
+}}}
+
+
+
+
+
