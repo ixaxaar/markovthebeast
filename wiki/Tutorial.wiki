@@ -32,7 +32,7 @@ or by running thebeast in interactive mode and typing in the statements presente
 $ thebeast
 }}}
 
-All assuming that you $cd$ into {{{examples/srl}}} before and that {{{thebeast/bin}}} is in your $PATH$.
+All assuming that you {{{cd}}} into {{{examples/srl}}} before and that {{{thebeast/bin}}} is in your $PATH$.
  
 = Defining Types =
 First we define the types of constants that will appear in our world. We will save these definitions in an external file {{{srl-types.pml}}} (this is not mandatory, they could also be in {{{toy.pml}}}.
