@@ -173,7 +173,7 @@ load corpus from "train.atoms";
 }}}
 in {{{toy.pml}}}
 
-= Instantiating Formulae =
+= Instantiating Weights  =
 Different weights are assigned to different groundings of our formulae. For example in the second local formulae we use different weights for different combinations of POS tags of the verb and argument and the role given to the argument. Before we learn this weights we would like to define which of these weights are allowed to be nonzero. For example, it is common to only use features that have been seen in training data at least once (or {{{k}}} times).  
 
 To define which weights are allowed to be nonzero we collect all active features from the training set and count them using
@@ -186,7 +186,104 @@ Depending on the settings we made before (such as the {{{set collect.all...}}} s
 print weights;
 }}}
 
+= Estimating Weights = 
+Now we save the corpus we loaded above as training instances to a temporary file  because some preprocessing is done to speed up training. You can also reuse this in later sessions.
+{{{
+save corpus to instances "srl.instances";
+}}}
+We are finally ready to estimate the weights by online learning using
+{{{
+learn for 10 epochs;
+}}}
+By default this uses 1-best MIRA using the number of false hidden ground atoms as Loss function. Other options are possible.
 
+Let us print out the weights again:
+{{{
+print weights;
+}}}
 
+= Loading the test data =
+Now we add some test data to see how our model is doing. We create a file called {{{test.atoms}}} and write
+{{{
+>>
+>word
+0 "Haag"
+1 "sings"
+2 "a"
+3 "shanty"
+4 "."
+
+>role
+1 0 "A0"
+1 3 "A1"
+
+>pos
+0 "NNP"
+1 "VBZ"
+2 "DT"
+3 "NN"
+4 "P"
+
+>>
+>word
+0 "Elianti"
+1 "was"
+2 "played"
+3 "by"
+4 "Haag"
+5 "."
+
+>role
+2 0 "A1"
+2 4 "A0"
+
+>pos
+0 "NNP"
+1 "VBD"
+2 "VBN"
+3 "IN"
+4 "NNP"
+5 "P"
+}}}
+
+= Inspecting the model =
+We can use the beast to manually inspect our model to see what is going wrong and where:
+{{{
+/* Load a test corpus */
+load corpus from "test.atoms";
+
+/* Just loading makes the corpus available for
+   the processors within thebeast but not for random
+   access through the shell. This is achieved using ... */
+save corpus to ram;
+
+/* Now we want to manually see how our model does on the
+   test data. */
+
+// go to the next world in the corpus (the first in this case)
+next;
+
+// use the current model (the one we trained) and find the most likely world
+solve;
+
+// print the resulting labels to the screen
+print atoms.role;
+
+// compare the results to the gold labels
+print eval;
+
+// do the same thing for the next world
+next; solve; print atoms.role; print eval;
+}}} 
+
+= Testing the model =
+Finally let us write out the results our model produces for the test data.
+
+{{{
+/* Now we want to apply our MLN to all worlds in the test corpus
+   and write out the result. Note that this will also print out
+   some statistics. */
+test to "system.atoms";
+}}}
 
 
