@@ -1,4 +1,5 @@
 #summary Tutorial using Semantic Role Labelling
+#labels Featured
 
 = Introduction =
 
@@ -10,6 +11,29 @@ Haag is the agent ("A0") and Elianti the patient ("A1") of the verb "play".
 
 The MLN we describe here can be found in {{{examples/srl/toy.pml}}}. 
 
+While {{{toy.pml}}} helps to get a rough overview, it does reflect the normal Machine Learning workflow:
+usually we would train a model and then run tests with the same model on several datasets. However,
+with toy.pml we would need to train again everytime we want to test our model on a new test corpus.
+
+Thus this directory also contains three more files: init.pml, train.pml and test.pml.
+Calling them in this order will first do some data preprocessing, then training and  finally testing.
+This setup allows to do test the same model on different test tests. Moreover, unless the formulae
+of the MLN have been changed the init.pml file does not need to be executed when we train
+on the same data but change some training parameters.
+
+=Starting thebeast=
+
+You can execute the commands in this tutorial by simply calling
+{{{
+$ thebeast toy.pml
+}}}
+or by running thebeast in interactive mode and typing in the statements presented here. For this just start 
+{{{
+$ thebeast
+}}}
+
+All assuming that you $cd$ into {{{examples/srl}}} before and that {{{thebeast/bin}}} is in your $PATH$.
+ 
 = Defining Types =
 First we define the types of constants that will appear in our world. We will save these definitions in an external file {{{srl-types.pml}}} (this is not mandatory, they could also be in {{{toy.pml}}}.
 {{{
@@ -285,5 +309,3 @@ Finally let us write out the results our model produces for the test data.
    some statistics. */
 test to "system.atoms";
 }}}
-
-
