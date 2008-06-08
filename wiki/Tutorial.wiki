@@ -59,6 +59,7 @@ We will the describe a sentence and possible role labelling using logical predic
 /* Predicate definitions */
 
 // The word predicate maps token indices (Int=Integer) to words: word(t,w) means that token t has word w.
+// Note that when we say "maps" we mean "implicitly maps" -- a predicate itself only maps to boolean values.
 predicate word: Int x Word;
 
 // The pos predicate maps token indices to Part of Speech tags. I.e: pos(t,p) means that token t has tag p.
