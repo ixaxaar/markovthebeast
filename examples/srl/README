@@ -1,0 +1,63 @@
+Introduction:
+-------------
+
+This directory contains a small toy MLN for Semantic Role Labelling. To get going just call
+
+$ thebeast toy.pml
+
+This will train and test on a small toy corpus. Have a look at toy.pml to see what is going on.
+
+While toy.pml helps to get a rough overview, it does reflect the normal Machine Learning workflow:
+usually we would train a model and then run tests with the same model on several datasets. However,
+with toy.pml we would need to train again everytime we want to test our model on a new test corpus.
+
+Thus this directory also contains three more files: init.pml, train.pml and test.pml.
+Calling them in this order will first do some data preprocessing, then training and  finally testing.
+This setup allows to do test the same model on different test tests. Moreover, unless the formulae
+of the MLN have been changed the init.pml file does not need to be executed when we train
+on the same data but change some training parameters.
+
+Expected Behaviour:
+-------------------
+
+If things go well calling toy.pml will produce a lot of screen output. If things go really well
+the final screen will read something like:
+
+Processed:     2
+Time:          44.0ms
+Avg. time:     22.0ms
+Memory use:    6.1mb
+Loss           0.500
+Iterations     2.000
+Global
+-------------------------
+Recall              0.500
+Precision           0.400
+F1                  0.444
+Correct             0.500
+role
+-------------------------
+Recall              0.500
+Precision           0.400
+F1                  0.444
+
+
+Directory Content:
+------------------
+
+srl.pml         the root MLN file for (toy) Semantic Role Labelling
+srl-types.pml   the type definitions
+srl-local.pml   MLN formulae for SRL that only consider one hidden ground atom
+srl-global.pml  MLN formulae for SRL that consider more than one hidden ground atom
+toy.pml         a script that does training, testing and some more.
+init.pml        data preprocessing for training
+train.pml       training weights with online learning
+test.pml        apply trained MLN to test corpus
+train.atoms     training corpus
+test.atoms      test corpus
+README          this file
+
+Note that some of the pml scripts will create some extra files in this directory.
+
+
+
