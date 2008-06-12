@@ -1,7 +1,7 @@
 Introduction:
 -------------
 
-This directory contains a small toy MLN for Semantic Role Labelling. To get going just call
+This directory contains a small toy MLN for the alignment of bilingual sentences. To get going just call
 
 $ thebeast toy.pml
 
@@ -24,38 +24,38 @@ If things go well calling toy.pml will produce a lot of screen output. If things
 the final screen will read something like:
 
 Processed:     2
-Time:          44.0ms
-Avg. time:     22.0ms
-Memory use:    6.1mb
-Loss           0.500
+Time:          137.0ms
+Avg. time:     68.0ms
+Memory use:    5.4mb
+Loss           0.056
 Iterations     2.000
 Global
 -------------------------
-Recall              0.500
-Precision           0.400
-F1                  0.444
+Recall              0.889
+Precision           1.000
+F1                  0.941
 Correct             0.500
-role
+align
 -------------------------
-Recall              0.500
-Precision           0.400
-F1                  0.444
+Recall              0.889
+Precision           1.000
+F1                  0.941
 
 
 Directory Content:
 ------------------
 
-srl.pml         the root MLN file for (toy) Semantic Role Labelling
-srl-types.pml   the type definitions
-srl-local.pml   MLN formulae for SRL that only consider one hidden ground atom
-srl-global.pml  MLN formulae for SRL that consider more than one hidden ground atom
-toy.pml         a script that does training, testing and some more.
-init.pml        data preprocessing for training
-train.pml       training weights with online learning
-test.pml        apply trained MLN to test corpus
-train.atoms     training corpus
-test.atoms      test corpus
-README          this file
+align.pml         the root MLN file for (toy) bilingual alignment
+align-types.pml   the type definitions
+align-local.pml   MLN formulae for align that only consider one hidden ground atom
+align-global.pml  MLN formulae for align that consider more than one hidden ground atom
+toy.pml           a script that does training, testing and some more.
+init.pml          data preprocessing for training
+train.pml         training weights with online learning
+test.pml          apply trained MLN to test corpus
+train.atoms       training corpus
+test.atoms        test corpus
+README            this file
 
 Note that some of the pml scripts will create some extra files in this directory.
 

@@ -2,13 +2,13 @@
 include "types.pml";
 
 /* Load the SRL mln */
-include "srl.pml";
+include "align.pml";
 
 /* Loading the global atoms that hold in every possible world */
 load global from "global.atoms";
 
 /* Load the weights we allowed to be nonzero in the collection step (init.pml) */
-load weights from dump "srl.weights";
+load weights from dump "align.weights";
 
 /* Load a test corpus */
 load corpus from "test.atoms";
