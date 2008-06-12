@@ -1,36 +1,41 @@
 >>
->word
+>src_word
 0 "Haag"
 1 "plays"
 2 "Elianti"
 3 "."
 
->role
-1 0 "A0"
-1 2 "A1"
+>tgt_word
+0 "Haag"
+1 "spielt"
+2 "Elianti"
+3 "."
 
->pos
-0 "NNP"
-1 "VBZ"
-2 "NNP"
-3 "P"
+>align
+0 0
+1 1 
+2 2
+3 3
 
 >>
->word
-0 "He"
+>src_word
+0 "Mark"
 1 "plays"
-2 "the"
-3 "fool"
+2 "a"
+3 "shanty"
 4 "."
 
->role
-1 0 "A0"
-1 3 "A1"
 
->pos
-0 "NNP"
-1 "VBZ"
-2 "DT"
-3 "NN"
-4 "P"
+>tgt_word
+0 "Mark"
+1 "spielt"
+2 "einen"
+3 "Shanty"
+4 "."
 
+>align
+0 0
+1 1
+2 2
+3 3
+4 4

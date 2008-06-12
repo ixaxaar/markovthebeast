@@ -1,8 +1,8 @@
 /* Load the constant types */
-include "srl-types.pml";
+include "align-types.pml";
 
-/* Load the SRL mln */
-include "srl.pml";
+/* Load the align mln */
+include "align.pml";
 
 /* Loading the global atoms that hold in every possible world */
 load global from "global.atoms";
@@ -14,7 +14,7 @@ load corpus from "train.atoms";
 collect;
 
 /* Save these weights (Note that right now they are still all zero) */
-save weights to dump "srl-clean.weights";
+save weights to dump "align-clean.weights";
 
 /* We need to remember the types we created from the training data
    for later */
@@ -24,4 +24,4 @@ types to "types.pml";
    This is mandatory for training the weights. Often this will take some time
    because some preprocessing is done to speed up training later. You can also
    reuse this in later sessions. */
-save corpus to instances "srl.instances";
+save corpus to instances "align.instances";
