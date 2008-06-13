@@ -349,6 +349,11 @@
 markov thebeast
 \family default
  User Manual
+\newline
+
+\family typewriter
+\size small
+Version 0.0.2
 \end_layout
 
 \begin_layout Author
@@ -408,7 +413,13 @@ thebeast
 
 \begin_layout Enumerate
 There are a few subtleties to take in consideration in terms of the order
- in which commands may be executed.
+ in which commands may be executed (see section 
+\begin_inset LatexCommand ref
+reference "sec:Supported-Workflows"
+
+\end_inset
+
+).
  Thus the easiest way for you to define your own model would be to use the
  skeleton code in the example directory.
 \end_layout
@@ -417,7 +428,7 @@ There are a few subtleties to take in consideration in terms of the order
 As is, the code is really hard to extend and maintain for anyone but me,
  at least on some levels, because I put far too much focus on premature
  optimization.
- They will be future versions (wait for the 1.0.0 release line) that change
+ They will be future versions (wait for the 1.x.y release line) that change
  this but might be initially slower.
  
 \end_layout
@@ -445,104 +456,70 @@ key "richardson05markov"
 .
 \end_layout
 
-\begin_layout Section
-Warnings
-\end_layout
-
-\begin_layout Standard
-Here a few things you have to remember:
-\end_layout
-
-\begin_layout Itemize
-When you define formulae with more than one hidden atom (or more accurate,
- with more than one hidden ground atom in its groundings) make sure to give
- its weight the proper sign.
-\end_layout
-
-\begin_layout Section
-Workflows
-\end_layout
-
-\begin_layout Standard
-For training always run commans in the following order
-\end_layout
-
-\begin_layout Enumerate
-define types
-\end_layout
-
-\begin_layout Enumerate
-define predicates
-\end_layout
-
-\begin_layout Enumerate
-define weighted formulae
-\end_layout
-
-\begin_layout Enumerate
-load corpus
-\end_layout
-
-\begin_layout Enumerate
-load global atoms
-\end_layout
-
-\begin_layout Enumerate
-collect features
-\end_layout
-
-\begin_layout Enumerate
-create training instances
-\end_layout
-
-\begin_layout Enumerate
-estimate weights
-\end_layout
-
-\begin_layout Enumerate
-save weights
-\end_layout
-
-\begin_layout Standard
-For testing do the following
-\end_layout
-
-\begin_layout Enumerate
-define types
-\end_layout
-
-\begin_layout Enumerate
-define predicates
-\end_layout
-
-\begin_layout Enumerate
-define weighted formulae
-\end_layout
-
-\begin_layout Enumerate
-load corpus
-\end_layout
-
-\begin_layout Enumerate
-load global atoms
-\end_layout
-
-\begin_layout Enumerate
-load weights
-\end_layout
-
-\begin_layout Enumerate
-test
-\end_layout
-
-\begin_layout Standard
-Proceeding in different order may result in undefined behaviour.
- It might be most convenient to simply start with the example file as template
- for your own project.
-\end_layout
-
 \begin_layout Chapter
 Installation
+\end_layout
+
+\begin_layout Section
+Requirements
+\end_layout
+
+\begin_layout Standard
+In order to compile 
+\family typewriter
+\size small
+thebeast
+\family default
+\size default
+ you will need to have
+\end_layout
+
+\begin_layout Enumerate
+Java SDK 1.5 or higher
+\end_layout
+
+\begin_layout Enumerate
+ant 1.5 (?) or higher (compilation is possible without but slightly more
+ complicated)
+\end_layout
+
+\begin_layout Standard
+In order to run thebeast you will need 
+\end_layout
+
+\begin_layout Enumerate
+Java 5 or higher
+\end_layout
+
+\begin_layout Enumerate
+lp_solve 5.11 (or higher) for your OS.
+ thebeast comes with a version for linux and Mac OS that should work okay
+\end_layout
+
+\begin_layout Standard
+Recommended:
+\end_layout
+
+\begin_layout Enumerate
+ant 1.5
+\end_layout
+
+\begin_layout Enumerate
+bash (to execute the main script)
+\end_layout
+
+\begin_layout Standard
+In most Mac OS and Linux versions this software is installed by default
+ or easy to get.
+ However, for Windows machine a bit more work might be necessary (such as
+ installing cygwin).
+ It is surely possible to run and compile thebeast without the recommended
+ software, albeit less convenient.
+ 
+\end_layout
+
+\begin_layout Section
+Compilation
 \end_layout
 
 \begin_layout Standard
@@ -567,29 +544,36 @@ HOME
 \end_layout
 
 \begin_layout LyX-Code
-$ ant -f thebeast.xml
+$ ant
 \end_layout
 
 \begin_layout Standard
 This compiles the source.
- You can now call thebeast executable by calling
-\end_layout
-
-\begin_layout LyX-Code
-$ $HOME/bin/linux/thebeast
-\end_layout
-
-\begin_layout Standard
-if you are running linux, or 
-\end_layout
-
-\begin_layout LyX-Code
-$ $HOME/bin/mac/thebeast
-\end_layout
-
-\begin_layout Standard
-if you run a mac.
  
+\end_layout
+
+\begin_layout Section
+Starting 
+\family typewriter
+thebeast
+\end_layout
+
+\begin_layout Standard
+You can now call thebeast executable by calling
+\end_layout
+
+\begin_layout LyX-Code
+$ $HOME/bin/thebeast
+\end_layout
+
+\begin_layout Standard
+This is the easiest way to get it running.
+ Alternatively you can execute the corresponding class file directly.
+ For this you should have a look at the 
+\family typewriter
+thebeast
+\family default
+ script to pick the right classpath etc.
 \end_layout
 
 \begin_layout Section
@@ -662,7 +646,7 @@ This leaves you with a prompt like
 \end_layout
 
 \begin_layout LyX-Code
-Markov TheBeast v0.x.y
+markov thebeast v0.x.y
 \end_layout
 
 \begin_layout LyX-Code
@@ -682,7 +666,7 @@ $ thebeast test.pml
 In the following we will give an high level overview of the main components
  and commands of the shell.
  For details on defining models, learning, inference we refer the reader
- to the later chapters.
+ to later chapters.
  
 \end_layout
 
@@ -767,7 +751,7 @@ name "fig:architecture"
 
 \end_inset
 
-A schematic overview of the components and resources within thesh.
+A schematic overview of the components and resources within thebeast
 \end_layout
 
 \end_inset
@@ -938,6 +922,124 @@ set solver.maxIterations = 10;
 
 \begin_layout Standard
 We will give the names and parameters of components in the following chapters.
+\end_layout
+
+\begin_layout Section
+\begin_inset LatexCommand label
+name "sec:Supported-Workflows"
+
+\end_inset
+
+Supported Workflows
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+thebeast
+\family default
+ is somewhat sensitive to the order in which commands are entered or read
+ from file.
+ As for now, no warnings will be given when commands are executed in an
+ unsupported order.
+ Instead, 
+\family typewriter
+thebeast
+\family default
+ is likely to fail at a seemingly unrelated execution point.
+ To prevent this it is recommended to roughly follow the workflows implemented
+ in the example scripts.
+ 
+\end_layout
+
+\begin_layout Subsection
+Initialization
+\end_layout
+
+\begin_layout Standard
+Basically there are four worksflows 
+\family typewriter
+thebeast
+\family default
+ supports.
+ The first one (initialization) prepares a corpus for training in order
+ to improve the efficiency of online learning.
+ This is usually achieved in a seperated step because the preprocessed corpus
+ can be reused for different training configurations as long as the MLN
+ remains constant.
+ This step also chooses some weights which should be fixed at zero.
+ This improves efficiency and can also improve the learning performance.
+ Finally, this step can collect the set of constants that are used in the
+ training data and which should be used in later training, testing and inspectio
+n steps.
+ An example intialization script is given in 
+\end_layout
+
+\begin_layout LyX-Code
+examples/srl/init.pml
+\end_layout
+
+\begin_layout Subsection
+Training
+\end_layout
+
+\begin_layout Standard
+During training the preprocessed corpus is used to estimate weights and
+ saves those to a new file.
+ Have a look at
+\end_layout
+
+\begin_layout LyX-Code
+examples/srl/train.pml
+\end_layout
+
+\begin_layout Standard
+for an example training script.
+ 
+\end_layout
+
+\begin_layout Subsection
+Testing
+\end_layout
+
+\begin_layout Standard
+In the third workflow (testing) the estimated weights are loaded and the
+ corresponding model is applied to some test data.
+ If gold solutions are available some performance metrics are printed out.
+ The file
+\end_layout
+
+\begin_layout LyX-Code
+examples/srl/test.pml
+\end_layout
+
+\begin_layout Standard
+should be used as starting point for test scripts.
+\end_layout
+
+\begin_layout Subsection
+Inspection
+\end_layout
+
+\begin_layout Standard
+Finally, thebeast offers an inspection workflow in which the instances in
+ a development corpus can be interactively processed and inspected.
+ For example, during inspection we can solve an instance, print out errors,
+ check the features active in the current solutions or the violated constraints
+ etc.
+ The file
+\end_layout
+
+\begin_layout LyX-Code
+examples/srl/inspect.pml
+\end_layout
+
+\begin_layout Standard
+contains an example inspection script.
+ Note that inspection would usually be done interactively, so one would
+ include a partial version of this file in interactive mode and then go
+ from here using the remaining commands in this file.
+ 
 \end_layout
 
 \begin_layout Chapter
@@ -1370,7 +1472,7 @@ w_label
 \end_layout
 
 \begin_layout Standard
-If we were are sure the the existence of labels should only be rewarded
+If we were are sure that the existence of labels should only be rewarded
  we can write
 \end_layout
 
@@ -1391,6 +1493,15 @@ weight w_label: Label -> Double-;
 makes sure that the existence of labels are always penalized.
  Constraining the sign of a weight function will be very important for efficient
  inference.
+ When using CPI you should make sure the weights for global formulae (see
+ section 
+\begin_inset LatexCommand ref
+reference "sub:Global-vs.-Local"
+
+\end_inset
+
+) are signed properly.
+ 
 \end_layout
 
 \begin_layout Chapter
@@ -1638,6 +1749,98 @@ Now the beast will use the provided data for learning and/or inference,
 \end_layout
 
 \begin_layout Section
+Loading Global Information
+\end_layout
+
+\begin_layout Standard
+As mentioned in the previous chapter, we can use global predicates in order
+ to specify ground atoms that should hold in 
+\emph on
+all
+\emph default
+ possible worlds.
+ Once we have declared a predicate to be global we can load its ground atoms
+ using
+\end_layout
+
+\begin_layout LyX-Code
+load global from 
+\begin_inset Quotes eld
+\end_inset
+
+filename
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Standard
+Here the loaded file has the same format as normal data files introduced
+ above, yet without a 
+\begin_inset Quotes eld
+\end_inset
+
+>>
+\begin_inset Quotes erd
+\end_inset
+
+ to indicate a new possible world to start (since there is only one global
+ possible world this is unnecessary).
+ 
+\end_layout
+
+\begin_layout Standard
+For example, if we have a global predicate 
+\emph on
+unique
+\emph default
+, that identifies labels which can at most appear once for every verb, we
+ would write a file containing the following lines:
+\end_layout
+
+\begin_layout LyX-Code
+>unique
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+A1
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+A2
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+A3
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Section
 Inspecting Data
 \end_layout
 
@@ -1762,6 +1965,12 @@ Again we can adapt the output format and the type of information printed
 
 \begin_layout Chapter
 Markov Logic Networks
+\begin_inset LatexCommand label
+name "cha:Markov-Logic-Networks"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1903,15 +2112,16 @@ candidate(c) | label(c,A0)
 \end_layout
 
 \begin_layout LyX-Code
-forall Label l: exist Int c: candidate(c) => label(c,l)
+
 \end_layout
 
 \begin_layout Standard
-Thebeast also allows us to use cardinal constraints such as 
+Thebeast also allows us to use cardinal constraints (as generalizations
+ of existential and universal quantifiers) such as 
 \end_layout
 
 \begin_layout LyX-Code
-forall Int c: candidate(c) => |Label l: label(c,l)| <= 1
+|Label l: label(c,l)| <= 1
 \end_layout
 
 \begin_layout Standard
@@ -1924,7 +2134,7 @@ hasLabel
 \end_layout
 
 \begin_layout LyX-Code
-forall Int c: hasLabel(c) => |Label l: label(c,l)| >= 1
+|Label l: label(c,l)| >= 1
 \end_layout
 
 \begin_layout Standard
@@ -2073,38 +2283,6 @@ to get the same semantics.
 \end_layout
 
 \begin_layout Subsection
-\begin_inset LatexCommand label
-name "sub:Global-vs.-Local"
-
-\end_inset
-
-Global vs.
- Local Formulae
-\end_layout
-
-\begin_layout Standard
-Local formulae are formulae which, when grounded, contain only one hidden
- ground atom.
- Since in 
-\family typewriter
-thebeast
-\family default
- formulae are divided into a condition that only contains observed predicates
- and an actual formula that may contain hidden predicates you can identifiy
- local formulae by simply checking the main formula.
- 
-\end_layout
-
-\begin_layout Standard
-Local formulae are easy to deal with and require very few resources.
- Global formulae, on the other hand, require more efforts from inference
- and training methods and likely result in longer runtimes and higher memory
- requirements.
- Moreover, it takes some care to properly use them.
- 
-\end_layout
-
-\begin_layout Subsection
 Real-Valued Formulas
 \end_layout
 
@@ -2158,7 +2336,7 @@ holds:
 \end_layout
 
 \begin_layout LyX-Code
-factor: for Int c, Label l, Double d 
+factor: for Int c, Label l, Int d 
 \end_layout
 
 \begin_layout LyX-Code
@@ -2166,7 +2344,12 @@ if candidate(c) & distance(d)
 \end_layout
 
 \begin_layout LyX-Code
-add [label(c,l)] * d * w_distance(l);
+add [label(c,l)] * double(d) * w_distance(l);
+\end_layout
+
+\begin_layout Standard
+Note that we have to explicitly cast the integer distance to a double value.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -2610,6 +2793,189 @@ Ground Markov Network
 
 \end_layout
 
+\begin_layout Section
+\begin_inset LatexCommand label
+name "sub:Global-vs.-Local"
+
+\end_inset
+
+Global vs.
+ Local Formulae
+\end_layout
+
+\begin_layout Standard
+Local formulae are formulae which, when grounded, contain only one hidden
+ ground atom.
+ Since in 
+\family typewriter
+thebeast
+\family default
+ formulae are divided into a condition that only contains observed predicates
+ and an actual formula that may contain hidden predicates you can identifiy
+ local formulae by simply checking the main formula.
+ Local formulae are easy to deal with and require very few resources.
+ Global formulae, on the other hand, require more efforts from inference
+ and training methods and likely result in longer runtimes and higher memory
+ requirements.
+ Moreover, it takes some care to properly use them.
+ 
+\end_layout
+
+\begin_layout Standard
+For example, assume that there exists some correlations between the roles
+ assigned to the arguments of a predicate.
+ In 
+\family typewriter
+thebeast
+\family default
+ we could capture this by saying
+\end_layout
+
+\begin_layout LyX-Code
+weight w_global1: Label x Label -> Double-;
+\end_layout
+
+\begin_layout LyX-Code
+factor: for Int c1, Int c2, Label l1, Label l2 
+\end_layout
+
+\begin_layout LyX-Code
+if candidate(c1) & candidate(c2) & c1 != c2
+\end_layout
+
+\begin_layout LyX-Code
+add [label(c1,l1) & label(c2,l2] * w_global1(l1,l2);
+\end_layout
+
+\begin_layout Standard
+This is to say: whenever there are two distinct candidates arguments for
+ a predicate labeled with 
+\family typewriter
+l1
+\family default
+ and 
+\family typewriter
+l2
+\family default
+, respectively, then penalize this using the weight function 
+\emph on
+w_global1.
+ 
+\emph default
+Note that we required the weights to be negative (via the 
+\emph on
+Double-
+\emph default
+ return type) -- this is crucial for Cutting Plane Inference\InsetSpace ~
+
+\begin_inset LatexCommand citep
+key "riedel08improving"
+
+\end_inset
+
+! 
+\end_layout
+
+\begin_layout Standard
+To understand this some knowledge of Cutting Plane Inference\InsetSpace ~
+(CPI) is required.
+ In each iteration CPI finds the current best (MAP) solution of a partial
+ Ground Markov Network\InsetSpace ~
+
+\begin_inset LatexCommand citep
+key "richardson05markov"
+
+\end_inset
+
+ and instantiates new parts of the network depending on which formulae are
+ not instantiated yet but might result in a different best solution if they
+ were.
+ Now assume that at a certain point CPI does find the actual gold solution.
+ In this solution almost all groundings of the formula above are false,
+ because any for any pair of candidates there exists at most one pair of
+ labels 
+\begin_inset Formula $\left(l'_{1},l'_{2}\right)$
+\end_inset
+
+assigned to both candidates (out of the full cartesian product of labels
+ with labels) -- for all other pairs of labels 
+\begin_inset Formula $\left(l{}_{1},l{}_{2}\right)$
+\end_inset
+
+ the formula is false.
+ Now if this formula could have positive weights then a solution in which
+ all ground formulas that are false in the current solution are true would
+ have a higher score.
+ Thus there is potential for improvement and CPI adds all groundings to
+ the current Network.
+ This leads to Ground Markov Network which is almost as large the as the
+ complete network and is likely expensive to solve for the base solver.
+\end_layout
+
+\begin_layout Standard
+Note that this restriction does not mean that we cannot include global formulae
+ that reward the existence of certain properties.
+ In the above case we can, for example, also add the following weight and
+ formula:
+\end_layout
+
+\begin_layout LyX-Code
+weight w_global2: Label x Label -> Double+;
+\end_layout
+
+\begin_layout LyX-Code
+factor: for Int c1, Int c2, Label l1, Label l2 
+\end_layout
+
+\begin_layout LyX-Code
+if candidate(c1) & candidate(c2) & c1 != c2
+\end_layout
+
+\begin_layout LyX-Code
+add [label(c1,l1) => label(c2,l2] * w_global2(l1,l2);
+\end_layout
+
+\begin_layout Standard
+Here the existence of a certain role label (
+\begin_inset Formula $l_{2}$
+\end_inset
+
+) is rewarded in the presence of another (
+\begin_inset Formula $l_{1}$
+\end_inset
+
+).
+ This time the weight has to be positive, because in a gold solution most
+ groundings of the above formulae would actually be true (because in most
+ cases the premise of the implication is false).
+ 
+\end_layout
+
+\begin_layout Standard
+To summarize: when using weighted global formulae and Cutting Plane Inference
+ make sure to always specify whether weights should be nonnegative or nonpositiv
+e.
+ The rule of thumb is:
+\end_layout
+
+\begin_layout Itemize
+If most ground formulae are false in the actual gold solution the weight
+ function must be nonpositive (
+\family typewriter
+Double-
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+If most ground formulae are true in the actual gold solution the weight
+ function must be nonpositive (
+\family typewriter
+Double
+\family default
++)
+\end_layout
+
 \begin_layout Chapter
 Weights
 \end_layout
@@ -2836,7 +3202,11 @@ learnt.dmp
 
 \begin_layout Standard
 These files are faster to load and save but can't be manually inspected.
- However, one can inspect using thebeast once their are loaded.
+ However, one can inspect them using 
+\family typewriter
+thebeast
+\family default
+ once their are loaded.
 \end_layout
 
 \begin_layout Section
@@ -3335,7 +3705,7 @@ Update Rule
 \end_layout
 
 \begin_layout Description
-MIRA By default thebeast uses 1-best MIRA\InsetSpace ~
+MIRA (default) By default thebeast uses 1-best MIRA\InsetSpace ~
 
 \begin_inset LatexCommand citep
 key "crammer01ultraconservativeconf"
@@ -3368,7 +3738,7 @@ mira
 \end_layout
 
 \begin_layout Description
-Perceptron Plain perceptron with learning rate
+Perceptron Plain perceptron with 1.0 learning rate and decay 
 \end_layout
 
 \begin_layout LyX-Code
@@ -3383,13 +3753,34 @@ perceptron
 ;
 \end_layout
 
+\begin_layout Standard
+To change the learning rate of the perceptron write
+\end_layout
+
+\begin_layout LyX-Code
+set learner.update.rate = 0.5
+\end_layout
+
+\begin_layout Standard
+Likewise, to change the decay write
+\end_layout
+
+\begin_layout LyX-Code
+set learner.update.decay = 3.0
+\end_layout
+
 \begin_layout Subsection
 Loss Function
 \end_layout
 
+\begin_layout Standard
+Mira can use different loss functions.
+ There are a few built-in loss functions to try:
+\end_layout
+
 \begin_layout Description
-GlobalNumberOfErrors counts the number of false positive and false negative
- ground atoms for all hidden atoms
+GlobalNumberOfErrors (default) counts the number of false positive and false
+ negative ground atoms for all hidden atoms
 \end_layout
 
 \begin_layout LyX-Code
@@ -3397,7 +3788,7 @@ set learner.update.loss =
 \begin_inset Quotes eld
 \end_inset
 
-GlobalNumErrors
+globalNumErrors
 \begin_inset Quotes erd
 \end_inset
 
@@ -3414,7 +3805,7 @@ set learner.update.loss =
 \begin_inset Quotes eld
 \end_inset
 
-AvgNumErrors
+avgNumErrors
 \begin_inset Quotes erd
 \end_inset
 
@@ -3431,7 +3822,7 @@ set learner.update.loss =
 \begin_inset Quotes eld
 \end_inset
 
-GlobalF1
+globalF1
 \begin_inset Quotes erd
 \end_inset
 
@@ -3447,7 +3838,24 @@ set learner.update.loss =
 \begin_inset Quotes eld
 \end_inset
 
-AvgF1
+avgF1
+\begin_inset Quotes erd
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Description
+ZeroOne if the solution is completely correct a zero loss is returned, otherwise
+ a 1.0 loss.
+\end_layout
+
+\begin_layout LyX-Code
+set learner.update.loss = 
+\begin_inset Quotes eld
+\end_inset
+
+exact
 \begin_inset Quotes erd
 \end_inset
 
