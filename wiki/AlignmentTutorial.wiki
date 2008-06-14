@@ -1,5 +1,50 @@
 #summary Tutorial using Bilingual Alignment
 #labels
+= Introduction =
+
+This page will give a brief tutorial that covers some of thebeast's features. As task we look at a vanilla version of bilingual alignment: determine which tokens of a sentence in one language translate to which tokens in the same sentence written in another language.
+
+For example, for the English sentence
+
+ Haag plays Elianti
+
+and the German sentence 
+
+ Haag spielt Elianti
+
+an alignment could look like:
+
+||         || Haag || plays || Elianti ||
+|| Haag    ||  x   ||       ||         ||
+|| spielt  ||      ||   x   ||         ||
+|| Elianti ||      ||       ||    x    ||
+
+
+The MLN we describe here can be found in {{{examples/align/toy.pml}}}. 
+
+While {{{toy.pml}}} helps to get a rough overview, it does reflect the normal Machine Learning workflow:
+usually we would train a model and then run tests with the same model on several datasets. However,
+with toy.pml we would need to train again everytime we want to test our model on a new test corpus.
+
+Thus this directory also contains three more files: {{{init.pml}}}, {{{train.pml}}} and {{{test.pml}}}.
+Calling them in this order will first do some data preprocessing, then training and  finally testing.
+This setup allows to do test the same model on different test tests. Moreover, unless the formulae
+of the MLN have been changed the init.pml file does not need to be executed when we train
+on the same data but change some training parameters.
+
+=Starting thebeast=
+
+You can execute the commands in this tutorial by simply calling
+{{{
+$ thebeast toy.pml
+}}}
+or by running thebeast in interactive mode and typing in the statements presented here. For this just start 
+{{{
+$ thebeast
+}}}
+
+All assuming that you {{{cd}}} into {{{examples/align}}} before and that {{{thebeast/bin}}} is in your $PATH$.
+ 
 
 {{{
 /* Load the constant types */
