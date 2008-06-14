@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="thebeast" default="all">
+
+
+  <property file="thebeast.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+
+
+  <!-- Compiler options -->
+
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="128m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+    <exclude name="**/.sbas/**"/>
+    <exclude name="**/.IJI.*/**"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <include name="**/?*.properties"/>
+    <include name="**/?*.xml"/>
+    <include name="**/?*.gif"/>
+    <include name="**/?*.png"/>
+    <include name="**/?*.jpeg"/>
+    <include name="**/?*.jpg"/>
+    <include name="**/?*.html"/>
+    <include name="**/?*.dtd"/>
+    <include name="**/?*.tld"/>
+  </patternset>
+
+
+  <!-- Project Libraries -->
+
+  <path id="library.junit.classpath">
+    <pathelement location="${basedir}/lib/junit.jar"/>
+  </path>
+
+
+  <!-- Application Server Libraries -->
+
+  <!-- Modules -->
+
+
+  <!-- Module thebeast -->
+
+  <dirname property="module.thebeast.basedir" file="${ant.file}"/>
+
+
+  <property name="compiler.args.thebeast" value="${compiler.args}"/>
+
+  <property name="thebeast.output.dir" value="${module.thebeast.basedir}/classes/production"/>
+  <property name="thebeast.testoutput.dir" value="${module.thebeast.basedir}/classes/test"/>
+
+  <path id="thebeast.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+
+  <path id="thebeast.module.classpath">
+    <path refid="library.junit.classpath"/>
+    <pathelement location="${module.thebeast.basedir}/lib/JLex"/>
+    <pathelement location="${module.thebeast.basedir}/lib/java-cup-11a.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/lpsolve55j.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/JSAP-2.1.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/jline-0.9.9.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/mosek.jar"/>
+    <pathelement location="${module.thebeast.basedir}/lib/trove-2.0.3.jar"/>
+  </path>
+
+
+  <patternset id="excluded.from.module.thebeast">
+    <patternset refid="ignored.files"/>
+  </patternset>
+
+  <patternset id="excluded.from.compilation.thebeast">
+    <patternset refid="excluded.from.module.thebeast"/>
+  </patternset>
+
+  <path id="thebeast.module.sourcepath">
+    <dirset dir="${module.thebeast.basedir}">
+      <include name="src"/>
+      <include name="test/unit"/>
+    </dirset>
+  </path>
+
+  <target name="compile.module.thebeast" depends="compile.module.thebeast.production,compile.module.thebeast.tests"
+          description="Compile module thebeast"/>
+
+  <target name="compile.module.thebeast.production" description="Compile module thebeast; production classes">
+    <mkdir dir="${thebeast.output.dir}"/>
+    <javac destdir="${thebeast.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+           memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.thebeast}"/>
+      <bootclasspath refid="thebeast.module.bootclasspath"/>
+      <classpath refid="thebeast.module.classpath"/>
+      <src refid="thebeast.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.thebeast"/>
+    </javac>
+
+    <copy todir="${thebeast.output.dir}">
+      <fileset dir="${module.thebeast.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.thebeast.basedir}/test/unit">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile.module.thebeast.tests" depends="compile.module.thebeast.production"
+          description="compile module thebeast; test classes" unless="skip.tests"/>
+
+  <target name="clean.module.thebeast" description="cleanup module">
+    <delete dir="${thebeast.output.dir}"/>
+    <delete dir="${thebeast.testoutput.dir}"/>
+  </target>
+
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+
+  <target name="clean" depends="clean.module.thebeast" description="cleanup all"/>
+
+  <target name="test">
+    <junit printsummary="yes" haltonfailure="no" dir="bin">
+      <classpath>
+        <path refid="thebeast.module.classpath"/>
+        <pathelement location="${module.thebeast.basedir}/classes/production"/>
+      </classpath>
+
+      <formatter type="plain"/>
+
+      <batchtest fork="yes" todir="tests">
+        <fileset dir="test/unit">
+          <include name="**/*Test*.java"/>
+          <exclude name="**/NoDTest.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <!-- the files to be released -->
+  <fileset id="thebeast.releasefiles" dir="${module.thebeast.basedir}">
+    <!-- build files -->
+    <include name="thebeast.properties"/>
+    <include name="build.xml"/>
+
+    <!-- etc -->
+    <include name="README"/>
+    <include name="INSTALL"/>
+    <include name="LICENSE"/>
+    <include name="CHANGES"/>
+    <include name="cup.xml"/>
+
+    <!-- release files -->
+    <include name="bin/*"/>
+    <include name="examples/srl/**"/>
+    <include name="examples/align/**"/>
+    <include name="src/**/*.java"/>
+    <include name="src/**/*.cup"/>
+    <include name="src/**/*.lex"/>
+    <include name="test/**/*.java"/>
+    <include name="doc/**"/>
+    <include name="lib/**"/>
+
+    <!-- some legacy we don't want in the distribution -->
+    <exclude name="bin/thebeast"/>
+    <exclude name="bin/linux"/>
+    <exclude name="bin/mac"/>
+    <exclude name="lib/mosek.jar"/>
+    <exclude name="examples/**/system.atoms"/>
+    <exclude name="examples/**/*.weights"/>
+    <exclude name="examples/**/*.instances"/>
+    <exclude name="examples/**/types.pml"/>
+    <exclude name="src/thebeast/pml/solve/ilp/ILPSolverMosek.java"/>
+  </fileset>
+
+  <target name="dist">
+    <delete dir="${distdir}/${target}"/>
+    <mkdir dir="${distdir}/${target}"/>
+    <copy todir="${fulltarget}">
+      <fileset refid="thebeast.releasefiles"/>
+    </copy>
+    <tar destfile="${fulltargetgz}" basedir="${distdir}"
+         compression="gzip" includes="${target}/**">
+    </tar>
+    <zip destfile="${fulltargetzip}" basedir="${distdir}"
+         includes="${target}/**">
+    </zip>
+  </target>
+
+
+  <!-- determine OS family -->
+  <condition property="onmac">
+    <os family="mac"/>
+  </condition>
+  <condition property="onunix">
+    <os family="unix"/>
+  </condition>
+
+  <!-- OS specific tasks -->
+  <target name="conf-os" depends="conf-mac,conf-unix"/>
+
+  <target name="conf-mac" if="onmac">
+    <copy file="bin/thebeast.mac" tofile="bin/thebeast"/>
+    <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+  <target name="conf-unix" if="onunix">
+    <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
+    <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+
+  <!-- Runs the fullrelease task and uploads the nightly release on google code. -->
+  <target name="upload" depends="dist">
+    <exec executable="python">
+      <arg value='tools/googlecode_upload.py'/>
+      <arg value='-p thebeast'/>
+      <arg value='-s Markov TheBeast version ${version} src distribution'/>
+      <arg value='-l Type-Archive,OpSys-All'/>
+      <arg value='${fulltargetgz}'/>
+    </exec>
+  </target>
+
+  <target name="all" depends="init, clean, compile.module.thebeast, conf-os" description="build all"/>
+</project>

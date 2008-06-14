@@ -1,0 +1,18 @@
+Markov TheBeast 0.0.1
+
+to run call
+
+$ bin/thebeast
+
+for an interactive mode or
+
+$ bin/thebeast <inputfile>
+
+to execute the specified input pml file.
+
+For starters, have a look at the examples in examples/* (and examples/*/README). I highly recommend using these as
+starting point for your own MLNs. 
+
+More details can be found in a half-baked doc/manual.pdf.
+
+Hint: change the bin/thebeast script to increase/decrease java heap size.
