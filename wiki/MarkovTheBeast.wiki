@@ -1,6 +1,0 @@
-= Markov The Wiki =
-
-This is the Wiki for Markov The Beast. Here we gather documentation, tutorials and everything random. 
-
-  * [Documentation Documentation]
-  * TheTutorial
