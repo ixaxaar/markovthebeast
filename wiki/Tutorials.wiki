@@ -6,7 +6,7 @@ It is difficult to pack all features of {{{thebeast}}} into a single application
 
 Here is an overview of the available tutorials so far and what they cover. We recommend to start with the first one an process this list sequentially.
 
-  * [AlignmentTutorial Alignment Tutorial] Tutorial based on Bilingual Alignment. Introducing: 
+  * [SRLTutorial Semantic Role Labelling Tutorial] Tutorial based on Semantic Role Labelling. Introducing: 
     * local features, 
     * deterministic cardinality constraints, 
     * global predicates, 
@@ -14,7 +14,7 @@ Here is an overview of the available tutorials so far and what they cover. We re
     * online learning, 
     * testing
     * inspection
-  * [SRLTutorial Semantic Role Labelling Tutorial] Tutorial based on Semantic Role Labelling. Introducing: 
+  * [AlignmentTutorial Alignment Tutorial] Tutorial based on Bilingual Alignment. Introducing: 
     * global weighted constraints, 
     * real-valued formulae, 
     * more inspections. 
