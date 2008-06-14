@@ -42,6 +42,10 @@ public class PerceptronUpdateRule implements UpdateRule {
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("signs"))
       enforceSigns = (Boolean) value;
+    if (name.getHead().equals("rate"))
+      learningRate = (Double) value;
+    if (name.getHead().equals("decay"))
+      decay = (Double) value;
   }
 
   public Object getProperty(PropertyName name) {

@@ -49,7 +49,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private boolean saveAfterEpoch = true;
   private boolean initializeWeights = false;
   private double initialWeight = 0;
-  private String savePrefix = "/tmp/epoch_";
+  private String savePrefix = "epoch_";
   private Stack<FeatureVector> allVectors = new Stack<FeatureVector>();
   private Stack<FeatureVector> usableVectors = new Stack<FeatureVector>();
 
@@ -273,14 +273,14 @@ public class OnlineLearner implements Learner, HasProperties {
   private void saveCurrentWeights(int epoch) {
     try {
       //write plain weights
-      File file = new File(savePrefix + epoch + ".dmp");
+      File file = File.createTempFile(savePrefix + epoch, ".dmp");
       file.delete();
       FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
       weights.write(sink);
       sink.flush();
 
       //write averaged weights
-      File avgFile = new File(savePrefix + epoch + ".avg.dmp");
+      File avgFile = File.createTempFile(savePrefix + epoch, ".avg.dmp");
       avgFile.delete();
       FileSink avgSink = TheBeast.getInstance().getNodServer().createSink(avgFile, 1024);
       Weights copy = weights.copy();

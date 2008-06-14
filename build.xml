@@ -167,6 +167,7 @@
     <!-- release files -->
     <include name="bin/*"/>
     <include name="examples/srl/**"/>
+    <include name="examples/align/**"/>
     <include name="src/**/*.java"/>
     <include name="src/**/*.cup"/>
     <include name="src/**/*.lex"/>
