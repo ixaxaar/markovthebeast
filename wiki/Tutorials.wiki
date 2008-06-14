@@ -1,5 +1,15 @@
 #summary Overview of available tutorials
 
 = Tutorials =
-  * [AlignmentTutorial Alignment Tutorial] Tutorial using Bilingual Alignment. Introducing: local features, deterministic cardinality constraints, global predicates, feature collection, online learning, testing, inspection.
-  * [SRLTutorial Semantic Role Labelling Tutorial] Tutorial using Semantic Role Labelling. Introducing: global weighted constraints, real-valued formulae, more inspections. 
+  * [AlignmentTutorial Alignment Tutorial] Tutorial using Bilingual Alignment. Introducing: 
+    * local features, 
+    * deterministic cardinality constraints, 
+    * global predicates, 
+    * feature collection, 
+    * online learning, 
+    * testing
+    * inspection
+  * [SRLTutorial Semantic Role Labelling Tutorial] Tutorial using Semantic Role Labelling. Introducing: 
+    * global weighted constraints, 
+    * real-valued formulae, 
+    * more inspections. 
