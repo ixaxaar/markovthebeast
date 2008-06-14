@@ -108,7 +108,7 @@ factor: for Int s, Int t
 
 It essentially rewards solutions where words are translated in a diagonal fashion. For many language pairs this is often true, but does not hold all the time. Thus we just assign a higher score to more diagonal solutions without forbidding nondiagonal ones. 
 
-Note the type of the weight {{{Double+}}}. This means that {{{w_diag}}} will be nonnegative. *This is crucial*. It has to do with the way Cutting Plane Inference works and is described in more detail in the manual. However, it is important for you to remember the following rule of thumb:
+Note the type of the weight {{{Double+}}}. This means that {{{w_diag}}} will be nonnegative. *This is crucial*. It has to do with the way Cutting Plane Inference works and is described in more detail in the manual. However, *it is important for you to remember the following rule of thumb*:
 
   * If most ground formulae are false in the actual gold solution the weight function must be nonpositive (Double-)
 
