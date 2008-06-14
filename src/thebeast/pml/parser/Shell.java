@@ -175,7 +175,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
    */
   public void interactive() throws IOException {
     //BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    out.println("Markov The Beast " + TheBeast.VERSION);
+    out.println("markov thebeast " + TheBeast.VERSION);
     if (printPrompt) out.print("# ");
     for (String line = console.readLine(); line != null; line = console.readLine()) {
       PMLParser parser = new PMLParser(new Yylex(new ByteArrayInputStream(line.getBytes())));
