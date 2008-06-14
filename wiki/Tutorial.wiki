@@ -1,5 +1,5 @@
 #summary Tutorial using Semantic Role Labelling
-#labels Featured
+#labels Deprecated
 
 = Introduction =
 
