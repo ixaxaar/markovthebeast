@@ -373,9 +373,15 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-Markov Logic is a very expressive formalism to specify large and complex
- Markov Networks, which allow you to capture local and nonlocal correlations
- in your data.
+Markov Logic\InsetSpace ~
+
+\begin_inset LatexCommand citep
+key "richardson05markov"
+
+\end_inset
+
+ is a very expressive formalism to specify large and complex Markov Networks
+ which allow you to capture local and nonlocal correlations in your data.
  
 \family typewriter
 markov thebeast
@@ -479,12 +485,15 @@ Java SDK 1.5 or higher
 \end_layout
 
 \begin_layout Enumerate
-ant 1.5 (?) or higher (compilation is possible without but slightly more
- complicated)
+ant 1.5 or higher (compilation is possible without but slightly more complicated)
 \end_layout
 
 \begin_layout Standard
-In order to run thebeast you will need 
+In order to run 
+\family typewriter
+thebeast
+\family default
+ you will need 
 \end_layout
 
 \begin_layout Enumerate
@@ -511,8 +520,8 @@ bash (to execute the main script)
 \begin_layout Standard
 In most Mac OS and Linux versions this software is installed by default
  or easy to get.
- However, for Windows machine a bit more work might be necessary (such as
- installing cygwin).
+ However, for Windows machines a bit more work might be necessary (such
+ as installing cygwin).
  It is surely possible to run and compile thebeast without the recommended
  software, albeit less convenient.
  
@@ -559,7 +568,11 @@ thebeast
 \end_layout
 
 \begin_layout Standard
-You can now call thebeast executable by calling
+You can now call the 
+\family typewriter
+thebeast
+\family default
+ executable by calling
 \end_layout
 
 \begin_layout LyX-Code
@@ -598,7 +611,11 @@ The Shell
 \end_layout
 
 \begin_layout Standard
-Most likely you will communicate with thebeast
+Most likely you will communicate with 
+\family typewriter
+thebeast
+\family default
+
 \begin_inset Foot
 status collapsed
 
@@ -688,8 +705,8 @@ reference "fig:architecture"
 \end_inset
 
  gives a schematic overview of these components and resources.
- In the middle we see core components of theshell, the learner, solver and
- collector.
+ In the middle we see core components of the shell, the learner, solver
+ and collector.
  Roughly speaking, the collector instantiates features, the learner learns
  weights and the solver applies a trained model to data.
  They all use or modify the 
@@ -829,7 +846,7 @@ The Beast needs data to learn weights from, to process during testing and
  for inspection and analysis of errors.
  This data comes from a corpus.
  A corpus is a sequence of databases.
- In thesh we have two corpora, the 
+ In the shell we have two corpora, the 
 \emph on
 working corpus
 \emph default
@@ -888,7 +905,7 @@ Getting and Setting Parameters
 \end_layout
 
 \begin_layout Standard
-As mentioned above, theshell also provides means to configure components
+As mentioned above, the shell also provides means to configure components
  and set parameters.
  This is achieved using the 
 \emph on
@@ -957,14 +974,14 @@ Initialization
 \end_layout
 
 \begin_layout Standard
-Basically there are four worksflows 
+Basically there are four workflows 
 \family typewriter
 thebeast
 \family default
  supports.
  The first one (initialization) prepares a corpus for training in order
  to improve the efficiency of online learning.
- This is usually achieved in a seperated step because the preprocessed corpus
+ This is usually achieved in a separated step because the preprocessed corpus
  can be reused for different training configurations as long as the MLN
  remains constant.
  This step also chooses some weights which should be fixed at zero.
@@ -972,7 +989,7 @@ thebeast
  Finally, this step can collect the set of constants that are used in the
  training data and which should be used in later training, testing and inspectio
 n steps.
- An example intialization script is given in 
+ An example initialization script is given in 
 \end_layout
 
 \begin_layout LyX-Code
@@ -2376,6 +2393,45 @@ where NAME is a lowercase string.
 \end_layout
 
 \begin_layout Subsection
+Acyclicity Constraints
+\end_layout
+
+\begin_layout Standard
+Some tasks (such as dependency parsing or machine translation) require a
+ structure or graph to cycle-free.
+ Assume you have a binary predicate such as 
+\end_layout
+
+\begin_layout LyX-Code
+predicate link: Int x Int;
+\end_layout
+
+\begin_layout Standard
+that defines a graph structure (each pair in the 
+\emph on
+link
+\emph default
+ relation refers to an edge).
+ Then you can enforce acyclicity with 
+\family typewriter
+thebeast
+\family default
+ using the following formula:
+\end_layout
+
+\begin_layout LyX-Code
+factor: link acyclic
+\end_layout
+
+\begin_layout Standard
+This will ensure that there is no cycle in the graph defined by 
+\emph on
+link
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
 Formula Processing Hints
 \end_layout
 
@@ -2539,7 +2595,7 @@ Assume we have a ground term
 
  will refer to the constant this term represents.
  We define 
-\begin_inset Formula $e_{\Theta,B}\left(t\right)$
+\begin_inset Formula $e_{\Theta}\left(t\right)$
 \end_inset
 
  recursively:
@@ -2811,7 +2867,7 @@ Local formulae are formulae which, when grounded, contain only one hidden
 thebeast
 \family default
  formulae are divided into a condition that only contains observed predicates
- and an actual formula that may contain hidden predicates you can identifiy
+ and an actual formula that may contain hidden predicates you can identify
  local formulae by simply checking the main formula.
  Local formulae are easy to deal with and require very few resources.
  Global formulae, on the other hand, require more efforts from inference
@@ -2890,25 +2946,29 @@ key "richardson05markov"
  and instantiates new parts of the network depending on which formulae are
  not instantiated yet but might result in a different best solution if they
  were.
- Now assume that at a certain point CPI does find the actual gold solution.
+ 
+\end_layout
+
+\begin_layout Standard
+Now assume that at a certain point CPI does find the actual gold solution.
  In this solution almost all groundings of the formula above are false,
- because any for any pair of candidates there exists at most one pair of
- labels 
+ because for any pair of candidates there exists at most one pair of labels
+ 
 \begin_inset Formula $\left(l'_{1},l'_{2}\right)$
 \end_inset
 
-assigned to both candidates (out of the full cartesian product of labels
+ assigned to both candidates (out of the full Cartesian product of labels
  with labels) -- for all other pairs of labels 
 \begin_inset Formula $\left(l{}_{1},l{}_{2}\right)$
 \end_inset
 
  the formula is false.
- Now if this formula could have positive weights then a solution in which
- all ground formulas that are false in the current solution are true would
+ Now if this formula could have positive weights then a solution, in which
+ all ground formulas are true which false in the current solution, would
  have a higher score.
  Thus there is potential for improvement and CPI adds all groundings to
  the current Network.
- This leads to Ground Markov Network which is almost as large the as the
+ This leads to a Ground Markov Network which is almost as large the as the
  complete network and is likely expensive to solve for the base solver.
 \end_layout
 
@@ -2974,6 +3034,14 @@ If most ground formulae are true in the actual gold solution the weight
 Double
 \family default
 +)
+\end_layout
+
+\begin_layout Standard
+In 
+\family typewriter
+examples/align/align-global.pml
+\family default
+ you will find an example of the latter case.
 \end_layout
 
 \begin_layout Chapter
@@ -3360,7 +3428,50 @@ It often makes sense to first enforce formulas that make the solution small
  constraints).
  In general thebeast will try to predict a good order for a formula but
  it can be necessary to manually fine tune orders.
- [get section from MLN chapter]
+ 
+\end_layout
+
+\begin_layout Standard
+Say you have a formula that would be violated often if another constraint
+ has not been enforced before.
+ In this case it makes sense to give this formula a higher order (meaning
+ that it will be taken into consideration only after the formulae of lower
+ order have been processed.
+ By default the order of a formula is 0 thus by giving a formula the order
+ 1 or higher it will be considered after all other formulae.
+ 
+\end_layout
+
+\begin_layout Standard
+Assume we have a deterministic formula
+\end_layout
+
+\begin_layout LyX-Code
+factor: for Int c if candidate(c): |Label l: label(c,l)|<=1;
+\end_layout
+
+\begin_layout Standard
+which ensures that a candidate has not more than one label.
+ By default this formula has the order 0.
+ Now assume another formula
+\end_layout
+
+\begin_layout LyX-Code
+factor[1]: for Int c1, Int c2, Label l1, Label l2 
+\end_layout
+
+\begin_layout LyX-Code
+if candidate(c1) & candidate(c2) & c1 != c2
+\end_layout
+
+\begin_layout LyX-Code
+add [label(c1,l1) & label(c2,l2] * w_global1(l1,l2);
+\end_layout
+
+\begin_layout Standard
+Here we assigned this formula the order 1 (in the square brackets) it is
+ less likely to be violated once we have ensured that no candidate has more
+ than one label.
 \end_layout
 
 \begin_layout Subsection
@@ -3460,6 +3571,16 @@ Relaxing Integer Constraints
 \begin_layout Standard
 The ILP represents ground atom states using 0-1 variables.
  By default these are set to be integers.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Standard
+ This holds only for the test solver, during training we relax this constraint
+ by default to gain efficiency.
+\end_layout
+
+\end_inset
+
  However, sometimes it can be okay to remove the integer constraints (or
  add the later).
  This can be achieved by writing 
