@@ -1,5 +1,4 @@
 #summary Tutorial using Semantic Role Labelling
-#labels Featured
 
 = Introduction =
 
