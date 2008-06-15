@@ -114,6 +114,24 @@ Note the type of the weight {{{Double+}}}. This means that {{{w_diag}}} will be 
 
   * If most ground formulae are true in the actual gold solution the weight function must be nonpositive (Double+)
 
+= Inspection =
+The alignment example also shows how to inspect the local features for a particular ground atom: 
+{{{
+
+// go to next instance, solve it, print the solution and a comparison with the gold standard
+next; solve; print atoms.align; print eval;
+
+// print the local features for ground atom align(1,1)
+print solver.features.align(1,1);
+}}}
+
+The final command should give you the following output
+{{{
+for align(1, 1) add 2.0 * w_model4()[0.2301386981000224]
+for align(1, 1) add 1.0 * w_bias()[-0.1857060643698165]
+}}}
+which shows the contribution of the model 4 feature and the contribution of a bias feature that penalizes the existence of every true align ground atom.
+
 
 
 
