@@ -1,0 +1,497 @@
+PML syntax:
+  - (higher order) functional
+  - cardinality, existential and universal qualification
+  - disallow conjunctions of disjunctions or disjunctions of conjunctions 
+  - cycle constraint
+
+PML semantics:
+A possible world:
+  - maps each constant to itself
+  - maps each predicate symbol to a relation
+  - maps each function symbol to function of constant tuples
+formula is satisfied
+  - if formula where all function applications are recursively replaced by their corresponding fixed value is true 
+
+Condition query:
+  - find all variable bindings for which the hidden predicates have an effect on the formulas truth state
+  - inner quantifiers are searched for all conditional assigments, too.
+
+ o1(x) & h1(x) & forall y: o2(y,x) v h2(y) 
+
+possible world variable
+
+score(w,s) & s > 0.01 & o1(x)#w
+w 	     s 	 x
+1	     0.12	 A1
+
+= find all x with o1(x) and for each x find all y with !o2(y,x)
+example solution:
+   - {(x/1,{y/1,y/2,y/3}),(x/2,{y/5,y/10})} 
+
+
+
+ground formula using binding: replace top level variables, expand quantifications
+
+
+package structure:
+   com.googlecode.thebeast (org.markovthebeast.thebeast)
+	formula
+		Interpreter, Term, And, Or, CardinalityConstraint
+	signature
+		Value, Predicate, Type, Function, Constant, Signature
+	builtin
+		Add, Equals, ...
+	parse
+		Parse, Preprocessor, Parser
+	solve
+		LocalSolver, CPISolver
+	learn
+		OnlineLearner, LossFunction,...	
+	world
+		Dataset, World
+	weights
+		Weights (?)
+	shell
+		GroovyShell
+	mln
+		MLN, WeightedFormula
+	ground
+		GroundMarkovNetwork, GroundQueryGenerator, Node, Feature ...
+	fixture (test tree)
+		SRLFixtures, AlignmentFixtures, ERFixtures
+
+
+WeightedFormula {
+	Variable getIdVariable();
+	Variable getScaleVariable();
+	Formula getFormula();
+	Formula getConditionalFormula();
+}
+
+Binding {
+	Constant getConstant(Variable);
+	Binding getBinding(Quantified);
+}
+
+
+
+b = new Binding("x/2,y/3,forall a,b. p(a,b):<{a/2,b/3},{a/1,b/2}>");
+
+typical workflow: (training)
+	Memory mem = new Memory("memfile.db");
+	mem.addType("Label");
+	mem.addPredicate("label(Int, Label)");
+	mem.addPredicate("word(Int, Word)", true);
+	World w = mem.createWorld();
+	w.addAtoms("label(0,"TMP")");
+	w.loadAtoms(file);	
+	w.query("label(x,y)");
+	w.commit();
+	MLN mln = mem.createMLN();
+	mln.load("mln.pml");
+	Weights weights = mem.getWeights();
+	World global = mem.getGlobal();
+
+	Dataset d = mem.createDataset(transient);
+	collector.collect(d,weights);
+	learner.learn(d,weights);
+	...
+	mem.setGlobal(weights);
+	mln.store(...); //stores mln + memory
+
+
+(testing)
+	MLN mln = MLN.load(...); //loads memory
+	Memory mem = mln.getMemory();
+	Solver solver = new PipelineSolver(...,mln);
+	Dataset testCorpus = mem.loadDataset("dataset.atoms");
+	Dataset result = mem.createDataset();
+	for (World w: testCorpus) solver.solve(w,result.createWorld());
+	
+	Dataset compare = mem.createDataset();
+	compare.add(testCorpus.get(0).clone(),"gold");
+	compare.add(result.get(0).clone(), "guess");
+	compare.query("label(x,y)~gold & !label(x,y)~guess");
+	compare.query("!label(x,y)~gold & label(x,y)~guess");
+
+
+-> saving full state and signature in memory object, no need to reload definitions.
+-> MLN becomes component. 
+
+
+
+	
+Solver {
+       init(MLN);
+       solve(World, World);
+       solveNBest(World, Int, Dataset);
+}	
+	
+			
+
+		     
+
+	
+	
+
+MLNPreprocessor:
+  - extends MLN using annotations such as formula templates, etc.
+
+@name("test") @param("T","word,tag,lemma") 
+T(x,!t) => label(x,!l)
+//creates formulas with name test_word, test_tag etc.
+
+@name("labelWindow")
+@param("C","1,0,-1") 
+@param("T","word,pos,lemma") 
+@order(12)
+T(x+C,!t) => label(x,!l)
+
+
+Parse: 
+ - not interpreted PML expression
+ - (can have a parent Parse from which it was created via substitution)
+ - can have resource URL and line number
+
+Expression: interpreted (can have a parent Parse from which it was created via interpretation)
+
+Parser: takes String creates Parse
+Preprocessor: takes Parse creates new Parse(s) (is aware of some semantics)
+Interpreter: takes Parse creates Expression
+
+PossibleWorld:
+- can have parent possible worlds. If so, it inherits all ground atoms from the closed world predicates of that world
+- potential parent worlds:
+   - global world with static information
+   - weight world with weights 
+   - observation world (multiple solutions share the same observation world)
+
+group.addParentWorld(weight);
+group.addParentWorld(global);
+
+
+Weighted Formula:
+- FOL formula + designated id variables that give grounding id and designated double
+  variable that scales weight 
+  - word(x,w) & weight(w,id) & scale=1 &  !pre=prefix(w) [scale * weight(id)] 
+
+preprocessor:
+    word(x,!w) => label(x,!l) 
+to
+    word(x,w) & _weight1(w,l,_id) & scale = 1.0 => label(x,l) [scale * weight(_id)]
+
+
+id can come from anywhere but would usually be bound via weight predicate that can be implicitely added.
+
+PossibleWorld weights = mem.createWorld();
+PossibleWorld observation = mem.createWorld(weights);
+Bindings bindings = mem.query(formula.all(), observation);
+
+Memory:
+- manages a set of possible worlds
+- term evaluation
+- normal queries
+- recursive queries (all assignments + all true assignments for inner quantified formulae, note that replacing exists with forall and vice versa yields the same result).
+- recursive conditional queries (all assignments + all inner assignments only if inner formula holds/doesn't hold)
+
+ShortTermMemory/Focus:
+- represents a view on the Memory that focuses on a specific possible world
+- queries are implicitely using the possible world in focus
+- modifications can be made but need to be commit in order to become visible in parent memory
+- does not allow queries over multiple possible worlds
+- creating a focus locks the possible world for further changes from elsewhere
+
+MidtermMemory/Dataset/Corpus/Group:
+- represents a subset of the memory
+- possible worlds can be added
+- changes must be commited to become visible in memory
+- locks all its possible worlds for futher changes from elsewhere (also disallows creation of other views/focuses)
+
+Memory m = new Memory();
+Group g = m.createGroup();
+Focus f = g.createFocus(g.createPossibleWorld())
+f.query("p(x)");
+f.addAtoms("p(1)");
+f.commit(); //commit changes to group
+g.addAtoms("p(1)#$1, p(5)#2",1); //add atom to world 2 without creating a view
+g.commit(); //commit changes to long term memory
+
+o1(x) & exists y. o2(x,y)
+
+GroundMarkovNetwork:
+  - ground(weightedformula, bindings)
+  - getNodes();
+  - getEdges();...
+  - addListener(...)
+
+mn.ground(f,f.all(world));
+for (f : mln.withPreds(preds)) mn.ground(f,f.all(world));
+
+GroundQueryGenerator:
+  - createConditional(weightedformula)
+  - createRecursive(..)
+  - createRecursiveConditional(..)
+  - createSeparationRecursive(..)
+  - ...
+
+LocalSolver:
+  - takes a definition of hidden predicates and observed ones
+  - grounds network with local formulae wrt to the hidden predicates
+  - choses ground atoms by local score
+
+MultiClassSolver
+  - accepts @multi annotation for multinominal variables (or inspects formulae)
+  - groups nodes in network according to multiclass definitions and picks best atom in group
+
+GroundNetworkSolver
+  - fully grounds wrt to observed and hidden predicates and runs MN Map inference
+
+CPISolver:
+  - CPI 
+
+PipeLine
+  - has n solver and i-ths solver creates possible world for i+1 solver.   
+
+NBestPipeline
+  - if solver supports multiple candidates pass them on to next solver and multiply candidates. Possibly prune.
+
+Reranker
+  - takes a few possible worlds and evaluates they score, reranks accordingy.
+
+GreedySolver:
+  - maintains a set of ground atoms which are fixed
+  - alg:
+    1. creates new ground atom (according to some heuristic)
+    2. instantiate all ground formulas between new ground atom and fixed atoms
+    3. pick state of new ground formula by optimizing sum of weights of those features.
+    4. add new atom to fixed atoms, go to 1. 
+
+Conditionalization:
+- transform a formula into two parts: one fully observed and one hidden (partially)
+
+a(p) & p(x) satisfied if p in a and x in p 
+
+a(p) & p(x) => p(x) if a(p) otherwise skipped
+
+PML annotations:
+- annotate predicates with processing hints (such as @linear or @mst)
+- annotate formulas with processing hints 
+
+Constraints:
+  - the interpretation of a function symbol is known in advance and identical for all possible worlds
+  - for all higher order predicates closed world assumption (if not explicitely specified predicate is false)
+	 
+
+
+
+For every f in Vocab: dom(I(f)) subset of Vocab, img(I(f)) subset of Vocab
+
+I_y(forall x. phi) = True if forall x I_y(phi[x]) = true) 
+I_y(constant) = constant
+I_y(f a) = b if I_y(f) (I_y(a)) -> b in y else f_default
+ 
+
+Allow special annotations to indicate sequential predicates, tree predicates etc.:
+
+//is a 1st order markov linear chain
+@markov(1) 
+pos(Int,Label);
+
+@mst.edge 
+link(Int,Int)
+
+@mst.label
+label(Int,Int,Dep);
+
+Assume I implement a one layer viterbi search:
+// instantiate active local features
+mn.ground(mln,"pos(t,l)", "local", "order by t,l");
+// instantiate active features that connect consecutive predicates
+mn.ground(mln,"pos(t,l1), pos(t+1,l2)", "next", "order by: t"); 
+// instantiate active features between labels of same token. 
+mn.ground(mln,"pos(t,*)", "label", "order by: t");
+
+// create viterbi network
+for (Int t = 0; t < mn.getPartition("label").size(); ++i)
+    addToViterbiNode(t, mn.getPartition("label",t));
+    for (int l = 0; l < mn.getPartition("local").size(t); ++l)
+    	addToViterbiNode(t, mn.getPartition("local",t,l));
+    if (t > 0) addViterbiEdge(t,mn.getPartition("next",t);
+
+// solve viterbi
+solveViterbi();
+// return possible world
+return possibleWorld();
+
+Implement MST parser
+mn.ground(mln, "link(h,m)", "local", "order by h,m");
+mn.ground(mln, "edge(h,m,l)", "local-edge", "order by h,m");
+... 
+
+
+// 
+// that have at least one active feature
+// get all connections vertical connections (between labels)
+// get all horizontal connections between tokens
+// map to viterbi search
+
+
+class TheBeast {
+      MutablePredicate createPredicate();
+      Type createType();
+      Value eval(Expression expr);
+      ValueSet query(OpenExpression expr);  
+      PossibleWorld createWorld();      
+}
+
+
+
+interface Type extends Iterable<Value> {
+      boolean supportsIteration();
+      Collection<Type> getSuperTypes();
+      Collection<Type> getSubTypes();
+      String getName();     
+}
+
+class ConstantType implements Type {
+      
+}
+
+class FunctionType implements Type {
+      //iterates over all functions defined with this type
+      //automatically deduces subtypes (by consistent signature)
+}
+
+class PossibleWorld {
+      SQLDatabase getDatabase();      
+}
+
+class GroundMarkovNetwork{
+      Features ground(WeightedFormulas);
+      Features ground(WeightedFormulas, OpenExpression)
+}
+
+class Feature {
+      int getIndex();
+      Function getFunction();
+      WeightedExpression getFormula();
+      Nodes getNodes();
+      Function 
+}
+
+interface Value {
+	  String getName();
+	  Type getType();
+}
+
+interface Function extends Value {
+	  Function apply(Function  arg, PossibleWorld world);
+	  ValueSet invert(Function result, PossibleWorld world);
+	  SQLTerm applySQL(SQLTerm  arg);
+	  SQLTableTerm invertSQL(SQLTerm arg, SQLTerm result);
+	  String getInfixSymbol();
+}
+
+class Constant<T> implements Value {
+      	  T value();	       
+          Function apply(Function arg){ return this;}
+	  SQLTerm applySQL(SQLTerm arg) {return SQLString(value.toString()); 
+	  String name() { return value.toString();}		             
+}
+
+class LambdaFunction implements Function {
+      Expression getExpression();
+      Variables getVariables();
+}
+
+class Constants {
+      Constant<Integer> i(int);
+      Constant<Double> d(double);  
+      Constant<Boolean> b(boolean b);
+      Constant<Boolean> tru();   //b(true);
+      Constant<Boolean> falz();  //b(false);  
+}
+
+class Tuple implements Function {
+
+}
+
+class MutablePredicate implements Function {
+}
+class MutableFunction implements Function {
+}
+
+//function that maps a set of boolean values to the number the value "true" appears in the set.
+class Count implements Function;
+
+class Functions {
+      Function add();
+      Function equals();
+      Function and();
+}
+
+class Expression;
+class Variable extends Expression;
+class FunctionApplication extends Expression;
+class WeightedExpression extends Expression; //has scale and weight term
+
+class Expressions {
+      Expression apply(Expression);
+      Expression var(String name);
+      
+}
+
+
+
+lambda x. p1(x,5);
+
+select t1.col1 from (select * from p1) t1 where t1.col2 = 5
+
+lambda x. p1(x,5) ^ p2(x+1) = lambda x. and(p1(x,5),p2(x))
+
+select t1.col1 from (select * from p1) t1, (select * from p2) t2 where t1.col1 = t2.col1 and t1.col2 = 5;
+
+invert add: select t1.col1,t2.col2 from Int t1, Int t2 where t1.col1 + t2.col = 5
+
+TheBeast beast = new TheBeast();
+beast.createType("Token",1,2,3,4,5);
+beast.createPredicate("word", "Token", "Word");
+PossibleWorld world = beast.createWorld();
+world.addAtom("word", 1, "the");
+Function result = beast.eval("word(1,"the"), world);
+FunctionSet query = beast.query("word(x,y)", tru(), world); 
+
+MLN mln = beast.createMLN();
+WeightedFormula f = mln.add("word(x,!w)=>tag(x,!t)"); //adds formula and corresponding weight function
+
+//higher order
+CPISolver solver = new CPISolver(mln);
+PossibleWorld best = solver.solve(world); 
+VectorSpace vs = mln.getVectorSpace();
+FeatureVector fv = vs.toFeatureVector(best);
+
+//propositional
+GroundMarkovNetwork mn = beast.createGroundMarkovNetwork();
+MaxProductSolver mp = new MaxProductSolver(mn);
+Nodes nodes1 = mn.groundAtoms("tag(x,"DT") : x < 10");
+Nodes nodes2 = mn.groundAtoms("tag(x,"DT"),word(x,y) : x < 10");
+mn.groundFormula(f, world);
+mn.groundFormula(f, nodes); //return all 
+//or
+mn.ground(mln);
+PossibleWorld w = mp.solve();
+
+
+//second order expr (type automatically resolved because of type information for tag
+f(t,Value:v)=>tag(t,l) 
+//typed version
+Token t, Value v, Label l, (Token,Value) f: f(t,v)=> tag(t,l)
+
+
+
+
+
+
+
+
+
