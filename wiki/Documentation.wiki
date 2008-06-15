@@ -5,6 +5,8 @@ For install instructions have a look [Installation here].
 
 = Manual =
 
+http://thebeast.googlecode.com/svn/tags/thebeast-0.0.2/doc/manual.pdf
+
 The distribution includes a [http://thebeast.googlecode.com/svn/tags/thebeast-0.0.2/doc/manual.pdf manual]. However, it is far from complete. We thus recommend to also have a look at the [http://thebeast.googlecode.com/svn/branches/thebeast-0.0.x/doc/manual.pdf updated version].
 
 = Tutorials =
