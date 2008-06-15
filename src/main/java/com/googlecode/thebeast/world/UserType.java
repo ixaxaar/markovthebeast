@@ -6,10 +6,13 @@ import java.util.Collections;
 
 /**
  * A UserType is a collection of constants created by the user. Note that the
- * UserType object creates and owns all its constants.
+ * UserType object creates and owns all its constants. Also note that a UserType
+ * can only be created using {@link
+ * com.googlecode.thebeast.world.Signature#createType(String)}.
  *
  * @author Sebastian Riedel
- * @see UserConstant
+ * @see com.googlecode.thebeast.world.UserConstant
+ * @see com.googlecode.thebeast.world.Signature
  */
 public class UserType implements Type {
 
