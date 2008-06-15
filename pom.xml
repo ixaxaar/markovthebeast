@@ -38,7 +38,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>com.googlecode.thebeast.App</mainClass>
+              <mainClass>com.googlecode.thebeast.TheBeast</mainClass>
             </manifest>
           </archive>
         </configuration>
