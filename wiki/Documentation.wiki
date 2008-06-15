@@ -7,6 +7,8 @@ For install instructions have a look [Installation here].
 
 The distribution includes a [http://thebeast.googlecode.com/svn/tags/thebeast-0.0.2/doc/manual.pdf manual]. However, it is far from complete. We thus recommend to also have a look at the [http://thebeast.googlecode.com/svn/branches/thebeast-0.0.x/doc/manual.pdf updated version].
 
+Note that for some googlecode related reason (I suppose) clicking on the links to the manuals shows the source code  of the pdf file. For now you need to "right-click download" and then open the downloaded file. 
+
 = Tutorials =
 
 There are several (well, two for now) [Tutorials tutorials] to get you started. Highly recommended: use the corresponding files as starting point for your own projects.
