@@ -1,10 +1,14 @@
 #summary The documentation for The Beast
-= Commands =
+= Installation =
 
-= Datatypes =
+For install instructions have a look [Installation here].
 
-= Data =
+= Manual =
 
-= Formulas =
+The distribution includes a [http://code.google.com/p/thebeast/svn/tags/thebeast-0.0.2/doc/manual.pdf manual]. However, it is far from complete. We thus recommend to also have a look at the [http://code.google.com/p/thebeast/svn/tags/thebeast-0.0.2/doc/manual.pdf current manual].
+
+= Tutorials =
+
+There are several (well, two for now) [Tutorials tutorials] to get you started. Highly recommended: use the corresponding files as starting point for your own projects.
 
 
