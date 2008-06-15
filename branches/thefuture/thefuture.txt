@@ -33,10 +33,13 @@ example solution:
 ground formula using binding: replace top level variables, expand quantifications
 
 
+
 package structure:
    com.googlecode.thebeast (org.markovthebeast.thebeast)
 	formula
 		Interpreter, Term, And, Or, CardinalityConstraint
+	world
+		Signature, Type, Constant, World, Dataset, IntConstant, ..., Add.Int,
 	signature
 		Value, Predicate, Type, Function, Constant, Signature
 	builtin
