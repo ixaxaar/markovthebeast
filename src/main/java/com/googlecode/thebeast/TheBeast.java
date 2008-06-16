@@ -1,5 +1,7 @@
 package com.googlecode.thebeast;
 
+import com.googlecode.thebeast.world.Signature;
+
 /**
  * This is the main class of markov thebeast.
  *
@@ -26,5 +28,7 @@ public final class TheBeast {
    */
   public static void main(final String[] args) {
     System.out.println("markov thebeast " + VERSION);
+    Signature signature = new Signature();
+    System.out.println(signature);
   }
 }

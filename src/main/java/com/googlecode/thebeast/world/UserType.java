@@ -8,44 +8,37 @@ import java.util.Collections;
  * A UserType is a collection of constants created by the user. Note that the
  * UserType object creates and owns all its constants. Also note that a UserType
  * can only be created using {@link
- * com.googlecode.thebeast.world.Signature#createType(String)}.
+ * com.googlecode.thebeast.world.Signature#createPredicate(String,
+ * java.util.List)}.
+ *
+ * <p>By default there is no order defined on constants of this type. This can
+ * be achieved by defining a corresponding (user)predicate.
  *
  * @author Sebastian Riedel
  * @see com.googlecode.thebeast.world.UserConstant
  * @see com.googlecode.thebeast.world.Signature
  */
-public class UserType implements Type {
+public final class UserType extends AbstractSymbol implements Type {
 
 
   /**
    * Contains a mapping from constant names to constants.
    */
-  private LinkedHashMap<String, UserConstant>
+  private final LinkedHashMap<String, UserConstant>
     constants = new LinkedHashMap<String, UserConstant>();
 
-  /**
-   * The name of the type.
-   */
-  private String name;
 
   /**
    * Creates a type with the given name. Usually called by the {@link
    * Signature}.
    *
-   * @param name the name of the type.
+   * @param name      the name of the type.
+   * @param signature the signature this type belongs to.
    */
-  UserType(final String name) {
-    this.name = name;
+  UserType(final String name, final Signature signature) {
+    super(name, signature);
   }
 
-  /**
-   * Returns the name of this type as given by the user.
-   *
-   * @return a string representing the name of this type.
-   */
-  public final String getName() {
-    return name;
-  }
 
   /**
    * Returns an unmodifiable view on the set of constants.
@@ -53,7 +46,7 @@ public class UserType implements Type {
    * @return an unmodifiable collection of the constants contained in this
    *         type.
    */
-  public final Collection<UserConstant> getConstants() {
+  public Collection<UserConstant> getConstants() {
     return Collections.unmodifiableCollection(constants.values());
   }
 
@@ -65,8 +58,9 @@ public class UserType implements Type {
    * @param name the name of the constant.
    * @return a UserConstant with the given name and this object as its type.
    */
-  public final UserConstant createConstant(final String name) {
-    UserConstant constant = new UserConstant(name, this, constants.size());
+  public UserConstant createConstant(final String name) {
+    UserConstant constant =
+      new UserConstant(name, this, constants.size(), getSignature());
     constants.put(name, constant);
     return constant;
   }
