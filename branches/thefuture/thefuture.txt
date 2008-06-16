@@ -4,6 +4,40 @@ PML syntax:
   - disallow conjunctions of disjunctions or disjunctions of conjunctions 
   - cycle constraint
 
+AlchemyExpression -> TemplateExpression -> Expression
+Template -> Expression(s)
+equals(1,2) -> equals.int(1,2);
+equals(1,2.0) -> equals.double(cast.int2double(1),2.0);
+
+preprocessor
+@param(T,"word")
+T(x,+p)=>label(x,+l)
+-> _weight(p,l,id) & word(x,p) & scale = 1 => label(x,l) [scale * theta(id)]
+
+label(Int,Label)
+-> predicate label: Int x Label (in alchemy mode).
+
+alchemy style:
+	Label = {A1,A2}
+	label(Int, Label) // predicate def.
+        label(x,y) //formula def.
+
+AlchemyExpression (label(Int,Label))
+	- Atom
+	- TypeDefinition
+
+Template
+	- TypeDef
+	- PredicateDef
+	- Formula
+	
+
+MarkovLogicExpression
+	- TypeDef, Formula
+	- WeightedFormula
+	
+	
+
 PML semantics:
 A possible world:
   - maps each constant to itself
@@ -29,6 +63,8 @@ example solution:
    - {(x/1,{y/1,y/2,y/3}),(x/2,{y/5,y/10})} 
 
 
+Weights:
+	- double vector
 
 ground formula using binding: replace top level variables, expand quantifications
 

@@ -7,7 +7,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public interface Constant {
+public interface Constant extends Symbol{
 
   /**
    * Returns the type of this constant.

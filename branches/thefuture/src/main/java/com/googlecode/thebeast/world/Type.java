@@ -5,7 +5,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public interface Type {
+public interface Type extends Symbol {
 
   /**
    * This method returns the name of the type.
