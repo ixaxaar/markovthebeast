@@ -1,15 +1,16 @@
 package com.googlecode.thebeast.world;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.io.Serializable;
 
 /**
  * A Signature maintains a set of types, predicates and functions. In
@@ -41,6 +42,13 @@ public final class Signature implements Serializable {
    */
   private final LinkedHashMap<String, Predicate>
     predicates = new LinkedHashMap<String, Predicate>();
+
+  /**
+   * A mapping from names to symbols (types, predicates, constants and
+   * functions).
+   */
+  private final LinkedHashMap<String, Symbol>
+    symbols = new LinkedHashMap<String, Symbol>();
 
 
   /**
@@ -79,6 +87,56 @@ public final class Signature implements Serializable {
 
 
   /**
+   * Add a symbol to the signature. This method is called by all symbol factor
+   * methods in this class and in {@link Type}.
+   *
+   * @param symbol the symbol we want to register.
+   * @throws SymbolAlreadyExistsException if there is a symbol with the same
+   *                                      name.
+   */
+  void registerSymbol(final Symbol symbol) throws SymbolAlreadyExistsException {
+    Symbol old = symbols.get(symbol.getName());
+    if (old != null) {
+      throw new SymbolAlreadyExistsException(old, this);
+    }
+    symbols.put(symbol.getName(), symbol);
+    for (SignatureListener l : listeners) {
+      l.symbolAdded(symbol);
+    }
+  }
+
+  /**
+   * Unregistered the symbol from this signature.
+   *
+   * @param symbol the symbol to be removed from the signature.
+   * @throws SymbolNotPartOfSignatureException
+   *          if the symbol is not a member of this signature (e.g. it has been
+   *          created by a different signature object).
+   */
+  void unregisterSymbol(final Symbol symbol)
+    throws SymbolNotPartOfSignatureException {
+    if (!symbol.getSignature().equals(this)) {
+      throw new SymbolNotPartOfSignatureException(symbol, this);
+    }
+    symbols.remove(symbol.getName());
+    for (SignatureListener l : listeners) {
+      l.symbolRemoved(symbol);
+    }
+
+  }
+
+  /**
+   * Returns the symbol for the given name.
+   *
+   * @param name the name of the symbol.
+   * @return the symbol with the given name.
+   */
+  public Symbol getSymbol(final String name) {
+    return symbols.get(name);
+  }
+
+
+  /**
    * Adds the given listener to the listeners of this signature. Will be
    * notified of any changes to it.
    *
@@ -99,19 +157,49 @@ public final class Signature implements Serializable {
     listeners.remove(signatureListener);
   }
 
+
+  /**
+   * Creates a new possible world.
+   *
+   * @return a new possible world with unique id wrt to this signature.
+   */
+  public World createWorld() {
+    return new World(this, 0);
+  }
+
   /**
    * Creates a new UserType with the given name.
    *
    * @param name the name of the type.
    * @return a UserType with the given name.
+   * @throws SymbolAlreadyExistsException if there is a symbol with the same
+   *                                      name in the signature.
    */
-  public UserType createType(final String name) {
+  public UserType createType(final String name)
+    throws SymbolAlreadyExistsException {
+
     UserType type = new UserType(name, this);
+    registerSymbol(type);
     types.put(name, type);
     for (SignatureListener l : listeners) {
-      l.typeAdded(type);
+      l.symbolAdded(type);
     }
     return type;
+  }
+
+
+  /**
+   * Removes a type from the signature.
+   *
+   * @param type the type to remove from the signature.
+   * @throws SymbolNotPartOfSignatureException
+   *          if the type is not a member of the signature (e.g. because it was
+   *          created by a different signature object).
+   */
+  public void removeType(final Type type)
+    throws SymbolNotPartOfSignatureException {
+    unregisterSymbol(type);
+    types.remove(type.getName());
   }
 
   /**
@@ -120,15 +208,46 @@ public final class Signature implements Serializable {
    * @param name          the name of the new predicate
    * @param argumentTypes a list with its argument types.
    * @return a UserPredicate with the specified properties.
+   * @throws SymbolAlreadyExistsException if there is a symbol with the same
+   *                                      name in the signature.
    */
   public UserPredicate createPredicate(final String name,
-                                       final List<Type> argumentTypes) {
+                                       final List<Type> argumentTypes)
+    throws SymbolAlreadyExistsException {
+
     UserPredicate predicate = new UserPredicate(name, argumentTypes, this);
+    registerSymbol(predicate);
     predicates.put(name, predicate);
-    for (SignatureListener l : listeners) {
-      l.predicateAdded(predicate);
-    }
     return predicate;
+  }
+
+  /**
+   * Convenience method to create predicates without using a list.
+   *
+   * @param name          the name of the predicate
+   * @param argumentTypes an vararg array of argument types
+   * @return a UserPredicate with the specified properties.
+   * @throws SymbolAlreadyExistsException if there is a symbol in the signature
+   *                                      that already has this name.
+   */
+  public UserPredicate createPredicate(final String name,
+                                       final Type... argumentTypes)
+    throws SymbolAlreadyExistsException {
+    return createPredicate(name, Arrays.asList(argumentTypes));
+  }
+
+  /**
+   * Removes a predicate from the signature.
+   *
+   * @param predicate the predicate to remove from the signature.
+   * @throws SymbolNotPartOfSignatureException
+   *          if the predicate is not a member of the signature (e.g. because it
+   *          was created by a different signature object).
+   */
+  public void removePredicate(final Predicate predicate)
+    throws SymbolNotPartOfSignatureException {
+    unregisterSymbol(predicate);
+    predicates.remove(predicate.getName());
   }
 
 
@@ -146,7 +265,7 @@ public final class Signature implements Serializable {
   public Type getType(final String name) throws TypeNotInSignatureException {
     Type type = types.get(name);
     if (type == null) {
-      throw new TypeNotInSignatureException(name);
+      throw new TypeNotInSignatureException(name, this);
     }
     return type;
   }
@@ -193,5 +312,6 @@ public final class Signature implements Serializable {
   public Collection<Type> getTypes() {
     return Collections.unmodifiableCollection(types.values());
   }
+
 
 }

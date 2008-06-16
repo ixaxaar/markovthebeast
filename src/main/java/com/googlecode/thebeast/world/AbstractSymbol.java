@@ -6,7 +6,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public class AbstractSymbol implements Symbol {
+public abstract class AbstractSymbol implements Symbol {
 
   /**
    * The name of this symbol.

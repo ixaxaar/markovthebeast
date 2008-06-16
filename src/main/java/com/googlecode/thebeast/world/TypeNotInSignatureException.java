@@ -9,7 +9,7 @@ package com.googlecode.thebeast.world;
  * type.
  */
 public final class TypeNotInSignatureException
-  extends RuntimeException {
+  extends SignatureException {
 
   /**
    * The name of the requested type.
@@ -19,10 +19,13 @@ public final class TypeNotInSignatureException
   /**
    * Creates Exception for given type name.
    *
-   * @param typeName the name of the type that was requested.
+   * @param typeName  the name of the type that was requested.
+   * @param signature the signature that throws this exception.
    */
-  TypeNotInSignatureException(final String typeName) {
-    super("There is no type with name " + typeName + " in this signature");
+  TypeNotInSignatureException(final String typeName,
+                              final Signature signature) {
+    super("There is no type with name " + typeName + " in this signature",
+      signature);
     this.typeName = typeName;
   }
 

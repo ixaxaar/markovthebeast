@@ -61,6 +61,7 @@ public final class UserType extends AbstractSymbol implements Type {
   public UserConstant createConstant(final String name) {
     UserConstant constant =
       new UserConstant(name, this, constants.size(), getSignature());
+    getSignature().registerSymbol(constant);
     constants.put(name, constant);
     return constant;
   }
