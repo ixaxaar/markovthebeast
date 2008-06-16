@@ -9,6 +9,18 @@ Template -> Expression(s)
 equals(1,2) -> equals.int(1,2);
 equals(1,2.0) -> equals.double(cast.int2double(1),2.0);
 
+formula regex templates:
+
+//multiclass
+\observed ^ |l: \hidden(*,l,*) | <= 1; 
+
+//local features
+(\hidden) ^ \local* 
+(\hidden) v \local*
+
+//linear chain
+\hidden(*,t,*) ^ \hidden(*,t+1,*) ^ \observed*
+
 preprocessor
 @param(T,"word")
 T(x,+p)=>label(x,+l)

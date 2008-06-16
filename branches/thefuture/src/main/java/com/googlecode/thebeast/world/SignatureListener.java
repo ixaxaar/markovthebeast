@@ -9,18 +9,23 @@ package com.googlecode.thebeast.world;
 public interface SignatureListener {
 
   /**
-   * Called when a new type (both user and built-in) is added to the signature.
+   * Called when a new symbol is added to the signature. Note that this method
+   * is called after the symbol was registered but possibly before it was stored
+   * in its corresponding container. For example, if a type was added it might
+   * not be contained in {@link Signature#getTypes()} yet.
    *
-   * @param type the type that was added.
+   * @param symbol the symbol that was added to the signature.
    */
-  void typeAdded(Type type);
+  void symbolAdded(Symbol symbol);
+
 
   /**
-   * Called when a new predicate (both user and built-in) is added to the
-   * signature.
+   * This method is called whenver a symbol is removed from the signature. Note
+   * when this method is called the symbol has been removed from the list of
+   * symbols contained in the signature but it might still be in the container
+   * specfic to the type of the symbol.
    *
-   * @param predicate the predicate that was added.
+   * @param symbol the symbol that was removed from the signature.
    */
-  void predicateAdded(Predicate predicate);
-
+  void symbolRemoved(Symbol symbol);
 }

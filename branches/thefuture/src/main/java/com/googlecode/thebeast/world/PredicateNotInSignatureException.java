@@ -5,11 +5,11 @@ package com.googlecode.thebeast.world;
  */
 
 /**
- * Exception thrown when a predicate is requested by name and there exist no such
- * predicate.
+ * Exception thrown when a predicate is requested by name and there exist no
+ * such predicate.
  */
 public final class PredicateNotInSignatureException
-  extends RuntimeException {
+  extends SignatureException {
 
   /**
    * The name of the requested predicate.
@@ -20,9 +20,12 @@ public final class PredicateNotInSignatureException
    * Creates Exception for given type name.
    *
    * @param predicateName the name of the type that was requested.
+   * @param signature     the signature that threw this exception.
    */
-  PredicateNotInSignatureException(final String predicateName) {
-    super("There is no predicate with name " + predicateName + " in this signature");
+  PredicateNotInSignatureException(final String predicateName,
+                                   final Signature signature) {
+    super("There is no predicate with name " + predicateName
+      + " in this signature", signature);
     this.predicateName = predicateName;
   }
 
