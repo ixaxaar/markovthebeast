@@ -1,3 +1,57 @@
+todo:
+	- WorldListener
+	- Predicate Inheritance
+	- Context: set of ground atoms true in every possible world.
+
+f_M,C(y) = f_M(y & C)
+
+
+BackgroundKnowledge b;
+World w1;
+World w2 = b.extend(w1);
+
+
+
+f_M(x_i,y_i,c_i) with c_i = t(x_1,..,x_i-1,M)
+
+View Markov Logic Network as a way to define a mapping from a possible world to an (countable infinite/finite) real valued vector. Weights + MLN = mapping from possible world to score/probability. MLN: maps symbolic world into subsymbolic.
+
+mln(y) = \sum_{f}\sum_{b} e_b[id] * b[scale] * I[f[b] satisfied in y]
+
+Markov Theta Logic
+- assumes fixed signature (not parametrized by set of constants)
+- parametrized by weight vector		    
+- each grounding of a formula can have a different id (different weight)
+- each grounding of a formula can hava a different scaling factor.
+- cardinality constraints
+- (acyclicity constraint)
+
+Markov Theta Template 
+
+formula with no free variables: pred(C) -> singleton(x) & pred(C)
+
+deterministic formula: pred(x) -> id = 0 & pred(x) ^ scale=1 [scale * theta(0)]
+
+thus exp(p(y)) ~ <w,mln(y)>
+
+MLN{
+	FeatureVector getFeatureVector(World w);
+}
+
+Deterministic predicates:
+-eg. path: requires some configuration
+  
+  @deterministic(graph.path) @path.uses(token) @path.args(0,1) @path.length(2)
+  predicate path;
+
+Data management options:
+1. 
+   - Each possible world has set of db tables and owns them until destruction.
+   - a dataset stores possible worlds using one table per predicate (with extra world id column)
+   - A SQLTablePool maintains tables and allows reuse of tables to avoid expensive table creation etc. 
+   - A SQLTable maintains a mapping from ML Queries to SQL queries to avoid recreation of queries.
+   
+
 PML syntax:
   - (higher order) functional
   - cardinality, existential and universal qualification

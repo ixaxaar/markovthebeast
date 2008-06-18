@@ -5,8 +5,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public final class UserConstant extends AbstractSymbol implements Constant {
-
+public final class UserConstant extends SQLRepresentableConstant {
 
   /**
    * The type of the constant.
@@ -55,6 +54,17 @@ public final class UserConstant extends AbstractSymbol implements Constant {
    */
   public Type getType() {
     return type;
+  }
+
+
+  /**
+   * Return an SQL representation of this constant.
+   *
+   * @return an Integer object representing the id number of this constant.
+   * @see UserType#asSQLType()
+   */
+  Object asSQLConstant() {
+    return id;
   }
 
 

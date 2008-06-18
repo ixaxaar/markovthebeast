@@ -11,7 +11,7 @@ public final class SymbolAlreadyExistsException extends SignatureException {
   /**
    * The already existing symbol.
    */
-  private Symbol symbol;
+  private final Symbol symbol;
 
   /**
    * Create a new Signature exception with the corresponding message belonging

@@ -3,7 +3,7 @@ package com.googlecode.thebeast.world;
 import java.util.List;
 
 /**
- * A BuiltInPredicate represents a predicate for the interpretation is fixed and
+ * A StaticPredicate represents a predicate for the interpretation is fixed and
  * already given. That is, if the predicate <code>pred</code> is a
  * BuiltInPredicate than for any sequence of arguments <code>arg1,arg2,...
  * </code> the truth value of <code>pred(arg1,arg2,...)</code> in every possible
@@ -37,5 +37,6 @@ public abstract class StaticPredicate extends AbstractSymbol
    *         possible world.
    */
   public abstract boolean evaluate(final List<Constant> arguments);
+
 
 }
