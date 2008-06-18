@@ -27,6 +27,15 @@ public final class Signature implements Serializable {
    */
   private static final long serialVersionUID = 1999L;
 
+  /**
+   * The Id to be given to the next possible world to create.
+   */
+  private int currentWorldId = 0;
+
+  /**
+   * The pool of sql tables to reuse.
+   */
+  private SQLTablePool sqlTablePool;
 
   /**
    * A map from type names to types. This map contains user types as well as
@@ -38,10 +47,22 @@ public final class Signature implements Serializable {
     types = new LinkedHashMap<String, Type>();
 
   /**
+   * A mapping from names to user types.
+   */
+  private final LinkedHashMap<String, UserType>
+    userTypes = new LinkedHashMap<String, UserType>();
+
+  /**
    * A mapping from predicate names to predicates.
    */
   private final LinkedHashMap<String, Predicate>
     predicates = new LinkedHashMap<String, Predicate>();
+
+  /**
+   * Stores all user predicates.
+   */
+  private final LinkedHashMap<String, UserPredicate>
+    userPredicates = new LinkedHashMap<String, UserPredicate>();
 
   /**
    * A mapping from names to symbols (types, predicates, constants and
@@ -69,6 +90,7 @@ public final class Signature implements Serializable {
     try {
       Class.forName("org.h2.Driver");
       connection = DriverManager.getConnection("jdbc:h2:~/test", "sa", "");
+      sqlTablePool = new SQLTablePool(this);
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (SQLException e) {
@@ -85,6 +107,16 @@ public final class Signature implements Serializable {
     return connection;
   }
 
+
+  /**
+   * Returns the pool of tables that represents relations of this signature.
+   *
+   * @return an SQLTablePool that manages tables representing relations of this
+   *         signature.
+   */
+  SQLTablePool getSqlTablePool() {
+    return sqlTablePool;
+  }
 
   /**
    * Add a symbol to the signature. This method is called by all symbol factor
@@ -164,29 +196,50 @@ public final class Signature implements Serializable {
    * @return a new possible world with unique id wrt to this signature.
    */
   public World createWorld() {
-    return new World(this, 0);
+    return new World(this, currentWorldId++);
   }
 
   /**
    * Creates a new UserType with the given name.
    *
-   * @param name the name of the type.
+   * @param name       the name of the type.
+   * @param extendable if the type can create new constants when queried for
+   *                   constants with unknown names.
    * @return a UserType with the given name.
    * @throws SymbolAlreadyExistsException if there is a symbol with the same
    *                                      name in the signature.
    */
-  public UserType createType(final String name)
+  public UserType createType(final String name, final boolean extendable)
     throws SymbolAlreadyExistsException {
 
-    UserType type = new UserType(name, this);
+    UserType type = new UserType(name, extendable, this);
     registerSymbol(type);
     types.put(name, type);
+    userTypes.put(name, type);
     for (SignatureListener l : listeners) {
       l.symbolAdded(type);
     }
     return type;
   }
 
+
+  /**
+   * Convenience method to create a type that already contains a set of
+   * constants.
+   *
+   * @param name       the name of the type.
+   * @param extendable whether the type should be extendable on the fly.
+   * @param constants  a vararg array of constant names.
+   * @return a type that contains constants with the provided names.
+   */
+  public UserType createType(final String name, final boolean extendable,
+                             final String... constants) {
+    UserType type = createType(name, extendable);
+    for (String constant : constants) {
+      type.createConstant(constant);
+    }
+    return type;
+  }
 
   /**
    * Removes a type from the signature.
@@ -215,9 +268,15 @@ public final class Signature implements Serializable {
                                        final List<Type> argumentTypes)
     throws SymbolAlreadyExistsException {
 
-    UserPredicate predicate = new UserPredicate(name, argumentTypes, this);
+    ArrayList<SQLRepresentableType>
+      sqlTypes = new ArrayList<SQLRepresentableType>();
+    for (Type type : argumentTypes) {
+      sqlTypes.add((SQLRepresentableType) type);
+    }
+    UserPredicate predicate = new UserPredicate(name, sqlTypes, this);
     registerSymbol(predicate);
     predicates.put(name, predicate);
+    userPredicates.put(name, predicate);
     return predicate;
   }
 
@@ -244,10 +303,11 @@ public final class Signature implements Serializable {
    *          if the predicate is not a member of the signature (e.g. because it
    *          was created by a different signature object).
    */
-  public void removePredicate(final Predicate predicate)
+  public void removePredicate(final UserPredicate predicate)
     throws SymbolNotPartOfSignatureException {
     unregisterSymbol(predicate);
     predicates.remove(predicate.getName());
+    userPredicates.remove(predicate.getName());
   }
 
 
@@ -264,6 +324,22 @@ public final class Signature implements Serializable {
    */
   public Type getType(final String name) throws TypeNotInSignatureException {
     Type type = types.get(name);
+    if (type == null) {
+      throw new TypeNotInSignatureException(name, this);
+    }
+    return type;
+  }
+
+  /**
+   * Returns the user type corresponding to the given name.
+   *
+   * @param name the name of the type to return.
+   * @return the user type with the given name.
+   * @throws TypeNotInSignatureException if there is no type with this name.
+   */
+  public UserType getUserType(final String name)
+    throws TypeNotInSignatureException {
+    UserType type = userTypes.get(name);
     if (type == null) {
       throw new TypeNotInSignatureException(name, this);
     }
@@ -301,6 +377,15 @@ public final class Signature implements Serializable {
    */
   public Set<String> getPredicateNames() {
     return Collections.unmodifiableSet(predicates.keySet());
+  }
+
+  /**
+   * Returns the collection user predicates in this signature.
+   *
+   * @return an unmodifiable view on the set of user predicates.
+   */
+  public Collection<UserPredicate> getUserPredicates() {
+    return Collections.unmodifiableCollection(userPredicates.values());
   }
 
   /**

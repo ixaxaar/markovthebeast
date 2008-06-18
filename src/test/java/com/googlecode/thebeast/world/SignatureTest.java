@@ -5,7 +5,10 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 
 /**
+ * Tests methods of the Signature class.
+ *
  * @author Sebastian Riedel
+ * @see com.googlecode.thebeast.world.Signature
  */
 public final class SignatureTest extends TestCase {
 
@@ -22,12 +25,12 @@ public final class SignatureTest extends TestCase {
    */
   public void testCreateType() {
     Signature signature = new Signature();
-    UserType type = signature.createType("type");
+    UserType type = signature.createType("type", false);
     assertEquals("type", type.getName());
     assertTrue(signature.getTypes().contains(type));
     assertEquals(type, signature.getType("type"));
     try {
-      signature.createType("type");
+      signature.createType("type", false);
       fail("Should throw SymbolAlreadyExistsException");
     } catch (SymbolAlreadyExistsException e) {
       assertEquals(type, e.getSymbol());
@@ -39,7 +42,7 @@ public final class SignatureTest extends TestCase {
    */
   public void testCreatePredicate() {
     Signature signature = new Signature();
-    UserType type = signature.createType("type");
+    UserType type = signature.createType("type", false);
     UserPredicate pred = signature.createPredicate("pred", type);
     assertEquals("pred", pred.getName());
     assertTrue(signature.getPredicateNames().contains(pred.getName()));
@@ -59,7 +62,7 @@ public final class SignatureTest extends TestCase {
     Signature signature = new Signature();
     Listener listener = new Listener();
     signature.addSignatureListener(listener);
-    UserType type = signature.createType("type");
+    UserType type = signature.createType("type", false);
 
     assertEquals("Signature did not fire symbol added event properly",
       type, listener.symbol);
@@ -80,7 +83,7 @@ public final class SignatureTest extends TestCase {
     Listener listener = new Listener();
     signature.addSignatureListener(listener);
     ArrayList<Type> argumentTypes = new ArrayList<Type>();
-    argumentTypes.add(signature.createType("type"));
+    argumentTypes.add(signature.createType("type", false));
     UserPredicate predicate = signature.createPredicate("pred", argumentTypes);
 
     assertEquals("Signature did not fire symbol added event properly",
@@ -113,7 +116,7 @@ public final class SignatureTest extends TestCase {
     /**
      * {@inheritDoc}
      */
-    public void symbolRemoved(Symbol symbol) {
+    public void symbolRemoved(final Symbol symbol) {
       this.symbol = null;
     }
 

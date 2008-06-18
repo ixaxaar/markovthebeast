@@ -17,9 +17,10 @@ public final class UserPredicateTest extends TestCase {
    */
   public void testConstructor() {
     Signature signature = new Signature();
-    List<Type> argumentTypes = new ArrayList<Type>();
-    UserType type1 = signature.createType("Type1");
-    UserType type2 = signature.createType("Type2");
+    List<SQLRepresentableType> argumentTypes =
+      new ArrayList<SQLRepresentableType>();
+    UserType type1 = signature.createType("Type1", false);
+    UserType type2 = signature.createType("Type2", false);
     argumentTypes.add(type1);
     argumentTypes.add(type2);
     UserPredicate predicate =

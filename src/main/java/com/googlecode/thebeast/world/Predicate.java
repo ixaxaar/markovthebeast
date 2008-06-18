@@ -23,6 +23,6 @@ public interface Predicate extends Symbol {
    * @return a {@link java.util.RandomAccess} list of types in the order in
    *         which their constants can act as arguments of this predicate.
    */
-  List<Type> getArgumentTypes();
+  List<? extends Type> getArgumentTypes();
 
 }

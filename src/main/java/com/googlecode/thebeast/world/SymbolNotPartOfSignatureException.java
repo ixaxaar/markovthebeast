@@ -6,12 +6,13 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public final class SymbolNotPartOfSignatureException extends SignatureException {
+public final class SymbolNotPartOfSignatureException
+  extends SignatureException {
 
   /**
    * The already existing symbol.
    */
-  private Symbol symbol;
+  private final Symbol symbol;
 
   /**
    * Create a new Signature exception with the corresponding message belonging
