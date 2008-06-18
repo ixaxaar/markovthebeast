@@ -1,14 +1,35 @@
-/* Load the types we generated based on the training corpus */
-include "types.pml";
+/* Load the constant types */
+include "align-types.pml";
 
-/* Load the SRL mln */
+/* Load Alignment mln */
 include "align.pml";
 
 /* Loading the global atoms that hold in every possible world */
 load global from "global.atoms";
 
-/* Load the weights we allowed to be nonzero in the collection step (init.pml) */
-load weights from dump "align.weights";
+/* Load a collection of possible worlds for training */
+load corpus from "train.atoms";
+
+/* Collect the formula instantiations that are allowed to have nonzero weights */
+collect;
+
+/* Print out what we collected */
+print weights;
+
+/* Save the corpus we loaded above as training instances to a temporary file.
+   This is mandatory for training the weights. Often this will take some time
+   because some preprocessing is done to speed up training later. You can also
+   reuse this in later sessions. */
+save corpus to instances "align.instances";
+
+/* Now do online learning for 10 epochs (by default this uses MIRA) */
+learn for 10 epochs;
+
+/* Print the new weights to the screen */
+print weights;
+
+/* Save them in binary form for later reuse */
+save weights to dump "align.weights";
 
 /* Load a test corpus */
 load corpus from "test.atoms";
@@ -50,8 +71,13 @@ next; solve; print atoms.align; print eval;
 // print the local features for ground atom align(1,1)
 print solver.features.align(1,1);
 
-// run only two CPI iterations
-solve 2;
+/* Now we want to apply our MLN to all worlds in the test corpus
+   and write out the result. Note that this will also print out
+   some statistics. */
+test to "system.atoms";
 
-// and check result again
-print atoms.align;
+
+
+
+
+
