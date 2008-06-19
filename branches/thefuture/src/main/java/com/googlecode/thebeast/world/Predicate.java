@@ -13,6 +13,8 @@ public interface Predicate extends Symbol {
    * Returns the name of the predicate symbol.
    *
    * @return a String containing the name of this predicate.
+   *
+   * @see Symbol#getName()
    */
   String getName();
 

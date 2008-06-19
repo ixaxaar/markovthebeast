@@ -33,6 +33,8 @@ abstract class AbstractSymbol implements Symbol {
    * Returns the name of this symbol.
    *
    * @return String with name of this symbol.
+   *
+   * @see Symbol#getName()
    */
   public final String getName() {
     return name;
@@ -42,6 +44,8 @@ abstract class AbstractSymbol implements Symbol {
    * Returns the signature this symbol belongs to.
    *
    * @return Signature of this symbol.
+   *
+   * @see Symbol#getSignature()
    */
   public final Signature getSignature() {
     return signature;

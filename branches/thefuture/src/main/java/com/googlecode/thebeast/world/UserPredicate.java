@@ -38,6 +38,8 @@ public final class UserPredicate extends AbstractSymbol implements Predicate {
    * Returns the argument type list of this predicate.
    *
    * @return an unmodifiable
+   *
+   * @see Predicate#getArgumentTypes()
    */
   public List<? extends Type> getArgumentTypes() {
     return Collections.unmodifiableList(argumentTypes);

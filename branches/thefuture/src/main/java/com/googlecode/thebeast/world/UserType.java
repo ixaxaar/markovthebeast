@@ -1,8 +1,11 @@
 package com.googlecode.thebeast.world;
 
+import com.google.common.collect.Iterators;
+
 import java.util.LinkedHashMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * A UserType is a collection of constants created by the user. Note that the
@@ -141,6 +144,7 @@ public final class UserType extends SQLRepresentableType {
    * (the constant ids) to represent its constants.
    *
    * @return the SQL column type to represent objects of this type.
+   * @see SQLRepresentableType#asSQLType()
    */
   String asSQLType() {
     return "integer";
@@ -152,8 +156,41 @@ public final class UserType extends SQLRepresentableType {
    * @param representation the Integer object that represents the id of the
    *                       constant to return.
    * @return the constant denoted by the given representation.
+   * @see SQLRepresentableType#getConstantFromSQL(Object)
    */
   Constant getConstantFromSQL(final Object representation) {
     return getConstant((Integer) representation);
+  }
+
+  /**
+   * By default types are not iterable.
+   *
+   * @return false by default.
+   * @see SQLRepresentableType#isIterable() 
+   */
+  public boolean isIterable() {
+    return true;
+  }
+
+  /**
+   * Returns the number of user constants in this type.
+   *
+   * @return the number of user constants.
+   * @see Type#size()
+   */
+  public int size() {
+    return constants.size();
+  }
+
+  /**
+   * Method iterator returns an iterator over the created user constants.
+   *
+   * @return Iterator<Constant> an iterator that iterates over all constants in
+   *         this type.
+   *
+   * @see SQLRepresentableType#iterator()
+   */
+  public Iterator<Constant> iterator() {
+    return Iterators.filter(constants.values().iterator(), Constant.class);
   }
 }

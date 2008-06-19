@@ -98,6 +98,24 @@ public final class Signature implements Serializable {
     }
   }
 
+
+  /**
+   * Tests whether the signature equals the given one. If not a runtime
+   * exception is thrown. This is mainly a convenience method for clients how
+   * want to ensure that arguments to their operations have matching types.
+   *
+   * @param signature the signature to match.
+   * @throws SignatureMismatchException when signatures do not match.
+   */
+  public void match(final Signature signature)
+    throws SignatureMismatchException {
+    if (!this.equals(signature)) {
+      throw new SignatureMismatchException("Signatures do not match",
+        this, signature);
+    }
+
+  }
+
   /**
    * Provides a signature-wide database connection to classes of this package.
    *
@@ -271,6 +289,7 @@ public final class Signature implements Serializable {
     ArrayList<SQLRepresentableType>
       sqlTypes = new ArrayList<SQLRepresentableType>();
     for (Type type : argumentTypes) {
+      match(type.getSignature());
       sqlTypes.add((SQLRepresentableType) type);
     }
     UserPredicate predicate = new UserPredicate(name, sqlTypes, this);

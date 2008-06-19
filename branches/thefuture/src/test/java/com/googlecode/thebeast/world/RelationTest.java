@@ -92,8 +92,8 @@ public final class RelationTest extends TestCase {
     while (iterator.hasNext()) {
       actual.add(iterator.next());
     }
-    assertEquals("Set of constants returned by the iterator is not equal" +
-      " to set of constants added to the relation", expected, actual);
+    assertEquals("Set of constants returned by the iterator is not equal"
+      + " to set of constants added to the relation", expected, actual);
     assertEquals(2, relation.size());
   }
 
