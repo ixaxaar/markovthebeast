@@ -3,6 +3,7 @@ package com.googlecode.thebeast.world;
 import com.google.common.collect.HashBiMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  *
  * @author Sebastian Riedel
  */
-public final class World implements RelationListener {
+public final class World implements RelationListener, WorldListener {
 
   /**
    * The signature this world belongs to.
@@ -33,6 +34,12 @@ public final class World implements RelationListener {
   private final ArrayList<WorldListener>
     listeners = new ArrayList<WorldListener>();
 
+  /**
+   * A mapping from user predicates to parent worlds which provide the relations
+   * for the given predicate.
+   */
+  private final HashMap<UserPredicate, World>
+    parents = new HashMap<UserPredicate, World>();
 
   /**
    * The set of relation objects representing the relations in this possible
@@ -54,6 +61,32 @@ public final class World implements RelationListener {
     this.id = id;
   }
 
+
+  /**
+   * Adds a parent world to this world which provides the relation for the given
+   * predicate.
+   *
+   * @param predicate the predicate for which data should be provided by the
+   *                  parent.
+   * @param parent    the world which provides the data for the specified
+   *                  predicate.
+   * @throws PredicateAlreadyInUseException if there is already a local relation
+   *                                        object for the predicate (i.e.
+   *                                        somebody already changed the
+   *                                        relation here).
+   */
+  public void addParent(final UserPredicate predicate, final World parent)
+    throws PredicateAlreadyInUseException {
+    signature.match(predicate.getSignature());
+    signature.match(parent.getSignature());
+    if (relations.get(predicate) != null) {
+      throw new PredicateAlreadyInUseException("Can't add a parent world "
+        + " for " + predicate + " because there already exists "
+        + "a local relation object for it", predicate, this);
+    }
+    parents.put(predicate, parent);
+    parent.addListener(this);
+  }
 
   /**
    * Adds a listener for this world.
@@ -105,13 +138,18 @@ public final class World implements RelationListener {
    *         possible world.
    */
   public Relation getRelation(final UserPredicate predicate) {
+    signature.match(predicate.getSignature());
+    World parent = parents.get(predicate);
+    if (parent != null) {
+      return parent.getRelation(predicate);
+    }
     Relation relation = relations.get(predicate);
     if (relation == null) {
       SQLTableDescription tableDescription = signature.getSqlTablePool().
         requestTable(predicate.getSQLRepresentableArgumentTypes());
       relation = new Relation(tableDescription);
       relations.put(predicate, relation);
-      
+
     }
     return relation;
   }
@@ -133,12 +171,35 @@ public final class World implements RelationListener {
    *
    * @param relation the relation for which the tuple was added.
    * @param tuple    the added tuple.
+   *
+   * @see RelationListener#tupleAdded(Relation, ConstantTuple)
    */
-  public void tupleAdded(Relation relation, ConstantTuple tuple) {
+  public void tupleAdded(final Relation relation, final ConstantTuple tuple) {
     for (WorldListener listener : listeners) {
       listener.tupleAdded(relations.inverse().get(relation), tuple);
     }
 
   }
 
+  /**
+   * Listens to its parent worlds and informs its own listeners of changes in
+   * the relevant parts of the parents.
+   *
+   * <p>Note that a World should only be a listener to its parent worlds.
+   *
+   * @param predicate the predicate that was changed in a parent. If this world
+   *                  uses relation of a parent world for this predicate
+   *                  listeners are informed of changes.
+   * @param tuple     the tuple that was added to the parent.
+   *
+   * @see WorldListener#tupleAdded(UserPredicate, ConstantTuple)
+   */
+  public void tupleAdded(final UserPredicate predicate,
+                         final ConstantTuple tuple) {
+    if (parents.containsKey(predicate)) {
+      for (WorldListener listener : listeners) {
+        listener.tupleAdded(predicate, tuple);
+      }
+    }
+  }
 }

@@ -89,7 +89,7 @@ public final class Relation extends AbstractCollection<ConstantTuple> {
    *              relation.
    * @return true iff the relation contains the tuple.
    */
-  public boolean contains(ConstantTuple tuple) {
+  public boolean contains(final ConstantTuple tuple) {
     try {
       Statement st = signature.getConnection().createStatement();
       StringBuffer condition = new StringBuffer();
@@ -109,8 +109,8 @@ public final class Relation extends AbstractCollection<ConstantTuple> {
           condition));
       return !resultSet.isAfterLast();
     } catch (SQLException e) {
-      throw new NestedSQLException("Couldn't check whether relation" +
-        " constains " + tuple, e);
+      throw new NestedSQLException("Couldn't check whether relation"
+        + " constains " + tuple, e);
     }
 
   }
@@ -132,6 +132,11 @@ public final class Relation extends AbstractCollection<ConstantTuple> {
 
       resultSet.first();
       return new Iterator<ConstantTuple>() {
+        /**
+         * Method hasNext checks whether the pointer of the current result
+         * set is behind the end of the result set.
+         * @return boolean if the end has been reached.
+         */
         public boolean hasNext() {
           try {
             return !resultSet.isAfterLast();
@@ -213,7 +218,7 @@ public final class Relation extends AbstractCollection<ConstantTuple> {
       resultSet.insertRow();
       ++size;
       for (RelationListener listener : listeners) {
-        listener.tupleAdded(this,tuple);
+        listener.tupleAdded(this, tuple);
       }
     } catch (SQLException e) {
       throw new NestedSQLException("Problem when adding tuple: ", e);

@@ -5,10 +5,30 @@ todo:
 
 f_M,C(y) = f_M(y & C)
 
+World w;
+datasource.inject(w);
+background.inject(w);
 
-BackgroundKnowledge b;
-World w1;
-World w2 = b.extend(w1);
+
+
+Beast {
+      addSource(DataSource)
+      addSink(DataSink)
+      addBackgroundKnowledge(BackgroundKnowledge)
+      setMLN(MLN mln)
+      setWeights(Weights weights)
+      bind(UserPredicate, Plugin);
+      addTask(Task)
+      learnBackground();
+      learnStructure();
+      learnWeights();
+      infer();
+
+}
+
+
+
+
 
 
 

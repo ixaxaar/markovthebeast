@@ -21,6 +21,8 @@ public interface Constant extends Symbol{
    * textual context.
    *
    * @return String containing the name of this constant.
+   *
+   * @see Symbol#getName()
    */
   String getName();
 }
