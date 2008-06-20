@@ -166,7 +166,7 @@ public final class UserType extends SQLRepresentableType {
    * By default types are not iterable.
    *
    * @return false by default.
-   * @see SQLRepresentableType#isIterable() 
+   * @see com.googlecode.thebeast.world.SQLRepresentableType#isIterable() 
    */
   public boolean isIterable() {
     return true;
@@ -188,7 +188,7 @@ public final class UserType extends SQLRepresentableType {
    * @return Iterator<Constant> an iterator that iterates over all constants in
    *         this type.
    *
-   * @see SQLRepresentableType#iterator()
+   * @see com.googlecode.thebeast.world.SQLRepresentableType#iterator()
    */
   public Iterator<Constant> iterator() {
     return Iterators.filter(constants.values().iterator(), Constant.class);

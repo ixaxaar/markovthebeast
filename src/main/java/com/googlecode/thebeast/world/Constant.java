@@ -1,5 +1,7 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.formula.Term;
+
 /**
  * A Constant is a First Order Logic Symbol that represents an object within a
  * domain. In Markov Logic we assume Herbrand Semantics, i.e., the object values
@@ -7,12 +9,13 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public interface Constant extends Symbol{
+public interface Constant extends Symbol, Term {
 
   /**
    * Returns the type of this constant.
    *
    * @return the Type object this constant belongs to.
+   * @see com.googlecode.thebeast.formula.Term#getType()
    */
   Type getType();
 
@@ -21,7 +24,6 @@ public interface Constant extends Symbol{
    * textual context.
    *
    * @return String containing the name of this constant.
-   *
    * @see Symbol#getName()
    */
   String getName();
