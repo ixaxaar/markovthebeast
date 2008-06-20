@@ -1,3 +1,35 @@
+next:
+	- Variable
+	- SQLQueryGenerator (ReflectiveVisitor<Formula>)
+
+
+
+ReflectiveVisitor<T>
+	final void visit(T t); //do dispatch via reflection
+	abstract process(T t);
+	
+
+thebeast model file:
+type Type: A,B,C;
+predicate pred: Int x Int;
+plugin tnt: com.tnt.TnT;
+<formula-template>;
+
+StaticFunction {
+	 Constant evalConstants(Constants)
+	 SQLTerm evalSQLTerm(SQLTerms)
+}
+
+StaticPredicate {
+	boolean containsConstants(Constants)
+	SQLCondition containsSQLTerms(SQLTerms)
+}
+
+QueryEngine {
+	Bindings resolve(Query, World)
+	Bindings resolve(Query, Dataset)	  
+}
+
 todo:
 	- WorldListener
 	- Predicate Inheritance
@@ -5,10 +37,55 @@ todo:
 
 f_M,C(y) = f_M(y & C)
 
-World w;
-datasource.inject(w);
-background.inject(w);
 
+World {
+      // -> the relation for the given predicate is calculated by
+      // the given plugin
+      // can only happen before getRelation is called first
+      // once the predicate is bound calls to getRelation will
+      // return unmodifiable relations (views on the actual relation).
+      bind(UserPredicate, PredicatePlugin);
+      getRelation(UserPredicate)
+            
+
+      package visible:
+      //requires the state of the corresponding relation to be updated
+      //called by the query engine. 
+      refresh(UserPredicate)
+      
+}
+
+// make sure a plugin has only access to its dependencies
+PredicatePlugin {
+	//when this method is called it is clear 
+	update(Relation target, Map<String,Relations> dependencies) 
+	tuplesAdded(String name, Tuples tuples);
+	tuplesRemoved(String name, Tuples tuples)
+	tuplesChangedCompletely(String name)
+}
+
+
+package thebeast.plugin; //decoupled from world.
+
+//is called whenever clients request read operations on
+//a relation bound to the plugin or a query calls the
+//refresh method on a relation.
+PredicatePlugin implements WorldListener {
+      setWorld(world)
+      update(UserPredicate, Relation);
+      updateNBest(UserPredicate, Relations)
+} 
+
+@Bind("Path") @path.graph("dep") 
+predicate path: Int x Int x Path;
+
+@Bind("CPI")
+@Hidden @RequiresHidden("pos")
+predicate dep: Int x Int;
+
+@Bind("MultiClass")
+@Hidden
+predicate pos: Int x Pos;
 
 
 Beast {
