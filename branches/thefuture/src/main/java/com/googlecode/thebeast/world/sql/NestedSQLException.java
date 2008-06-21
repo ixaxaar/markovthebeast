@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.world;
+package com.googlecode.thebeast.world.sql;
 
 import java.sql.SQLException;
 
@@ -9,7 +9,7 @@ import java.sql.SQLException;
  *
  * @author Sebastian Riedel
  */
-public final class NestedSQLException extends RuntimeException {
+final class NestedSQLException extends RuntimeException {
 
   /**
    * The nested SQL exception.

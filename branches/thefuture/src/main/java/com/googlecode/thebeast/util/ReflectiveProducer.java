@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * A ReflectiveProducer is a visitor that produces items at each visit and which
@@ -23,7 +24,6 @@ import java.lang.reflect.Method;
  * <pre>
  * class Eater extends ReflectiveProducer&lt;Fruit,Pie&gt; {
  *
- *    &#064;Dispatchs
  *    Pie produce(Fruit fruit) {...};
  *
  *    &#064;Dispatchs
@@ -38,52 +38,41 @@ import java.lang.reflect.Method;
 public abstract class ReflectiveProducer<T, R> {
 
   /**
-   * This method will call the process method of a subclass of this class with
-   * the most speficic argument type that matches the class of t.
+   * This method will call the <code>produce(S)</code> method where S is the the
+   * runtime class of t. If no such method exists or the method is not annotated
+   * with {@link Dispatchs} the default {@link ReflectiveVisitor#process(Object)}
+   * method is called.
    *
    * @param t the object to visit.
    * @return what this producer produced after visiting t.
+   * @see ReflectiveVisitor#visit(Object)
    */
   @SuppressWarnings({"unchecked"})
   public final R visit(T t) {
     Class clazz = t.getClass();
-    Method downPolymorphic = null;
-    do {
-      try {
-        downPolymorphic =
-          getClass().getDeclaredMethod("process", clazz);
-      } catch (NoSuchMethodException e) {
-        clazz = clazz.getSuperclass();
+    try {
+      Method downPolymorphic = getClass().getDeclaredMethod("produce", clazz);
+      if (downPolymorphic.isAnnotationPresent(Dispatchs.class)) {
+        return (R) downPolymorphic.invoke(this, t);
+      } else {
+        return produce(t);
       }
-    } while (downPolymorphic == null && clazz != null);
-
-    if (downPolymorphic == null) {
-      throw new ReflectiveProducerException(
-        "Something unexpected happened!",
-        this, null);
-    } else if (!downPolymorphic.isAnnotationPresent(Dispatchs.class)) {
-      throw new ReflectiveProducerException(
-        "The process method with the most specific argument type is "
-          + "not marked with the @Dispatch annotation", this, null);
-
-    } else {
-      try {
-        return (R) downPolymorphic.invoke(this, t); //unchecked
-      } catch (Exception e) {
-        throw new ReflectiveProducerException("Internal exception",
-          this, e);
-      }
+    } catch (NoSuchMethodException e) {
+      return produce(t);
+    } catch (IllegalAccessException e) {
+      throw new ReflectiveProducerException("Internal exception", this, e);
+    } catch (InvocationTargetException e) {
+      throw new ReflectiveProducerException("Internal exception", this, e);
     }
   }
 
   /**
-   * This method processes an object of type t. Clients how extend this class
-   * need to implement this method. However, they can also write further process
-   * methods with more specific argument types which will be properly dispatched
-   * when the visitor visits an object via {@link ReflectiveProducer#visit(Object)}.
+   * This method processes an object of type t whenever {@link
+   * ReflectiveVisitor#visit(Object)} is called. Clients  can also write further
+   * process methods with more specific argument types which will be properly
+   * dispatched as long the types are subclasses of T (and not interfaces) and
+   * the methods are annotated with a {@link Dispatchs} tag.
    *
-   * <p>I order to be dispatched by the visit method each process method needs
-   * to be annotated with a {@link Dispatchs} tag.
    *
    * @param t the object to process.
    * @return what this producer produced after visiting t.

@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.world;
+package com.googlecode.thebeast.world.sql;
 
 import java.util.Collections;
 import java.util.List;

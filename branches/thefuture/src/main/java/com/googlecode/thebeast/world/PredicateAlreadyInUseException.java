@@ -7,8 +7,8 @@ package com.googlecode.thebeast.world;
  * version and another changes the parent version).
  *
  * @author Sebastian Riedel
- * @see World
- * @see Relation
+ * @see com.googlecode.thebeast.world.sql.SQLWorld
+ * @see com.googlecode.thebeast.world.sql.SQLRelation
  */
 public final class PredicateAlreadyInUseException extends RuntimeException {
 
@@ -30,7 +30,7 @@ public final class PredicateAlreadyInUseException extends RuntimeException {
    * @param predicate the predicate which is already in use.
    * @param world     the world in which the exception occured.
    */
-  PredicateAlreadyInUseException(final String message,
+  public PredicateAlreadyInUseException(final String message,
                                  final UserPredicate predicate,
                                  final World world) {
     super(message);

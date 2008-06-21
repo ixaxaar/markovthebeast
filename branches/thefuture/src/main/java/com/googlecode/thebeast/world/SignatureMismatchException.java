@@ -28,7 +28,7 @@ public final class SignatureMismatchException extends RuntimeException {
    * @param expected the expected signature.
    * @param actual   the actual signature.
    */
-  SignatureMismatchException(final String message,
+  public SignatureMismatchException(final String message,
                              final Signature expected,
                              final Signature actual) {
     super(message);

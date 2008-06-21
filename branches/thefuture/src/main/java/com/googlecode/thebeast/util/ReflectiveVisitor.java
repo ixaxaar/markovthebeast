@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -20,11 +21,13 @@ import java.lang.reflect.Method;
  * <pre>
  * class Eater extends ReflectiveVisitor&lt;Fruit&gt; {
  *
- *    &#064;Dispatchs
  *    process(Fruit fruit) {...};
  *
  *    &#064;Dispatchs
  *    process(Apple apple) {...};
+ *
+ *    &#064;Dispatchs
+ *    process(Orange orange) {...};
  * }
  * </pre>
  * <p>Note that there is a performance penalty for using reflection. Clients
@@ -34,53 +37,40 @@ import java.lang.reflect.Method;
  */
 public abstract class ReflectiveVisitor<T> {
 
-
   /**
-   * This method will call the process method of a subclass of this class with
-   * the most speficic argument type that matches the class of t.
+   * This method will call the <code>process(R)</code> method where R is the the
+   * runtime class of t. If no such method exists or the method is not annotated
+   * with {@link Dispatchs} the default {@link ReflectiveVisitor#process(Object)}
+   * method is called.
    *
    * @param t the object to visit.
    * @see ReflectiveVisitor#visit(Object)
    */
   public final void visit(T t) {
     Class clazz = t.getClass();
-    Method downPolymorphic = null;
-    do {
-      try {            
-        downPolymorphic =
-          getClass().getDeclaredMethod("process", clazz);
-      } catch (NoSuchMethodException e) {
-        clazz = clazz.getSuperclass();
-      }
-    } while (downPolymorphic == null && clazz != null);
-
-    if (downPolymorphic == null) {
-      throw new ReflectiveVisitorException(
-        "Something unexpected happened!",
-        this, null);
-    } else if (!downPolymorphic.isAnnotationPresent(Dispatchs.class)) {
-      throw new ReflectiveVisitorException(
-        "The process method with the most specific argument type is "
-          + "not marked with the @Dispatch annotation", this, null);
-
-    } else {
-      try {
+    try {
+      Method downPolymorphic = getClass().getDeclaredMethod("process", clazz);
+      if (downPolymorphic.isAnnotationPresent(Dispatchs.class)) {
         downPolymorphic.invoke(this, t);
-      } catch (Exception e) {
-        throw new ReflectiveVisitorException("Internal exception",
-          this, e);
+      } else {
+        process(t);
       }
+    } catch (NoSuchMethodException e) {
+      process(t);
+    } catch (IllegalAccessException e) {
+      throw new ReflectiveVisitorException("Internal exception", this, e);
+    } catch (InvocationTargetException e) {
+      throw new ReflectiveVisitorException("Internal exception", this, e);
     }
+
   }
 
   /**
-   * This method processes an object of type t. Clients how extend this class
-   * need to implement this method. However, they can also write further process
-   * methods with more specific argument types which will be properly dispatched
-   * when the visitor visits an object via {@link ReflectiveVisitor#visit(Object)}.
-   *
-   * <p>I order to be dispatched by the visit method each process method needs
-   * to be annotated with a {@link Dispatchs} tag.
+   * This method processes an object of type t whenever {@link
+   * ReflectiveVisitor#visit(Object)} is called. Clients  can also write further
+   * process methods with more specific argument types which will be properly
+   * dispatched as long the types are subclasses of T (and not interfaces) and
+   * the methods are annotated with a {@link Dispatchs} tag.
    *
    * @param t the object to process.
    */

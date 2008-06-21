@@ -1,9 +1,11 @@
-package com.googlecode.thebeast.world;
+package com.googlecode.thebeast.world.sql;
 
 import junit.framework.TestCase;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.googlecode.thebeast.world.UserPredicate;
 
 /**
  * Testing the UserPredicate class.
@@ -16,15 +18,15 @@ public final class TestUserPredicate extends TestCase {
    * Tests the UserPredicate constructor.
    */
   public void testConstructor() {
-    Signature signature = new Signature();
+    SQLSignature signature = new SQLSignature();
     List<SQLRepresentableType> argumentTypes =
       new ArrayList<SQLRepresentableType>();
-    UserType type1 = signature.createType("Type1", false);
-    UserType type2 = signature.createType("Type2", false);
+    SQLUserType type1 = signature.createType("Type1", false);
+    SQLUserType type2 = signature.createType("Type2", false);
     argumentTypes.add(type1);
     argumentTypes.add(type2);
     UserPredicate predicate =
-      new UserPredicate("pred", argumentTypes, signature);
+      new SQLUserPredicate("pred", argumentTypes, signature);
 
     assertFalse("Type list not copied",
       argumentTypes == predicate.getArgumentTypes());

@@ -14,6 +14,6 @@ public interface RelationListener {
    * @param relation the relation to which the tuple was added.
    * @param tuple    the tuple which as added.
    */
-  void tupleAdded(Relation relation, ConstantTuple tuple);
+  void tupleAdded(Relation relation, Tuple tuple);
 
 }

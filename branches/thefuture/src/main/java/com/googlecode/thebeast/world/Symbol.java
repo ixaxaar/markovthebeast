@@ -1,14 +1,15 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.world.sql.SQLSignature;
+
 /**
- * A Symbol is a part of the {@link com.googlecode.thebeast.world.Signature}.
- * It
- * has a name maintains a pointer to the signature that contains it.
+ * A Symbol object represents one of the following symbols in a First Order
+ * Logic signature: a constant, a type or a predicate.
  *
  * <p>Every symbol in a signature has a unique name that identifies it and can
  * be used to retrieve the symbol using {@link Signature#getSymbol(String)}.
  *
- * <p>Note that the following always holds: <p>
+ * <p>The following always holds: <p>
  * <code>symbol.getSignature().getSymbol(symbol.getName()).equals(symbol)
  * </code>
  *
@@ -28,6 +29,6 @@ public interface Symbol {
    *
    * @return a Signature that contains this symbol.
    */
-  Signature getSignature();
+  SQLSignature getSignature();
 
 }

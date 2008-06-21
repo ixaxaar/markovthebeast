@@ -20,7 +20,7 @@ public final class SymbolAlreadyExistsException extends SignatureException {
    * @param symbol    the already existing symbol with the same name.
    * @param signature the signature that created and threw this exception.
    */
-  protected SymbolAlreadyExistsException(final Symbol symbol,
+  public SymbolAlreadyExistsException(final Symbol symbol,
                                          final Signature signature) {
     super("There is already a symbol with the name " + symbol.getName(),
       signature);

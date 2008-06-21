@@ -1,5 +1,6 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.world.sql.SQLSignature;
 import junit.framework.TestCase;
 
 import java.util.HashSet;
@@ -9,7 +10,7 @@ import java.util.Iterator;
  * Tests the methods of the Relation class.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.world.Relation
+ * @see Relation
  */
 public final class TestRelation extends TestCase {
   /**
@@ -38,7 +39,7 @@ public final class TestRelation extends TestCase {
    */
   protected void setUp() throws Exception {
     super.setUp();
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     type1 = signature.createType("type1", false, "A", "B");
     type2 = signature.createType("type2", false, "C", "D");
     pred = signature.createPredicate("pred", type1, type2);
@@ -49,8 +50,8 @@ public final class TestRelation extends TestCase {
    * Tests adding of a single tuple.
    */
   public void testAddTuple() {
-    Relation relation = world.getRelation(pred);
-    ConstantTuple tuple = new ConstantTuple(
+    MutableRelation relation = world.getMutableRelation(pred);
+    Tuple tuple = new Tuple(
       type1.getConstant("A"),
       type2.getConstant("C"));
     relation.addTuple(tuple);
@@ -62,8 +63,8 @@ public final class TestRelation extends TestCase {
    * Test the contains method.
    */
   public void testContains() {
-    Relation relation = world.getRelation(pred);
-    ConstantTuple tuple = new ConstantTuple(
+    MutableRelation relation = world.getMutableRelation(pred);
+    Tuple tuple = new Tuple(
       type1.getConstant("A"),
       type2.getConstant("C"));
     relation.addTuple(tuple);
@@ -75,20 +76,20 @@ public final class TestRelation extends TestCase {
    * Test the relation iterator.
    */
   public void testIterator() {
-    Relation relation = world.getRelation(pred);
-    ConstantTuple tuple1 = new ConstantTuple(
+    MutableRelation relation = world.getMutableRelation(pred);
+    Tuple tuple1 = new Tuple(
       type1.getConstant("A"),
       type2.getConstant("C"));
-    ConstantTuple tuple2 = new ConstantTuple(
+    Tuple tuple2 = new Tuple(
       type1.getConstant("B"),
       type2.getConstant("C"));
     relation.addTuple(tuple1);
     relation.addTuple(tuple2);
-    HashSet<ConstantTuple> expected = new HashSet<ConstantTuple>();
+    HashSet<Tuple> expected = new HashSet<Tuple>();
     expected.add(tuple1);
     expected.add(tuple2);
-    HashSet<ConstantTuple> actual = new HashSet<ConstantTuple>();
-    Iterator<ConstantTuple> iterator = relation.iterator();
+    HashSet<Tuple> actual = new HashSet<Tuple>();
+    Iterator<Tuple> iterator = relation.iterator();
     while (iterator.hasNext()) {
       actual.add(iterator.next());
     }

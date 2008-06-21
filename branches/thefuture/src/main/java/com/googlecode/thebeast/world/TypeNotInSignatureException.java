@@ -22,7 +22,7 @@ public final class TypeNotInSignatureException
    * @param typeName  the name of the type that was requested.
    * @param signature the signature that throws this exception.
    */
-  TypeNotInSignatureException(final String typeName,
+  public TypeNotInSignatureException(final String typeName,
                               final Signature signature) {
     super("There is no type with name " + typeName + " in this signature",
       signature);
