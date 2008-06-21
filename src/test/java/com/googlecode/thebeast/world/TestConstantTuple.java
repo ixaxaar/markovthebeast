@@ -1,12 +1,13 @@
 package com.googlecode.thebeast.world;
 
 import junit.framework.TestCase;
+import com.googlecode.thebeast.world.sql.SQLSignature;
 
 /**
  * Testing the methods of the ConstantTuple class.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.world.ConstantTuple
+ * @see Tuple
  */
 public final class TestConstantTuple extends TestCase {
   /**
@@ -26,7 +27,7 @@ public final class TestConstantTuple extends TestCase {
    */
   protected void setUp() throws Exception {
     super.setUp();
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     typeAB = signature.createType("type1", false, "A", "B");
     typeBC = signature.createType("type2", false, "C", "D");
   }
@@ -36,7 +37,7 @@ public final class TestConstantTuple extends TestCase {
    * the right positions.
    */
   public void testConstructor() {
-    ConstantTuple tuple = new ConstantTuple(
+    Tuple tuple = new Tuple(
       typeAB.getConstant("A"),
       typeBC.getConstant("C"),
       typeAB.getConstant("B"));
@@ -49,7 +50,7 @@ public final class TestConstantTuple extends TestCase {
    * Tests the size method.
    */
   public void testSize() {
-    ConstantTuple tuple = new ConstantTuple(
+    Tuple tuple = new Tuple(
       typeAB.getConstant("A"),
       typeBC.getConstant("C"),
       typeAB.getConstant("B"));
@@ -61,7 +62,7 @@ public final class TestConstantTuple extends TestCase {
    * method.
    */
   public void testGetUserPredicate() {
-    ConstantTuple tuple = new ConstantTuple(
+    Tuple tuple = new Tuple(
       typeAB.getConstant("A"),
       typeBC.getConstant("C"),
       typeAB.getConstant("B"));

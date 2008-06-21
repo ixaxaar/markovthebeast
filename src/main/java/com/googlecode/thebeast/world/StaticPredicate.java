@@ -1,5 +1,7 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.world.sql.SQLSignature;
+
 import java.util.List;
 
 /**
@@ -24,7 +26,7 @@ public abstract class StaticPredicate extends AbstractSymbol
    * @param name      the name of the predicate
    * @param signature the signature this predicate should belong to.
    */
-  protected StaticPredicate(final String name, final Signature signature) {
+  protected StaticPredicate(final String name, final SQLSignature signature) {
     super(name, signature);
   }
 

@@ -65,17 +65,17 @@ public final class TestReflectiveVisitor extends TestCase {
     private boolean eaten = false;
 
     /**
-     * Justs eats the fruit
+     * Justs eats the fruit. Does not need to be annotated.
      *
      * @param fruit the fruit to eat.
      */
-    @Dispatchs
     void process(Fruit fruit) {
       eaten = true;
     }
 
     /**
-     * Peels the orange and eats it afterwards.
+     * Peels the orange and eats it afterwards. Needs to be annotated in
+     * order to be found by this visit method.
      *
      * @param fruit the orange to eat.
      */

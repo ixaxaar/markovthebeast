@@ -1,67 +1,13 @@
 package com.googlecode.thebeast.world;
 
-import com.google.common.collect.HashBiMap;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
  * of ground atoms, either added manually, through solving, or with built-in
  * predicates.</p>
- *
- * <p>This implementation is based on using an SQL database as underlying data
- * store.</p>
- *
+*
  * @author Sebastian Riedel
  */
-public final class World implements RelationListener, WorldListener {
-
-  /**
-   * The signature this world belongs to.
-   */
-  private final Signature signature;
-
-  /**
-   * The id number of this world.
-   */
-  private final int id;
-
-
-  /**
-   * The listeners of this world.
-   */
-  private final ArrayList<WorldListener>
-    listeners = new ArrayList<WorldListener>();
-
-  /**
-   * A mapping from user predicates to parent worlds which provide the relations
-   * for the given predicate.
-   */
-  private final HashMap<UserPredicate, World>
-    parents = new HashMap<UserPredicate, World>();
-
-  /**
-   * The set of relation objects representing the relations in this possible
-   * world.
-   */
-  private final HashBiMap<UserPredicate, Relation>
-    relations = new HashBiMap<UserPredicate, Relation>();
-
-  /**
-   * Create a new world belonging to the given signature and with the given id.
-   * This will create a set of database tables (and drop old ones with clashing
-   * names).
-   *
-   * @param signature signature this world belongs to.
-   * @param id        unique number identifying this world.
-   */
-  World(final Signature signature, final int id) {
-    this.signature = signature;
-    this.id = id;
-  }
-
-
+public interface World {
   /**
    * Adds a parent world to this world which provides the relation for the given
    * predicate.
@@ -70,23 +16,12 @@ public final class World implements RelationListener, WorldListener {
    *                  parent.
    * @param parent    the world which provides the data for the specified
    *                  predicate.
-   * @throws PredicateAlreadyInUseException if there is already a local relation
-   *                                        object for the predicate (i.e.
-   *                                        somebody already changed the
-   *                                        relation here).
+   * @throws com.googlecode.thebeast.world.PredicateAlreadyInUseException
+   *          if there is already a local relation object for the predicate
+   *          (i.e. somebody already changed the relation here).
    */
-  public void addParent(final UserPredicate predicate, final World parent)
-    throws PredicateAlreadyInUseException {
-    signature.match(predicate.getSignature());
-    signature.match(parent.getSignature());
-    if (relations.get(predicate) != null) {
-      throw new PredicateAlreadyInUseException("Can't add a parent world "
-        + " for " + predicate + " because there already exists "
-        + "a local relation object for it", predicate, this);
-    }
-    parents.put(predicate, parent);
-    parent.addListener(this);
-  }
+  void addParent(UserPredicate predicate, World parent)
+    throws PredicateAlreadyInUseException;
 
   /**
    * Adds a listener for this world.
@@ -94,9 +29,7 @@ public final class World implements RelationListener, WorldListener {
    * @param listener a listener that will be informed of changes to the
    *                 relations in this world.
    */
-  public void addListener(final WorldListener listener) {
-    listeners.add(listener);
-  }
+  void addListener(WorldListener listener);
 
   /**
    * Removes a listener. After this call it will not receice any events
@@ -104,9 +37,7 @@ public final class World implements RelationListener, WorldListener {
    *
    * @param listener the listener to remove.
    */
-  public void removeListener(final WorldListener listener) {
-    listeners.remove(listener);
-  }
+  void removeListener(WorldListener listener);
 
   /**
    * Returns id of this world.
@@ -114,18 +45,14 @@ public final class World implements RelationListener, WorldListener {
    * @return a unique integer identifying this world among all other worlds
    *         belonging to the same signature.
    */
-  public int getId() {
-    return id;
-  }
+  int getId();
 
   /**
    * Return the signature of this world.
    *
    * @return the signature this world belongs to.
    */
-  public Signature getSignature() {
-    return signature;
-  }
+  Signature getSignature();
 
   /**
    * Returns the relation for the given predicate in this possible world. Note
@@ -137,69 +64,19 @@ public final class World implements RelationListener, WorldListener {
    * @return the relation the given predicate is associated with via this
    *         possible world.
    */
-  public Relation getRelation(final UserPredicate predicate) {
-    signature.match(predicate.getSignature());
-    World parent = parents.get(predicate);
-    if (parent != null) {
-      return parent.getRelation(predicate);
-    }
-    Relation relation = relations.get(predicate);
-    if (relation == null) {
-      SQLTableDescription tableDescription = signature.getSqlTablePool().
-        requestTable(predicate.getSQLRepresentableArgumentTypes());
-      relation = new Relation(tableDescription);
-      relations.put(predicate, relation);
+  Relation getRelation(UserPredicate predicate);
 
-    }
-    return relation;
-  }
 
   /**
-   * releases all database tables this world owns.
+   * Returns the mutable extension (relation) of the given predicate in this
+   * world.
    *
-   * @throws Throwable if SQL tables couldn't be removed.   \
+   * @param predicate the predicate for which to return the updatable relation.
+   * @return the mutable relation of the given predicate.
+   * @throws RelationNotUpdatableException if the relations for the given
+   *                                       predicate are not updatable in this
+   *                                       world.
    */
-  protected void finalize() throws Throwable {
-    super.finalize();
-    for (Relation relation : relations.values()) {
-      signature.getSqlTablePool().releaseTable(relation.getTableDescription());
-    }
-  }
-
-  /**
-   * Propagates event to all world listeners.
-   *
-   * @param relation the relation for which the tuple was added.
-   * @param tuple    the added tuple.
-   *
-   * @see RelationListener#tupleAdded(Relation, ConstantTuple)
-   */
-  public void tupleAdded(final Relation relation, final ConstantTuple tuple) {
-    for (WorldListener listener : listeners) {
-      listener.tupleAdded(relations.inverse().get(relation), tuple);
-    }
-
-  }
-
-  /**
-   * Listens to its parent worlds and informs its own listeners of changes in
-   * the relevant parts of the parents.
-   *
-   * <p>Note that a World should only be a listener to its parent worlds.
-   *
-   * @param predicate the predicate that was changed in a parent. If this world
-   *                  uses relation of a parent world for this predicate
-   *                  listeners are informed of changes.
-   * @param tuple     the tuple that was added to the parent.
-   *
-   * @see WorldListener#tupleAdded(UserPredicate, ConstantTuple)
-   */
-  public void tupleAdded(final UserPredicate predicate,
-                         final ConstantTuple tuple) {
-    if (parents.containsKey(predicate)) {
-      for (WorldListener listener : listeners) {
-        listener.tupleAdded(predicate, tuple);
-      }
-    }
-  }
+  MutableRelation getMutableRelation(UserPredicate predicate)
+    throws RelationNotUpdatableException;
 }

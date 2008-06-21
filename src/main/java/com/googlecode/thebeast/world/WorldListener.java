@@ -14,6 +14,6 @@ public interface WorldListener {
    * @param predicate for which predicate was the tuple added.
    * @param tuple     the tuple which was added.
    */
-  void tupleAdded(UserPredicate predicate, ConstantTuple tuple);
+  void tupleAdded(UserPredicate predicate, Tuple tuple);
 
 }

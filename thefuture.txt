@@ -1,19 +1,155 @@
 next:
-	- Variable
-	- SQLQueryGenerator (ReflectiveVisitor<Formula>)
+	- Substitution
+	- SQLQueryGenerator (ReflectiveProducer<Formula,SQLQuery>)
+	- Relation should be interface with the following implementations
+	  - UpdatableRelation (subinterface)
+	  - SQLBasedRelation (implements UpdatableRelation)
+	  - UnmodifiableRelation (delegates to UpdatableRelation)
+	- Signature should be interface with the following implementations
+	  - UpdatableSignature
+	  - SQLSignature
+	  - UnmodifiableSignature (delegates to UpdatableSignature)
+	  - SubSignature (shows only a few predicates)
+	- World
+	  - SQLWorld
+	  - SubWorld (stores relations of a subsignature
+	- SQLQuery: sql query, parametrized by world.
+
+
+Non recursive Functions:
+parsed(np(x1,x2)) & parsed(vp(x2,x3)) => parsed(s(x1,x3)) 
+parsed(np) & parsed(vp) => parsed(s(np,vpo))
+
+@predictor("tnt")
+TnT extends AnnotablePredictor {
+	@bind("word")
+	UserPredicate word;
+	@required("tag")
+	UserPredicate tag
+}
+->
+
+@bind("tnt","tag") 
+pos: Int x Pos;
+
+@required("tnt", "word")
+word: Int x Word;
+
+
+//real online learning
+- new formulas are added on the fly
+- current world is hypothesized
+- current world is compared to a reference world (can be partially hidden)
+- weights are updated.
+- formulae that have near-zero weights will be removed gradually.
+
+//code in solver
+@param w a world that only contains predicates this solver is bound to
+or depends on. Only the predicates the solver is bound to are updatable. 
+solve(World w, ChangeList cl){
+	    World sandbox = w.clone();
+	    //make changes to the bound relations in the sandbox
+	    change(sandbox)
+	    //write changes to the actual world. Creates one atomic changed event.
+	    world.copyFrom(sandbox);
+}
+
+World {
+      getRelation
+      getUpdatableRelation
+}
+
+Solver {
+       //only sees a view of the world containing the predicates it depends on.
+       solve(World, Map<UserPredicate, UpdatableRelation> dst)
+}
+
+Sensor {
+       sense(Map<UserPredicate,UpdatableRelation> dst)
+}
+
+Background {
+	inject(Map<UserPredicate,UpdatableRelation> dst)
+}	
+
+Effector {
+       act(World w);
+}
+
+
+!action(x)
+state(Updated) -> action(Next) //changes counter
+counter(1) ^ goal(G) -> action(A)
+counter(2) ^ goal(G) -> action(B)
+counter(3) ^ goal(G) -> action(C)
+
+Beast loop:
+      1) All predicates tagged as action relations are refreshed/updated
+      2) Actions (action predicates) in the MAP world are performed (in no specified order)
+      3) Observed predicates are updated
+
+User mode:
+     1) Manually Update some observed predicates
+     2) Call a query.
+
+Beast Class: object with
+      - Signature
+      - MLN
+      - Set of plugins bound to predicates
+      - Set of possible worlds.
+      - Set of Effectors (actions)
+      - Set of Sensors (observations)
+      
+Beast b = new Beast();
+Sensor s = new DatasetSensor("data.file")
+Solver p = new CPISolver();
+b.bindBackground(new BackgroundFromFile("back.file"), {unique})
+b.bindSensor(s, {lemma,pos,word})
+b.bindSolver(p, {role, hasRole})
+b.loadMLN("mln.file")
+
+s.next();
+b.getWorld().query("role(x,y)");
+
+Sensor s = new DataSetSensor("data.file");
+
+World w = b.get
 
 
 
-ReflectiveVisitor<T>
-	final void visit(T t); //do dispatch via reflection
-	abstract process(T t);
-	
+
+lazy evaluation: each relation is only evaluated when needed (i.e. when a parent relation is queried). At that point calculating the relation can either be done by reading the complete state of the dependend relations or by processing the remembered changes. 
+
+	predicate.refresh(){
+		if (dependenciesNotPossiblyChanged) return;
+		dependencies.refresh()
+		plugin.update(relation)
+	}
+
+Beast:
+	goal based back tracking.
+	example goals: {PrintAtoms 	
+
+Goals:
+	Query  
+	RelationUpdate 
+	Action {like PrintAtoms}
+
+Procedure: Sequence of goals
+Test: Loop {Observe, Ask, PrintAtoms, Compare}
+Train: Loop {Observe, Ask, Remember}, Estimate 
 
 thebeast model file:
 type Type: A,B,C;
 predicate pred: Int x Int;
 plugin tnt: com.tnt.TnT;
 <formula-template>;
+
+plugin provides its dependencies. For example, CPI's dependencies are all
+predicates that a) are not bound to the plugin and b) appear in formulae together 
+with the bound predicates. 	 
+
+plugins cannot be bound to predicates that are required by its (transitive) dependencies.
 
 StaticFunction {
 	 Constant evalConstants(Constants)
@@ -62,6 +198,7 @@ PredicatePlugin {
 	tuplesAdded(String name, Tuples tuples);
 	tuplesRemoved(String name, Tuples tuples)
 	tuplesChangedCompletely(String name)
+	UserPredicates getDependencies();
 }
 
 

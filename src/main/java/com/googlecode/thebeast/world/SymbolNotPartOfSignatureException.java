@@ -21,7 +21,7 @@ public final class SymbolNotPartOfSignatureException
    * @param symbol    the symbol which is not part of the signature.
    * @param signature the signature that created and threw this exception.
    */
-  protected SymbolNotPartOfSignatureException(final Symbol symbol,
+  public SymbolNotPartOfSignatureException(final Symbol symbol,
                                               final Signature signature) {
     super("This symbol is not a member of this signature: " + symbol.getName(),
       signature);

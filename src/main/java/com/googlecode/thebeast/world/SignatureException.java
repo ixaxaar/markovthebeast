@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
 /**
- * An Exception thrown by the {@link Signature} class.
+ * An Exception thrown by the {@link com.googlecode.thebeast.world.sql.SQLSignature} class.
  *
  * @author Sebastian Riedel
  */

@@ -5,36 +5,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public final class UserConstant extends SQLRepresentableConstant {
-
-  /**
-   * The type of the constant.
-   */
-  private final UserType type;
-
-  /**
-   * The id of the constant, assigned by the {@link UserType}.
-   */
-  private final int id;
-
-
-  /**
-   * Package visible constructor that creates a new UserConstant with the given
-   * properties. Should only be called by {@link UserType}.
-   *
-   * @param name      the name of the constant.
-   * @param type      the type of the constant.
-   * @param id        the id of the constant.
-   * @param signature the signature of this constant.
-   */
-  UserConstant(final String name, final UserType type,
-               final int id, final Signature signature) {
-    super(name, signature);
-    this.type = type;
-    this.id = id;
-  }
-
-
+public interface UserConstant extends Symbol, Constant {
   /**
    * A UserConstant has an integer id the can be used to represent the constant
    * more compactly than by its name. The id is assigned by the UserType that
@@ -42,30 +13,13 @@ public final class UserConstant extends SQLRepresentableConstant {
    *
    * @return the id number of this constant.
    */
-  public int getId() {
-    return id;
-  }
+  int getId();
 
   /**
-   * Returns the {@link UserType} this constant belongs to.
+   * Method getUserType returns the type of this constant typed as a UserType,
+   * since a UserConstant will always belong to a UserType.
    *
-   * @return UserType object that contains this constant.
-   * @see UserType
+   * @return the userType (type UserType) of this UserConstant object.
    */
-  public Type getType() {
-    return type;
-  }
-
-
-  /**
-   * Return an SQL representation of this constant.
-   *
-   * @return an Integer object representing the id number of this constant.
-   * @see UserType#asSQLType()
-   */
-  Object asSQLConstant() {
-    return id;
-  }
-
-
+  UserType getUserType();
 }

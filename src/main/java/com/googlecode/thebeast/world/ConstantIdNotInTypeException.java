@@ -24,7 +24,7 @@ public final class ConstantIdNotInTypeException extends RuntimeException {
    * @param constantId the id that was to be resolved.
    * @param type       the type that got the request.
    */
-  ConstantIdNotInTypeException(final int constantId, final Type type) {
+  public ConstantIdNotInTypeException(final int constantId, final Type type) {
     super("There is no constant with id " + constantId + " in type "
       + type.getName());
     this.constantId = constantId;

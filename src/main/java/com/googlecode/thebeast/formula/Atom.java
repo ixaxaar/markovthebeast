@@ -2,9 +2,9 @@ package com.googlecode.thebeast.formula;
 
 import com.googlecode.thebeast.world.UserPredicate;
 
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An Atom object represents a First Order Logic Atom: a predicate symbol with a

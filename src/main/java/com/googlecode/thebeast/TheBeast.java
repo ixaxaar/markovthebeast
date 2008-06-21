@@ -1,6 +1,7 @@
 package com.googlecode.thebeast;
 
 import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.sql.SQLSignature;
 
 /**
  * This is the main class of markov thebeast.
@@ -28,7 +29,7 @@ public final class TheBeast {
    */
   public static void main(final String[] args) {
     System.out.println("markov thebeast " + VERSION);
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     System.out.println(signature);
   }
 }

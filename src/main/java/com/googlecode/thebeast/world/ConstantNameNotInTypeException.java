@@ -23,7 +23,7 @@ public final class ConstantNameNotInTypeException extends RuntimeException {
    * @param constantName the name that was used to request the constant.
    * @param type         the type which got the request.
    */
-  ConstantNameNotInTypeException(final String constantName,
+  public ConstantNameNotInTypeException(final String constantName,
                                  final Type type) {
     super("There is no constant with name " + constantName + " in type "
       + type.getName());

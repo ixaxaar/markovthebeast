@@ -1,26 +1,30 @@
-package com.googlecode.thebeast.world;
+package com.googlecode.thebeast.world.sql;
 
+import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
+import com.googlecode.thebeast.world.Relation;
+import com.googlecode.thebeast.world.UserType;
+import com.googlecode.thebeast.world.World;
 import junit.framework.TestCase;
 
 /**
  * Tests for the World class.
  *
  * @author Sebastian Riedel
- * @see World
+ * @see com.googlecode.thebeast.world.sql.SQLWorld
  */
 public final class TestWorld extends TestCase {
   /**
    * Binary predicate.
    */
-  private UserPredicate pred1;
+  private SQLUserPredicate pred1;
   /**
    * Unary predicate.
    */
-  private UserPredicate pred2;
+  private SQLUserPredicate pred2;
   /**
    * The signature to use.
    */
-  private Signature signature;
+  private SQLSignature signature;
 
 
   /**
@@ -31,7 +35,7 @@ public final class TestWorld extends TestCase {
    */
   protected void setUp() throws Exception {
     super.setUp();
-    signature = new Signature();
+    signature = new SQLSignature();
     UserType type1 = signature.createType("type1", false);
     type1.createConstant("A");
     type1.createConstant("B");
@@ -46,7 +50,7 @@ public final class TestWorld extends TestCase {
    * Tests the constructor of the World class.
    */
   public void testConstructor() {
-    World world = new World(signature, 1);
+    World world = new SQLWorld(signature, 1);
     assertEquals("Ids do not match", 1, world.getId());
     assertEquals("Signature not set properly", signature, world.getSignature());
   }
@@ -65,7 +69,7 @@ public final class TestWorld extends TestCase {
    * parent worlds.
    */
   public void testGetRelationWithParent() {
-    World parent = signature.createWorld();
+    SQLWorld parent = (SQLWorld) signature.createWorld();
     World child = signature.createWorld();
     child.addParent(pred1, parent);
     assertEquals(child.getRelation(pred1), parent.getRelation(pred1));
@@ -77,7 +81,7 @@ public final class TestWorld extends TestCase {
    * relation for the given predicate already exists.
    */
   public void testAddParent() {
-    World parent = signature.createWorld();
+    SQLWorld parent = (SQLWorld) signature.createWorld();
     World child = signature.createWorld();
     Relation relation = child.getRelation(pred1);
     try {

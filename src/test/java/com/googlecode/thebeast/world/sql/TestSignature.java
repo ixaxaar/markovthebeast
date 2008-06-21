@@ -1,5 +1,13 @@
-package com.googlecode.thebeast.world;
+package com.googlecode.thebeast.world.sql;
 
+import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.SignatureListener;
+import com.googlecode.thebeast.world.Symbol;
+import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
+import com.googlecode.thebeast.world.Type;
+import com.googlecode.thebeast.world.UserType;
+import com.googlecode.thebeast.world.UserPredicate;
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -8,7 +16,7 @@ import java.util.ArrayList;
  * Tests methods of the Signature class.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.world.Signature
+ * @see com.googlecode.thebeast.world.sql.SQLSignature
  */
 public final class TestSignature extends TestCase {
 
@@ -16,7 +24,7 @@ public final class TestSignature extends TestCase {
    * Tests the (hidden) constructor of the signature class.
    */
   public void testConstructor() {
-    Signature signature = new Signature();
+    SQLSignature signature = new SQLSignature();
     assertNotNull(signature.getConnection());
   }
 
@@ -24,7 +32,7 @@ public final class TestSignature extends TestCase {
    * Tests the creation of types via the signature class.
    */
   public void testCreateType() {
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     UserType type = signature.createType("type", false);
     assertEquals("type", type.getName());
     assertTrue(signature.getTypes().contains(type));
@@ -41,7 +49,7 @@ public final class TestSignature extends TestCase {
    * Tests the creation of predicates via the signature class.
    */
   public void testCreatePredicate() {
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     UserType type = signature.createType("type", false);
     UserPredicate pred = signature.createPredicate("pred", type);
     assertEquals("pred", pred.getName());
@@ -59,12 +67,12 @@ public final class TestSignature extends TestCase {
    * Tests whether the signature class fires type added events properly.
    */
   public void testTypeEvents() {
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     Listener listener = new Listener();
     signature.addSignatureListener(listener);
     UserType type = signature.createType("type", false);
 
-    assertEquals("Signature did not fire symbol added event properly",
+    Assert.assertEquals("Signature did not fire symbol added event properly",
       type, listener.symbol);
 
     signature.removeType(type);
@@ -79,14 +87,14 @@ public final class TestSignature extends TestCase {
    * Tests whether the signature class fires predicate added events properly.
    */
   public void testPredicateAddedEvent() {
-    Signature signature = new Signature();
+    Signature signature = new SQLSignature();
     Listener listener = new Listener();
     signature.addSignatureListener(listener);
     ArrayList<Type> argumentTypes = new ArrayList<Type>();
     argumentTypes.add(signature.createType("type", false));
     UserPredicate predicate = signature.createPredicate("pred", argumentTypes);
 
-    assertEquals("Signature did not fire symbol added event properly",
+    Assert.assertEquals("Signature did not fire symbol added event properly",
       predicate, listener.symbol);
 
     signature.removePredicate(predicate);

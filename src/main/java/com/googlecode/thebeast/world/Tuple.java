@@ -4,11 +4,11 @@ import java.util.AbstractList;
 import java.util.List;
 
 /**
- * A ConstantTuple object represents a tuple of constants.
+ * A Tuple object represents a tuple of constants.
  *
  * @author Sebastian Riedel
  */
-public final class ConstantTuple extends AbstractList<Constant> {
+public final class Tuple extends AbstractList<Constant> {
 
 
   /**
@@ -21,7 +21,7 @@ public final class ConstantTuple extends AbstractList<Constant> {
    *
    * @param constants the constants in this tuple.
    */
-  public ConstantTuple(final List<Constant> constants) {
+  public Tuple(final List<Constant> constants) {
     this.constants = constants.toArray(new Constant[constants.size()]);
   }
 
@@ -30,7 +30,7 @@ public final class ConstantTuple extends AbstractList<Constant> {
    *
    * @param constants a vararg array of constants.
    */
-  ConstantTuple(final Constant... constants) {
+  public Tuple(final Constant... constants) {
     this.constants = new Constant[constants.length];
     System.arraycopy(constants, 0, this.constants, 0, constants.length);
   }
@@ -64,9 +64,7 @@ public final class ConstantTuple extends AbstractList<Constant> {
   }
 
   /**
-   * Returns the number of constants in this collection.  If the collection
-   * contains more than <tt>Integer.MAX_VALUE</tt> elements, returns
-   * <tt>Integer.MAX_VALUE</tt>.
+   * Returns the length of this tuple.
    *
    * @return the number of constants in this tuple.
    */
