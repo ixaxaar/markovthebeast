@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.formula;
+package com.googlecode.thebeast.clause;
 
 import com.googlecode.thebeast.world.Type;
 
@@ -7,7 +7,7 @@ import com.googlecode.thebeast.world.Type;
  *
  * @author Sebastian Riedel
  */
-public class Variable implements Term {
+public final class Variable implements Term {
 
   /**
    * The name of the variable.
@@ -43,7 +43,7 @@ public class Variable implements Term {
    * Return the type of this variable.
    *
    * @return the type of this variable.
-   * @see com.googlecode.thebeast.formula.Term#getType()
+   * @see com.googlecode.thebeast.clause.Term#getType()
    */
   public Type getType() {
     return type;
