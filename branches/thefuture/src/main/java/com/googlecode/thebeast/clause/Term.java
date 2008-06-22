@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.formula;
+package com.googlecode.thebeast.clause;
 
 import com.googlecode.thebeast.world.Type;
 

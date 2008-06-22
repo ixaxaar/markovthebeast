@@ -1,6 +1,6 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.formula.Term;
+import com.googlecode.thebeast.clause.Term;
 
 /**
  * A Constant is a First Order Logic Symbol that represents an object within a
@@ -15,7 +15,7 @@ public interface Constant extends Symbol, Term {
    * Returns the type of this constant.
    *
    * @return the Type object this constant belongs to.
-   * @see com.googlecode.thebeast.formula.Term#getType()
+   * @see com.googlecode.thebeast.clause.Term#getType()
    */
   Type getType();
 

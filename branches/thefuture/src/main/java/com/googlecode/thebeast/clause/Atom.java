@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.formula;
+package com.googlecode.thebeast.clause;
 
 import com.googlecode.thebeast.world.UserPredicate;
 
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Sebastian Riedel
  */
-public class Atom implements Formula {
+public final class Atom {
 
   /**
    * The predicate of this atom.
@@ -35,16 +35,6 @@ public class Atom implements Formula {
     this.predicate = predicate;
     this.arguments =
       Collections.unmodifiableList(new ArrayList<Term>(arguments));
-  }
-
-  /**
-   * Returns an empty list since an Atom is a terminal symbol of a FOL formula.
-   *
-   * @return the empty list.
-   * @see Formula#getChildren()
-   */
-  public List<Formula> getChildren() {
-    return Collections.emptyList();
   }
 
   /**

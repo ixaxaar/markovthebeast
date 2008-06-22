@@ -16,9 +16,49 @@ next:
 	- SQLQuery: sql query, parametrized by world.
 
 
-Non recursive Functions:
+Restrict Markov Horn Logic (Conditional Clausal Markov Logic)
+- must be groundable to clause of hidden ground atoms
+- => first order formula is disjunction of literals and conditioned existential quantifiers over single literals:
+  - p(x) v exists y [o(y) ^ k(y)]: q(x,y)
+- => Markov Logic defines set of allowed hidden predicates (above o(y) must be observed)
+
+- first order formula must be: at most one positive literal or conditional existential quantifier. 
+
+Body: list of atoms. (negated in clause)
+Head: atom + condition + existential variables
+
+h(x1) :- q(x1) 
+-> exists e1. h(e1) [e1=x1] :- q(x1)
+
+exists e. h(e) [e=x] :- p(x)
+exists l. role(p,a,l) :- hasRole(p,a)
+exists h. dep(h,m) [word(h)]:- word(m)
+//if you want to prove for a given m whether there is a h with dep(h,m) & word(h) you need  to prove word(m)
+
+exists dep(h,m) & word(h) :- word(m)
+
+=> if weights are positive number of violated ground formulae is always bound by size of current solution.
+
+
+GeneralizedClause {
+    List<Atom> head;
+    List<Atom> body;
+}
+
+forall x,y k(x,y) => exists z l(x,y,z) 
+
+
+
+Functions:
 parsed(np(x1,x2)) & parsed(vp(x2,x3)) => parsed(s(x1,x3)) 
 parsed(np) & parsed(vp) => parsed(s(np,vpo))
+-> Allow compound types and functions that map into it
+Type Constituent: Compound;
+function tag: Tag -> Constituent;
+function node: Label x Constituent x Constituent -> Constituent;
+
+tagged(x, t) => parsed(x, x, tag(t))
+parsed(x1,x2,+n1) & parsed(x2,x3,+n2) => parsed(x1,x2,+n3)
 
 @predictor("tnt")
 TnT extends AnnotablePredictor {
