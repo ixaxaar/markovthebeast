@@ -6,8 +6,8 @@
 
 
 We define a set of \emph{local} formulae. A formula is local if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, a grounding of the local formula 
-\[lemma(p,!l_1) \wedge lemma(a,!l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``!'' prefix for variables indicates that the different weight for each possible pair of lemmas $(l_1,l_2)$.
+\[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
+can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that the different weight for each possible pair of lemmas $(l_1,l_2)$.
 
 % This formula is used during the argument classification stage which in our model is related to the hidden predicate $hasRole$. Given a sentence, this formula will create a ground formulua for each combination of lemmas and positions where the formula is true. This can be seen in the Figure \ref{fig:local2}\footnote{Segment of sentence from training corpora.} where there are two instances of the predicate. You can notice that the only hidden predicate involved on each of this formulae is the $hasLabel$ predicate.
 % \begin{figure}
@@ -20,7 +20,7 @@ can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidd
 \begin{center}
     \includegraphics[scale=.70]{LocalFormula2}
 \end{center}
-\caption{Factor graph for example of local formula}
+\caption{Factor graph for example of local formula.}
 \label{fig:local2}
 \end{figure}
 
