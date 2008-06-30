@@ -28,18 +28,18 @@ In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of 
 \label{eq:prob}
 \end{equation}
 to the possible world $\y$. Here $f_{\boldc}^{\phi}$ is a feature
-function that returns 1.0 if in the possible world $\y$ the ground
+function that returns 1 if in the possible world $\y$ the ground
 formula we get by replacing the free variables in $\phi$ by the constants
-in $\boldc$ is true and 0.0 otherwise. $C^{n_{\phi}}$ is the set
+in $\boldc$ is true and 0 otherwise. $C^{n_{\phi}}$ is the set
 of all tuples of constants we can replace the free variables in $\phi$
 with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network where nodes represent ground atoms and factors represent ground formulae.
 
 For example, if $M$ contains the formula $\phi$ \[
 word\left(x,'take'\right)\Rightarrow isPredicate\left(x\right)\]
 then its corresponding log-linear model has, among others, a feature 
-$f_{t1}^{\phi}$ for which $x$ in $\phi$ has been replaced by the constant $t_1$ and that returns 1.0 if \[
+$f_{t1}^{\phi}$ for which $x$ in $\phi$ has been replaced by the constant $t_1$ and that returns 1 if \[
 word\left(1,'take'\right)\Rightarrow isPredicate\left(1\right)\]
-is true in $\y$ and 0.0 otherwise.
+is true in $\y$ and 0 otherwise.
 
 We will refer predicates such as \emph{word} as \emph{observed} because they are known in advance. In contrast, \emph{isPredicate} is \emph{hidden} because we need to infer it at test time.
 

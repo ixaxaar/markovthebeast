@@ -3,24 +3,24 @@
 %%% TeX-master: "paper"
 %%% End: 
 
-\emph{Global} formulae relate several hidden ground atoms. We use them for two purposes: to capture some of our intuition about the task and to ensure consistency between the decisions of all SRL stages. We will refer to formulae that serve the first purpose as \emph{structural constraints}. 
+\emph{Global} formulae relate several hidden ground atoms. We use them for two purposes: to ensure consistency between the decisions of all SRL stages and to capture some of our intuition about the task. We will refer to formulae that serve the first purpose as \emph{structural constraints}. 
 
 % They aim to capture the relations between the hidden predicates, and ultimately of the stages of the SRL task. There are two types of global formulae: \emph{hard formulae} and \emph{soft formulae}. The hard formulae imposes constraints on the structure of the predicates. We can use hard formulae to solve the problem of coupling predicates.
 For example, a structural constraint is given by the (deterministic) formula
 \[role(p,a,r) \Rightarrow hasRole(p,a)\]
-which ensures that, whenever the argument $a$ is given a label $r$ with respect to the predicate $p$, this argument must be an argument of $a$ as denoted by \emph{hasRole(p,a)}. Note that this formula by itself models the traditional argument identification and classification pipeline: it is possible to not assign a role $r$ to an predicate-argument pair $(p,a)$ proposed by the identification stage; however, it is impossible to assign a role $r$ to token pairs $(p,a)$ that have not been proposed as potential arguments.
+which ensures that, whenever the argument $a$ is given a label $r$ with respect to the predicate $p$, this argument must be an argument of $a$ as denoted by \emph{hasRole(p,a)}. Note that this formula by itself models the traditional ``bottom-up'' argument identification and classification pipeline: it is possible to not assign a role $r$ to an predicate-argument pair $(p,a)$ proposed by the identification stage; however, it is impossible to assign a role $r$ to token pairs $(p,a)$ that have not been proposed as potential arguments.
 
 One example of another class of structural constraints is 
 \[
 hasRole(p,a)\Rightarrow\exists r.role(p,a,r)
 \]
-which, by itself, models a part of a top down pipeline. Here the argument classification stage can assign roles to tokens that have not been proposed by the argument identification stage. However, it must assign a label to any token pair the previous stage proposes. 
+which, by itself, models an inverted or ``top-down'' pipeline. In this architecture the argument classification stage can assign roles to tokens that have not been proposed by the argument identification stage. However, it must assign a label to any token pair the previous stage proposes. 
 %IV
 Figure \ref{fig:global2} illustrates the structural formulae we use in form of a Markov Network.
 
 The formulae we use to ensure consistency between the remaining hidden predicates are omitted for brevity as they are very similar to the bottom-up and top-down formulae we presented above.
 
-For the SRL predicates that perform a labelling task (\emph{role} and \emph{sense}) we also need a structural constraint that ensures that not more than one label is assigned. For instance,
+For the SRL predicates that perform a labelling task (\emph{role} and \emph{sense}) we also need a structural constraint which ensures that not more than one label is assigned. For instance,
 \[
 (role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2)  )
 \]
