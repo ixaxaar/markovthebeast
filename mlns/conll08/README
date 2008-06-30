@@ -5,10 +5,11 @@ Track of the CoNLL 2008 Shared Task.
 Directories:
 full      : Full system
 up        : Top-down formulae is commented. It resembles a bottom-up system.
-downi     : Bottom-up formulae is commented. It resembles a top-down system.
+down      : Bottom-up formulae is commented. It resembles a top-down system.
 isolated  : Both, Top-down and bottom-up formulae are commented. There are not
     structural relation between predicates.
 structural: Without additional global formulae, only structural.
+bin       : Python scripts to generate atoms files from conll08 formats
 
 Note:
  The predicates hasRole and sense which are mention in the paper, appear on 
@@ -43,11 +44,18 @@ Descriptions of pml files:
  role-pp-attach.pml         : Local formulae for prepositiona attachment for the
                               role predicate (unused).
  
- 
+
  role-dep.pml, role-basic.pml, isArgument-global.pml, model1-both.pml, 
  model1-dep.pml, dep-bigram.pml, dep-malt.pml, init.pml, inspect.pml, 
  scratch.pml, scratch-whole.pml, seb-inspect.pml, test.pml, train.pml
  types.pml aren't used for these models.
 
+
+Description of bin files:
+ bin/conll082beast.py   : Script to translate from conll08 to beast files
+ bin/corpus.py          : Module for reading and printing conll08 and beast
+                          corpora
+ bin/features.py        : Module with fuctions to extract features
+ bin/beast2conll08.py   : Script to translate from beast to conll08 file
 
 
