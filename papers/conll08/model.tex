@@ -7,7 +7,10 @@ For predicate identification, we use the predicates \emph{isPredicate} and \emph
 
 For argument identification, we use the predicates \emph{isArgument} and \emph{hasRole}. The atom \emph{isArgument(a)} signals that the word in the position $a$ is a SRL argument of some (unspecified) SRL predicate while \emph{hasRole(p,a)} indicates that the token at position $a$ is an argument of the predicate in position $p$. 
 
-Finally, for the argument classification stage we define the predicate \emph{role}. Here \emph{role(p,a,r)} corresponds to the decision that the argument $a$ has the role $r$ with respect to the predicate $p$.
+Finally, for the argument classification stage we define the predicate
+\emph{role}. Here \emph{role(p,a,r)} corresponds to the decision that the
+argument in the position $a$ has the role $r$ with respect to the predicate in
+the position $p$.
 
 % There is a potential problem of coupling the predicates. For instance, the predicate $hasRole(p,a)$ could be true, but there is not guaranty that the predicate $predicate(p)$ is. This situation would lead to arguments without SRL predicates. In the following, subsections we explain how we can constrain these two predicates to be couple using the FOL formulae of the MLN model. Aditionally, we show how we can relate our knowledge from the words with the predicates for the SRL task.
 

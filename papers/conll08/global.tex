@@ -12,7 +12,7 @@ which ensures that, whenever the argument $a$ is given a label $r$ with respect 
 
 One example of another class of structural constraints is 
 \[
-hasRole(p,a)\Rightarrow\exists r.hasRole(p,a,r)
+hasRole(p,a)\Rightarrow\exists r.role(p,a,r)
 \]
 which, by itself, models a part of a top down pipeline. Here the argument classification stage can assign roles to tokens that have not been proposed by the argument identification stage. However, it must assign a label to any token pair the previous stage proposes. 
 %IV
