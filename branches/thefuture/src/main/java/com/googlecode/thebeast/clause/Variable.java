@@ -48,4 +48,15 @@ public final class Variable implements Term {
   public Type getType() {
     return type;
   }
+
+  /**
+   * A variable is, by definition, not ground. Hence this method returns
+   * <code>false</code>
+   * @return  <code>false</code> because a variable is not ground.
+   *
+   * @see Term#isGround()
+   */
+  public boolean isGround() {
+    return false;
+  }
 }

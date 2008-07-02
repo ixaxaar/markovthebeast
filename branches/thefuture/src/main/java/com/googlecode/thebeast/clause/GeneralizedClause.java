@@ -28,16 +28,56 @@ public final class GeneralizedClause {
   private final List<Atom> body;
 
   /**
+   * The list of all atoms (body, head)
+   */
+  private final List<Atom> all;
+
+  /**
+   * List of universally quantified variables.
+   */
+  private final List<Variable>
+    universalVariables = new ArrayList<Variable>();
+
+  /**
+   * List of existentially quantified variables.
+   */
+  private final List<Variable>
+    existentialVariables = new ArrayList<Variable>();
+
+
+  /**
    * Constructor GeneralizedClause creates a new GeneralizedClause with the
    * given head and body atoms.
    *
    * @param head the head atoms of the clause
    * @param body the body atoms of the clause
    */
-  public GeneralizedClause(final List<Atom> head,
-                           final List<Atom> body) {
+  GeneralizedClause(final List<Atom> head,
+                    final List<Atom> body) {
     this.head = new ArrayList<Atom>(head);
     this.body = new ArrayList<Atom>(body);
+    this.all = new ArrayList<Atom>();
+    all.addAll(body);
+    all.addAll(head);
+    for (Atom atom : body) {
+      for (Term term : atom.getArguments()) {
+        if (term instanceof Variable) {
+          Variable var = (Variable) term;
+          if (!universalVariables.contains(var))
+            universalVariables.add(var);
+        }
+      }
+    }
+    for (Atom atom : head) {
+      for (Term term : atom.getArguments()) {
+        if (term instanceof Variable) {
+          Variable var = (Variable) term;
+          if (!universalVariables.contains(var)
+            && !existentialVariables.contains(var))
+            existentialVariables.add(var);
+        }
+      }
+    }
   }
 
   /**
@@ -57,4 +97,40 @@ public final class GeneralizedClause {
   public List<Atom> getBody() {
     return Collections.unmodifiableList(body);
   }
+
+
+  /**
+   * Returns the atoms in body and head of this clause as one list. The list is
+   * ordered as: body atoms, head atoms.
+   *
+   * @return a list starting with the body atoms and ending with the head
+   *         atoms.
+   */
+  public List<Atom> getAll() {
+    return Collections.unmodifiableList(all);
+  }
+
+  /**
+   * Returns a list of the universally quantified variables in this clause. The
+   * list is ordered by appearance in the body of the clause.
+   *
+   * @return an unmodifiable view on the list of universal variables in this
+   *         clause.
+   */
+  public List<Variable> getUniversalVariables() {
+    return Collections.unmodifiableList(universalVariables);
+  }
+
+  /**
+   * Returns a list of the existentially quantified variables in this clause.
+   * The list is ordered by appearance in the head of the clause.
+   *
+   * @return an unmodifiable view on the list of existential variables in this
+   *         clause.
+   */
+  public List<Variable> getExistentialVariables() {
+    return Collections.unmodifiableList(existentialVariables);
+  }
+
+
 }

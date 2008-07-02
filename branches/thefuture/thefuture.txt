@@ -1,3 +1,45 @@
+thebeast plugin architecture:
+	 predicates can be bound to different types of plugins:
+	 - Sensor: fills up some relations without seeing any other relations, only based on environment
+	 - Predictors: predict relations based on other relations, induces dependency graph of predicates, can use the MLN, don't have to.
+	 - Background: fill relations once in a session (others fill with every new observation)
+	 - Effector: just reads the world (the predicates it is bound to)
+
+Beast loop:
+      1) All predicates tagged as action relations are refreshed/updated
+      2) Actions (effector predicates) in the MAP world are performed (in no specified order)
+      3) Observed predicates are updated
+
+
+
+Generalized closed world: every ground atom a with delta_s(a) <= 0 is false.
+
+- Each variable must appear at least once without a static function. 
+- Each weight is nonnegative
+
+@weight
+predicate weight: X;
+//positive
+h(x,y) :- o(x,y), weight(y)
+
+//negative
+:- h(x,y), o(x,y)
+
+- can be automatically constructed using
+@negated
+
+forall x1,x2 a1(x1) ^ a2(x2) => exists y1,y2 b1(y1) ^ b2(y2)
+
+ner(seq(h1+1,seq(h1,t)) :- ner(seq(h1,t)) & pos(h1+1,"NNP")  
+//
+ner([h1+1|[h1|t]]) :- ner([h1|t]) & pos(h1+1,"NNP")
+ner(h) :- pos(h,t+) 
+
+
+
+
+select s1 from k1, k2 where k1.a1 = s1+1 AND k2.a1 = s1-1 
+
 next:
 	- Substitution
 	- SQLQueryGenerator (ReflectiveProducer<Formula,SQLQuery>)
@@ -15,6 +57,15 @@ next:
 	  - SubWorld (stores relations of a subsignature
 	- SQLQuery: sql query, parametrized by world.
 
+GeneralizedClause query result set:
+		  {(x,{y:head(x,y)}):body(x)}
+		  all x for which body(x) holds and a nested result set for each x with body(x)
+
+SubstitutionSet implements Iterable<Substitution>
+Substitution {
+	     Constant getConstant(Variable)
+	     SubstitutionSet getInnerSubstitutions();   
+}
 
 Restrict Markov Horn Logic (Conditional Clausal Markov Logic)
 - must be groundable to clause of hidden ground atoms
@@ -38,12 +89,14 @@ exists h. dep(h,m) [word(h)]:- word(m)
 exists dep(h,m) & word(h) :- word(m)
 
 => if weights are positive number of violated ground formulae is always bound by size of current solution.
-
+=> condition cannot happen unless the existential quantifier is fulfilled.
 
 GeneralizedClause {
     List<Atom> head;
     List<Atom> body;
 }
+
+world.query("-:role(x,y)")
 
 forall x,y k(x,y) => exists z l(x,y,z) 
 

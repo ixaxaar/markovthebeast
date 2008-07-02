@@ -1,13 +1,17 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.clause.GeneralizedClause;
+import com.googlecode.thebeast.clause.GroundingSet;
+
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
  * of ground atoms, either added manually, through solving, or with built-in
  * predicates.</p>
-*
+ *
  * @author Sebastian Riedel
  */
 public interface World {
+
   /**
    * Adds a parent world to this world which provides the relation for the given
    * predicate.
@@ -18,7 +22,8 @@ public interface World {
    *                  predicate.
    * @throws com.googlecode.thebeast.world.PredicateAlreadyInUseException
    *          if there is already a local relation object for the predicate
-   *          (i.e. somebody already changed the relation here).
+   *          (i.e. somebody might have already changed the relation of the
+   *          given predicate).
    */
   void addParent(UserPredicate predicate, World parent)
     throws PredicateAlreadyInUseException;
@@ -79,4 +84,17 @@ public interface World {
    */
   MutableRelation getMutableRelation(UserPredicate predicate)
     throws RelationNotUpdatableException;
+
+
+  /**
+   * Returns all groundings of the given clause for which, in this world, the
+   * body is true and which contain as existential substitutions all groundings
+   * that make the head true wrt to the universal substitution.
+   *
+   * @param clause the clause to find groundings for.
+   * @return a set of groundings for the given clause.
+   */
+  GroundingSet query(GeneralizedClause clause);
+
+
 }

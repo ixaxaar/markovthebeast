@@ -12,5 +12,5 @@ public interface MutableRelation extends Relation {
    *
    * @param tuple the tuple to add.
    */
-  void addTuple(Tuple tuple);
+  boolean add(Tuple tuple);
 }

@@ -41,4 +41,14 @@ public abstract class StaticPredicate extends AbstractSymbol
   public abstract boolean evaluate(final List<Constant> arguments);
 
 
+  /**
+   * A StaticPredicate is by definition static.
+   *
+   * @return true.
+   *
+   * @see Predicate#isStatic()
+   */
+  public boolean isStatic() {
+    return true;
+  }
 }

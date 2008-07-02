@@ -13,7 +13,6 @@ public interface Predicate extends Symbol {
    * Returns the name of the predicate symbol.
    *
    * @return a String containing the name of this predicate.
-   *
    * @see Symbol#getName()
    */
   String getName();
@@ -26,5 +25,13 @@ public interface Predicate extends Symbol {
    *         which their constants can act as arguments of this predicate.
    */
   List<? extends Type> getArgumentTypes();
+
+
+  /**
+   * Returns true if this predicate is fixed for all possible worlds.
+   *
+   * @return true iff this is a static predicate.
+   */
+  boolean isStatic();
 
 }

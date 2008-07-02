@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
-import junit.framework.TestCase;
 import com.googlecode.thebeast.world.sql.SQLSignature;
+import junit.framework.TestCase;
 
 /**
  * Testing the methods of the ConstantTuple class.
@@ -27,7 +27,7 @@ public final class TestConstantTuple extends TestCase {
    */
   protected void setUp() throws Exception {
     super.setUp();
-    Signature signature = new SQLSignature();
+    Signature signature = SQLSignature.createSignature();
     typeAB = signature.createType("type1", false, "A", "B");
     typeBC = signature.createType("type2", false, "C", "D");
   }

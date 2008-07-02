@@ -39,7 +39,7 @@ public final class TestRelation extends TestCase {
    */
   protected void setUp() throws Exception {
     super.setUp();
-    Signature signature = new SQLSignature();
+    Signature signature = SQLSignature.createSignature();
     type1 = signature.createType("type1", false, "A", "B");
     type2 = signature.createType("type2", false, "C", "D");
     pred = signature.createPredicate("pred", type1, type2);
@@ -54,7 +54,7 @@ public final class TestRelation extends TestCase {
     Tuple tuple = new Tuple(
       type1.getConstant("A"),
       type2.getConstant("C"));
-    relation.addTuple(tuple);
+    relation.add(tuple);
     assertEquals(1, relation.size());
     assertEquals(tuple, relation.iterator().next());
   }
@@ -67,7 +67,7 @@ public final class TestRelation extends TestCase {
     Tuple tuple = new Tuple(
       type1.getConstant("A"),
       type2.getConstant("C"));
-    relation.addTuple(tuple);
+    relation.add(tuple);
     assertTrue("Relation does not contain the tuple just added",
       relation.contains(tuple));
   }
@@ -83,8 +83,8 @@ public final class TestRelation extends TestCase {
     Tuple tuple2 = new Tuple(
       type1.getConstant("B"),
       type2.getConstant("C"));
-    relation.addTuple(tuple1);
-    relation.addTuple(tuple2);
+    relation.add(tuple1);
+    relation.add(tuple2);
     HashSet<Tuple> expected = new HashSet<Tuple>();
     expected.add(tuple1);
     expected.add(tuple2);
