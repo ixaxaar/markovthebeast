@@ -29,7 +29,7 @@ public final class TheBeast {
    */
   public static void main(final String[] args) {
     System.out.println("markov thebeast " + VERSION);
-    Signature signature = new SQLSignature();
+    Signature signature = SQLSignature.createSignature();
     System.out.println(signature);
   }
 }

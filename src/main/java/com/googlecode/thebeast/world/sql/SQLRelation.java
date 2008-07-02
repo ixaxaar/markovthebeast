@@ -1,10 +1,10 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.googlecode.thebeast.world.Constant;
+import com.googlecode.thebeast.world.MutableRelation;
 import com.googlecode.thebeast.world.RelationListener;
 import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.MutableRelation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -207,9 +207,9 @@ final class SQLRelation extends AbstractCollection<Tuple>
    *
    * @param tuple the tuple to add.
    *
-   * @see com.googlecode.thebeast.world.MutableRelation#addTuple(Tuple)
+   * @see com.googlecode.thebeast.world.MutableRelation#add(Tuple)
    */
-  public void addTuple(final Tuple tuple) {
+  public boolean add(final Tuple tuple) {
     try {
       Statement st = signature.getConnection().createStatement(
         ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -228,6 +228,7 @@ final class SQLRelation extends AbstractCollection<Tuple>
       for (RelationListener listener : listeners) {
         listener.tupleAdded(this, tuple);
       }
+      return true;
     } catch (SQLException e) {
       throw new NestedSQLException("Problem when adding tuple: ", e);
     }

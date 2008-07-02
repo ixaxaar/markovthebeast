@@ -41,20 +41,6 @@ public interface UserType extends Symbol, Type {
   boolean isExtendable();
 
   /**
-   * Returns the constant with the given name. If the type is extendable a new
-   * constant with the given name is created if no constant with such name
-   * existed before.
-   *
-   * @param name the name of the constant.
-   * @return the constant with the given name.
-   * @throws com.googlecode.thebeast.world.ConstantNameNotInTypeException
-   *          if there is no constant with the given name and this type is not
-   *          extendable.
-   */
-  UserConstant getConstant(String name)
-    throws ConstantNameNotInTypeException;
-
-  /**
    * Returns constant with the specific id.
    *
    * @param id the id of the constant to return.

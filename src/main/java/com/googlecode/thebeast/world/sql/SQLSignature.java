@@ -10,8 +10,8 @@ import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
 import com.googlecode.thebeast.world.SymbolNotPartOfSignatureException;
 import com.googlecode.thebeast.world.Type;
 import com.googlecode.thebeast.world.TypeNotInSignatureException;
-import com.googlecode.thebeast.world.World;
 import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.World;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -49,6 +49,11 @@ public final class SQLSignature implements Serializable, Signature {
    * The pool of sql tables to reuse.
    */
   private SQLTablePool sqlTablePool;
+
+  /**
+   * The query engine to use for all worlds of this signature.
+   */
+  private SQLBasedQueryEngine queryEngine;
 
   /**
    * A map from type names to types. This map contains user types as well as
@@ -99,16 +104,26 @@ public final class SQLSignature implements Serializable, Signature {
   /**
    * Creates a new signature and opens a connection to the H2 database.
    */
-  public SQLSignature() {
+  SQLSignature() {
     try {
       Class.forName("org.h2.Driver");
       connection = DriverManager.getConnection("jdbc:h2:~/test", "sa", "");
       sqlTablePool = new SQLTablePool(this);
+      queryEngine = new SQLBasedQueryEngine();
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Creates a new SQLSignature.
+   *
+   * @return a new SQLSignature object.
+   */
+  public static SQLSignature createSignature() {
+    return new SQLSignature();
   }
 
 
@@ -121,7 +136,7 @@ public final class SQLSignature implements Serializable, Signature {
    * @throws com.googlecode.thebeast.world.SignatureMismatchException
    *          when signatures do not match.
    */
-  public void match(final Signature signature)
+  void match(final Signature signature)
     throws SignatureMismatchException {
     if (!this.equals(signature)) {
       throw new SignatureMismatchException("Signatures do not match",
@@ -139,6 +154,14 @@ public final class SQLSignature implements Serializable, Signature {
     return connection;
   }
 
+  /**
+   * Returns the query engine to use for worlds of this signature.
+   *
+   * @return a global query engine for this signature.
+   */
+  SQLBasedQueryEngine getQueryEngine() {
+    return queryEngine;
+  }
 
   /**
    * Returns the pool of tables that represents relations of this signature.
@@ -355,8 +378,7 @@ public final class SQLSignature implements Serializable, Signature {
    * and {@link java.util.Set#contains(Object)} instead.
    *
    * @param name the name of the type to return.
-   * @return either a built-in type of a {@link
-   * com.googlecode.thebeast.world.sql.SQLUserType}
+   * @return either a built-in type of a {@link com.googlecode.thebeast.world.sql.SQLUserType}
    * @throws com.googlecode.thebeast.world.TypeNotInSignatureException
    *          if there is no type with the given name.
    * @see com.googlecode.thebeast.world.Signature#getType(String)

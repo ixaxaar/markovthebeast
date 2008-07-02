@@ -20,4 +20,13 @@ public interface Term {
    */
   Type getType();
 
+
+  /**
+   * Returns true iff this term is a ground term, i.e. it does not contain any
+   * variables.
+   *
+   * @return true if this term is a ground term.
+   */
+  boolean isGround();
+
 }

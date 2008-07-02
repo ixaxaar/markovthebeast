@@ -32,4 +32,13 @@ abstract class SQLRepresentableConstant extends AbstractSymbol
    */
   abstract Object asSQLConstant();
 
+  /**
+   * Returns true because a constant is ground.
+   * @return true because a constant is ground.
+   *
+   * @see com.googlecode.thebeast.clause.Term#isGround()
+   */
+  public boolean isGround() {
+    return true;
+  }
 }

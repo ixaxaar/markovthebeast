@@ -1,11 +1,12 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.google.common.collect.HashBiMap;
+import com.googlecode.thebeast.clause.GeneralizedClause;
+import com.googlecode.thebeast.clause.GroundingSet;
 import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
 import com.googlecode.thebeast.world.Relation;
 import com.googlecode.thebeast.world.RelationListener;
 import com.googlecode.thebeast.world.RelationNotUpdatableException;
-import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.World;
@@ -122,7 +123,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
    *
    * @return the signature this world belongs to.
    */
-  public Signature getSignature() {
+  public SQLSignature getSignature() {
     return signature;
   }
 
@@ -169,13 +170,25 @@ final class SQLWorld implements RelationListener, WorldListener, World {
   }
 
   /**
+   * Returns all groundings of the given clause for which, in this world, the
+   * body is true and which contain as existential substitutions all groundings
+   * that make the head true wrt to the universal substitution.
+   *
+   * @param clause the clause to find groundings for.
+   * @return a set of groundings for the given clause.
+   */
+  public GroundingSet query(GeneralizedClause clause) {
+    return signature.getQueryEngine().query(clause,this);
+  }
+
+  /**
    * Method getSQLRelation returns the relation of the corresponding predicate
    * as SQLRelation.
    *
    * @param predicate of type UserPredicate
    * @return SQLRelation the relation of the corresponding predicate.
    */
-  SQLRelation getSQLRelation(final UserPredicate predicate) {
+  SQLRelation getSQLRelation(final SQLUserPredicate predicate) {
     return relations.get(predicate);
   }
 

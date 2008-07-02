@@ -1,6 +1,6 @@
 package com.googlecode.thebeast.clause;
 
-import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.Predicate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ public final class Atom {
   /**
    * The predicate of this atom.
    */
-  private final UserPredicate predicate;
+  private final Predicate predicate;
 
   /**
    * The argument terms of this atom.
@@ -31,7 +31,7 @@ public final class Atom {
    * @param predicate the predicate of this atom.
    * @param arguments the arguments of this atom.
    */
-  public Atom(UserPredicate predicate, List<Term> arguments) {
+  Atom(final Predicate predicate, final List<Term> arguments) {
     this.predicate = predicate;
     this.arguments =
       Collections.unmodifiableList(new ArrayList<Term>(arguments));
@@ -42,7 +42,7 @@ public final class Atom {
    *
    * @return the predicate (type UserPredicate) of this Atom object.
    */
-  public UserPredicate getPredicate() {
+  public Predicate getPredicate() {
     return predicate;
   }
 

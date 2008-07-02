@@ -45,4 +45,18 @@ public interface Type extends Symbol, Iterable<Constant> {
    * @see Type#isIterable()
    */
   Iterator<Constant> iterator() throws TypeNotIterableException;
+
+  /**
+   * Returns the constant with the given name. If the type is extendable a new
+   * constant with the given name is created if no constant with such name
+   * existed before.
+   *
+   * @param name the name of the constant.
+   * @return the constant with the given name.
+   * @throws ConstantNameNotInTypeException if there is no constant with the
+   *                                        given name and this type is not
+   *                                        extendable.
+   */
+  Constant getConstant(String name)
+    throws ConstantNameNotInTypeException;
 }

@@ -48,6 +48,18 @@ final class SQLUserPredicate extends AbstractSymbol
     return Collections.unmodifiableList(argumentTypes);
   }
 
+
+  /**
+   * A UserPredicate is not static.
+   *
+   * @return false.
+   *
+   * @see com.googlecode.thebeast.world.Predicate#isStatic()
+   */
+  public boolean isStatic() {
+    return false;
+  }
+
   /**
    * Returns the argument types as SQLRepresentable types.
    *
