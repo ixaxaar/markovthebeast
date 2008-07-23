@@ -1,7 +1,7 @@
 % *******************************************************
 % File coling08.sty
 % contact Roger Evans: R.P.Evans@brighton.ac.uk
-% October 2007
+% October 2007 - June 2008
 % This is the style file for COLING 2008, based on the style file
 % for ACL 2007. For changes, see comments at the end.
 
@@ -20,7 +20,7 @@
 % improvements, etc.  please let me know.  My e-mail address is:
 %       pfps@research.att.com
 
-% Papers are to be prepared using the ``acl'' bibliography style,
+% Papers are to be prepared using the ``coling'' bibliography style,
 % as follows:
 %       \documentclass[11pt]{article}
 %       \usepackage(coling08}
@@ -30,7 +30,7 @@
 %       \begin{document}
 %       ...
 %       \bibliography{bibliography-file}
-%       \bibliographystyle{acl}
+%       \bibliographystyle{coling}
 %       \end{document}
 
 % Author information can be set in various styles:
@@ -54,7 +54,13 @@
 % \usepackage{coling08}
 % where <new height> can be something larger than 2.25in
 
-\typeout{Conference Style for COLING 2008 -- v1.1, 06 March 2008}
+% A copyright footnote is autmatically inserted on the front page. To change
+% the text in this footnote, use
+%        \copyrightfn(New Text)
+% in the preamble. TO remove it altogether use
+%        \nocopyrightfn
+
+\typeout{Conference Style for COLING 2008 - v4, 6 June 2008}
 
 % NOTE:  Some laser printers have a serious problem printing TeX output.
 % These printing devices, commonly known as ``write-white'' laser
@@ -80,10 +86,8 @@
 \setlength{\paperheight}{29.7cm}% A4
 \setlength\topmargin{0cm}
 \setlength\oddsidemargin{0cm}
-\addtolength{\hoffset}{0mm}
-\addtolength{\voffset}{18mm}
-\addtolength\textheight{50mm}
-\addtolength\textwidth{33mm}
+\setlength\textheight{24.7cm}
+\setlength\textwidth{16cm}
 \setlength\columnsep{5mm}
 \newlength\titlebox
 \setlength\titlebox{2.00in}
@@ -94,9 +98,22 @@
 \pagestyle{empty}
 \flushbottom \twocolumn \sloppy
 
+
 % We're never going to need a table of contents, so just flush it to
 % save space --- suggested by drstrip@sandia-2
 \def\addcontentsline#1#2#3{}
+
+% support for copyright footnotes - RE 3 Jun 08
+\def\@copyrightfntext{}
+\def\copyrightfn#1{\def\@copyrightfntext{#1}}
+\def\@internalcopyrightfn{\footnotetext{\@copyrightfntext}}
+\def\nocopyrightfn{\def\@internalcopyrightfn{}}
+
+% default copyright for Coling 2008
+\def\@copyrightfntext{\copyright\,2008. %
+Licensed under the \textit{Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported}\, license %
+(http://creativecommons.org/licenses/by-nc-sa/3.0/). %
+Some rights reserved.}
 
 % Title stuff, taken from deproc.
 \def\maketitle{\par
@@ -104,6 +121,7 @@
    \def\thefootnote{\fnsymbol{footnote}}
    \def\@makefnmark{\hbox to 0pt{$^{\@thefnmark}$\hss}}
    \twocolumn[\@maketitle] \@thanks
+   \@internalcopyrightfn
  \endgroup
  \setcounter{footnote}{0}
  \let\maketitle\relax \let\@maketitle\relax
@@ -310,7 +328,11 @@
 
 % -- change history --
 
-% COLING 2008 v1.1 (Roger Evans, 6 March 2008):
+% COLING 2008 v4 (Roger Evans, 6 June 2008):
+%   more minor tweaks to layout settings
+
+%   addition of support for copyright footnotes
+% COLING 2008 v3 (Roger Evans, 6 March 2008):
 %   adjusted margins again - previous settings assumed an
 %   arbitrary amount of scaling and centering by my printer.
 %   settings now work correctly with all centring and scaling disabled
