@@ -21,6 +21,18 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{ SRL Intuitions: Local}
+  \begin{center}
+    \includegraphics[scale=.70]{example-3}
+  \end{center}
+
+  \begin{itemize}
+  \item Semantic role label of a token correlates with its POS tag
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
   \frametitle{ SRL Intuitions: Global}
   \begin{center}
     \includegraphics[scale=.70]{example-2}
@@ -45,16 +57,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{ SRL Intuitions: Local}
-  \begin{center}
-    \includegraphics[scale=.70]{example-3}
-  \end{center}
-
-  \begin{itemize}
-  \item Semantic role label of a token correlates with its POS tag
-  \end{itemize}
-\end{frame}
 
 \begin{frame}
   \frametitle{Capturing intuitions}
@@ -97,7 +99,7 @@
 \section{Markov Logic}
 
 \begin{frame}
-  \frametitle{Markov Logic}
+  \frametitle{Markov Logic [Richardson \& Pedro (2005)]}
 
   What?
   \begin{itemize}
@@ -121,16 +123,16 @@
   \frametitle{Vocabulary}
   The vocabulary consists of:
   \begin{itemize}
-  \item \emph{Constants} represent objects of the domain (e.g., Haag,
+  \item \textbf{Constants} represent objects of the domain (e.g., Haag,
     VB, 1, 2, 3, \ldots)
-  \item \emph{Predicates} represent relations over the objects
+  \item \textbf{Predicates} represent relations over the objects
   \end{itemize}
   \bigskip There are two types of predicates: observable and
   hidden. \\Some of the observable predicates are:
   \begin{itemize}
-  \item \emph{word/2}, \emph{word(1,Haag)}
-  \item \emph{pos/2}, \emph{pos(1,NNP)}
-  \item \emph{path/3}, \emph{path(2,1,$\uparrow\uparrow\downarrow$)}
+  \item \textbf{word/2}, \emph{word(1,Haag)}
+  \item \textbf{pos/2}, \emph{pos(1,NNP)}
+  \item \textbf{path/3}, \emph{path(2,1,$\uparrow\uparrow\downarrow$)}
   \end{itemize}
     
 \end{frame}
@@ -165,11 +167,26 @@
 %   \end{itemize}
 % \end{frame}
 
+\begin{frame}
+  \frametitle{Formulae: Local}
+    
+  \begin{center}
+    \includegraphics[scale=.70]{example-3}
+  \end{center}
+
+  \begin{itemize}
+  \item Semantic role label of a token correlates with its POS tag
+  \end{itemize}
+
+  \[ppos(p,+p_p) \wedge ppos(a,+p_a) \Rightarrow role(p,a,+r)\]
+
+\end{frame}
+
 
 \begin{frame}
   \frametitle{Formulae: Global}
   \begin{center}
-    \includegraphics[scale=.70]{example-1}
+    \includegraphics[scale=.70]{example-2}
   \end{center}
 
   \begin{itemize}
@@ -189,7 +206,7 @@
 \begin{frame}
   \frametitle{Formulae: Global and Soft}
   \begin{center}
-    \includegraphics[scale=.70]{example-2}
+    \includegraphics[scale=.70]{example-1}
   \end{center}
 
   \begin{itemize}
@@ -198,7 +215,7 @@
   \end{itemize}
 
   \begin{eqnarray*}
-    & lemma(p,+l) \wedge ppos(a,+p)  \\
+    & lemma(p,+l) \wedge ppos(a,+s)  \\
     & \wedge hasRole(p,a)  \Rightarrow sense(p,+f) 
   \end{eqnarray*}
 
@@ -206,24 +223,25 @@
 
 
 \begin{frame}
-  \frametitle{Formulae: Local}
-    
-  \begin{center}
-    \includegraphics[scale=.70]{example-3}
-  \end{center}
+  \frametitle{Formulae: Summary}
 
+  Implemented: 
   \begin{itemize}
-  \item Semantic role label of a token correlates with its POS tag
+  \item Local formulae [Xue \& Palmer (2004)]
+  \item Global formulae for one predicate
+  \item Global formulae for two different predicates (Structural formulae)\\
+      \begin{eqnarray*} & & isPredicate/1 \leftrightarrow sense/2 \\ 
+         & & isPredicate/1 \leftrightarrow isArgument/1 \\
+         & & isArgument/1 \leftrightarrow hasRole/2  \\
+         & & hasRole/2 \leftrightarrow role/3 \\
+      \end{eqnarray*}
   \end{itemize}
-
-  \[ppos(p,+p_p) \wedge ppos(a,+p_a) \Rightarrow role(p,a,+r)\]
-
 \end{frame}
 
 
 \begin{frame}
   \frametitle{Markov Logic Network}
-  Collect weighted formulae into a \emph{Markov Logic Network} (MLN).
+  Collect weighted formulae into a \textbf{Markov Logic Network} (MLN).
 
   An MLN defines a Markov Network where:
   \begin{itemize}
@@ -232,6 +250,10 @@
   \item There is a factor for each assignment of the free variable of
     each formulae.
   \end{itemize}
+
+  \begin{center}
+    \includegraphics[scale=.55]{factor_graphs}
+  \end{center}
 
   % SR: show simple small ground network
 
