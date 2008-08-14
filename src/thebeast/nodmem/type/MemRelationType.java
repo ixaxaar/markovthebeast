@@ -124,7 +124,7 @@ public class MemRelationType extends AbstractMemType implements RelationType {
     int lineNr = 0;
     MemVector current = new MemVector(ptr);
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-      StringTokenizer tokenizer = new StringTokenizer(line, "[\t ]", false);
+      StringTokenizer tokenizer = new StringTokenizer(line, "\t ", false);
       //String[] split = line.split(" \t");
       if (lineNr++ >= dst.capacity) dst.increaseCapacity(40);
       int index = 0;
