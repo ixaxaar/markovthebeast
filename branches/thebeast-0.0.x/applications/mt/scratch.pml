@@ -20,7 +20,6 @@ set solver.ground.followsActiveBegin = true;
 set solver.ground.followsActiveEnd = true;
 */
 
-set printer = "mt";
 
 save corpus to ram;
 
@@ -33,7 +32,7 @@ set solver.model.initIntegers = true;
 //set solver.model.solver.writeLP = true;
 
 solve;
-solve;
+//solve;
 //solve;
 //set solver.integer = true;
 
@@ -41,6 +40,12 @@ solve;
 //print atoms.activeTarget;
 //print atoms.activeGroup;
 
+print atoms.follows;
+print atoms.activeGroup;
+print atoms.activeTarget;
+
+//print formulas;
+set printer = "mt";
 print atoms;
 
 print solver.profiler;

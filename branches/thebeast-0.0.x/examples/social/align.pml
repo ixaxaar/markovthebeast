@@ -1,5 +1,13 @@
 /* Predicate definitions */
 
+type Person = Anna, Peter, James;
+predicate smokes: Person;
+predicate friends: Person x Person; 
+predicate cancer: Person;
+
+factor: if friends(x,y) & smokes(x) => smokes(y);
+factor: if smokes(x) = > cancer(x);
+
 // The words of the source string
 predicate src_word: Int x SourceWord;
 
