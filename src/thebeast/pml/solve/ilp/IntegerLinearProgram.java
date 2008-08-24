@@ -450,7 +450,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     }
 //    System.out.println("New constraints");
 //    System.out.println(newConstraints.value());
-    UserPredicate pred = model.getSignature().getUserPredicate("sameBib");
+//    UserPredicate pred = model.getSignature().getUserPredicate("sameBib");
 //    System.out.println("Mapping for " + pred);
 //    System.out.println(groundAtom2indexScore.get(pred).value());
     //System.out.println("Updating ...");
@@ -781,8 +781,10 @@ public class IntegerLinearProgram implements PropositionalModel {
     }
     if ("result".equals(name.getHead()))
       return getResultString();
-    if ("solver".equals(name.getHead()))
-      return solver;
+    if ("solver".equals(name.getHead())){
+      if (name.isTerminal()) return solver;
+      else return solver.getProperty(name.getTail());
+    }
     if ("fractionals".equals(name.getHead()))
       return getVariableString(fractionals.value());
     return null;

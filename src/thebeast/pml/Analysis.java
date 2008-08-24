@@ -24,11 +24,11 @@ public class Analysis {
     //analyzeWithStripes(System.out, tries);
     //analyzeOuterBound2();
     //analyzeLowerBound1();
-    analyzeUpperBound1();
+    //analyzeUpperBound1();
     //analyzeUpperBound1(6,10,1000000,new Random(0), 100000);
     //analyzeLowerBound1(10,6,1000000, new Random(0),10000);
     //analyzeInnerBound2();
-    //analyzeInnerBound2(10, 1, -1000000, 1, 100, 10);
+    analyzeInnerBound2(10, 1, -1000000, 1, 100, 10);
   }
 
   private static void analyzeWithBlocks() {
@@ -157,17 +157,28 @@ public class Analysis {
   }
 
   private static void analyzeLowerBound1() {
-    int maxTries = 50;
+    int maxTries = 10;
     int maxN = 10;
     Random random = new Random(0);
+
     for (int width : intSteps(2, maxN, 1)) {
       double iterations = 0;
       for (int tries = 0; tries < maxTries; ++tries) {
-        iterations += analyzeLowerBound1(maxN, width, 10000, random, 10);
+        iterations += analyzeLowerBound1(maxN, width, 10000, random, 10000,false);
       }
       iterations /= maxTries;
       System.out.printf("%-4d %-4d %-4f %-4f\n", width, width, iterations, (width - 1) * width * 0.5 + 1);
     }
+    System.out.println("Full");
+    for (int width : intSteps(2, maxN, 1)) {
+      double iterations = 0;
+      for (int tries = 0; tries < maxTries; ++tries) {
+        iterations += analyzeLowerBound1(maxN, width, 10000, random, 10000,true);
+      }
+      iterations /= maxTries;
+      System.out.printf("%-4d %-4d %-4f %-4f\n", width, width, iterations, (width - 1) * width * 0.5 + 1);
+    }
+
   }
 
   private static void analyzeUpperBound1() {
@@ -279,7 +290,9 @@ public class Analysis {
   }
 
 
-  private static int analyzeLowerBound1(int maxN, int width, double weight, Random random, double factorTrueFalse) {
+  private static int analyzeLowerBound1(int maxN, int width, double weight,
+                                        Random random, double factorTrueFalse,
+                                        boolean full) {
     Signature signature = TheBeast.getInstance().createSignature();
     UserPredicate block = signature.createPredicate("block", "Int", "Int");
     UserPredicate score = signature.createPredicate("score", "Int", "Int", "Double");
@@ -305,7 +318,9 @@ public class Analysis {
         if (x == maxN-1 && y == width-1)
           observation.getGroundAtomsOf(score).addGroundAtom(x, y, -10000000.0);
         else if (maxN - x < width - y)
-          observation.getGroundAtomsOf(score).addGroundAtom(x, y, -0.5 + random.nextDouble());
+          observation.getGroundAtomsOf(score).addGroundAtom(x, y, full ?
+            1.0 - random.nextDouble() : 
+            -1.0 + random.nextDouble());
         else
           observation.getGroundAtomsOf(score).addGroundAtom(x, y, -1.0 + random.nextDouble());
       }
@@ -331,7 +346,7 @@ public class Analysis {
 //
     //System.out.println("solver.getIterationCount() = " + solver.getIterationCount());
 //    System.out.println("solver.getPropositionalModel().getGroundAtomCount() = " + solver.getPropositionalModel().getGroundAtomCount());
-//    System.out.println("solver.getPropositionalModel().getGroundFormulaCount() = " + solver.getPropositionalModel().getGroundFormulaCount());
+   //System.out.println("solver.getPropositionalModel().getGroundFormulaCount() = " + solver.getPropositionalModel().getGroundFormulaCount() / 4);
     //System.out.println("solver.getPropositionalModel() = " + solver.getPropositionalModel());
     return solver.getIterationCount();
   }
@@ -555,6 +570,8 @@ public class Analysis {
     weights.addWeight(w1, ruleWeight);
 
     CuttingPlaneSolver solver = new CuttingPlaneSolver();
+    solver.setShowSize(true);
+    solver.setShowIterations(true);
     solver.configure(model, weights);
     ((IntegerLinearProgram) solver.getPropositionalModel()).setInitIntegers(true);
 
@@ -570,7 +587,10 @@ public class Analysis {
 
     int count = countWeightedGroundFormulae(solver.getPropositionalModel().toString());
 
-    //System.out.println("count = " + count);
+    System.out.println("count = " + count);
+    System.out.println("solver.getFormulas().getAllGroundFormulas(blockRule).size = "
+      + solver.getFormulas().getAllGroundFormulas(blockRule).value().size());
+    
 
     return count;
   }

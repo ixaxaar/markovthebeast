@@ -193,6 +193,12 @@ public class ILPSolverLpSolve implements ILPSolver {
 
 
   public Object getProperty(PropertyName name) {
+    if (name.getHead().equals("objective"))
+      try {
+        return solver.getObjective();
+      } catch (LpSolveException e) {
+        e.printStackTrace();
+      }
     return null;
   }
 
