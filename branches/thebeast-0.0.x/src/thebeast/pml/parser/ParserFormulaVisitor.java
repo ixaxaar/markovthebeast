@@ -19,4 +19,6 @@ public interface ParserFormulaVisitor {
   void visitNot(ParserNot parserNot);
 
   void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight);
+
+  void visitDisjunction(ParserDisjunction parserDisjunction);
 }

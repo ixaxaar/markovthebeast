@@ -164,6 +164,8 @@ public class ILPSolverLpSolve implements ILPSolver {
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
       //if (bbRuleSet) solver.setBbRule(bbRule);
       solver.solve();
+      if (solver.getStatus() == LpSolve.INFEASIBLE)
+        throw new RuntimeException("ILP Problem infeasible");
       double[] solution = new double[numCols];
       solver.getVariables(solution);
 //      System.out.println(solution[21]);
