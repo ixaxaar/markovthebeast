@@ -28,11 +28,11 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     this.signature = signature;
   }
 
-  public FactorFormula build(String text){
-    PMLParser parser = new PMLParser(new Yylex(new ByteArrayInputStream((text+";").getBytes())));
+  public FactorFormula build(String text) {
+    PMLParser parser = new PMLParser(new Yylex(new ByteArrayInputStream((text + ";").getBytes())));
     try {
-        ParserFactorFormula formula = (ParserFactorFormula) ((List) parser.parse().value).get(0);
-        return build(formula);
+      ParserFactorFormula formula = (ParserFactorFormula) ((List) parser.parse().value).get(0);
+      return build(formula);
     } catch (PMLParseException e) {
       try {
         throw new RuntimeException(errorMessage(e, new ByteArrayInputStream(text.getBytes())));
@@ -47,8 +47,8 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
   public FactorFormula build(ParserFactorFormula parserFactorFormula) {
     rootFactor = parserFactorFormula;
     Quantification quantification = parserFactorFormula.quantification == null ?
-            new Quantification(new ArrayList<Variable>()) :
-            pushQuantification(parserFactorFormula.quantification);
+      new Quantification(new ArrayList<Variable>()) :
+      pushQuantification(parserFactorFormula.quantification);
     if (parserFactorFormula.condition != null)
       parserFactorFormula.condition.acceptParserFormulaVisitor(this);
     else
@@ -93,7 +93,7 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     int index = 0;
     if (parserAtom.args.size() != predicate.getArity())
       throw new ShellException("Predicate " + predicate.getName() + " has " + predicate.getArity()
-              + " arguments, not " + parserAtom.args.size() + " as in " + parserAtom);
+        + " arguments, not " + parserAtom.args.size() + " as in " + parserAtom);
     for (ParserTerm term : parserAtom.args) {
       typeContext.push(predicate.getArgumentTypes().get(index++));
       term.acceptParserTermVisitor(this);
@@ -205,6 +205,22 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     formula = new UndefinedWeight((FunctionApplication) term);
   }
 
+  public void visitDisjunction(ParserDisjunction parserDisjunction) {
+    LinkedList<BooleanFormula> args = new LinkedList<BooleanFormula>();
+    parserDisjunction.lhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    ParserFormula rhs = parserDisjunction.rhs;
+    while (rhs instanceof ParserConjunction) {
+      ParserConjunction c = (ParserConjunction) rhs;
+      c.lhs.acceptParserFormulaVisitor(this);
+      args.add(this.formula);
+      rhs = c.rhs;
+    }
+    rhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    formula = new Disjunction(args);
+  }
+
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
     term = typeContext.peek().getConstant(parserNamedConstant.name);
 //typeCheck();
@@ -257,7 +273,7 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     int index = 0;
     if (function.getArity() != parserFunctionApplication.args.size()) {
       throw new ShellException("Function " + function.getName() + " has arity " + function.getArity() + " but " +
-              "it is applied with " + parserFunctionApplication.args.size() + " in " + parserFunctionApplication);
+        "it is applied with " + parserFunctionApplication.args.size() + " in " + parserFunctionApplication);
     }
     for (ParserTerm term : parserFunctionApplication.args) {
       typeContext.push(function.getArgumentTypes().get(index++));
@@ -287,8 +303,8 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     WeightFunction function = signature.getWeightFunction(parserVariable.name);
     if (term != null && function != null)
       throw new ShellException("We don't like this ambiguity: " + parserVariable.name + " is both a variable " +
-              "and a (zero-arity) weight function. Why we could resolve this in a clever manner, we refrain from doing so " +
-              "to make sure you know what you're doing.");
+        "and a (zero-arity) weight function. Why we could resolve this in a clever manner, we refrain from doing so " +
+        "to make sure you know what you're doing.");
     if (term == null) {
       if (function == null)
         throw new RuntimeException(parserVariable.name + " was not quantified in " + rootFactor);
@@ -323,7 +339,7 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
   private void typeCheck() {
     if (!typeContext.isEmpty() && !term.getType().inherits(typeContext.peek()))
       throw new RuntimeException("Variable " + term + " must be of type " + typeContext.peek() + " in " +
-              rootFactor);
+        rootFactor);
   }
 
   public static String errorMessage(PMLParseException exception, InputStream is) throws IOException {
@@ -341,6 +357,6 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     }
     return "Syntax Error!";
   }
-  
+
 
 }

@@ -24,7 +24,7 @@ terminal PLUS, MINUS, TIMES;
 terminal EQUALS, NOTEQUALS, LESSTHAN, GREATER, GEQ, GEQCLOSURE, LEQ;
 terminal EXCL;
 terminal TILDE, HASH, AT;
-terminal EQUIVALENCE, AND, IMPLIES, DOUBLEAND, DOUBLEBAR;
+terminal EQUIVALENCE, AND, OR, IMPLIES, DOUBLEAND, DOUBLEBAR;
 terminal LPAREN, RPAREN, LSQPAREN, RSQPAREN, LCLPAREN, RCLPAREN, LCLPARENSTAR, RCLPARENSTAR;
 terminal LCLPARENPLUS, RCLPARENPLUS, LCLPARENEXCL, RCLPARENEXCL;
 terminal BAR,ARROW,CURLYARROW;
@@ -72,6 +72,7 @@ precedence left COMMA;
 precedence left X;
 precedence nonassoc LPAREN,RPAREN,UNDERSCORE;
 precedence left IMPLIES;
+precedence left BAR;
 precedence left AND;
 precedence nonassoc EXCL;
 precedence left PLUS, MINUS;
@@ -381,13 +382,13 @@ spec ::=
 
     ;
 
-
-
 formula ::=
     LOWERCASEID:name LPAREN arguments:args RPAREN
     {: RESULT = new ParserAtom(name,args); :}
   | formula:l AND formula:r
     {: RESULT = new ParserConjunction(l,r); :}
+  | formula:l BAR formula:r
+    {: RESULT = new ParserDisjunction(l,r); :}
   | formula:l IMPLIES formula:r
     {: RESULT = new ParserImplies(l,r); :}
   | BAR quantification:q COLON formula:f BAR LEQ term:ub

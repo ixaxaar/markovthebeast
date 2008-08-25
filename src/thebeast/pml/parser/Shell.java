@@ -4,18 +4,107 @@ import jline.ConsoleReader;
 import jline.SimpleCompletor;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
-import thebeast.pml.*;
-import thebeast.pml.corpora.*;
-import thebeast.pml.formula.*;
-import thebeast.pml.function.*;
-import thebeast.pml.predicate.*;
+import thebeast.pml.CorpusEvaluation;
+import thebeast.pml.CorpusEvaluationFunction;
+import thebeast.pml.Evaluation;
+import thebeast.pml.FeatureVector;
+import thebeast.pml.GroundAtoms;
+import thebeast.pml.GroundFormulas;
+import thebeast.pml.LocalFeatureExtractor;
+import thebeast.pml.LocalFeatures;
+import thebeast.pml.Model;
+import thebeast.pml.PropertyName;
+import thebeast.pml.Quantification;
+import thebeast.pml.Scores;
+import thebeast.pml.Signature;
+import thebeast.pml.Solution;
+import thebeast.pml.TheBeast;
+import thebeast.pml.Type;
+import thebeast.pml.UserPredicate;
+import thebeast.pml.Weights;
+import thebeast.pml.corpora.AlignmentPrinter;
+import thebeast.pml.corpora.AugmentedCorpus;
+import thebeast.pml.corpora.CoNLL00Factory;
+import thebeast.pml.corpora.CoNLL00SentencePrinter;
+import thebeast.pml.corpora.CoNLL05Evaluator;
+import thebeast.pml.corpora.CoNLL05SentencePrinter;
+import thebeast.pml.corpora.CoNLL06Factory;
+import thebeast.pml.corpora.Corpus;
+import thebeast.pml.corpora.CorpusFactory;
+import thebeast.pml.corpora.DefaultPrinter;
+import thebeast.pml.corpora.DumpedCorpus;
+import thebeast.pml.corpora.GroundAtomsPrinter;
+import thebeast.pml.corpora.MALTFactory;
+import thebeast.pml.corpora.MTModel4Printer;
+import thebeast.pml.corpora.MTPrinter;
+import thebeast.pml.corpora.PrinterCorpus;
+import thebeast.pml.corpora.RandomAccessCorpus;
+import thebeast.pml.corpora.SemtagPrinter;
+import thebeast.pml.corpora.TextFileCorpus;
+import thebeast.pml.corpora.TypeGenerator;
+import thebeast.pml.formula.AcyclicityConstraint;
+import thebeast.pml.formula.BooleanFormula;
+import thebeast.pml.formula.CardinalityConstraint;
+import thebeast.pml.formula.Conjunction;
+import thebeast.pml.formula.Disjunction;
+import thebeast.pml.formula.FactorFormula;
+import thebeast.pml.formula.Implication;
+import thebeast.pml.formula.Not;
+import thebeast.pml.formula.PredicateAtom;
+import thebeast.pml.formula.UndefinedWeight;
+import thebeast.pml.function.DoubleAdd;
+import thebeast.pml.function.DoubleMinus;
+import thebeast.pml.function.DoubleProduct;
+import thebeast.pml.function.Function;
+import thebeast.pml.function.IntAdd;
+import thebeast.pml.function.IntMinus;
+import thebeast.pml.function.WeightFunction;
+import thebeast.pml.predicate.IntGEQ;
+import thebeast.pml.predicate.IntGT;
+import thebeast.pml.predicate.IntLEQ;
+import thebeast.pml.predicate.IntLT;
+import thebeast.pml.predicate.Predicate;
 import thebeast.pml.solve.CuttingPlaneSolver;
-import thebeast.pml.term.*;
-import thebeast.pml.training.*;
-import thebeast.util.*;
+import thebeast.pml.term.BinnedInt;
+import thebeast.pml.term.BoolConstant;
+import thebeast.pml.term.DontCare;
+import thebeast.pml.term.DoubleConstant;
+import thebeast.pml.term.FunctionApplication;
+import thebeast.pml.term.IntConstant;
+import thebeast.pml.term.Term;
+import thebeast.pml.term.Variable;
+import thebeast.pml.training.AverageF1Loss;
+import thebeast.pml.training.FeatureCollector;
+import thebeast.pml.training.LossFunction;
+import thebeast.pml.training.OnlineLearner;
+import thebeast.pml.training.TrainingInstances;
+import thebeast.util.Counter;
+import thebeast.util.DotProgressReporter;
+import thebeast.util.HashMultiMapList;
+import thebeast.util.StopWatch;
+import thebeast.util.TreeProfiler;
+import thebeast.util.Util;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * The Shell processes PML commands either in an active mode from standard in or directly from a file or any other input
@@ -1133,6 +1222,22 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   public void visitUndefinedWeight(ParserUndefinedWeight parserUndefinedWeight) {
     parserUndefinedWeight.functionApplication.acceptParserTermVisitor(this);
     formula = new UndefinedWeight((FunctionApplication) term);
+  }
+
+  public void visitDisjunction(ParserDisjunction parserDisjunction) {
+    LinkedList<BooleanFormula> args = new LinkedList<BooleanFormula>();
+    parserDisjunction.lhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    ParserFormula rhs = parserDisjunction.rhs;
+    while (rhs instanceof ParserConjunction) {
+      ParserConjunction c = (ParserConjunction) rhs;
+      c.lhs.acceptParserFormulaVisitor(this);
+      args.add(this.formula);
+      rhs = c.rhs;
+    }
+    rhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    formula = new Disjunction(args);
   }
 
   public void visitNamedConstant(ParserNamedConstant parserNamedConstant) {
