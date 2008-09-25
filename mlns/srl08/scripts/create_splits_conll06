@@ -1,0 +1,10 @@
+#!/bin/bash
+
+USAGE="
+    Usage: create_splits_conll06 [options]]\n
+    -help   Print this"
+
+opts=" -v "
+
+set -x
+nice bin/conll082conll06.py ${opts} -s 10 -o data/train/splits10/train.closed  data/train/train.closed

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+WORKING_DIR=models
+TEMPLATE_DIR=../template
+ITERS=10
+TYPES="../data/train/train.open.1000.types.pml"
+ATOMS="../data/train/train.open.1000.atoms"
+ATOMS_TEST="../data/devel/devel.open.atoms"
+ATOMS_RES="../results/devel.open_1000"
+MODEL="model1.pml"
+INSTANCES="/disk/home/dendrite/s0349492/ivan/conll08.dmp"
+WEIGHTS="/disk/home/dendrite/s0349492/ivan/conll08.weights"
+TEMPLATE_INI="init_1000.pml"
+TEMPLATE_LEARN="learn_1000.pml"
+TEMPLATE_TEST="test.pml"
+MODE=3
+
+if [ $# -gt 0 ]
+then
+    MODE=$1
+fi
+
+if [ $# -gt 1 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+set -x
+scripts/run_train_test $WORKING_DIR $TEMPLATE_DIR $ITERS $TYPES $ATOMS\
+    $ATOMS_TEST $ATOMS_RES $MODEL $INSTANCES $WEIGHTS $TEMPLATE_INI\
+    $TEMPLATE_LEARN $TEMPLATE_TEST $MODE
+
+

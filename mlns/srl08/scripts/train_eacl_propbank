@@ -6,9 +6,9 @@ ITERS=5
 TYPES="../data/conll05/train_propbank.types.pml"
 ATOMS="../data/conll05/train_propbank.atoms"
 ATOMS_TEST="../data/conll05/devel_propbank.atoms"
-ATOMS_TESTS="../data/conll05/test_wsj_propbank::../data/conll05/test_brown_propbank"
+ATOMS_TESTS="../data/conll05/devel_propbank.atoms"
 ATOMS_RES="../results/devel_propbank.open"
-MODEL="model1_nopredicate.pml"
+MODEL="model1.pml"
 MODELS="results/model_propbank.mst"
 INSTANCES="/disk/home/dendrite/s0349492/ivan/eacl_propbank.dmp"
 WEIGHTS="/disk/home/dendrite/s0349492/ivan/eacl_propbank.PROID.weights"
@@ -32,13 +32,8 @@ then
     ID=$3
 fi
 
+
 if [ $# -gt 3 ]
-then
-    PROID=$4
-fi
-
-
-if [ $# -gt 4 ]
 then
     echo -n $USAGE
     exit 1;
@@ -47,5 +42,5 @@ fi
 set -x
 scripts/run_train_test2 $WORKING_DIR $TEMPLATE_DIR $ITERS $TYPES $ATOMS\
         $ATOMS_TEST $ATOMS_RES $MODEL $MODELS $INSTANCES $WEIGHTS $TEMPLATE_INI\
-        $TEMPLATE_LEARN $TEMPLATE_TEST $MODE ${ATOMS_TESTS} $ID $PROID
+        $TEMPLATE_LEARN $TEMPLATE_TEST $MODE ${ATOMS_TESTS} $ID
 

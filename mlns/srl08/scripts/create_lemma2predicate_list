@@ -1,0 +1,24 @@
+#!/bin/bash
+
+USAGE="
+    It creates the file data/lemma2predicate.txt list which contains a mapping\n
+    from lemmas to predicates for cases where the predicate isn't the lemma.\n\n
+    Usage: create_lemma2predicate_list\n
+    -help   Print this"
+
+
+if [ $# -gt 1 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+if [ $# -eq 1 ]
+then
+    case $1 in
+        *        ) echo -e $USAGE;exit 1;;
+    esac 
+fi
+
+set -x
+awk '{print $2,$7,$4,$11}' data/train/train.closed | grep -v '_$' | grep -v '^ $' | sed 's/\..*$//' | awk '{if($2!=$4) {print $1,$2,$3,$4}}' | sort | uniq > ../data/lemma2predicate.txt

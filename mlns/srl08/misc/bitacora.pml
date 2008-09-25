@@ -174,7 +174,21 @@ F1 scores
           isArgument    : 0.895
 
 
++ Bottom-up model
+bin/results.py results/devel_propbank.open.092508_141640.log
+F1 scores
+            hasLabel    : 0.876,0.879,0.880,0.879,0.879
+              Global    : 0.841,0.846,0.849,0.849,0.849
+                role    : 0.741,0.752,0.758,0.760,0.760
+          isArgument    : 0.910,0.913,0.913,0.913,0.913
 
++ EVALUATION
+bin/results.py  results/test_propbank.092508_141640.log
+F1 scores
+            hasLabel    : 0.891
+              Global    : 0.865
+                role    : 0.786
+          isArgument    : 0.920
 
 
 

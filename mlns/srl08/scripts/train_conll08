@@ -1,0 +1,47 @@
+#!/bin/bash
+
+WORKING_DIR=models
+TEMPLATE_DIR=../template
+ITERS=5
+TYPES="../data/train/train.open.types.pml"
+ATOMS="../data/train/train.open.atoms"
+ATOMS_TEST="../data/devel/devel.open.atoms"
+ATOMS_TESTS="../data/test.wsj/test.wsj.open::../data/test.brown/test.brown.open"
+#ATOMS_TESTS="../data/devel/devel.open"
+ATOMS_RES="../results/dev.open"
+MODEL="model1.pml"
+INSTANCES="/disk/home/dendrite/s0349492/ivan/conll08.dmp"
+WEIGHTS="/disk/home/dendrite/s0349492/ivan/conll08.weights"
+MODE=3
+TEMPLATE_INI="init.pml"
+TEMPLATE_LEARN="learn.pml"
+TEMPLATE_TEST="test.pml"
+MODE=3
+
+if [ $# -gt 0 ]
+then
+    MODE=$1
+fi
+
+if [ $# -gt 1 ]
+then
+    ITERS=$2
+fi
+
+if [ $# -gt 2 ]
+then
+    ID=$3
+fi
+
+
+if [ $# -gt 3 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+set -x
+scripts/run_train_test $WORKING_DIR $TEMPLATE_DIR $ITERS $TYPES $ATOMS\
+        $ATOMS_TEST $ATOMS_RES $MODEL $INSTANCES $WEIGHTS $TEMPLATE_INI\
+        $TEMPLATE_LEARN $TEMPLATE_TEST $MODE ${ATOMS_TESTS} $ID
+

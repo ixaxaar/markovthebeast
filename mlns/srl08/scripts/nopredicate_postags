@@ -1,0 +1,2 @@
+cut  -f4,11 data/conll05/train_propbank.output | grep -v '[^_]$' | cut -f1 | sort | uniq
+cut  -f4,11 data/conll05/train_propbank.output | grep '[^_]$' | cut -f1 | sort | uniq

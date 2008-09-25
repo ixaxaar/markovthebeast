@@ -1,0 +1,204 @@
+#!/bin/bash
+
+USAGE="
+    Usage: tranlatecorpora2conll08 [options]]\n
+    -a      No ask for confirmation\n
+    -help   Print this"
+
+opts=" -v "
+
+if [ $# -gt 1 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+CONFIRM=1
+if [ $# -eq 1 ]
+then
+    case $1 in
+        "-a"     ) CONFIRM=0;;
+        *        ) echo -e $USAGE;exit 1;;
+    esac 
+fi
+
+# Commandline to transform conll08 corpus into the beast corpus
+echo "
+creates the following corpora:
+ trial.closed -> trial.closed.atoms & trial.closed.types.pml
+ devel.closed -> devel.closed.atoms & devel.closed.types.pml
+ train.closed -> train.closed.atoms & train.closed.types.pml
+ trial.open -> trial.open.atoms & trial.open.types.pml
+ devel.open -> devel.open.atoms & devel.open.types.pml
+ train.opend -> train.open.atoms & train.open.types.pml
+"
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open trial ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [  $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -d data/trial/trial.closed.types.pml -o data/trial/trial.closed.atoms   data/trial/trial.closed
+    set +x
+fi
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open devel ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -d data/devel/devel.closed.types.pml -o data/devel/devel.closed.atoms data/devel/devel.closed
+    set +x
+fi
+
+
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open trian ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [  $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -d data/train/train.closed.types.pml -o data/train/train.closed.atoms   data/train/train.closed
+    set +x
+fi
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate close trial ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -O data/trial/trial.open -d data/trial/trial.open.types.pml -o data/trial/trial.open.atoms  data/trial/trial.closed
+    set +x
+fi
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate close devel ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -O data/devel/devel.open -d data/devel/devel.open.types.pml -o data/devel/devel.open.atoms  data/devel/devel.closed
+    set +x
+fi
+
+
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate close train ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -O data/train/train.open -d data/train/train.open.types.pml -o data/train/train.open.atoms   data/train/train.closed
+    set +x
+fi
+
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open test.wsj ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -T -O data/test.wsj/test.wsj.open -d data/test.wsj/test.wsj.open.types.pml -o data/test.wsj/test.wsj.open.atoms   data/test.wsj/test.wsj.closed
+    set +x
+fi
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open test.brown ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -T -O data/test.brown/test.brown.open -d data/test.brown/test.brown.open.types.pml -o data/test.brown/test.brown.open.atoms   data/test.brown/test.brown.closed
+    set +x
+fi
+
+
+
+
+
+

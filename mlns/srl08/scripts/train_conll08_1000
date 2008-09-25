@@ -1,0 +1,46 @@
+#!/bin/bash
+
+WORKING_DIR=models
+TEMPLATE_DIR=../template
+ITERS=8
+TYPES="../corpora/train.open.1000.types.pml"
+ATOMS="../corpora/train.open.1000.atoms"
+ATOMS_TEST="../data/devel/devel.open.atoms"
+ATOMS_TESTS="../data/devel/devel.open.atoms"
+ATOMS_RES="../results/devel.open_1000"
+MODEL="model1.pml"
+MODELS="results/model.open_1000"
+INSTANCES="/tmp/conll08_1000.dmp"
+WEIGHTS="/tmp/conll08_1000.weights"
+TEMPLATE_INI="init_1000.pml"
+TEMPLATE_LEARN="learn_1000.pml"
+TEMPLATE_TEST="test.pml"
+MODE=3
+
+if [ $# -gt 0 ]
+then
+    MODE=$1
+fi
+
+if [ $# -gt 1 ]
+then
+    ITERS=$2
+fi
+
+if [ $# -gt 2 ]
+then
+    ID=$3
+fi
+
+
+if [ $# -gt 3 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+set -x
+scripts/run_train_test2 $WORKING_DIR $TEMPLATE_DIR $ITERS $TYPES $ATOMS\
+        $ATOMS_TEST $ATOMS_RES $MODEL $MODELS $INSTANCES $WEIGHTS $TEMPLATE_INI\
+        $TEMPLATE_LEARN $TEMPLATE_TEST $MODE ${ATOMS_TESTS} $ID
+

@@ -1,0 +1,189 @@
+#!/bin/bash
+
+USAGE="
+Usage: run_train WORKING_DIR SCRIPTS_DIR ITERS TYPES ATOMS MODEL INSTANCES WEIGHTS\n
+    WORKING_DIR      Directory where the main model is located\n
+    TEMPLATE_DIR     Directory where the init/learn scripts are located\n
+    ITERS            Number of iterations\n
+    TYPES            File with the types definition\n
+    ATOMS            File with the atoms\n
+    ATOMS_TEST       File with the atoms to test\n
+    ATOMS_RES        File were to save the testing results\n
+    MODEL            Name of the main model\n
+    INSTANCES        File where to save the instances version of the corpus\n
+    WEIGHTS          Prefix of the files where to save the weights\n
+    TEMPLATE_INIT    Name of the template file to use to initilize
+    TEMPLATE_LEARN   Name of the template file to use to control the learning
+    TEMPLATE_TEST    Name of the template file to use to test
+    MODE             1 - Just train\n
+                     2 - Train and test\n
+                     3 - Init, train and test\n
+                     5 - Test test cases
+    ATOMS_TESTS      TEST sets to test (we suppose .atoms ending and .label)\n
+    ID               Identifier of experiment\n
+"
+
+if [ $# -lt 15 -o $# -gt 17 ]
+then 
+        echo "Missing arguments $#"
+        echo -n -e $USAGE
+        exit 1;
+fi
+
+WORKING_DIR=$1
+TEMPLATE_DIR=$2
+ITERS=$3
+TYPES=`echo $4 | sed 's/\//\\\\\//g'`
+ATOMS=`echo $5 | sed 's/\//\\\\\//g'`
+ATOMS_TEST=`echo $6 | sed 's/\//\\\\\//g'`
+ATOMS_RES=`echo $7 | sed 's/\//\\\\\//g'`
+MODEL=`echo $8 | sed 's/\//\\\\\//g'`
+INSTANCES=`echo $9 | sed 's/\//\\\\\//g'`
+WEIGHTS=`echo ${10} | sed 's/\//\\\\\//g'`
+TEMPLATE_INI=`echo ${11} | sed 's/\//\\\\\//g'`
+TEMPLATE_LEARN=`echo ${12} | sed 's/\//\\\\\//g'`
+TEMPLATE_TEST=`echo ${13} | sed 's/\//\\\\\//g'`
+DATE=`date "+%m%d%y_%H%M%S"`
+if [ $# -gt 15 ]
+then
+    DATE=${16}
+fi
+
+LABEL="${ATOMS_RES}.${DATE}"
+
+TAR_ULABEL="${7}.${DATE}.tar"
+ULABEL="${7}.${DATE}"
+UWEIGHTS=${10}
+TAR_UWEIGHTS="${10}.${DATE}.tar"
+
+MODE=${14}
+ATOMS_TESTS=`echo ${15} | sed 's/::/ /g'`
+
+EPOCHS_PER_ITER=1
+
+THEBEAST="nice /group/project/conllx/task2008/app/thebeast/bin/linux/thebeast"
+
+TEMPLATE_INIT="${TEMPLATE_DIR}/${TEMPLATE_INI}"
+TEMPLATE_LEARN="${TEMPLATE_DIR}/${TEMPLATE_LEARN}"
+TEMPLATE_TEST="${TEMPLATE_DIR}/${TEMPLATE_TEST}"
+
+RND=$RANDOM
+
+# Begining
+set -x
+pushd ${WORKING_DIR}
+
+# Initializing temporal files
+echo "ID: ${DATE}"
+
+if [ $MODE -eq 5 ]
+then
+    TMP_TEST="__tmp_test.${RND}.pml"
+    ITERS=`echo ${ITERS} | sed 's/::/ /g'`
+    for iter in $ITERS
+    do
+        WEIGHTS=`echo "${10}.${iter}" | sed 's/\//\\\\\//g'`
+        UWEIGHTS_FIX=`echo "$UWEIGHTS.${iter}" | sed 's/^\///'`
+        TOTAL=`echo "$UWEIGHTS_FIX" | sed 's/[^/]//g' | wc -m`
+        NUM=$(($TOTAL-1))
+        tar --strip $NUM -xzvf $TAR_UWEIGHTS.gz "$UWEIGHTS_FIX"
+        UWEIGHTS_FIX=`echo "$UWEIGHTS_FIX" | sed 's/.*\///'`
+        cp $UWEIGHTS_FIX $UWEIGHTS.${iter}
+        for tt in $ATOMS_TESTS
+        do
+            echo "Labeling $tt"
+            ATOMS_TEST=`echo "$tt.atoms" | sed 's/\//\\\\\//g'`
+            LABEL=`echo "${tt}.${DATE}.${iter}" | sed 's/\//\\\\\//g'`
+            # Test the last one
+            sed "s/TYPES/${TYPES}/g" ${TEMPLATE_TEST} |\
+                sed "s/MODEL/${MODEL}/g" |\
+                sed "s/WEIGHTS/${WEIGHTS}/g" |\
+                sed "s/ATOMS/${ATOMS_TEST}/g" |\
+                sed "s/LABEL/${LABEL}.label/g" |\
+                sed "s/INSTANCES/${INSTANCES}/g" > $TMP_TEST
+            $THEBEAST $TMP_TEST
+        done
+    done
+    rm $TMP_TEST
+    exit 0;
+fi
+
+
+if [ $MODE -gt 2 ]
+then 
+    TMP_INIT="__tmp_init.${RND}.pml"
+    # Initialize the corpus
+    sed "s/TYPES/${TYPES}/g" ${TEMPLATE_INIT} |\
+        sed "s/MODEL/${MODEL}/g" |\
+        sed "s/WEIGHTS/${WEIGHTS}/g" |\
+        sed "s/ATOMS/${ATOMS}/g" |\
+        sed "s/INSTANCES/${INSTANCES}/g" > $TMP_INIT
+    $THEBEAST $TMP_INIT
+    rm $TMP_INIT
+fi
+
+if [ $MODE -gt 1 ]
+then 
+    TMP_TEST="__tmp_test.${RND}.pml"
+    # Test the last one
+    sed "s/TYPES/${TYPES}/g" ${TEMPLATE_TEST} |\
+        sed "s/MODEL/${MODEL}/g" |\
+        sed "s/WEIGHTS/${WEIGHTS}/g" |\
+        sed "s/ATOMS/${ATOMS_TEST}/g" |\
+        sed "s/LABEL/${LABEL}.label/g" |\
+        sed "s/INSTANCES/${INSTANCES}/g" > $TMP_TEST
+fi
+
+
+
+if [ $MODE -gt 0 ]
+then 
+    TMP_LEARN="__tmp_learn.${RND}.pml"
+    # Learn
+    sed "s/TYPES/${TYPES}/g" ${TEMPLATE_LEARN} |\
+        sed "s/MODEL/${MODEL}/g" |\
+        sed "s/WEIGHTS/${WEIGHTS}/g" |\
+        sed "s/ATOMS/${ATOMS}/g" |\
+        sed "s/EPOCHS/${EPOCHS_PER_ITER}/g" |\
+        sed "s/INSTANCES/${INSTANCES}/g" > $TMP_LEARN
+    for iter in `seq ${ITERS}`
+    do
+        $THEBEAST $TMP_LEARN
+        cp $UWEIGHTS "$UWEIGHTS.${iter}"
+        if [ -a $TAR_UWEIGHTS ]
+        then
+            tar -rf $TAR_UWEIGHTS "$UWEIGHTS.${iter}"
+        else
+            tar -cf $TAR_UWEIGHTS "$UWEIGHTS.${iter}"
+        fi
+ 
+        if [ $MODE -gt 1 ]
+        then
+            $THEBEAST $TMP_TEST
+            cp "${ULABEL}.label" "${ULABEL}.${iter}.label"
+            if [ -a $TAR_ULABEL ]
+            then 
+                tar -rf $TAR_ULABEL "${ULABEL}.${iter}.label"
+            else
+                tar -cf $TAR_ULABEL "${ULABEL}.${iter}.label"
+            fi 
+            rm "${ULABEL}.${iter}.label"
+        fi
+    done
+    gzip $TAR_UWEIGHTS
+    rm $TMP_LEARN
+fi
+
+if [ $MODE -gt 2 ]
+then
+    gzip $TAR_ULABEL
+    rm $TMP_TEST
+fi
+
+popd
+
+
+
+
+
+

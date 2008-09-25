@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for e in `ls ../../task2008/ivan/mlns/conll08/full/`
+do
+    sed 's/m_/mst_/g' ../../task2008/ivan/mlns/conll08/full/$e > models/$e
+done

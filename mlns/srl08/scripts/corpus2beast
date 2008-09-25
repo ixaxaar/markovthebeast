@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Commandline to transform conll08 corpus into the beast corpus
+if [ $# -ne 3 ];
+then
+    echo "Error, expected three argumets:
+        1. Filename of corpus to process
+        2. New data beast corpus filename,
+        3. New deff beast corpus filename"
+    exit 1
+fi
+
+set -x
+conll=$1
+beast=$2
+def=$3
+
+bin/conll082beast.py -d ${def} -o ${beast} ${conll}
