@@ -1,7 +1,9 @@
 package thebeast.pml.solve.weightedsat;
 
 import thebeast.pml.PropertyName;
-import thebeast.util.*;
+import thebeast.util.HashMultiMapArrayList;
+import thebeast.util.NullProfiler;
+import thebeast.util.Profiler;
 
 import java.util.*;
 
@@ -38,6 +40,18 @@ public class MaxWalkSat implements WeightedSatSolver {
   private Profiler profiler = new NullProfiler();
   private boolean debug = false;
 
+
+  public MaxWalkSat copy(){
+    MaxWalkSat result = new MaxWalkSat();
+    result.timeOut = timeOut;
+    result.maxFlips = maxFlips;
+    result.greedy = greedy;
+    result.initRandom = initRandom;
+    result.updateRandom = updateRandom;
+    result.debug = debug;
+    result.random = random;
+    return result;
+  }
 
   public void setProperty(PropertyName name, Object value) {
     if ("maxFlips".equals(name.getHead()))
@@ -569,7 +583,6 @@ public class MaxWalkSat implements WeightedSatSolver {
 
   public boolean[] solve() {
     //System.out.println("maxFlips = " + maxFlips);
-    //System.out.println(random.);
     //random.setSeed(0);
 
     bestScore = Double.NEGATIVE_INFINITY;

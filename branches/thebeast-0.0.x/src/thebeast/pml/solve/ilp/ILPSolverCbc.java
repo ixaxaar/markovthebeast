@@ -159,6 +159,10 @@ public class ILPSolverCbc implements ILPSolver {
 
   }
 
+  public ILPSolver copy() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
 
   public Object getProperty(PropertyName name) {
     return null;

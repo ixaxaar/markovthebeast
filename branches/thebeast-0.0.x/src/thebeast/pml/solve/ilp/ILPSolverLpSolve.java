@@ -38,6 +38,20 @@ public class ILPSolverLpSolve implements ILPSolver {
   private int maxRank = Integer.MAX_VALUE;
   private HashMap<Integer, Double> costs = new HashMap<Integer, Double>();
 
+
+  public ILPSolverLpSolve copy(){
+    ILPSolverLpSolve result = new ILPSolverLpSolve();
+    result.verbose = verbose;
+    result.timeout = timeout;
+    result.bbDepthLimit = bbDepthLimit;
+    result.writeLp = writeLp;
+    result.bbRule = bbRule;
+    result.enforceInteger = enforceInteger;
+    result.maxRank = maxRank;
+    result.paramFile = paramFile;
+    return result;
+  }
+
   public void init() {
     try {
       if (solver != null)

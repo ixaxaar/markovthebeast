@@ -14,4 +14,5 @@ public interface ILPSolver extends HasProperties {
   RelationVariable solve();
   void setVerbose(boolean verbose);
   void setProfiler(Profiler profiler);
+  ILPSolver copy();
 }

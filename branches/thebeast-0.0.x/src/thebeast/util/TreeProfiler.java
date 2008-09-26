@@ -71,7 +71,7 @@ public class TreeProfiler implements Profiler {
         int index = qualifiedName.indexOf('.');
         String prefix = qualifiedName.substring(0, index);
         ProfileNode node = getNode(prefix);
-        return node.getQualifiedNode(qualifiedName.substring(index));
+        return node.getQualifiedNode(qualifiedName.substring(index+1));
       } else
         return getNode(qualifiedName);
     }

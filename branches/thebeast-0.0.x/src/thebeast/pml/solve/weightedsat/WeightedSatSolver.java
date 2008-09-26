@@ -19,4 +19,7 @@ public interface WeightedSatSolver extends HasProperties {
   void setStates(boolean[] states);
 
   void setProfiler(Profiler profiler);
+
+  WeightedSatSolver copy();
+
 }

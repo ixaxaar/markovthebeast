@@ -56,7 +56,7 @@ public class Util {
   public static String toTimeString(double millis) {
     double display = millis;
     if (display < 1000)
-      return display + "ms";
+      return String.format("%-2.2f",display) + "ms";
     display /= 1000.0;
     if (display < 60)
       return String.format("%-2.2f",display) + "s";

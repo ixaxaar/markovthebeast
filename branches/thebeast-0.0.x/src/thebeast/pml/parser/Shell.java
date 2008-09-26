@@ -4,107 +4,18 @@ import jline.ConsoleReader;
 import jline.SimpleCompletor;
 import thebeast.nod.FileSink;
 import thebeast.nod.FileSource;
-import thebeast.pml.CorpusEvaluation;
-import thebeast.pml.CorpusEvaluationFunction;
-import thebeast.pml.Evaluation;
-import thebeast.pml.FeatureVector;
-import thebeast.pml.GroundAtoms;
-import thebeast.pml.GroundFormulas;
-import thebeast.pml.LocalFeatureExtractor;
-import thebeast.pml.LocalFeatures;
-import thebeast.pml.Model;
-import thebeast.pml.PropertyName;
-import thebeast.pml.Quantification;
-import thebeast.pml.Scores;
-import thebeast.pml.Signature;
-import thebeast.pml.Solution;
-import thebeast.pml.TheBeast;
-import thebeast.pml.Type;
-import thebeast.pml.UserPredicate;
-import thebeast.pml.Weights;
-import thebeast.pml.corpora.AlignmentPrinter;
-import thebeast.pml.corpora.AugmentedCorpus;
-import thebeast.pml.corpora.CoNLL00Factory;
-import thebeast.pml.corpora.CoNLL00SentencePrinter;
-import thebeast.pml.corpora.CoNLL05Evaluator;
-import thebeast.pml.corpora.CoNLL05SentencePrinter;
-import thebeast.pml.corpora.CoNLL06Factory;
-import thebeast.pml.corpora.Corpus;
-import thebeast.pml.corpora.CorpusFactory;
-import thebeast.pml.corpora.DefaultPrinter;
-import thebeast.pml.corpora.DumpedCorpus;
-import thebeast.pml.corpora.GroundAtomsPrinter;
-import thebeast.pml.corpora.MALTFactory;
-import thebeast.pml.corpora.MTModel4Printer;
-import thebeast.pml.corpora.MTPrinter;
-import thebeast.pml.corpora.PrinterCorpus;
-import thebeast.pml.corpora.RandomAccessCorpus;
-import thebeast.pml.corpora.SemtagPrinter;
-import thebeast.pml.corpora.TextFileCorpus;
-import thebeast.pml.corpora.TypeGenerator;
-import thebeast.pml.formula.AcyclicityConstraint;
-import thebeast.pml.formula.BooleanFormula;
-import thebeast.pml.formula.CardinalityConstraint;
-import thebeast.pml.formula.Conjunction;
-import thebeast.pml.formula.Disjunction;
-import thebeast.pml.formula.FactorFormula;
-import thebeast.pml.formula.Implication;
-import thebeast.pml.formula.Not;
-import thebeast.pml.formula.PredicateAtom;
-import thebeast.pml.formula.UndefinedWeight;
-import thebeast.pml.function.DoubleAdd;
-import thebeast.pml.function.DoubleMinus;
-import thebeast.pml.function.DoubleProduct;
-import thebeast.pml.function.Function;
-import thebeast.pml.function.IntAdd;
-import thebeast.pml.function.IntMinus;
-import thebeast.pml.function.WeightFunction;
-import thebeast.pml.predicate.IntGEQ;
-import thebeast.pml.predicate.IntGT;
-import thebeast.pml.predicate.IntLEQ;
-import thebeast.pml.predicate.IntLT;
-import thebeast.pml.predicate.Predicate;
+import thebeast.pml.*;
+import thebeast.pml.corpora.*;
+import thebeast.pml.formula.*;
+import thebeast.pml.function.*;
+import thebeast.pml.predicate.*;
 import thebeast.pml.solve.CuttingPlaneSolver;
-import thebeast.pml.term.BinnedInt;
-import thebeast.pml.term.BoolConstant;
-import thebeast.pml.term.DontCare;
-import thebeast.pml.term.DoubleConstant;
-import thebeast.pml.term.FunctionApplication;
-import thebeast.pml.term.IntConstant;
-import thebeast.pml.term.Term;
-import thebeast.pml.term.Variable;
-import thebeast.pml.training.AverageF1Loss;
-import thebeast.pml.training.FeatureCollector;
-import thebeast.pml.training.LossFunction;
-import thebeast.pml.training.OnlineLearner;
-import thebeast.pml.training.TrainingInstances;
-import thebeast.util.Counter;
-import thebeast.util.DotProgressReporter;
-import thebeast.util.HashMultiMapList;
-import thebeast.util.StopWatch;
-import thebeast.util.TreeProfiler;
-import thebeast.util.Util;
+import thebeast.pml.term.*;
+import thebeast.pml.training.*;
+import thebeast.util.*;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Stack;
+import java.io.*;
+import java.util.*;
 
 /**
  * The Shell processes PML commands either in an active mode from standard in or directly from a file or any other input
@@ -172,6 +83,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
   private SimpleCompletor completor = new SimpleCompletor("");
   private int maxTabComplete = 50;
   private boolean cacheFeatures = true;
+
+  private int resetAfterHowManyInstances = Integer.MAX_VALUE;
 
   public Shell() {
     this(System.in, System.out, System.err);
@@ -532,7 +445,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         out.println("Global atoms loaded.");
         //System.out.println(model.getGlobalAtoms());
       } else if ("instances".equals(parserLoad.target.head)) {
-        instances = new TrainingInstances(model, new File(filename(filename)), defaultInstanceCacheSize,cacheFeatures);
+        instances = new TrainingInstances(model, new File(filename(filename)), defaultInstanceCacheSize, cacheFeatures);
         out.println(instances.size() + " instances loaded.");
       } else if ("weights".equals(parserLoad.target.head)) {
         if ("dump".equals(parserLoad.mode)) {
@@ -618,6 +531,17 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       GroundFormulas formulas = new GroundFormulas(model, weights);
       formulas.update(guess);
       out.println(formulas);
+    } else if ("stats".equals(parserPrint.name.head)) {
+      out.println("Time in propositional solver: " + solver.getTotalTimeInPropositionalSolver());
+      out.println("Final number of formulae:     " + solver.getFormulas().getTotalCount());
+    } else if ("initialClusters".equals(parserPrint.name.head)){
+      Set<Set<Constant>> clusters =
+              ConnectedConstantsFinder.findConnectedConstants(solver.getInitialSolution(), model);
+      double size = 0;
+      for (Set<Constant> cluster : clusters)
+        size += cluster.size();
+      out.println("Number of initial clusters: " + clusters.size() );
+      out.println("Average cluster size:       " + size / clusters.size());
     } else if ("gold".equals(parserPrint.name.head)) {
       if ("formulas".equals(parserPrint.name.tail.head)) {
         GroundFormulas formulas = new GroundFormulas(model, weights);
@@ -675,6 +599,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       out.println("Solved with " + solver.getIterationCount() + " steps (" + solver.getIntegerEnforcementsCount()
               + " integer enforcements) in " + time + "ms.");
     }
+    out.println("");
   }
 
   public void visitGenerateTypes(ParserGenerateTypes parserGenerateTypes) {
@@ -834,24 +759,53 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         evaluation.addRestrictionPattern(pred, pattern);
     }
     DotProgressReporter reporter = new DotProgressReporter(out, 5, 5, 5);
-    if (evalScores)
-      reporter.setColumns("Loss", "Iterations", "Gold Score", "Guess Score", "Violations");
-    else
+    if (evalScores) {
+      reporter.setColumns("Loss", "Iterations", "Gold Score", "Guess Score", "Violations", "Formulae");
+    } else
       reporter.setColumns("Loss", "Iterations");
 
     reporter.started();
     LossFunction lossFunction = new AverageF1Loss(model);
-    Counter<Integer> iterations = new Counter<Integer>();
+    Counter<Integer> iterationsPerSize = new Counter<Integer>();
+    Counter<Integer> instancesPerSize = new Counter<Integer>();
+    Counter<Integer> formulaePerSize = new Counter<Integer>();
+    Counter<Integer> initialAtomsPerSize = new Counter<Integer>();
+    Counter<Integer> violationPerSize = new Counter<Integer>();
+    LongCounter<Integer> timePerSize = new LongCounter<Integer>();
+    HashMap<Integer, Double> scorePerSize = new HashMap<Integer, Double>();
+    int modulo = 1;
+    int instances = 0;
+    int totalViolations = 0;
+    int totalProblemSize = 0;
+    int totalInitialAtoms = 0;
+    long totalTimeInGrounding = 0;
     Solution goldSolution = new Solution(model, weights);
     Solution guessSolution = new Solution(model, weights);
+
+    //if we have a predicate for problem size then we want to print out
+    //avg number of iterationsPerSize, average number of time spent, average number of ground formulae
+    //number of instances per problem size
+    //also, we want to print out the total memory use after we are done.
+    //the average time spent
+
+    //solver.getFormulas().setRememberAll(predicateForSize != null || evalScores);
     for (GroundAtoms gold : corpus) {
       solver.setObservation(gold);
-      if (predicateForSize != null)
-        solver.getProfiler().start(String.valueOf(gold.getGroundAtomsOf(predicateForSize).size()));
+      long time = System.currentTimeMillis();
       solver.solve();
+      long delta = System.currentTimeMillis() - time;
+      totalTimeInGrounding += solver.getTimeSpentForGrounding();
       if (predicateForSize != null) {
-        solver.getProfiler().end();
-        iterations.increment(gold.getGroundAtomsOf(predicateForSize).size(), solver.getIterationCount());
+        int problemSize = gold.getGroundAtomsOf(predicateForSize).size();
+        totalProblemSize += problemSize;
+        iterationsPerSize.increment(problemSize, solver.getIterationCount());
+        formulaePerSize.increment(problemSize, solver.getFormulas().getTotalCount());
+        timePerSize.increment(problemSize, delta);
+        instancesPerSize.increment(problemSize, 1);
+        int initialAtoms = solver.getInitialSolution().getGroundAtomCount(model.getHiddenPredicates());
+        initialAtomsPerSize.increment(problemSize, initialAtoms);
+        totalInitialAtoms += initialAtoms;
+        ++instances;
       }
 
 //      for (UserPredicate pred : model.getHiddenPredicates()){
@@ -871,17 +825,49 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
         double goldScore = weights.score(goldSolution.extract());
         double guessScore = weights.score(guessSolution.extract());
         int violations = guessSolution.getGroundFormulas().getViolationCount();
-        reporter.progressed(loss, solver.getIterationCount(), goldScore, guessScore, violations);
+        reporter.progressed(loss, solver.getIterationCount(), goldScore, guessScore, violations,
+                solver.getFormulas().getTotalCount());
       } else
         reporter.progressed(loss, solver.getIterationCount());
 
       //System.out.println(loss);
+      if (instances % resetAfterHowManyInstances == resetAfterHowManyInstances - 1){
+        solver = solver.copy();
+        System.gc();
+        System.out.print("R");
+      }
+      ++instances;
     }
     reporter.finished();
+    if (totalTimeInGrounding > 0){
+      out.println("Avg. time for grounding: " + Util.toTimeString(totalTimeInGrounding/(double)instances));
+    }
+    out.println("Avg. time in propositional base solver: "
+            + Util.toTimeString(solver.getTotalTimeInPropositionalSolver()/(double)instances));
     out.print(corpusEvaluation);
     if (predicateForSize != null) {
-      iterations.save(System.out);
+      //sort instance sizes
+      ArrayList<Integer> sortedSizes = new ArrayList<Integer>(instancesPerSize.keySet());
+      Collections.sort(sortedSizes);
+      System.out.println("Statistics wrt problem size.");
+      System.out.printf("%-20s: %-7.2f\n", "Avg. Problem Size", totalProblemSize / (double) instances);
+      System.out.printf("%-20s: %-7.2f\n", "Avg. Initial Atoms", totalInitialAtoms / (double) instances);
+      System.out.printf("%-8s%-8s%-8s%-8s%-8s%-8s\n", "Size", "Count", "Time", "Iter.", "Form.", "1.Atoms");
+      for (int i = 0; i < 6 * 8; ++i) System.out.print("=");
+      System.out.println();
+      for (int problemSize : sortedSizes) {
+        double numberOfInstances = instancesPerSize.get(problemSize);
+        System.out.printf("%-7d %-7d %-7.2f %-7.2f %-7.2f %-7.2f\n",
+                problemSize,
+                (int) numberOfInstances,
+                timePerSize.get(problemSize) / numberOfInstances,
+                iterationsPerSize.get(problemSize) / numberOfInstances,
+                formulaePerSize.get(problemSize) / numberOfInstances,
+                initialAtomsPerSize.get(problemSize) / numberOfInstances);
+      }
     }
+
+
   }
 
   public void visitCreateIndex(ParserCreateIndex parserCreateIndex) {
@@ -1059,6 +1045,8 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
       defaultInstanceCacheSize = 1024 * 1024 * (Integer) value;
     else if ("corpusCacheSize".equals(parserSet.propertyName.head))
       defaultCorpusCacheSize = 1024 * 1024 * (Integer) value;
+    else if ("resetAfter".equals(parserSet.propertyName.head))
+      resetAfterHowManyInstances = (Integer) value;
     else if ("cacheFeatures".equals(parserSet.propertyName.head))
       cacheFeatures = (Boolean) value;
     else if ("solver".equals(parserSet.propertyName.head))

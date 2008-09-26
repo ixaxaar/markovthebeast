@@ -301,6 +301,10 @@ public class MaxProduct implements WeightedSatSolver {
 
   }
 
+  public WeightedSatSolver copy() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if ("maxIterations".equals(name.getHead()))
       setMaxIterations((Integer) value);

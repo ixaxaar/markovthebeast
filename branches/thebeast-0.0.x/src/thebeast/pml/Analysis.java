@@ -23,12 +23,12 @@ public class Analysis {
     //int tries = args.length > 0 ? Integer.parseInt(args[0]) : 10;
     //analyzeWithStripes(System.out, tries);
     //analyzeOuterBound2();
-    //analyzeLowerBound1();
+    analyzeLowerBound1();
     //analyzeUpperBound1();
     //analyzeUpperBound1(6,10,1000000,new Random(0), 100000);
     //analyzeLowerBound1(10,6,1000000, new Random(0),10000);
     //analyzeInnerBound2();
-    analyzeInnerBound2(10, 1, -1000000, 1, 100, 10);
+    //analyzeInnerBound2(10, 1, -1000000, 1, 100, 10);
   }
 
   private static void analyzeWithBlocks() {

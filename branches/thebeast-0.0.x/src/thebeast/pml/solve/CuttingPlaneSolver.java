@@ -41,6 +41,7 @@ public class CuttingPlaneSolver implements Solver {
 
   private long timeout = Long.MAX_VALUE; //10000;
   private long timeSpent = 0;
+  private long timeSpentInGrounding = 0;
 
   private int maxOrder = Integer.MAX_VALUE;
 
@@ -54,7 +55,7 @@ public class CuttingPlaneSolver implements Solver {
   private Stack<GroundAtoms> holderAtoms = new Stack<GroundAtoms>();
   private Stack<GroundFormulas> holderFormulas = new Stack<GroundFormulas>();
 
-  private HashSet<FactorFormula> groundAll = new HashSet<FactorFormula>();
+  private HashSet<FactorFormula> groundAll = new LinkedHashSet<FactorFormula>();
 
   private HashMap<Integer, FactorSet> factorSets = new HashMap<Integer, FactorSet>();
   private HashMap<FactorFormula, Integer> factor2order = new HashMap<FactorFormula, Integer>();
@@ -63,12 +64,46 @@ public class CuttingPlaneSolver implements Solver {
   private boolean showSize = false;
 
   /**
+   * Creates a CuttingPlaneSolver with the same configuration as this one.
+   *
+   * @return a CuttingPlaneSolver with the same configuration as this one.
+   */
+  public CuttingPlaneSolver copy() {
+    CuttingPlaneSolver result = new CuttingPlaneSolver(propositionalModel.copy());
+    result.configure(model, weights);
+    result.printHistory = printHistory;
+    result.maxOrder = maxOrder;
+    result.maxIterations = maxIterations;
+    result.timeout = timeout;
+    result.showIterations = showIterations;
+    result.enforceIntegers = enforceIntegers;
+    result.checkScores = checkScores;
+    result.profiler = profiler;
+    result.factor2order = factor2order;
+    result.factorSets = factorSets;
+    result.orderedFactors = orderedFactors;
+    result.showSize = showSize;
+    result.formulas.setRememberAll(formulas.isRememberAll());
+    return result;
+  }
+
+
+  /**
    * Creates a new solver that uses ILP as propositional model and LpSolve as
    * ILP solver.
    */
   public CuttingPlaneSolver() {
     //ilpSolver = new ILPSolverLpSolve();
     this(new IntegerLinearProgram(new ILPSolverLpSolve()));
+  }
+
+  /**
+   * Returns the first solution (after solving the first partial problem).
+   *
+   * @return the first solution of the last call to {@link CuttingPlaneSolver#solve()}.
+   */
+  public GroundAtoms getInitialSolution() {
+    return candidateAtoms.get(candidateAtoms.size() - 1);
   }
 
   /**
@@ -415,17 +450,20 @@ public class CuttingPlaneSolver implements Solver {
       order = inspect();
       addCandidate(order);
       if (showIterations) System.out.print(showSize ?
-        formulas.getTotalCount() + " " : "+");
+              formulas.getTotalCount() + " " : "+");
     } else {
       profiler.start("ground-all");
       atoms.clear(model.getHiddenPredicates());
       propositionalModel.buildLocalModel();
+      long startGrounding = System.currentTimeMillis();
       createFullyGroundedFormulas();
+      timeSpentInGrounding = System.currentTimeMillis() - startGrounding;
       profiler.end();
       //addCandidate(groundAllOrder);
     }
     profiler.start("iterations");
     while (propositionalModel.changed() && iteration < maxIterations && order <= maxOrder) {
+      //System.out.println(formulas);
       //System.out.println(iteration + " of " + maxIterations);
       if (System.currentTimeMillis() - start > timeout) {
         //System.out.println("timeout");
@@ -444,11 +482,12 @@ public class CuttingPlaneSolver implements Solver {
         ++integerEnforcements;
       }
       if (showIterations) System.out.print(showSize ?
-        formulas.getTotalCount() + " " : "+");
+              formulas.getTotalCount() + " " : "+");
     }
     profiler.end();
 
     done = propositionalModel.changed();
+    //System.out.println(propositionalModel);
 
     if (checkScores) checkScores();
     profiler.end();
@@ -458,7 +497,7 @@ public class CuttingPlaneSolver implements Solver {
     if (showSize) {
       if (showIterations) System.out.println();
       System.out.println("The final network contains "
-        + formulas.getTotalCount() + " ground formulas.");
+              + formulas.getTotalCount() + " ground formulas.");
     }
 
   }
@@ -469,6 +508,14 @@ public class CuttingPlaneSolver implements Solver {
    */
   public long getTimeSpent() {
     return timeSpent;
+  }
+
+  /**
+   * Returns the time the solver took to ground all formulae (in ground-all mode)
+   * @return the time the solver took to ground all formulae (in ground-all mode)
+   */
+  public long getTimeSpentForGrounding(){
+    return timeSpentInGrounding;    
   }
 
   /**
@@ -758,6 +805,16 @@ public class CuttingPlaneSolver implements Solver {
     this.maxOrder = maxOrder;
   }
 
+  /**
+   * Returns the total time the CPI solver spends in the propositional base solver.
+   * @return the total time the CPI solver spends in the propositional base solver.
+   */
+  public long getTotalTimeInPropositionalSolver(){
+    long totalTimeScoring = profiler.getTotalTime("solve.scoring.score");
+    long totalTimePropSolver = profiler.getTotalTime("solve.iterations.solvemodel.solve");
+    return totalTimePropSolver + totalTimeScoring;
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("model")) {
       if (name.isTerminal()) {
@@ -790,7 +847,7 @@ public class CuttingPlaneSolver implements Solver {
       setEnforceIntegers((Boolean) value);
     else if (name.getHead().equals("showIterations"))
       setShowIterations((Boolean) value);
-    else if (name.getHead().equals("showSize")) {
+    else if (name.getHead().equals("sphowSize")) {
       setShowSize((Boolean) value);
     } else if (name.getHead().equals("history"))
       setPrintHistory((Boolean) value);
@@ -798,6 +855,8 @@ public class CuttingPlaneSolver implements Solver {
       setCheckScores((Boolean) value);
     else if (name.getHead().equals("groundAll"))
       setFullyGroundAll((Boolean) value);
+    else if (name.getHead().equals("rememberFormulae"))
+      formulas.setRememberAll((Boolean) value);
     else if (name.getHead().equals("profile"))
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
     else if (name.getHead().equals("profiler")) {
@@ -806,7 +865,8 @@ public class CuttingPlaneSolver implements Solver {
       else {
         setProfiler(TreeProfiler.createProfiler(value.toString()));
       }
-    }
+    } else
+      throw new IllegalPropertyValueException(name, value);
   }
 
   public void setShowSize(Boolean showSize) {
@@ -925,7 +985,7 @@ public class CuttingPlaneSolver implements Solver {
    * A FactorSet is a set of factors along with a number that determines when
    * the factors of the set are first checked for in the current solution.
    */
-  private static class FactorSet extends HashSet<FactorFormula> implements Comparable<FactorSet> {
+  private static class FactorSet extends LinkedHashSet<FactorFormula> implements Comparable<FactorSet> {
     public final int order;
 
     private boolean allDeterministic = true;

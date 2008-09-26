@@ -28,6 +28,24 @@ public class CategoricalConstant extends Constant {
     return factory.createCategoricalConstant((CategoricalType) getType().getNodType(),name);
   }
 
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+
+    CategoricalConstant that = (CategoricalConstant) o;
+
+    if (!name.equals(that.name)) return false;
+
+    return true;
+  }
+
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + name.hashCode();
+    return result;
+  }
+
   public String toString(){
     return name;
   }
