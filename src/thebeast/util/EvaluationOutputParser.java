@@ -18,6 +18,8 @@ public class EvaluationOutputParser {
     long totalMemoryUsage = 0;
     int totalIterations = 0;
     long totalViolations = 0;
+    double totalTimeInSolve = 0;
+    double totalFormulae = 0;
     for (int i = 0; i < args.length; ++i){
       //System.err.println(args[i]);
       BufferedReader reader = new BufferedReader(new FileReader(args[i]));
@@ -26,6 +28,7 @@ public class EvaluationOutputParser {
       double timeInSolve = 0;
       double timeInUpdate = 0;
       double time = 0;
+      double formulae = 0;
       long memoryUsage=0;
       long clauses = 0;
       int iterations = 0;
@@ -60,6 +63,10 @@ public class EvaluationOutputParser {
           memoryUsage = Long.parseLong(line.substring(line.indexOf(":")+1).trim());
         } else if (line.startsWith("Iterations")){
           iterations = Integer.parseInt(line.substring(line.indexOf(":")+1).trim());
+        } else if (line.startsWith("Time in propositional solver:")){
+          timeInSolve = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+        } else if (line.startsWith("Final number of formulae:")){
+          formulae = Integer.parseInt(line.substring(line.indexOf(":")+1).trim());
         } else if (line.startsWith("Time spent")){
           time = Integer.parseInt(line.substring(line.indexOf(":")+1).trim());
         } else if (line.startsWith("solve") && level == 0){
@@ -73,7 +80,6 @@ public class EvaluationOutputParser {
           StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
           tokenizer.nextToken();
           String token = tokenizer.nextToken();
-          timeInSolve = Double.parseDouble(token.substring(0, token.length()-2));
           ++level;
         } else if (line.startsWith("update")&& level == 2){
           StringTokenizer tokenizer = new StringTokenizer(line,"[\t ]",false);
@@ -98,6 +104,8 @@ public class EvaluationOutputParser {
       totalViolations += violations;
       totalMemoryUsage += memoryUsage;
       totalIterations += iterations;
+      totalFormulae += formulae;
+      totalTimeInSolve += timeInSolve;
       System.out.printf("%-5d %-5d %-10.4f %10d %-10.4f %-10.2f %-10.2f %-10.2f %-10d %-10d\n",
               iterations, size, f1, memoryUsage, score, timeInSolve, timeInUpdate, time, clauses, violations);
 //      System.out.println(iterations + ", " +  size + ", " +  f1 + ", " +  score + ", " +  timeInSolve
@@ -112,6 +120,8 @@ public class EvaluationOutputParser {
     System.out.printf("%-20s %10.4f\n", "Avg Iterations:", totalIterations / count);
     System.out.printf("%-20s %10.4f\n", "Avg Memory use:", totalMemoryUsage / (count*1024*1024));
     System.out.printf("%-20s %10.4f\n", "Avg Time(ms):", totalTime / count);
+    System.out.printf("%-20s %10.4f\n", "Avg Time in solve (ms):", totalTimeInSolve / count);
+    System.out.printf("%-20s %10.4f\n", "Avg Formulae:", totalFormulae / count);
 
 
   }

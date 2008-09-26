@@ -62,7 +62,6 @@ public class GroundFormulas {
 
   private HashSet<FactorFormula> groundAll = new HashSet<FactorFormula>();
 
-
   /**
    * Creates a (read-only) copy of the given ground formulas.
    *
@@ -474,5 +473,9 @@ public class GroundFormulas {
 
   public void setRememberAll(boolean rememberAll) {
     this.rememberAll = rememberAll;
+  }
+
+  public boolean isRememberAll() {
+    return rememberAll;
   }
 }

@@ -88,6 +88,13 @@ public interface PropositionalModel extends HasProperties, Profilable {
    */
   String getPropertyString();
 
+  /**
+   * Returns a copy of this model but in clear state (w/o formulae)
+   * @return a copy of this model but in clear state (w/o formulae).
+   */
+  PropositionalModel copy();
+
+
 
   void setClosure(GroundAtoms closure);
 

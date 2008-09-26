@@ -77,6 +77,14 @@ public class WeightedSatProblem implements PropositionalModel {
   private boolean buildLocalModel = false;
   private WeightedSatGrounder grounder;
 
+  public PropositionalModel copy() {
+    WeightedSatProblem result = new WeightedSatProblem(solver);
+    result.configure(model, weights);
+    result.groundingQueries.putAll(groundingQueries);
+    return result;
+  }
+
+
   static {
     TypeBuilder typeBuilder = new TypeBuilder(TheBeast.getInstance().getNodServer());
     typeBuilder.doubleType().att("weight").
@@ -290,6 +298,7 @@ public class WeightedSatProblem implements PropositionalModel {
     return null;
   }
 
+
   public void configure(Model model, Weights weights) {
     this.model = model;
     this.weights = weights;
@@ -391,6 +400,8 @@ public class WeightedSatProblem implements PropositionalModel {
       if (name.isTerminal()) {
         if ("maxwalksat".equals(value))
           solver = new MaxWalkSat();
+        else if ("kautz".equals(value))
+          solver = new KautzMWS();
         else if ("maxproduct".equals(value))
           solver = new MaxProduct();
       } else

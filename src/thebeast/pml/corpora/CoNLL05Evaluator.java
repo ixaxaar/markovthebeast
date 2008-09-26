@@ -12,10 +12,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class CoNLL05Evaluator implements CorpusEvaluationFunction {
 
-  private int fp=0, fn=0, totalGold=0, totalGuess = 0;
+  private int fp = 0, fn = 0, totalGold = 0, totalGuess = 0;
   private boolean joinMode = true;
 
-  public enum Type {RECALL, PRECISION, F1}
+  public enum Type {
+    RECALL, PRECISION, F1
+  }
 
   private Type type;
 
@@ -24,7 +26,7 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
   }
 
   private static class Span {
-    int from,to;
+    int from, to;
 
     public Span(int from, int to) {
       this.from = from;
@@ -65,7 +67,6 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
       this.label = label;
     }
 
-    
 
     public boolean equals(Object o) {
       if (this == o) return true;
@@ -100,9 +101,18 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
 
   public void evaluate(GroundAtoms gold, GroundAtoms guess) {
     //get all gold Args
-    Set<Arg> goldArgs = getArgs(gold);
+    Set<Arg> goldArgs = getArgs(gold, true);
     totalGold += goldArgs.size();
-    Set<Arg> guessArgs = getArgs(guess);
+    Set<Arg> guessArgs = getArgs(guess, false);
+
+//    System.out.println("Candidates: " + gold.getGroundAtomsOf("candidate"));
+//    System.out.println("Spans: " + gold.getGroundAtomsOf("span"));
+//    System.out.println("Gold Atoms: " + gold.getGroundAtomsOf("arg"));
+//    System.out.println("Guess Atoms: " + guess.getGroundAtomsOf("arg"));
+//
+//    System.out.println("Gold: " + goldArgs);
+//    System.out.println("Guess: " + guessArgs);
+
     totalGuess += guessArgs.size();
     HashSet<Arg> fp = new HashSet<Arg>(guessArgs);
     fp.removeAll(goldArgs);
@@ -114,31 +124,39 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
 
   }
 
-  private Set<Arg> getArgs(GroundAtoms atoms) {
+  private Set<Arg> getArgs(GroundAtoms atoms, boolean gold) {
     Set<Arg> result = new CopyOnWriteArraySet<Arg>();
     HashMap<Integer, Arg> goldArgs = new HashMap<Integer, Arg>();
     HashMap<String, Arg> label2Arg = new HashMap<String, Arg>();
-    for (GroundAtom atom : atoms.getGroundAtomsOf("arg")){
+    //collect candidate constituents
+    HashSet<Integer> candidates = new HashSet<Integer>();
+    if (!gold) for (GroundAtom atom : atoms.getGroundAtomsOf("candidate"))
+      candidates.add(atom.getArguments().get(0).asInt());
+
+    for (GroundAtom atom : atoms.getGroundAtomsOf("arg")) {
       Arg arg = new Arg(Util.unquote(atom.getArguments().get(1).toString()));
-      goldArgs.put(atom.getArguments().get(0).asInt(),arg);
-      label2Arg.put(arg.label,arg);
+      int id = atom.getArguments().get(0).asInt();
+      if (gold || candidates.contains(id)) {
+        goldArgs.put(id, arg);
+        label2Arg.put(arg.label, arg);
+      }
     }
     //attach spans
-    for (GroundAtom atom : atoms.getGroundAtomsOf("span")){
+    for (GroundAtom atom : atoms.getGroundAtomsOf("span")) {
       int id = atom.getArguments().get(0).asInt();
       int begin = atom.getArguments().get(1).asInt();
       int end = atom.getArguments().get(2).asInt();
       Arg arg = goldArgs.get(id);
       if (arg != null) {
-        if (joinMode && arg.label.startsWith("C-")){
+        if (joinMode && arg.label.startsWith("C-")) {
           String realLabel = arg.label.substring(2);
           arg = label2Arg.get(realLabel);
-          if (arg == null){
+          if (arg == null) {
             arg = new Arg(realLabel);
             result.add(arg);
           }
         }
-        arg.spans.add(new Span(begin,end));
+        arg.spans.add(new Span(begin, end));
         result.add(arg);
       }
     }
@@ -148,17 +166,20 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
   public double getResult() {
     double recall = (double) (totalGold - fn) / (double) totalGold;
     double precision = (double) (totalGuess - fp) / (double) totalGuess;
-    switch (type){
-      case F1: return 2 * recall * precision / (recall + precision);
-      case RECALL: return recall;
-      case PRECISION: return precision;
+    switch (type) {
+      case F1:
+        return 2 * recall * precision / (recall + precision);
+      case RECALL:
+        return recall;
+      case PRECISION:
+        return precision;
     }
     return 0;
   }
 
   public static void main(String[] args) {
     Signature signature = TheBeast.getInstance().createSignature();
-    signature.createType("Argument", false, "\"A1\"","\"A2\"","\"C-A1\"");
+    signature.createType("Argument", false, "\"A1\"", "\"A2\"", "\"C-A1\"");
     signature.createPredicate("arg", "Int", "Argument");
     signature.createPredicate("span", "Int", "Int", "Int");
 
@@ -167,28 +188,28 @@ public class CoNLL05Evaluator implements CorpusEvaluationFunction {
     model.addObservedPredicate(signature.getUserPredicate("span"));
 
     GroundAtoms gold = signature.createGroundAtoms();
-    gold.getGroundAtomsOf("arg").addGroundAtom(0,"\"A1\"");
-    gold.getGroundAtomsOf("arg").addGroundAtom(1,"\"A2\"");
-    gold.getGroundAtomsOf("arg").addGroundAtom(2,"\"C-A1\"");
-    gold.getGroundAtomsOf("span").addGroundAtom(0,0,1);
-    gold.getGroundAtomsOf("span").addGroundAtom(1,2,3);
-    gold.getGroundAtomsOf("span").addGroundAtom(2,4,5);
-    gold.getGroundAtomsOf("span").addGroundAtom(3,6,7);
+    gold.getGroundAtomsOf("arg").addGroundAtom(0, "\"A1\"");
+    gold.getGroundAtomsOf("arg").addGroundAtom(1, "\"A2\"");
+    gold.getGroundAtomsOf("arg").addGroundAtom(2, "\"C-A1\"");
+    gold.getGroundAtomsOf("span").addGroundAtom(0, 0, 1);
+    gold.getGroundAtomsOf("span").addGroundAtom(1, 2, 3);
+    gold.getGroundAtomsOf("span").addGroundAtom(2, 4, 5);
+    gold.getGroundAtomsOf("span").addGroundAtom(3, 6, 7);
 
     GroundAtoms guess = signature.createGroundAtoms();
-    guess.getGroundAtomsOf("arg").addGroundAtom(0,"\"A1\"");
-    guess.getGroundAtomsOf("arg").addGroundAtom(1,"\"A2\"");
-    guess.getGroundAtomsOf("arg").addGroundAtom(2,"\"C-A1\"");
-    guess.getGroundAtomsOf("span").addGroundAtom(0,0,1);
-    guess.getGroundAtomsOf("span").addGroundAtom(1,2,3);
-    guess.getGroundAtomsOf("span").addGroundAtom(2,4,5);
-    guess.getGroundAtomsOf("span").addGroundAtom(3,6,7);
+    guess.getGroundAtomsOf("arg").addGroundAtom(0, "\"A1\"");
+    guess.getGroundAtomsOf("arg").addGroundAtom(1, "\"A2\"");
+    guess.getGroundAtomsOf("arg").addGroundAtom(2, "\"C-A1\"");
+    guess.getGroundAtomsOf("span").addGroundAtom(0, 0, 1);
+    guess.getGroundAtomsOf("span").addGroundAtom(1, 2, 3);
+    guess.getGroundAtomsOf("span").addGroundAtom(2, 4, 5);
+    guess.getGroundAtomsOf("span").addGroundAtom(3, 6, 7);
 
     CorpusEvaluation corpusEvaluation = new CorpusEvaluation(model);
     corpusEvaluation.addCorpusEvaluationFunction("F1 srl", new CoNLL05Evaluator(Type.F1));
     corpusEvaluation.addCorpusEvaluationFunction("Recall srl", new CoNLL05Evaluator(Type.RECALL));
     Evaluation evaluation = new Evaluation(model);
-    evaluation.evaluate(gold,guess);
+    evaluation.evaluate(gold, guess);
     corpusEvaluation.add(evaluation);
     System.out.println(corpusEvaluation);
 

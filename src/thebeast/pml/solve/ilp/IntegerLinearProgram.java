@@ -46,6 +46,8 @@ public class IntegerLinearProgram implements PropositionalModel {
           constraintsInserts = new HashMap<FactorFormula, Insert>();
   private Insert insertNewConstraintsIntoOld;
 
+  private HashSet<FactorFormula> fullyGroundFormulae = new HashSet<FactorFormula>();
+
 
   private HashMap<UserPredicate, RelationExpression>
           addTrueGroundAtoms = new HashMap<UserPredicate, RelationExpression>();
@@ -83,6 +85,15 @@ public class IntegerLinearProgram implements PropositionalModel {
   private static Heading indexHeading;
   private int newConstraintCount;
   private Weights weights;
+
+  public IntegerLinearProgram copy(){
+    IntegerLinearProgram result = new IntegerLinearProgram(model,weights,solver);
+    result.initIntegers = initIntegers;
+    result.profiler = profiler;
+    for (FactorFormula f : fullyGroundFormulae)
+      result.configureFormula(f, true);
+    return result;
+  }
 
 
   static {
@@ -224,6 +235,9 @@ public class IntegerLinearProgram implements PropositionalModel {
   }
 
   private void configureFormula(FactorFormula formula, boolean fullyGround) {
+    if (fullyGround) fullyGroundFormulae.add(formula);
+    else fullyGroundFormulae.remove(formula);
+
     if (!formula.isLocal()) {
       //QueryGenerator generator = new QueryGenerator(this.weights, atoms);
       ILPGrounder generator = new ILPGrounder(this.weights, atoms);

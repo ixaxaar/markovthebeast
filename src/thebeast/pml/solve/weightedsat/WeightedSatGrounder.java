@@ -28,7 +28,7 @@ public class WeightedSatGrounder {
   private ExpressionFactory factory = TheBeast.getInstance().getNodServer().expressionFactory();
   private static RelationType constraintType;
   private static ArrayType signArrayType, indexArrayType;
-  private double det_weight = 1E8;//20.0;
+  private double det_weight = 100;//1E8;//20.0;
 
   static {
     TypeBuilder builder = new TypeBuilder(TheBeast.getInstance().getNodServer());

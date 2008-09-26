@@ -165,6 +165,10 @@ public class ILPSolverMosek implements ILPSolver {
 
   }
 
+  public ILPSolver copy() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
   public void setProperty(PropertyName name, Object value) {
     if (name.getHead().equals("verbose"))
       verbose = (Boolean) value;
