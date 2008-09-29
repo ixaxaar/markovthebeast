@@ -20,7 +20,7 @@ class Conll08Corpus:
     e_open_line = "0\t0\tROOT\tROOT\tROOT"
     use_eline = True
 
-    def __init__(self,filename=None,ofilename=None,efilename=None,hyphens=True):
+    def __init__(self,filename=None,ofilename=None,efilename=None,hyphens=True,gold_deps=False):
         """Initilize the handler
             filename is the name of the file where the corpus is located
             ofilename is the name of the file where the extra information is\
@@ -34,6 +34,7 @@ class Conll08Corpus:
         file = None
         ofile = None
         self.hyphens=hyphens
+        self.gold_deps=gold_deps
         if not filename is None:
             file = open(filename,'r')
             if not ofilename is None:
@@ -100,7 +101,7 @@ class Conll08Corpus:
                 lines.append(Conll08Corpus.e_line);
             if not self.ofile is None:
                 olines.append(Conll08Corpus.e_open_line)
-        return Conll08Sntc(lines,olines,self.hyphens)
+        return Conll08Sntc(lines,olines,self.hyphens,self.gold_deps)
 
 
 
@@ -108,14 +109,15 @@ class Conll08Corpus:
 
 
 class Conll08Sntc:
-    def __init__(self,lines=None,olines=[],hyphens=True):
+    def __init__(self,lines=None,olines=[],hyphens=True,gold_deps=False):
         self.sntc=[]
         self.preds=[]
         self.args=[]
         
+        
         if  not lines is None:
             # Main lines
-            self.createFromLines(lines,olines)
+            self.createFromLines(lines,olines,gold_deps)
             preds=[]    
             # SRL labels            
             args=[[] for i in re_space.split(lines[0])[11:]]
@@ -153,6 +155,15 @@ class Conll08Sntc:
                             inside=False
                             break
                     if flag_change:
+                        # Looking for the head
+                        head=int(self.sntc[skip-1]['head'])
+                        for jj in range(skip-1,skip+size):
+                            h_tmp=int(self.sntc[jj]['head'])
+                            if h_tmp > skip+size+1 or h_tmp < skip:
+                                head=h_tmp                                
+                                break
+                        self.sntc[skip-1]['head']=self.sntc[head-1]['head']
+                        self.sntc[skip-1]['dep_rel']=self.sntc[head-1]['dep_rel']
                         del self.sntc[skip:(skip+size-1)]
                         for w in self.sntc:
                             if int(w['id'])>skip:
@@ -167,21 +178,15 @@ class Conll08Sntc:
                                 if  int(self.args[ij][ix][0])>skip:
                                     self.args[ij][ix]=(str(int(self.args[ij][ix][0])-size+1),self.args[ij][ix][1])
 
-
-       
-
+     
 
 
 
-
-
-
-
-    def createFromLines(self,lines,olines=[]):
+    def createFromLines(self,lines,olines=[],gold_deps=False):
         if len(olines) > 0:
 
             for i in range(len(lines)):
-                self.sntc.append(Conll08Wrd(lines[i],olines[i]))
+                self.sntc.append(Conll08Wrd(lines[i],olines[i],gold_deps))
         else:
             for line in lines:
                 self.sntc.append(Conll08Wrd(line))
@@ -195,7 +200,25 @@ class Conll08Sntc:
         return self.sntc.__iter__();
 
     def __str__(self):
-         return "\n".join([w.__str__() for w in self.sntc])
+        dpreds=dict(self.preds)
+        dargs=[dict(arg) for arg in self.args]
+        lines = [w.__str__() for w in self.sntc[:-1]]
+
+        for i in range(0,len(lines)):
+            try:
+                pred=dpreds[str(i)]
+            except KeyError:
+                pred="_"
+            lines[i]+="\t"+pred
+
+        for j in range(0,len(self.preds)):
+            for i in range(0,len(lines)):
+                try:
+                    arg=dargs[j][str(i+1)]
+                except KeyError:
+                    arg="_"
+                lines[i]+="\t"+arg
+        return "\n".join(lines)
 
     def utt(self,s=0,label="form"):
         if s==0:
@@ -203,51 +226,130 @@ class Conll08Sntc:
         else:
             return " ".join([ x[label] for x in self.sntc[:s]])
 
-    def conll06(self):
-        return "\n".join([w.conll06() for w in self.sntc])
-
-    def conll05_mst(self):
-        dpreds=dict(self.preds)
-        dargs=[dict(arg) for arg in self.args]
-        lines = [w.conll05_mst() for w in self.sntc]
-
-        for i in range(1,len(lines)):
-            try:
-                pred=dpreds[str(i)]
-            except KeyError:
-                pred="_"
-            lines[i]+="\t"+pred
-
-        for j in range(1,len(self.preds)):
-            for i in range(1,len(lines)):
-                try:
-                    arg=dargs[j][str(i)]
-                except KeyError:
-                    arg="_"
-                lines[i]+="\t"+arg
-        return "\n".join(lines)
-
-
     def conll05(self):
         dpreds=dict(self.preds)
         dargs=[dict(arg) for arg in self.args]
         lines = [w.conll05() for w in self.sntc]
 
-        for i in range(1,len(lines)):
+        for i in range(0,len(lines)):
+            try:
+                pred=dpreds[str(i+1)]
+                bits=pred.split(".")
+                lines[i]+="\t"+bits[1]+"\t"+bits[0]
+            except KeyError:
+                lines[i]+="\t-\t-"
+
+        return self.props(lines)
+
+
+    def props(self,lines):
+        dargs=[dict(arg) for arg in self.args]
+        deps=[(w["id"],w["head"]) for w in self.sntc]
+        tree={}
+
+        for d,h in deps:
+            try:
+                tree[h].append(d)
+            except KeyError:
+                tree[h]=[d]
+
+        for j in range(0,len(self.preds)):           
+            args_s={}
+            args_e={}
+            for i in range(0,len(lines)):
+                if dargs[j].has_key(str(i+1)):
+                    arg=dargs[j][str(i+1)]
+                    print arg,j,i+1
+                    if arg=="AM-MOD":
+                        arg_span=[str(i+1)]
+                    else:
+                        arg_span=self.get_span(tree,str(i+1),[])+[str(i+1)]
+                        arg_span=[int(x) for x in arg_span]
+                        arg_span.sort()
+                        arg_span=[str(x) for x in arg_span]
+                    print arg_span
+                    if len(arg_span)>0:
+                        args_s[arg_span[0]]=arg
+                        args_e[arg_span[-1]]=1
+            print args_s, args_e
+            for i in range(0,len(lines)):
+                if i+1==int(self.preds[j][0]):
+                    lines[i]+="\t(V*)"
+                    continue
+                try:
+                    args_s[str(i+1)]
+                    if args_e.has_key(str(i+1)):
+                        lines[i]+="\t("+args_s[str(i+1)]+"*)"
+                    else:
+                        lines[i]+="\t("+args_s[str(i+1)]+"*"
+                except KeyError:
+                    try:
+                        args_e[str(i+1)]
+                        lines[i]+="\t*)"
+                    except KeyError:
+                        lines[i]+="\t*"
+
+        return "\n".join(lines)
+
+
+    def get_span(self,tree,id,terminals=[]):
+        
+        try:
+            tree[id]
+        except KeyError:
+            terminals.append(id)
+            return terminals
+        for d in tree[id]:
+            terminals.append(d)
+            if d!=id:
+                terminals=self.get_span(tree,d,terminals)
+
+        return terminals
+
+
+        
+            
+        
+
+
+    def conll06(self):
+        return "\n".join([w.conll06() for w in self.sntc])
+
+    def conll06_mst(self):
+        return "\n".join([w.conll06_mst() for w in self.sntc])
+
+
+    def conll07(self):
+        return self.conll06()
+
+    def conll07_mst(self):
+        return self.conll06_mst()
+
+
+    def conll08_mst(self):
+        dpreds=dict(self.preds)
+        dargs=[dict(arg) for arg in self.args]
+        lines = [w.conll08_mst() for w in self.sntc[:-1]]
+
+        for i in range(0,len(lines)):
             try:
                 pred=dpreds[str(i)]
             except KeyError:
                 pred="_"
             lines[i]+="\t"+pred
 
-        for j in range(1,len(self.preds)):
-            for i in range(1,len(lines)):
+        for j in range(0,len(self.preds)):
+            for i in range(0,len(lines)):
                 try:
-                    arg=dargs[j][str(i)]
+                    arg=dargs[j][str(i+1)]
                 except KeyError:
                     arg="_"
                 lines[i]+="\t"+arg
         return "\n".join(lines)
+
+
+    def conll08(self):
+        return self.__str__()
 
 
     def addChnk(self,chnk):
@@ -276,24 +378,26 @@ class Conll08Wrd:
             "ne_bbn",
             "wnet",
             "malt_head",
-            "malt_dep_rel"
+            "malt_dep_rel",
             ]
     omap=dict(zip(map,range(len(map))))
 
-    def __init__(self,line,oline=None):
+    def __init__(self,line,oline=None,gold_deps=False):
         self.w=re_space.split(line)[:10]
         if len(self.w) == 8:
             self.w.append('_')
             self.w.append('_')
-        if not oline is None:            
-            self.w+=re_space.split(oline)
+        if not oline is None:
+            if not gold_deps:
+                self.w+=re_space.split(oline)
+            else:
+                ol=re_space.split(oline)
+                self.w+=ol[:3]+self.w[8:10]
 
 
     def __getitem__(self,x):
         return self.w[Conll08Wrd.omap[x]]
 
-    def __str__(self):
-        return "\t".join(self.w)
 
     def __setitem__(self,x,y):
         self.w[Conll08Wrd.omap[x]]=y
@@ -311,19 +415,44 @@ class Conll08Wrd:
             self.w.append(ele)
 
 
+
     def conll06(self):
         line = [self.w[0],self.w[1],self.w[2],self.w[4][0],self.w[4],'_',
                 self.w[8],self.w[9],self.w[8],self.w[9]]
         return "\t".join(line)
 
-    def conll05(self):
-        line = [self.w[0],self.w[1],self.w[2],self.w[3],self.w[4],'_',
-                self.w[8],self.w[9],self.w[8],self.w[9]]
+    def __str__(self):
+        line = [self.w[0],self.w[1],self.w[2],self.w[3],self.w[4],
+                self.w[5],self.w[6],self.w[7],self.w[8],self.w[9]]
         return "\t".join(line)
 
-    def conll05_mst(self):
-        line = [self.w[0],self.w[1],self.w[2],self.w[3],self.w[4],'_',
-                self.w[8],self.w[9],self.w[15],self.w[16]]
+    def conll05(self):
+        line = [self.w[1],"_",self.w[4],"_","_","_"]
+        return "\t".join(line)
+
+
+    def conll06(self):
+        line = [self.w[0],self.w[1],self.w[2],self.w[4][0],self.w[4],
+                "_",self.w[8],self.w[9],self.w[8],self.w[9]]
+        return "\t".join(line)
+
+    def conll06_mst(self):
+        line = [self.w[0],self.w[1],self.w[2],self.w[4][0],self.w[4],
+                "_",self.w[15],self.w[16],self.w[15],self.w[16]]
+        return "\t".join(line)
+
+    def conll07(self):
+        return self.conll06()
+
+    def conll07_mst(self):
+        return self.conll06_mst()
+
+    def conll08(self):
+        return self.__str__()
+
+    def conll08_mst(self):
+        line = [self.w[0],self.w[1],self.w[2],self.w[3],self.w[4],
+                self.w[5],self.w[6],self.w[7],self.w[15],self.w[16]]
         return "\t".join(line)
 
 

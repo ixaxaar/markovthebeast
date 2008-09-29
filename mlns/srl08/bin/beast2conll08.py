@@ -25,6 +25,10 @@ Usage: beast2conll08 [options] beast_corpus
    OUTPUT FILES
    -o|--output filename   Filename of the the data file [outstd]
 
+   FORMAT
+   -p|--possible          Uses possible predicate to get the predicate
+   -d|--dep   [mst|NONE|gs] Type of deps to output [None]            
+
    LEMMA FILES
    -l|--l2p    filename   Filename contianining a mapping from lemmas to
    predictes
@@ -41,8 +45,8 @@ Usage: beast2conll08 [options] beast_corpus
 
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:],"hvs:o:b:t:l:",["output=","l2p"
-        ,"begin=","total=","help","verbose"])
+    opts, args = getopt.getopt(sys.argv[1:],"hpvs:o:b:t:l:d:",["output=","l2p"
+        ,"begin=","total=","help","verbose","possible","dep="])
 except getopt.GetoptError:           
     usage()                          
     sys.exit(2)                     
@@ -59,6 +63,8 @@ ini=0
 total=0
 l2p_flnm=None
 verbose=False
+possible=False
+dep="NONE"
 
 for opt,val in opts:
     if opt in ("-h","--help"):
@@ -72,6 +78,15 @@ for opt,val in opts:
         total=int(val)
     elif opt in ("-l","--l2f"):
         l2p_flnm = val
+    elif opt in ("-p","--possible"):
+        possible = True
+    elif opt in ("-d","--dep"):
+        if val=="mst":
+            dep="mst_"
+        elif val=="gs":
+            dep="mst_"
+        else:
+            dep="NONE"
     elif opt in ("-verbose","--verbose"):
         verbose=True
 
@@ -117,19 +132,26 @@ for utt in corpus:
     lemmas=dict([(x,y[1:-1]) for x,y in utt['slemma']])
     spposs=dict([(x,y[1:-1]) for x,y in utt['sppos']])
 
-    deps=dict([(i,(j,r[1:-1])) for j,i,r in utt['dep']])
-    if len(deps) ==0:
-            deps=dict([(i,("_","_"))for i,w in utt['word']])
+    if dep=="NONE":
+        deps=dict([(i,("_","_"))for i,w in utt['word']])
+    else:
+        deps=dict([(i,(j,r[1:-1])) for j,i,r in utt[dep+'dep']])
 
     for i in range(1,len(words)):
         lines[i-1].append(deps[str(i)][0])
         lines[i-1].append(deps[str(i)][1])
 
-    try:
-        iframes=[int(x[0]) for x in  utt['isPredicate']]
-    except KeyError:
-        iframes=[]
-
+    if not possible:
+        try:
+            iframes=[int(x[0]) for x in  utt['isPredicate']]
+        except KeyError:
+            iframes=[]
+    else:
+        try:
+            iframes=[int(x[0]) for x in  utt['possiblePredicate']]
+        except KeyError:
+            iframes=[]
+       
     try:
         frameLabels = dict([(i,j[1:-1]) for i,j in utt['frameLabel'] \
                 if int(i) in iframes])

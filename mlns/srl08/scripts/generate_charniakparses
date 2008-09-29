@@ -6,9 +6,9 @@ bin/extractPennTreeBank.py -c 7 -u /dev/null -o data/conll05st-release/train-set
 bin/extractPennTreeBank.py -c 7 -u /dev/null -o data/conll05st-release/test-set-brown.penn data/conll05st-release/test-set-brown 
 bin/extractPennTreeBank.py -c 7 -u /dev/null -o data/conll05st-release/test-set-wsj.penn data/conll05st-release/test-set-wsj 
 
-java -jar ../app/pennconverter.jar < data/conll05st-release/dev-set.penn > data/conll05st-release/dev-set.penn.chk
-java -jar ../app/pennconverter.jar < data/conll05st-release/train-set.penn > data/conll05st-release/train-set.penn.chk
-java -jar ../app/pennconverter.jar < data/conll05st-release/test-set-brown.penn > data/conll05st-release/test-set-brown.penn.chk
-java -jar ../app/pennconverter.jar < data/conll05st-release/test-set-wsj.penn > data/conll05st-release/test-set-wsj.penn.chk
+java -jar ../app/pennconverter.jar -splitSlash=false < data/conll05st-release/dev-set.penn > data/conll05st-release/dev-set.penn.chk
+java -jar ../app/pennconverter.jar -splitSlash=false < data/conll05st-release/train-set.penn > data/conll05st-release/train-set.penn.chk
+java -jar ../app/pennconverter.jar -splitSlash=false < data/conll05st-release/test-set-brown.penn > data/conll05st-release/test-set-brown.penn.chk
+java -jar ../app/pennconverter.jar -splitSlash=false < data/conll05st-release/test-set-wsj.penn > data/conll05st-release/test-set-wsj.penn.chk
 
 

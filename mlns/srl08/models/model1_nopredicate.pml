@@ -8,7 +8,7 @@ predicate rargpair: Role x Role;
 predicate allargs: Role;
 
 // MST predicates
-observed: word, slemma, gpos, sform, ppos,cpos,sppos, lemma, mst_path_length, 
+observed:  word, slemma, gpos, sform, ppos,cpos,sppos, lemma, mst_path_length, 
 mst_path_frame, 
 mst_path_frame_unlabeled,
   mst_path,mst_frame,mst_link,mst_dep, mst_path_unlabeled, mst_frame_unlabeled, voice, mst_path_directed, palmer,

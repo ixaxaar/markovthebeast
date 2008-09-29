@@ -26,7 +26,12 @@ Usage: conll082beast.py [options] conll_corpus
    -s|--splits  num        Number of splits [0]  
    -o|--output  filename   Filename of the the data file [outstd]
    -d|--def     filename   Filename of the definition file [outstd]
-   -5|--conll05 filename   Filename of the conll05 format file [Nothing]
+   -5|--conll05 filename   Filename of the conll05 format file 
+   -6|--conll06 filename   Filename of the conll06 format file
+   -7|--conll07 filename   Filename of the conll07 format file 
+   -8|--conll08 filename   Filename of the conll08 format file
+   --output_mst            Use mst deps for output
+
 
    FORMATING
    -S|--strict            Use strict types on generarion of types [Off]
@@ -37,6 +42,7 @@ Usage: conll082beast.py [options] conll_corpus
 
    MODE
    -N|--none              Generate a NONE role for each token pair without role label
+   -G|--gold_deps         Use gold dependencies for mst dependecies
    -T|--test              Testing mode
 
    UTTERANCES
@@ -52,9 +58,9 @@ Usage: conll082beast.py [options] conll_corpus
 
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:],"vhrSHTO:s:o:d:b:t:M:5:",["verbose","splits=",
-        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05","possible_ON",
-        "mst_label=","no_hyphens"])
+    opts, args = getopt.getopt(sys.argv[1:],"vhrGSHLTO:s:o:d:b:t:M:5:6:7:8:",["verbose","splits=",
+        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05=","conll06=","conll08=","conll07=","possible_ON",
+        "mst_label=","no_hyphens","output_mst","gold_deps"])
 except getopt.GetoptError:           
     usage()                          
     sys.exit(2)                     
@@ -83,7 +89,13 @@ verbose = False
 test=False
 mst_files=None
 conll05=None
+conll06=None
+conll07=None
+conll08=None
 no_hyphens=False
+slashes=False
+output_mst=False
+gold_deps=False
 
 for opt,val in opts:
     if opt in ("-h","--help"):
@@ -101,6 +113,12 @@ for opt,val in opts:
         total=int(val)
     elif opt in ("-5","--conll05"):
         conll05=val
+    elif opt in ("-6","--conll06"):
+        conll06=val
+    elif opt in ("-7","--conll07"):
+        conll07=val
+    elif opt in ("-8","--conll08"):
+        conll08=val
     elif opt in ("-s","--strict"):
         strict=True
     elif opt in ("-r","--randomize"):
@@ -119,6 +137,11 @@ for opt,val in opts:
         test=True
     elif opt in ("-H","--no_hyphens"):
         no_hyphens=True
+    elif opt in ("-G","--gold_deps"):
+        gold_deps=True
+    elif opt in ("--output_mst"):
+        output_mst=True
+
 
 
 
@@ -146,8 +169,8 @@ preds.append((cpos,("cpos",["Int","Cpos"])))
 #   head
 #   dep_rel
 #   link
-if not test:
-    preds.append((dependency_link,("dep",["Int","Int","Dependency"],"head","dep_rel","link")))
+#if not test:
+#    preds.append((dependency_link,("dep",["Int","Int","Dependency"],"head","dep_rel","link")))
 
 # SRL predicates
 # Extracts roles
@@ -194,7 +217,7 @@ if not mst_files is None:
 # -------------------------------------------------------------
 # Main section
 # Prepare splits
-corpus = Conll08Corpus(filename,open_fmt_file,mst_files,hyphens=(not no_hyphens))
+corpus = Conll08Corpus(filename,open_fmt_file,mst_files,hyphens=(not no_hyphens),gold_deps=gold_deps)
 bsig = TheBeastSignature(strict)
 sntcs=range(corpus.size())
 
@@ -227,28 +250,29 @@ if mst_files != None:
                 u=bits[1].replace('-lrb-','(').replace('-rrb-',')')
                 utt.append(u)
             else:
-                changed=True
-                while changed:
-                    changed=False
-                    skip=0
-                    n_chnk=[]
-                    inside=False
-                    for i in range(len(chnk)):
-                        p=ppos[i][1]
-                        if p == 'CC' and ppos[i][0]=="/":
-                            n_chnk+=chnk[i+2:]
-                            del ppos[i:i+2]
-                            changed=True
-                            skip=i+1
-                            break
-                        else:
-                            n_chnk.append(chnk[i])
-                    if changed:
-                        for i in range(len(n_chnk)):
-                            if int(n_chnk[i][0])>skip+2:
-                                n_chnk[i]=(str(int(n_chnk[i][0])-2),n_chnk[i][1])
-                    chnk=n_chnk
-                        
+                if not slashes:
+                    changed=True
+                    while changed:
+                        changed=False
+                        skip=0
+                        n_chnk=[]
+                        inside=False
+                        for i in range(len(chnk)):
+                            p=ppos[i][1]
+                            if p == 'CC' and ppos[i][0]=="/":
+                                n_chnk+=chnk[i+2:]
+                                del ppos[i:i+2]
+                                changed=True
+                                skip=i+1
+                                break
+                            else:
+                                n_chnk.append(chnk[i])
+                        if changed:
+                            for i in range(len(n_chnk)):
+                                if int(n_chnk[i][0])>skip+2:
+                                    n_chnk[i]=(str(int(n_chnk[i][0])-2),n_chnk[i][1])
+                        chnk=n_chnk
+                            
 
                 chnk.append(("0","ROOT"))
                 ppos.append(("_","R"))
@@ -325,6 +349,16 @@ mst_id=0
 if not conll05 is None:
     conll05f = open(conll05,"w")
 
+if not conll06 is None:
+    conll06f = open(conll06,"w")
+
+if not conll07 is None:
+    conll07f = open(conll07,"w")
+
+if not conll08 is None:
+    conll08f = open(conll08,"w")
+
+
 for split,outputn,deffn in splits:
 # loops for splits
     nsplit+=1
@@ -381,6 +415,7 @@ for split,outputn,deffn in splits:
                 #print chnk_ref
                 if chnk_ref != ref:
                     #try nexts in mst_file
+                    print >> sys.stderr, "*--%s--(%s)"%(ref,id-1), "\n", " --%s--(%s)"%(mst_snts[mst_id][1],mst_id)
                     found=False
                     for t in range(len_tries):
                         chnk,chnk_ref,chnk_ppos=mst_snts[mst_id+t]
@@ -393,7 +428,11 @@ for split,outputn,deffn in splits:
                         print >> sys.stderr, "*--%s--(%s)"%(ref,id-1), "\n", " --%s--(%s)"%(mst_snts[mst_id][1],mst_id)
                         continue
                 cs.replace('ppos',chnk_ppos)
-                cs.addChnk(chnk)
+                if not gold_deps:
+                    cs.addChnk(chnk)
+                else:
+                    chnkg=[(w['head'],w['dep_rel']) for w in cs]
+                    cs.addChnk(chnkg)
                 mst_id+=1
             except IndexError:
                 print id
@@ -405,8 +444,6 @@ for split,outputn,deffn in splits:
         # A beast sentece
         print >> output, ">>" 
 
-
-   
         bs=TheBeastIntc(bsig)
         for f,args in  preds:
             f(bsig,cs,bs,args)
@@ -414,8 +451,40 @@ for split,outputn,deffn in splits:
         print >> output, bs
 
         if not conll05 is None:
-            print >> conll05f, cs.conll05_mst()
-            print >> conll05f, ""
+            if output_mst:
+                print >> conll05f, cs.conll05_mst()
+                print >> conll05f, ""
+            else:
+                print >> conll05f, cs.conll05()
+                print >> conll05f, ""
+
+
+        if not conll06 is None:
+            if output_mst:
+                print >> conll06f, cs.conll06_mst()
+                print >> conll06f, ""
+            else:
+                print >> conll06f, cs.conll06()
+                print >> conll06f, ""
+ 
+
+        if not conll07 is None:
+            if output_mst:
+                print >> conll07f, cs.conll07_mst()
+                print >> conll07f, ""
+            else:
+                print >> conll07f, cs.conll07()
+                print >> conll07f, ""
+ 
+
+        if not conll08 is None:
+            if output_mst:
+                print >> conll08f, cs.conll08_mst()
+                print >> conll08f, ""
+            else:
+                print >> conll08f, cs.conll08()
+                print >> conll08f, ""
+ 
 
     if verbose:
         print >> sys.stderr, ""

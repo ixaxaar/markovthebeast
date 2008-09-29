@@ -191,6 +191,134 @@ F1 scores
           isArgument    : 0.920
 
 
++ Using gold dependencies
+bin/results.py results/devel_propbank.open.092808_230928.log
+F1 scores
+            hasLabel    : 0.944,0.945,0.945,0.945,0.945
+              Global    : 0.909,0.913,0.915,0.916,0.916
+                role    : 0.824,0.835,0.838,0.841,0.840
+          isArgument    : 0.966,0.965,0.966,0.966,0.966
+
++ EVALUATION
+bin/results.py results/devel_propbank.open.092808_230928.test.log
+F1 scores
+            hasLabel    : 0.957
+              Global    : 0.931
+                role    : 0.866
+          isArgument    : 0.972
+
+
+Dealing with differences among data
+-----------------------------------
+
+There are two sources of information:
+- Mihai software (who kindly give us it's software):
+  * data/conll05/*_propbank.output
+  * Conll 2008 format
+  * PropBank only (Conll 2008/shared task had PropBank and NomBank)
+  * We believe dependencies were PenTree bank gold standard.
+- Sebastian Conll-2005
+  * data/conll05/*-set
+  * Conll 2005 format
+  * PropBank
+  * Constituencies parses
+
+We wanted:
+  * Conll 2008 format
+  * PropBank 
+  * Dependencies but from Charniack Parses
+
+To reach this we use:
+  1. Extact the parses from Seb's files::
+
+     bin/extractPennTreeBank.py 
+     
+  2. Transform the parses to conll06 format
+  (http://nlp.cs.lth.se/pennconverter/)::
+
+     bin/java -jar ../app/pennconverter.jar
+
+  3. To prepare the data run::
+
+     ./scripts/generate_charniakparses
+
+  4. To generate the beast file run::
+
+    ./scripts/translatecorpora2beast_eacl_possiblePred_chk
+
+From this process there are differences among our beast corpora and Sebastian's conll05 which is a problem for evaluating. Since Mihai is missing some sentences in training and testing wsj. For this reason we modify the original test-set-wsj Seb conll05 file to no include these sentences. These sentences are the ones which start with:
+    1. The well flowed
+    2. Mrs. Crump said
+A copy of the original file is in: test-set-wsj.old
+
+The beast files are in:
+  * data/conll05/*_propbank.[atoms/types.pml]
+
+
+Comparing we don't lost anything
+================================
+
+We need to verify we don't lost anything during the transformation of data, for
+this we check:
+:: 
+     [dendrite]s0343487: bin/beast2conll05.py -p
+     data/conll05/devel_propbank.atoms > tmp
+     [dendrite]s0343487: head tmp
+     The     _       DT      _       _       _       _       _       (A1*
+     economy _       NN      _       _       _       _       _       *
+     's      _       POS     _       _       _       _       _       *
+     temperature     _       NN      _       _       _       _       _       *)
+     will    _       MD      _       _       _       _       _       (AM-MOD*)
+     be      _       VB      _       _       _       _       _       *
+     taken   _       VBN     _       _       _       01      take    (V*)    *
+     from    _       IN      _       _       _       _       _       (A2*
+     several _       JJ      _       _       _       _       _       *
+     vantage _       NN      _       _       _       _       _       *)
+     [dendrite]s0343487: grep "^\s*$" data/conll05st-release/dev-set | wc
+     1346       0    9422
+     [dendrite]s0343487: grep "^\s*$" tmp | wc
+     1346       0    1346
+     [dendrite]../app/srl-eval.pl  data/conll05st-release/dev-set tmp
+     
+There are errors, the head dependencies don't span the right argument. Work to do analyse this. For right now we will stick with 2008 evaluation.
+
+
+
+EVALUATING charniak dep parsing
+===============================
+::
+    nice bin/conll082beast.py -v --possible_ON -H -L -d /dev/null -o /dev/null -8 tmp_wsj_8g data/conll05/test_wsj_propbank.output 
+    nice bin/conll082beast.py -v --output_mst --possible_ON -H -L -d /dev/null -o /dev/null -8 tmp_wsj_8 data/conll05/test_wsj_propbank.output 
+    ../app/eval08.pl -g tmp_wsj_8g -s tmp_wsj_8g
+
+Output::
+  SYNTACTIC SCORES:
+  Labeled   attachment score: 40700 / 56618 * 100 = 71.89 %
+  Unlabeled attachment score: 49125 / 56618 * 100 = 86.77 %
+  Label accuracy score:       43352 / 56618 * 100 = 76.57 %
+
+
+
+
+
+
+
+
+    
+     
+
+
+
+
+     
+
+
+
+
+
+
+
+
 
 
  
