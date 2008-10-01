@@ -39,6 +39,7 @@ Usage: conll082beast.py [options] conll_corpus
    -M|--mst_label  File   Uses the MST labelling (conll06 format)
    -H|--no_hyphens        It compress the hyphens into one token (as in 2005 format)
    --possible_ON          possiblePredicate based on actual predicate
+   --possible      File   possiblePredicate based on beast file 
 
    MODE
    -N|--none              Generate a NONE role for each token pair without role label
@@ -59,7 +60,7 @@ Usage: conll082beast.py [options] conll_corpus
 
 try:                                
     opts, args = getopt.getopt(sys.argv[1:],"vhrGSHLTO:s:o:d:b:t:M:5:6:7:8:",["verbose","splits=",
-        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05=","conll06=","conll08=","conll07=","possible_ON",
+        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05=","conll06=","conll08=","conll07=","possible_ON","possible=",
         "mst_label=","no_hyphens","output_mst","gold_deps"])
 except getopt.GetoptError:           
     usage()                          
@@ -96,6 +97,7 @@ no_hyphens=False
 slashes=False
 output_mst=False
 gold_deps=False
+preds_file=None
 
 for opt,val in opts:
     if opt in ("-h","--help"):
@@ -123,8 +125,11 @@ for opt,val in opts:
         strict=True
     elif opt in ("-r","--randomize"):
         randomize=True
-    elif opt in ("--possible_ON"):
+    elif opt in ("--possible_ON",):
         impossible.switch_only()
+    elif opt in ("--possible",):
+        preds_file=val
+        impossible.use_preds()
     elif opt in ("-n","--none"):
         none="ALL"
     elif opt in ("-O","--open"):
@@ -141,7 +146,6 @@ for opt,val in opts:
         gold_deps=True
     elif opt in ("--output_mst"):
         output_mst=True
-
 
 
 
@@ -183,12 +187,17 @@ if not test:
 
 # Extracts frames
 #preds.append((frame,("frame",["Int","Frame"])))
-if not test:
+if preds_file:
+    preds.append((frame_lemma2,[("isPredicate",["Int"]),
+                           ("frameLabel",["Int","FrameLabel"])]))
+else:
     preds.append((frame_lemma,[("isPredicate",["Int"]),
                            ("frameLabel",["Int","FrameLabel"])]))
 
+
+
 preds.append((voice,("voice",["Int","Voice"])))
-preds.append((possiblePredicate,("possiblePredicate",["Int"])))
+preds.append((possiblePredicate,("possiblePredicate",["Int"],[])))
 preds.append((possibleArgument,("possibleArgument",["Int"])))
 
 # Preidcates used inf the open format
@@ -226,6 +235,23 @@ len_sig=3
 len_tries=5
 
 
+preds_possible=[]
+if preds_file:
+    state=0
+    for line in open(preds_file):
+        line=line.strip()
+        if state==0:
+            if line.startswith('>>'):
+                preds_possible.append([])
+            elif line.startswith('>frameLabel'):
+                state=1
+        elif state==1:
+            if not line.startswith('>'):
+                bits=line.split()
+                preds_possible[-1].append((bits[0],bits[1][1:-1]))
+            else:
+                state=0
+            
 mst_snts=[]
 if mst_files != None:
     chg_map(["mst_head","mst_dep_rel"])
@@ -444,9 +470,18 @@ for split,outputn,deffn in splits:
         # A beast sentece
         print >> output, ">>" 
 
+        
+
         bs=TheBeastIntc(bsig)
         for f,args in  preds:
-            f(bsig,cs,bs,args)
+            if f==possiblePredicate and not preds_file is None:
+                args=(args[0],args[1],dict([(p,1) for (p,s) in preds_possible[id-1]]))
+                f(bsig,cs,bs,args)
+            elif f==frame_lemma2 and not preds_file is None:
+                args.append(preds_possible[id-1])
+                f(bsig,cs,bs,args)
+            else:
+                f(bsig,cs,bs,args)
     
         print >> output, bs
 

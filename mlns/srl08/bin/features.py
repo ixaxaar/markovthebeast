@@ -9,19 +9,28 @@
 
 from corpus import *
 
-def default_predicate(w,args):
+def default_predicate(w,args,extra):
     return not w['ppos'] in Impossible.impossiblePredicatePOS 
 
 def default_argument(w,args):
     return not w['ppos'] in Impossible.impossibleArgumentPOS
 
-def only_predicate(w,args):
+def only_predicate(w,args,extra):
     try:
         pred=args[w['id']]
     except KeyError:
         pred=None
     val= not pred is None
     return val
+
+def use_predicates(w,args,extra):
+    try:
+        pred=extra[w['id']]
+    except KeyError:
+        pred=None
+    val= not pred is None
+    return val
+
 
 f_pred=default_predicate
 f_arg=default_argument
@@ -77,6 +86,10 @@ class Impossible:
 
     def switch_only(self):
         self.test_pred=only_predicate
+
+    def use_preds(self):
+        self.test_pred=use_predicates
+ 
      
 impossible=Impossible()
 
@@ -154,11 +167,11 @@ def cpos(sig,cs,bs,args):
             sig.addType(type[1],val)
 
 def possiblePredicate(sig,cs,bs,args):
-    name,type = args
+    name,type,extra = args
     sig.addDef(name,type)
     dpreds=dict(cs.preds)
     for w in cs:
-            if impossible.test_pred(w,dpreds):
+            if impossible.test_pred(w,dpreds,extra):
                 bs.addPred(name,[w["id"]])
 
 def possibleArgument(sig,cs,bs,args):
@@ -535,5 +548,19 @@ def frame_lemma(sig,cs,bs,args):
         val = normalize_entry(label[-1])
         bs.addPred(name_pred,(str(ix),))
         bs.addPred(name_label,(str(ix),val))
+        sig.addType(type_label[1],val)
+
+
+def frame_lemma2(sig,cs,bs,args):
+    '''Extracts frames using relying the lemma is the predicate'''
+    name_pred,type_pred = args[0]
+    name_label,type_label = args[1]
+    preds=args[2]
+    sig.addDef(name_label,type_label)
+    sig.addDef(name_pred,type_pred)
+    for ix,sense in preds:
+        bs.addPred(name_pred,(ix,))
+        bs.addPred(name_label,(ix,sense))
+        val = normalize_entry(sense)
         sig.addType(type_label[1],val)
 

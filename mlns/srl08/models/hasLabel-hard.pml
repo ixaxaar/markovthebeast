@@ -1,5 +1,5 @@
 // if two tokens are to be labelled according to hasLabel(t1,t2) then there exists a role that labels those
-//factor [0]: for Int a, Int p if word(a,_) & word(p,_) & possiblePredicate(p) & possibleArgument(a): hasLabel(p,a) => |Role r: role(p,a,r)| >=1;
+factor [0]: for Int a, Int p if word(a,_) & word(p,_) & possiblePredicate(p) & possibleArgument(a): hasLabel(p,a) => |Role r: role(p,a,r)| >=1;
 
 // if there is a role for two tokens it has a label
 factor [0]: for Int a, Int p, Role r if word(a,_) & word(p,_) & possiblePredicate(p) & possibleArgument(a): role(p,a,r) => hasLabel(p,a);

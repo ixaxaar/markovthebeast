@@ -135,6 +135,7 @@ This is the 2008 model results:
 
 
 BASELINE
+-------
 
 This is the 2005 model results:
 
@@ -147,7 +148,6 @@ F1 scores
          isPredicate    : 0.949,0.948,0.948,0.946,0.945
             hasLabel    : 0.833,0.836,0.836,0.835,0.833
           frameLabel    : 0.859,0.859,0.858,0.861,0.859
-
 
 + We generate the corpus with possiblePredicate based on actual predicates, and only perform argument classification and role identification
 bin/results.py results/devel_propbank.open.091608_000428.log
@@ -190,8 +190,28 @@ F1 scores
                 role    : 0.786
           isArgument    : 0.920
 
++ Using charniak parses and bottom-up model
+bin/results.py results/devel_propbank.open.093008_222007.log
+F1 scores
+          isArgument    : 0.885,0.883,0.881,0.880,0.879
+              Global    : 0.826,0.828,0.829,0.827,0.826
+                role    : 0.721,0.733,0.737,0.737,0.736
+         isPredicate    : 0.937,0.934,0.932,0.929,0.927
+            hasLabel    : 0.854,0.855,0.853,0.851,0.850
+          frameLabel    : 0.770,0.770,0.774,0.767,0.768
 
-+ Using gold dependencies
++ Using charniak parses and full model
+bin/results.py results/devel_propbank.open.100108_125036.log
+F1 scores
+          isArgument    : 0.882,0.884,0.882,0.881,0.878
+              Global    : 0.825,0.828,0.827,0.825,0.824
+                role    : 0.725,0.736,0.737,0.738,0.737
+         isPredicate    : 0.936,0.934,0.931,0.929,0.927
+            hasLabel    : 0.854,0.855,0.853,0.852,0.850
+          frameLabel    : 0.760,0.754,0.754,0.746,0.747
+
+
++ Using gold dependencies, no predicate identification
 bin/results.py results/devel_propbank.open.092808_230928.log
 F1 scores
             hasLabel    : 0.944,0.945,0.945,0.945,0.945
@@ -203,12 +223,63 @@ F1 scores
 bin/results.py results/devel_propbank.open.092808_230928.test.log
 F1 scores
             hasLabel    : 0.957
+
               Global    : 0.931
                 role    : 0.866
           isArgument    : 0.972
 
 
-Dealing with differences among data
++ Using gold dependencies, with predicate identification
+bin/results.py results/devel_propbank.open.092908_193840.log
+F1 scores
+          isArgument    : 0.955,0.956,0.957,0.957,0.958
+              Global    : 0.900,0.906,0.907,0.907,0.908
+                role    : 0.820,0.831,0.834,0.836,0.838
+         isPredicate    : 0.987,0.987,0.987,0.987,0.987
+            hasLabel    : 0.934,0.936,0.937,0.937,0.938
+          frameLabel    : 0.803,0.824,0.821,0.816,0.818
+ERROR: it's necessary to recreate the corpus without the possible_ON option :(
+
+
+PIPELINE experiments
+--------------------
+
++ Modeling  isPredicate and frameLabel stage (predicate classification)
+Precision scores
+         isPredicate    : 0.988,0.992,0.993,0.992,0.993
+              Global    : 0.904,0.906,0.897,0.891,0.883
+          frameLabel    : 0.820,0.821,0.801,0.789,0.772
+Recall scores
+         isPredicate    : 0.826,0.774,0.742,0.716,0.692
+              Global    : 0.756,0.708,0.670,0.643,0.615
+          frameLabel    : 0.685,0.641,0.599,0.569,0.538
+F1 scores
+         isPredicate    : 0.900,0.870,0.849,0.832,0.816
+              Global    : 0.823,0.795,0.767,0.747,0.725
+          frameLabel    : 0.746,0.720,0.685,0.661,0.634
+
++ Fixing the integer option
+bin/results.py results/devel_propbank.open.093008_193110.log
+F1 scores
+         isPredicate    : 0.903,0.872,0.849,0.827,0.809
+              Global    : 0.798,0.766,0.727,0.703,0.682
+          frameLabel    : 0.692,0.659,0.605,0.579,0.555
+
+Given the previous results we only do the isPredicate in this stage
+
++ Only isPredicate
+bin/results.py results/devel_propbank.open.093008_205921.log
+F1 scores
+         isPredicate    : 0.959,0.959,0.958,0.959,0.960
+              Global    : 0.959,0.959,0.958,0.959,0.960
+
+
+
+
+
+
+
+Dealing with differences among the corpora
 -----------------------------------
 
 There are two sources of information:
@@ -255,6 +326,8 @@ The beast files are in:
   * data/conll05/*_propbank.[atoms/types.pml]
 
 
+
+
 Comparing we don't lost anything
 ================================
 
@@ -280,7 +353,7 @@ this we check:
      1346       0    1346
      [dendrite]../app/srl-eval.pl  data/conll05st-release/dev-set tmp
      
-There are errors, the head dependencies don't span the right argument. Work to do analyse this. For right now we will stick with 2008 evaluation.
+There are errors, the head dependencies don't span the right argument. Work to do analyse this. For right now we will stick with 2008 evaluation. Conclusion: It's not possible to compare conll08 with conll05
 
 
 

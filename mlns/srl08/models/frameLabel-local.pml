@@ -86,3 +86,12 @@ factor: for Int p, FrameLabel l, Slemma s if slemma(p,s) & possiblePredicate(p) 
 //weight w_fl_mframe: MFrame x FrameLabel -> Double;
 //factor: for Int i, FrameLabel fl, MFrame f if word(i,_) & mst_frame(i,f) add [frameLabel(i,fl)] * w_fl_mframe(f,fl);
 
+// MST dependencies
+//weight w_fl_mdep: MDependency x FrameLabel -> Double;
+//factor: for Int i, FrameLabel f, MDependency m if word(i,_) & mst_dep(_,i,m) add [frameLabel(i,f)] * w_fl_mdep(m,f);
+
+//weight w_fl_mframe: MFrame x FrameLabel -> Double;
+//factor: for Int i, FrameLabel fl, MFrame f if word(i,_) & mst_frame(i,f) add [frameLabel(i,fl)] * w_fl_mframe(f,fl);
+
+
+
