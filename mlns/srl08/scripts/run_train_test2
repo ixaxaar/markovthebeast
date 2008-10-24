@@ -102,7 +102,7 @@ then
         UWEIGHTS_FIX=`echo "$UWEIGHTS.${iter}" | sed 's/^\///' | sed "s/PROID/${RND}/g"`
         TOTAL=`echo "$UWEIGHTS_FIX" | sed 's/[^/]//g' | wc -m`
         NUM=$(($TOTAL-1))
-        tar --strip $NUM -xzvf $TAR_UWEIGHTS.gz "$UWEIGHTS_FIX"
+        tar --overwrite --strip $NUM -xzvf $TAR_UWEIGHTS.gz "$UWEIGHTS_FIX"
         UWEIGHTS_FIX=`echo "$UWEIGHTS_FIX" | sed 's/.*\///' | sed "s/PROID/${RND}/g"`
         cp $UWEIGHTS_FIX $UWEIGHTS.${iter}
         for tt in $ATOMS_TESTS

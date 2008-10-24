@@ -95,6 +95,8 @@ for line in open(filename):
                     state=0
     prev_line=line
 
+if state==1:
+    results.append(result)
 
 
 def get_history(label,metric,results):

@@ -155,6 +155,180 @@ def single_preds(sig,cs,bs,args):
             bs.addPred(name,(w["id"],val))
             sig.addType(type[1],val)
 
+def getDeps(sntc,label):
+    deps=[(w["id"],w[label+"head"]) for w in sntc]
+    tree={}
+    
+    for d,h in deps:
+        try:
+            tree[d].append(h)
+        except KeyError:
+            tree[d]=[h]
+    return tree
+
+
+def getTree(sntc,label):
+    deps=[(w["id"],w[label+"head"]) for w in sntc]
+    tree={}
+    
+    for d,h in deps:
+        try:
+            tree[h].append(d)
+        except KeyError:
+            tree[h]=[d]
+    return tree
+
+def get_span(tree,id,terminals=[]):
+    
+    try:
+        tree[id]
+    except KeyError:
+        return terminals
+    for d in tree[id]:
+        if d!=id:
+            terminals.append(d)
+            terminals=get_span(tree,d,terminals)
+    return terminals
+
+
+def j08_l_and_r(sig,cs,bs,args):
+    lt,ltt,rt,rtt,label=args
+    sig.addDef(lt,ltt)
+    sig.addDef(rt,rtt)
+
+    tree=getTree(cs,label)
+    for w in cs:
+        terminals=get_span(tree,w["id"],[])
+        if len(terminals) == 0:
+            terminals=[w["id"]]
+        terminals=[int(t) for t in terminals]
+        terminals.sort()
+        bs.addPred(lt,(w["id"],cs[terminals[0]]["id"]))
+        bs.addPred(rt,(w["id"],cs[terminals[-1]]["id"]))
+
+
+def switch(x):
+    if x.startswith(">"):
+        return "<"
+    elif x.startswith("<"):
+        return ">"
+    else:
+        return x
+
+def reverse(p):
+    n=[switch(x) for x in p]
+    n.reverse()
+    return n
+
+def create_path(cs,path,label):
+    n=[]
+    prev=path[0]
+    i=1
+    while i < len(path[1:]):
+        n.append(path[i])
+        i+=1
+        if path[i-1].startswith(">"):
+            n.append(cs[int(prev)][label])
+        else:
+            n.append(cs[int(path[i])][label])
+        prev=path[i]
+        i+=1
+    return "".join(n)
+            
+
+def j08_relpath(sig,cs,bs,args):
+    name,type,label,info,name2,type2=args
+    tree=getTree(cs,label)
+    sig.addDef(name,type)
+    sig.addDef(name2,type2)
+    dpreds=dict(cs.preds)
+
+    paths_={}
+    # paths 0 distance
+    paths=[]
+    paths.append([])
+    for w1 in range(len(cs)):
+        paths[-1].append([((w1,w1),[])])
+    # Find the minimum paths bottom-up
+    for size in range(1,len(cs)):
+        # prev+1
+        paths.append([])
+        for w1 in range(len(cs)):
+            final=[]            
+            if tree.has_key(str(w1)):
+                for c in tree[str(w1)]:
+                    for (w2,ini),p in paths[size-1][int(c)]:
+                        if w2 != 0:
+                                if len(p)>0:
+                                    final.append(((int(c),ini),[c,"<"]+p))
+                                else:
+                                    final.append(((int(c),ini),[c]))
+            paths[size].append(final)
+        for l in paths[size]:
+            for pos,path in l:
+                f,i=pos
+                if paths_.has_key(pos):
+                    if len(paths_[pos])<len(path):
+                        paths_[pos]=path
+                else:
+                        paths_[pos]=path
+                pos=(i,f)
+                if paths_.has_key(pos):
+                    if len(paths_[pos])<len(path):
+                        paths_[pos]=reverse(path)
+                else:
+                        paths_[pos]=reverse(path)
+
+    for w1 in range(1,len(cs)):
+        if not impossible.test_pred(cs[w1],dpreds,None):
+           continue
+        for w2 in range(1,len(cs)):
+            if not impossible.test_arg(cs[w2],None):
+                continue
+            if w2 == w1:
+                continue
+            if paths_.has_key((w1,w2)):
+                for typ,inf in info:
+                    p = normalize_entry(create_path(cs,paths_[(w1,w2)],inf))
+                    bs.addPred(name,(str(w1),str(w2),p))
+                    sig.addType(typ,p)
+                    if p.find("SBJ")>-1 or p.find("SUB")>-1:
+                       bs.addPred(name2,(str(w1),str(w2)))
+
+            else:
+                new_path=[i for i in range(1000)]
+                for mid in range(len(cs)):
+                    if mid==w1:
+                        continue
+                    if mid==w2:
+                        continue
+                    tmp=[]
+                    if w1 > mid and w2 > mid and paths_.has_key((mid,w1)) and paths_.has_key((mid,w2)):
+                                tmp=paths_[(mid,w1)]+["&"]+paths_[(mid,w2)][2:]
+                    if w1 < mid and w2 > mid and paths_.has_key((w1,mid)) and paths_.has_key((mid,w2)):
+                                tmp=paths_[(w1,mid)]+["&"]+paths_[(mid,w2)][2:]
+                    if w1 > mid and w2 < mid and paths_.has_key((mid,w1)) and paths_.has_key((w2,mid)):
+                                tmp=paths_[(mid,w1)]+["@"]+paths_[(w2,mid)][2:]
+                    if w1 < mid and w2 < mid and paths_.has_key((w1,mid)) and paths_.has_key((w2,mid)):
+                                tmp=paths_[(w1,mid)]+["@"]+paths_[(w2,mid)][2:]
+                    if len(tmp)>1 and len(tmp) < len(new_path):
+                       new_path=tmp
+                if len(new_path)!=1000:
+                    #print "*",w1,w2,new_path
+                    for typ,inf in info:
+                        p = normalize_entry(create_path(cs,new_path,inf))
+                        bs.addPred(name,(str(w1),str(w2),p))
+                        sig.addType(typ,p)
+                        
+                        if p.find("SBJ")>-1 or p.find("SUB")>-1:
+                           bs.addPred(name2,(str(w1),str(w2)))
+                else:
+                    print "EEEEEEEEE"
+
+#    for w1 in range(1,len(cs)):
+#        for w2 in range(w1+1,len(cs)):
+
+                
 def cpos(sig,cs,bs,args):
     name,type = args
     sig.addDef(name,type)
@@ -558,9 +732,6 @@ def frame_lemma2(sig,cs,bs,args):
     preds=args[2]
     sig.addDef(name_label,type_label)
     sig.addDef(name_pred,type_pred)
-    for ix,sense in preds:
+    for ix in preds:
         bs.addPred(name_pred,(ix,))
-        bs.addPred(name_label,(ix,sense))
-        val = normalize_entry(sense)
-        sig.addType(type_label[1],val)
 

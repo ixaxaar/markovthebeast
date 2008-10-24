@@ -164,6 +164,63 @@ F1 scores
               Global    : 0.821,0.826,0.828,0.829,0.829
                 role    : 0.721,0.734,0.738,0.740,0.742
           isArgument    : 0.893,0.893,0.895,0.895,0.895
+This gives a better result than the rerun because, in this model the following formulae is missing:
+//factor [0]: for Int a, Int p if word(a,_) & word(p,_) & possiblePredicate(p) & possibleArgument(a): hasLabel(p,a) => |Role r: role(p,a,r)| >=1;
+
++ Rerun previous experiment using the latest version of the formulae.
+bin/results.py results/devel_propbank.open.100608_223017.log
+F1 scores
+            hasLabel    : 0.855,0.857,0.858,0.858,0.857
+              Global    : 0.811,0.815,0.818,0.819,0.818
+                role    : 0.709,0.721,0.726,0.728,0.727
+          isArgument    : 0.876,0.877,0.878,0.878,0.878
+
++ EVAL(5)
+bin/results.py results/devel_propbank.open.100608_22301.test.log 
+F1 scores
+            hasLabel    : 0.867,0.822
+              Global    : 0.836,0.767
+                role    : 0.757,0.640
+          isArgument    : 0.891,0.850
+
+
+
++ Fixing error on script (it was training with s2 files)
+bin/results.py results/devel_propbank.open.100708_175118.log
+F1 scores
+            hasLabel    : 0.858,0.859,0.858,0.859,0.859
+              Global    : 0.822,0.827,0.829,0.830,0.831
+                role    : 0.723,0.735,0.741,0.744,0.745
+          isArgument    : 0.894,0.895,0.894,0.896,0.896
+
+EVAL(5)
+bin/results.py results/devel_propbank.open.100708_175118.test.log
+F1 scores
+            hasLabel    : 0.875,0.847
+              Global    : 0.849,0.799
+                role    : 0.771,0.674
+          isArgument    : 0.907,0.886
+
+FINAL EVAL
+WSJ
+ SEMANTIC SCORES: 
+  Labeled precision:          (10593 + 5260) / (13227 + 5260) * 100 = 85.75 %
+  Labeled recall:             (10593 + 5260) / (14269 + 5260) * 100 = 81.18 %
+  Labeled F1:                 83.40 
+  Unlabeled precision:        (11945 + 5260) / (13227 + 5260) * 100 = 93.07 %
+  Unlabeled recall:           (11945 + 5260) / (14269 + 5260) * 100 = 88.10 %
+  Unlabeled F1:               90.51 
+
+BROWN
+  SEMANTIC SCORES: 
+  Labeled precision:          (1409 + 804) / (2004 + 805) * 100 = 78.78 %
+  Labeled recall:             (1409 + 804) / (2210 + 804) * 100 = 73.42 %
+  Labeled F1:                 76.01 
+  Unlabeled precision:        (1763 + 804) / (2004 + 805) * 100 = 91.38 %
+  Unlabeled recall:           (1763 + 804) / (2210 + 804) * 100 = 85.17 %
+  Unlabeled F1:               88.17 
+
+
 
 + We change the training (4 epochs per iter, one iter). The result:
 bin/results.py results/devel_propbank.open.092508_013243.log
@@ -210,7 +267,124 @@ F1 scores
             hasLabel    : 0.854,0.855,0.853,0.852,0.850
           frameLabel    : 0.760,0.754,0.754,0.746,0.747
 
+EVAL(5)
+bin/results.py results/devel_propbank.open.100108_125036.test.log
+F1 scores
+          isArgument    : 0.892
+              Global    : 0.851
+                role    : 0.760
+         isPredicate    : 0.952
+            hasLabel    : 0.862
+          frameLabel    : 0.867
 
+
++ Fixing the global rule
+bin/results.py results/devel_propbank.open.100108_185801.log
+F1 scores
+          isArgument    : 0.878,0.879,0.880,0.880,0.880
+              Global    : 0.829,0.833,0.836,0.837,0.837
+                role    : 0.710,0.722,0.730,0.733,0.734
+         isPredicate    : 0.944,0.945,0.945,0.945,0.944
+            hasLabel    : 0.850,0.851,0.853,0.854,0.852
+          frameLabel    : 0.854,0.859,0.858,0.857,0.858
+
++ BASELINE(EVAL(5))
+bin/results.py results/devel_propbank.open.100108_185801.test.log
+F1 scores
+          isArgument    : 0.891,0.858
+              Global    : 0.851,0.784
+                role    : 0.760,0.645
+         isPredicate    : 0.953,0.915
+            hasLabel    : 0.862,0.820
+          frameLabel    : 0.866,0.752
+
+
+FINAL_EVAL
+  WSJ
+    SEMANTIC SCORES: 
+    Labeled precision:          (10381 + 4496) / (13061 + 5121) * 100 = 81.82 %
+    Labeled recall:             (10381 + 4496) / (14269 + 5260) * 100 = 76.18 %
+    Labeled F1:                 78.90 
+    Unlabeled precision:        (11598 + 4945) / (13061 + 5121) * 100 = 90.99 %
+    Unlabeled recall:           (11598 + 4945) / (14269 + 5260) * 100 = 84.71 %
+    Unlabeled F1:               87.74 
+
+Brown
+    SEMANTIC SCORES: 
+    Labeled precision:          (1357 + 603) / (2033 + 800) * 100 = 69.18 %
+    Labeled recall:             (1357 + 603) / (2210 + 804) * 100 = 65.03 %
+    Labeled F1:                 67.04 
+    Unlabeled precision:        (1694 + 733) / (2033 + 800) * 100 = 85.67 %
+    Unlabeled recall:           (1694 + 733) / (2210 + 804) * 100 = 80.52 %
+    Unlabeled F1:               83.02 
+
++ Taking out isPredicate(p) => exists a. hasLabel(p,a)
+  Taking out isArgument(a)  => exists p. hasLabel(p,a)
+
+bin/results.py results/devel_propbank.open.100908_141042.log
+F1 scores
+          isArgument    : 0.895,0.896,0.895,0.894,0.894
+              Global    : 0.840,0.845,0.845,0.847,0.847
+                role    : 0.706,0.720,0.722,0.726,0.728
+         isPredicate    : 0.960,0.959,0.959,0.959,0.958
+            hasLabel    : 0.869,0.872,0.872,0.871,0.871
+          frameLabel    : 0.867,0.864,0.865,0.871,0.872
+
++ EVAL(5)
+bin/results.py results/devel_propbank.open.100908_141042.test.log
+F1 scores
+          isArgument    : 0.891,0.855
+              Global    : 0.852,0.789
+                role    : 0.763,0.654
+         isPredicate    : 0.950,0.913
+            hasLabel    : 0.865,0.829
+          frameLabel    : 0.866,0.760
+
+Final eval
+WSJ
+  SEMANTIC SCORES: 
+  Labeled precision:          (10353 + 4484) / (12864 + 5099) * 100 = 82.60 %
+  Labeled recall:             (10353 + 4484) / (14269 + 5260) * 100 = 75.97 %
+  Labeled F1:                 79.15 
+  Unlabeled precision:        (11555 + 4921) / (12864 + 5099) * 100 = 91.72 %
+  Unlabeled recall:           (11555 + 4921) / (14269 + 5260) * 100 = 84.37 %
+  Unlabeled F1:               87.89 
+Brown
+  SEMANTIC SCORES: 
+  Labeled precision:          (1365 + 603) / (1998 + 783) * 100 = 70.77 %
+  Labeled recall:             (1365 + 603) / (2210 + 804) * 100 = 65.30 %
+  Labeled F1:                 67.92 
+  Unlabeled precision:        (1698 + 724) / (1998 + 783) * 100 = 87.09 %
+  Unlabeled recall:           (1698 + 724) / (2210 + 804) * 100 = 80.36 %
+  Unlabeled F1:               83.59 
+
+
++ Taking out isPredicate(p) => exists a. hasLabel(p,a)
+bin/results.py results/devel_propbank.open.101508_142150.log
+F1 scores
+          isArgument    : 0.879,0.880,0.880,0.880,0.879
+              Global    : 0.830,0.835,0.836,0.836,0.836
+                role    : 0.709,0.722,0.727,0.729,0.732
+         isPredicate    : 0.948,0.950,0.949,0.949,0.948
+            hasLabel    : 0.851,0.853,0.852,0.851,0.851
+          frameLabel    : 0.858,0.861,0.860,0.861,0.860
+
++ EVAL(5)
+bin/results.py results/devel_propbank.open.101508_142150.test.log
+F1 scores
+          isArgument    : 0.892,0.861
+              Global    : 0.852,0.787
+                role    : 0.759,0.650
+         isPredicate    : 0.958,0.915
+            hasLabel    : 0.863,0.825
+          frameLabel    : 0.871,0.749
+
+
+
+
+
+GOLD dependecies
+================
 + Using gold dependencies, no predicate identification
 bin/results.py results/devel_propbank.open.092808_230928.log
 F1 scores
@@ -223,13 +397,12 @@ F1 scores
 bin/results.py results/devel_propbank.open.092808_230928.test.log
 F1 scores
             hasLabel    : 0.957
-
               Global    : 0.931
                 role    : 0.866
           isArgument    : 0.972
 
 
-+ Using gold dependencies, with predicate identification
++ Using gold dependencies, with predicate identification (Upper boundery)
 bin/results.py results/devel_propbank.open.092908_193840.log
 F1 scores
           isArgument    : 0.955,0.956,0.957,0.957,0.958
@@ -239,6 +412,84 @@ F1 scores
             hasLabel    : 0.934,0.936,0.937,0.937,0.938
           frameLabel    : 0.803,0.824,0.821,0.816,0.818
 ERROR: it's necessary to recreate the corpus without the possible_ON option :(
+
+bin/results.py results/devel_propbank.open.101008_175346.log
+F1 scores
+          isArgument    : 0.944,0.946,0.945,0.945,0.945
+              Global    : 0.895,0.900,0.901,0.902,0.902
+                role    : 0.796,0.805,0.811,0.812,0.813
+         isPredicate    : 0.961,0.962,0.962,0.962,0.962
+            hasLabel    : 0.935,0.937,0.937,0.937,0.937
+          frameLabel    : 0.873,0.880,0.879,0.883,0.882
+
+EVAL (5)
+bin/results.py results/devel_propbank.open.101008_175346.test.log
+F1 scores
+          isArgument    : 0.956,0.919
+              Global    : 0.916,0.851
+                role    : 0.842,0.739
+         isPredicate    : 0.971,0.931
+            hasLabel    : 0.944,0.908
+          frameLabel    : 0.888,0.761
+
+Final eval
+ WSJ
+ SEMANTIC SCORES: 
+  Labeled precision:          (11730 + 4674) / (13603 + 5270) * 100 = 86.92 %
+  Labeled recall:             (11730 + 4674) / (14269 + 5260) * 100 = 84.00 %
+  Labeled F1:                 85.43 
+  Unlabeled precision:        (12958 + 5110) / (13603 + 5270) * 100 = 95.73 %
+  Unlabeled recall:           (12958 + 5110) / (14269 + 5260) * 100 = 92.52 %
+  Unlabeled F1:               94.10 
+
+ Brown
+ SEMANTIC SCORES: 
+  Labeled precision:          (1601 + 621) / (2156 + 828) * 100 = 74.46 %
+  Labeled recall:             (1601 + 621) / (2210 + 804) * 100 = 73.72 %
+  Labeled F1:                 74.09 
+  Unlabeled precision:        (1931 + 759) / (2156 + 828) * 100 = 90.15 %
+  Unlabeled recall:           (1931 + 759) / (2210 + 804) * 100 = 89.25 %
+  Unlabeled F1:               89.70 
+
++ Fixing error (It wasn't the full model)
+bin/results.py results/devel_propbank.open.101308_133546.log
+F1 scores
+          isArgument    : 0.937,0.939,0.939,0.939,0.939
+              Global    : 0.890,0.895,0.896,0.896,0.896
+                role    : 0.800,0.811,0.814,0.816,0.816
+         isPredicate    : 0.952,0.953,0.953,0.953,0.953
+            hasLabel    : 0.926,0.928,0.929,0.929,0.929
+          frameLabel    : 0.858,0.868,0.868,0.868,0.868
+
++ EVAL(5)
+bin/results.py results/devel_propbank.open.101308_133546.test.log
+F1 scores
+          isArgument    : 0.946,0.919
+              Global    : 0.909,0.848
+                role    : 0.847,0.740
+         isPredicate    : 0.959,0.921
+            hasLabel    : 0.934,0.902
+          frameLabel    : 0.873,0.755
+
+FINAL eval
+ WSJ
+ SEMANTIC SCORES: 
+  Labeled precision:          (11718 + 4545) / (13391 + 5153) * 100 = 87.70 %
+  Labeled recall:             (11718 + 4545) / (14269 + 5260) * 100 = 83.28 %
+  Labeled F1:                 85.43 
+  Unlabeled precision:        (12722 + 4993) / (13391 + 5153) * 100 = 95.53 %
+  Unlabeled recall:           (12722 + 4993) / (14269 + 5260) * 100 = 90.71 %
+  Unlabeled F1:               93.06 
+
+
+ Brown
+  SEMANTIC SCORES: 
+  Labeled precision:          (1591 + 609) / (2123 + 811) * 100 = 74.98 %
+  Labeled recall:             (1591 + 609) / (2210 + 804) * 100 = 72.99 %
+  Labeled F1:                 73.97 
+  Unlabeled precision:        (1903 + 743) / (2123 + 811) * 100 = 90.18 %
+  Unlabeled recall:           (1903 + 743) / (2210 + 804) * 100 = 87.79 %
+  Unlabeled F1:               88.97 
 
 
 PIPELINE experiments
@@ -267,13 +518,65 @@ F1 scores
 
 Given the previous results we only do the isPredicate in this stage
 
-+ Only isPredicate
-bin/results.py results/devel_propbank.open.093008_205921.log
++ Only isPredicate (stage 1)
+bin/resulfts.py results/devel_propbank.open.093008_205921.log
 F1 scores
          isPredicate    : 0.959,0.959,0.958,0.959,0.960
               Global    : 0.959,0.959,0.958,0.959,0.960
 
+EVAL(5)
+bin/results.py results/devel_propbank.open.093008_205921.log
+F1 scores
+         isPredicate    : 0.966,0.920
+              Global    : 0.966,0.920
 
++ isArgument, hasLabel and role (stage 2)
+bin/results.py results/devel_propbank.open.100208_173201.log
+F1 scores
+            hasLabel    : 0.851,0.854,0.854,0.853,0.853
+              Global    : 0.808,0.814,0.815,0.816,0.817
+                role    : 0.707,0.721,0.724,0.725,0.728
+          isArgument    : 0.875,0.876,0.877,0.877,0.876
+
+EVAL(5)
+bin/results.py results/devel_propbank.open.100208_173201.test.log
+F1 scores
+            hasLabel    : 0.863,0.817
+              Global    : 0.834,0.766
+                role    : 0.756,0.645
+          isArgument    : 0.887,0.846
+
++ frameLabel (stage 3)
+bin/results.py results/devel_propbank.open.100308_155627.log
+F1 scores
+            Global    : 0.836,0.845,0.844,0.842,0.840
+        frameLabel    : 0.836,0.845,0.844,0.842,0.840
+EVAL(2)
+bin/results.py results/devel_propbank.open.100308_155627.test.log
+F1 scores
+              Global    : 0.857,0.687
+          frameLabel    : 0.857,0.687
+
+
+FINAL_EVAL
+
+ WSJ
+ SEMANTIC SCORES: 
+  Labeled precision:          (10248 + 4532) / (12826 + 5320) * 100 = 81.45 %
+  Labeled recall:             (10248 + 4532) / (14269 + 5260) * 100 = 75.68 %
+  Labeled F1:                 78.46 
+  Unlabeled precision:        (11455 + 5109) / (12826 + 5320) * 100 = 91.28 %
+  Unlabeled recall:           (11455 + 5109) / (14269 + 5260) * 100 = 84.82 %
+  Unlabeled F1:               87.93 
+
+ Brown
+ SEMANTIC SCORES: 
+  Labeled precision:          (1330 + 565) / (1947 + 842) * 100 = 67.95 %
+  Labeled recall:             (1330 + 565) / (2210 + 804) * 100 = 62.87 %
+  Labeled F1:                 65.31 
+  Unlabeled precision:        (1639 + 757) / (1947 + 842) * 100 = 85.91 %
+  Unlabeled recall:           (1639 + 757) / (2210 + 804) * 100 = 79.50 %
+  Unlabeled F1:               82.58 
 
 
 
@@ -370,6 +673,51 @@ Output::
   Unlabeled attachment score: 49125 / 56618 * 100 = 86.77 %
   Label accuracy score:       43352 / 56618 * 100 = 76.57 %
 
+
+Switching to Johansson 2008 features
+====================================
+
+Role features
+-------------
+
+Charniak parses
+---------------
+::
+    bin/results.py results/devel_propbank.open.102108_150453.log
+    F1 scores
+              Global    : 0.709,0.727,0.730,0.732,0.734
+                role    : 0.709,0.727,0.730,0.732,0.734
+
+After fixing some rules
+::
+    bin/results.py results/devel_propbank.open.102308_235927.log
+    F1 scores
+              Global    : 0.718,0.734,0.738,0.742,0.741
+                role    : 0.718,0.734,0.738,0.742,0.741
+
+Gold dependencies
+-----------------
+::
+    bin/results.py results/devel_propbank.open.102208_131639.log
+    F1 scores
+              Global    : 0.785,0.800,0.804,0.807,0.809
+                role    : 0.785,0.800,0.804,0.807,0.809
+
+Fixing some rules
+::
+    bin/results.py results/devel_propbank.open.102308_181043.log
+    F1 scores
+              Global    : 0.796,0.807,0.814,0.819,0.818
+                role    : 0.796,0.807,0.814,0.819,0.818
+
+
+
+
+
+Support Chains
+==============
+
+Support indicates when a Nominal predicate has one argument which doesn't belong to the NP to which the nominal predicate belongs, this is a long distance dependency. Some of the phenomena which triggers this syn/sem phenomena depends on the presence of control/raising verbs, this verb is called support. Conll08 labels the support chains, which is the sequence of words and dependencies which go from the support verb to the nominal predicate. This is indicated by a "SU" in the proposional verb and in the column to for the nominal predicate with the long distance argument. The path of between them is the support chain.
 
 
 

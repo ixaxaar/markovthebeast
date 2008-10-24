@@ -8,7 +8,11 @@
 
 import re
 
+
 re_space=re.compile(r'\s+')
+re_space2=re.compile(r'^\s+')
+re_quota=re.compile(r'"')
+re_quota2=re.compile(r'^"')
 
 
 # Coll08 corpus class
@@ -22,9 +26,12 @@ class Conll08Corpus:
 
     def __init__(self,filename=None,ofilename=None,efilename=None,hyphens=True,gold_deps=False):
         """Initilize the handler
-            filename is the name of the file where the corpus is located
+            filename  is the name of the file where the corpus is located
             ofilename is the name of the file where the extra information is\
-                    available"""
+                    available
+            efilename mst extra file (conll06 format)
+            hyphens   eliminate hyphens
+            gold_deps use gold deps for the mst predicates"""
         # It doesn't saves the corpus in memory anymore
         #self.sntcs=[ ]
         self.ix=None
@@ -149,7 +156,8 @@ class Conll08Sntc:
                             flag_change=True
                             inside=True
                         if inside and  w['form']=="_" and w["gpos"]=="_":
-                            self.sntc[i-size]['lemma']+=w['lemma']
+                            if not w['lemma'].startswith('_'):
+                                self.sntc[i-size]['lemma']+=w['lemma']
                             size+=1
                         elif inside:
                             inside=False
@@ -191,7 +199,12 @@ class Conll08Sntc:
             for line in lines:
                 self.sntc.append(Conll08Wrd(line))
 
+    def __getitem__(self,id):
+        if id==0:
+            id=len(self.sntc)
+        return self.sntc[id-1]
 
+        return self.sntc.__iter__();
 
     def __len__(self):
         return len(self.sntc)
@@ -333,7 +346,7 @@ class Conll08Sntc:
 
         for i in range(0,len(lines)):
             try:
-                pred=dpreds[str(i)]
+                pred=dpreds[str(i+1)]
             except KeyError:
                 pred="_"
             lines[i]+="\t"+pred
@@ -359,7 +372,6 @@ class Conll08Sntc:
     def replace(self,label,chnk):
         for i in range(len(self.sntc)):
             self.sntc[i].replace(label,chnk[i])
-
 
 
         
@@ -393,8 +405,13 @@ class Conll08Wrd:
             else:
                 ol=re_space.split(oline)
                 self.w+=ol[:3]+self.w[8:10]
-
-
+        else:
+            self.w.append('_')
+            self.w.append('_')
+            self.w.append('_')
+            self.w.append('_')
+            self.w.append('_')
+            
     def __getitem__(self,x):
         return self.w[Conll08Wrd.omap[x]]
 
@@ -553,6 +570,30 @@ class TheBeastCorpus:
             raise StopIteration
 
 
+def getAtoms(line):
+    atoms=[]
+    
+    bits=re_space.split(line)
+    state=0
+
+    for bit in bits:
+        if state==0:
+            if bit[0]=='"':
+                state=1
+            atoms.append(bit)
+        else:
+            if bit[-1]=='"':
+                state=0
+            atoms[-1]+=" "+bit
+
+    return tuple(atoms)
+        
+            
+        
+        
+
+
+
 class TheBeastIntc:
     def __init__(self,sig=None,par=None,lines=None):
         self.intc={}
@@ -572,8 +613,11 @@ class TheBeastIntc:
                 pred=line[1:]
                 self.intc[pred]=[]
             else:
-                vals=re_space.split(line)
+                vals=getAtoms(line)
                 self.addPred(pred,vals)
+
+    def replace(self,pred,vals):
+        self.intc[pred]=vals
 
 
     def addPred(self,pred,val):

@@ -8,7 +8,7 @@ predicate rargpair: Role x Role;
 predicate allargs: Role;
 
 // MST predicates
-observed:  word, slemma, gpos, sform, ppos,cpos,sppos, lemma, mst_path_length, 
+observed: isPredicate,  word, slemma, gpos, sform, ppos,cpos,sppos, lemma, mst_path_length, 
 mst_path_frame, 
 mst_path_frame_unlabeled,
   mst_path,mst_frame,mst_link,mst_dep, mst_path_unlabeled, mst_frame_unlabeled, voice, mst_path_directed, palmer,
@@ -33,13 +33,13 @@ index: mst_path_directed(*,*,_);
 include "model1-role.pml";
 include "model1-hasLabel.pml";
 include "model1-isArgument.pml";
+//include "model1-frameLabel.pml";
 
 
 
 
 //include "model1-dep.pml";
 //include "model1-isPredicate.pml";
-//include "model1-frameLabel.pml";
 //include "model1-both.pml";
 /*
 weight w_possiblePred: Double;

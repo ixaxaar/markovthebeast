@@ -33,18 +33,31 @@ Usage: conll082beast.py [options] conll_corpus
    --output_mst            Use mst deps for output
 
 
+   FEATURES
+   -f|--features   type   Specify the features to extract
+                          original  : the features for Share Task
+                          mst_based : the features for Share Task (but it
+                          doens't include malt deps) [Default]
+                          johanson  : the features from Johanson and Nugues 2008
+                             (shared task)
+
    FORMATING
    -S|--strict            Use strict types on generarion of types [Off]
    -O|--open       File   Uses open format
    -M|--mst_label  File   Uses the MST labelling (conll06 format)
    -H|--no_hyphens        It compress the hyphens into one token (as in 2005 format)
    --possible_ON          possiblePredicate based on actual predicate
-   --possible      File   possiblePredicate based on beast file 
+   --preds_list    File   preds list to replace base on file (stage 2 of pipeline)
 
+   
    MODE
    -N|--none              Generate a NONE role for each token pair without role label
    -G|--gold_deps         Use gold dependencies for mst dependecies
    -T|--test              Testing mode
+   --s1                   Use stage 1
+   --s2                   Use stage 2
+   --s3                   Use stage 3
+
 
    UTTERANCES
    -b|--begin  num        Starts printing from num line [0]
@@ -59,9 +72,9 @@ Usage: conll082beast.py [options] conll_corpus
 
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:],"vhrGSHLTO:s:o:d:b:t:M:5:6:7:8:",["verbose","splits=",
-        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05=","conll06=","conll08=","conll07=","possible_ON","possible=",
-        "mst_label=","no_hyphens","output_mst","gold_deps"])
+    opts, args = getopt.getopt(sys.argv[1:],"vhrGSHLTO:s:o:d:b:t:M:5:6:7:8:f:",["verbose","splits=",
+        "output=","def=","strict","open=","begin=","total=","randomize","help","test","conll05=","conll06=","conll08=","conll07=","possible_ON","possible=","preds_list=","s1","s2","s3",
+        "mst_label=","no_hyphens","output_mst","gold_deps","features="])
 except getopt.GetoptError:           
     usage()                          
     sys.exit(2)                     
@@ -97,7 +110,11 @@ no_hyphens=False
 slashes=False
 output_mst=False
 gold_deps=False
-preds_file=None
+stage=None
+preds_list=None
+# Original set Shared task
+features=1
+
 
 for opt,val in opts:
     if opt in ("-h","--help"):
@@ -105,6 +122,13 @@ for opt,val in opts:
         sys.exit(0)
     elif opt in ("-s","--splits"):
         nsplits=int(val)
+    elif opt in ("-f","--features"):
+        if val == "original":
+            features=0
+        elif val == "mst_based":
+            features=1
+        elif val == "johanson":
+            features=2
     elif opt in ("-o","--output"):
         output=val;
     elif opt in ("-d","--def"):
@@ -127,9 +151,12 @@ for opt,val in opts:
         randomize=True
     elif opt in ("--possible_ON",):
         impossible.switch_only()
-    elif opt in ("--possible",):
-        preds_file=val
-        impossible.use_preds()
+# Depreciated: use pred_list option
+#    elif opt in ("--possible",):
+#        preds_file=val
+#        impossible.use_preds()
+    elif opt in ("--preds_list",):
+        preds_list=val
     elif opt in ("-n","--none"):
         none="ALL"
     elif opt in ("-O","--open"):
@@ -140,14 +167,19 @@ for opt,val in opts:
         verbose=True
     elif opt in ("-T","--test"):
         test=True
-    elif opt in ("-H","--no_hyphens"):
+    elif opt in ("-H","--no_hyphens",):
         no_hyphens=True
-    elif opt in ("-G","--gold_deps"):
+    elif opt in ("-G","--gold_deps",):
         gold_deps=True
-    elif opt in ("--output_mst"):
+    elif opt in ("--output_mst",):
         output_mst=True
-
-
+    elif opt in ("--s1",):
+        labels_list=[">isPredicate"]
+        stage="s1"
+    elif opt in ("--s2",):
+        stage="s2"
+        labels_list=[">isPredicate",">isArgument",">hasLabel",">role",">possiblePredicate"]
+        
 
 preds=[]
 
@@ -165,16 +197,8 @@ preds.append((single_preds,[("word",["Int","Word"],"form"),
                             ("sppos",["Int","Sppos"],"s_ppos")
                             ]))
 # Corsed pos tag (this is only the first letter)
-preds.append((cpos,("cpos",["Int","Cpos"])))
 
-# Dependency predicate 
-# preds.append((dependency,("dep",["Int","Int","Dependency"])))
-# It extracts: 
-#   head
-#   dep_rel
-#   link
-#if not test:
-#    preds.append((dependency_link,("dep",["Int","Int","Dependency"],"head","dep_rel","link")))
+preds.append((cpos,("cpos",["Int","Cpos"])))
 
 # SRL predicates
 # Extracts roles
@@ -187,11 +211,7 @@ if not test:
 
 # Extracts frames
 #preds.append((frame,("frame",["Int","Frame"])))
-if preds_file:
-    preds.append((frame_lemma2,[("isPredicate",["Int"]),
-                           ("frameLabel",["Int","FrameLabel"])]))
-else:
-    preds.append((frame_lemma,[("isPredicate",["Int"]),
+preds.append((frame_lemma,[("isPredicate",["Int"]),
                            ("frameLabel",["Int","FrameLabel"])]))
 
 
@@ -201,27 +221,44 @@ preds.append((possiblePredicate,("possiblePredicate",["Int"],[])))
 preds.append((possibleArgument,("possibleArgument",["Int"])))
 
 # Preidcates used inf the open format
-#if not open_fmt_file is None:
+if features==0 and not open_fmt_file is None:
     # Simple predicates for dependency parses
-    #preds.append((dependency_link,("m_dep",["Int","Int","MDependency"],"malt_head","malt_dep_rel","m_link")))
+    preds.append((dependency_link,("m_dep",["Int","Int","MDependency"],"malt_head","malt_dep_rel","m_link")))
 
     # Path features for depency predicates
-    #preds.append((depfeatures,("m_path",["Int","Int","MPath"],"malt_head","malt_dep_rel","m_frame",["Int","MFrame"])))
+    preds.append((depfeatures,("m_path",["Int","Int","MPath"],"malt_head","malt_dep_rel","m_frame",["Int","MFrame"])))
 
     # Name entity simple predicates
-    #preds.append((ne,("ne_shared",["Int","NEshared"],"ne_03")))
-    #preds.append((ne,("ne_bbn",["Int","NEbbn"],"ne_bbn")))
+    preds.append((ne,("ne_shared",["Int","NEshared"],"ne_03")))
+    preds.append((ne,("ne_bbn",["Int","NEbbn"],"ne_bbn")))
 
     # WNet predicates
-    #preds.append((wnet,("wnet",["Int","WNet"],"wnet")))
+    preds.append((wnet,("wnet",["Int","WNet"],"wnet")))
                             
 # Predicates for mst labellings
-if not mst_files is None:
+if (features==1 or features==0) and not mst_files is None:
     preds.append((dependency_link,("mst_dep",["Int","Int","MDependency"],"mst_head","mst_dep_rel","mst_link")))
 
     # Path features for depency predicates
     preds.append((depfeatures,("mst_path",["Int","Int","MPath"],"mst_head","mst_dep_rel",
                                "mst_frame",["Int","MFrame"])))
+
+# Predicates from Johanson (2008 Shared task)
+if features==2 and not mst_files is None:
+    # Mst info (including: function feature)
+    preds.append((dependency_link,("mst_dep",["Int","Int","MDependency"],"mst_head","mst_dep_rel","mst_link")))
+
+    # Path features for depency predicates
+    preds.append((j08_l_and_r,("leftToken",["Int","Int"],
+                               "rightToken",["Int","Int"],"mst_")))
+
+    # Relative paths
+    preds.append((j08_relpath,("relPath",["Int","Int","RelPath"],"mst_",[("RelPath","mst_dep_rel")],
+                               "verbChainHasSubj",["Int","Int"])))
+
+
+
+
 
 # -------------------------------------------------------------
 # Main section
@@ -234,23 +271,32 @@ sntcs=range(corpus.size())
 len_sig=3
 len_tries=5
 
-
 preds_possible=[]
-if preds_file:
+preds_replace=[]
+
+
+if preds_list:
     state=0
-    for line in open(preds_file):
+    ll=""
+    for line in open(preds_list):
         line=line.strip()
         if state==0:
             if line.startswith('>>'):
-                preds_possible.append([])
-            elif line.startswith('>frameLabel'):
+                preds_replace.append(dict([(ele[1:],[]) for ele in labels_list]))
+                ll=""
+            elif line in labels_list:
+                ll=line[1:]       
                 state=1
         elif state==1:
             if not line.startswith('>'):
-                bits=line.split()
-                preds_possible[-1].append((bits[0],bits[1][1:-1]))
+                try:
+                    preds_replace[-1][ll].append(tuple(line.split()))
+                except KeyError:
+                    preds_replace[-1][ll]=[tuple(line.split())]
             else:
                 state=0
+                if len(preds_replace) == 0:
+                    preds_replace=empty_preds
             
 mst_snts=[]
 if mst_files != None:
@@ -470,19 +516,14 @@ for split,outputn,deffn in splits:
         # A beast sentece
         print >> output, ">>" 
 
-        
-
         bs=TheBeastIntc(bsig)
-        for f,args in  preds:
-            if f==possiblePredicate and not preds_file is None:
-                args=(args[0],args[1],dict([(p,1) for (p,s) in preds_possible[id-1]]))
-                f(bsig,cs,bs,args)
-            elif f==frame_lemma2 and not preds_file is None:
-                args.append(preds_possible[id-1])
-                f(bsig,cs,bs,args)
-            else:
-                f(bsig,cs,bs,args)
-    
+        for f,args in  preds: 
+            f(bsig,cs,bs,args)
+
+        if preds_list:
+            for ll,vals in preds_replace[id-1].iteritems():
+                bs.replace(ll,vals) 
+   
         print >> output, bs
 
         if not conll05 is None:

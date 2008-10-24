@@ -7,7 +7,7 @@ USAGE="
     -a      No ask for confirmation\n
     -help   Print this"
 
-opts=" -v --possible_ON -H -L "
+opts=" -v --possible_ON -H "
 
 if [ $# -gt 1 ]
 then
