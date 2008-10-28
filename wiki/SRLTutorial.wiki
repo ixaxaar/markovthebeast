@@ -1,5 +1,9 @@
 #summary Tutorial using Semantic Role Labelling
 
+{{{
+<wiki:toc/>
+}}}
+
 = Introduction =
 
 This page will give a brief tutorial that covers some of thebeast's features. As task we look at a vanilla version of Semantic Role Labelling (SRL): finding out which are arguments of a verb and what roles do they play. For example, in
