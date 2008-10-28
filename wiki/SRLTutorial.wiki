@@ -1,5 +1,6 @@
 #summary Tutorial using Semantic Role Labelling
 
+= Contents =
 <wiki:toc/>
 
 = Introduction =
