@@ -247,18 +247,24 @@ if (features==1 or features==0) and not mst_files is None:
 if features==2 and not mst_files is None:
     # Mst info (including: function feature)
     preds.append((dependency_link,("mst_dep",["Int","Int","MDependency"],"mst_head","mst_dep_rel","mst_link")))
+    preds.append((j08_childSets,([("childDepSet",["Int","DepSet"],["mst_dep_rel"]),
+                                  ("childWordSet",["Int","WordSet"],["form"]),
+                                  ("childWordDepSet",["Int","WordDepSet"],["mst_dep_rel","form"]),
+                                  ("childPosSet",["Int","PosSet"],["ppos"]),
+                                  ("childPosDepSet",["Int","PosDepSet"],["mst_dep_rel","ppos"])
+                             ],"mst_")))
 
     # Path features for depency predicates
     preds.append((j08_l_and_r,("leftToken",["Int","Int"],
                                "rightToken",["Int","Int"],"mst_")))
 
     # Relative paths
-    preds.append((j08_relpath,("relPath",["Int","Int","RelPath"],"mst_",[("RelPath","mst_dep_rel")],
-                               "verbChainHasSubj",["Int","Int"])))
+    preds.append((j08_relpath,("relPath",["Int","Int","RelPath"],"mst_",[("RelPath","mst_")])))
 
+    preds.append((j08_verbChains,("verbChainHasSubj",["Int"],
+                                  "controllerHasObj",["Int"],"mst_")))
 
-
-
+    preds.append((j08_subCat,("depSubCat",["Int","SubCat"],"mst_")))
 
 # -------------------------------------------------------------
 # Main section

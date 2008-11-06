@@ -695,6 +695,319 @@ After fixing some rules
               Global    : 0.718,0.734,0.738,0.742,0.741
                 role    : 0.718,0.734,0.738,0.742,0.741
 
+After including the childDepSet rule (Note it's not really a set of child)
+::
+    bin/results.py results/devel_propbank.open.102408_163359.log
+    F1 scores
+              Global    : 0.715,0.730,0.734,0.739,0.740
+                role    : 0.715,0.730,0.734,0.739,0.740
+
+Fixing childDepSet to be a set (This have a bug, it wasn't generating the right corpus)
+::
+   bin/results.py results/devel_propbank.open.102508_184406.log
+   F1 scores
+              Global    : 0.718,0.734,0.738,0.742,0.741
+                role    : 0.718,0.734,0.738,0.742,0.741
+
+Adding hasLabel (removing hasSubj)
+::
+  bin/results.py results/devel_propbank.open.102608_151750.log
+  F1 scores
+            hasLabel    : 0.866,0.869,0.871,0.871,0.871
+              Global    : 0.788,0.796,0.799,0.800,0.802
+                role    : 0.712,0.725,0.730,0.731,0.734
+
+Addind old hasSubj
+::
+  bin/results.py results/devel_propbank.open.102608_220657.log
+  F1 scores
+            hasLabel    : 0.867,0.870,0.871,0.871,0.872
+              Global    : 0.790,0.796,0.799,0.800,0.801
+                role    : 0.716,0.725,0.729,0.731,0.732
+
+Fixing hasSubj to use the verb chains in role
+::
+  bin/results.py results/devel_propbank.open.102708_172010.log
+  F1 scores
+            hasLabel    : 0.867,0.871,0.871,0.872,0.873
+              Global    : 0.790,0.797,0.799,0.801,0.803
+                role    : 0.715,0.725,0.729,0.731,0.735
+   
+Adding hasSubj and controller to hasLabel
+::
+  bin/results.py results/devel_propbank.open.102808_003417.log
+  F1 scores
+            hasLabel    : 0.866,0.869,0.871,0.871,0.871
+              Global    : 0.789,0.797,0.800,0.800,0.801
+                role    : 0.713,0.727,0.731,0.731,0.732
+
+Fixing childDepSet for hasLabel, and lemma->word, and index weight of hasSub and controller with lemma of argument
+::
+  bin/results.py results/devel_propbank.open.102808_153520.log
+  F1 scores
+            hasLabel    : 0.865,0.869,0.872,0.873,0.873
+              Global    : 0.787,0.795,0.799,0.802,0.802
+                role    : 0.711,0.723,0.729,0.732,0.734
+
+Adding isArgument predicate
+::
+  bin/results.py results/devel_propbank.open.102808_213149.log
+  F1 scores
+            hasLabel    : 0.862,0.868,0.869,0.871,0.871
+              Global    : 0.816,0.824,0.826,0.829,0.830
+                role    : 0.709,0.724,0.729,0.732,0.735
+          isArgument    : 0.885,0.889,0.890,0.891,0.891
+
+Adding isPredicate [Changing two local formulae to global rules: w_r_predLemmaSense and w_r_predLemma ]
+Note: the hasLabel global are not included yet, and the weights are not contrainstraint.
+::
+  bin/results.py results/devel_propbank.open.103008_142423.log
+  F1 scores
+         isPredicate    : 0.970,0.973,0.974,0.974,0.974
+            hasLabel    : 0.861,0.864,0.865,0.867,0.867
+              Global    : 0.833,0.837,0.840,0.841,0.842
+                role    : 0.705,0.715,0.720,0.725,0.725
+          isArgument    : 0.885,0.886,0.886,0.886,0.886
+
+Making weights for global only negative
+::
+  bin/results.py results/devel_propbank.open.103008_214101.log
+  F1 scores
+         isPredicate    : 0.971,0.972,0.974,0.974,0.974
+            hasLabel    : 0.861,0.866,0.868,0.869,0.868
+              Global    : 0.832,0.838,0.841,0.843,0.842
+                role    : 0.702,0.716,0.722,0.726,0.725
+          isArgument    : 0.884,0.886,0.887,0.888,0.888
+
+having the same order the order of global
+::
+  bin/results.py results/devel_propbank.open.103108_111206.log
+  F1 scores
+         isPredicate    : 0.972,0.973,0.973,0.974,0.974
+            hasLabel    : 0.862,0.866,0.868,0.868,0.868
+              Global    : 0.831,0.838,0.840,0.841,0.842
+                role    : 0.699,0.713,0.720,0.722,0.724
+          isArgument    : 0.886,0.887,0.888,0.887,0.888
+
+Interchanging the order of global
+::
+  bin/results.py results/devel_propbank.open.103108_204143.log
+  F1 scores
+         isPredicate    : 0.972,0.973,0.973,0.974,0.974
+            hasLabel    : 0.863,0.867,0.868,0.867,0.867
+              Global    : 0.833,0.839,0.840,0.840,0.841
+                role    : 0.703,0.716,0.719,0.720,0.723
+          isArgument    : 0.885,0.888,0.888,0.888,0.888
+
+Adding global for hasLabel (order lower than role)
+::
+  Too slow
+
+Adding global for hasLabel (order greater than role)
+::
+  Too slow
+
+Adding frameLabel (No collect all)
+::
+  bin/results.py  results/devel_propbank.open.110208_033717.log
+  F1 scores
+          isArgument    : 0.776,0.777,0.781,0.782,0.781
+              Global    : 0.735,0.742,0.750,0.753,0.754
+                role    : 0.624,0.635,0.645,0.649,0.652
+         isPredicate    : 0.872,0.880,0.890,0.892,0.893
+            hasLabel    : 0.750,0.754,0.760,0.761,0.761
+          frameLabel    : 0.745,0.761,0.778,0.786,0.787
+
+Changing the global order
+::
+  bin/results.py results/devel_propbank.open.110208_220623.log
+  F1 scores
+          isArgument    : 0.779,0.778,0.781,0.778,0.777
+              Global    : 0.739,0.745,0.749,0.748,0.750
+                role    : 0.628,0.638,0.644,0.645,0.647
+         isPredicate    : 0.876,0.883,0.886,0.888,0.891
+            hasLabel    : 0.754,0.757,0.760,0.758,0.758
+          frameLabel    : 0.751,0.767,0.773,0.775,0.777
+
+Only isPredicate
+::
+  bin/results.py results/devel_propbank.open.110308_134659.log
+  F1 scores
+         isPredicate    : 0.913,0.923,0.927,0.927,0.927
+              Global    : 0.913,0.923,0.927,0.927,0.927
+
+Adding Lema 
+::
+  bin/results.py results/devel_propbank.open.110308_153911.log
+  F1 scores
+         isPredicate    : 0.912,0.920,0.926,0.927,0.927
+              Global    : 0.912,0.920,0.926,0.927,0.927
+
+
+Only framelabel
+::
+  bin/results.py results/devel_propbank.open.110308_190427.log
+  F1 scores
+              Global    : 0.814,0.820,0.821,0.821,0.821
+          frameLabel    : 0.814,0.820,0.821,0.821,0.821
+
+Only isArgument
+::
+  bin/results.py results/devel_propbank.open.110308_180333.log
+  F1 scores
+              Global    : 0.850,0.852,0.851,0.849,0.846
+          isArgument    : 0.850,0.852,0.851,0.849,0.846
+
+isPredicate and framelabel
+::
+  bin/results.py results/devel_propbank.open.110308_183806.log
+  F1 scores
+         isPredicate    : 0.911,0.923,0.925,0.926,0.929
+              Global    : 0.864,0.878,0.880,0.880,0.882
+          frameLabel    : 0.817,0.832,0.834,0.833,0.835
+    
+
+isPredicate and isArgument and frameLabel
+::
+  bin/results.py results/devel_propbank.open.110308_192404.log
+  F1 scores
+         isPredicate    : 0.900,0.913,0.920,0.926,0.928
+              Global    : 0.850,0.856,0.859,0.863,0.864
+          frameLabel    : 0.801,0.816,0.823,0.832,0.836
+          isArgument    : 0.849,0.849,0.849,0.849,0.848
+ 
+isPredicate and isArgument and framelabel and hasLabel (no links between isPredicate and isArguemnt with hasLabel)
+::
+  bin/results.py results/devel_propbank.open.110308_205802.log
+  F1 scores
+         isPredicate    : 0.905,0.915,0.922,0.927,0.928
+            hasLabel    : 0.774,0.786,0.793,0.797,0.800
+              Global    : 0.824,0.832,0.836,0.839,0.841
+          frameLabel    : 0.806,0.820,0.828,0.833,0.836
+          isArgument    : 0.852,0.852,0.851,0.851,0.851
+  
+  
+isPredicate and isArgument and framelabel and hasLabel (adding links between isPredicate and isArguemnt with hasLabel)
+::
+  bin/results.py results/devel_propbank.open.110308_214410.log
+  F1 scores
+         isPredicate    : 0.932,0.937,0.940,0.942,0.941
+            hasLabel    : 0.804,0.809,0.812,0.814,0.813
+              Global    : 0.846,0.852,0.854,0.855,0.854
+          frameLabel    : 0.828,0.840,0.843,0.845,0.846
+          isArgument    : 0.864,0.867,0.868,0.868,0.866
+
+isPredicate and isArgument and framelabel and hasLabel (global isArgument)
+::
+  bin/results.py results/devel_propbank.open.110308_224852.log
+  F1 scores
+         isPredicate    : 0.927,0.929,0.933,0.935,0.934
+            hasLabel    : 0.800,0.806,0.808,0.811,0.810
+              Global    : 0.837,0.843,0.846,0.848,0.848
+          frameLabel    : 0.780,0.795,0.802,0.810,0.813
+          isArgument    : 0.863,0.866,0.868,0.869,0.869
+
+Commenting out w_iag_predSense
+::
+  bin/results.py results/devel_propbank.open.110408_015959.log
+  F1 scores
+         isPredicate    : 0.930,0.933,0.937,0.940,0.939
+            hasLabel    : 0.803,0.808,0.811,0.813,0.813
+              Global    : 0.844,0.849,0.852,0.854,0.855
+          frameLabel    : 0.819,0.829,0.835,0.838,0.842
+          isArgument    : 0.864,0.867,0.869,0.870,0.870
+
+Adding role (no links between hasLabel and role)
+::
+  bin/results.py results/devel_propbank.open.110408_033042.log
+  F1 scores
+          isArgument    : 0.868,0.866,0.869,0.870,0.870
+              Global    : 0.799,0.805,0.810,0.812,0.814
+                role    : 0.664,0.681,0.689,0.695,0.699
+         isPredicate    : 0.931,0.933,0.937,0.939,0.940
+            hasLabel    : 0.805,0.808,0.812,0.814,0.815
+          frameLabel    : 0.823,0.833,0.834,0.837,0.837
+
+Adding links
+::
+  bin/results.py results/devel_propbank.open.110408_124931.log
+  F1 scores
+          isArgument    : 0.868,0.873,0.875,0.874,0.875
+              Global    : 0.807,0.817,0.821,0.822,0.823
+                role    : 0.675,0.691,0.697,0.702,0.702
+         isPredicate    : 0.930,0.937,0.940,0.941,0.942
+            hasLabel    : 0.834,0.842,0.845,0.846,0.846
+          frameLabel    : 0.817,0.831,0.834,0.837,0.837
+
+Adding global for role
+::
+  bin/results.py results/devel_propbank.open.110408_232451.log
+  F1 scores
+          isArgument    : 0.868,0.870,0.873,0.873,0.873
+              Global    : 0.806,0.811,0.815,0.817,0.819
+                role    : 0.671,0.681,0.690,0.692,0.695
+         isPredicate    : 0.931,0.935,0.936,0.939,0.940
+            hasLabel    : 0.833,0.836,0.841,0.840,0.843
+          frameLabel    : 0.816,0.820,0.823,0.828,0.832
+
+Adding lemma argument to global rules of role
+::
+  bin/results.py results/devel_propbank.open.110508_115710.log
+  F1 scores
+          isArgument    : 0.868,0.870,0.873,0.874,0.874
+              Global    : 0.807,0.815,0.820,0.823,0.823
+                role    : 0.675,0.692,0.700,0.704,0.704
+         isPredicate    : 0.930,0.935,0.939,0.941,0.942
+            hasLabel    : 0.834,0.840,0.844,0.846,0.846
+          frameLabel    : 0.814,0.822,0.829,0.835,0.833
+
+Evaluation
+::
+  F1 scores
+          isArgument    : 0.892,0.849
+              Global    : 0.842,0.756
+                role    : 0.738,0.592
+         isPredicate    : 0.953,0.900
+            hasLabel    : 0.859,0.799
+          frameLabel    : 0.839,0.706
+
+
+WSJ
+::
+  head -13 results/test_wsj_propbank.110508_115710.5.conll08
+  SEMANTIC SCORES: 
+  Labeled precision:          (10152 + 4385) / (14269 + 5260) * 100 = 74.44 %
+  Labeled recall:             (10152 + 4385) / (13225 + 5195) * 100 = 78.92 %
+  Labeled F1:                 76.61 
+  Unlabeled precision:        (11637 + 4983) / (14269 + 5260) * 100 = 85.10 %
+  Unlabeled recall:           (11637 + 4983) / (13225 + 5195) * 100 = 90.23 %
+  Unlabeled F1:               87.59 
+
+Brown
+::
+  head -12 results/test_brown_propbank.110508_115710.5.conll08
+  SEMANTIC SCORES: 
+  Labeled precision:          (1228 + 551) / (2210 + 804) * 100 = 59.02 %
+  Labeled recall:             (1228 + 551) / (1970 + 757) * 100 = 65.24 %
+  Labeled F1:                 61.98 
+  Unlabeled precision:        (1625 + 702) / (2210 + 804) * 100 = 77.21 %
+  Unlabeled recall:           (1625 + 702) / (1970 + 757) * 100 = 85.33 %
+  Unlabeled F1:               81.07
+
+Adding old FrameLabel global
+::
+  bin/results.py results/devel_propbank.open.110508_224123.log
+  F1 scores
+          isArgument    : 0.867,0.872,0.874,0.873,0.874
+              Global    : 0.807,0.816,0.820,0.821,0.823
+                role    : 0.672,0.687,0.694,0.697,0.701
+         isPredicate    : 0.929,0.934,0.937,0.938,0.939
+            hasLabel    : 0.832,0.838,0.842,0.843,0.844
+          frameLabel    : 0.833,0.841,0.847,0.848,0.849
+ 
+    
+
+
 Gold dependencies
 -----------------
 ::
@@ -711,15 +1024,16 @@ Fixing some rules
                 role    : 0.796,0.807,0.814,0.819,0.818
 
 
-
-
-
 Support Chains
 ==============
 
 Support indicates when a Nominal predicate has one argument which doesn't belong to the NP to which the nominal predicate belongs, this is a long distance dependency. Some of the phenomena which triggers this syn/sem phenomena depends on the presence of control/raising verbs, this verb is called support. Conll08 labels the support chains, which is the sequence of words and dependencies which go from the support verb to the nominal predicate. This is indicated by a "SU" in the proposional verb and in the column to for the nominal predicate with the long distance argument. The path of between them is the support chain.
 
 
+Verb Chains
+===========
+
+Verb chains are labelled in the dependency trees with the label "VC". To recover them we only have to follow the "VC" heads until no more. For verbChainHasSubj we need to check that each of the children of head of the verb chain is subject relation. For the controllerHasObj we check that the head of verb chain is "OPRD" and then if one of which children is OBJ.  
 
 
 

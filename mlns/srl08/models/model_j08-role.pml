@@ -7,6 +7,7 @@ hidden: role;
 /* hard constraints */
 include "role-hard.pml";
 
-include "role_j08-simple.pml";
 
+include "role_j08-simple.pml";
+include "role_j08-global.pml";
 

@@ -207,6 +207,37 @@ def j08_l_and_r(sig,cs,bs,args):
         bs.addPred(rt,(w["id"],cs[terminals[-1]]["id"]))
 
 
+def getSet(cs,tree,labels):
+    vals=[]
+    for w in cs:
+        try:
+            childs=tree[w["id"]]
+            set={}
+            for c in childs:
+                label=[]
+                for l in labels:
+                    label.append(cs[int(c)][l])
+                set["-".join(label)]=1
+            set=set.keys()
+            set.sort()
+            val="-".join(set)
+            vals.append((w["id"],normalize_entry(val)))
+        except KeyError:
+            pass
+    return vals
+
+
+def j08_childSets(sig,cs,bs,argss):
+    argss,label=argss
+    tree=getTree(cs,label)
+    for args in argss:
+        name,type,labels=args
+        sig.addDef(name,type)
+        vals=getSet(cs,tree,labels)        
+        for t in vals:            
+            bs.addPred(name,t)
+            sig.addType(type[1],t[1])
+
 def switch(x):
     if x.startswith(">"):
         return "<"
@@ -235,12 +266,54 @@ def create_path(cs,path,label):
         i+=1
     return "".join(n)
             
+def j08_verbChains(sig,cs,bs,args):
+    name1,type1,name2,type2,label=args
+    tree=getTree(cs,label)
+    dpreds=dict(cs.preds)
+    sig.addDef(name1,type1)
+    sig.addDef(name2,type2)
+    for w1 in range(1,len(cs)):
+        w=cs[w1]
+        if impossible.test_pred(w,dpreds,None):
+            head=cs[int(w[label+"head"])]
+            while head[label+"dep_rel"]=="VC":                
+                head=cs[int(head[label+"head"])]
+            chld=[cs[int(c)][label+"dep_rel"]  for c in tree[head["id"]]]
+            pos_chld=[cs[int(c)]["ppos"]  for c in tree[head["id"]]]
+            both_chld=zip(chld,pos_chld)
+            if "SBJ" in chld:
+                bs.addPred(name1,(str(w1),))
+            elif ("DEP","NN") in both_chld or ("DEP","PRP") in both_chld:
+                bs.addPred(name1,(str(w1),))
+                
+            if head[label+"dep_rel"]=="OPRD":
+                head=cs[int(head[label+"head"])]
+                chld=[cs[int(c)][label+"dep_rel"]  for c in tree[head["id"]]]
+                if "OBJ" in chld:
+                    bs.addPred(name2,(str(w1),))
+
+
+def j08_subCat(sig,cs,bs,args):
+    name1,type1,label=args
+    tree=getTree(cs,label)
+    dpreds=dict(cs.preds)
+    sig.addDef(name1,type1)
+    for w1 in range(1,len(cs)):
+        w=cs[w1]
+        if impossible.test_pred(w,dpreds,None):
+            head=cs[int(w[label+"head"])]
+            if tree.has_key(w["id"]):
+                chld=[cs[int(c)][label+"dep_rel"]  for c in tree[w["id"]]]
+                p = normalize_entry("-".join(chld))
+                bs.addPred(name1,(str(w1),p))
+                sig.addType(type1[1],p)
+
+
 
 def j08_relpath(sig,cs,bs,args):
-    name,type,label,info,name2,type2=args
+    name,type,label,info=args
     tree=getTree(cs,label)
     sig.addDef(name,type)
-    sig.addDef(name2,type2)
     dpreds=dict(cs.preds)
 
     paths_={}
@@ -289,12 +362,9 @@ def j08_relpath(sig,cs,bs,args):
                 continue
             if paths_.has_key((w1,w2)):
                 for typ,inf in info:
-                    p = normalize_entry(create_path(cs,paths_[(w1,w2)],inf))
+                    p = normalize_entry(create_path(cs,paths_[(w1,w2)],inf+"dep_rel"))
                     bs.addPred(name,(str(w1),str(w2),p))
                     sig.addType(typ,p)
-                    if p.find("SBJ")>-1 or p.find("SUB")>-1:
-                       bs.addPred(name2,(str(w1),str(w2)))
-
             else:
                 new_path=[i for i in range(1000)]
                 for mid in range(len(cs)):
@@ -316,12 +386,9 @@ def j08_relpath(sig,cs,bs,args):
                 if len(new_path)!=1000:
                     #print "*",w1,w2,new_path
                     for typ,inf in info:
-                        p = normalize_entry(create_path(cs,new_path,inf))
+                        p = normalize_entry(create_path(cs,new_path,inf+"dep_rel"))
                         bs.addPred(name,(str(w1),str(w2),p))
                         sig.addType(typ,p)
-                        
-                        if p.find("SBJ")>-1 or p.find("SUB")>-1:
-                           bs.addPred(name2,(str(w1),str(w2)))
                 else:
                     print "EEEEEEEEE"
 

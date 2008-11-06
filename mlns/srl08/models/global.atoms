@@ -24,7 +24,6 @@
 "C-A0"
 "C-A2"
 "C-A1"
-"C-V"
 "C-AM-MNR"
 
 >rarg
@@ -41,7 +40,6 @@
 "C-A0"	"A0"
 "C-A2"	"A2"
 "C-A1"	"A1"
-"C-V"	"V"
 "C-AM-MNR"	"AM-MNR"
 
 >rargpair
@@ -76,7 +74,6 @@
 "C-A0"
 "C-A2"
 "C-A1"
-"C-V"
 "C-AM-MNR"
 "R-AM-MNR"
 "R-A2"

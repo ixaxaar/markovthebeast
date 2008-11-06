@@ -10,10 +10,10 @@ predicate allargs: Role;
 // Regular predicates
 observed: word, slemma, gpos, sform, ppos, cpos, sppos,lemma,
 // HIDDEN
-isPredicate,
-isArgument,
-hasLabel,
-frameLabel,
+//isPredicate,
+//isArgument,
+//hasLabel,
+//frameLabel,
 //role,
 // MST info
 mst_link,
@@ -29,11 +29,16 @@ relPath,
 verbChainHasSubj;
 global: properarg,rarg,rargpair,carg,cargpair,allargs;
 
-//index: role(*,*,_);
+index: role(*,*,_);
 index: mst_dep(*,*,_);
 index: mst_dep(_,*,*);
 index: mst_link(*,*);
 index: relPath(_,*,*);
+index: childDepSet(*,*);
+index: childWordSet(*,*);
+index: childWordDepSet(*,*);
+index: childPosDepSet(*,*);
+index: childPosSet(*,*);
 //index: mst_path_frame(*,*,_);
 //index: mst_path_frame_unlabeled(*,*,_);
 //index: mst_path_unlabeled(*,*,_);
@@ -42,9 +47,13 @@ index: relPath(_,*,*);
 //index: mst_frame_unlabeled(*,*);
 //index: mst_path(*,*,_);
 //index: mst_path_directed(*,*,_);
-
 //include "model1-dep.pml";
+
 include "model_j08-role.pml";
+include "model_j08-hasLabel.pml";
+include "model_j08-isArgument.pml";
+include "model_j08-isPredicate.pml";
+include "model_j08-frameLabel.pml";
 
 //include "model1-hasLabel.pml";
 //include "model1-isPredicate.pml";

@@ -5,5 +5,5 @@
 
 
 weight w_ip_fl_slemma: Slemma x Ppos  x FrameLabel -> Double+;
-factor[2]: for Int i, Int j, Slemma l1, Ppos l2, FrameLabel f if slemma(i,l1) & ppos(j,l2) & possiblePredicate(i) & possibleArgument(j) add [hasLabel(i,j) => frameLabel(i,f)] * w_ip_fl_slemma(l1,l2,f);
+factor[6]: for Int p, Int a, Slemma l1, Ppos l2, FrameLabel f if slemma(p,l1) & ppos(a,l2) & possiblePredicate(p) & possibleArgument(a) add [hasLabel(p,a) => frameLabel(p,f)] * w_ip_fl_slemma(l1,l2,f);
 

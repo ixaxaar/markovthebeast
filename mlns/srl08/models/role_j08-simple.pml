@@ -3,17 +3,21 @@
 // The following two would go to Global once (frameLabel and isPredicate argument are
 // observable)
 
-weight w_r_predLemmaSense: Role x Lemma x FrameLabel -> Double;
-factor: for Int a, Int p, Role r, Lemma l, FrameLabel s if
-  lemma(p,l) & possiblePredicate(p) & possibleArgument(a) & isPredicate(p) & frameLabel(p,s) add[role(p,a,r)] * w_r_predLemmaSense(r,l,s);
+weight w_r_childDepSet: Role x DepSet -> Double;
+factor: for Int a, Int p, Role r, DepSet l if
+  possiblePredicate(p) & possibleArgument(a) & childDepSet(p,l) add[role(p,a,r)] * w_r_childDepSet(r,l);
+
+//weight w_r_predLemmaSense: Role x Lemma x FrameLabel -> Double;
+//factor: for Int a, Int p, Role r, Lemma l, FrameLabel s if
+//  lemma(p,l) & possiblePredicate(p) & possibleArgument(a) & frameLabel(p,s) add[role(p,a,r)] * w_r_predLemmaSense(r,l,s);
 
 weight w_r_predLemma: Role x Lemma -> Double;
 factor: for Int a, Int p, Role r, Lemma l if
-  lemma(p,l) & possiblePredicate(p) & possibleArgument(a) & isPredicate(p) add[role(p,a,r)] * w_r_predLemma(r,l);
+  lemma(p,l) & possiblePredicate(p) & possibleArgument(a) add[role(p,a,r)] * w_r_predLemma(r,l);
 
-weight w_r_predSense: Role x FrameLabel -> Double;
-factor: for Int a, Int p, FrameLabel l, Role r if
-  possiblePredicate(p) & possibleArgument(a) & frameLabel(p,l) add[role(p,a,r)] * w_r_predSense(r,l);
+//weight w_r_predSense: Role x FrameLabel -> Double;
+//factor: for Int a, Int p, FrameLabel l, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & frameLabel(p,l) add[role(p,a,r)] * w_r_predSense(r,l);
 
 weight w_r_voice: Role x Voice -> Double;
 factor: for Int a, Int p, Voice v, Role r if
@@ -31,21 +35,34 @@ weight w_r_pos_equal: Role x Lemma -> Double;
 factor: for Int a, Int p, Role r, Lemma l if
   possiblePredicate(p) & possibleArgument(a) & lemma(a,l) & a==p add[role(p,a,r)] * w_r_pos_equal(r,l);
 
-weight w_r_argWord: Role x Lemma -> Double;
-factor: for Int a, Int p, Lemma l, Role r if
-  possiblePredicate(p) & possibleArgument(a) & lemma(a,l) add[role(p,a,r)] * w_r_argWord(r,l);
+weight w_r_argWord: Role x Word -> Double;
+factor: for Int a, Int p, Word l, Role r if
+  possiblePredicate(p) & possibleArgument(a) & word(a,l) add[role(p,a,r)] * w_r_argWord(r,l);
+
+//weight w_r_argLemma: Role x Lemma -> Double;
+//factor: for Int a, Int p, Lemma l, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & lemma(a,l) add[role(p,a,r)] * w_r_argLemma(r,l);
 
 weight w_r_argPpos: Role x Ppos -> Double;
 factor: for Int a, Int p, Ppos l, Role r if
   possiblePredicate(p) & possibleArgument(a) & ppos(a,l) add[role(p,a,r)] * w_r_argPpos(r,l);
 
-weight w_r_leftWord: Role x Lemma -> Double;
-factor: for Int a, Int p, Lemma l, Int t, Role r if
-  possiblePredicate(p) & possibleArgument(a) & leftToken(a,t) & lemma(t,l) add[role(p,a,r)] * w_r_leftWord(r,l);
+weight w_r_leftWord: Role x Word -> Double;
+factor: for Int a, Int p, Word l, Int t, Role r if
+  possiblePredicate(p) & possibleArgument(a) & leftToken(a,t) & word(t,l) add[role(p,a,r)] * w_r_leftWord(r,l);
 
-weight w_r_rigthWord: Role x Lemma -> Double;
-factor: for Int a, Int p, Lemma l, Int t, Role r if
-  possiblePredicate(p) & possibleArgument(a) & rightToken(a,t) & lemma(t,l)  add[role(p,a,r)] * w_r_rigthWord(r,l);
+//weight w_r_leftLemma: Role x Lemma -> Double;
+//factor: for Int a, Int p, Lemma l, Int t, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & leftToken(a,t) & lemma(t,l) add[role(p,a,r)] * w_r_leftLemma(r,l);
+
+weight w_r_rigthWord: Role x Word -> Double;
+factor: for Int a, Int p, Word l, Int t, Role r if
+  possiblePredicate(p) & possibleArgument(a) & rightToken(a,t) & word(t,l)  add[role(p,a,r)] * w_r_rigthWord(r,l);
+
+//weight w_r_rigthLemma: Role x Lemma -> Double;
+//factor: for Int a, Int p, Lemma l, Int t, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & rightToken(a,t) & lemma(t,l)  add[role(p,a,r)] * w_r_rigthLemma(r,l);
+
 
 weight w_r_leftPos: Role x Ppos -> Double;
 factor: for Int a, Int p, Ppos l, Int t, Role r if
@@ -56,13 +73,21 @@ factor: for Int a, Int p, Ppos l, Int t,  Role r if
   possiblePredicate(p) & possibleArgument(a) & rightToken(a,t) & ppos(t,l)  add[role(p,a,r)] * w_r_rigthPos(r,l);
 
 // Note, we don't distinguish between most left/right sibblings
-weight w_r_leftSiblingWord: Role x Lemma -> Double;
-factor: for Int a, Int p, Lemma l, Int j, Int s, Role r if
-  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & lemma(s,l) & s < a add[role(p,a,r)] * w_r_leftSiblingWord(r,l);
+weight w_r_leftSiblingWord: Role x Word -> Double;
+factor: for Int a, Int p, Word l, Int j, Int s, Role r if
+  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & word(s,l) & s < a add[role(p,a,r)] * w_r_leftSiblingWord(r,l);
 
-weight w_r_rigthSiblingWord: Role x Lemma -> Double;
-factor: for Int a, Int p, Lemma l, Int j, Int s, Role r if
-  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & lemma(s,l) & s > a add[role(p,a,r)] * w_r_rigthSiblingWord(r,l);
+//weight w_r_leftSiblingLemma: Role x Lemma -> Double;
+//factor: for Int a, Int p, Lemma l, Int j, Int s, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & lemma(s,l) & s < a add[role(p,a,r)] * w_r_leftSiblingLemma(r,l);
+
+weight w_r_rigthSiblingWord: Role x Word -> Double;
+factor: for Int a, Int p, Word l, Int j, Int s, Role r if
+  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & word(s,l) & s > a add[role(p,a,r)] * w_r_rigthSiblingWord(r,l);
+
+//weight w_r_rigthSiblingLemma: Role x Lemma -> Double;
+//factor: for Int a, Int p, Lemma l, Int j, Int s, Role r if
+//  possiblePredicate(p) & possibleArgument(a) & mst_link(j,a) & mst_link(j,s) & lemma(s,l) & s > a add[role(p,a,r)] * w_r_rigthSiblingLemma(r,l);
 
 weight w_r_leftSiblingPos: Role x Ppos -> Double;
 factor: for Int a, Int p, Ppos l, Int j, Int s, Role r if
@@ -82,7 +107,7 @@ factor: for Int a, Int p, RelPath l, Role r if
 
 weight w_r_verbChainHasSubj: Role -> Double;
 factor: for Int a, Int p, RelPath l, Role r if
-  possiblePredicate(p) & possibleArgument(a) & verbChainHasSubj(p,a) add[role(p,a,r)] * w_r_verbChainHasSubj(r);
+  possiblePredicate(p) & possibleArgument(a) & verbChainHasSubj(p) add[role(p,a,r)] * w_r_verbChainHasSubj(r);
 
 weight w_r_function: Role x MDependency  -> Double;
 factor: for Int a, Int p, MDependency l, Role r if
