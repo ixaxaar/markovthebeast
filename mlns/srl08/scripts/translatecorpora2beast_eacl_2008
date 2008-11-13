@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Generates the files were the possiblePredicate is true when the word is a SRL predicate 
+
+USAGE="
+    Usage: tranlatecorpora2conll08 [options]] corpu--possible $1s\n
+    -a      No ask for confirmation\n
+    -help   Print this"
+
+
+if [ $# -gt 4 ]
+then
+    echo -n $USAGE
+    exit 1;
+fi
+
+opts=" -v --output_mst -H "
+
+CONFIRM=1
+if [ $# -eq 1 ]
+then
+    case $1 in
+        "-a"     ) CONFIRM=0;;
+    esac 
+fi
+
+# Commandline to transform conll08 corpus into the beast corpus
+echo "
+creates the following corpora:
+ devel.closed -> devel_propbank.closed.atoms & devel_propbank.closed.types.pml
+ train.closed -> train_propbank.closed.atoms & train_propbank.closed.types.pml
+"
+
+# Conll05
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate conll05 close devel ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -d /dev/null -o /dev/null -8 data/conll05/devel_propbank.conll08 -M  data/conll05st-release/dev-set.penn.chk data/conll05/devel_propbank.output
+    set +x
+fi
+
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open test.wsj ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts}  -d /dev/null -o /dev/null -8  data/conll05/test_wsj_propbank.conll08 -M  data/conll05st-release/test-set-wsj.penn.chk data/conll05/test_wsj_propbank.output
+    set +x
+fi
+
+
+if [ $CONFIRM -eq 0 ]
+then
+    ANS="yes"
+else
+    echo -n "translate open test.brown ? (yes/[no]) "
+    read -e ANS
+fi
+
+if [ -z $ANS ]
+then
+    ANS="no"
+fi
+
+if [ $ANS = "yes" ]
+then
+    set -x
+    nice bin/conll082beast.py ${opts} -d /dev/null -o /dev/null -8 data/conll05/test_brown_propbank.conll08 -M data/conll05st-release/test-set-brown.penn.chk  data/conll05/test_brown_propbank.output
+    set +x
+fi
+

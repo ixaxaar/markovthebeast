@@ -807,6 +807,10 @@ Adding global for hasLabel (order greater than role)
 ::
   Too slow
 
+
+No using observable hidden variables
+------------------------------------
+
 Adding frameLabel (No collect all)
 ::
   bin/results.py  results/devel_propbank.open.110208_033717.log
@@ -1022,6 +1026,52 @@ Fixing some rules
     F1 scores
               Global    : 0.796,0.807,0.814,0.819,0.818
                 role    : 0.796,0.807,0.814,0.819,0.818
+
+
+Final models
+::
+  bin/results.py devel_propbank.open.110608_214114.log
+  F1 scores
+          isArgument    : 0.925,0.926,0.929,0.929,0.930
+              Global    : 0.863,0.871,0.876,0.877,0.878
+                role    : 0.755,0.768,0.777,0.781,0.783
+         isPredicate    : 0.939,0.943,0.946,0.946,0.947
+            hasLabel    : 0.903,0.911,0.915,0.915,0.916
+          frameLabel    : 0.826,0.835,0.841,0.840,0.844
+
+EVAL(5)
+::
+   bin/results.py devel_propbank.open.110608_214114.test.log
+   F1 scores
+          isArgument    : 0.942,0.901
+              Global    : 0.897,0.820
+                role    : 0.825,0.698
+         isPredicate    : 0.957,0.910
+            hasLabel    : 0.927,0.874
+          frameLabel    : 0.848,0.720
+
+WSJ
+::
+  head -13 results/test_wsj_propbank.110608_214114.5.conll
+  SEMANTIC SCORES: 
+  Labeled precision:          (11429 + 4432) / (14269 + 5260) * 100 = 81.22 %
+  Labeled recall:             (11429 + 4432) / (13448 + 5196) * 100 = 85.07 %
+  Labeled F1:                 83.10 
+  Unlabeled precision:        (12652 + 5003) / (14269 + 5260) * 100 = 90.40 %
+  Unlabeled recall:           (12652 + 5003) / (13448 + 5196) * 100 = 94.70 %
+  Unlabeled F1:               92.50 
+ 
+Brown
+::
+  head -13 results/test_brown_propbank.110608_214114.5.conll
+  SEMANTIC SCORES: 
+  Labeled precision:          (1467 + 565) / (2210 + 804) * 100 = 67.42 %
+  Labeled recall:             (1467 + 565) / (2030 + 766) * 100 = 72.68 %
+  Labeled F1:                 69.95 
+  Unlabeled precision:        (1803 + 714) / (2210 + 804) * 100 = 83.51 %
+  Unlabeled recall:           (1803 + 714) / (2030 + 766) * 100 = 90.02 %
+  Unlabeled F1:               86.64 
+  
 
 
 Support Chains
