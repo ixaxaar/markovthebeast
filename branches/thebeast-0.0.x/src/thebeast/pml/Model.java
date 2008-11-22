@@ -242,7 +242,11 @@ public class Model {
     return localWeightFunctions;
   }
 
-  public void validateModel() throws InvalidModelException {
+  public void completeAndValidate() throws InvalidModelException {
+    for (UserPredicate pred : signature.getUserPredicates()){
+      if (!hidden.contains(pred) && !observed.contains(pred) && !globalPreds.contains(pred))
+        addObservedPredicate(pred);
+    }
     if (hidden.size() == 0)
       throw new RuntimeException("Model does not contain any hidden predicates -> senseless");
     for (FactorFormula formula : localFactorFormulas) {

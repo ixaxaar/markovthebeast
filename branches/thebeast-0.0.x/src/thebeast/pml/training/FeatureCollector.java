@@ -23,6 +23,7 @@ import thebeast.util.Counter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * @author Sebastian Riedel
@@ -37,7 +38,7 @@ public class FeatureCollector implements HasProperties {
   private HashMap<FactorFormula, AttributeAssign>
           updateIndices = new HashMap<FactorFormula, AttributeAssign>();
   private HashMap<FactorFormula, Insert>
-          inserts = new HashMap<FactorFormula, Insert>();
+          inserts = new LinkedHashMap<FactorFormula, Insert>();
 
 
   private ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
@@ -48,6 +49,10 @@ public class FeatureCollector implements HasProperties {
 
   private HashSet<WeightFunction>
           collectAll = new HashSet<WeightFunction>();
+
+  private HashSet<WeightFunction>
+          collectWithNeg = new HashSet<WeightFunction>();
+
 
   private int cutoff = 0;
   private HashMap<WeightFunction, Integer> cutoffs = new HashMap<WeightFunction, Integer>();
@@ -88,7 +93,8 @@ public class FeatureCollector implements HasProperties {
     updateIndices.clear();
     for (FactorFormula factor : model.getFactorFormulas())
       if (factor.usesWeights()) {
-        RelationExpression query = generator.generateCollectorQuery(factor, atoms, weights);
+        RelationExpression query = generator.generateCollectorQuery(factor, atoms,
+                collectWithNeg.contains(factor.getWeightFunction()), weights);
         inserts.put(factor, statementFactory.createInsert(weights.getRelation(factor.getWeightFunction()), query));
         updateIndices.put(factor, factory.createAttributeAssign("index", builder.expr(counter).intPostInc().getInt()));
       }
@@ -157,7 +163,6 @@ public class FeatureCollector implements HasProperties {
     progressReporter.started("Collecting Features");
     while (corpus.hasNext()) {
       this.atoms.load(corpus.next(), model.getInstancePredicates());
-      //todo: inserts.keySet() causes randomness
       for (FactorFormula factor : inserts.keySet()) {
         if (factor.getWeightFunction().getArity() > 0 && !collectAll.contains(factor.getWeightFunction()))
           interpreter.interpret(inserts.get(factor));
@@ -244,12 +249,23 @@ public class FeatureCollector implements HasProperties {
     else this.collectAll.remove(function);
   }
 
+  public void setCollectWithNeg(WeightFunction function, boolean collectAll) {
+    if (function == null) throw new IllegalArgumentException("function must not be null!");
+    if (collectAll) this.collectWithNeg.add(function);
+    else this.collectWithNeg.remove(function);
+  }
+
+
   public void setProperty(PropertyName name, Object value) {
 
     if (name.getHead().equals("all")) {
       WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
       if (weightFunction == null) throw new NoSuchPropertyException(name);
       setCollectAll(weightFunction, (Boolean) value);
+    } else if (name.getHead().equals("neg")) {
+      WeightFunction weightFunction = model.getSignature().getWeightFunction(name.getTail().getHead());
+      if (weightFunction == null) throw new NoSuchPropertyException(name);
+      setCollectWithNeg(weightFunction, (Boolean) value);
     } else if (name.getHead().equals("init")) {
       setInitialWeight((Double) value);
     } else if (name.getHead().equals("cutoff")) {
