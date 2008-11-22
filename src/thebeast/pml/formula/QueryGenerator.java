@@ -2,26 +2,19 @@ package thebeast.pml.formula;
 
 import thebeast.nod.expression.*;
 import thebeast.nod.statement.Interpreter;
-import thebeast.nod.type.RelationType;
-import thebeast.nod.type.TupleType;
 import thebeast.nod.type.CategoricalType;
 import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.variable.*;
 import thebeast.pml.*;
 import thebeast.pml.solve.ilp.IntegerLinearProgram;
-import thebeast.pml.predicate.*;
 import thebeast.pml.function.*;
-import thebeast.pml.function.IntMin;
 import thebeast.pml.function.DoubleCast;
 import thebeast.pml.function.DoubleAbs;
 import thebeast.pml.function.DoubleAdd;
 import thebeast.pml.function.DoubleMinus;
 import thebeast.pml.term.*;
-import thebeast.pml.term.IntConstant;
-import thebeast.pml.term.CategoricalConstant;
 import thebeast.pml.term.DoubleConstant;
 import thebeast.pml.term.Variable;
-import thebeast.pml.term.BoolConstant;
 
 import java.util.*;
 
@@ -290,34 +283,45 @@ public class QueryGenerator {
   public RelationExpression generateCollectorQuery(FactorFormula factorFormula,
                                                    GroundAtoms observation,
                                                    Weights w) {
-//    if (!factorFormula.isLocal()) throw new IllegalArgumentException("Factor formula must be local for " +
-//            "generating a local feature query");
-//
+    return generateCollectorQuery(factorFormula, observation, false, w);
+
+  }
+  public RelationExpression generateCollectorQuery(FactorFormula factorFormula,
+                                                   GroundAtoms observation,
+                                                   boolean negatives,
+                                                   Weights w) {
     this.groundAtoms = observation;
     this.weights = w;
 
     builder = new FormulaBuilder(observation.getSignature());
 
-    BooleanFormula formula = null;
+    BooleanFormula formula;
+    BooleanFormula condition;
     if (factorFormula.isLocal()) {
       formula = factorFormula.getFormula();
+      condition = factorFormula.getCondition();
     } else if (factorFormula.getFormula() instanceof Implication) {
       Implication implication = (Implication) factorFormula.getFormula();
-      formula = new Conjunction(implication.getPremise(), implication.getConclusion());
+      formula = implication.getConclusion();
+      condition = factorFormula.getCondition() == null ?
+              implication.getPremise() : new Conjunction(factorFormula.getCondition(),implication.getPremise());
+
     } else if (factorFormula.getFormula() instanceof Conjunction) {
       formula = factorFormula.getFormula();
+      condition = factorFormula.getCondition();
     } else if (factorFormula.getFormula() instanceof Disjunction) {
       formula = factorFormula.getFormula();
+      condition = factorFormula.getCondition();
     } else {
       return null;
     }
 
-    BooleanFormula both = factorFormula.getCondition() == null ?
+    BooleanFormula queryFormula = condition == null ?
             formula :
-            new Conjunction(formula, factorFormula.getCondition());
-    //Conjunction both = new Conjunction(factorFormula.getFormula(), factorFormula.getCondition());
+            negatives ? condition : new Conjunction(formula, condition);
+    //Conjunction queryFormula = new Conjunction(factorFormula.getFormula(), factorFormula.getCondition());
 
-    DNF dnf = dnfGenerator.convertToDNF(both);
+    DNF dnf = dnfGenerator.convertToDNF(queryFormula);
     conjunctions = new LinkedList<ConjunctionProcessor.Context>();
 
     ConjunctionProcessor conjunctionProcessor = new ConjunctionProcessor(weights, groundAtoms);

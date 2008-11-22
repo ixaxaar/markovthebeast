@@ -84,8 +84,14 @@ public class CoNLL05JointConverter {
     }
     String mode = args[0];
     if (mode.equals("conll2pml")) {
-      conll2pml(new BufferedReader(new InputStreamReader(args.length == 2 ? new FileInputStream(args[1]) : System.in)), System.out);
+      int howMany = args.length == 2 ? Integer.parseInt(args[1]) : Integer.MAX_VALUE;
+      conll2pml(new BufferedReader(new InputStreamReader(System.in)),
+              System.out, howMany);
     } else if (mode.equals("pml2conll")) {
+      pml2conll(new BufferedReader(new InputStreamReader(System.in)), System.out);
+    } else if (mode.equals("join")) {
+      join(new BufferedReader(new FileReader(args[2])), new BufferedReader(new FileReader(args[1])),
+              System.out, Integer.parseInt(args[3]));
 
     } else {
       System.out.println("Usage: CoNLL05Converter conll2pml|pml2conll < <inputfile> > <outputfile>");
@@ -93,7 +99,126 @@ public class CoNLL05JointConverter {
     }
   }
 
-  private static void conll2pml(BufferedReader reader, PrintStream out) throws IOException {
+  private static void join(BufferedReader goldReader, BufferedReader guessReader, PrintStream out, int originalColumns) throws IOException {
+    for (String guess = guessReader.readLine(); guess != null; guess = guessReader.readLine()) {
+      String line = goldReader.readLine();
+      //System.out.println(guess);
+      if (line.trim().equals("")) {
+        if (!guess.trim().equals("")) throw new RuntimeException("Mismatch!");
+        else
+          out.println();
+      } else {
+        StringTokenizer tokenizer = new StringTokenizer(line, "[\t\n ]", false);
+        for (int i = 0; i < originalColumns; ++i)
+          out.print(tokenizer.nextToken() + "\t");
+        out.print(guess);
+        out.println();
+      }
+    }
+    out.close();
+  }
+
+  private static void pml2conll(BufferedReader reader, PrintStream out) throws IOException {
+    HashMap<Integer, Pair<Integer, Integer>> spans = new HashMap<Integer, Pair<Integer, Integer>>();
+    HashMap<Pair<Integer, Integer>, String> labels = new HashMap<Pair<Integer, Integer>, String>();
+    int sentenceLength = -1; //has to be -1 because the atoms file contains an additional Start of Sentence word.
+    boolean haveSpans = false;
+    boolean haveLabels = false;
+    boolean haveSentenceLength = false;
+    boolean havePredicates = false;
+    ArrayList<Integer> preds = new ArrayList<Integer>();
+    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+      line = line.trim();
+
+      if (line.startsWith(">word")) {
+        for (line = reader.readLine();
+             line != null && !line.startsWith(">") && !line.trim().equals("");
+             line = reader.readLine()) {
+          ++sentenceLength;
+        }
+        haveSentenceLength = true;
+      } else if (line.startsWith(">lemma")) {
+        for (line = reader.readLine();
+             line != null && !line.startsWith(">") && !line.trim().equals("");
+             line = reader.readLine()) {
+          StringTokenizer tokenizer = new StringTokenizer(line, "[\t\n ]", false);
+          preds.add(Integer.parseInt(tokenizer.nextToken()));
+        }
+        havePredicates = true;
+
+      } else if (line.startsWith(">span")) {
+        for (line = reader.readLine();
+             line != null && !line.startsWith(">") && !line.trim().equals("");
+             line = reader.readLine()) {
+          StringTokenizer tokenizer = new StringTokenizer(line, "[\t\n ]", false);
+          ArrayList<String> fields = new ArrayList<String>(20);
+          while (tokenizer.hasMoreTokens()) fields.add(tokenizer.nextToken());
+          spans.put(Integer.parseInt(fields.get(0)),
+                  new Pair<Integer, Integer>(Integer.parseInt(fields.get(1)), Integer.parseInt(fields.get(2))));
+        }
+        haveSpans = true;
+      } else if (line.startsWith(">role")) {
+        for (line = reader.readLine();
+             line != null && !line.startsWith(">") && !line.trim().equals("");
+             line = reader.readLine()) {
+          StringTokenizer tokenizer = new StringTokenizer(line, "[\t\n ]", false);
+          ArrayList<String> fields = new ArrayList<String>(20);
+          while (tokenizer.hasMoreTokens()) fields.add(tokenizer.nextToken());
+          int pred = Integer.parseInt(fields.get(0));
+          int span = Integer.parseInt(fields.get(1));
+          labels.put(new Pair<Integer, Integer>(pred, span),
+                  unquote(fields.get(2)));
+
+        }
+        haveLabels = true;
+      }
+
+      if (haveSentenceLength && haveLabels && haveSpans && havePredicates) {
+
+        Collections.sort(preds);
+        HashMap<Integer, Integer> pred2position = new HashMap<Integer, Integer>();
+        for (int i = 0; i < preds.size(); ++i)
+          pred2position.put(preds.get(i), i);
+        String[][] table = new String[sentenceLength][preds.size()];
+        for (int i = 0; i < sentenceLength; ++i)
+          for (int j = 0; j < preds.size(); ++j)
+            table[i][j] = "*";
+        for (Pair<Integer, Integer> labelling : labels.keySet()) {
+          Pair<Integer, Integer> span = spans.get(labelling.arg2);
+          String label = labels.get(labelling);
+          Integer column = pred2position.get(labelling.arg1);
+          if (column != null) {
+            if (span.arg2 > span.arg1) {
+              table[span.arg1][column] = "(" + label + "*";
+              table[span.arg2][column] = "*)";
+            } else
+              table[span.arg1][column] = "(" + label + "*)";
+          }
+        }
+
+
+        for (String[] row : table) {
+          for (String entry : row)
+            out.print(entry + "\t");
+          out.println();
+        }
+        out.println();
+
+        haveSpans = false;
+        haveLabels = false;
+        haveSentenceLength = false;
+        havePredicates = false;
+        spans.clear();
+        labels.clear();
+        sentenceLength = -1;
+        preds.clear();
+      }
+
+    }
+
+  }
+
+  private static void conll2pml(BufferedReader reader, PrintStream out, int howMany) throws IOException {
     Sentence sentence = new Sentence(50);
     ArrayList<Integer> predicateTokenCandidates = new ArrayList<Integer>();
     ArrayList<String> predicateLemmas = new ArrayList<String>();
@@ -103,6 +228,8 @@ public class CoNLL05JointConverter {
 
     HashMultiMapSet<String, String> mlPred2atoms = new HashMultiMapSet<String, String>();
 
+    int sentenceNr = 0;
+
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
       if (!line.equals("")) {
@@ -110,16 +237,20 @@ public class CoNLL05JointConverter {
         ArrayList<String> fields = new ArrayList<String>(20);
         while (tokenizer.hasMoreTokens()) fields.add(tokenizer.nextToken());
         sentence.add(fields);
-        if (!impossiblePredicatePOS.contains(fields.get(POS_INDEX)))
+        //if (!impossiblePredicatePOS.contains(fields.get(POS_INDEX)))
+        if (!fields.get(CORE_FEATURE_COUNT + 1).equals("-"))
           predicateTokenCandidates.add(sentence.size() - 1);
         if (!fields.get(CORE_FEATURE_COUNT + 1).equals("-")) {
           predicateTokenSet.put(sentence.size() - 1, predicateTokenSet.size());
           predicateLemmas.add(fields.get(CORE_FEATURE_COUNT + 1));
         }
-        if (!fields.get(CORE_FEATURE_COUNT).equals("-")) {
+        if (!fields.get(CORE_FEATURE_COUNT + 1).equals("-")) {
           predicateClasses.add(fields.get(CORE_FEATURE_COUNT));
         }
       } else {
+        if (sentenceNr >= howMany) break;
+        if (sentenceNr++ % 1000 == 999)
+          System.err.print(".");
         //collect all spans
         if (sentence.size() > 0 && !sentence.get(0).get(POS_INDEX).equals("NNP"))
           sentence.get(0).set(WORD_INDEX, sentence.get(0).get(WORD_INDEX).toLowerCase());
@@ -132,6 +263,8 @@ public class CoNLL05JointConverter {
         out.println(">>");
         printFeatures("word", out, sentence, WORD_INDEX);
         printFeatures("pos", out, sentence, POS_INDEX);
+        printFeaturesSkipDash("lemma", out, sentence, CORE_FEATURE_COUNT + 1);
+        printFeaturesSkipDash("sense", out, sentence, CORE_FEATURE_COUNT + 0);
 
         HashSet<Pair<Integer, Integer>> spans = new HashSet<Pair<Integer, Integer>>();
         HashSet<Pair<Integer, Integer>> candidates = new HashSet<Pair<Integer, Integer>>();
@@ -203,7 +336,7 @@ public class CoNLL05JointConverter {
           //distance
           for (Pair<Integer, Integer> span : candidates) {
             int id = span2id.get(span);
-            mlPred2atoms.add("distance", predCand + "\t" + id + "\t" + Math.min(
+            mlPred2atoms.add(">distance", predCand + "\t" + id + "\t" + Math.min(
                     Math.abs(predCand - span.arg1),
                     Math.abs(predCand - span.arg2)));
           }
@@ -239,10 +372,10 @@ public class CoNLL05JointConverter {
             ParseTree arg = charniakPruned.getNode(span.arg1, span.arg2);
             //out.println(id + "\tCharniak\t\"" + charniakFrame.getSyntacticFrameString(arg) + "\"");
             if (arg != null)
-              mlPred2atoms.add(">framePattern", predCand + "\t" + id + "\t\"" +
+              mlPred2atoms.add(">framepattern", predCand + "\t" + id + "\t\"" +
                       new ParseTree.SyntacticFrame(charniakPruned, predicateTree, arg).toStringPattern() + "\"");
             else
-              mlPred2atoms.add(">framePattern", predCand + "\t" + id + "\tNONE");
+              mlPred2atoms.add(">framepattern", predCand + "\t" + id + "\tNONE");
           }
 
           //before/after
@@ -315,7 +448,7 @@ public class CoNLL05JointConverter {
         ArrayList<Pair<Integer, Integer>> sortedCandidates = new ArrayList<Pair<Integer, Integer>>(candidates);
         Collections.sort(sortedCandidates, new ParseTree.SpanComparator());
 
-        mlPred2atoms.add(">label", "-1\t-1\tUNDEFINED");
+        mlPred2atoms.add(">label", "-1  \tUNDEFINED");
         for (Pair<Integer, Integer> span : candidates) {
           int id = span2id.get(span);
           mlPred2atoms.add(">label", id + "\t" + charniak.getLabel(span.arg1, span.arg2));
@@ -327,7 +460,7 @@ public class CoNLL05JointConverter {
           if (tree != null) {
             ParseTree parent = tree.parent;
             if (parent != null) {
-              mlPred2atoms.add(">parentLabel", id + "\t" + parent.label);
+              mlPred2atoms.add(">parentlabel", id + "\t" + parent.label);
             }
           }
         }
@@ -378,10 +511,10 @@ public class CoNLL05JointConverter {
         }
 
         //write out predicate information
-        out.println(">pred");
+        out.println(">voice");
         for (int predicateTokenCandidate : predicateTokenCandidates) {
           ParseTree predicateTree = predCand2predicateTree.get(predicateTokenCandidate);
-          out.println(predicateTokenCandidate + "\t\"" + (predicateTree.activeVoice(sentence) ? "Active" : "Passive"));
+          out.println(predicateTokenCandidate + "\t" + predicateTree.activeVoice(sentence));
         }
         out.println();
 
@@ -407,6 +540,22 @@ public class CoNLL05JointConverter {
         }
         out.println();
 
+        out.println(">predpath");
+        for (int pred1 : predicateTokenCandidates) {
+          for (int pred2 : predicateTokenCandidates){
+            if (pred1 < pred2){
+              ParseTree from = charniak.getSmallestCoveringTree(pred1, pred1);
+              ParseTree to = charniak.getSmallestCoveringTree(pred2,pred2);
+              ParseTree.Path path = new ParseTree.Path();
+              from.getPath(to, path);
+              out.println(pred1 + "\t" + pred2 + "\t\"" + path + "\"");
+
+            }
+          }
+        }
+        out.println();
+
+
         //now print out stored stuff
         for (String mlPred : mlPred2atoms.keySet()) {
           out.println(mlPred);
@@ -421,6 +570,8 @@ public class CoNLL05JointConverter {
         predicateLemmas.clear();
         predicateClasses.clear();
         predicateTokenSet.clear();
+        mlPred2atoms.clear();
+
 
       }
     }
@@ -472,6 +623,17 @@ public class CoNLL05JointConverter {
     }
     out.println();
   }
+
+  private static void printFeaturesSkipDash(String name, PrintStream out, Sentence sentence, int index) {
+    out.println(">" + name);
+    //out.println("-1\tSTART");
+    for (int token = 0; token < sentence.size(); ++token) {
+      if (!sentence.get(token).get(index).equals("-"))
+        out.println(token + " \"" + sentence.get(token).get(index) + "\"");
+    }
+    out.println();
+  }
+
 
   public static class DependencyTree {
     private HashMultiMapSet<Integer, Integer> modifiers = new HashMultiMapSet<Integer, Integer>();
@@ -890,53 +1052,54 @@ public class CoNLL05JointConverter {
       return max + 1;
     }
 
-    public boolean activeVoice(Sentence sentence) {
-      if (!label.equals("\"VBN\"")) return true;
+    public String activeVoice(Sentence sentence) {
+      if (!label.startsWith("\"V")) return "NA";
+      if (!label.equals("\"VBN\"")) return "Active";
       ParseTree vp = parent;
       ParseTree aux = vp.parent;
-      if (aux == null) return true;
+      if (aux == null) return "Active";
       ParseTree aux_parent = aux.parent;
       //check for "is"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("is"))
-          return false;
+          return "Passive";
       }
       //check for "was"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("was"))
-          return false;
+          return "Passive";
       }
       //check for "got"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("got"))
-          return false;
+          return "Passive";
       }
       //check for "are"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("are"))
-          return false;
+          return "Passive";
       }
       //check for "be"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("be"))
-          return false;
+          return "Passive";
       }
       //check for "were"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("were"))
-          return false;
+          return "Passive";
       }
       //check for "am"
       for (ParseTree child : aux.children) {
         if (child.begin == begin) break;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("am"))
-          return false;
+          return "Passive";
       }
       //check for "has been"
       boolean lookForBeen = false;
@@ -945,7 +1108,7 @@ public class CoNLL05JointConverter {
 //        if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("has"))
 //          lookForBeen = true;
         if (sentence.get(child.begin).get(WORD_INDEX).equals("been"))
-          return false;
+          return "Passive";
       }
 
       //check for "had been"
@@ -955,9 +1118,9 @@ public class CoNLL05JointConverter {
         if (!lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("had"))
           lookForBeen = true;
         else if (lookForBeen && sentence.get(child.begin).get(WORD_INDEX).equals("been"))
-          return false;
+          return "Passive";
       }
-      return true;
+      return "Active";
     }
 
     public void augmentWithTags(Sentence sentence, int column) {
@@ -1248,3 +1411,4 @@ public class CoNLL05JointConverter {
   }
 
 }
+
