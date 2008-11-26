@@ -1,0 +1,12 @@
+%\subsection{Learning}
+
+%An MLN we use to model the collective SRL task is presented in section \ref{sec:model}. We learn the weights associated this MLN using 1-best MIRA~\citep{crammer01ultraconservative} Online Learning method. 
+%%Note that we only consider formulae that appear more than once in the training set.
+
+%\subsection{Inference}
+
+%%Assuming that we have an MLN with a set of suitable weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
+
+Assuming that we have an MLN, a set of weights and a given sentence then we need to predict the choice of predicates, frame types, arguments and role labels with maximal a posteriori probability. To this end we apply a method that is both exact and efficient: Cutting Plane Inference~\cite[CPI,][]{riedel08improving} with Integer Linear Programming~(ILP) as base solver. We use it for inference at test time as well as during the MIRA online learning process.
+
+
