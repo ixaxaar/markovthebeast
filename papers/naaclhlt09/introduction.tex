@@ -1,1 +1,65 @@
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
 
+Semantic Role Labelling~\citep[SRL, ][]{carreras05introduction}
+is generally understood as the task of identifying the semantic arguments
+and modifiers of a given predicate token in a setence. For example,
+for
+\begin{quote}
+Ms. {[}Haag$_{Player}$] plays {[}Elianti$_{Role}$].
+\end{quote}
+we are to find out that for the predicate token {}``plays'' the
+token {}``Haag'' is referring to the player of the play event, and
+{}``Elianti'' is refeerring to the role {}``Elianti'' is playing
+(see figure ?).%
+\footnote{This is the dependency-based formulation of SRL.%
+} SRL is considered as a key task for applications that require to
+answer {}``Who'', {}``When'', {}``What'' etc. questions, such
+as Information Extraction, Question Answering and Summarization. 
+
+Any real-world SRL system needs to make several decisions: which are
+the predicate tokens of a sentence (predicate identification), which
+are the tokens that have semantic roles with respect to these predicates
+(argument identification), which are the roles these tokens play (argument
+classification), and which is the sense of the predicate (sense disambiguation).
+It seems obvious that these decisions interact. For example, one would
+only pick semantic arguments for tokens that have been marked as predicates.
+Likewise, one would only pick a semantic role for a token that has
+been identified as an argument. It also appears that in order to predict
+the sense of a predicate one would need to know which roles its semantic
+arguments play. There are also interactions between decisions of the
+same type: for example, if we classified one semantic argument as
+agent (player) of a predicate, no other argument can be the agent,
+too. 
+
+Some of these interactions have been captured by a simple juxtaposition
+of decisions. For example, most SRL systems would first predict which
+tokens (phrases) are semantic arguments, and then predict the roles
+they play. Some of these interactions have been captured by means
+of {}``global inference'' that jointly picks the best set of decision
+given some global objective function. For example, to make sure that
+there is not more than one agent per predicate researchers have been
+applying Integer Linear Programming or reranking techniques to find
+the best set of role assignments that satisfies this constraint. Finally,
+some of these interactions have not been investigated, because until
+recently SRL has been focussing on the task of finding and labelling
+the semantic arguments of a \emph{given} predicate. 
+
+In this paper we propose to tacke SRL and capture the beforementioned
+interactions using Markov Logic, a Statistical Relational Learning
+language that uses weighted first order logic formulae to define Markov
+Networks of repetitive structure. This choice has several benefits.
+First, it allows us to jointly model all decisions of an SRL subsystem
+and evaluate the impact of joint inference over all these decisions---this
+is a novelty in the sense that previous work has only looked at subsets
+of all decisions\#\#. Second, by using a first order language such
+as Markov Logic (in contrast to a propositional representation such
+as ILP) we are able to exploit an efficient lifted inference technique
+that is much more difficult to implement without a first order representation.
+Finally, in terms of engineering our system, the efforts we have make
+are similar to those necessary when training a single classifier:
+we simply have to define a model, prepare a single input file for
+training and one for testing. This is in contrast with work based
+on ILP and pipelines...

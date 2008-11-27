@@ -1,0 +1,231 @@
+#LyX 1.6.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+Semantic Role Labelling
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand citep
+before "SRL, "
+key "carreras05introduction"
+
+\end_inset
+
+ is generally understood as the task of identifying the semantic arguments
+ and modifiers of a given predicate token in a setence.
+ For example, for
+\end_layout
+
+\begin_layout Quote
+Ms.
+ [Haag
+\begin_inset Formula $_{Player}$
+\end_inset
+
+] plays [Elianti
+\begin_inset Formula $_{Role}$
+\end_inset
+
+].
+\end_layout
+
+\begin_layout Standard
+we are to find out that for the predicate token 
+\begin_inset Quotes eld
+\end_inset
+
+plays
+\begin_inset Quotes erd
+\end_inset
+
+ the token 
+\begin_inset Quotes eld
+\end_inset
+
+Haag
+\begin_inset Quotes erd
+\end_inset
+
+ is referring to the player of the play event, and 
+\begin_inset Quotes eld
+\end_inset
+
+Elianti
+\begin_inset Quotes erd
+\end_inset
+
+ is refeerring to the role 
+\begin_inset Quotes eld
+\end_inset
+
+Elianti
+\begin_inset Quotes erd
+\end_inset
+
+ is playing (see figure ?).
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+This is the dependency-based formulation of SRL.
+\end_layout
+
+\end_inset
+
+ SRL is considered as a key task for applications that require to answer
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Who
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+When
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+What
+\begin_inset Quotes erd
+\end_inset
+
+ etc.
+ questions, such as Information Extraction, Question Answering and Summarization.
+ 
+\end_layout
+
+\begin_layout Standard
+Any real-world SRL system needs to make several decisions: which are the
+ predicate tokens of a sentence (predicate identification), which are the
+ tokens that have semantic roles with respect to these predicates (argument
+ identification), which are the roles these tokens play (argument classification
+), and which is the sense of the predicate (sense disambiguation).
+ It seems obvious that these decisions interact.
+ For example, one would only pick semantic arguments for tokens that have
+ been marked as predicates.
+ Likewise, one would only pick a semantic role for a token that has been
+ identified as an argument.
+ It also appears that in order to predict the sense of a predicate one would
+ need to know which roles its semantic arguments play.
+ There are also interactions between decisions of the same type: for example,
+ if we classified one semantic argument as agent (player) of a predicate,
+ no other argument can be the agent, too.
+ 
+\end_layout
+
+\begin_layout Standard
+Some of these interactions have been captured by a simple juxtaposition
+ of decisions.
+ For example, most SRL systems would first predict which tokens (phrases)
+ are semantic arguments, and then predict the roles they play.
+ Some of these interactions have been captured by means of 
+\begin_inset Quotes eld
+\end_inset
+
+global inference
+\begin_inset Quotes erd
+\end_inset
+
+ that jointly picks the best set of decision given some global objective
+ function.
+ For example, to make sure that there is not more than one agent per predicate
+ researchers have been applying Integer Linear Programming or reranking
+ techniques to find the best set of role assignments that satisfies this
+ constraint.
+ Finally, some of these interactions have not been investigated, because
+ until recently SRL has been focussing on the task of finding and labelling
+ the semantic arguments of a 
+\emph on
+given
+\emph default
+ predicate.
+ 
+\end_layout
+
+\begin_layout Standard
+In this paper we propose to tacke SRL and capture the beforementioned interactio
+ns using Markov Logic, a Statistical Relational Learning language that uses
+ weighted first order logic formulae to define Markov Networks of repetitive
+ structure.
+ This choice has several benefits.
+ First, it allows us to jointly model all decisions of an SRL subsystem
+ and evaluate the impact of joint inference over all these decisions---this
+ is a novelty in the sense that previous work has only looked at subsets
+ of all decisions##.
+ Second, by using a first order language such as Markov Logic (in contrast
+ to a propositional representation such as ILP) we are able to exploit an
+ efficient lifted inference technique that is much more difficult to implement
+ without a first order representation.
+ Finally, in terms of engineering our system, the efforts we have make are
+ similar to those necessary when training a single classifier: we simply
+ have to define a model, prepare a single input file for training and one
+ for testing.
+ This is in contrast with work based on ILP and pipelines...
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "seb"
+options "plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
