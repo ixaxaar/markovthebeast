@@ -7,16 +7,16 @@
 \usepackage{naaclhlt2009}
 \usepackage{times}
 \usepackage{latexsym}
+\usepackage[round]{natbib} 
+\usepackage{amsmath}
+\usepackage{amssymb} 
+\usepackage[pdftex]{graphicx} 
+\usepackage{hyperref} 
+
+
 \setlength\titlebox{6.5cm}    % Expanding the titlebox
 
-% extra package
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage[pdftex]{graphicx}
-\usepackage{hyperref}
-
-
-\title{Glorious tittle}
+\title{Joint SRL with Markov Logic}
 
 \author{}
 %Sebastian Riedel \And Ivan Meza-Ruiz\\
@@ -28,9 +28,21 @@
 \date{}
 
 \begin{document}
+\input{macros.tex}
+
+
 \maketitle
 \begin{abstract}
+In this paper we present a Markov Logic Network for Semantic Role
+Labelling that jointly performs frame disambiguation, argument
+identification and argument classification. When compared to a
+pipeline model with the same feature set, we observe significant
+improvements, but only for out-of-domain data. This suggests that
+joint modelling can be particular helpful in out-of-domain
+scenarios. We validate this hypothesis by artificially removing
+features from the in-domain.  
 
+Blah!
 \end{abstract}
 
 \section{Introduction}
@@ -38,55 +50,34 @@
 \input{introduction.tex}
 
 \section{Markov Logic} \label{sec:markovlogic}
+
 \input{markovlogic.tex}
 
 \section{Systems} \label{sec:systems} 
-\input{systems.tex}
+%\input{system.tex}
 
+\subsection{Pipeline}\label{sec:pipeline} 
+ 
+%\input{pipeline.tex}
 
-\section{Inference}\label{sec:inference}
+\subsection{Joint}\label{sec:joint} 
 
-\input{inference.tex}
+%\input{joint.tex}
+
+\section{Inference and Learning}\label{sec:inference}
+
+%\input{inference}
 
 \section{Results}\label{sec:results}
 
-\input{results.tex}
+%\input{results.tex}
 
 \section{Conclusion} \label{sec:conclusion}
 
 %\input{conclusions.tex}
 
-\begin{thebibliography}{}
-\bibitem[\protect\citename{Aho and Ullman}1972]{Aho:72}
-Alfred~V. Aho and Jeffrey~D. Ullman.
-\newblock 1972.
-\newblock {\em The Theory of Parsing, Translation and Compiling}, volume~1.
-\newblock Prentice-{Hall}, Englewood Cliffs, NJ.
+\bibliographystyle{plainnat}
+\bibliography{seb}
 
-\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
-{American Psychological Association}.
-\newblock 1983.
-\newblock {\em Publications Manual}.
-\newblock American Psychological Association, Washington, DC.
-
-\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
-{Association for Computing Machinery}.
-\newblock 1983.
-\newblock {\em Computing Reviews}, 24(11):503--512.
-
-\bibitem[\protect\citename{Chandra \bgroup et al.\egroup }1981]{Chandra:81}
-Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer.
-\newblock 1981.
-\newblock Alternation.
-\newblock {\em Journal of the Association for Computing Machinery},
-  28(1):114--133.
-
-\bibitem[\protect\citename{Gusfield}1997]{Gusfield:97}
-Dan Gusfield.
-\newblock 1997.
-\newblock {\em Algorithms on Strings, Trees and Sequences}.
-\newblock Cambridge University Press, Cambridge, UK.
-
-\end{thebibliography}
 
 \end{document}
