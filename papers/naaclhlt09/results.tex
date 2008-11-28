@@ -1,0 +1,115 @@
+
+
+
+Collection of our main results:
+
+Pipeline
+**************
+         isPredicate    : 0.958,0.959,0.958,0.959,0.959
+          isArgument    : 0.890,0.892,0.891,0.891,0.891
+            hasLabel    : 0.870,0.873,0.872,0.872,0.872
+                role    : 0.706,0.718,0.720,0.722,0.723
+          frameLabel    : 0.834,0.842,0.841,0.841,0.841
+
+
+         isPredicate    : 0.966,0.922
+          isArgument    : 0.903,0.859
+            hasLabel    : 0.880,0.836
+                role    : 0.754,0.642
+          frameLabel    : 0.855,0.673
+
+WSJ
+  Labeled precision:          (10284 + 4521) / (13021 + 5321) * 100 = 80.72 %
+  Labeled recall:             (10284 + 4521) / (14269 + 5260) * 100 = 75.81 %
+  Labeled F1:                 78.19
+
+Brown
+  Labeled precision:          (1335 + 555) / (1986 + 846) * 100 = 66.74 %
+  Labeled recall:             (1335 + 555) / (2210 + 804) * 100 = 62.71 %
+  Labeled F1:                 64.66
+
+
+
+Full model
+**************
+         isPredicate    : 0.958,0.959,0.958,0.958,0.958
+          isArgument    : 0.894,0.895,0.895,0.895,0.895
+            hasLabel    : 0.865,0.868,0.869,0.869,0.869
+                role    : 0.703,0.713,0.720,0.724,0.727
+          frameLabel    : 0.870,0.874,0.878,0.877,0.878
+
+         isPredicate    : 0.965,0.923
+          isArgument    : 0.906,0.869
+            hasLabel    : 0.879,0.838
+                role    : 0.755,0.646
+          frameLabel    : 0.885,0.771
+
+WSJ
+  Labeled precision:          (10423 + 4664) / (13348 + 5273) * 100 = 81.02 %
+  Labeled recall:             (10423 + 4664) / (14269 + 5260) * 100 = 77.25 %
+  Labeled F1:                 79.09
+
+Brown
+  Labeled precision:          (1369 + 621) / (2063 + 807) * 100 = 69.34 %
+  Labeled recall:             (1369 + 621) / (2210 + 804) * 100 = 66.03 %
+  Labeled F1:                 67.64
+
+
+Full model w/o isArg (NOTE: not with new formula2/ we need it with bottom-up model as well)
+**************
+
+         isPredicate    : 0.955,0.954,0.954,0.953,0.953
+            hasLabel    : 0.861,0.863,0.863,0.863,0.862
+                role    : 0.705,0.719,0.722,0.724,0.725
+          frameLabel    : 0.859,0.866,0.867,0.868,0.873
+
+         isPredicate    : 0.963,0.910
+            hasLabel    : 0.872,0.818
+                role    : 0.752,0.638
+          frameLabel    : 0.878,0.761
+
+WSJ
+  Labeled precision:          (10308 + 4615) / (13132 + 5257) * 100 = 81.15 %
+  Labeled recall:             (10308 + 4615) / (14269 + 5260) * 100 = 76.41 %
+  Labeled F1:                 78.71
+
+Brown
+  Labeled precision:          (1324 + 609) / (1973 + 797) * 100 = 69.78 %
+  Labeled recall:             (1324 + 609) / (2210 + 804) * 100 = 64.13 %
+  Labeled F1:                 66.84
+
+
+Bottom up
+**************
+         isPredicate    : 0.958,0.960,0.960,0.960,0.959
+          isArgument    : 0.893,0.895,0.895,0.894,0.894
+            hasLabel    : 0.867,0.870,0.869,0.870,0.869
+                role    : 0.728,0.738,0.743,0.746,0.747
+          frameLabel    : 0.872,0.878,0.885,0.887,0.883
+
+         isPredicate    : 0.965,0.925
+          isArgument    : 0.904,0.866
+            hasLabel    : 0.877,0.836
+                role    : 0.775,0.662
+          frameLabel    : 0.890,0.775
+
+WSJ
+  Labeled precision:          (10315 + 4590) / (12349 + 5262) * 100 = 84.63 %
+  Labeled recall:             (10315 + 4590) / (14269 + 5260) * 100 = 76.32 %
+  Labeled F1:                 80.26
+
+Brown
+  Labeled precision:          (1327 + 591) / (1836 + 812) * 100 = 72.43 %
+  Labeled recall:             (1327 + 591) / (2210 + 804) * 100 = 63.64 %
+  Labeled F1:                 67.75
+
+
+NO CPI 
+**************
+
+missing
+
+
+Without linguistic
+**************
+
