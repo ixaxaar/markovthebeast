@@ -19,47 +19,63 @@ token {}``Haag'' is referring to the player of the play event, and
 answer {}``Who'', {}``When'', {}``What'' etc. questions, such
 as Information Extraction, Question Answering and Summarization. 
 
-Any real-world SRL system needs to make several decisions: which are
-the predicate tokens of a sentence (predicate identification), which
-are the tokens that have semantic roles with respect to these predicates
-(argument identification), which are the roles these tokens play (argument
-classification), and which is the sense of the predicate (sense disambiguation).
-It seems obvious that these decisions interact. For example, one would
-only pick semantic arguments for tokens that have been marked as predicates.
-Likewise, one would only pick a semantic role for a token that has
-been identified as an argument. It also appears that in order to predict
-the sense of a predicate one would need to know which roles its semantic
-arguments play. There are also interactions between decisions of the
-same type: for example, if we classified one semantic argument as
-agent (player) of a predicate, no other argument can be the agent,
-too. 
+Any real-world SRL system needs to make several decisions, either
+explicitely or implicitely: which are the predicate tokens of a sentence
+(predicate identification), which are the tokens that have semantic
+roles with respect to these predicates (argument identification),
+which are the roles these tokens play (argument classification), and
+which is the sense of the predicate (sense disambiguation).
 
-Some of these interactions have been captured by a simple juxtaposition
-of decisions. For example, most SRL systems would first predict which
-tokens (phrases) are semantic arguments, and then predict the roles
-they play. Some of these interactions have been captured by means
-of {}``global inference'' that jointly picks the best set of decision
-given some global objective function. For example, to make sure that
-there is not more than one agent per predicate researchers have been
-applying Integer Linear Programming or reranking techniques to find
-the best set of role assignments that satisfies this constraint. Finally,
-some of these interactions have not been investigated, because until
-recently SRL has been focussing on the task of finding and labelling
-the semantic arguments of a \emph{given} predicate. 
+In this paper we use Markov Logic, a Statistical Relational Learning
+framework that combines First Order Logic and Markov Networks, to
+develop a joint probabilistic model over all decisions mentioned above.
+This has the following reasons. %% TODO: a bit disconnected here
 
-In this paper we propose to tacke SRL and capture the beforementioned
-interactions using Markov Logic, a Statistical Relational Learning
-language that uses weighted first order logic formulae to define Markov
-Networks of repetitive structure. This choice has several benefits.
-First, it allows us to jointly model all decisions of an SRL subsystem
-and evaluate the impact of joint inference over all these decisions---this
-is a novelty in the sense that previous work has only looked at subsets
-of all decisions\#\#. Second, by using a first order language such
-as Markov Logic (in contrast to a propositional representation such
-as ILP) we are able to exploit an efficient lifted inference technique
-that is much more difficult to implement without a first order representation.
-Finally, in terms of engineering our system, the efforts we have make
-are similar to those necessary when training a single classifier:
-we simply have to define a model, prepare a single input file for
-training and one for testing. This is in contrast with work based
-on ILP and pipelines...
+First, it allows us to readily capture \emph{global correlations}
+between decisions, such as the constraint that a predicate can only
+have one agent. This type of correlations has been succesfully been
+exploited in several previous SRL systems~\citep{toutanova05joint,punyakanok05generalized}. 
+
+Second, we can use the joint model to evaluate the benefit incorporating
+decisions into the joint model that either have not received much
+attention within the SRL community (predicate identification and sense
+disambiguation), or been largely made in isolation (argument classification
+for \emph{all} predicates of a sentence). 
+
+Third, our Markov Logic model is essentially a template that describes
+a class of Markov Networks, one for each SRL problem we encounter.
+Algorithms can perform inference in terms of this template without
+ever having to fully instantiate the complete Markov
+Network~\citep{riedel08improving}. This can dramatically improve the efficiency of an SRL system when
+compared to a propositional approach such as Integer Linear Programming.
+
+Finally, when it comes to actually building an SRL system with Markov
+Logic (say, in order to reproduce this work) there are ``only''
+four things left for us to do: preparing input data files, converting
+output data files, and triggering learning and inference. The remaining
+work can be done by an off-the-shelf Markov Logic interpreter. This
+is to be contrasted to Pipeline systems where several components need
+to be trained and connected, or ILP approaches that in which we need
+to write additional wrapper code to generate ILPs.
+
+Empirically we find that our system is highly competetive---our best
+model would appear on-par with the best entry in the CoNLL 2008
+shared task open track, and at the 4th place when compared to systems
+that use dedicated parsers; this is remarkable in the sense that the
+top 3 systems use optimized parsers while we use the MALT
+dependencies provided in the open track dataset.  
+
+We also observe that by integrating frame disambiguation into the
+joint SRL model, and by extracting all arguments for all predicates in a
+sentence simultanously, significant improvements compared to pipelined
+system can be achieved. These improvements are particular dramatic in
+the case of out-of-domain data, suggesting that a joint approach helps
+to increase the robustness of SRL. 
+
+Last but not least, we show that our system is significantly faster
+than an equivalent ILP-based approach (maybe also faster than the
+pipeline?). 
+
+ 
+
+
