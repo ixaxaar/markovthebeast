@@ -13,30 +13,32 @@ For argument identification and classification, we use the predicates \emph{isAr
 \end{figure}
 
 Additionaly to the hidden predicates, we define observable predicates to
-represent the information available in the corpus. These predicates are:
-\begin{description}
-    \item[\emph{word}] Orthography of the token.
-    \item[\emph{lemma}] Predicted lemma for the form of the token.
-    \item[\emph{ppos}] Predicted POS tag for the form of the token.
-    \item[\emph{cpos}] Predicted coarse POS tag for the form of the token.
-    \item[\emph{possiblePredicate}] True if the token can be a predicate based on inspecting its POS tag.
-    \item[\emph{possibleArgument}] True if the form can be a argument based on inspecting its POS tag.
-    \item[\emph{voice}] Voice of the form if it is a verb (Active/Passive).
-    \item[\emph{dep}] Syntactic dependency relation.
-    \item[\emph{head}] Syntactic head of the current token.
-    \item[\emph{palmer}] True if prunned by heuristics proposed in
-        \citet{.}.
-%  mst_frame_unlabeled 
-%  mst_path_frame_unlabeled 
-%  mst_frame 
-%  path_frame_distance 
-%  mst_path_frame 
-%  mst_path 
-%  mst_path_length 
-%  mst_link 
-%  mst_path_directed 
-%  mst_path_unlabeled 
-\end{description}
+represent the information available in the corpus. Table \ref{tbl:o_preds}
+presents these predicates. 
+\begin{table}
+    \centering
+    \begin{tabular}{|c|p{5cm}|}
+        \hline
+    \emph{word}    & Orthography of the token.\\\hline
+    \emph{lemma}   & Predicted lemma for the form of the token.\\\hline
+    \emph{ppos}    & Predicted POS tag for the form of the token.\\\hline
+    \emph{cpos}    & Predicted coarse POS tag for the form of the token.\\\hline
+    \emph{possiblePre} & True if the token can be a predicate based on inspecting its POS tag.\\\hline
+    \emph{possibleArg} & True if the form can be a argument based on inspecting its POS tag.\\\hline
+    \emph{voice}   & Voice of the form if it is a verb (Active/Passive).\\\hline
+    \emph{dep}     & Syntactic dependency relation.\\\hline
+    \emph{head}    & Syntactic head of the current token.\\\hline
+    \emph{palmer}  & True if prunned by heuristics proposed in
+    \citep{xue04calibrating}.\\\hline
+    \emph{depPath}      & Syntactic dependency path among two tokens (we include
+    the unlabelled and length version).\\\hline
+    \emph{depFrame}     & Syntactic dependency frame for a token as proposed by \citet{xue04calibrating}(we include the
+    unlabelled version).\\\hline
+    \emph{depPathFrame} & Syntactic dependency frame path among two tokens  as proposed by \citet{xue04calibrating} (we include the unlabelled and distance version).\\\hline
+    \end{tabular}
+    \caption{Observable predicates}
+    \label{tbl:o_preds}
+\end{table}
 
 \section{Local formulae}
 \label{sec:local}
@@ -44,6 +46,12 @@ represent the information available in the corpus. These predicates are:
 A formula is local if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, a grounding of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
 can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
+
+Instead of listing whole set of local formulae in more detail we refer the reader
+to our MLN model files.\footnote{\url{http://thebeast.googlecode.com/svn/mlns/
+naaclhlt09}} They can be used both as a reference and as input to our Markov Logic
+Engine\footnote{\url{http://thebeast.googlecode.com}}, and thus allow the reader to easily reproduce our results. We believe that this is another advantage
+of explicitly separating model and algorithms by using first order probabilistic logic languages.
 
 \begin{figure}
 \begin{center}
@@ -53,96 +61,10 @@ can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidd
 \label{fig:local2}
 \end{figure}
 
-For the predicates \emph{isPredicate} and \emph{isArgument} we define the
-following formuale:
-\begin{description}
-    \item[$Word$] a rule for the orthography of possible predicate or argument.
-    \item[$Lemma_{-2,-1,1,2}$] for each lemma in a window of two previous and two following token a rule of possible predicate or argument.
-    \item[$POSs_{-2,-1,1,2}$] for each POS in a window of two previous and two following tokens a rule of possible predicate or argument.
-    \item[$CoarsePOS$] a rule for the previous and the following coarse POS tags of possible predicate or argument.
-    \item[$CoarsePOS_2$] a rule for the two previous and two following corar POS tags of possible predicate or argument.
-    \item[$DependecyChildren$] a rule for the dependencies of each child of possible predicate or argument.
-    \item[$DependecyParent$] a rule for the dependencies of parent of possible predicate or argument.
-    \item[$DependecyChildrenPOS$] a rule for the POS tag for each child  of possible predicate or argument.
-    \item[$DependecyChildrenParPOS$] a rule for the POS tag of parent and each child  of possible predicate or argument.
-    \item[$MFrame$] a rule for the MFrame of possible predicate or argument.
-\end{description}
-
-For the predicate \emph{hasRole} we define the following formulae:
-\begin{description}
-    \item[*$Lemma$] a rule for the lemmas of possible predicate and argument.
-    \item[*$POS$] a rule for the POS tags of possible predicate and argument.
-    \item[*$LemmaPOS$] a rule for the lemma of possible predicate and POS of possible argument.
-    \item[*$POSLemma$] a rule for the POS of possible predicate and lemma of possible argument.
-    \item[$SameLemma$] a rule if possible predicate and argument share the same
-        lemma.
-    \item[*$SamePOS$] a rule if possible predicate and argument share the same
-        POS.
-    \item[*$CorsePosTags$] a rule for each combination of coarse POS of pair of token after or before the possible predicate and argument.
-    \item[$POSArg_{-1,+1}$] for the previous and following POS tags of tokens of a possible argument
-        a rule with the POS tag of a possible predicate.
-    \item[$BinDistance_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument.
-    \item[*$VoiceBinDistance_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument and the voice of the possible predicate.
-    \item[$PalmePruned(POS)$] a rule if the possible predicate and argument are
-        pruned by palmer heuristic (extra version with POS tag for predicate).
-    \item[$Dependency$] for possible predicate and argument a rule for their
-        syntactic dependency.
-    \item[*$Dependencies(Voice)$] a rule for syntactic dependencies for both possible predicate and
-        argument (extra version with voice).
-    \item[$PathLength_{0,1,2,3,4,5,10}$] A rule for each bin of the length of the path among the possible predicate and possible
-        argument.
-    \item[*$DepPath(Voice)$] a rule for the dependency path among the
-        possible predicate and possible argument (extra version for voice).
-    \item[*$UnlabelledDepPath(Voice,Lemma)$] a rule for the unlabelled dependency path frame among the
-        possible predicate and possible argument (extra versions for voice and
-        lemma of predicate and argument).
-    \item[*$DepPathFrame(Voice,Lemma)$] a rule for the dependency path frame among the
-        possible predicate and possible argument (extra versions for voice and
-        lemma of predicate).
-    \item[*$PairUnlabelledDepPathFrame(Lemma)$] a rule for the unlabelled dependency path frame among the
-        possible predicate and possible argument (extra versions for lemma of
-        predicate and arguments).
-    \item[$SamePath$] a rule for the dependency path among the
-        possible predicate and possible argument if both are the same.
-    \item[$SamePathFrame$] a rule for the dependency path frame among the
-        possible predicate and possible argument if both are the same.
-    \item[*$PPattachment$] for the combination of lemma and POS the child of prepositional phrase as possible argument and possible predicate.
-\end{description}
-The formulae with the star symbol at the start was defined for the \emph{role}
-predicate as well. Additionally, for the role we define:
-\begin{description}
-    \item[$POS$] a rule for both POS tags of possible predicate and the bin
-        distance to the argument.
-    \item[$POSPOS$] a rule for the POSs of possible predicate and argument.
-    \item[*$Dependencies_{0,1,2,3,4,5,10}$] a rule for bin distances and the syntactic dependencies for both possible predicate and
-        argument (extra version with voice).
-    \item[$POSPOS_{0,1,2,3,4,5,10}$] a rule for the POS and the bin distances among  possible predicate and argument.
-    \item[$BinDistance(Lemmma,Voice)_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument with their lemmas and/or voice.
-    \item[*$DepPath(Lemma,CorsePos)$] a rule for the dependency path among the
-        possible predicate and possible argument with lemma (extra version for coarse POS, and lemma argument).
-    \item[$DepPathDistance(Voice,Lemma)_{0,1,2,3,4,5,10}$] a rule for bin distance among the dependency path of the
-        possible predicate and possible argument (extra versions for voice and
-        lemma of predicate).
-    \item[$DepPathFrameDistance(Voice,Lemma)_{0,1,2,3,4,5,10}$] a rule for bin distance among the dependency path frame of the
-        possible predicate and possible argument (extra versions for voice and
-        lemma of predicate).
-\end{description}
-
-Finally, we define the following local formulae for the \emph{sense} predicate:
-\begin{description}
-    \item[$sense$] a rule for the sense of a possible predicate.
-    \item[$lemma$] a rule for the sense of a possible predicate and its lemma.
-\end{description}
-With this only two local formulae we try to assign the most common sense to a
-predicate. Other reasonable formulae would depend on the arguments of the
-predicate. But at the local level, we can not include the arguments of the
-predicate since they are unknown. However, in the next section addresses this
-constraint.
-
 \section{Global formulae}
 \label{sec:global}
 
-\emph{Global} formulae relate several hidden ground atoms. We use them for two purposes: to ensure consistency between the decisions of all SRL stages and to capture some of our intuition about the task. We will refer to formulae that serve the first purpose as \emph{structural constraints}. 
+On the other hand, \emph{global} formulae relate several hidden ground atoms. We use these type of formula for two purposes: to ensure consistency between the predicates at all SRL stages and to capture some of our intuition about the task. We will refer to formulae that serve the first purpose as \emph{structural constraints}. 
 
 For example, a structural constraint is given by the (deterministic) formula
 \[role(p,a,r) \Rightarrow hasRole(p,a)\]
@@ -155,6 +77,14 @@ hasRole(p,a)\Rightarrow\exists r.role(p,a,r)
 which, by itself, models an inverted or ``top-down'' pipeline. In this architecture the argument classification stage can assign roles to tokens that have not been proposed by the argument identification stage. However, it must assign a label to any token pair the previous stage proposes. 
 %IV
 Figure \ref{fig:global2} illustrates the structural formulae we use in form of a Markov Network.
+
+\begin{figure}[ht]
+\begin{center}
+   \includegraphics[scale=.70]{GlobalFormula2}
+\end{center}
+\caption{Markov Network that illustrates the structural constraints we use.}
+\label{fig:global2}
+\end{figure}
 
 For the SRL predicates that perform a labelling task (\emph{role} and \emph{sense}) we also need a structural constraint which ensures that not more than one label is assigned. For instance,
 \[
@@ -176,44 +106,113 @@ The second class of global formulae is \emph{soft} or nondeterministic. For inst
 \end{eqnarray*}
 is a soft global formula. It captures the observation that the sense of a verb or noun depends on the type of its arguments. Here the type of an argument token is represented by its POS tag.
 
-Table \ref{tbl:global} summarises the formulae we use in this work:
+Table \ref{tbl:global} summarises the formulae we use in this work.
 
-\begin{table}
-    7\centering
-    \begin{tabular}{|c|}\hline
-        Structural Bottom-up\\\hline\hline
-        $sense(p,s) \Rightarrow predicate(p)$\\
-        $hasRole(p,a) \Rightarrow predicate(p)$\\
-        $hasRole(p,a) \Rightarrow argument(a)$\\
-        $role(p,a,r) \Rightarrow hasLabel(p,a)$\\
-        Structural Top-Down\\\hline\hline
-        $isPredicate(p) \Rightarrow\exists s.sense(p,s)$\\
-        $isPredicate(p) \Rightarrow\exists a.hasRole(p,a)$\\
-        $isArgument(a)  \Rightarrow\exists p.hasRole(p,a)$\\
-        $hasLabel(p,a) \Rightarrow\exists r. role(p,a,r)$\\
-        Additional Structural\\\hline\hline
-        $(role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2) )$\\
-        $(sense(p,s_1) \wedge s_1 \neq s_2 \Rightarrow \neg sense(p,r_2) )$\\
-        Hard constrains\\\hline\hline
-        $role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq a_{2}  \Rightarrow \neg role\left(p,a_{2},r\right) $
-        Soft constrains\\\hline\hline
-        $ lemma(p,+l) \wedge ppos(a,+p) \wedge hasRole(p,a)  \Rightarrow sense(p,+f) $ \\
-        $ lemma(p,+l) \wedge role(p,a,+r) \Rightarrow sense(p,+f) $ \\
+\begin{table*}[ht]
+    \centering
+    \begin{tabular}{|c|l|}\hline
+        \multirow{4}{*}{Structural Bottom-up}     & $sense(p,s) \Rightarrow predicate(p)$\\
+       & $hasRole(p,a) \Rightarrow predicate(p)$\\
+       & $hasRole(p,a) \Rightarrow argument(a)$\\
+       & $role(p,a,r) \Rightarrow hasLabel(p,a)$\\\hline
+       \multirow{4}{*}{Structural Top-Down } &       $isPredicate(p) \Rightarrow\exists s.sense(p,s)$\\
+       & $isPredicate(p) \Rightarrow\exists a.hasRole(p,a)$\\
+       & $isArgument(a)  \Rightarrow\exists p.hasRole(p,a)$\\
+       & $hasLabel(p,a) \Rightarrow\exists r. role(p,a,r)$\\\hline
+       \multirow{2}{*}{Additional Structural }  & $(role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2) )$\\
+       & $(sense(p,s_1) \wedge s_1 \neq s_2 \Rightarrow \neg sense(p,r_2)
+       )$\\\hline
+  Hard constrains &   $role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq a_{2}  \Rightarrow \neg role\left(p,a_{2},r\right) $\\\hline
+  \multirow{2}{*}{Soft constrains} &   $ lemma(p,+l) \wedge ppos(a,+p) \wedge hasRole(p,a)  \Rightarrow sense(p,+f) $ \\
+        & $ lemma(p,+l) \wedge role(p,a,+r) \Rightarrow sense(p,+f) $ \\
         \hline
     \end{tabular}
     \caption{Global formulae for ML model}
     \label{tbl:global}
-\end{table}
-
-\begin{figure}
-\begin{center}
-   \includegraphics[scale=.70]{GlobalFormula2}
-\end{center}
-\caption{Markov Network that illustrates the structural constraints we use.}
-\label{fig:global2}
-\end{figure}
+\end{table*}
 
 
+
+%For the predicates \emph{isPredicate} and \emph{isArgument} we define the
+%following formuale:
+%\begin{description}
+    %\item[$Word$] a rule for the orthography of possible predicate or argument.
+    %\item[$Lemma_{-2,-1,1,2}$] for each lemma in a window of two previous and two following token a rule of possible predicate or argument.
+    %\item[$POSs_{-2,-1,1,2}$] for each POS in a window of two previous and two following tokens a rule of possible predicate or argument.
+    %\item[$CoarsePOS$] a rule for the previous and the following coarse POS tags of possible predicate or argument.
+    %\item[$CoarsePOS_2$] a rule for the two previous and two following corar POS tags of possible predicate or argument.
+    %\item[$DependecyChildren$] a rule for the dependencies of each child of possible predicate or argument.
+    %\item[$DependecyParent$] a rule for the dependencies of parent of possible predicate or argument.
+    %\item[$DependecyChildrenPOS$] a rule for the POS tag for each child  of possible predicate or argument.
+    %\item[$DependecyChildrenParPOS$] a rule for the POS tag of parent and each child  of possible predicate or argument.
+    %\item[$MFrame$] a rule for the MFrame of possible predicate or argument.
+%\end{description}
+
+%For the predicate \emph{hasRole} we define the following formulae:
+%\begin{description}
+    %\item[*$Lemma$] a rule for the lemmas of possible predicate and argument.
+    %\item[*$POS$] a rule for the POS tags of possible predicate and argument.
+    %\item[*$LemmaPOS$] a rule for the lemma of possible predicate and POS of possible argument.
+    %\item[*$POSLemma$] a rule for the POS of possible predicate and lemma of possible argument.
+    %\item[$SameLemma$] a rule if possible predicate and argument share the same
+        %lemma.
+    %\item[*$SamePOS$] a rule if possible predicate and argument share the same
+        %POS.
+    %\item[*$CorsePosTags$] a rule for each combination of coarse POS of pair of token after or before the possible predicate and argument.
+    %\item[$POSArg_{-1,+1}$] for the previous and following POS tags of tokens of a possible argument
+        %a rule with the POS tag of a possible predicate.
+    %\item[$BinDistance_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument.
+    %\item[*$VoiceBinDistance_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument and the voice of the possible predicate.
+    %\item[$PalmePruned(POS)$] a rule if the possible predicate and argument are
+        %pruned by palmer heuristic (extra version with POS tag for predicate).
+    %\item[$Dependency$] for possible predicate and argument a rule for their
+        %syntactic dependency.
+    %\item[*$Dependencies(Voice)$] a rule for syntactic dependencies for both possible predicate and
+        %argument (extra version with voice).
+    %\item[$PathLength_{0,1,2,3,4,5,10}$] A rule for each bin of the length of the path among the possible predicate and possible
+        %argument.
+    %\item[*$DepPath(Voice)$] a rule for the dependency path among the
+        %possible predicate and possible argument (extra version for voice).
+    %\item[*$UnlabelledDepPath(Voice,Lemma)$] a rule for the unlabelled dependency path frame among the
+        %possible predicate and possible argument (extra versions for voice and
+        %lemma of predicate and argument).
+    %\item[*$DepPathFrame(Voice,Lemma)$] a rule for the dependency path frame among the
+        %possible predicate and possible argument (extra versions for voice and
+        %lemma of predicate).
+    %\item[*$PairUnlabelledDepPathFrame(Lemma)$] a rule for the unlabelled dependency path frame among the
+        %possible predicate and possible argument (extra versions for lemma of
+        %predicate and arguments).
+    %\item[$SamePath$] a rule for the dependency path among the
+        %possible predicate and possible argument if both are the same.
+    %\item[$SamePathFrame$] a rule for the dependency path frame among the
+        %possible predicate and possible argument if both are the same.
+    %\item[*$PPattachment$] for the combination of lemma and POS the child of prepositional phrase as possible argument and possible predicate.
+%\end{description}
+%The formulae with the star symbol at the start was defined for the \emph{role}
+%predicate as well. Additionally, for the role we define:
+%\begin{description}
+    %\item[$POS$] a rule for both POS tags of possible predicate and the bin
+        %distance to the argument.
+    %\item[$POSPOS$] a rule for the POSs of possible predicate and argument.
+    %\item[*$Dependencies_{0,1,2,3,4,5,10}$] a rule for bin distances and the syntactic dependencies for both possible predicate and
+        %argument (extra version with voice).
+    %\item[$POSPOS_{0,1,2,3,4,5,10}$] a rule for the POS and the bin distances among  possible predicate and argument.
+    %\item[$BinDistance(Lemmma,Voice)_{0,1,2,3,4,5,10}$] a rule for the bin distances among possible predicate and argument with their lemmas and/or voice.
+    %\item[*$DepPath(Lemma,CorsePos)$] a rule for the dependency path among the
+        %possible predicate and possible argument with lemma (extra version for coarse POS, and lemma argument).
+    %\item[$DepPathDistance(Voice,Lemma)_{0,1,2,3,4,5,10}$] a rule for bin distance among the dependency path of the
+        %possible predicate and possible argument (extra versions for voice and
+        %lemma of predicate).
+    %\item[$DepPathFrameDistance(Voice,Lemma)_{0,1,2,3,4,5,10}$] a rule for bin distance among the dependency path frame of the
+        %possible predicate and possible argument (extra versions for voice and
+        %lemma of predicate).
+%\end{description}
+
+%Finally, we define the following local formulae for the \emph{sense} predicate:
+%\begin{description}
+    %\item[$sense$] a rule for the sense of a possible predicate.
+    %\item[$lemma$] a rule for the sense of a possible predicate and its lemma.
+%\end{description}
 
 
 
