@@ -40,14 +40,16 @@ presents these predicates.
     \label{tbl:o_preds}
 \end{table}
 
-\section{Local formulae}
+\subsection{Local formulae}
 \label{sec:local}
 
 A formula is local if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, a grounding of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
 can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
 
-Instead of listing whole set of local formulae in more detail we refer the reader
+The local formulae of our model for \emph{isPredicate} and \emph{isArgument} aims to capture the relation of the tokens with their lexical and syntactic surroundings. In the case of \emph{hasRole} local formulae, these focus on the lexical properties and the syntactic link among the possible predicate and argument. The formulae for \emph{role} extends the formulae for \emph{hasRole} with the SRL role and new formulae to exploit the distance among predicate and argument. The formulae for \emph{sense} relates the lexical properties of the possible predicate with the sense of the predicate. 
+
+Instead of describe the sets of local formulae in more detail we refer the reader
 to our MLN model files.\footnote{\url{http://thebeast.googlecode.com/svn/mlns/
 naaclhlt09}} They can be used both as a reference and as input to our Markov Logic
 Engine\footnote{\url{http://thebeast.googlecode.com}}, and thus allow the reader to easily reproduce our results. We believe that this is another advantage
@@ -61,7 +63,7 @@ of explicitly separating model and algorithms by using first order probabilistic
 \label{fig:local2}
 \end{figure}
 
-\section{Global formulae}
+\subsection{Global formulae}
 \label{sec:global}
 
 On the other hand, \emph{global} formulae relate several hidden ground atoms. We use these type of formula for two purposes: to ensure consistency between the predicates at all SRL stages and to capture some of our intuition about the task. We will refer to formulae that serve the first purpose as \emph{structural constraints}. 
