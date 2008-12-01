@@ -28,7 +28,7 @@ Table \ref{tbl:results} suggests that by including sense disambiguation into the
 
 Table \ref{tbl:predicates} shows that the joint model does significantly better (2\% points) when it comes to predicting the right roles and senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points for senses. These results suggest that the global formulae which assess the semantic frame of a predicate help in both ways: they can improve both senses and role labels simultanously. In contrast, the joint model does not help us to identify predicates and arguments; the score for all remaining hidden predicates remains roughly equal. 
 
-% Give example sentence to see
+The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role ``A2'' (``created from'') only appears in the  ``02'' (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the ``02'' instead of the corrent ``01'' (``come to know'') sense. In contrast, the joint bottom-up model knows that by simply dropping ``You'' as argument all together and changing the ``A2'' to an ``A0'' label, the sense ``01'' becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
 
 \begin{table}[ht]
 
@@ -46,6 +46,14 @@ Table \ref{tbl:predicates} shows that the joint model does significantly better 
     \label{tbl:predicates}
 \end{table}
 
+\begin{figure}
+\begin{center}
+    \includegraphics[scale=.58]{joint-sense-example}
+\end{center}
+\caption{Fragment of sentence in the development set that the pipeline model gets wrong: it picks the wrong sense (``02'') for ``realize'' and falsely assigns ``You'' the A0 role and ``lawyer'' the A2 role.}
+\label{fig:jointSense}
+\end{figure}
+
 
 % I don't quite understand why we did isArg vs no isArg :-S. Maybe, too late to
 % bring the issue. I just put two columns, if I put dev and brown, they get too
@@ -57,7 +65,7 @@ In table \ref{tbl:results} we also observe that improvements can be made if we e
 
 In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels. 
 
-How the $isArgument$ helps to improve the overall role labelling can be seen in the example of figure \ref{fig:isArg}. Here the model without a hidden $isArgument$ predicate fails to attach the preposition ``on'' to the predicate ``start.01'' (here 01 refers to the sense of the predicate). Apparently the model has not enough confidence to assign the preposition to either ``start.01'' or ``get.03'', so it just drops the argument altogether. However, because the $isArgument$ model knows that most prepositions have to be modifying some predicate, pressure is created that forces a decision between the two predicates. And because for the role model ``start.01'' looks like a better fit than ``get.03'', the correct attachment is found.
+How the $isArgument$ helps to improve the overall role labelling score can be illustrated with the example in figure \ref{fig:isArg}. Here the model without a hidden $isArgument$ predicate fails to attach the preposition ``on'' to the predicate ``start.01'' (here 01 refers to the sense of the predicate). Apparently the model has not enough confidence to assign the preposition to either ``start.01'' or ``get.03'', so it just drops the argument altogether. However, because the $isArgument$ model knows that most prepositions have to be modifying some predicate, pressure is created that forces a decision between the two predicates. And because for the role model ``start.01'' looks like a better fit than ``get.03'', the correct attachment is found.
 
 %%example
 \begin{figure}
