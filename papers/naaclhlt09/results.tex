@@ -76,30 +76,32 @@ faster to train. Table \ref{tbl:nocpi} shows the times for testing when the CPI
 algorithm is off. As we can see the CPI algorithm helps to keep the ML approach
 efficient for the SRL task.
 
+% \begin{table}[ht]
+
+%     \centering
+%     \begin{tabular}{|p{2.5cm}|c|c|c|}\hline
+%         System                           & Training & Testing   & Testing \\
+%                                          &          & WSJ       & Brown   \\\hline 
+%         Full model                       & $5.1$h   & $9.2$m    & $1.5$m  \\
+%         Bottom-up                        & $4.3$ih  & $9.5$m    & $1.6$m  \\
+%         Full model w/o \emph{isArgument} &          &           &         \\
+%         Bottom-up  w/o \emph{isArgument} & $3.9$h   & $12.5$m   & $1.5$m \\
+%         Pipeline                         & $5.0$h   & $18.9$m   & $2.9$m \\\hline
+%     \end{tabular}
+%     \caption{Testing and training times for the systems.}
+%     \label{tbl:times}
+% \end{table}
+
 \begin{table}[ht]
 
     \centering
-    \begin{tabular}{|p{2.5cm}|c|c|c|}\hline
-        System                           & Training & Testing   & Testing \\
-                                         &          & WSJ       & Brown   \\\hline 
-        Full model                       & $5.1$h   & $9.2$m    & $1.5$m  \\
-        Bottom-up                        & $4.3$ih  & $9.5$m    & $1.6$m  \\
-        Full model w/o \emph{isArgument} &          &           &         \\
-        Bottom-up  w/o \emph{isArgument} & $3.9$h   & $12.5$m   & $1.5$m \\
-        Pipeline                         & $5.0$h   & $18.9$m   & $2.9$m \\\hline
-    \end{tabular}
-    \caption{Testing and training times for the systems.}
-    \label{tbl:times}
-\end{table}
-
-\begin{table}[ht]
-
-    \centering
-    \begin{tabular}{|p{2.5cm}|c|c|}\hline
-        System                           & Testing   & Testing \\
-                                         & WSJ       & Brown   \\\hline 
-        Full model                       & $38.4$m   & $7.47$m  \\
-        Bottom-up                        & $38.8$m   & $6.9$m  \\
+    \begin{tabular}{|p{3.0cm}|c|c|}\hline
+        System                           & WSJ       & Brown   \\\hline 
+        Full                             & $9.2$m    & $1.5$m  \\
+        Full (-CPI)                      & $38.4$m   & $7.47$m  \\
+        Bottom-up                        & $9.5$m    & $1.6$m  \\
+        Bottom-up (-CPI)                 & $38.8$m   & $6.9$m  \\
+        Pipeline                         & $18.9$m   & $2.9$m  \\\hline
     \end{tabular}
     \caption{Testing times for full model and bottom-up when CPI algorithm is
     not used.}
