@@ -1,8 +1,14 @@
 
 
+Conceptually we divide our SRL system into three stages: one stage that identifies the predicates of a sentence, one stage that identifies and classifies the arguments of these predicates, and a final stage that predicts the sense of each predicate. We should stress that this architecture is intented to illustrate a typical SRL system, and to describe the pipeline-based approach we will compare our models to. However, it does \emph{not} correspond to the way inference is performed in our proposed model---we jointly infer \emph{all} decisions described above.  
+
+Note that while the proposed division into conceptual stages seems somewhat intuitive, it is by no means uncontroversial. In fact, for the CoNLL 2008 shared task slightly more than one half of the participants performed sense disambiguation before argument identification and classification; most other participants framed the problem in the reverse order.\footnote{However, for almost all pipeline based systems, predicate identification was the first stage of the role labelling process.} 
+
 We define five hidden predicates for the three stages of the task. Figure \ref{fig:achitecture} illustrates these predicates and the stage they belong to. 
 For predicate identification, we use the predicate \emph{isPredicate}. \emph{isPredicate(p)} indicates that the word in the position $p$ is an SRL predicate.
 For argument identification and classification, we use the predicates \emph{isArgument}, \emph{hasRole} and \emph{role}. The atom \emph{isArgument(a)} signals that the word in the position $a$ is a SRL argument of some (unspecified) SRL predicate while \emph{hasRole(p,a)} indicates that the token at position $a$ is an argument of the predicate in position $p$. The predicate \emph{role(p,a,r)} corresponds to the decision that the argument in the position $a$ has the role $r$ with respect to the predicate in the position $p$. Finally, for sense disambiguation we  define the predicate \emph{sense(p,e)} which signals that predicate in position $p$ has the sense $e$. 
+
+Before we continue to describe the formulae of our Markov Logic Network we would like to highlight the introduction of the $isArgument$ predicate mentioned above. This predicate corresponds to a decision that is usually made implicitely: a token is an argument if there exists a predicate for which plays a semantic role. Here we model this decision explicitely, assuming that there exist cases where a token clearly has to be an argument of some predicate, regardless of which predicate in the sentence this might be. It is this assumption that requires us to infer the arguments for \emph{all} predicates of a sentence at once---otherwise we cannot make sure that for a marked argument there exists at least one predicate for which it plays a semantic role.
 
 \begin{figure}
 \begin{center}
@@ -16,27 +22,24 @@ Additionaly to the hidden predicates, we define observable predicates to
 represent the information available in the corpus. Table \ref{tbl:o_preds}
 presents these predicates. 
 \begin{table}
+    \small
     \centering
     \begin{tabular}{|c|p{5cm}|}
         \hline
-    \emph{word}    & Orthography of the token.\\\hline
-    \emph{lemma}   & Predicted lemma for the form of the token.\\\hline
-    \emph{ppos}    & Predicted POS tag for the form of the token.\\\hline
-    \emph{cpos}    & Predicted coarse POS tag for the form of the token.\\\hline
-    \emph{possiblePre} & True if the token can be a predicate based on inspecting its POS tag.\\\hline
-    \emph{possibleArg} & True if the form can be a argument based on inspecting its POS tag.\\\hline
-    \emph{voice}   & Voice of the form if it is a verb (Active/Passive).\\\hline
-    \emph{dep}     & Syntactic dependency relation.\\\hline
-    \emph{head}    & Syntactic head of the current token.\\\hline
-    \emph{palmer}  & True if prunned by heuristics proposed in
-    \citep{xue04calibrating}.\\\hline
-    \emph{depPath}      & Syntactic dependency path among two tokens (we include
-    the unlabelled and length version).\\\hline
-    \emph{depFrame}     & Syntactic dependency frame for a token as proposed by \citet{xue04calibrating}(we include the
-    unlabelled version).\\\hline
-    \emph{depPathFrame} & Syntactic dependency frame path among two tokens  as proposed by \citet{xue04calibrating} (we include the unlabelled and distance version).\\\hline
+    \emph{possiblePred(i)} & Token $i$ can be a predicate wrt. to a high recall POS tag heuristic\\\hline
+    \emph{possibleArg(i)} &  Token $i$ can be an argument wrt. to a high recall POS tag heuristic\\\hline\hline
+    \emph{word(i,w)}    & Token $i$ has word $w$\\\hline
+    \emph{lemma(i,l)}   & Token $i$ has lemma $l$\\\hline
+    \emph{ppos(i,p)}    & Token $i$ has POS tag $p$\\\hline
+    \emph{cpos(i,p)}    & Token $i$ has coarse POS tag $p$\\\hline
+    \emph{voice(i,v)}   & Token $i$ is verb and has voice $v$ (Active/Passive).\\\hline
+    \emph{subcat(i,f)} & Token $i$ has subcategorization frame $f$\\\hline\hline
+    \emph{dep(i,j,d)}     & Token $h$ is head of token $m$ and has dependency label $d$\\\hline
+    \emph{palmer(i,j)}  & Token $j$ can be semantic argument for token $i$ according to high recall heuristic$^*$\\\hline
+    \emph{depPath(i,j,p)}      & Dependency path between tokens $i$ and $j$ is $p$$^*$\\\hline
+    \emph{depFrame(i,j,f)}     & $f$ is a syntactic (dependency) frame in which tokens $i$ and $j$ are designated as ``pivots''$^*$\\\hline
     \end{tabular}
-    \caption{Observable predicates}
+    \caption{Observable predicates; predicates marked with $^*$ are dependency parsing-based versions for features of  }
     \label{tbl:o_preds}
 \end{table}
 

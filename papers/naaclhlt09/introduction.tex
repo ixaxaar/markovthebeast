@@ -49,6 +49,14 @@ ever having to fully instantiate the complete Markov
 Network~\citep{riedel08improving}. This can dramatically improve the efficiency of an SRL system when
 compared to a propositional approach such as Integer Linear Programming.
 
+%% SR: This bit is just to remind me that we should sell this point,
+%% too. It might not make it into the paper as is, though!
+Fourth, by framing our problem in Markov Logic we provide a natural
+upgrade path for the consideration of richer models. For example, it
+would be relatively straight-forward to include a Relation Extraction
+component into our model, or the prediction of the next speech act in a
+dialogue system.
+
 Finally, when it comes to actually building an SRL system with Markov
 Logic (say, in order to reproduce this work) there are ``only''
 four things left for us to do: preparing input data files, converting
@@ -59,7 +67,7 @@ to be trained and connected, or ILP approaches that in which we need
 to write additional wrapper code to generate ILPs.
 
 Empirically we find that our system is highly competetive---our best
-model would appear on-par with the best entry in the CoNLL 2008
+model would appear on par with the best entry in the CoNLL 2008
 shared task open track, and at the 4th place when compared to systems
 that use dedicated parsers; this is remarkable in the sense that the
 top 3 systems use optimized parsers while we use the MALT
@@ -78,6 +86,9 @@ Last but not least, we show that our system is significantly faster
 than an equivalent ILP-based approach (maybe also faster than the
 pipeline?). 
 
- 
+Our paper is organized as follows: we first introduce Markov Logic,
+then we present our model in terms of Markov Logic. How this model
+will be evaluated is explained in section ? with the corresponding
+evaluation presented in section ? We conclude in section ?.
 
 
