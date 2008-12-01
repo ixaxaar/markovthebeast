@@ -6,13 +6,15 @@ track with system which used better quality of depenencies trees.
 
 \begin{table}[ht]
     \centering
-    \begin{tabular}{|p{2.5cm}|c|c|c|}\hline
+    \begin{tabular}{|p{3.0cm}|c|c|c|}\hline
         System                    & Devel      & WSJ       & Brown \\\hline 
-        Full model                & $76.93\%$  & $79.09\%$ & $67.64\%$ \\
-        Bottom-up                 & $77.96\%$  & $80.26\%$ & $67.75\%$ \\
-        Full model w/o isArgument &            &           &           \\
-        Bottom-up  w/o isArgument & $77.57\%$  & $79.37\%$ & $66.70\%$ \\
-        Pipeline                  & $75.69\%$  & $78.19\%$ & $64.66\%$ \\\hline
+        Full                      & $76.93$  & $79.09$ & $67.64$ \\
+        Full (-arg)               &          &         &         \\
+        Bottom-up                 & $77.96$  & $80.26$ & $67.75$ \\
+        Bottom-up (-arg)          & $77.57$  & $79.37$ & $66.70$ \\
+        Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\\hline
+        Vickrey$^*$               &          & $79.75$ & $69.57$ \\
+        Johansson$^*$             &          & $86.37$ & $71.87$ \\\hline
     \end{tabular}
     \caption{Labelled $F_1$ scores of our five systems using CoNLL-08
     evaluation.}
@@ -31,15 +33,16 @@ observed with the WSJ.
 \begin{table}[ht]
 
     \centering
-    \begin{tabular}{|c|c|c|}\hline
-                                  & Pipeline  &  Bottom-up \\\hline 
-        \emph{isPredicate}        & $92.2\%$  & $92.5\%$  \\
-        \emph{isArgument}         & $85.9\%$  & $86.6\%$  \\
-        \emph{hasRole}            & $83.6\%$  & $83.6\%$  \\
-        \emph{role}               & $64.2\%$  & $66.2\%$  \\
-        \emph{sense}              & $67.3\%$  & $77.5\%$  \\\hline
+    \begin{tabular}{|c|c|c|c|c|}\hline
+      & \multicolumn{2}{c|}{WSJ} & \multicolumn{2}{c|}{Brown}\\
+                                  & Pipe.  &  B.u.   & Pipe.  &  B.u. \\\hline 
+        \emph{isPredicate}        & $96.6$ & $96.5$ & $92.2$  & $92.5$\\
+        \emph{isArgument}         & $90.3$ & $90.4$ & $85.9$ & $86.6$ \\
+        \emph{hasRole}            & $88.0$ & $87.7$ & $83.6$ & $83.6$ \\
+        \emph{role}               & $75.4$ & $77.5$ & $64.2$ & $66.2$ \\
+        \emph{sense}              & $85.5$ & $89.5$ & $67.3$ & $77.5$ \\\hline
     \end{tabular}
-    \caption{$F_1$ scores for ML predicates in Brown corpus.}
+    \caption{$F_1$ scores for Markov Logic predicates; Pipe. refers to the Pipeline system, B.u. to the Bottom-up system.}
     \label{tbl:predicates}
 \end{table}
 
@@ -50,17 +53,16 @@ observed with the WSJ.
 \begin{table}[ht]
 
     \centering
-    \begin{tabular}{|c|c|c|}\hline
-                                  & Bottom-up  &  Bottom-up \\
-                                  &            &  w/o \emph{isArgument} \\\hline 
-        \emph{isPredicate}        & $96.5\%$   & $96.3\%$   \\
-        \emph{isArgument}         & $90.4\%$   &   N/A      \\
-        \emph{hasRole}            & $87.7\%$   & $87.1\%$   \\
-        \emph{role}               & $77.5\%$   & $76.9\%$   \\
-        \emph{sense}              & $89.0\%$   & $88.3\%$   \\
-        \hline
+    \begin{tabular}{|c|c|c|c|c|}\hline
+      & \multicolumn{2}{c|}{WSJ} & \multicolumn{2}{c|}{Brown}\\
+                                  & w/o     & w/     & w/o    & w/  \\\hline 
+        \emph{isPredicate}        & $96.3$  & $96.5$ & $91.4$ & $92.5$\\
+%%        \emph{isArgument}         &         & $86.6$ &        & $86.6$ \\
+        \emph{hasRole}            & $87.1$  & $87.7$ & $82.5$ & $83.6$ \\
+        \emph{role}               & $76.9$  & $77.5$ & $65.2$ & $66.2$ \\
+        \emph{sense}              & $88.3$  & $89.0$ & $76.1$ & $77.5$ \\\hline
     \end{tabular}
-    \caption{$F_1$ scores for ML predicates for WSJ.}
+    \caption{$F_1$ scores for Markov Logic predicates; w/o refers to a Bottom-up system without isArgument predicate, w/ refers to a Bottom-up system with isArgument predicate.}
     \label{tbl:predicates}
 \end{table}
 
