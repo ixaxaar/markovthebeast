@@ -55,7 +55,19 @@ Table \ref{tbl:predicates} shows that the joint model does significantly better 
 \subsection{Modelling if a Token is an Argument}
 In table \ref{tbl:results} we also observe that improvements can be made if we explicitely model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section ??, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
 
-In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. 
+In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels. 
+
+How the $isArgument$ helps to improve the overall role labelling can be seen in the example of figure \ref{fig:isArg}. Here the model without a hidden $isArgument$ predicate fails to attach the preposition ``on'' to the predicate ``start.01'' (here 01 refers to the sense of the predicate). Apparently the model has not enough confidence to assign the preposition to either ``start.01'' or ``get.03'', so it just drops the argument altogether. However, because the $isArgument$ model knows that most prepositions have to be modifying some predicate, pressure is created that forces a decision between the two predicates. And because for the role model ``start.01'' looks like a better fit than ``get.03'', the correct attachment is found.
+
+%%example
+\begin{figure}
+\begin{center}
+    \includegraphics[scale=.62]{is-arg-example}
+\end{center}
+\caption{Sentence of the development for which the bottom-up model w/o $isArgument$ fails to attach the preposition ``on'' as a ``AM-LOC'' for ``started'' that complete bottom-up model attaches correctly.   }
+\label{fig:isArg}
+\end{figure}
+
 
 \begin{table}[ht]
 
