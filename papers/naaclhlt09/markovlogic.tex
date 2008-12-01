@@ -22,11 +22,11 @@ In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of 
 \label{eq:prob}
 \end{equation}
 to the possible world $\y$. Here $f_{\boldc}^{\phi}$ is a feature
-function that returns 1 if in the possible world $\y$ the ground
-formula we get by replacing the free variables in $\phi$ by the constants
+function that returns 1 if in the possible world $\y$ the \emph{ground
+formula} we get by replacing the free variables in $\phi$ by the constants
 in $\boldc$ is true and 0 otherwise. $C^{n_{\phi}}$ is the set
 of all tuples of constants we can replace the free variables in $\phi$
-with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network where nodes represent ground atoms and factors represent ground formulae.
+with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network (the so-called \emph{Ground Markov Network}) where nodes represent ground atoms and factors represent ground formulae.
 
 For example, if $M$ contains the formula $\phi$ \[
 word\left(x,'take'\right)\Rightarrow isPredicate\left(x\right)\]

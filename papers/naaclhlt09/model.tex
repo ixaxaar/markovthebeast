@@ -18,7 +18,7 @@ Before we continue to describe the formulae of our Markov Logic Network we would
 \label{fig:achitecture}
 \end{figure}
 
-Additionaly to the hidden predicates, we define observable predicates to
+In addition to the hidden predicates, we define observable predicates to
 represent the information available in the corpus. Table \ref{tbl:o_preds}
 presents these predicates. 
 \begin{table}
@@ -46,23 +46,28 @@ presents these predicates.
 \subsection{Local formulae}
 \label{sec:local}
 
-A formula is local if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, a grounding of the local formula 
+A formula is \emph{local} if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, two groundings of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
+can be seen in the Markov Network of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
 
-The local formulae of our model for \emph{isPredicate} and \emph{isArgument} aims to capture the relation of the tokens with their lexical and syntactic surroundings. In the case of \emph{hasRole} local formulae, these focus on the lexical properties and the syntactic link among the possible predicate and argument. The formulae for \emph{role} extends the formulae for \emph{hasRole} with the SRL role and new formulae to exploit the distance among predicate and argument. The formulae for \emph{sense} relates the lexical properties of the possible predicate with the sense of the predicate. 
+The local formulae for \emph{isPredicate}, \emph{isArgument} and \emph{sense} aim to capture the relation of the tokens with their lexical and syntactic surroundings. This includes formulae such as 
+\[subcat(p,+f) \Rightarrow isPredicate(p)\]
+which implies that a certain token is a predicate with a weight that depends on the subcategorization frame of the token. Further local formulae are constructed using those observed predicates in table \ref{tbl:o_preds} that relate single tokens and their properties.
 
-Instead of describe the sets of local formulae in more detail we refer the reader
-to our MLN model files.\footnote{\url{http://thebeast.googlecode.com/svn/mlns/
-naaclhlt09}} They can be used both as a reference and as input to our Markov Logic
-Engine\footnote{\url{http://thebeast.googlecode.com}}, and thus allow the reader to easily reproduce our results. We believe that this is another advantage
+The local formulae for \emph{role} and \emph{hasRole} focus on properties of of the predicate and argument token---the formula illustrated in figure \ref{fig:local2} is an example of this---and on the relation between the two tokens. An example of the latter type is the formula
+\[depPath(p,a,+dp) \Rightarrow role(p,a,+r)\]
+which implies that token $a$ plays the semantic role $r$ with respect to token $p$, and for which the weight depends on the syntactic (dependency) path $dp$ between $p$ and $a$ and on the actual role to assign. Again, further formulae are constructed using the observed predicates in table \ref{tbl:o_preds}; however, this time we consider both predicates that relate tokens to their invidiual properties and predicates that describe the relation between tokens.
+
+Unfortunately, the complete set of local formulae is too large to be exhaustively described in this paper. Its size results from the fact that we also consider conjunctions of several atoms as conditions, and lexical windows around tokens. Instead we refer the reader
+to our MLN model files.\footnote{\url{http://anonymous.com}} They can be used both as a reference and as input to our Markov Logic
+Engine,\footnote{\url{http://anonymous.com}} and thus allow the reader to easily reproduce our results. We believe that this is another advantage
 of explicitly separating model and algorithms by using first order probabilistic logic languages.
 
 \begin{figure}
 \begin{center}
     \includegraphics[scale=.70]{LocalFormula2}
 \end{center}
-\caption{Factor graph for the local formula in section \ref{sec:local}.}
+\caption{Factor graph for the local formula in section \ref{sec:local}. Here round nodes represent variables (corresponding to the states of ground atoms) and the rectangular nodes represent ground formulae and their weights.}
 \label{fig:local2}
 \end{figure}
 
