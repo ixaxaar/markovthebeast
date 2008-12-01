@@ -71,15 +71,9 @@ Table \ref{tbl:predicates} shows that the joint model does significantly better 
 \end{table}
 
 \subsection{Efficiency}
-When modeling a joint model a concern is the efficiency of the approach. Table
-\ref{tbl:times} shows the times for training and testing. We notice that the
-joint models are competitive when compared with the pipeline approach. However,
-we can notice the efect of reducing the complexity of the model, as happens with
-the bottom-up and the models without the \emph{isArgument} predicate which are
-faster to train. Table \ref{tbl:nocpi} shows the times for testing when the CPI
-algorithm is off. As we can see the CPI algorithm helps to keep the ML approach
-efficient for the SRL task.
+In the previous sections we have shown that our joint model indeed does better than an equivalent pipeline system. However, usually most joint approaches comes at a price: efficiency. Interestingly, in our case we observe the opposite: our joint model is actually faster than the pipeline. This can be seen in table \ref{tbl:nocpi}, where we list the time it took for several different system to process the WSJ and Brown test corpus, respectively. When we compare the times for the bottom-up model to those of the pipeline, we note that the joint model is twice as fast. While the invidual stages within the pipeline may be faster than the joint system (even when we sum up inference times), extracting results from one system and feeding them into another creates overhead which offsets this potential reduction.  
 
+Table \ref{tbl:nocpi} also lists the runtime of a bottom-up system that solves the inference problem by fully grounding the Markov Network that the Markov Logic model describes, mapping this network to an Integer Linear Program, and finding the most likely assignment using an ILP solver. This system (Bottom-up (-CPI)) is four times slower than the equivalent system that uses Cutting Plane Inference  (Bottom-up). This suggests that if we were to implement the same joint model using ILP instead of Markov Logic, we either would be significantly slower, or we would need to implement a Cutting Plane algorithm for the corresponding ILP formulation---when we use Markov Logic this algorithm comes ``for free''. 
 % \begin{table}[ht]
 
 %     \centering
