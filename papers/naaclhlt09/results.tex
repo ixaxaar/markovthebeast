@@ -1,8 +1,8 @@
 
-The results of our system using the dependency-based evaluation from CoNLL-08
-are shown in Table \ref{tbl:results}. Our results, are comparable with state of
-the art results for the task. Our best model would be ranked 4th in the open
-track with system which used better quality of depenencies trees. 
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. %%Need more detailed explanation 
+%The table also includes results from two existing approaches. The first one, Vicrey, was the winning system in the CoNLL 2008 shared task open track (here MALT parse trees were given). The second one, Johansson, won the closed track of the same competition (here parse trees had to be predicted, too). The results for their systems were taken from the overview paper~(cite) and only show the $F_1$ scores for the verbial/PropBank predicates.\footnote{Extracted from Table 16 of the mentioned paper.}
+
+To put these results into context, let us compare them to those of the participants of the CoNLL 2008 shared task. Our best model, Bottom-up, would reach the highest $F_1$ WSJ score, and second highest Brown score, for the open track. It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. Note that this comparison is based only on the results for verbial predicates.\footnote{Extracted from Table 16 of the shared task overview paper~CITE}
 
 \begin{table}[ht]
     \centering
@@ -12,23 +12,23 @@ track with system which used better quality of depenencies trees.
         Full (-arg)               &          &         &         \\
         Bottom-up                 & $77.96$  & $80.26$ & $67.75$ \\
         Bottom-up (-arg)          & $77.57$  & $79.37$ & $66.70$ \\
-        Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\\hline
-        Vickrey$^*$               &          & $79.75$ & $69.57$ \\
-        Johansson$^*$             &          & $86.37$ & $71.87$ \\\hline
+        Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\
+        \hline
+%%        Vickrey$^*$               &          & $79.75$ & $69.57$ \\
+%%        Johansson$^*$             &          & $86.37$ & $71.87$ \\
+%%        \hline
     \end{tabular}
     \caption{Labelled $F_1$ scores of our five systems using CoNLL-08
-    evaluation.}
+    evaluation. Systems that do not explicitely model the $isArgument$ decisions are marked with (-arg).}
     \label{tbl:results}
 \end{table}
 
-The table \ref{tbl:results} shows that our best system is the bottom-up model. When compared with
-the pipeline system, there is a significant difference in the WSJ test set. However, this difference
-is more notable for the Brown test set. Table \ref{tbl:predicates} shows the
-evaluation per predicate in the pipeline and the bottom-up systems. We notice
-that the better performance comes from the sense predicate. A similar pattern is
-observed with the WSJ.
+\subsection{Joint Model vs. Pipeline}
+Table \ref{tbl:results} suggests that by including sense disambiguation into the joint model (as is the case for all systems but the pipeline) significant improvements can be gained. Where do these improvements come from? We tried to answer this question by taking a closer look at how accurately the pipeline predicts the $isPredicate$, $isArgument$, $hasRole$, $role$ and $sense$ relations, and how this compares to the result of the joint bottom-up model.
 
-% explain why ??
+Table \ref{tbl:predicates} shows that the joint model does significantly better (2\% points) when it comes to predicting the right roles and senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points for senses. These results suggest that the global formulae which assess the semantic frame of a predicate help in both ways: they can improve both senses and role labels simultanously. In contrast, the joint model does not help us to identify predicates and arguments; the score for all remaining hidden predicates remains roughly equal. 
+
+% Give example sentence to see
 
 \begin{table}[ht]
 
@@ -46,9 +46,13 @@ observed with the WSJ.
     \label{tbl:predicates}
 \end{table}
 
+
 % I don't quite understand why we did isArg vs no isArg :-S. Maybe, too late to
 % bring the issue. I just put two columns, if I put dev and brown, they get too
 % big.
+% SR: Huh? Without isArg we wouldn't need to jointly predict args for ALL predicates of one sentence. So this is to justify the joint model, and the fact that we explicitely model isArgument (different from all other SRL models I know). 
+
+\subsection{Modelling if a Token is an Argument}
 
 \begin{table}[ht]
 
@@ -66,7 +70,7 @@ observed with the WSJ.
     \label{tbl:predicates}
 \end{table}
 
-
+\subsection{Efficiency}
 When modeling a joint model a concern is the efficiency of the approach. Table
 \ref{tbl:times} shows the times for training and testing. We notice that the
 joint models are competitive when compared with the pipeline approach. However,
