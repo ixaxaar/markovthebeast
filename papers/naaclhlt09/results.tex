@@ -53,6 +53,9 @@ Table \ref{tbl:predicates} shows that the joint model does significantly better 
 % SR: Huh? Without isArg we wouldn't need to jointly predict args for ALL predicates of one sentence. So this is to justify the joint model, and the fact that we explicitely model isArgument (different from all other SRL models I know). 
 
 \subsection{Modelling if a Token is an Argument}
+In table \ref{tbl:results} we also observe that improvements can be made if we explicitely model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section ??, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
+
+In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. 
 
 \begin{table}[ht]
 
@@ -67,7 +70,7 @@ Table \ref{tbl:predicates} shows that the joint model does significantly better 
         \emph{sense}              & $88.3$  & $89.0$ & $76.1$ & $77.5$ \\\hline
     \end{tabular}
     \caption{$F_1$ scores for Markov Logic predicates; w/o refers to a Bottom-up system without isArgument predicate, w/ refers to a Bottom-up system with isArgument predicate.}
-    \label{tbl:predicates}
+    \label{tbl:isArg}
 \end{table}
 
 \subsection{Efficiency}
