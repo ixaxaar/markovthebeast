@@ -4,24 +4,22 @@
 %%% End: 
 
 Semantic Role Labelling~\citep[SRL, ][]{marquez08srl}
-is generally understood as the task of identifying in a sentence the semantic 
-%IV+
-roles for the 
-arguments and modifiers of a given predicate. For example,
+is generally understood as the task of identifying and classifying the semantic arguments and modifiers of the predicates mentioned in a sentence. For example, in the case of the following sentence:
 \begin{quote}
 %IV-+ 
 \begin{center}
-    \includegraphics[scale=.62]{example_ms_haag}
+    \includegraphics[scale=.63]{haag-example}
 \end{center}
 %$[_{Player}$Ms. Haag$]$ plays $[_{Role}$Elianti$]$.
 %Ms. {[}Haag$_{Player}$] plays {[}Elianti$_{Role}$].
 \end{quote}
 %IV: I think "we are to find" is not english, I propose: illustrates that
-we are to find out that for the predicate token {}``plays'' the
-phrase headed by the token {}``Haag'' is referring to the player of the play event, and
-the phrase headed by the token {}``Elianti''  is refeerring to the role
+%SR: I think it is English (check google for "we are to"): it's a fancy type of "have to" 
+we are to find out that for the predicate token {}``plays'' with sense ``play a role'' (play.02) the
+phrase headed by the token {}``Haag'' is referring to the player (A0) of the play event, and
+the phrase headed by the token {}``Elianti''  is referring to the role (A1)
 %IV-+
-being played.
+being played. 
 %{}``Elianti'' is playing (see figure ?).%
 %IV- We can live without saying this now
 %\footnote{This is the dependency-based formulation of SRL.} 
@@ -30,7 +28,7 @@ answer {}``Who'', {}``What'', {}``Where'', etc. questions, such
 as Information Extraction, Question Answering and Summarization. 
 
 Any real-world SRL system needs to make several decisions, either
-explicitely or implicitely: which are the predicate tokens of a sentence
+explicitly or implicitly: which are the predicate tokens of a sentence
 (predicate identification), which are the tokens that have semantic
 roles with respect to these predicates (argument identification),
 which are the roles these tokens play (argument classification), and
@@ -39,35 +37,34 @@ which is the sense of the predicate (sense disambiguation).
 In this paper we use Markov Logic, a Statistical Relational Learning
 framework that combines First Order Logic and Markov Networks, to
 develop a joint probabilistic model over all decisions mentioned above.
-This has the following reasons. %% TODO: a bit disconnected here
+The following paragraphs will motivate this choice. %% TODO: a bit disconnected here
 
 First, it allows us to readily capture \emph{global correlations}
 between decisions, such as the constraint that a predicate can only
-have one agent. This type of correlations has been successfully been
-exploited in several previous SRL systems~\citep{toutanova05joint,punyakanok05generalized}. 
+have one agent. This type of correlations has been successfully 
+exploited in several previous SRL approaches~\citep{toutanova05joint,punyakanok05generalized}. 
 
 Second, we can use the joint model to evaluate the benefit incorporating
 decisions into the joint model that either have not received much
 attention within the SRL community (predicate identification and sense
-disambiguation), or been largely made in isolation (argument classification
-for \emph{all} predicates of a sentence). 
+disambiguation), or been largely made in isolation (argument identification and classification for all predicates of a sentence). 
 
 Third, our Markov Logic model is essentially a template that describes
-a class of Markov Networks, one for each SRL problem we encounter.
+a class of Markov Networks.
 %IV: Algorithms ?? I suggest: Recent development on the inference algorithms allows to perform inference without ever having to fully instantiate...
 Algorithms can perform inference in terms of this template without
 ever having to fully instantiate the complete Markov
-Network~\citep{riedel08improving}. This can dramatically improve the efficiency of an SRL system when
-compared to a propositional approach such as Integer Linear Programming.
+Network~\citep{riedel08improving,singla2008lfo}. This can dramatically improve the efficiency of an SRL system when
+compared to a propositional approach such as Integer Linear Programming~(ILP).
 
 %% SR: This bit is just to remind me that we should sell this point,
 %% too. It might not make it into the paper as is, though!
 %IV: If not space, I think we should take it away
-Fourth, by framing our problem in Markov Logic we provide a natural
-upgrade path for the consideration of richer models. For example, it
-would be relatively straight-forward to include a Relation Extraction
-component into our model, or the prediction of the next speech act in a
-dialogue system.
+%Fourth, by framing our problem in Markov Logic we provide a natural
+%upgrade path for the consideration of richer models. For example, it
+%would be relatively straight-forward to include a Relation Extraction
+%component into our model, or the prediction of the next speech act in a
+%dialogue system.
 
 Finally, when it comes to actually building an SRL system with Markov
 Logic 
@@ -80,27 +77,30 @@ to do: preparing input data files, converting
 output data files, and triggering learning and inference. The remaining
 work can be done by an off-the-shelf Markov Logic interpreter. This
 is to be contrasted to Pipeline systems where several components need
-to be trained and connected, or ILP approaches that in which we need
+to be trained and connected, or Integer Linear Programming approaches for which we need
 to write additional wrapper code to generate ILPs.
 
-Empirically we find that our system is highly competetive---our best
+Empirically we find that our system is highly competitive---our best
 model would appear on par with the best entry in the CoNLL 2008
-shared task open track, and at the 4th place when compared to systems
-that use dedicated parsers; this is remarkable in the sense that the
-top 3 systems use optimized parsers while we use the dependency parses
-extracted from \citet{charniak00amaximum} parse trees.
+shared task open track, and at
+the 4th place of the closed track---right behind systems that use
+significantly better parsers\footnote{Our unlabelled accuracy is at least 3\% points under theirs.} to generate their input features.
+
+%and at the 4th place when compared to systems
+%that use dedicated parsers; this is remarkable in the sense that the
+%top 3 systems use optimized parsers while we use the dependency parses
+%extracted from \citet{charniak00amaximum} parse trees.
 % dependencies provided in the open track dataset.  
 % We use charniak parses
 
 We also observe that by integrating frame disambiguation into the
 joint SRL model, and by extracting all arguments for all predicates in a
-sentence simultanously, significant improvements compared to pipelined
-system can be achieved. These improvements are particularly dramatic in
+sentence simultaneously, significant improvements compared to more isolated systems can be achieved. These improvements are particularly large in
 the case of out-of-domain data, suggesting that a joint approach helps
 to increase the robustness of SRL.
 %IV- putting the who paragraphs together
-Last but not least, we show that our system is significantly faster
-than an equivalent ILP-based approach.
+Last but not least, we show that despite the joint approach, our
+system is still efficient. 
 %IV
 %(maybe also faster than the pipeline?). 
 
