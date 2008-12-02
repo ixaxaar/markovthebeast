@@ -1,10 +1,15 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. %%Need more detailed explanation 
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. 
+
+
+%%Need more detailed explanation 
 %The table also includes results from two existing approaches. The first one, Vicrey, was the winning system in the CoNLL 2008 shared task open track (here MALT parse trees were given). The second one, Johansson, won the closed track of the same competition (here parse trees had to be predicted, too). The results for their systems were taken from the overview paper~(cite) and only show the $F_1$ scores for the verbal/PropBank predicates.\footnote{Extracted from Table 16 of the mentioned paper.}
 
 To put these results into context, let us compare them to those of the participants of the CoNLL 2008 shared task (see the last three rows of table \ref{tbl:results}). \footnote{Results of other systems were extracted from Table 16 of the shared task overview paper \citep{surdeanu08conll}.} Our best model, Bottom-up, would reach the highest $F_1$ WSJ score, and second highest Brown score, for the open track. Here the best-performing participant was \citet{vickrey08applying}. 
 
 Table \ref{tbl:results} also shows the results of the best~\citep{johansson08dependency} and fourth best system~\citep{zhao08parsing} of the closed track. We note that we do significantly worse than \citet{johansson08dependency}, and roughly equivalent to \citet{zhao08parsing}; this places us on the fourth rank of 19 participants. However, note that all three systems above us, as well as  \citet{zhao08parsing}, use parsers with at least about 90\% (unlabelled) accuracy on the WSJ test set (Johansson's parser even has about 92\% unlabelled accuracy).\footnote{Since our parses use a different label set we could not compare labelled accuracy.} By contrast, with about 87\% unlabelled accuracy our parses are significantly worse.   
+
+Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint model performs better than the full joint model. Hence we will focus on this model in the remainder of this paper.
 
 %It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use 
 %use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. In the closed track the highest score was obtain by \citet{johansson08dependency} system. Note that this comparison is based only on the results for verbal predicates.
@@ -88,7 +93,7 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
 \begin{center}
     \includegraphics[scale=.62]{is-arg-example}
 \end{center}
-\caption{Sentence of the development for which the bottom-up model w/o $isArgument$ fails to attach the preposition ``on'' as a ``AM-LOC'' for ``started'' that complete bottom-up model attaches correctly.   }
+\caption{Sentence of the development dataset for which the bottom-up model w/o $isArgument$ predicate fails to attach the preposition ``on'' as an ``AM-LOC'' for ``started''. The joint bottom-up model attaches the preposition correctly.}
 \label{fig:isArg}
 \end{figure}
 
