@@ -46,25 +46,25 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 
 
 \subsection{Joint Model vs. Pipeline}
-Table \ref{tbl:results} suggests that by including sense disambiguation into the joint model (as is the case for all systems but the pipeline) significant improvements can be gained. Where do these improvements come from? We tried to answer this question by taking a closer look at how accurately the pipeline predicts the $isPredicate$, $isArgument$, $hasRole$, $role$ and $sense$ relations, and how this compares to the result of the joint bottom-up model.
+Table \ref{tbl:results} suggests that by including sense disambiguation into the joint model (as is the case for all systems but the pipeline) significant improvements can be gained. Where do these improvements come from? We tried to answer this question by taking a closer look at how accurately the pipeline predicts the $isPredicate$, $isArgument$, $hasRole$, $role$ and $sense$ relations, and how this compares to the result of the joint full model.
 
-Table \ref{tbl:predicates} shows that the joint model does significantly better (2\% points) when it comes to predicting the right roles and senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points for senses. These results suggest that the global formulae which assess the semantic frame of a predicate help in both ways: they can improve both senses and role labels simultanously. In contrast, the joint model does not help us to identify predicates and arguments; the score for all remaining hidden predicates remains roughly equal. 
+Table \ref{tbl:predicates} shows that the joint model does slightly better when it comes to predicting the right roles and senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points for senses. These results suggest that the global formulae which assess the semantic frame of a predicate help in both ways: they can improve both senses and role labels simultaneously. In contrast, the joint model does not help us to identify predicates and arguments; the score for all remaining hidden predicates remains roughly equal. 
 
-The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role ``A2'' (``created from'') only appears in the  ``02'' (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the ``02'' instead of the corrent ``01'' (``come to know'') sense. In contrast, the joint bottom-up model knows that by simply dropping ``You'' as argument all together and changing the ``A2'' to an ``A0'' label, the sense ``01'' becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
+The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role ``A2'' (``created from'') only appears in the  ``02'' (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the ``02'' instead of the corrent ``01'' (``come to know'') sense. In contrast, the joint full model knows that by simply dropping ``You'' as argument all together and changing the ``A2'' to an ``A0'' label, the sense ``01'' becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
 
 \begin{table}[ht]
 
     \centering
     \begin{tabular}{|c|c|c|c|c|}\hline
       & \multicolumn{2}{c|}{WSJ} & \multicolumn{2}{c|}{Brown}\\
-                                  & Pipe.  &  B.u.   & Pipe.  &  B.u. \\\hline 
-        \emph{isPredicate}        & $96.6$ & $96.5$ & $92.2$  & $92.5$\\
-        \emph{isArgument}         & $90.3$ & $90.4$ & $85.9$ & $86.6$ \\
-        \emph{hasRole}            & $88.0$ & $87.7$ & $83.6$ & $83.6$ \\
-        \emph{role}               & $75.4$ & $77.5$ & $64.2$ & $66.2$ \\
-        \emph{sense}              & $85.5$ & $89.5$ & $67.3$ & $77.5$ \\\hline
+                                  & Pipe.  &  Fu.   & Pipe.  &  Fu. \\\hline 
+        \emph{isPredicate}        & $96.6$ & $96.5$ & $92.2$ & $92.5$\\
+        \emph{isArgument}         & $90.3$ & $90.6$ & $85.9$ & $86.9$ \\
+        \emph{hasRole}            & $88.0$ & $87.9$ & $83.6$ & $83.8$ \\
+        \emph{role}               & $75.4$ & $75.5$ & $64.2$ & $64.6$ \\
+        \emph{sense}              & $85.5$ & $88.5$ & $67.3$ & $77.1$ \\\hline
     \end{tabular}
-    \caption{$F_1$ scores for Markov Logic predicates; Pipe. refers to the Pipeline system, B.u. to the Bottom-up system.}
+    \caption{$F_1$ scores for Markov Logic predicates; Pipe. refers to the Pipeline system, Fu. to the full system.}
     \label{tbl:predicates}
 \end{table}
 
