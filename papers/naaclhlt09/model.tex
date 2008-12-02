@@ -1,14 +1,14 @@
 
 
-Conceptually we divide our SRL system into three stages: one stage that identifies the predicates of a sentence, one stage that identifies and classifies the arguments of these predicates, and a final stage that predicts the sense of each predicate. We should stress that this architecture is intented to illustrate a typical SRL system, and to describe the pipeline-based approach we will compare our models to. However, it does \emph{not} correspond to the way inference is performed in our proposed model---we jointly infer \emph{all} decisions described above.  
+Conceptually we divide our SRL system into three stages: one stage that identifies the predicates of a sentence, one stage that identifies and classifies the arguments of these predicates, and a final stage that predicts the sense of each predicate. We should stress that this architecture is intended to illustrate a typical SRL system, and to describe the pipeline-based approach we will compare our models to. However, it does \emph{not} correspond to the way inference is performed in our proposed model---we jointly infer \emph{all} decisions described above.  
 
 Note that while the proposed division into conceptual stages seems somewhat intuitive, it is by no means uncontroversial. In fact, for the CoNLL 2008 shared task slightly more than one half of the participants performed sense disambiguation before argument identification and classification; most other participants framed the problem in the reverse order.\footnote{However, for almost all pipeline based systems, predicate identification was the first stage of the role labelling process.} 
 
 We define five hidden predicates for the three stages of the task. Figure \ref{fig:achitecture} illustrates these predicates and the stage they belong to. 
 For predicate identification, we use the predicate \emph{isPredicate}. \emph{isPredicate(p)} indicates that the word in the position $p$ is an SRL predicate.
-For argument identification and classification, we use the predicates \emph{isArgument}, \emph{hasRole} and \emph{role}. The atom \emph{isArgument(a)} signals that the word in the position $a$ is a SRL argument of some (unspecified) SRL predicate while \emph{hasRole(p,a)} indicates that the token at position $a$ is an argument of the predicate in position $p$. The predicate \emph{role(p,a,r)} corresponds to the decision that the argument in the position $a$ has the role $r$ with respect to the predicate in the position $p$. Finally, for sense disambiguation we  define the predicate \emph{sense(p,e)} which signals that predicate in position $p$ has the sense $e$. 
+For argument identification and classification, we use the predicates \emph{isArgument}, \emph{hasRole} and \emph{role}. The atom \emph{isArgument(a)} signals that the word in the position $a$ is a SRL argument of some (unspecified) SRL predicate while \emph{hasRole(p,a)} indicates that the token at position $a$ is an argument of the predicate in position $p$. The predicate \emph{role(p,a,r)} corresponds to the decision that the argument at position $a$ has the role $r$ with respect to the predicate in position $p$. Finally, for sense disambiguation we  define the predicate \emph{sense(p,e)} which signals that the predicate in position $p$ has the sense $e$. 
 
-Before we continue to describe the formulae of our Markov Logic Network we would like to highlight the introduction of the $isArgument$ predicate mentioned above. This predicate corresponds to a decision that is usually made implicitely: a token is an argument if there exists a predicate for which plays a semantic role. Here we model this decision explicitely, assuming that there exist cases where a token clearly has to be an argument of some predicate, regardless of which predicate in the sentence this might be. It is this assumption that requires us to infer the arguments for \emph{all} predicates of a sentence at once---otherwise we cannot make sure that for a marked argument there exists at least one predicate for which it plays a semantic role.
+Before we continue to describe the formulae of our Markov Logic Network we would like to highlight the introduction of the $isArgument$ predicate mentioned above. This predicate corresponds to a decision that is usually made implicitly: a token is an argument if there exists a predicate for which it plays a semantic role. Here we model this decision explicitly, assuming that there exist cases where a token clearly has to be an argument of some predicate, regardless of which predicate in the sentence this might be. It is this assumption that requires us to infer the arguments for all predicates of a sentence at once---otherwise we cannot make sure that for a marked argument there exists at least one predicate for which the argument plays a semantic role.
 
 \begin{figure}
 \begin{center}
@@ -24,10 +24,10 @@ presents these predicates.
 \begin{table}
     \small
     \centering
-    \begin{tabular}{|c|p{5cm}|}
+    \begin{tabular}{|c|p{4.5cm}|}
         \hline
-    \emph{possiblePred(i)} & Token $i$ can be a predicate wrt. to a high recall POS tag heuristic\\\hline
-    \emph{possibleArg(i)} &  Token $i$ can be an argument wrt. to a high recall POS tag heuristic\\\hline\hline
+%    \emph{possiblePred(i)} & Token $i$ can be a predicate wrt. to a high recall POS tag heuristic\\\hline
+%    \emph{possibleArg(i)} &  Token $i$ can be an argument wrt. to a high recall POS tag heuristic\\\hline\hline
     \emph{word(i,w)}    & Token $i$ has word $w$\\\hline
     \emph{lemma(i,l)}   & Token $i$ has lemma $l$\\\hline
     \emph{ppos(i,p)}    & Token $i$ has POS tag $p$\\\hline
@@ -49,20 +49,20 @@ presents these predicates.
 
 A formula is \emph{local} if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, two groundings of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Markov Network of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
+can be seen in the Factor Graph of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom with two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
 
 The local formulae for \emph{isPredicate}, \emph{isArgument} and \emph{sense} aim to capture the relation of the tokens with their lexical and syntactic surroundings. This includes formulae such as 
 \[subcat(p,+f) \Rightarrow isPredicate(p)\]
 which implies that a certain token is a predicate with a weight that depends on the subcategorization frame of the token. Further local formulae are constructed using those observed predicates in table \ref{tbl:o_preds} that relate single tokens and their properties.
 
-The local formulae for \emph{role} and \emph{hasRole} focus on properties of of the predicate and argument token---the formula illustrated in figure \ref{fig:local2} is an example of this---and on the relation between the two tokens. An example of the latter type is the formula
+The local formulae for \emph{role} and \emph{hasRole} focus on properties of the predicate and argument token---the formula illustrated in figure \ref{fig:local2} is an example of this---and on the relation between the two tokens. An example of the latter type is the formula
 \[depPath(p,a,+dp) \Rightarrow role(p,a,+r)\]
-which implies that token $a$ plays the semantic role $r$ with respect to token $p$, and for which the weight depends on the syntactic (dependency) path $dp$ between $p$ and $a$ and on the actual role to assign. Again, further formulae are constructed using the observed predicates in table \ref{tbl:o_preds}; however, this time we consider both predicates that relate tokens to their invidiual properties and predicates that describe the relation between tokens.
+which implies that token $a$ plays the semantic role $r$ with respect to token $p$, and for which the weight depends on the syntactic (dependency) path $dp$ between $p$ and $a$ and on the actual role to assign. Again, further formulae are constructed using the observed predicates in table \ref{tbl:o_preds}; however, this time we consider both predicates that relate tokens to their individual properties and predicates that describe the relation between tokens.
 
-Unfortunately, the complete set of local formulae is too large to be exhaustively described in this paper. Its size results from the fact that we also consider conjunctions of several atoms as conditions, and lexical windows around tokens. Instead we refer the reader
+Unfortunately, the complete set of local formulae is too large to be exhaustively described in this paper. Its size results from the fact that we also consider conjunctions of several atoms as conditions, and lexical windows around tokens. Hence, instead of describing all local formulae we refer the reader
 to our MLN model files.\footnote{\url{http://anonymous.com}} They can be used both as a reference and as input to our Markov Logic
-Engine,\footnote{\url{http://anonymous.com}} and thus allow the reader to easily reproduce our results. We believe that this is another advantage
-of explicitly separating model and algorithms by using first order probabilistic logic languages.
+Engine,\footnote{\url{http://anonymous.com}} and thus allow the reader to easily reproduce our results. 
+%We believe that this is another advantage of explicitly separating model and algorithms by using first order probabilistic logic languages.
 
 \begin{figure}
 \begin{center}

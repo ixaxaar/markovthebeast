@@ -13,6 +13,7 @@ Instead of fully instantiating the Markov Network that a Markov Logic Network de
 
 This type of algorithm could also be realized for an ILP formulation of SRL. However, it would require us to write a dedicated separation routine for each type of constraint we want to add. In Markov Logic, on the other hand, separation can be generically implemented as the search for variable bindings that render a weighted first order formulae true (if its weight is negative) or false (if its weight is positive). In practice this means that we can try new global formulae/constraints without any additional implementation overhead.   
 
-We learn the weights associated with each MLN using 1-best MIRA~\citep{crammer01ultraconservative} Online Learning method. As MAP inference method that is applied in the inner loop of the Online Learner we apply CPI, again with ILP as base solver. We will later show that with this set-up joint training of the complete SRL system (as opposed to the training of several local classifiers) is very efficient.  
+We learn the weights associated with each MLN using 1-best MIRA~\citep{crammer01ultraconservative} Online Learning method. As MAP inference method that is applied in the inner loop of the online learner we apply CPI, again with ILP as base solver. 
+%We will later show that with this set-up joint training of the complete SRL system (as opposed to the training of several local classifiers) is very efficient.  
 
 
