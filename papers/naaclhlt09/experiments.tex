@@ -1,14 +1,16 @@
 
-For our experiments we modified the PropBank corpus of the CoNLL-05 shared task 
-\citep{carreras05introduction} to be compatible with the format of CoNL-08 
-shared task \citep{surdeanu08conll} which uses dependencies trees rather than 
-constituents. 
+For our experiments we used a version of the CoNLL 2008 shared task~\citep{surdeanu08conll} dataset that only mentions verbial predicates, disregarding the nominal predicates available in the original corpus.\footnote{The reason for this choice is the fact that we could not get the license for the complete dataset.} While the original (open track) corpus came with MALT~\citep{nivre2007mli} dependencies, we observed slightly better results when using the dependency parses generated with a Charniak parser~\citep{charniak00amaximum}. Hence we used the latter for all our experiments.
+
+%we modified the PropBank corpus of the CoNLL-05 shared task 
+%\citep{carreras05introduction} to be compatible with the format of CoNL-08 
+%shared task \citep{surdeanu08conll} which uses dependencies trees rather than 
+%constituents. 
 %IV+
-We choose to work with dependencies since recent development of dependency parsers had made possible for dependency-based SRL systems
-to reach state of the art performance \citep{johansson08dependency}. 
-We use the Charniak parses available in the original corpus and 
-converted into dependencies using the software developed by 
-\citet{johansson07conversion}. 
+%We choose to work with dependencies since recent development of dependency parsers had made possible for dependency-based SRL systems
+%to reach state of the art performance \citep{johansson08dependency}. 
+%We use the Charniak parses available in the original corpus and 
+%converted into dependencies using the software developed by 
+%\citet{johansson07conversion}. 
 
 For our experimentation we create four systems. The first system, \emph{full model}, consists on the whole set of local and global formulae described in the previous section. 
 
