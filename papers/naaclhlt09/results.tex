@@ -1,5 +1,6 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. 
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. The metrict measures the precission, recall and $F_1$ score of recovering semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such depenency is the role of the argument. Additionaly, there is a semantic dependency for each predicate and a $ROOT$ argument which has as a label the sense of the predicate.
+%This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses.  
 
 
 %%Need more detailed explanation 
@@ -377,5 +378,6 @@ Table \ref{tbl:nocpi} also lists the runtime of a bottom-up system that solves t
 %  Labeled F1:                 66.70
 %
 %
+
 
 
