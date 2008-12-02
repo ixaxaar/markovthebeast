@@ -1,5 +1,5 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric measures the precision, recall and $F_1$ score of the recovered semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such dependency is the role of the argument. Additionally, there is a semantic dependency for each predicate and a $ROOT$ argument which has the sense of the predicate as label.
+Table \ref{tbl:results} shows the results of our systems for the CoNLL 2008 development set, the WSJ test set and the Brown test set. The scores are calculated using the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric measures the precision, recall and $F_1$ score of the recovered semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such dependency is the role of the argument. Additionally, there is a semantic dependency for each predicate and a $ROOT$ argument which has the sense of the predicate as label.
 %This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses.  
 
 
@@ -93,7 +93,7 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
 \begin{center}
     \includegraphics[scale=.62]{is-arg-example}
 \end{center}
-\caption{Sentence of the development dataset for which the bottom-up model w/o $isArgument$ predicate fails to attach the preposition ``on'' as an ``AM-LOC'' for ``started''. The joint bottom-up model attaches the preposition correctly.}
+\caption{Segment of the CoNLL 2008 development dataset for which the bottom-up model w/o $isArgument$ predicate fails to attach the preposition ``on'' as an ``AM-LOC'' for ``started''. The joint bottom-up model attaches the preposition correctly.}
 \label{fig:isArg}
 \end{figure}
 
