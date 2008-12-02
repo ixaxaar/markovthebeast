@@ -79,7 +79,7 @@ Engine,\footnote{\url{http://anonymous.com}} and thus allow the reader to easily
 
 For example, a structural constraint is given by the (deterministic) formula
 \[role(p,a,r) \Rightarrow hasRole(p,a)\]
-which ensures that, whenever the argument $a$ is given a label $r$ with respect to the predicate $p$, this argument must be an argument of $a$ as denoted by \emph{hasRole(p,a)}. Note that this formula by itself models the traditional ``bottom-up'' argument identification and classification pipeline: it is possible to not assign a role $r$ to an predicate-argument pair $(p,a)$ proposed by the identification stage; however, it is impossible to assign a role $r$ to token pairs $(p,a)$ that have not been proposed as potential arguments.
+which ensures that, whenever the argument $a$ is given a label $r$ with respect to the predicate $p$, this argument must be an argument of $a$ as denoted by \emph{hasRole(p,a)}. Note that this formula by itself models the traditional ``bottom-up'' argument identification and classification pipeline~ \citep{xue04calibrating}: it is possible to not assign a role $r$ to an predicate-argument pair $(p,a)$ proposed by the identification stage; however, it is impossible to assign a role $r$ to token pairs $(p,a)$ that have not been proposed as potential arguments.
 
 An example of another class of structural constraints is 
 \[
@@ -109,13 +109,13 @@ There are three global formulae that capture our linguistic background knowledge
   & \neg role\left(p,a_{2},r\right)
 \end{eqnarray*}
 
-The second ``linguistic'' global formulae is
+The second ``linguistic'' global formula is
 \[
 role(p,a,+r) \wedge lemma(p,+l) \Rightarrow sense(p,+s) 
 \]
 which implies that when a predicate $p$ with lemma $l$ has an argument $a$ with role $r$ it has to have the sense $s$. Here the weight depends on the combination of role $r$, lemma $l$ and sense $s$.
 
-The third and final ``linguistic'' global formulae is
+The third and final ``linguistic'' global formula is
 \begin{eqnarray*}
   & lemma(p,+l) \wedge ppos(a,+p)  \\
   & \wedge hasRole(p,a)  \Rightarrow sense(p,+f) 

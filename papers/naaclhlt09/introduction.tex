@@ -44,7 +44,7 @@ between decisions, such as the constraint that a predicate can only
 have one agent. This type of correlations has been successfully 
 exploited in several previous SRL approaches~\citep{toutanova05joint,punyakanok05generalized}. 
 
-Second, we can use the joint model to evaluate the benefit incorporating
+Second, we can use the joint model to evaluate the benefit of incorporating
 decisions into the joint model that either have not received much
 attention within the SRL community (predicate identification and sense
 disambiguation), or been largely made in isolation (argument identification and classification for all predicates of a sentence). 
@@ -76,15 +76,15 @@ four things
 to do: preparing input data files, converting
 output data files, and triggering learning and inference. The remaining
 work can be done by an off-the-shelf Markov Logic interpreter. This
-is to be contrasted to Pipeline systems where several components need
+is to be contrasted with pipeline systems where several components need
 to be trained and connected, or Integer Linear Programming approaches for which we need
 to write additional wrapper code to generate ILPs.
 
-Empirically we find that our system is highly competitive---our best
+Empirically we find that our system is competitive---our best
 model would appear on par with the best entry in the CoNLL 2008
 shared task open track, and at
 the 4th place of the closed track---right behind systems that use
-significantly better parsers\footnote{Our unlabelled accuracy is at least 3\% points under theirs.} to generate their input features.
+significantly better parsers\footnote{Our unlabelled accuracy for syntactic dependencies is at least 3\% points under theirs.} to generate their input features.
 
 %and at the 4th place when compared to systems
 %that use dedicated parsers; this is remarkable in the sense that the
@@ -106,7 +106,7 @@ system is still efficient.
 
 Our paper is organized as follows: we first introduce Markov Logic (section
 \ref{sec:markovlogic}),
-then we present our model in terms of Markov Logic (section \ref{sec:model}). How this model
+then we present our model in terms of Markov Logic (section \ref{sec:model}) and illustrate how to perform learning and inference with it (section \ref{sec:model}). How this model
 will be evaluated is explained in section \ref{sec:experiments} with the corresponding
 evaluation presented in section \ref{sec:results} We conclude in section
 \ref{sec:conclusion}.
