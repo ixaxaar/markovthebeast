@@ -2,25 +2,25 @@
 For our experiments we modified the PropBank corpus of the CoNLL-05 shared task 
 \citep{carreras05introduction} to be compatible with the format of CoNL-08 
 shared task \citep{surdeanu08conll} which uses dependencies trees rather than 
-constituents. We use the Charniak parses avaible in the original corpus and 
-converted into dependencies using the softeare developed by 
-\citet{johansson07conversion}. For indomain evaluation we use the WSJ test set, 
-for the outdomain evaluation we use the Brown test set. 
+constituents. 
+%IV+
+We choose to work with dependencies since recent development of dependency parsers had made possible for dependency-based SRL systems
+to reach state of the art performance \citep{johansson08dependency}. 
+We use the Charniak parses available in the original corpus and 
+converted into dependencies using the software developed by 
+\citet{johansson07conversion}. 
 
-This section describes the four systems on which we tested our ML model.
-Firstly, we use the full model described in the previous section. Second, we 
-eliminate some structural constrains to create a bottom-up which resembles a 
-pipeline system, but which still a jointly model of the task. Third we eliminate 
-the argument identification model from our previous models. Finally, we create a 
-pipeline system to which we can compare against our joint models.
+For our experimentation we create four systems. The first system, \emph{full model}, consists on the whole set of local and global formulae described in the previous section. 
 
-The \emph{full model} uses all the predicates, local formulae and global 
-formulae. 
+In the second system, \emph{bottom-up} we eliminate the top-down structural constrains. This model simulates a  
+pipeline system, in which decisions for ML predicates of the first statges have
+stronger effect on the predicates of latter stages. However, this still is
+joint model. 
 
-The \emph{bottom-up model} ommits the top-down structural constrain introduced 
-in the section \ref{sec:global}. This results in a model which behaves like a 
-pipeline system which aparently pases the decisions mad  
+Our third system, \emph{bottom-up (-isArg)}, departs from the second but it ommits the \emph{isArgument} hidden predicate and the formulae associated to it. With this modification this model follows a traditional approach where SRL system do not model the plausibility of a token of being argument.
+% IV: Note, the results section says: this aspect of our model requires us to
+% jointly perform inference for all predicates of a sentence. Dunno how to
+% explain that.
 
-
-6.3 Full/Bottom-up model w/o isArg (what about pipeline w/o isArg)
-6.4 Pipeline
+Finally, the four system, \emph{pipeline}, is a pipeline system. In this case, we
+create three models for each stage of our architecture (see Figure \ref{fig:achitecture}), and we pass the output of one as input of the next stage.

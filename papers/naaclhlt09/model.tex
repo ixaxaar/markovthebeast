@@ -39,9 +39,10 @@ presents these predicates.
     \emph{depPath(i,j,p)}      & Dependency path between tokens $i$ and $j$ is $p$$^*$\\\hline
     \emph{depFrame(i,j,f)}     & $f$ is a syntactic (dependency) frame in which tokens $i$ and $j$ are designated as ``pivots''$^*$\\\hline
     \end{tabular}
-    \caption{Observable predicates; predicates marked with $^*$ are dependency parsing-based versions for features of  }
+    \caption{Observable predicates; predicates marked with $^*$ are dependency parsing-based versions for features of \citet{xue04calibrating}.}
     \label{tbl:o_preds}
 \end{table}
+
 
 \subsection{Local formulae}
 \label{sec:local}
@@ -85,16 +86,16 @@ An example of another class of structural constraints is
 hasRole(p,a)\Rightarrow\exists r.role(p,a,r)
 \]
 which, by itself, models an inverted or ``top-down'' pipeline. In this architecture the argument classification stage can assign roles to tokens that have not been proposed by the argument identification stage. However, it must assign a label to any token pair the previous stage proposes. 
-%IV
-Figure \ref{fig:global2} illustrates the structural formulae we use in form of a Markov Network.
+%IV- Take the out the figure
+%Figure \ref{fig:global2} illustrates the structural formulae we use in form of a Markov Network.
 
-\begin{figure}[ht]
-\begin{center}
-   \includegraphics[scale=.70]{GlobalFormula2}
-\end{center}
-\caption{Markov Network that illustrates the structural constraints we use.}
-\label{fig:global2}
-\end{figure}
+%\begin{figure}[ht]
+%\begin{center}
+%   \includegraphics[scale=.70]{GlobalFormula2}
+%\end{center}
+%\caption{Markov Network that illustrates the structural constraints we use.}
+%\label{fig:global2}
+%\end{figure}
 
 For the SRL predicates that perform a labelling task (\emph{role} and \emph{sense}) we also need a structural constraint which ensures that not more than one label is assigned. For instance,
 \[
@@ -102,7 +103,7 @@ For the SRL predicates that perform a labelling task (\emph{role} and \emph{sens
 \]
 forbids two different semantic roles for a pair of words. 
 
-There are three global formulae that capture our linguistic background knowledge. The first one is a deterministic constraint that be been frequently applied in the SRL literature. It forbids cases where distinct arguments of a predicate have the same role unless the role describes a modifier:
+There are three global formulae that capture our linguistic background knowledge. The first one is a deterministic constraint that had been frequently applied in the SRL literature. It forbids cases where distinct arguments of a predicate have the same role unless the role describes a modifier:
 \begin{eqnarray*}
  &role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq a_{2}  \Rightarrow\\
   & \neg role\left(p,a_{2},r\right)

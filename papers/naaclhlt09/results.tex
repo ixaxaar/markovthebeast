@@ -1,25 +1,27 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. %%Need more detailed explanation 
-%The table also includes results from two existing approaches. The first one, Vicrey, was the winning system in the CoNLL 2008 shared task open track (here MALT parse trees were given). The second one, Johansson, won the closed track of the same competition (here parse trees had to be predicted, too). The results for their systems were taken from the overview paper~(cite) and only show the $F_1$ scores for the verbial/PropBank predicates.\footnote{Extracted from Table 16 of the mentioned paper.}
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses. %%Need more detailed explanation 
+%The table also includes results from two existing approaches. The first one, Vicrey, was the winning system in the CoNLL 2008 shared task open track (here MALT parse trees were given). The second one, Johansson, won the closed track of the same competition (here parse trees had to be predicted, too). The results for their systems were taken from the overview paper~(cite) and only show the $F_1$ scores for the verbal/PropBank predicates.\footnote{Extracted from Table 16 of the mentioned paper.}
 
-To put these results into context, let us compare them to those of the participants of the CoNLL 2008 shared task. Our best model, Bottom-up, would reach the highest $F_1$ WSJ score, and second highest Brown score, for the open track. It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. Note that this comparison is based only on the results for verbial predicates.\footnote{Extracted from Table 16 of the shared task overview paper~CITE}
+To put these results into context, let us compare them to those of the participants of the CoNLL 2008 shared task (see last two rows of table \ref{tbl:results}). Our best model, Bottom-up, would reach the highest $F_1$ WSJ score, and second highest Brown score, for the open track which used comparable dependencies tree, where the highest score was obtain by \citet{vickrey08applying} system. It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. In the closed track the highest score was obtain by \citet{johansson08dependency} system. Note that this comparison is based only on the results for verbal predicates \footnote{Extracted from Table 16 of the shared task overview paper \citep{surdeanu08conll}.}.
 
 \begin{table}[ht]
     \centering
     \begin{tabular}{|p{3.0cm}|c|c|c|}\hline
         System                    & Devel      & WSJ       & Brown \\\hline 
         Full                      & $76.93$  & $79.09$ & $67.64$ \\
-        Full (-arg)               &          &         &         \\
+%        Full (-arg)               &          &         &         \\
         Bottom-up                 & $77.96$  & $80.26$ & $67.75$ \\
         Bottom-up (-arg)          & $77.57$  & $79.37$ & $66.70$ \\
         Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\
         \hline
-%%        Vickrey$^*$               &          & $79.75$ & $69.57$ \\
-%%        Johansson$^*$             &          & $86.37$ & $71.87$ \\
-%%        \hline
+        Vickrey$^*$               &   N/A    & $79.75$ & $69.57$ \\
+        Johansson$^*$             &   N/A    & $86.37$ & $71.87$ \\
+        \hline
     \end{tabular}
     \caption{Labelled $F_1$ scores of our five systems using CoNLL-08
-    evaluation. Systems that do not explicitely model the $isArgument$ decisions are marked with (-arg).}
+    evaluation.} 
+    %IV-
+    %Systems that do not explicitely model the $isArgument$ decisions are marked with (-arg).}
     \label{tbl:results}
 \end{table}
 
@@ -61,7 +63,7 @@ The role labelling in figure \ref{fig:jointSense} illustrates how the joint mode
 % SR: Huh? Without isArg we wouldn't need to jointly predict args for ALL predicates of one sentence. So this is to justify the joint model, and the fact that we explicitely model isArgument (different from all other SRL models I know). 
 
 \subsection{Modelling if a Token is an Argument}
-In table \ref{tbl:results} we also observe that improvements can be made if we explicitely model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section ??, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
+In table \ref{tbl:results} we also observe that improvements can be made if we explicitely model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section \ref{sec:model}, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
 
 In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels. 
 
@@ -356,3 +358,5 @@ Table \ref{tbl:nocpi} also lists the runtime of a bottom-up system that solves t
 %  Labeled F1:                 66.70
 %
 %
+
+
