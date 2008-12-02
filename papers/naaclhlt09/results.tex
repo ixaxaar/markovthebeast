@@ -1,5 +1,5 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. Thee metrict measures the precission, recall and $F_1$ score of recovering semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such depenency is the role of the argument. Additionaly, there is a semantic dependency for each predicate and a $ROOT$ argument which has as a label the sense of the predicate.
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric measures the precision, recall and $F_1$ score of the recovered semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such dependency is the role of the argument. Additionally, there is a semantic dependency for each predicate and a $ROOT$ argument which has the sense of the predicate as label.
 %This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses.  
 
 
@@ -48,9 +48,9 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 \subsection{Joint Model vs. Pipeline}
 Table \ref{tbl:results} suggests that by including sense disambiguation into the joint model (as is the case for all systems but the pipeline) significant improvements can be gained. Where do these improvements come from? We tried to answer this question by taking a closer look at how accurately the pipeline predicts the $isPredicate$, $isArgument$, $hasRole$, $role$ and $sense$ relations, and how this compares to the result of the joint full model.
 
-Table \ref{tbl:predicates} shows that the joint model does slightly better when it comes to predicting the right roles and senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points for senses. These results suggest that the global formulae which assess the semantic frame of a predicate help in both ways: they can improve both senses and role labels simultaneously. In contrast, the joint model does not help us to identify predicates and arguments; the score for all remaining hidden predicates remains roughly equal. 
+Table \ref{tbl:predicates} shows that the joint model mainly does better when it comes to predicting the right predicate senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points. These results suggest that a more joint approach may be particularly useful in order to increase the robustness of an SRL system in out-of-domain scenarios.  
 
-The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role ``A2'' (``created from'') only appears in the  ``02'' (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the ``02'' instead of the corrent ``01'' (``come to know'') sense. In contrast, the joint full model knows that by simply dropping ``You'' as argument all together and changing the ``A2'' to an ``A0'' label, the sense ``01'' becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
+% The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role A2 (``created from'') only appears in the  02 (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the 02 instead of the corrent 01 (``come to know'') sense. In contrast, the joint full model knows that by simply dropping ``You'' as argument all together and changing the A2 to an A0 label, the sense 01 becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
 
 \begin{table}[ht]
 
@@ -68,13 +68,13 @@ The role labelling in figure \ref{fig:jointSense} illustrates how the joint mode
     \label{tbl:predicates}
 \end{table}
 
-\begin{figure}
-\begin{center}
-    \includegraphics[scale=.58]{joint-sense-example}
-\end{center}
-\caption{Fragment of sentence in the development set that the pipeline model gets wrong: it picks the wrong sense (``02'') for ``realize'' and falsely assigns ``You'' the A0 role and ``lawyer'' the A2 role.}
-\label{fig:jointSense}
-\end{figure}
+% \begin{figure}
+% \begin{center}
+%     \includegraphics[scale=.58]{joint-sense-example}
+% \end{center}
+% \caption{Fragment of sentence in the development set that the pipeline model gets wrong: it picks the wrong sense (``02'') for ``realize'' and falsely assigns ``You'' the A0 role and ``lawyer'' the A2 role.}
+% \label{fig:jointSense}
+% \end{figure}
 
 
 % I don't quite understand why we did isArg vs no isArg :-S. Maybe, too late to
@@ -83,7 +83,7 @@ The role labelling in figure \ref{fig:jointSense} illustrates how the joint mode
 % SR: Huh? Without isArg we wouldn't need to jointly predict args for ALL predicates of one sentence. So this is to justify the joint model, and the fact that we explicitely model isArgument (different from all other SRL models I know). 
 
 \subsection{Modelling if a Token is an Argument}
-In table \ref{tbl:results} we also observe that improvements can be made if we explicitely model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section \ref{sec:model}, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
+In table \ref{tbl:results} we also observe that improvements can be made if we explicitly model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section \ref{sec:model}, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
 
 In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels. 
 
@@ -116,9 +116,9 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
 \end{table}
 
 \subsection{Efficiency}
-In the previous sections we have shown that our joint model indeed does better than an equivalent pipeline system. However, usually most joint approaches comes at a price: efficiency. Interestingly, in our case we observe the opposite: our joint model is actually faster than the pipeline. This can be seen in table \ref{tbl:nocpi}, where we list the time it took for several different system to process the WSJ and Brown test corpus, respectively. When we compare the times for the bottom-up model to those of the pipeline, we note that the joint model is twice as fast. While the invidual stages within the pipeline may be faster than the joint system (even when we sum up inference times), extracting results from one system and feeding them into another creates overhead which offsets this potential reduction.  
+In the previous sections we have shown that our joint model indeed does better than an equivalent pipeline system. However, usually most joint approaches comes at a price: efficiency. Interestingly, in our case we observe the opposite: our joint model is actually faster than the pipeline. This can be seen in table \ref{tbl:nocpi}, where we list the time it took for several different system to process the WSJ and Brown test corpus, respectively. When we compare the times for the bottom-up model to those of the pipeline, we note that the joint model is twice as fast. While the individual stages within the pipeline may be faster than the joint system (even when we sum up inference times), extracting results from one system and feeding them into another creates overhead which offsets this potential reduction.  
 
-Table \ref{tbl:nocpi} also lists the runtime of a bottom-up system that solves the inference problem by fully grounding the Markov Network that the Markov Logic model describes, mapping this network to an Integer Linear Program, and finding the most likely assignment using an ILP solver. This system (Bottom-up (-CPI)) is four times slower than the equivalent system that uses Cutting Plane Inference  (Bottom-up). This suggests that if we were to implement the same joint model using ILP instead of Markov Logic, we either would be significantly slower, or we would need to implement a Cutting Plane algorithm for the corresponding ILP formulation---when we use Markov Logic this algorithm comes ``for free''. 
+Table \ref{tbl:nocpi} also lists the run-time of a bottom-up system that solves the inference problem by fully grounding the Markov Network that the Markov Logic model describes, mapping this network to an Integer Linear Program, and finding the most likely assignment using an ILP solver. This system (Bottom-up (-CPI)) is four times slower than the equivalent system that uses Cutting Plane Inference  (Bottom-up). This suggests that if we were to implement the same joint model using ILP instead of Markov Logic, we either would be significantly slower, or we would need to implement a Cutting Plane algorithm for the corresponding ILP formulation---when we use Markov Logic this algorithm comes ``for free''. 
 % \begin{table}[ht]
 
 %     \centering
