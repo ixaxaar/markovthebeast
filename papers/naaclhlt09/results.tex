@@ -1,5 +1,5 @@
 
-Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. The metrict measures the precission, recall and $F_1$ score of recovering semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such depenency is the role of the argument. Additionaly, there is a semantic dependency for each predicate and a $ROOT$ argument which has as a label the sense of the predicate.
+Table \ref{tbl:results} shows the results of our systems with respect to the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. Thee metrict measures the precission, recall and $F_1$ score of recovering semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such depenency is the role of the argument. Additionaly, there is a semantic dependency for each predicate and a $ROOT$ argument which has as a label the sense of the predicate.
 %This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses.  
 
 
@@ -10,7 +10,7 @@ To put these results into context, let us compare them to those of the participa
 
 Table \ref{tbl:results} also shows the results of the best~\citep{johansson08dependency} and fourth best system~\citep{zhao08parsing} of the closed track. We note that we do significantly worse than \citet{johansson08dependency}, and roughly equivalent to \citet{zhao08parsing}; this places us on the fourth rank of 19 participants. However, note that all three systems above us, as well as  \citet{zhao08parsing}, use parsers with at least about 90\% (unlabelled) accuracy on the WSJ test set (Johansson's parser even has about 92\% unlabelled accuracy).\footnote{Since our parses use a different label set we could not compare labelled accuracy.} By contrast, with about 87\% unlabelled accuracy our parses are significantly worse.   
 
-Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint model performs better than the full joint model. Hence we will focus on this model in the remainder of this paper.
+Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint model performs better than the full joint model. % Hence we will focus on this model in the remainder of this paper.
 
 %It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use 
 %use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. In the closed track the highest score was obtain by \citet{johansson08dependency} system. Note that this comparison is based only on the results for verbal predicates.
