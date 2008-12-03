@@ -225,6 +225,7 @@ public class CoNLL05JointConverter {
     ArrayList<String> predicateClasses = new ArrayList<String>();
     HashSet<String> argTypes = new HashSet<String>();
     HashMap<Integer, Integer> predicateTokenSet = new HashMap<Integer, Integer>();
+    HashSet<Pair<String, String>> possibleRoleSensePairs = new HashSet<Pair<String, String>>();
 
     HashMultiMapSet<String, String> mlPred2atoms = new HashMultiMapSet<String, String>();
 
@@ -232,6 +233,7 @@ public class CoNLL05JointConverter {
 
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       line = line.trim();
+      //System.err.println(line);
       if (!line.equals("")) {
         StringTokenizer tokenizer = new StringTokenizer(line, "[\t\n ]", false);
         ArrayList<String> fields = new ArrayList<String>(20);
@@ -256,7 +258,7 @@ public class CoNLL05JointConverter {
           sentence.get(0).set(WORD_INDEX, sentence.get(0).get(WORD_INDEX).toLowerCase());
         ParseTree charniak = ParseTree.create(sentence, CHARNIAK_INDEX);
         ParseTree upc = ParseTree.createChunks(sentence, UPC_CHUNK_INDEX);
-        ParseTree ne = ParseTree.createChunks(sentence, NE_INDEX);
+        //ParseTree ne = ParseTree.createChunks(sentence, NE_INDEX);
 
         HashMap<Pair<Integer, Integer>, Integer> span2id = new HashMap<Pair<Integer, Integer>, Integer>();
 
@@ -285,8 +287,8 @@ public class CoNLL05JointConverter {
 
           ParseTree predicateTree = charniak.getSmallestCoveringTree(predCand, predCand);
           predCand2predicateTree.put(predCand, predicateTree);
-          if (predicateTree == null) throw new RuntimeException("Problem in sentence " + sentence +
-                  " with predicate token " + predCand);
+          if (predicateTree == null) continue;
+          //throw new RuntimeException("Problem in sentence " + sentence + " with predicate token " + predCand);
 
           ParseTree args = predicateTokenSet.containsKey(predCand) ?
                   ParseTree.createChunks(sentence, CORE_FEATURE_COUNT + 2 + predicateTokenSet.get(predCand)) :
@@ -414,10 +416,16 @@ public class CoNLL05JointConverter {
           if (predicateTokenSet.containsKey(predCand))
             for (Pair<Integer, Integer> span : argSpans) {
               String label = args.getLabel(span.arg1, span.arg2);
+              //possibleRoleSensePairs.add(new Pair<String, String>(quote(predicateClass), label));
               int id = span2id.get(span);
               argTypes.add(label);
-              if (!label.equals(NONE) && (extractV || (!label.startsWith("V") && !label.endsWith("-V"))))
+              if (!label.equals(NONE) && (extractV || (!label.startsWith("V") && !label.endsWith("-V")))) {
                 mlPred2atoms.add(">role", predCand + "\t" + id + "\t\"" + label + "\"");
+              }
+              if (label.startsWith("A") && !label.startsWith("AM")) {
+                mlPred2atoms.add(">rolesense", predCand + "\t" + id + "\t\"" + label + "\"\t" + quote(predicateClass));
+                mlPred2atoms.add(">requiresarg", predCand + "\t" + label);
+              }
             }
 
           //hasRole
@@ -514,6 +522,7 @@ public class CoNLL05JointConverter {
         out.println(">voice");
         for (int predicateTokenCandidate : predicateTokenCandidates) {
           ParseTree predicateTree = predCand2predicateTree.get(predicateTokenCandidate);
+          if (predicateTree == null) continue;
           out.println(predicateTokenCandidate + "\t" + predicateTree.activeVoice(sentence));
         }
         out.println();
@@ -542,10 +551,11 @@ public class CoNLL05JointConverter {
 
         out.println(">predpath");
         for (int pred1 : predicateTokenCandidates) {
-          for (int pred2 : predicateTokenCandidates){
-            if (pred1 < pred2){
+          for (int pred2 : predicateTokenCandidates) {
+            if (pred1 < pred2) {
               ParseTree from = charniak.getSmallestCoveringTree(pred1, pred1);
-              ParseTree to = charniak.getSmallestCoveringTree(pred2,pred2);
+              ParseTree to = charniak.getSmallestCoveringTree(pred2, pred2);
+              if (from == null || to == null) continue;
               ParseTree.Path path = new ParseTree.Path();
               from.getPath(to, path);
               out.println(pred1 + "\t" + pred2 + "\t\"" + path + "\"");
@@ -554,7 +564,6 @@ public class CoNLL05JointConverter {
           }
         }
         out.println();
-
 
         //now print out stored stuff
         for (String mlPred : mlPred2atoms.keySet()) {
@@ -610,6 +619,11 @@ public class CoNLL05JointConverter {
     for (String arg : r_args)
       global.println(quote(arg) + "\t" + quote(arg.substring(2)));
     global.println();
+
+//    global.println(">allowedRole");
+//    for (Pair<String, String> pair : possibleRoleSensePairs)
+//      global.println(pair.arg1 + "\t" + pair.arg2);
+//    global.println();
     global.close();
 
 
