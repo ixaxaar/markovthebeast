@@ -389,7 +389,7 @@ public class WeightedSatProblem implements PropositionalModel {
 
 
     for (FactorFormula formula : model.getGlobalFactorFormulas()) {
-      groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, atoms,false, weights, this));
+      groundingQueries.put(formula, grounder.createGroundingQuery(formula, groundFormulas, atoms,formula.isGround(), weights, this));
       //newQueries.put(formula, builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation());
     }
     newClausesQuery = builder.expr(groundedClauses).expr(clauses).relationMinus().getRelation();

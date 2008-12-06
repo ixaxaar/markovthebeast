@@ -1,11 +1,11 @@
 /* Load the constant types */
-include "align-types.pml";
+include "social-types.pml";
 
 /* Load Alignment mln */
-include "align.pml";
+include "social.pml";
 
 /* Loading the global atoms that hold in every possible world */
-load global from "global.atoms";
+//load global from "global.atoms";
 
 /* Load a collection of possible worlds for training */
 load corpus from "train.atoms";
@@ -20,16 +20,17 @@ print weights;
    This is mandatory for training the weights. Often this will take some time
    because some preprocessing is done to speed up training later. You can also
    reuse this in later sessions. */
-save corpus to instances "align.instances";
+save corpus to instances "social.instances";
 
 /* Now do online learning for 10 epochs (by default this uses MIRA) */
+set learner.solver.model.initIntegers = true;
 learn for 10 epochs;
 
 /* Print the new weights to the screen */
 print weights;
 
 /* Save them in binary form for later reuse */
-save weights to dump "align.weights";
+save weights to dump "social.weights";
 
 /* Load a test corpus */
 load corpus from "test.atoms";
@@ -59,17 +60,21 @@ next;
 solve;
 
 // print the resulting labels to the screen
-print atoms.align;
+print atoms.likes;
 
 // compare the results to the gold labels
 print eval;
 
+// print the local features for ground atom likes("Peter","The Dark Knight")
+// Notice that within these states " is replaced by '
+print solver.features.likes('Peter','The Dark Knight');
+
+
 // do the same thing for the next world
 // now cutting plane inference needs a few iterations because some elements are missing from the diagonal.
-next; solve; print atoms.align; print eval;
+next; solve; print atoms.likes; print eval;
+print solver.features.likes('Mia','Rambo II');
 
-// print the local features for ground atom align(1,1)
-print solver.features.align(1,1);
 
 /* Now we want to apply our MLN to all worlds in the test corpus
    and write out the result. Note that this will also print out

@@ -23,6 +23,11 @@ public class WeightedSatClause {
       this.ub = ub;
       this.indices = indices;
     }
+
+    public String toString(){
+      return lb + " <= " + Arrays.toString(indices) + " <= " + ub;
+    }
+
   }
 
   public WeightedSatClause(double score, int[][] atoms, boolean[][] signs, Constraint[][] constraints) {
@@ -32,6 +37,19 @@ public class WeightedSatClause {
     this.constraints = constraints;
   }
 
+
+  public String toString(){
+    StringBuffer result = new StringBuffer();
+    result.append(score).append("\n");
+    for (int i = 0; i < atoms.length; ++i){
+      result.append(Arrays.toString(atoms[i])).append("\n");
+      result.append(Arrays.toString(signs[i])).append("\n");
+    }
+    for (int i = 0; i < constraints.length; ++i){
+      result.append(Arrays.toString(constraints[i])).append("\n");      
+    }
+    return result.toString();
+  }
   /**
    * Returns true iff this clause contains cardinality constraints.
    *
