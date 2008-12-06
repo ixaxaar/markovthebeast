@@ -10,14 +10,16 @@ import thebeast.nod.util.TypeBuilder;
 import thebeast.nod.variable.RelationVariable;
 import thebeast.pml.*;
 import thebeast.pml.formula.*;
+import thebeast.pml.formula.Not;
 import thebeast.pml.term.Variable;
 import thebeast.pml.term.TermResolver;
 
 import java.util.*;
 
 /**
- * A WeightedSatGrounder creates NoD queries for factor formulas that generate grounded sat clauses. This class is
- * tightly connected with the {@link thebeast.pml.solve.weightedsat.WeightedSatProblem} class.
+ * A WeightedSatGrounder creates NoD queries for factor formulas that generate
+ * grounded sat clauses. This class is tightly connected with the {@link
+ * thebeast.pml.solve.weightedsat.WeightedSatProblem} class.
  *
  * @author Sebastian Riedel
  */
@@ -46,22 +48,27 @@ public class WeightedSatGrounder {
 
 
   /**
-   * <p>Returns a query that generates sat clauses for the grounded formulas in <code>formulas</code> and fills the
-   * <code>satAtoms</code> table with new ground atoms + indices if necessary. <p>the query generates tables of the form
-   * |0.234|[[t,f,f],[f,t]]|[[2,3,4],[2,5]]| where the first component refers to weight of the clause, the first inner
-   * tuples refer to the signs of the cnf and the second one to corresponding atom indices.
+   * <p>Returns a query that generates sat clauses for the grounded formulas in
+   * <code>formulas</code> and fills the <code>satAtoms</code> table with new
+   * ground atoms + indices if necessary. <p>the query generates tables of the
+   * form |0.234|[[t,f,f],[f,t]]|[[2,3,4],[2,5]]| where the first component
+   * refers to weight of the clause, the first inner tuples refer to the signs
+   * of the cnf and the second one to corresponding atom indices.
    *
    * @param formula   the factor formula to create a grounding query for
    * @param formulas  a collection of ground atoms
-   * @param weights   the formula might use variables which are bound by the weight tables, thus we
-   *                  need to pass these here.
-   * @param wsp       the weighted sat problem that the query should get the ground atom indices from (and to which it
-   *                  will add new ground atoms if a formula requires this.
+   * @param weights   the formula might use variables which are bound by the
+   *                  weight tables, thus we need to pass these here.
+   * @param wsp       the weighted sat problem that the query should get the
+   *                  ground atom indices from (and to which it will add new
+   *                  ground atoms if a formula requires this.
    * @param atoms     the ground atoms to build the cardinality atoms with
-   * @param groundAll if true LEQ queries will always use all ground atom indices, not just the indices of the true
-   *                  atoms in the current solution
-   * @return a query that generates tables with grounded weighted sat clauses and (as side effect) fills up the ground
-   *         atom mappings in the specified wsp.
+   * @param groundAll if true LEQ queries will always use all ground atom
+   *                  indices, not just the indices of the true atoms in the
+   *                  current solution
+   * @return a query that generates tables with grounded weighted sat clauses
+   *         and (as side effect) fills up the ground atom mappings in the
+   *         specified wsp.
    */
   RelationExpression createGroundingQuery(FactorFormula formula,
                                           GroundFormulas formulas,
@@ -73,7 +80,11 @@ public class WeightedSatGrounder {
       throw new RuntimeException("It doesn't make sense to create a grounding query for a local formula: " + formula);
 
     ExpressionBuilder builder = new ExpressionBuilder(TheBeast.getInstance().getNodServer());
-    BooleanFormula booleanFormula = formula.getFormula();
+    boolean negate = formula.getFormula() instanceof Conjunction;
+    BooleanFormula booleanFormula = negate ?
+      new Not(formula.getFormula()) : formula.getFormula();
+
+
     CNFGenerator cnfGenerator = new CNFGenerator();
     CNF cnf = cnfGenerator.convertToCNF(booleanFormula);
     RelationVariable groundFormulas = formulas.getNewGroundFormulas(formula);
@@ -96,7 +107,8 @@ public class WeightedSatGrounder {
 
     //get the weight
     DoubleExpression weight = formula.isDeterministic() ?
-            builder.num(det_weight).getDouble() : getFormulaWeight(builder, wsp.getWeights());
+      builder.num(det_weight).getDouble() :
+      getFormulaWeight(builder, wsp.getWeights(), negate);
 
     builder.id("weight").expr(weight);
     builder.id("signs").expr(disjunctionSigns);
@@ -106,7 +118,6 @@ public class WeightedSatGrounder {
 
     return builder.getRelation();
   }
-
 
 
   private RelationExpression getCardinalityAtoms(CNF cnf, WeightedSatProblem wsp, Weights weights, boolean groundAll,
@@ -122,8 +133,8 @@ public class WeightedSatGrounder {
           CardinalityConstraint constraint = ((CardinalityConstraint) atom.getAtom());
           if (!atom.isTrue()) constraint = constraint.negate();
           RelationExpression items =
-                  //createConstraintItems(constraint, wsp, term2expr, true, wsp.getModel(), atoms);
-                  createConstraintItems(constraint, wsp, term2expr, !constraint.isLEQ()||groundAll, wsp.getModel(), atoms);
+            //createConstraintItems(constraint, wsp, term2expr, true, wsp.getModel(), atoms);
+            createConstraintItems(constraint, wsp, term2expr, !constraint.isLEQ() || groundAll, wsp.getModel(), atoms);
           builder.expr(items);
           builder.id("disjunction");
           builder.num(disjunctionIndex);
@@ -150,10 +161,12 @@ public class WeightedSatGrounder {
   }
 
   /**
-   * Creates a mapping from PML variables to database expression using the columns of the ground formula table (which
-   * stores the assignments for variables).
+   * Creates a mapping from PML variables to database expression using the
+   * columns of the ground formula table (which stores the assignments for
+   * variables).
    *
-   * @param quantification the quantification of the formula we want the mapping for.
+   * @param quantification the quantification of the formula we want the mapping
+   *                       for.
    * @return a mapping from pml terms to database expressions.
    */
   private Map<Variable, Expression> createMapping(Quantification quantification) {
@@ -170,28 +183,36 @@ public class WeightedSatGrounder {
   }
 
   /**
-   * Returns an expression that represents the weight of the current ground formula.
+   * Returns an expression that represents the weight of the current ground
+   * formula.
    *
-   * @param builder the builder to use. It has to be building a query with a from table "formulas" that has an "index"
-   *                column.
+   * @param builder the builder to use. It has to be building a query with a
+   *                from table "formulas" that has an "index" column.
    * @param weights the weights to get the weight for the weight index for
    * @return a double expression that accesses the weight array.
    */
-  private DoubleExpression getFormulaWeight(ExpressionBuilder builder, Weights weights) {
+  private DoubleExpression getFormulaWeight(ExpressionBuilder builder,
+                                            Weights weights,
+                                            boolean negate) {
     builder.expr(weights.getWeights());
     builder.intAttribute("formulas", "index").doubleArrayElement();
     builder.doubleAttribute("formulas", "scale").doubleTimes();
+    if (negate) {
+      builder.doubleValue(-1.0).doubleTimes();
+    }
     return builder.getDouble();
   }
 
   /**
-   * Creates a database expression that returns the index of a ground atom (and produces a new atomindex/score pair as
-   * side effect).
+   * Creates a database expression that returns the index of a ground atom (and
+   * produces a new atomindex/score pair as side effect).
    *
    * @param atom      the atom (ungrounded)
-   * @param wsp       the WSP to get the index from (the WSP stores a mapping from pred arguments to indices)
+   * @param wsp       the WSP to get the index from (the WSP stores a mapping
+   *                  from pred arguments to indices)
    * @param term2expr a mapping from pml terms to database expressions
-   * @return an IntExpression for the atom index based on the term to expression mapping for each argument.
+   * @return an IntExpression for the atom index based on the term to expression
+   *         mapping for each argument.
    */
   private IntExpression getAtomIndex(PredicateAtom atom, WeightedSatProblem wsp, Map<Variable, Expression> term2expr) {
     Scores scores = wsp.getScores();
@@ -219,11 +240,13 @@ public class WeightedSatGrounder {
   }
 
   /**
-   * Returns a database expression the represents the signs of the disjunctions in the given CNF
+   * Returns a database expression the represents the signs of the disjunctions
+   * in the given CNF
    *
    * @param cnf the CNF of the formula to get the sign expression for.
-   * @return an array expression [[true,false][true,true,true]] where the i-th inner array represents the signs of the
-   *         i-th disjunction in the CNF.
+   * @return an array expression [[true,false][true,true,true]] where the i-th
+   *         inner array represents the signs of the i-th disjunction in the
+   *         CNF.
    */
   private ArrayExpression getDisjunctionSigns(CNF cnf) {
     ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
@@ -244,15 +267,18 @@ public class WeightedSatGrounder {
   }
 
   /**
-   * This method creates a database expression that generates the indices of the atoms in a CNF. It will have the format
-   * [[0,1][2,3,4]] where the i-th inner array represents the atom indices of the atoms within the i-th disjunction of
-   * the CNF
+   * This method creates a database expression that generates the indices of the
+   * atoms in a CNF. It will have the format [[0,1][2,3,4]] where the i-th inner
+   * array represents the atom indices of the atoms within the i-th disjunction
+   * of the CNF
    *
    * @param cnf       the CNF to use
-   * @param wsp       the expression uses the tables of the WSP and thus we need to provide it here
+   * @param wsp       the expression uses the tables of the WSP and thus we need
+   *                  to provide it here
    * @param term2epxr a mapping from PML terms to NoD database expressions.
-   * @return an array expression of the format [[0,1][2,3,4]] where the i-th inner array represents the atom indices of
-   *         the atoms within the i-th disjunction of the CNF.
+   * @return an array expression of the format [[0,1][2,3,4]] where the i-th
+   *         inner array represents the atom indices of the atoms within the
+   *         i-th disjunction of the CNF.
    */
   private ArrayExpression getDisjunctionAtoms(CNF cnf, WeightedSatProblem wsp, Map<Variable, Expression> term2epxr) {
     ExpressionBuilder builder = TheBeast.getInstance().getNodServer().expressionBuilder();
@@ -281,7 +307,7 @@ public class WeightedSatGrounder {
     DNF dnf = DNFGenerator.generateDNF(formula);
     if (dnf.getConjunctionCount() > 1)
       throw new RuntimeException("We can only do plain conjunctions for cardinality constraints but look at this:" +
-              dnf + " coming from this " + formula);
+        dnf + " coming from this " + formula);
     List<SignedAtom> conjunction = dnf.getConjunction(0);
 
     ConjunctionProcessor processor = new ConjunctionProcessor(null, groundAtoms);
@@ -320,7 +346,8 @@ public class WeightedSatGrounder {
           hidden = atom;
       }
     }
-    if (hidden == null) throw new RuntimeException("There is no hidden atom in " + constraint);
+    if (hidden == null)
+      throw new RuntimeException("There is no hidden atom in " + constraint);
     if (useAll) conjunction.remove(hidden);
 
     processor.processConjunction(context, conjunction);
@@ -328,7 +355,6 @@ public class WeightedSatGrounder {
     if (useAll) {
       ArrayList<SignedAtom> hiddenList = new ArrayList<SignedAtom>();
       hiddenList.add(hidden);
-      //processor.resolveBruteForce(context, hiddenList);
       processor.resolveBruteForce(context, hiddenList);
       conjunction.add(hidden);
     }
@@ -341,7 +367,7 @@ public class WeightedSatGrounder {
     NoDExpressionGenerator generator = new NoDExpressionGenerator();
     for (Variable v : quantification.getVariables()) {
       var2expr.put(v, generator.convertTerm(resolver.resolve(v, context.var2term),
-              groundAtoms, null, context.var2expr, context.var2term));
+        groundAtoms, null, context.var2expr, context.var2term));
     }
 
     context.selectBuilder.expr(getAtomIndex((PredicateAtom) hidden.getAtom(), wsp, var2expr));

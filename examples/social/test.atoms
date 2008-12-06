@@ -1,41 +1,57 @@
 >>
->src_word
-0 "Mark"
-1 "plays"
-2 "Elianti"
-3 "."
+>gender
+"Anna" Female
+"Sebastian" Male
+"Peter" Male
+"Mika"  Female
 
->tgt_word
-0 "Mark"
-1 "spielt"
-2 "Elianti"
-3 "."
+>friends
+"Anna"  "Peter"
+"Peter"  "Anna"
+"Mika"  "Sebastian"
+"Sebastian" "Mika"
 
->align
-0 0
-1 1
-2 2
-3 3
+>movieType
+"Die Hard"  Action
+"The Dark Knight" Action
+"Dirty Dancing" Romance
+"Purple Rain" Romance
+
+
+>likes
+"Peter" "Die Hard"
+"Peter" "The Dark Knight"
+"Sebastian" "The Dark Knight"
+"Sebastian" "Purple Rain"
+"Mika" "The Dark Knight"
+"Mika" "Purple Rain"
+"Anna"  "Dirty Dancing"
+
 
 >>
->src_word
-0 "Bart"
-1 "hates"
-2 "all"
-3 "shanties"
-4 "."
+>gender
+"Julia" Female
+"Robert" Male
+"James" Male
+"Mia"  Female
 
+>friends
+"Julia"  "James"
+"James"  "Julia"
+"Mia"  "Robert"
+"Robert" "Mia"
 
->tgt_word
-0 "Bart"
-1 "hasst"
-2 "alle"
-3 "Shanties"
-4 "."
+>movieType
+"Rambo I"  Action
+"Rambo II" Action
+"Strictly Ballroom" Romance
+"When Harry Met Sally" Romance
 
->align
-0 0
-1 1
-2 2
-3 3
-4 4
+>likes
+"James" "Rambo I"
+"James" "Rambo II"
+"Robert" "When Harry Met Sally"
+"Mia" "When Harry Met Sally"
+"Julia"  "When Harry Met Sally"
+"Julia" "Strictly Ballroom"
+"Mia" "Strictly Ballroom"

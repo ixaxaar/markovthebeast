@@ -596,6 +596,7 @@ public class CuttingPlaneSolver implements Solver {
    * @return the order of the set of ground formulas of the last solution.
    */
   private int inspect() {
+    //first check global formulas which are fully grounded and weighted
     if (orderedFactors.size() == 0) return Integer.MAX_VALUE;
     int order = 0;
     do {
@@ -622,6 +623,12 @@ public class CuttingPlaneSolver implements Solver {
    * @param order the order of the current colution to add.
    */
   private void addCandidate(int order) {
+    //ground-all formulas that have not been used for the propositional models
+    for (FactorFormula formula : model.getGlobalFactorFormulas()){
+      if (groundAll.contains(formula) && formula.usesWeights()){
+        formulas.update(atoms,Collections.singleton(formula));
+      }
+    }
     if (holderAtoms.isEmpty()) {
       candidateAtoms.add(0, new GroundAtoms(atoms));
       candidateFormulas.add(0, new GroundFormulas(formulas));
