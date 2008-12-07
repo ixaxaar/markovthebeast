@@ -168,6 +168,7 @@
     <include name="bin/*"/>
     <include name="examples/srl/**"/>
     <include name="examples/align/**"/>
+    <include name="examples/social/**"/>
     <include name="src/**/*.java"/>
     <include name="src/**/*.cup"/>
     <include name="src/**/*.lex"/>
@@ -209,17 +210,38 @@
   <condition property="onunix">
     <os family="unix"/>
   </condition>
+  <condition property="onwin">
+    <os family="windows"/>
+  </condition>
 
   <!-- OS specific tasks -->
-  <target name="conf-os" depends="conf-mac,conf-unix"/>
+  <target name="conf-os" depends="conf-mac,conf-unix,conf-windows"/>
 
   <target name="conf-mac" if="onmac">
+    <copy file="bin/maxwalksat.mac" tofile="bin/maxwalksat"/>
+    <chmod file="bin/maxwalksat" perm="+x"/>
     <copy file="bin/thebeast.mac" tofile="bin/thebeast"/>
     <chmod file="bin/thebeast" perm="+x"/>
   </target>
   <target name="conf-unix" if="onunix">
     <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
     <chmod file="bin/thebeast" perm="+x"/>
+  </target>
+  <target name="conf-windows" if="onwin">
+    <pathconvert targetos="windows" property="conf-windows.classpath" refid="thebeast.module.classpath">
+      <!--<map from="${wl.home}" to="${wl.home.unix}"/>-->
+      <!--<map from="c:" to=""/>-->
+    </pathconvert>
+    <echo file="bin/thebeast.win32">#!/bin/bash${line.separator}</echo>
+    <echo file="bin/thebeast.win32" append="true">scriptdir=${module.thebeast.basedir}${file.separator}bin${line.separator}</echo>
+    <echo file="bin/thebeast.win32" append="true">dir=${module.thebeast.basedir}${line.separator}</echo>
+    <echo file="bin/thebeast.win32" append="true">classpath=${conf-windows.classpath}${line.separator}</echo>
+    <echo file="bin/thebeast.win32" append="true">export PATH=$PATH:${scriptdir}${line.separator}</echo>
+    <echo file="bin/thebeast.win32" append="true">java -cp "${classpath}" -Dhome=${PWD} -Xmx1500m thebeast.pml.TheBeast $@</echo>    
+
+    <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
+    <chmod file="bin/thebeast" perm="+x"/>  -->
+
   </target>
 
   <!-- Runs the fullrelease task and uploads the nightly release on google code. -->
