@@ -14,7 +14,7 @@ then
     exit 1;
 fi
 
-opts=" -v -H --s1 "
+opts=" -v -H --possible_ON --s2 "
 
 CONFIRM=1
 if [ $# -eq 1 ]

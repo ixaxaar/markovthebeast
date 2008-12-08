@@ -34,7 +34,7 @@ index: mst_path_directed(*,*,_);
 include "model1-role.pml";
 include "model1-hasLabel.pml";
 include "model1-isPredicate.pml";
-include "model1-isArgument.pml";
+//include "model1-isArgument.pml";
 include "model1-frameLabel.pml";
 //include "model1-both.pml";
 /*

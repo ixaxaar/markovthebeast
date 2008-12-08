@@ -492,6 +492,129 @@ FINAL eval
   Unlabeled F1:               88.97 
 
 
++ CONLL05 version (predicate known)
+::
+  bin/results.py results/devel_propbank.open.111708_103832.log
+  F1 scores
+          isArgument    : 0.967,0.967,0.968,0.968,0.968
+              Global    : 0.916,0.919,0.920,0.921,0.921
+                role    : 0.811,0.822,0.824,0.827,0.828
+         isPredicate    : 1.000,1.000,1.000,1.000,1.000
+            hasLabel    : 0.947,0.947,0.948,0.948,0.947
+          frameLabel    : 0.910,0.908,0.910,0.909,0.909
+
++Eval(5)
+::
+  bin/results.py results/devel_propbank.open.111708_103832.test.log
+F1 scores
+          isArgument    : 0.973,0.956
+              Global    : 0.933,0.891
+                role    : 0.855,0.770
+         isPredicate    : 1.000,1.000
+            hasLabel    : 0.957,0.936
+          frameLabel    : 0.911,0.832
+
+
+Final eval
+WSJ
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (11959 + 4792) / (13699 + 5260) * 100 = 88.35 %
+  Labeled recall:             (11959 + 4792) / (14269 + 5260) * 100 = 85.78 %
+  Labeled F1:                 87.05 
+  Unlabeled precision:        (13287 + 5260) / (13699 + 5260) * 100 = 97.83 %
+  Unlabeled recall:           (13287 + 5260) / (14269 + 5260) * 100 = 94.97 %
+  Unlabeled F1:               96.38 
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1658 + 669) / (2128 + 805) * 100 = 79.34 %
+  Labeled recall:             (1658 + 669) / (2210 + 804) * 100 = 77.21 %
+  Labeled F1:                 78.26 
+  Unlabeled precision:        (2008 + 804) / (2128 + 805) * 100 = 95.87 %
+  Unlabeled recall:           (2008 + 804) / (2210 + 804) * 100 = 93.30 %
+  Unlabeled F1:               94.57 
+
+
++ Fixing that isPredicate was hidden but observable (include hard)
+::
+  bin/results.py results/devel_propbank.open.112008_190753.log
+  F1 scores
+            hasLabel    : 0.946,0.947,0.947,0.947,0.947
+              Global    : 0.907,0.910,0.912,0.912,0.912
+                role    : 0.813,0.822,0.827,0.827,0.828
+          frameLabel    : 0.907,0.912,0.911,0.911,0.913
+          isArgument    : 0.968,0.967,0.968,0.968,0.968
+
+Eval(5)
+::
+  bin/results.py results/devel_propbank.open.112008_190753.test.log
+  F1 scores
+            hasLabel    : 0.958,0.939
+              Global    : 0.926,0.880
+                role    : 0.857,0.773
+          frameLabel    : 0.911,0.826
+          isArgument    : 0.973,0.958
+
+Final eval
+WSJ
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (11990 + 4790) / (13726 + 5260) * 100 = 88.38 %
+  Labeled recall:             (11990 + 4790) / (14269 + 5260) * 100 = 85.92 %
+  Labeled F1:                 87.13 
+  Unlabeled precision:        (13314 + 5260) / (13726 + 5260) * 100 = 97.83 %
+  Unlabeled recall:           (13314 + 5260) / (14269 + 5260) * 100 = 95.11 %
+  Unlabeled F1:               96.45 
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1663 + 664) / (2128 + 805) * 100 = 79.34 %
+  Labeled recall:             (1663 + 664) / (2210 + 804) * 100 = 77.21 %
+  Labeled F1:                 78.26 
+  Unlabeled precision:        (2013 + 804) / (2128 + 805) * 100 = 96.05 %
+  Unlabeled recall:           (2013 + 804) / (2210 + 804) * 100 = 93.46 %
+  Unlabeled F1:               94.74 
+
+
++ Using j08 output (not direct comparison since some sententences are missing)
+::
+  bin/results.py results/devel_propbank.open.112008_190753.test.j08deps.log
+  F1 scores
+            hasLabel    : 0.959,0.940
+              Global    : 0.927,0.882
+                role    : 0.858,0.777
+          frameLabel    : 0.910,0.824
+          isArgument    : 0.975,0.958
+
+
+WSJ (2396 of 2414)
+::
+  head -13 results/test_wsj_propbank.112008_190753.5.j08deps.eval
+  SEMANTIC SCORES:
+  Labeled precision:          (11884 + 4738) / (13590 + 5206) * 100 = 88.43 %
+  Labeled recall:             (11884 + 4738) / (14121 + 5206) * 100 = 86.00 %
+  Labeled F1:                 87.20
+  Unlabeled precision:        (13198 + 5206) / (13590 + 5206) * 100 = 97.91 %
+  Unlabeled recall:           (13198 + 5206) / (14121 + 5206) * 100 = 95.22 %
+  Unlabeled F1:               96.55
+
+
+Brown (425 of 426)
+::
+  head -13 results/test_brown_propbank.112008_190753.5.j08deps.eval
+  SEMANTIC SCORES:
+  Labeled precision:          (1668 + 661) / (2123 + 803) * 100 = 79.60 %
+  Labeled recall:             (1668 + 661) / (2203 + 802) * 100 = 77.50 %
+  Labeled F1:                 78.54
+  Unlabeled precision:        (2010 + 802) / (2123 + 803) * 100 = 96.10 %
+  Unlabeled recall:           (2010 + 802) / (2203 + 802) * 100 = 93.58 %
+  Unlabeled F1:               94.82
+
+
+
 PIPELINE experiments
 --------------------
 
@@ -538,30 +661,45 @@ F1 scores
                 role    : 0.707,0.721,0.724,0.725,0.728
           isArgument    : 0.875,0.876,0.877,0.877,0.876
 
+Eval (5)
+::
+
+
+::
+  bin/results.py results/devel_propbank.open.112208_205715.log
+  F1 scores
+            hasLabel    : 0.869,0.870,0.871,0.871,0.870
+              Global    : 0.820,0.824,0.825,0.825,0.825
+                role    : 0.710,0.719,0.722,0.721,0.722
+          isArgument    : 0.890,0.891,0.891,0.891,0.891
+
 EVAL(5)
-bin/results.py results/devel_propbank.open.100208_173201.test.log
-F1 scores
+::
+  bin/results.py results/devel_propbank.open.100208_173201.test.log
+  F1 scores
             hasLabel    : 0.863,0.817
               Global    : 0.834,0.766
                 role    : 0.756,0.645
           isArgument    : 0.887,0.846
 
 + frameLabel (stage 3)
-bin/results.py results/devel_propbank.open.100308_155627.log
-F1 scores
+::
+  bin/results.py results/devel_propbank.open.100308_155627.log
+  F1 scores
             Global    : 0.836,0.845,0.844,0.842,0.840
         frameLabel    : 0.836,0.845,0.844,0.842,0.840
 EVAL(2)
-bin/results.py results/devel_propbank.open.100308_155627.test.log
-F1 scores
+::
+  bin/results.py results/devel_propbank.open.100308_155627.test.log
+  F1 scores
               Global    : 0.857,0.687
           frameLabel    : 0.857,0.687
 
 
 FINAL_EVAL
-
- WSJ
- SEMANTIC SCORES: 
+WSJ
+::
+  SEMANTIC SCORES: 
   Labeled precision:          (10248 + 4532) / (12826 + 5320) * 100 = 81.45 %
   Labeled recall:             (10248 + 4532) / (14269 + 5260) * 100 = 75.68 %
   Labeled F1:                 78.46 
@@ -569,8 +707,9 @@ FINAL_EVAL
   Unlabeled recall:           (11455 + 5109) / (14269 + 5260) * 100 = 84.82 %
   Unlabeled F1:               87.93 
 
- Brown
- SEMANTIC SCORES: 
+Brown
+::
+  SEMANTIC SCORES: 
   Labeled precision:          (1330 + 565) / (1947 + 842) * 100 = 67.95 %
   Labeled recall:             (1330 + 565) / (2210 + 804) * 100 = 62.87 %
   Labeled F1:                 65.31 
@@ -579,8 +718,719 @@ FINAL_EVAL
   Unlabeled F1:               82.58 
 
 
+NAACL/HLT08
+
+RERUN pipeline:
+
++ Stage 1
+::
+  bin/results.py results/devel_propbank.open.112308_012232.log
+  F1 scores
+         isPredicate    : 0.958,0.959,0.958,0.959,0.959
+              Global    : 0.958,0.959,0.958,0.959,0.959
+
++ Eval (5)
+::
+  bin/results.py results/devel_propbank.open.112308_012232.test.log
+  F1 scores
+         isPredicate    : 0.966,0.922
+              Global    : 0.966,0.922
+
++ Stage 2
+
+Note that I added constraint if isPredicate there should be a hasLabel (this seem to do a good job in j08).
+::
+  bin/results.py results/devel_propbank.open.112308_151718.log
+  F1 scores
+            hasLabel    : 0.853,0.855,0.856,0.854,0.852
+              Global    : 0.802,0.807,0.808,0.808,0.807
+                role    : 0.685,0.694,0.699,0.699,0.700
+          isArgument    : 0.877,0.880,0.880,0.879,0.878
+
+Eval 5
+::
+  bin/results.py results/devel_propbank.open.112308_151718.test.log
+  F1 scores
+            hasLabel    : 0.863,0.809
+              Global    : 0.826,0.752
+                role    : 0.731,0.613
+          isArgument    : 0.891,0.846
+
+Without previous constraint, there should be a hasLabel.
+::
+  bin/results.py results/devel_propbank.open.112308_201121.log
+  F1 scores
+            hasLabel    : 0.870,0.873,0.872,0.872,0.872
+              Global    : 0.819,0.825,0.825,0.826,0.826
+                role    : 0.706,0.718,0.720,0.722,0.723
+          isArgument    : 0.890,0.892,0.891,0.891,0.891
+
+Eval 5
+::
+  bin/results.py results/devel_propbank.open.112308_201121.test.log
+  F1 scores
+            hasLabel    : 0.880,0.836
+              Global    : 0.843,0.775
+                role    : 0.754,0.642
+          isArgument    : 0.903,0.859
+
+Stage 3
+::
+  bin/results.py results/devel_propbank.open.112408_001852.log
+  F1 scores
+              Global    : 0.838,0.848,0.850,0.848,0.848
+          frameLabel    : 0.838,0.848,0.850,0.848,0.848
+
+Eval 3
+::
+  bin/results.py results/devel_propbank.open.112408_001852.test.log
+  F1 scores
+              Global    : 0.859,0.691
+          frameLabel    : 0.859,0.691
+
+FINAL eval
+WSJ
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (10284 + 4545) / (13021 + 5321) * 100 = 80.85 %
+  Labeled recall:             (10284 + 4545) / (14269 + 5260) * 100 = 75.93 %
+  Labeled F1:                 78.31 
+  Unlabeled precision:        (11757 + 5109) / (13021 + 5321) * 100 = 91.95 %
+  Unlabeled recall:           (11757 + 5109) / (14269 + 5260) * 100 = 86.36 %
+  Unlabeled F1:               89.07 
+
+Brown
+::
+  head -13  data/conll05/test_brown_propbank.s3.112408_001852.eval 
+  SEMANTIC SCORES: 
+  Labeled precision:          (1335 + 570) / (1986 + 846) * 100 = 67.27 %
+  Labeled recall:             (1335 + 570) / (2210 + 804) * 100 = 63.21 %
+  Labeled F1:                 65.17 
+  Unlabeled precision:        (1696 + 760) / (1986 + 846) * 100 = 86.72 %
+  Unlabeled recall:           (1696 + 760) / (2210 + 804) * 100 = 81.49 %
+  Unlabeled F1:               84.02 
+
++ Using the output of stage 2 where the isPredicate -> |hasLabel| > 1
+::
+  bin/results.py results/devel_propbank.open.112508_140406.log
+  F1 scores
+              Global    : 0.838,0.848,0.850,0.848,0.848
+          frameLabel    : 0.838,0.848,0.850,0.848,0.848
+
+Eval (3)
+::
+  bin/results.py results/devel_propbank.open.112508_140406.test.log
+  F1 scores
+              Global    : 0.858,0.699
+          frameLabel    : 0.858,0.699
+
+Final eval
+WSJ
+::
+  head -13 results/test_wsj_propbank.s3.112508_140406.3.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (9880 + 4540) / (12770 + 5321) * 100 = 79.71 %
+  Labeled recall:             (9880 + 4540) / (14269 + 5260) * 100 = 73.84 %
+  Labeled F1:                 76.66 
+  Unlabeled precision:        (11432 + 5109) / (12770 + 5321) * 100 = 91.43 %
+  Unlabeled recall:           (11432 + 5109) / (14269 + 5260) * 100 = 84.70 %
+  Unlabeled F1:               87.94 
+
+Brown
+::
+  head -13 results/test_brown_propbank.s3.112508_140406.3.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1272 + 576) / (1972 + 846) * 100 = 65.58 %
+  Labeled recall:             (1272 + 576) / (2210 + 804) * 100 = 61.31 %
+  Labeled F1:                 63.37 
+  Unlabeled precision:        (1635 + 760) / (1972 + 846) * 100 = 84.99 %
+  Unlabeled recall:           (1635 + 760) / (2210 + 804) * 100 = 79.46 %
+  Unlabeled F1:               82.13 
+
++ Using new global formula for frameLabel
+bin/results.py results/devel_propbank.open.112508_182555.log
+F1 scores
+              Global    : 0.796,0.810,0.811,0.811,0.812
+          frameLabel    : 0.796,0.810,0.811,0.811,0.812
+
++ No global, or maybe yes, something weird going
+bin/results.py results/devel_propbank.open.112508_182555.log
+F1 scores
+              Global    : 0.796,0.810,0.811,0.811,0.812
+          frameLabel    : 0.796,0.810,0.811,0.811,0.812
++ No global again, something weird going 
+bin/results.py results/devel_propbank.open.112508_194919.log
+F1 scores
+              Global    : 0.796,0.810,0.811,0.811,0.812
+          frameLabel    : 0.796,0.810,0.811,0.811,0.812
 
 
++ Two rules
+::
+  bin/results.py results/devel_propbank.open.112508_223504.log
+  F1 scores
+              Global    : 0.834,0.842,0.841,0.841,0.841
+          frameLabel    : 0.834,0.842,0.841,0.841,0.841
+
+Eval 3
+::
+  bin/results.py results/devel_propbank.open.112508_223504.test.log
+  F1 scores
+              Global    : 0.855,0.673
+          frameLabel    : 0.855,0.673
+
+Final eval
+WSJ
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (10284 + 4521) / (13021 + 5321) * 100 = 80.72 %
+  Labeled recall:             (10284 + 4521) / (14269 + 5260) * 100 = 75.81 %
+  Labeled F1:                 78.19 
+  Unlabeled precision:        (11757 + 5109) / (13021 + 5321) * 100 = 91.95 %
+  Unlabeled recall:           (11757 + 5109) / (14269 + 5260) * 100 = 86.36 %
+  Unlabeled F1:               89.07 
+ 
+Brown
+::
+  head -13  data/conll05/test_brown_propbank.s3.112508_223504.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1335 + 555) / (1986 + 846) * 100 = 66.74 %
+  Labeled recall:             (1335 + 555) / (2210 + 804) * 100 = 62.71 %
+  Labeled F1:                 64.66 
+  Unlabeled precision:        (1696 + 760) / (1986 + 846) * 100 = 86.72 %
+  Unlabeled recall:           (1696 + 760) / (2210 + 804) * 100 = 81.49 %
+  Unlabeled F1:               84.02 
+
+
++ bottm-up for the pipeline
+::
+  bin/results.py results/devel_propbank.open.120408_224003.log
+  F1 scores
+            hasLabel    : 0.867,0.871,0.869,0.869,0.868
+              Global    : 0.824,0.831,0.830,0.831,0.831
+                role    : 0.721,0.737,0.736,0.739,0.740
+          isArgument    : 0.888,0.891,0.889,0.890,0.889
+
+Eval(5)
+::
+  bin/results.py results/devel_propbank.open.120408_224003.test.log
+  F1 scores
+            hasLabel    : 0.877,0.835
+              Global    : 0.848,0.780
+                role    : 0.769,0.651
+          isArgument    : 0.900,0.857
+
+Stage 3
+::
+  bin/results.py results/devel_propbank.open.120508_192436.log
+  F1 scores
+              Global    : 0.834,0.842,0.841,0.841,0.841
+          frameLabel    : 0.834,0.842,0.841,0.841,0.841
+
+Eval(2)
+::
+  bin/results.py results/devel_propbank.open.120508_192436.test.log
+  F1 scores
+              Global    : 0.854,0.667
+          frameLabel    : 0.854,0.667
+
+Final eval
+WSJ
+::
+  head -13 results/test_wsj_propbank.s3.120508_192436.2.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (10131 + 4516) / (12087 + 5321) * 100 = 84.14 %
+  Labeled recall:             (10131 + 4516) / (14269 + 5260) * 100 = 75.00 %
+  Labeled F1:                 79.31 
+  Unlabeled precision:        (11040 + 5109) / (12087 + 5321) * 100 = 92.77 %
+  Unlabeled recall:           (11040 + 5109) / (14269 + 5260) * 100 = 82.69 %
+  Unlabeled F1:               87.44 
+  
+
+Brown
+::
+  head -13 results/test_brown_propbank.s3.120508_192436.2.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1291 + 550) / (1790 + 846) * 100 = 69.84 %
+  Labeled recall:             (1291 + 550) / (2210 + 804) * 100 = 61.08 %
+  Labeled F1:                 65.17 
+  Unlabeled precision:        (1556 + 760) / (1790 + 846) * 100 = 87.86 %
+  Unlabeled recall:           (1556 + 760) / (2210 + 804) * 100 = 76.84 %
+  Unlabeled F1:               81.98 
+
++ There was a mistake with the training data for stage 3, reruning the stage 3
+::
+  bin/results.py results/devel_propbank.open.120808_142936.log
+  F1 scores
+              Global    : 0.832,0.837,0.838,0.837,0.836
+          frameLabel    : 0.832,0.837,0.838,0.837,0.836
+
+Eval (3)
+::
+  bin/results.py results/devel_propbank.open.120808_142936.test.log
+  F1 scores
+              Global    : 0.852,0.669
+          frameLabel    : 0.852,0.669
+
+Final eval
+WSJ
+:: 
+  head -13 results/test_wsj_propbank.s3.120808_142936.3.eval
+  SEMANTIC SCORES:
+  Labeled precision:          (10131 + 4510) / (12087 + 5321) * 100 = 84.11 %
+  Labeled recall:             (10131 + 4510) / (14269 + 5260) * 100 = 74.97 %
+  Labeled F1:                 79.28
+  Unlabeled precision:        (11040 + 5109) / (12087 + 5321) * 100 = 92.77 %
+  Unlabeled recall:           (11040 + 5109) / (14269 + 5260) * 100 = 82.69 %
+  Unlabeled F1:               87.44
+
+
+Brown
+::
+  head -13 results/test_brown_propbank.s3.120808_142936.3.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1291 + 552) / (1790 + 846) * 100 = 69.92 %
+  Labeled recall:             (1291 + 552) / (2210 + 804) * 100 = 61.15 %
+  Labeled F1:                 65.24 
+  Unlabeled precision:        (1556 + 760) / (1790 + 846) * 100 = 87.86 %
+  Unlabeled recall:           (1556 + 760) / (2210 + 804) * 100 = 76.84 %
+  Unlabeled F1:               81.98 
+
++ pipeline/bottom-up without isArg
+Stage 2
+::
+  bin/results.py results/devel_propbank.open.120708_190242.log 
+  F1 scores
+            hasLabel    : 0.859,0.862,0.863,0.864,0.862
+              Global    : 0.788,0.796,0.798,0.800,0.799
+                role    : 0.718,0.729,0.733,0.737,0.736
+
+
+Eval(4)
+::
+  bin/results.py results/devel_propbank.open.120708_190242.test.log
+  F1 scores
+            hasLabel    : 0.871,0.819
+              Global    : 0.819,0.733
+                role    : 0.767,0.645
+
+
+Stage 3
+::
+  bin/results.py results/devel_propbank.open.120808_020636.log 
+  F1 scores
+              Global    : 0.831,0.835,0.835,0.837,0.837
+          frameLabel    : 0.831,0.835,0.835,0.837,0.837
+
+Eval (4)
+::
+  bin/results.py results/devel_propbank.open.120808_020636.test.log
+  F1 scores
+              Global    : 0.848,0.660
+          frameLabel    : 0.848,0.660
+
+Final eval
+WSJ
+::
+  head -13  data/conll05/test_wsj_propbank.s3.120708_231441.4.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (10067 + 4486) / (11997 + 5321) * 100 = 84.03 %
+  Labeled recall:             (10067 + 4486) / (14269 + 5260) * 100 = 74.52 %
+  Labeled F1:                 78.99 
+  Unlabeled precision:        (10941 + 5109) / (11997 + 5321) * 100 = 92.68 %
+  Unlabeled recall:           (10941 + 5109) / (14269 + 5260) * 100 = 82.19 %
+  Unlabeled F1:               87.12 
+Brown
+::
+  head -13  data/conll05/test_brown_propbank.s3.120708_231441.4.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1265 + 542) / (1744 + 846) * 100 = 69.77 %
+  Labeled recall:             (1265 + 542) / (2210 + 804) * 100 = 59.95 %
+  Labeled F1:                 64.49 
+  Unlabeled precision:        (1504 + 760) / (1744 + 846) * 100 = 87.41 %
+  Unlabeled recall:           (1504 + 760) / (2210 + 804) * 100 = 75.12 %
+  Unlabeled F1:               80.80 
+
+
+
++ To be able to compare I run full model
+::
+  bin/results.py  results/devel_propbank.open.112408_172158.log
+  F1 scores
+          isArgument    : 0.893,0.896,0.895,0.895,0.895
+              Global    : 0.837,0.844,0.845,0.846,0.846
+                role    : 0.703,0.719,0.724,0.725,0.727
+         isPredicate    : 0.957,0.958,0.958,0.958,0.958
+            hasLabel    : 0.865,0.869,0.869,0.869,0.870
+          frameLabel    : 0.859,0.869,0.867,0.870,0.871
+
+Eval 5
+:: 
+   bin/results.py results/devel_propbank.open.112408_172158.test.log 
+   F1 scores
+          isArgument    : 0.905,0.868
+              Global    : 0.859,0.793
+                role    : 0.752,0.646
+         isPredicate    : 0.965,0.923
+            hasLabel    : 0.879,0.836
+          frameLabel    : 0.877,0.763
+
+WSJ
+::
+  head -13 data/conll05/test_wsj_propbank.112408_172158.5.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (10372 + 4617) / (13334 + 5268) * 100 = 80.58 %
+  Labeled recall:             (10372 + 4617) / (14269 + 5260) * 100 = 76.75 %
+  Labeled F1:                 78.62 
+  Unlabeled precision:        (11947 + 5079) / (13334 + 5268) * 100 = 91.53 %
+  Unlabeled recall:           (11947 + 5079) / (14269 + 5260) * 100 = 87.18 %
+  Unlabeled F1:               89.30 
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1367 + 613) / (2058 + 804) * 100 = 69.18 %
+  Labeled recall:             (1367 + 613) / (2210 + 804) * 100 = 65.69 %
+  Labeled F1:                 67.39 
+  Unlabeled precision:        (1736 + 742) / (2058 + 804) * 100 = 86.58 %
+  Unlabeled recall:           (1736 + 742) / (2210 + 804) * 100 = 82.22 %
+  Unlabeled F1:               84.34 
+
+
+No isArg
+::
+  bin/results.py results/devel_propbank.open.112408_225816.log
+  F1 scores
+         isPredicate    : 0.955,0.954,0.954,0.953,0.953
+            hasLabel    : 0.861,0.863,0.863,0.863,0.862
+              Global    : 0.818,0.824,0.826,0.826,0.827
+                role    : 0.705,0.719,0.722,0.724,0.725
+          frameLabel    : 0.859,0.866,0.867,0.868,0.873
+
++ Eval (5)
+::
+  bin/results.py results/devel_propbank.open.112408_225816.test.log 
+  F1 scores
+         isPredicate    : 0.963,0.910
+            hasLabel    : 0.872,0.818
+              Global    : 0.842,0.757
+                role    : 0.752,0.638
+          frameLabel    : 0.878,0.761
+
+Final eval
+WSJ
+::
+  head -13  data/conll05/test_wsj_propbank.112408_225816.5.eval
+
+  SEMANTIC SCORES: 
+  Labeled precision:          (10308 + 4615) / (13132 + 5257) * 100 = 81.15 %
+  Labeled recall:             (10308 + 4615) / (14269 + 5260) * 100 = 76.41 %
+  Labeled F1:                 78.71 
+  Unlabeled precision:        (11765 + 5064) / (13132 + 5257) * 100 = 91.52 %
+  Unlabeled recall:           (11765 + 5064) / (14269 + 5260) * 100 = 86.17 %
+  Unlabeled F1:               88.77 
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1324 + 609) / (1973 + 797) * 100 = 69.78 %
+  Labeled recall:             (1324 + 609) / (2210 + 804) * 100 = 64.13 %
+  Labeled F1:                 66.84 
+  Unlabeled precision:        (1665 + 728) / (1973 + 797) * 100 = 86.39 %
+  Unlabeled recall:           (1665 + 728) / (2210 + 804) * 100 = 79.40 %
+  Unlabeled F1:               82.75 
+
+
++ Two rules
+::
+  bin/results.py results/devel_propbank.open.112508_235756.log
+  F1 scores
+          isArgument    : 0.894,0.895,0.895,0.895,0.895
+              Global    : 0.838,0.843,0.845,0.846,0.847
+                role    : 0.703,0.713,0.720,0.724,0.727
+         isPredicate    : 0.958,0.959,0.958,0.958,0.958
+            hasLabel    : 0.865,0.868,0.869,0.869,0.869
+          frameLabel    : 0.870,0.874,0.878,0.877,0.878
+
+Final Eval(5)
+::
+  bin/results.py results/devel_propbank.open.112508_235756.test.log 
+  F1 scores
+          isArgument    : 0.906,0.869
+              Global    : 0.861,0.795
+                role    : 0.755,0.646
+         isPredicate    : 0.965,0.923
+            hasLabel    : 0.879,0.838
+          frameLabel    : 0.885,0.771
+
+Final eval
+::
+  head -13 data/conll05/test_wsj_propbank.112508_235756.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (10423 + 4664) / (13348 + 5273) * 100 = 81.02 %
+  Labeled recall:             (10423 + 4664) / (14269 + 5260) * 100 = 77.25 %
+  Labeled F1:                 79.09 
+  Unlabeled precision:        (11960 + 5080) / (13348 + 5273) * 100 = 91.51 %
+  Unlabeled recall:           (11960 + 5080) / (14269 + 5260) * 100 = 87.25 %
+  Unlabeled F1:               89.33 
+ 
+
+Brown
+::
+  head -13 data/conll05/test_brown_propbank.112508_235756.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1369 + 621) / (2063 + 807) * 100 = 69.34 %
+  Labeled recall:             (1369 + 621) / (2210 + 804) * 100 = 66.03 %
+  Labeled F1:                 67.64 
+  Unlabeled precision:        (1742 + 743) / (2063 + 807) * 100 = 86.59 %
+  Unlabeled recall:           (1742 + 743) / (2210 + 804) * 100 = 82.45 %
+  Unlabeled F1:               84.47 
+
++ Testing no CPI
+bin/results.py results/devel_propbank.open.112508_235756.nocpi.log
+F1 scores
+          isArgument    : 0.906,0.869
+              Global    : 0.862,0.795
+                role    : 0.757,0.648
+         isPredicate    : 0.964,0.923
+            hasLabel    : 0.879,0.838
+          frameLabel    : 0.886,0.771
+
+
++ One rule [weight w_ip_fl_role]
+::
+  bin/results.py results/devel_propbank.open.112608_145555.log
+  F1 scores
+          isArgument    : 0.894,0.896,0.896,0.896,0.895
+              Global    : 0.839,0.844,0.846,0.847,0.846
+                role    : 0.706,0.717,0.724,0.726,0.726
+         isPredicate    : 0.958,0.958,0.960,0.959,0.958
+            hasLabel    : 0.867,0.870,0.871,0.871,0.869
+          frameLabel    : 0.864,0.867,0.867,0.869,0.867
+
++ No isArg again for version with two global formulae
+::
+  bin/results.py results/devel_propbank.open.120308_222030.log
+  F1 scores
+         isPredicate    : 0.953,0.954,0.955,0.954,0.953
+            hasLabel    : 0.860,0.861,0.863,0.863,0.863
+              Global    : 0.818,0.823,0.825,0.827,0.827
+                role    : 0.705,0.715,0.719,0.723,0.725
+          frameLabel    : 0.866,0.873,0.873,0.874,0.873
+ 
+Eval (4)
+::
+  bin/results.py results/devel_propbank.open.120308_222030.test.log
+  F1 scores
+         isPredicate    : 0.963,0.914
+            hasLabel    : 0.873,0.820
+              Global    : 0.843,0.758
+                role    : 0.753,0.635
+          frameLabel    : 0.881,0.761
+
+
+Final eval:
+WSJ
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (10325 + 0) / (13145 + 5256) * 100 = 78.55 %
+  Labeled recall:             (10325 + 0) / (14269 + 5260) * 100 = 72.36 %
+  Labeled F1:                 75.33 
+  Unlabeled precision:        (11783 + 0) / (13145 + 5256) * 100 = 64.03 %
+  Unlabeled recall:           (11783 + 0) / (14269 + 5260) * 100 = 60.34 %
+  Unlabeled F1:               62.13 
+
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1323 + 0) / (1988 + 803) * 100 = 66.55 %
+  Labeled recall:             (1323 + 0) / (2210 + 804) * 100 = 59.86 %
+  Labeled F1:                 63.03 
+  Unlabeled precision:        (1675 + 0) / (1988 + 803) * 100 = 60.01 %
+  Unlabeled recall:           (1675 + 0) / (2210 + 804) * 100 = 55.57 %
+  Unlabeled F1:               57.71 
+
+
++ Bottom up
+::
+  bin/results.py results/devel_propbank.open.112708_202510.log
+  F1 scores
+          isArgument    : 0.893,0.895,0.895,0.894,0.894
+              Global    : 0.847,0.852,0.853,0.854,0.854
+                role    : 0.728,0.738,0.743,0.746,0.747
+         isPredicate    : 0.958,0.960,0.960,0.960,0.959
+            hasLabel    : 0.867,0.870,0.869,0.870,0.869
+          frameLabel    : 0.872,0.878,0.885,0.887,0.883
+
+Eval(5)
+::
+  bin/results.py results/devel_propbank.open.112708_202510.test.log
+  F1 scores
+          isArgument    : 0.904,0.868
+              Global    : 0.866,0.803
+                role    : 0.773,0.664
+         isPredicate    : 0.965,0.926
+            hasLabel    : 0.876,0.839
+          frameLabel    : 0.888,0.783
+
+ 
+Final Eval
+WSJ
+::
+  head -13 results/test_wsj_propbank.112708_202510.eval
+  SEMANTIC SCORES:
+  Labeled precision:          (10298 + 4594) / (12366 + 5262) * 100 = 84.48 %
+  Labeled recall:             (10298 + 4594) / (14269 + 5260) * 100 = 76.26 %
+  Labeled F1:                 80.16
+  Unlabeled precision:        (11218 + 5075) / (12366 + 5262) * 100 = 92.43 %
+  Unlabeled recall:           (11218 + 5075) / (14269 + 5260) * 100 = 83.43 %
+  Unlabeled F1:               87.70
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1334 + 595) / (1844 + 814) * 100 = 72.57 %
+  Labeled recall:             (1334 + 595) / (2210 + 804) * 100 = 64.00 %
+  Labeled F1:                 68.02 
+  Unlabeled precision:        (1587 + 749) / (1844 + 814) * 100 = 87.89 %
+  Unlabeled recall:           (1587 + 749) / (2210 + 804) * 100 = 77.50 %
+  Unlabeled F1:               82.37 
+
++ Turning off CPI for testing
+bin/results.py results/devel_propbank.open.112708_202510.nocpi.log
+F1 scores
+          isArgument    : 0.904,0.866
+              Global    : 0.867,0.800
+                role    : 0.775,0.662
+         isPredicate    : 0.965,0.925
+            hasLabel    : 0.877,0.836
+          frameLabel    : 0.890,0.775
+
+
+
+
++ Turning off CPI for training 
+::
+  bin/results.py results/devel_propbank.open.112808_021447.log
+  F1 scores
+          isArgument    : 0.893,0.895,0.895,0.895,0.895
+              Global    : 0.846,0.852,0.854,0.855,0.855
+                role    : 0.726,0.738,0.743,0.746,0.748
+         isPredicate    : 0.959,0.959,0.960,0.960,0.960
+            hasLabel    : 0.866,0.870,0.871,0.871,0.872
+          frameLabel    : 0.871,0.880,0.884,0.882,0.880
+
+Previous result is wrong! I did some silly thing.
++ Now turning off CPI
+::
+  bin/results.py results/devel_propbank.open.112808_154705.log
+  F1 scores
+          isArgument    : 0.894,0.896,0.895,0.895,0.893
+              Global    : 0.840,0.845,0.847,0.847,0.846
+                role    : 0.708,0.720,0.726,0.727,0.727
+         isPredicate    : 0.959,0.958,0.958,0.957,0.957
+            hasLabel    : 0.867,0.869,0.870,0.868,0.867
+          frameLabel    : 0.873,0.878,0.880,0.879,0.879
+
+
+
+bin/results.py results/devel_propbank.open.112808_021447.test.log
+F1 scores
+          isArgument    : 0.905,0.865
+              Global    : 0.867,0.800
+                role    : 0.775,0.661
+         isPredicate    : 0.964,0.925
+            hasLabel    : 0.877,0.836
+          frameLabel    : 0.886,0.778
+
+Final eval
+
+WSJ
+::
+  head -13 results/test_wsj_propbank.112808_021447.eval
+
+  SEMANTIC SCORES: 
+  Labeled precision:          (10323 + 4546) / (12384 + 5267) * 100 = 84.24 %
+  Labeled recall:             (10323 + 4546) / (14269 + 5260) * 100 = 76.14 %
+  Labeled F1:                 79.98 
+  Unlabeled precision:        (11242 + 5076) / (12384 + 5267) * 100 = 92.45 %
+  Unlabeled recall:           (11242 + 5076) / (14269 + 5260) * 100 = 83.56 %
+  Unlabeled F1:               87.78 
+
+Brown
+::
+  head -13 results/test_brown_propbank.112808_021447.eval
+
+  SEMANTIC SCORES: 
+  Labeled precision:          (1324 + 600) / (1833 + 812) * 100 = 72.74 %
+  Labeled recall:             (1324 + 600) / (2210 + 804) * 100 = 63.84 %
+  Labeled F1:                 68.00 
+  Unlabeled precision:        (1576 + 747) / (1833 + 812) * 100 = 87.83 %
+  Unlabeled recall:           (1576 + 747) / (2210 + 804) * 100 = 77.07 %
+  Unlabeled F1:               82.10 
+
+ 
++ Bottom-up without isArgument
+::
+ bin/results.py results/devel_propbank.open.112908_202731.log
+ F1 scores
+         isPredicate    : 0.953,0.955,0.955,0.955,0.954
+            hasLabel    : 0.859,0.863,0.863,0.863,0.862
+              Global    : 0.826,0.834,0.835,0.836,0.836
+                role    : 0.725,0.739,0.742,0.743,0.745
+          frameLabel    : 0.870,0.875,0.877,0.876,0.876
+
+Eval (5)
+::
+  bin/results.py results/devel_propbank.open.112908_202731.test.log
+  F1 scores
+         isPredicate    : 0.963,0.914
+            hasLabel    : 0.871,0.825
+              Global    : 0.849,0.767
+                role    : 0.769,0.652
+          frameLabel    : 0.883,0.761
+
+Finale eval
+WSJ
+::
+  head -13  results/test_wsj_propbank.112908_202731.eval 
+  SYNTACTIC SCORES:
+  Labeled   attachment score: 0 / 56618 * 100 = 0.00 %
+  Unlabeled attachment score: 0 / 56618 * 100 = 0.00 %
+  Label accuracy score:       0 / 56618 * 100 = 0.00 %
+
+  SEMANTIC SCORES: 
+  Labeled precision:          (10218 + 4495) / (12293 + 5252) * 100 = 83.86 %
+  Labeled recall:             (10218 + 4495) / (14269 + 5260) * 100 = 75.34 %
+  Labeled F1:                 79.37 
+  Unlabeled precision:        (11127 + 5061) / (12293 + 5252) * 100 = 92.27 %
+  Unlabeled recall:           (11127 + 5061) / (14269 + 5260) * 100 = 82.89 %
+  Unlabeled F1:               87.33 
+
+
+Brown
+::
+  head -13  results/test_brown_propbank.112908_202731.eval
+  SEMANTIC SCORES: 
+  Labeled precision:          (1298 + 578) / (1806 + 805) * 100 = 71.85 %
+  Labeled recall:             (1298 + 578) / (2210 + 804) * 100 = 62.24 %
+  Labeled F1:                 66.70 
+  Unlabeled precision:        (1539 + 735) / (1806 + 805) * 100 = 87.09 %
+  Unlabeled recall:           (1539 + 735) / (2210 + 804) * 100 = 75.45 %
+  Unlabeled F1:               80.85 
+
+
+
+Measuring times
+---------------
+Training
+::
+  grep Time results/devel_propbank.open.112808_154705.log | linex 1 4-14 | sed 's/Time://' | sed 's/m//' | awk -F\  '{ SUM += $1} END { print SUM/60 }'
+
+Testing
+:: 
+  grep Time results/devel_propbank.open.112808_154705.test.log
 
 Dealing with differences among the corpora
 -----------------------------------
@@ -663,15 +1513,38 @@ There are errors, the head dependencies don't span the right argument. Work to d
 EVALUATING charniak dep parsing
 ===============================
 ::
-    nice bin/conll082beast.py -v --possible_ON -H -L -d /dev/null -o /dev/null -8 tmp_wsj_8g data/conll05/test_wsj_propbank.output 
-    nice bin/conll082beast.py -v --output_mst --possible_ON -H -L -d /dev/null -o /dev/null -8 tmp_wsj_8 data/conll05/test_wsj_propbank.output 
-    ../app/eval08.pl -g tmp_wsj_8g -s tmp_wsj_8g
+    nice bin/conll082beast.py -v -H -G  -d /dev/null --output_mst -8 data/conll05/test_wsj_propbank.gs.conll08 -o data/conll05/test_wsj_propbank.gs.atoms -M data/conll05st-release/test-set-wsj.penn.gs data/conll05/test_wsj_propbank.output
+    ../app/eval08.pl -g data/conll05/test_wsj_propbank.gs.conll08 -s data/conll05/test_wsj_propbank.conll08
 
 Output::
   SYNTACTIC SCORES:
-  Labeled   attachment score: 40700 / 56618 * 100 = 71.89 %
-  Unlabeled attachment score: 49125 / 56618 * 100 = 86.77 %
-  Label accuracy score:       43352 / 56618 * 100 = 76.57 %
+  Labeled   attachment score: 40795 / 56618 * 100 = 72.05 %
+  Unlabeled attachment score: 49217 / 56618 * 100 = 86.93 %
+  Label accuracy score:       43555 / 56618 * 100 = 76.93 %
+
+
+Scores for three fisrt systems (conll08)
+
+Johansson
+  SYNTACTIC SCORES:
+  Labeled   attachment score: 51985 / 57676 * 100 = 90.13 %
+  Unlabeled attachment score: 53319 / 57676 * 100 = 92.45 %
+  Label accuracy score:       54170 / 57676 * 100 = 93.92 %
+
+
+Che
+  Labeled   attachment score: 50471 / 57676 * 100 = 87.51 %
+  Unlabeled attachment score: 51925 / 57676 * 100 = 90.03 %
+  Label accuracy score:       53211 / 57676 * 100 = 92.26 %
+
+
+Ciaramita
+  SYNTACTIC SCORES:
+  Labeled   attachment score: 50448 / 57676 * 100 = 87.47 %
+  Unlabeled attachment score: 52023 / 57676 * 100 = 90.20 %
+  Label accuracy score:       53137 / 57676 * 100 = 92.13 %
+
+
 
 
 Switching to Johansson 2008 features
@@ -1010,6 +1883,58 @@ Adding old FrameLabel global
           frameLabel    : 0.833,0.841,0.847,0.848,0.849
  
     
+CONLL-05 version (predicates known)
+----------------
+::
+  bin/results.py results/devel_propbank.open.111608_031922.log
+  F1 scores
+            hasLabel    : 0.865,0.868,0.869,0.870,0.870
+              Global    : 0.832,0.838,0.841,0.842,0.843
+                role    : 0.714,0.729,0.734,0.736,0.738
+          frameLabel    : 0.889,0.896,0.905,0.906,0.903
+          isArgument    : 0.901,0.902,0.903,0.903,0.903
+
+EVAL(5)
+::
+  bin/results.py results/devel_propbank.open.111608_031922.test.log
+  F1 scores
+            hasLabel    : 0.885,0.849
+              Global    : 0.858,0.793
+                role    : 0.768,0.637
+          frameLabel    : 0.896,0.810
+          isArgument    : 0.914,0.897
+
+Final eval
+
+WSJ
+::
+  head -13 results/test_wsj_propbank.111608_031922.5.eval
+  SYNTACTIC SCORES:
+  Labeled   attachment score: 0 / 56618 * 100 = 0.00 %
+  Unlabeled attachment score: 0 / 56618 * 100 = 0.00 %
+  Label accuracy score:       0 / 56618 * 100 = 0.00 %
+
+  SEMANTIC SCORES:
+  Labeled precision:          (10674 + 4713) / (13521 + 5260) * 100 = 81.93 %
+  Labeled recall:             (10674 + 4713) / (14269 + 5260) * 100 = 78.79 %
+  Labeled F1:                 80.33
+  Unlabeled precision:        (12209 + 5260) / (13521 + 5260) * 100 = 93.01 %
+  Unlabeled recall:           (12209 + 5260) / (14269 + 5260) * 100 = 89.45 %
+  Unlabeled F1:               91.20
+ 
+
+Brown
+::
+  head -13 results/test_brown_propbank.111608_031922.5.eval
+  SEMANTIC SCORES:
+  Labeled precision:          (1332 + 651) / (2009 + 805) * 100 = 70.47 %
+  Labeled recall:             (1332 + 651) / (2210 + 804) * 100 = 65.79 %
+  Labeled F1:                 68.05
+  Unlabeled precision:        (1770 + 804) / (2009 + 805) * 100 = 91.47 %
+  Unlabeled recall:           (1770 + 804) / (2210 + 804) * 100 = 85.40 %
+  Unlabeled F1:               88.33
+
+
 
 
 Gold dependencies
@@ -1072,6 +1997,75 @@ Brown
   Unlabeled recall:           (1803 + 714) / (2030 + 766) * 100 = 90.02 %
   Unlabeled F1:               86.64 
   
+CONLL-05 version (known predicate)
+----------------------------------
+
+::
+  bin/results.py results/devel_propbank.open.111608_155622.log
+  F1 scores
+            hasLabel    : 0.935,0.939,0.939,0.940,0.941
+              Global    : 0.894,0.901,0.903,0.905,0.906
+                role    : 0.799,0.814,0.818,0.822,0.826
+          frameLabel    : 0.890,0.897,0.902,0.904,0.904
+          isArgument    : 0.957,0.959,0.960,0.960,0.961
+
+
+Eval (5)
+
+::
+  bin/results.py results/devel_propbank.open.111608_155622.test.log
+  F1 scores
+            hasLabel    : 0.954,0.934
+              Global    : 0.921,0.872
+                role    : 0.855,0.755
+          frameLabel    : 0.899,0.816
+          isArgument    : 0.967,0.956
+
+
+Final eval  
+
+WSJ
+::
+  SEMANTIC SCORES:
+  Labeled precision:          (11972 + 4729) / (13750 + 5260) * 100 = 87.85 %
+  Labeled recall:             (11972 + 4729) / (14269 + 5260) * 100 = 85.52 %
+  Labeled F1:                 86.67
+  Unlabeled precision:        (13272 + 5260) / (13750 + 5260) * 100 = 97.49 %
+  Unlabeled recall:           (13272 + 5260) / (14269 + 5260) * 100 = 94.89 %
+  Unlabeled F1:               96.17
+
+
+Brown
+:: 
+  SEMANTIC SCORES:
+  Labeled precision:          (1605 + 656) / (2073 + 805) * 100 = 78.56 %
+  Labeled recall:             (1605 + 656) / (2210 + 804) * 100 = 75.02 %
+  Labeled F1:                 76.75
+  Unlabeled precision:        (1978 + 804) / (2073 + 805) * 100 = 96.66 %
+  Unlabeled recall:           (1978 + 804) / (2210 + 804) * 100 = 92.30 %
+  Unlabeled F1:               94.43
+
+
+Using J08 evaluation
+WSJ
+  SEMANTIC SCORES: 
+  Labeled precision:          (11972 + 0) / (13750 + 5260) * 100 = 87.07 %
+  Labeled recall:             (11972 + 0) / (14269 + 5260) * 100 = 83.90 %
+  Labeled F1:                 85.46 
+  Unlabeled precision:        (13272 + 0) / (13750 + 5260) * 100 = 69.82 %
+  Unlabeled recall:           (13272 + 0) / (14269 + 5260) * 100 = 67.96 %
+  Unlabeled F1:               68.88 
+
+
+Brown
+::
+  SEMANTIC SCORES: 
+  Labeled precision:          (1605 + 0) / (2073 + 805) * 100 = 77.42 %
+  Labeled recall:             (1605 + 0) / (2210 + 804) * 100 = 72.62 %
+  Labeled F1:                 74.95 
+  Unlabeled precision:        (1978 + 0) / (2073 + 805) * 100 = 68.73 %
+  Unlabeled recall:           (1978 + 0) / (2210 + 804) * 100 = 65.63 %
+  Unlabeled F1:               67.14 
 
 
 Support Chains

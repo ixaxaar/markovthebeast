@@ -33,6 +33,7 @@ index: mst_path_directed(*,*,_);
 include "model1-role.pml";
 include "model1-hasLabel.pml";
 include "model1-isArgument.pml";
+//include "isPredicate-hard_conll05.pml";
 //include "model1-frameLabel.pml";
 
 

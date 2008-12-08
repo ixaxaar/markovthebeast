@@ -81,13 +81,6 @@ TEMPLATE_TEST="${TEMPLATE_DIR}/${TEMPLATE_TEST}"
 # Begining
 set -x
 
-mkdir "${DATE}_DIR"
-cp ${WORKING_DIR}/*.pml "${DATE}_DIR"
-cp ${WORKING_DIR}/global.atoms "${DATE}_DIR"
-tar -cvf ${TAR_MODELS} "${DATE}_DIR"
-gzip ${TAR_MODELS}
-
-pushd "${DATE}_DIR"
 
 # Initializing temporal files
 echo "ID: ${DATE}"
@@ -102,6 +95,8 @@ then
         UWEIGHTS_FIX=`echo "$UWEIGHTS.${iter}" | sed 's/^\///' | sed "s/PROID/${RND}/g"`
         TOTAL=`echo "$UWEIGHTS_FIX" | sed 's/[^/]//g' | wc -m`
         NUM=$(($TOTAL-1))
+        tar --overwrite -xzvf ${TAR_MODELS}.gz
+        pushd "${DATE}_DIR"
         tar --overwrite --strip $NUM -xzvf $TAR_UWEIGHTS.gz "$UWEIGHTS_FIX"
         UWEIGHTS_FIX=`echo "$UWEIGHTS_FIX" | sed 's/.*\///' | sed "s/PROID/${RND}/g"`
         cp $UWEIGHTS_FIX $UWEIGHTS.${iter}
@@ -117,6 +112,7 @@ then
                 sed "s/ATOMS/${ATOMS_TEST}/g" |\
                 sed "s/LABEL/${LABEL}.label/g" |\
                 sed "s/INSTANCES/${INSTANCES}/g" > $TMP_TEST
+            cat $TMP_TEST
             $THEBEAST $TMP_TEST
         done
     done
@@ -124,6 +120,13 @@ then
     exit 0;
 fi
 
+mkdir "${DATE}_DIR"
+cp ${WORKING_DIR}/*.pml "${DATE}_DIR"
+cp ${WORKING_DIR}/global.atoms "${DATE}_DIR"
+tar -cvf ${TAR_MODELS} "${DATE}_DIR"
+gzip ${TAR_MODELS}
+
+pushd "${DATE}_DIR"
 
 if [ $MODE -gt 2 ]
 then 

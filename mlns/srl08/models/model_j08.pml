@@ -52,7 +52,7 @@ index: childPosSet(*,*);
 include "model_j08-role.pml";
 include "model_j08-hasLabel.pml";
 include "model_j08-isArgument.pml";
-include "model_j08-isPredicate.pml";
+//include "model_j08-isPredicate.pml";
 include "model_j08-frameLabel.pml";
 
 //include "model1-hasLabel.pml";
@@ -62,3 +62,4 @@ include "model_j08-frameLabel.pml";
 //include "model1-both.pml";
 
 load global from "global.atoms";
+

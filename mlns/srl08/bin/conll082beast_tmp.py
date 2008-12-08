@@ -30,7 +30,7 @@ Usage: conll082beast.py [options] conll_corpus
    -6|--conll06 filename   Filename of the conll06 format file
    -7|--conll07 filename   Filename of the conll07 format file 
    -8|--conll08 filename   Filename of the conll08 format file
-   --output_mst            Use extra deps for output
+   --output_mst            Use mst deps for output
 
 
    FEATURES
@@ -181,12 +181,11 @@ for opt,val in opts:
         output_mst=True
     elif opt in ("--per_predicate",):
         per_predicate=True
-    elif opt in ("--s2",):
+    elif opt in ("--s1",):
         labels_list=[">isPredicate"]
+        stage="s1"
+    elif opt in ("--s2",):
         stage="s2"
-    elif opt in ("--s3",):
-        stage="s3"
-#        labels_list=[">isPredicate",">hasLabel",">role",">possiblePredicate"]
         labels_list=[">isPredicate",">isArgument",">hasLabel",">role",">possiblePredicate"]
         
 
@@ -542,14 +541,9 @@ for split,outputn,deffn in splits:
         for f,args in  preds: 
             f(bsig,cs,bs,args)
 
-
         if preds_list:
             for ll,vals in preds_replace[id-1].iteritems():
                 bs.replace(ll,vals) 
-
-
-        if stage=="s2":
-            bs.replace('possiblePredicate',preds_replace[id-1]["isPredicate"])
 
         if not per_predicate:
             print >> output, bs

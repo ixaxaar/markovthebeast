@@ -7,9 +7,10 @@
 # --------------------------------------------------------
 
 import re
+import gzip
+import tarfile
 
-
-re_space=re.compile(r'\s+')
+re_space=re.compile(r'[\s]+')
 re_space2=re.compile(r'^\s+')
 re_quota=re.compile(r'"')
 re_quota2=re.compile(r'^"')
@@ -43,7 +44,22 @@ class Conll08Corpus:
         self.hyphens=hyphens
         self.gold_deps=gold_deps
         if not filename is None:
-            file = open(filename,'r')
+            if not "@" in filename:
+               file=open(filename,'r')
+            else:
+               bits=filename.split('@')
+               tf=tarfile.open(bits[0])
+               name=None
+               for ti in tf.getmembers():
+                   if ti.name.find(bits[1]) > -1:
+                       name=ti
+                       break
+               if not name is None:
+                   file=tf.extractfile(name)
+               else:
+                   sys.exit(1)
+
+
             if not ofilename is None:
                 ofile = open(ofilename,'r')
             chnk = self.readChunk(file,ofile)
@@ -122,7 +138,7 @@ class Conll08Sntc:
         self.args=[]
         
         
-        if  not lines is None:
+        if  not lines is None:            
             # Main lines
             self.createFromLines(lines,olines,gold_deps)
             preds=[]    
@@ -219,7 +235,7 @@ class Conll08Sntc:
 
         for i in range(0,len(lines)):
             try:
-                pred=dpreds[str(i)]
+                pred=dpreds[str(i+1)]
             except KeyError:
                 pred="_"
             lines[i]+="\t"+pred
@@ -242,21 +258,7 @@ class Conll08Sntc:
     def conll05(self):
         dpreds=dict(self.preds)
         dargs=[dict(arg) for arg in self.args]
-        lines = [w.conll05() for w in self.sntc]
-
-        for i in range(0,len(lines)):
-            try:
-                pred=dpreds[str(i+1)]
-                bits=pred.split(".")
-                lines[i]+="\t"+bits[1]+"\t"+bits[0]
-            except KeyError:
-                lines[i]+="\t-\t-"
-
-        return self.props(lines)
-
-
-    def props(self,lines):
-        dargs=[dict(arg) for arg in self.args]
+        lines = [[w.conll05()] for w in self.sntc]
         deps=[(w["id"],w["head"]) for w in self.sntc]
         tree={}
 
@@ -266,46 +268,109 @@ class Conll08Sntc:
             except KeyError:
                 tree[h]=[d]
 
-        for j in range(0,len(self.preds)):           
-            args_s={}
-            args_e={}
-            for i in range(0,len(lines)):
-                if dargs[j].has_key(str(i+1)):
-                    arg=dargs[j][str(i+1)]
-                    print arg,j,i+1
+        pred_ix=0
+        spans=[]
+        for args in dargs:
+            spans_s={}
+            spans_e={}
+            pred=int(self.preds[pred_ix][0])
+            partS=[]
+            for head,arg in args.iteritems():
+                arg_span=self.get_span(tree,head,[head])
+                print "*",arg_span,arg
+                if pred in arg_span:
+                    c_spans=[[int(head)]]
+                    arg_span=[]
+                    for c in tree[head]:
+                        c_spans.append(self.get_span(tree,c,[c]))
+                    for c_span in c_spans:
+                        if not pred in c_span:
+                            arg_span+=c_span
+                    arg_span.sort()
+                prev=arg_span[0]
+                partS=[[prev]]
+                for arg_span_ix in range(1,len(arg_span)):
+                    cur=arg_span[arg_span_ix]
+                    if (prev+1) != cur:
+                        partS[-1].append(prev)
+                        partS.append([cur])
+                    prev=cur
+                partS[-1].append(arg_span[-1])
+                print partS,arg
+                for part in partS:
                     if arg=="AM-MOD":
-                        arg_span=[str(i+1)]
+                        spans_s[int(head)]=(arg,int(head))
+                        try:
+                            spans_e[int(head)]+=1
+                        except KeyError:
+                            spans_e[int(head)]=1
                     else:
-                        arg_span=self.get_span(tree,str(i+1),[])+[str(i+1)]
-                        arg_span=[int(x) for x in arg_span]
-                        arg_span.sort()
-                        arg_span=[str(x) for x in arg_span]
-                    print arg_span
-                    if len(arg_span)>0:
-                        args_s[arg_span[0]]=arg
-                        args_e[arg_span[-1]]=1
-            print args_s, args_e
-            for i in range(0,len(lines)):
-                if i+1==int(self.preds[j][0]):
-                    lines[i]+="\t(V*)"
-                    continue
-                try:
-                    args_s[str(i+1)]
-                    if args_e.has_key(str(i+1)):
-                        lines[i]+="\t("+args_s[str(i+1)]+"*)"
-                    else:
-                        lines[i]+="\t("+args_s[str(i+1)]+"*"
-                except KeyError:
-                    try:
-                        args_e[str(i+1)]
-                        lines[i]+="\t*)"
-                    except KeyError:
-                        lines[i]+="\t*"
+                        spans_s[part[0]]=(arg,part[1])
+                        try:
+                            spans_e[part[1]]+=1
+                        except KeyError:
+                            spans_e[part[1]]=1
 
-        return "\n".join(lines)
+                print arg_span,arg,head
+            pred_ix+=1           
+            spans.append((spans_s,spans_e))
+        for i in range(0,len(lines)):
+            # Prints the predicate
+            try:
+                pred=dpreds[str(i+1)]
+                bits=pred.split(".")
+                lines[i].append("\t")
+                lines[i].append(bits[1])
+                lines[i].append("\t")
+                lines[i].append(bits[0])
+                continue
+            except KeyError:
+                lines[i].append("\t-\t-")
+        pred_ix=0
+        print spans
+        for spans_s,spans_e in spans:
+            state=0
+            prev_span=-1
+            span_e=-1
+            for i in range(0,len(lines)):
+#                print self.preds[pred_ix],str(i+1)
+                if self.preds[pred_ix][0] == str(i+1) :
+                    lines[i].append("\t(V*)")
+                    continue
+                # Prints the args
+                try:
+                    spans_s[i+1]
+                    if state>0:
+                        if lines[i-1][-1][1]=='(':
+                            lines[i-1][-1]+=")"
+                        else:
+                            lines[i-1][-1]="\t*)"
+                    span_e=spans_s[i+1][1]
+                    if span_e==i+1:
+                        lines[i].append("\t("+spans_s[i+1][0]+"*)")
+                        span_e=-1
+                        state=0
+                    else:
+                        state=1
+                        lines[i].append("\t("+spans_s[i+1][0]+"*")
+                    prev_span=i+1
+                except KeyError:
+                    if span_e==(i+1):
+                        lines[i].append("\t*)")
+                        state=0
+                    else:
+                        lines[i].append("\t*")
+            pred_ix+=1
+        return "\n".join(["".join(line) for line in lines])
 
 
     def get_span(self,tree,id,terminals=[]):
+        s=dict([(int(x),1) for x in self.get_span_(tree,id,terminals)])
+        s=s.keys()
+        s.sort()
+        return s
+
+    def get_span_(self,tree,id,terminals=[]):
         
         try:
             tree[id]
@@ -319,12 +384,6 @@ class Conll08Sntc:
 
         return terminals
 
-
-        
-            
-        
-
-
     def conll06(self):
         return "\n".join([w.conll06() for w in self.sntc])
 
@@ -337,7 +396,6 @@ class Conll08Sntc:
 
     def conll07_mst(self):
         return self.conll06_mst()
-
 
     def conll08_mst(self):
         dpreds=dict(self.preds)
@@ -534,7 +592,21 @@ class TheBeastCorpus:
         self.len = 0
         self.filename=filename
         if not filename is None:
-            file = open(filename,"r")
+            if not "@" in filename:
+               file=open(filename,'r')
+            else:
+               bits=filename.split('@')
+               tf=tarfile.open(bits[0])
+               name=None
+               for ti in tf.getmembers():
+                   if ti.name.find(bits[1]) > -1:
+                       name=ti
+                       break
+               if not name is None:
+                   file=tf.extractfile(name)
+               else:
+                   sys.exit(1)
+
             chnk = self.readChunk(file)
             i=0
             while len(chnk)>0:
@@ -558,7 +630,20 @@ class TheBeastCorpus:
         return lines
 
     def __iter__(self):
-        self.file=open(self.filename,"r")
+        if not "@" in self.filename:
+               self.file=open(self.filename,'r')
+        else:
+               bits=self.filename.split('@')
+               tf=tarfile.open(bits[0])
+               name=None
+               for ti in tf.getmembers():
+                   if ti.name.find(bits[1]) > -1:
+                       name=ti
+                       break
+               if not name is None:
+                   self.file=tf.extractfile(name)
+               else:
+                   sys.exit(1)
         return self
 
     def next(self):
