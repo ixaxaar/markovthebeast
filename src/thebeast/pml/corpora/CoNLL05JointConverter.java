@@ -28,6 +28,7 @@ public class CoNLL05JointConverter {
   private static HashSet<String> impossiblePredicatePOS = new HashSet<String>();
 
   private static boolean extractV = false;
+  private static boolean writeGlobalFile = false;
 
   static {
     headFinder.addRuleAsString("NP\tr POS NN NNP NNPS NNS;r NX;r JJR;r CD;r JJ;r JJS;r RB;r QP;r NP;r");
@@ -584,50 +585,51 @@ public class CoNLL05JointConverter {
 
       }
     }
-    PrintStream global = new PrintStream("global.atoms");
-    HashSet<String> args = new HashSet<String>();
-    HashSet<String> modifiers = new HashSet<String>();
-    HashSet<String> c_args = new HashSet<String>();
-    HashSet<String> r_args = new HashSet<String>();
-    for (String arg : argTypes) {
-      if (arg.charAt(0) == 'A' && Character.isDigit(arg.charAt(1)) && arg.length() == 2)
-        args.add(arg);
-      else if (arg.startsWith("AM"))
-        modifiers.add(arg);
-      else if (arg.startsWith("C-"))
-        c_args.add(arg);
-      else if (arg.startsWith("R-"))
-        r_args.add(arg);
-    }
-    global.println(">properarg");
-    for (String arg : args) global.println(quote(arg));
-    global.println();
-    global.println(">modifier");
-    for (String arg : modifiers) global.println(quote(arg));
-    global.println();
-    global.println(">carg");
-    for (String arg : c_args) global.println(quote(arg));
-    global.println();
-    global.println(">rarg");
-    for (String arg : r_args) global.println(quote(arg));
-    global.println();
-    global.println(">cargpair");
-    for (String arg : c_args)
-      global.println(quote(arg) + "\t" + quote(arg.substring(2)));
-    global.println();
-    global.println(">rargpair");
-    for (String arg : r_args)
-      global.println(quote(arg) + "\t" + quote(arg.substring(2)));
-    global.println();
+    if (writeGlobalFile) {
+      PrintStream global = new PrintStream("global.atoms");
+      HashSet<String> args = new HashSet<String>();
+      HashSet<String> modifiers = new HashSet<String>();
+      HashSet<String> c_args = new HashSet<String>();
+      HashSet<String> r_args = new HashSet<String>();
+      for (String arg : argTypes) {
+        if (arg.charAt(0) == 'A' && Character.isDigit(arg.charAt(1)) && arg.length() == 2)
+          args.add(arg);
+        else if (arg.startsWith("AM"))
+          modifiers.add(arg);
+        else if (arg.startsWith("C-"))
+          c_args.add(arg);
+        else if (arg.startsWith("R-"))
+          r_args.add(arg);
+      }
+      global.println(">properarg");
+      for (String arg : args) global.println(quote(arg));
+      global.println();
+      global.println(">modifier");
+      for (String arg : modifiers) global.println(quote(arg));
+      global.println();
+      global.println(">carg");
+      for (String arg : c_args) global.println(quote(arg));
+      global.println();
+      global.println(">rarg");
+      for (String arg : r_args) global.println(quote(arg));
+      global.println();
+      global.println(">cargpair");
+      for (String arg : c_args)
+        global.println(quote(arg) + "\t" + quote(arg.substring(2)));
+      global.println();
+      global.println(">rargpair");
+      for (String arg : r_args)
+        global.println(quote(arg) + "\t" + quote(arg.substring(2)));
+      global.println();
 
 //    global.println(">allowedRole");
 //    for (Pair<String, String> pair : possibleRoleSensePairs)
 //      global.println(pair.arg1 + "\t" + pair.arg2);
 //    global.println();
-    global.close();
-
-
+      global.close();
+    }
   }
+
 
   private static void printFeatures(String name, PrintStream out, Sentence sentence, int index) {
     out.println(">" + name);

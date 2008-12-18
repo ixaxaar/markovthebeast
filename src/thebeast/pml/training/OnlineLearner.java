@@ -273,14 +273,14 @@ public class OnlineLearner implements Learner, HasProperties {
   private void saveCurrentWeights(int epoch) {
     try {
       //write plain weights
-      File file = File.createTempFile(savePrefix + epoch, ".dmp");
+      File file = File.createTempFile(savePrefix + epoch + "_", ".dmp");
       file.delete();
       FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
       weights.write(sink);
       sink.flush();
 
       //write averaged weights
-      File avgFile = File.createTempFile(savePrefix + epoch, ".avg.dmp");
+      File avgFile = File.createTempFile(savePrefix + epoch + "_", ".avg.dmp");
       avgFile.delete();
       FileSink avgSink = TheBeast.getInstance().getNodServer().createSink(avgFile, 1024);
       Weights copy = weights.copy();
@@ -474,7 +474,7 @@ public class OnlineLearner implements Learner, HasProperties {
     } else if ("maxLossScaling".equals(name.getHead())) {
       setMaxLossScaling((Boolean) value);
     } else if ("saveAfterEpoch".equals(name.getHead())) {
-      setSaveAfterEpoch((Boolean)value);
+      setSaveAfterEpoch((Boolean) value);
     } else if ("initWeights".equals(name.getHead())) {
       setInitializeWeights((Boolean) value);
     } else if ("initWeight".equals(name.getHead())) {
