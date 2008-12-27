@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.query.GeneralizedClause;
-import com.googlecode.thebeast.query.GroundingSet;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.query.NestedSubstitutionSet;
 
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
@@ -94,7 +94,7 @@ public interface World {
    * @param clause the clause to find groundings for.
    * @return a set of groundings for the given clause.
    */
-  GroundingSet query(GeneralizedClause clause);
+  NestedSubstitutionSet query(Query clause);
 
 
 }

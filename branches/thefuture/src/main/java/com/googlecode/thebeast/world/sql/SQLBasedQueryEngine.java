@@ -3,13 +3,8 @@ package com.googlecode.thebeast.world.sql;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.googlecode.thebeast.query.Atom;
-import com.googlecode.thebeast.query.GeneralizedClause;
-import com.googlecode.thebeast.query.Grounding;
-import com.googlecode.thebeast.query.GroundingSet;
-import com.googlecode.thebeast.query.Substitution;
-import com.googlecode.thebeast.query.Term;
-import com.googlecode.thebeast.query.Variable;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.query.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,10 +30,10 @@ final class SQLBasedQueryEngine {
    * @param world  the world to query in.
    * @return the set of groundings for this clause.
    */
-  GroundingSet query(final GeneralizedClause clause,
+  NestedSubstitutionSet query(final Query clause,
                      final SQLWorld world) {
     //create an sql query (or get one from cache)
-    //get user predicate atoms from head and body and use their tables
+    //get user predicate atoms from inner and outer and use their tables
     Multimap<Variable, String>
       var2columnName = new ArrayListMultimap<Variable, String>();
     Multimap<Term, String>
@@ -75,16 +70,16 @@ final class SQLBasedQueryEngine {
       select, tables, where, orderBy);
 
 
-    return new SQLGroundingSet(clause, world, query);
+    return new SQLNestedSubstitutionSet(clause, world, query);
   }
 
 
-  private static class SQLGroundingSet implements GroundingSet {
+  private static class SQLNestedSubstitutionSet implements NestedSubstitutionSet {
 
     /**
      * The clause that can be grounded with this set.
      */
-    private final GeneralizedClause clause;
+    private final Query clause;
     /**
      * The world to query.
      */
@@ -102,7 +97,7 @@ final class SQLBasedQueryEngine {
      * @param world  the world to query.
      * @param query  the SQL query string to use.
      */
-    private SQLGroundingSet(final GeneralizedClause clause,
+    private SQLNestedSubstitutionSet(final Query clause,
                             final SQLWorld world,
                             final String query) {
       this.clause = clause;
@@ -117,7 +112,7 @@ final class SQLBasedQueryEngine {
      */
     public String toString() {
       StringBuffer result = new StringBuffer();
-      for (Grounding g : this) {
+      for (NestedSubstitution g : this) {
         result.append(g.toString()).append("\n");
       }
       return result.toString();
@@ -127,9 +122,9 @@ final class SQLBasedQueryEngine {
      * Returns the clause of this grounding set.
      *
      * @return the clause for the groundings in this set.
-     * @see com.googlecode.thebeast.query.GroundingSet#getClause()
+     * @see com.googlecode.thebeast.query.NestedSubstitutionSet#getClause()
      */
-    public GeneralizedClause getClause() {
+    public Query getClause() {
       return clause;
     }
 
@@ -138,7 +133,7 @@ final class SQLBasedQueryEngine {
      *
      * @return an iterator that uses an sql result set.
      */
-    public Iterator<Grounding> iterator() {
+    public Iterator<NestedSubstitution> iterator() {
       try {
         final Statement st =
           world.getSignature().getConnection().createStatement();
@@ -147,22 +142,22 @@ final class SQLBasedQueryEngine {
           substitutions = new HashMultimap<Substitution, Substitution>();
         while (resultSet.next()) {
           Substitution universal = new Substitution();
-          for (Variable var : clause.getUniversalVariables()) {
+          for (Variable var : clause.getOuterVariables()) {
             SQLRepresentableType type = (SQLRepresentableType) var.getType();
             universal.put(var,
               type.getConstantFromSQL(resultSet.getObject(var.getName())));
           }
           Substitution existential = new Substitution();
-          for (Variable var : clause.getExistentialVariables()) {
+          for (Variable var : clause.getInnerVariables()) {
             SQLRepresentableType type = (SQLRepresentableType) var.getType();
             existential.put(var,
               type.getConstantFromSQL(resultSet.getObject(var.getName())));
           }
           substitutions.put(universal, existential);
         }
-        List<Grounding> result = new ArrayList<Grounding>();
+        List<NestedSubstitution> result = new ArrayList<NestedSubstitution>();
         for (Substitution substitution : substitutions.keys()) {
-          result.add(new Grounding(substitution,
+          result.add(new NestedSubstitution(substitution,
             (Set<Substitution>) substitutions.get(substitution)));
         }
         return result.iterator();
@@ -188,7 +183,7 @@ final class SQLBasedQueryEngine {
    *                        term.
    * @return the table list clause.
    */
-  private String buildTableList(final GeneralizedClause clause,
+  private String buildTableList(final Query clause,
                                 final SQLWorld world,
                                 final Multimap<Variable, String> var2columnName,
                                 final Multimap<Term, String> term2columnName) {
@@ -232,10 +227,10 @@ final class SQLBasedQueryEngine {
    * @param clause the clause for which the order statement has to be built.
    * @return an order by clause (without ORDER BY).
    */
-  private String buildOrderBy(final GeneralizedClause clause) {
+  private String buildOrderBy(final Query clause) {
     StringBuffer orderBy = new StringBuffer();
     int orderByIndex = 0;
-    for (Variable var : clause.getUniversalVariables()) {
+    for (Variable var : clause.getOuterVariables()) {
       if (orderByIndex++ > 0) {
         orderBy.append(", ");
       }

@@ -1,9 +1,9 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.query.ClauseFactory;
-import com.googlecode.thebeast.query.GeneralizedClause;
-import com.googlecode.thebeast.query.Grounding;
-import com.googlecode.thebeast.query.GroundingSet;
+import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.query.NestedSubstitution;
+import com.googlecode.thebeast.query.NestedSubstitutionSet;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import junit.framework.TestCase;
 
@@ -84,17 +84,17 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(friends).add(new Tuple(sebastian, peter));
-    GeneralizedClause clause =
-      ClauseFactory.build().atom(friends, "x", "y").body().head();
-    GroundingSet result = world.query(clause);
-    HashSet<Grounding> actual = new HashSet<Grounding>();
-    for (Grounding grounding : result) {
-      actual.add(grounding);
+    Query clause =
+      QueryFactory.build().atom(friends, "x", "y").outer().inner();
+    NestedSubstitutionSet result = world.query(clause);
+    HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
+    for (NestedSubstitution nestedSubstitution : result) {
+      actual.add(nestedSubstitution);
     }
-    HashSet<Grounding> expected = new HashSet<Grounding>();
-    expected.add(Grounding.createGrounding(signature, "x/Peter y/Anna"));
-    expected.add(Grounding.createGrounding(signature, "x/Peter y/Sebastian"));
-    expected.add(Grounding.createGrounding(signature, "x/Sebastian y/Peter"));
+    HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Sebastian"));
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Sebastian y/Peter"));
 
     assertEquals(expected, actual);
 
@@ -107,16 +107,16 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
-    GeneralizedClause clause =
-      ClauseFactory.build()
-        .atom(friends, "x", "y").atom(smokes, "y").body().head();
-    GroundingSet result = world.query(clause);
-    HashSet<Grounding> actual = new HashSet<Grounding>();
-    for (Grounding grounding : result) {
-      actual.add(grounding);
+    Query clause =
+      QueryFactory.build()
+        .atom(friends, "x", "y").atom(smokes, "y").outer().inner();
+    NestedSubstitutionSet result = world.query(clause);
+    HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
+    for (NestedSubstitution nestedSubstitution : result) {
+      actual.add(nestedSubstitution);
     }
-    HashSet<Grounding> expected = new HashSet<Grounding>();
-    expected.add(Grounding.createGrounding(signature, "x/Peter y/Anna"));
+    HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
 
     assertEquals(expected, actual);
 
@@ -131,18 +131,18 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
     world.getRelation(smokes).add(new Tuple(peter));
-    GeneralizedClause clause =
-      ClauseFactory.build()
-        .atom(friends, "x", "y").atom(smokes, "x").body()
-        .atom(smokes,"y").head();
-    GroundingSet result = world.query(clause);
-    HashSet<Grounding> actual = new HashSet<Grounding>();
-    for (Grounding grounding : result) {
-      actual.add(grounding);
+    Query clause =
+      QueryFactory.build()
+        .atom(friends, "x", "y").atom(smokes, "x").outer()
+        .atom(smokes,"y").inner();
+    NestedSubstitutionSet result = world.query(clause);
+    HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
+    for (NestedSubstitution nestedSubstitution : result) {
+      actual.add(nestedSubstitution);
     }
-    HashSet<Grounding> expected = new HashSet<Grounding>();
-    expected.add(Grounding.createGrounding(signature, "x/Peter y/Anna"));
-    expected.add(Grounding.createGrounding(signature, "x/Anna y/Peter"));
+    HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Anna y/Peter"));
 
     assertEquals(expected, actual);
   }
@@ -156,18 +156,18 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
     world.getRelation(smokes).add(new Tuple(peter));
-    GeneralizedClause clause =
-      ClauseFactory.build()
-        .atom(smokes, "x").body()
-        .atom(friends,"x","y").atom(smokes,"y").head();
-    GroundingSet result = world.query(clause);
-    HashSet<Grounding> actual = new HashSet<Grounding>();
-    for (Grounding grounding : result) {
-      actual.add(grounding);
+    Query clause =
+      QueryFactory.build()
+        .atom(smokes, "x").outer()
+        .atom(friends,"x","y").atom(smokes,"y").inner();
+    NestedSubstitutionSet result = world.query(clause);
+    HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
+    for (NestedSubstitution nestedSubstitution : result) {
+      actual.add(nestedSubstitution);
     }
-    HashSet<Grounding> expected = new HashSet<Grounding>();
-    expected.add(Grounding.createGrounding(signature, "x/Anna {y/Peter}"));
-    expected.add(Grounding.createGrounding(signature, "x/Peter {y/Anna}"));
+    HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Anna {y/Peter}"));
+    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter {y/Anna}"));
     assertEquals(expected, actual);
   }
 

@@ -1,6 +1,6 @@
 package com.googlecode.thebeast.mln;
 
-import com.googlecode.thebeast.query.GeneralizedClause;
+import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.Variable;
 import com.googlecode.thebeast.query.Atom;
 
@@ -32,7 +32,7 @@ public class MLNClause {
   /**
    * The clause of this MLNClause.
    */
-  private final GeneralizedClause clause;
+  private final Query clause;
   /**
    * The scale variable.
    */
@@ -47,7 +47,7 @@ public class MLNClause {
    */
   private final List<Variable> indexVariables;
 
-  public MLNClause(final GeneralizedClause clause,
+  public MLNClause(final Query clause,
                    final Variable scaleVariable,
                    final List<Variable> indexVariables) {
     this.clause = clause;
