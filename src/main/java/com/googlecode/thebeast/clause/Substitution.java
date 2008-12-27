@@ -92,7 +92,7 @@ public final class Substitution {
    * @return a string representation of this substitution.
    */
   public String toString() {
-    StringBuffer result = new StringBuffer("{");
+    StringBuffer result = new StringBuffer();
     int index = 0;
     for (Variable var : mapping.keySet()) {
       if (index++ > 0) {
@@ -100,7 +100,6 @@ public final class Substitution {
       }
       result.append(var.getName()).append("/").append(mapping.get(var));
     }
-    result.append("}");
     return result.toString();
   }
 
@@ -134,4 +133,12 @@ public final class Substitution {
     return substitution;
   }
 
+  /**
+   * Returns the number of variables in this substitution.
+   *
+   * @return the number of variables of this substitution.
+   */
+  public int size() {
+    return mapping.size();
+  }
 }

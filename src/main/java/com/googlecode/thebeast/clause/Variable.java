@@ -52,11 +52,44 @@ public final class Variable implements Term {
   /**
    * A variable is, by definition, not ground. Hence this method returns
    * <code>false</code>
-   * @return  <code>false</code> because a variable is not ground.
    *
+   * @return <code>false</code> because a variable is not ground.
    * @see Term#isGround()
    */
   public boolean isGround() {
     return false;
+  }
+
+  /**
+   * Two variables are equal if they have the same name and type.
+   *
+   * @param o the other variable.
+   * @return true if both variables have the same name and type.
+   */
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Variable variable = (Variable) o;
+
+    if (name != null ? !name.equals(variable.name) : variable.name != null)
+      return false;
+    if (type != null ? !type.equals(variable.type) : variable.type != null)
+      return false;
+
+    return true;
+  }
+
+  /**
+   * Returns a hashcode based on the hashcode of the name and the hashcode of
+   * the type.
+   *
+   * @return a hashcode based on the hashcodes of the name and type.
+   */
+  public int hashCode() {
+    int result;
+    result = (name != null ? name.hashCode() : 0);
+    result = 31 * result + (type != null ? type.hashCode() : 0);
+    return result;
   }
 }
