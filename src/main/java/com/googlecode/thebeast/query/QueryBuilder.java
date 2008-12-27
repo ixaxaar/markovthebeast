@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A ClauseBuilder can be used to conveniently create clauses.
+ * A QueryBuilder can be used to conveniently create queries.
  *
  * @author Sebastian Riedel
  */
-public final class ClauseBuilder {
+public final class QueryBuilder {
 
   /**
    * The factory to use.
    */
-  private ClauseFactory factory;
+  private QueryFactory factory;
 
   /**
    * The atoms that have been produced so far.
@@ -23,21 +23,21 @@ public final class ClauseBuilder {
   private ArrayList<Atom> atoms = new ArrayList<Atom>();
 
   /**
-   * The atoms of the head
+   * The atoms of the outer conjunction.
    */
-  private ArrayList<Atom> body = new ArrayList<Atom>();
+  private ArrayList<Atom> outer = new ArrayList<Atom>();
 
   /**
    * Create a new builder that uses the given factory.
    *
-   * @param factory the factory that will be used to create atoms and clauses.
+   * @param factory the factory that will be used to create atoms and queries.
    */
-  public ClauseBuilder(ClauseFactory factory) {
+  public QueryBuilder(QueryFactory factory) {
     this.factory = factory;
   }
 
   /**
-   * Add a new atom, either to the body (if {@link ClauseBuilder#body()} has not
+   * Add a new atom, either to the body (if {@link QueryBuilder#outer()} has not
    * been called yet, or to the head, if it has been called.
    *
    * @param pred the predicate of the atom.
@@ -47,7 +47,7 @@ public final class ClauseBuilder {
    *             exception.
    * @return this builder.
    */
-  public ClauseBuilder atom(Predicate pred, Object... args) {
+  public QueryBuilder atom(Predicate pred, Object... args) {
     List<Term> argTerms = new ArrayList<Term>();
     for (int i = 0; i < args.length; ++i) {
       if (args[i] instanceof String) {
@@ -68,26 +68,27 @@ public final class ClauseBuilder {
   }
 
   /**
-   * Adds the atoms created so far to the body of the clause to produce.
+   * Adds the atoms created so far to the outer conjunction of the query to
+   * produce.
    *
    * @return this builder.
    */
-  public ClauseBuilder body() {
-    body.clear();
-    body.addAll(atoms);
+  public QueryBuilder outer() {
+    outer.clear();
+    outer.addAll(atoms);
     atoms.clear();
     return this;
   }
 
   /**
-   * Creates a clause with the atoms create until the last {@link
-   * ClauseBuilder#body()} call as body and the ones created until the call of
-   * this method as head.
+   * Creates a query with the atoms create until the last {@link
+   * QueryBuilder#outer()} call as outer conjunction and the ones created until
+   * the call of this method as inner conjunction.
    *
    * @return the produced clause.
    */
-  public GeneralizedClause head() {
-    GeneralizedClause result = factory.createClause(atoms, body);
+  public Query inner() {
+    Query result = factory.createQuery(atoms, outer);
     atoms.clear();
     return result;
   }

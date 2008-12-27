@@ -1,8 +1,8 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.google.common.collect.HashBiMap;
-import com.googlecode.thebeast.query.GeneralizedClause;
-import com.googlecode.thebeast.query.GroundingSet;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.query.NestedSubstitutionSet;
 import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
 import com.googlecode.thebeast.world.Relation;
 import com.googlecode.thebeast.world.RelationListener;
@@ -177,7 +177,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
    * @param clause the clause to find groundings for.
    * @return a set of groundings for the given clause.
    */
-  public GroundingSet query(GeneralizedClause clause) {
+  public NestedSubstitutionSet query(Query clause) {
     return signature.getQueryEngine().query(clause,this);
   }
 
