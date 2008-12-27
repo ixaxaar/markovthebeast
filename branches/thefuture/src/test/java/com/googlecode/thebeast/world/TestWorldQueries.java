@@ -78,15 +78,16 @@ public class TestWorldQueries extends TestCase {
   }
 
   /**
-   * Tests a simple clause with only one atom in the body and zero in the head.
+   * Tests a simple query with only one atom in the outer conjunction and zero
+   * in the inner conjunction.
    */
-  public void testOneAtomInBodyClause() {
+  public void testOneAtomInOuterConjunctionQuery() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(friends).add(new Tuple(sebastian, peter));
-    Query clause =
+    Query query =
       QueryFactory.build().atom(friends, "x", "y").outer().inner();
-    NestedSubstitutionSet result = world.query(clause);
+    NestedSubstitutionSet result = world.query(query);
     HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
     for (NestedSubstitution nestedSubstitution : result) {
       actual.add(nestedSubstitution);
@@ -101,16 +102,17 @@ public class TestWorldQueries extends TestCase {
   }
 
   /**
-   * Tests a simple clause with two atoms in the body and zero in the head.
+   * Tests a simple query with two atoms in the outer conjunction and zero in
+   * the inner conjunction.
    */
-  public void testTwoAtomsInBodyClause() {
+  public void testTwoAtomsInOuterConjunctionQuery() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
-    Query clause =
+    Query query =
       QueryFactory.build()
         .atom(friends, "x", "y").atom(smokes, "y").outer().inner();
-    NestedSubstitutionSet result = world.query(clause);
+    NestedSubstitutionSet result = world.query(query);
     HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
     for (NestedSubstitution nestedSubstitution : result) {
       actual.add(nestedSubstitution);
@@ -123,7 +125,8 @@ public class TestWorldQueries extends TestCase {
   }
 
   /**
-   * Tests a simple clause with two atoms in the body and one in the head.
+   * Tests a simple query with two atoms in the outer conjunction and one in the
+   * inner conjunction.
    */
   public void testSimpleImplication() {
     world.getRelation(friends).add(new Tuple(peter, anna));
@@ -131,11 +134,11 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
     world.getRelation(smokes).add(new Tuple(peter));
-    Query clause =
+    Query query =
       QueryFactory.build()
         .atom(friends, "x", "y").atom(smokes, "x").outer()
-        .atom(smokes,"y").inner();
-    NestedSubstitutionSet result = world.query(clause);
+        .atom(smokes, "y").inner();
+    NestedSubstitutionSet result = world.query(query);
     HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
     for (NestedSubstitution nestedSubstitution : result) {
       actual.add(nestedSubstitution);
@@ -148,7 +151,7 @@ public class TestWorldQueries extends TestCase {
   }
 
   /**
-   * Test a clause with an existential variable.
+   * Test a query with an existential variable.
    */
   public void testExistentialImplication() {
     world.getRelation(friends).add(new Tuple(peter, anna));
@@ -156,11 +159,11 @@ public class TestWorldQueries extends TestCase {
     world.getRelation(friends).add(new Tuple(peter, sebastian));
     world.getRelation(smokes).add(new Tuple(anna));
     world.getRelation(smokes).add(new Tuple(peter));
-    Query clause =
+    Query query =
       QueryFactory.build()
         .atom(smokes, "x").outer()
-        .atom(friends,"x","y").atom(smokes,"y").inner();
-    NestedSubstitutionSet result = world.query(clause);
+        .atom(friends, "x", "y").atom(smokes, "y").inner();
+    NestedSubstitutionSet result = world.query(query);
     HashSet<NestedSubstitution> actual = new HashSet<NestedSubstitution>();
     for (NestedSubstitution nestedSubstitution : result) {
       actual.add(nestedSubstitution);
