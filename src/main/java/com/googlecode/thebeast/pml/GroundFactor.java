@@ -1,7 +1,5 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.NestedSubstitution;
-
 import java.util.List;
 
 /**
@@ -13,6 +11,7 @@ public class GroundFactor {
   private List<GroundNode> domain;
 
   private PseudoMLClause clause;
-  private NestedSubstitution substitution;
+  private int index;
+  private double scale;
   
 }
