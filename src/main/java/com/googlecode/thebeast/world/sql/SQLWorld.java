@@ -1,8 +1,8 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.google.common.collect.HashBiMap;
-import com.googlecode.thebeast.clause.GeneralizedClause;
-import com.googlecode.thebeast.clause.GroundingSet;
+import com.googlecode.thebeast.query.GeneralizedClause;
+import com.googlecode.thebeast.query.GroundingSet;
 import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
 import com.googlecode.thebeast.world.Relation;
 import com.googlecode.thebeast.world.RelationListener;

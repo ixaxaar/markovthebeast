@@ -1,9 +1,9 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.clause.ClauseFactory;
-import com.googlecode.thebeast.clause.GeneralizedClause;
-import com.googlecode.thebeast.clause.Grounding;
-import com.googlecode.thebeast.clause.GroundingSet;
+import com.googlecode.thebeast.query.ClauseFactory;
+import com.googlecode.thebeast.query.GeneralizedClause;
+import com.googlecode.thebeast.query.Grounding;
+import com.googlecode.thebeast.query.GroundingSet;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import junit.framework.TestCase;
 

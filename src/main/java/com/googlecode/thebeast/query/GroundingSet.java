@@ -1,10 +1,10 @@
-package com.googlecode.thebeast.clause;
+package com.googlecode.thebeast.query;
 
 /**
  * A GroundingSet represents a set of groundings for a generalized clause.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.clause.GeneralizedClause
+ * @see com.googlecode.thebeast.query.GeneralizedClause
  */
 public interface GroundingSet extends Iterable<Grounding> {
 
