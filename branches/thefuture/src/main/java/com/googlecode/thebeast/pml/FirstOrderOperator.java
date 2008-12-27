@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.mln;
+package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.world.World;
 import com.googlecode.thebeast.world.UserPredicate;

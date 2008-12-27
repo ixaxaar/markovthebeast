@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.mln;
+package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.Variable;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
  *
  * @author Sebastian Riedel
  */
-public class MLNClause {
+public class PseudoMLClause {
 
   /**
    * The query of this MLNClause.
@@ -48,7 +48,7 @@ public class MLNClause {
    */
   private final List<Variable> indexVariables;
 
-  public MLNClause(final Query query,
+  public PseudoMLClause(final Query query,
                    final Variable scaleVariable,
                    final List<Variable> indexVariables) {
     this.query = query;
