@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.googlecode.thebeast.clause.Atom;
 import com.googlecode.thebeast.clause.GeneralizedClause;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An SQLBasedQueryEngine executes queries in SQL based worlds.
@@ -75,7 +77,6 @@ final class SQLBasedQueryEngine {
 
     return new SQLGroundingSet(clause, world, query);
   }
-
 
 
   private static class SQLGroundingSet implements GroundingSet {
@@ -143,7 +144,7 @@ final class SQLBasedQueryEngine {
           world.getSignature().getConnection().createStatement();
         final ResultSet resultSet = st.executeQuery(query);
         Multimap<Substitution, Substitution>
-          substitutions = new ArrayListMultimap<Substitution, Substitution>();
+          substitutions = new HashMultimap<Substitution, Substitution>();
         while (resultSet.next()) {
           Substitution universal = new Substitution();
           for (Variable var : clause.getUniversalVariables()) {
@@ -162,7 +163,7 @@ final class SQLBasedQueryEngine {
         List<Grounding> result = new ArrayList<Grounding>();
         for (Substitution substitution : substitutions.keys()) {
           result.add(new Grounding(substitution,
-            (List<Substitution>) substitutions.get(substitution)));
+            (Set<Substitution>) substitutions.get(substitution)));
         }
         return result.iterator();
 
@@ -279,7 +280,7 @@ final class SQLBasedQueryEngine {
       String first = columnNames.get(0);
       for (int i = 1; i < columnNames.size(); ++i) {
         String other = columnNames.get(i);
-        if (whereIndex > 0) {
+        if (whereIndex++ > 0) {
           where.append(" AND ");
         }
         where.append(String.format("%s = %s", first, other));

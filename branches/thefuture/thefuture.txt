@@ -11,11 +11,17 @@ Beast loop:
       3) Observed predicates are updated
 
 
+type A: Anna, Peter;
+type Tree: compound; //class Tree;
+
+function leaf: Int x Tag -> Tree
+function node: Int x Int x Label x Tree x Tree -> Tree
 
 Generalized closed world: every ground atom a with delta_s(a) <= 0 is false.
 
 - Each variable must appear at least once without a static function. 
 - Each weight is nonnegative
+- A compound type variable must not be existential
 
 @weight
 predicate weight: X;
