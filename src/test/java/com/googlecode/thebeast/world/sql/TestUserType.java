@@ -3,7 +3,9 @@ package com.googlecode.thebeast.world.sql;
 import com.googlecode.thebeast.world.Constant;
 import com.googlecode.thebeast.world.UserConstant;
 import com.googlecode.thebeast.world.UserType;
-import junit.framework.TestCase;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 
@@ -12,22 +14,24 @@ import java.util.ArrayList;
  *
  * @author Sebastian Riedel
  */
-public final class TestUserType extends TestCase {
+public final class TestUserType {
 
   /**
    * Tests the constructor.
    */
+  @Test
   public void testConstructor() {
     SQLSignature signature = new SQLSignature();
     UserType type = new SQLUserType("type", false, signature);
     assertEquals("type", type.getName());
-    assertEquals("Incorrect Signature in type object",
-      signature, type.getSignature());
+    assertEquals(signature, type.getSignature(),
+      "Incorrect Signature in type object");
   }
 
   /**
    * Tests the creation of constants.
    */
+  @Test
   public void testCreateConstant() {
     UserType type = new SQLUserType("type", false, new SQLSignature());
     UserConstant c1 = type.createConstant("c1");
@@ -45,6 +49,7 @@ public final class TestUserType extends TestCase {
    *
    * @see SQLUserType#iterator()
    */
+  @Test
   public void testIterator() {
     UserType type = new SQLUserType("type", false, new SQLSignature());
     ArrayList<Constant> expected = new ArrayList<Constant>();
@@ -64,6 +69,7 @@ public final class TestUserType extends TestCase {
    *
    * @see SQLUserType#size()
    */
+  @Test
   public void testSize() {
     UserType type = new SQLUserType("type", false, new SQLSignature());
     type.createConstant("c1");
@@ -74,11 +80,11 @@ public final class TestUserType extends TestCase {
   /**
    * Tests the isIterable method.
    */
+  @Test
   public void testIsIterable() {
     UserType type = new SQLUserType("type", false, new SQLSignature());
     assertTrue(type.isIterable());
   }
-
 
 
 }

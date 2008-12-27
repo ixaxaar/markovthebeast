@@ -4,7 +4,11 @@ import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
 import com.googlecode.thebeast.world.Relation;
 import com.googlecode.thebeast.world.UserType;
 import com.googlecode.thebeast.world.World;
-import junit.framework.TestCase;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Tests for the World class.
@@ -12,7 +16,7 @@ import junit.framework.TestCase;
  * @author Sebastian Riedel
  * @see com.googlecode.thebeast.world.sql.SQLWorld
  */
-public final class TestWorld extends TestCase {
+public final class TestWorld  {
   /**
    * Binary predicate.
    */
@@ -33,8 +37,8 @@ public final class TestWorld extends TestCase {
    *
    * @throws Exception if parent setup method fails.
    */
+  @BeforeMethod
   protected void setUp() throws Exception {
-    super.setUp();
     signature = new SQLSignature();
     UserType type1 = signature.createType("type1", false);
     type1.createConstant("A");
@@ -49,6 +53,7 @@ public final class TestWorld extends TestCase {
   /**
    * Tests the constructor of the World class.
    */
+  @Test
   public void testConstructor() {
     World world = new SQLWorld(signature, 1);
     assertEquals("Ids do not match", 1, world.getId());
@@ -58,6 +63,7 @@ public final class TestWorld extends TestCase {
   /**
    * Tests whether multiply getRelation method return the same relation object.
    */
+  @Test
   public void testGetRelationWithoutParent() {
     World world = signature.createWorld();
     assertEquals(world.getRelation(pred1), world.getRelation(pred1));
@@ -68,6 +74,7 @@ public final class TestWorld extends TestCase {
    * Tests whether the child world returns the relations of the corresponding
    * parent worlds.
    */
+  @Test
   public void testGetRelationWithParent() {
     SQLWorld parent = (SQLWorld) signature.createWorld();
     World child = signature.createWorld();
@@ -80,6 +87,7 @@ public final class TestWorld extends TestCase {
    * Tests whether the addParent method throws the proper exception when a local
    * relation for the given predicate already exists.
    */
+  @Test
   public void testAddParent() {
     SQLWorld parent = (SQLWorld) signature.createWorld();
     World child = signature.createWorld();

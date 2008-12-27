@@ -1,11 +1,13 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.query.QueryFactory;
-import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.NestedSubstitution;
 import com.googlecode.thebeast.query.NestedSubstitutionSet;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import junit.framework.TestCase;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.HashSet;
 
@@ -13,7 +15,7 @@ import java.util.HashSet;
  * @author Sebastian Riedel
  */
 @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
-public class TestWorldQueries extends TestCase {
+public class TestWorldQueries {
 
   /**
    * The signature we use in these tests.
@@ -61,6 +63,7 @@ public class TestWorldQueries extends TestCase {
    *
    * @throws Exception if the super method throws an exception.
    */
+  @BeforeMethod
   protected void setUp() throws Exception {
     signature = SQLSignature.createSignature();
     person = signature.createType("Person", false);
@@ -73,14 +76,13 @@ public class TestWorldQueries extends TestCase {
     cancer = signature.createPredicate("cancer", person);
 
     world = signature.createWorld();
-
-    super.setUp();
   }
 
   /**
    * Tests a simple query with only one atom in the outer conjunction and zero
    * in the inner conjunction.
    */
+  @Test
   public void testOneAtomInOuterConjunctionQuery() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
@@ -105,6 +107,7 @@ public class TestWorldQueries extends TestCase {
    * Tests a simple query with two atoms in the outer conjunction and zero in
    * the inner conjunction.
    */
+  @Test
   public void testTwoAtomsInOuterConjunctionQuery() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(peter, sebastian));
@@ -128,6 +131,7 @@ public class TestWorldQueries extends TestCase {
    * Tests a simple query with two atoms in the outer conjunction and one in the
    * inner conjunction.
    */
+  @Test
   public void testSimpleImplication() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(anna, peter));
@@ -153,6 +157,7 @@ public class TestWorldQueries extends TestCase {
   /**
    * Test a query with an existential variable.
    */
+  @Test
   public void testExistentialImplication() {
     world.getRelation(friends).add(new Tuple(peter, anna));
     world.getRelation(friends).add(new Tuple(anna, peter));

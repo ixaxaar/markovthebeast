@@ -5,10 +5,13 @@ import com.googlecode.thebeast.world.SignatureListener;
 import com.googlecode.thebeast.world.Symbol;
 import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
 import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.UserType;
 import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.UserType;
 import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.testng.Assert.*;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 
@@ -18,11 +21,12 @@ import java.util.ArrayList;
  * @author Sebastian Riedel
  * @see com.googlecode.thebeast.world.sql.SQLSignature
  */
-public final class TestSignature extends TestCase {
+public final class TestSignature  {
 
   /**
    * Tests the (hidden) constructor of the signature class.
    */
+  @Test
   public void testConstructor() {
     SQLSignature signature = new SQLSignature();
     assertNotNull(signature.getConnection());
@@ -31,6 +35,7 @@ public final class TestSignature extends TestCase {
   /**
    * Tests the creation of types via the signature class.
    */
+  @Test
   public void testCreateType() {
     Signature signature = new SQLSignature();
     UserType type = signature.createType("type", false);
@@ -48,6 +53,7 @@ public final class TestSignature extends TestCase {
   /**
    * Tests the creation of predicates via the signature class.
    */
+  @Test
   public void testCreatePredicate() {
     Signature signature = new SQLSignature();
     UserType type = signature.createType("type", false);
@@ -66,6 +72,7 @@ public final class TestSignature extends TestCase {
   /**
    * Tests whether the signature class fires type added events properly.
    */
+  @Test
   public void testTypeEvents() {
     Signature signature = new SQLSignature();
     Listener listener = new Listener();
@@ -86,6 +93,7 @@ public final class TestSignature extends TestCase {
   /**
    * Tests whether the signature class fires predicate added events properly.
    */
+  @Test
   public void testPredicateAddedEvent() {
     Signature signature = new SQLSignature();
     Listener listener = new Listener();
