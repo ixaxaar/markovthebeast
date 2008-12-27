@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.clause;
+package com.googlecode.thebeast.query;
 
 import java.util.ArrayList;
 import java.util.Collections;

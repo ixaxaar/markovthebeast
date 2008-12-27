@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.clause;
+package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Signature;
 
@@ -12,14 +12,15 @@ import java.util.regex.Pattern;
  * A Grounding can be used to ground a generalized clause. It consists of a
  * substitution of the unversally quantified variables in the clause and a set
  * of substitutions for the existential variables in the clause.
- *
- * <p>The set of existential will at least contain a single substitution because
+ * <p/>
+ * <p>The set of existential substitutions will at least contain a single
+ * substitution because
  * grounding a clause without existential substitutions is undefined. If the
  * clause has no existentially quantified variables then there will exactly one
  * existential substitution which is empty.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.clause.GeneralizedClause
+ * @see com.googlecode.thebeast.query.GeneralizedClause
  */
 public final class Grounding {
 
@@ -106,7 +107,7 @@ public final class Grounding {
     int index = 0;
     result.append("{");
     for (Substitution s : existentialSubstitutions) {
-      if (index++ > 0 ){
+      if (index++ > 0) {
         result.append(", ");
       }
       result.append("{");

@@ -3,13 +3,13 @@ package com.googlecode.thebeast.world.sql;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.googlecode.thebeast.clause.Atom;
-import com.googlecode.thebeast.clause.GeneralizedClause;
-import com.googlecode.thebeast.clause.Grounding;
-import com.googlecode.thebeast.clause.GroundingSet;
-import com.googlecode.thebeast.clause.Substitution;
-import com.googlecode.thebeast.clause.Term;
-import com.googlecode.thebeast.clause.Variable;
+import com.googlecode.thebeast.query.Atom;
+import com.googlecode.thebeast.query.GeneralizedClause;
+import com.googlecode.thebeast.query.Grounding;
+import com.googlecode.thebeast.query.GroundingSet;
+import com.googlecode.thebeast.query.Substitution;
+import com.googlecode.thebeast.query.Term;
+import com.googlecode.thebeast.query.Variable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -127,7 +127,7 @@ final class SQLBasedQueryEngine {
      * Returns the clause of this grounding set.
      *
      * @return the clause for the groundings in this set.
-     * @see com.googlecode.thebeast.clause.GroundingSet#getClause()
+     * @see com.googlecode.thebeast.query.GroundingSet#getClause()
      */
     public GeneralizedClause getClause() {
       return clause;

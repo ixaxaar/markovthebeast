@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.clause;
+package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Type;
 
@@ -43,7 +43,7 @@ public final class Variable implements Term {
    * Return the type of this variable.
    *
    * @return the type of this variable.
-   * @see com.googlecode.thebeast.clause.Term#getType()
+   * @see com.googlecode.thebeast.query.Term#getType()
    */
   public Type getType() {
     return type;

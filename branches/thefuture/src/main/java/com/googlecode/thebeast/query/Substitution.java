@@ -1,4 +1,4 @@
-package com.googlecode.thebeast.clause;
+package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.Symbol;

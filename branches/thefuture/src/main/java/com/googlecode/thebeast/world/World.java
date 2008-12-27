@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.clause.GeneralizedClause;
-import com.googlecode.thebeast.clause.GroundingSet;
+import com.googlecode.thebeast.query.GeneralizedClause;
+import com.googlecode.thebeast.query.GroundingSet;
 
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
