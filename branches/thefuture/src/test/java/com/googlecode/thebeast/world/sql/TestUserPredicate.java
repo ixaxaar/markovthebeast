@@ -1,22 +1,24 @@
 package com.googlecode.thebeast.world.sql;
 
-import junit.framework.TestCase;
+import com.googlecode.thebeast.world.UserPredicate;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.googlecode.thebeast.world.UserPredicate;
 
 /**
  * Testing the UserPredicate class.
  *
  * @author Sebastian Riedel
  */
-public final class TestUserPredicate extends TestCase {
+public final class TestUserPredicate {
 
   /**
    * Tests the UserPredicate constructor.
    */
+  @Test
   public void testConstructor() {
     SQLSignature signature = new SQLSignature();
     List<SQLRepresentableType> argumentTypes =

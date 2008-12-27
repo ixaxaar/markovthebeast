@@ -10,7 +10,7 @@ public class GroundFactor {
   private List<GroundNode> condition;
   private List<GroundNode> domain;
 
-  private PseudoMLClause clause;
+  private PMLClause clause;
   private int index;
   private double scale;
   

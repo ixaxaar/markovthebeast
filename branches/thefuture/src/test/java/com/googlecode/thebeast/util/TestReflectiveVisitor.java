@@ -1,13 +1,14 @@
 package com.googlecode.thebeast.util;
 
-import junit.framework.TestCase;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * Tests the ReflectiveIterator class.
  *
  * @author Sebastian Riedel
  */
-public final class TestReflectiveVisitor extends TestCase {
+public final class TestReflectiveVisitor {
 
   /**
    * Empty Fruit class.
@@ -32,6 +33,7 @@ public final class TestReflectiveVisitor extends TestCase {
    *
    * @see ReflectiveVisitor#visit(Object)
    */
+  @Test
   public void testVisit() {
     Apple apple = new Apple();
     Orange orange = new Orange();

@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.util;
 
-import junit.framework.TestCase;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * Tests the ReflectiveProducer class.
@@ -8,7 +9,7 @@ import junit.framework.TestCase;
  * @author Sebastian Riedel
  * @see com.googlecode.thebeast.util.ReflectiveProducer
  */
-public final class TestReflectiveProducer extends TestCase {
+public final class TestReflectiveProducer {
 
   /**
    * A fruit.
@@ -34,6 +35,7 @@ public final class TestReflectiveProducer extends TestCase {
    *
    * @see com.googlecode.thebeast.util.ReflectiveProducer#visit(Object)
    */
+  @Test
   public void testVisit() {
     Apple apple = new Apple();
     Orange orange = new Orange();

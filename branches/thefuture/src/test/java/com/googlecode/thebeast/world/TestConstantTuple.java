@@ -1,7 +1,9 @@
 package com.googlecode.thebeast.world;
 
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import junit.framework.TestCase;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Testing the methods of the ConstantTuple class.
@@ -9,7 +11,7 @@ import junit.framework.TestCase;
  * @author Sebastian Riedel
  * @see Tuple
  */
-public final class TestConstantTuple extends TestCase {
+public final class TestConstantTuple  {
   /**
    * A type with two user constants = {A,B}.
    */
@@ -25,8 +27,8 @@ public final class TestConstantTuple extends TestCase {
    *
    * @throws Exception if something goes wrong.
    */
+  @BeforeMethod
   protected void setUp() throws Exception {
-    super.setUp();
     Signature signature = SQLSignature.createSignature();
     typeAB = signature.createType("type1", false, "A", "B");
     typeBC = signature.createType("type2", false, "C", "D");
@@ -36,6 +38,7 @@ public final class TestConstantTuple extends TestCase {
    * Tests whether the constructor creates a tuple with the right constants at
    * the right positions.
    */
+  @Test
   public void testConstructor() {
     Tuple tuple = new Tuple(
       typeAB.getConstant("A"),
@@ -49,6 +52,7 @@ public final class TestConstantTuple extends TestCase {
   /**
    * Tests the size method.
    */
+  @Test
   public void testSize() {
     Tuple tuple = new Tuple(
       typeAB.getConstant("A"),
@@ -61,6 +65,7 @@ public final class TestConstantTuple extends TestCase {
    * Tests whether the getUserPredicate method is consistent with the get
    * method.
    */
+  @Test
   public void testGetUserPredicate() {
     Tuple tuple = new Tuple(
       typeAB.getConstant("A"),

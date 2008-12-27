@@ -5,7 +5,7 @@ package com.googlecode.thebeast.pml;
  */
 public class Weights {
 
-  double getWeight(PseudoMLClause clause, int index){
+  double getWeight(PMLClause clause, int index){
     return 0.0;
   }
 

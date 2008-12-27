@@ -1,7 +1,10 @@
 package com.googlecode.thebeast.world;
 
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import junit.framework.TestCase;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,7 +15,7 @@ import java.util.Iterator;
  * @author Sebastian Riedel
  * @see Relation
  */
-public final class TestRelation extends TestCase {
+public final class TestRelation  {
   /**
    * A type with constants A,B.
    */
@@ -37,8 +40,8 @@ public final class TestRelation extends TestCase {
    *
    * @throws Exception if the super method fails.
    */
+  @BeforeMethod
   protected void setUp() throws Exception {
-    super.setUp();
     Signature signature = SQLSignature.createSignature();
     type1 = signature.createType("type1", false, "A", "B");
     type2 = signature.createType("type2", false, "C", "D");
@@ -49,6 +52,7 @@ public final class TestRelation extends TestCase {
   /**
    * Tests adding of a single tuple.
    */
+  @Test
   public void testAddTuple() {
     MutableRelation relation = world.getMutableRelation(pred);
     Tuple tuple = new Tuple(
@@ -62,6 +66,7 @@ public final class TestRelation extends TestCase {
   /**
    * Test the contains method.
    */
+  @Test
   public void testContains() {
     MutableRelation relation = world.getMutableRelation(pred);
     Tuple tuple = new Tuple(
@@ -75,6 +80,7 @@ public final class TestRelation extends TestCase {
   /**
    * Test the relation iterator.
    */
+  @Test
   public void testIterator() {
     MutableRelation relation = world.getMutableRelation(pred);
     Tuple tuple1 = new Tuple(
@@ -93,8 +99,8 @@ public final class TestRelation extends TestCase {
     while (iterator.hasNext()) {
       actual.add(iterator.next());
     }
-    assertEquals("Set of constants returned by the iterator is not equal"
-      + " to set of constants added to the relation", expected, actual);
+    assertEquals(expected, actual,"Set of constants returned by the iterator is not equal"
+      + " to set of constants added to the relation");
     assertEquals(2, relation.size());
   }
 
