@@ -26,13 +26,13 @@ final class SQLBasedQueryEngine {
   /**
    * Queries the given world wrt to the given query.
    *
-   * @param clause the clause to use as query.
+   * @param query the clause to use as query.
    * @param world  the world to query in.
    * @return the set of groundings for this clause.
    */
-  NestedSubstitutionSet query(final Query clause,
-                     final SQLWorld world) {
-    //create an sql query (or get one from cache)
+  NestedSubstitutionSet query(final Query query,
+                              final SQLWorld world) {
+    //create an sql queryString (or get one from cache)
     //get user predicate atoms from inner and outer and use their tables
     Multimap<Variable, String>
       var2columnName = new ArrayListMultimap<Variable, String>();
@@ -40,7 +40,7 @@ final class SQLBasedQueryEngine {
       term2columnName = new ArrayListMultimap<Term, String>();
 
     //build table list
-    String tables = buildTableList(clause, world,
+    String tables = buildTableList(query, world,
       var2columnName, term2columnName);
 
     //build WHERE statement
@@ -60,17 +60,17 @@ final class SQLBasedQueryEngine {
     String select = buildSelect(variable2singleColumn);
 
     //build order by statement
-    String orderBy = buildOrderBy(clause);
+    String orderBy = buildOrderBy(query);
 
-    //build the whole query.
-    final String query = where.equals("")
+    //build the whole queryString.
+    final String queryString = where.equals("")
       ? String.format("SELECT %s FROM %s ORDER BY %s",
       select, tables, orderBy)
       : String.format("SELECT %s FROM %s WHERE %s ORDER BY %s",
       select, tables, where, orderBy);
 
 
-    return new SQLNestedSubstitutionSet(clause, world, query);
+    return new SQLNestedSubstitutionSet(query, world, queryString);
   }
 
 
@@ -79,7 +79,7 @@ final class SQLBasedQueryEngine {
     /**
      * The clause that can be grounded with this set.
      */
-    private final Query clause;
+    private final Query query;
     /**
      * The world to query.
      */
@@ -87,22 +87,22 @@ final class SQLBasedQueryEngine {
     /**
      * The SQL query string this grounding set is based on.
      */
-    private final String query;
+    private final String queryString;
 
 
     /**
      * Creates a new grounding set for the given clause, world, and query.
      *
-     * @param clause the clause that can be grounded with this set.
+     * @param query the clause that can be grounded with this set.
      * @param world  the world to query.
-     * @param query  the SQL query string to use.
+     * @param queryString  the SQL query string to use.
      */
-    private SQLNestedSubstitutionSet(final Query clause,
-                            final SQLWorld world,
-                            final String query) {
-      this.clause = clause;
-      this.world = world;
+    private SQLNestedSubstitutionSet(final Query query,
+                                     final SQLWorld world,
+                                     final String queryString) {
       this.query = query;
+      this.world = world;
+      this.queryString = queryString;
     }
 
     /**
@@ -122,10 +122,10 @@ final class SQLBasedQueryEngine {
      * Returns the clause of this grounding set.
      *
      * @return the clause for the groundings in this set.
-     * @see com.googlecode.thebeast.query.NestedSubstitutionSet#getClause()
+     * @see com.googlecode.thebeast.query.NestedSubstitutionSet#getQueryString()
      */
-    public Query getClause() {
-      return clause;
+    public Query getQueryString() {
+      return query;
     }
 
     /**
@@ -137,18 +137,18 @@ final class SQLBasedQueryEngine {
       try {
         final Statement st =
           world.getSignature().getConnection().createStatement();
-        final ResultSet resultSet = st.executeQuery(query);
+        final ResultSet resultSet = st.executeQuery(queryString);
         Multimap<Substitution, Substitution>
           substitutions = new HashMultimap<Substitution, Substitution>();
         while (resultSet.next()) {
           Substitution universal = new Substitution();
-          for (Variable var : clause.getOuterVariables()) {
+          for (Variable var : query.getOuterVariables()) {
             SQLRepresentableType type = (SQLRepresentableType) var.getType();
             universal.put(var,
               type.getConstantFromSQL(resultSet.getObject(var.getName())));
           }
           Substitution existential = new Substitution();
-          for (Variable var : clause.getInnerVariables()) {
+          for (Variable var : query.getInnerVariables()) {
             SQLRepresentableType type = (SQLRepresentableType) var.getType();
             existential.put(var,
               type.getConstantFromSQL(resultSet.getObject(var.getName())));

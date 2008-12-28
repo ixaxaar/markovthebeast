@@ -14,6 +14,6 @@ public interface NestedSubstitutionSet extends Iterable<NestedSubstitution> {
    *
    * @return a the query that produced this set of nested substitutions.
    */
-  Query getClause();
+  Query getQueryString();
 
 }
