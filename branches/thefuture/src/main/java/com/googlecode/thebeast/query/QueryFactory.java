@@ -2,6 +2,7 @@ package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +44,27 @@ public final class QueryFactory {
   public Atom createAtom(final Predicate pred, final List<Term> args) {
     return new Atom(pred, args);
   }
+
+  public Atom createAtom(final Predicate pred, final Object... args) {
+    List<Term> argTerms = new ArrayList<Term>();
+    for (int i = 0; i < args.length; ++i) {
+      if (args[i] instanceof String) {
+        String arg = (String) args[i];
+        if (Character.isLowerCase(arg.charAt(0))) {
+          argTerms.add(new Variable(arg, pred.getArgumentTypes().get(i)));
+        } else {
+          argTerms.add(pred.getArgumentTypes().get(i).getConstant(arg));
+        }
+      } else if (args[i] instanceof Term) {
+        argTerms.add((Term) args[i]);
+      } else {
+        throw new UnsupportedOperationException("args must be strings" +
+          " or terms for now");
+      }
+    }
+    return createAtom(pred, argTerms);
+  }
+
 
   /**
    * Creates a new clause with the given head and body atoms.

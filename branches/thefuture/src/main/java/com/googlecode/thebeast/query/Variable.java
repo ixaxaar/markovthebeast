@@ -25,7 +25,7 @@ public final class Variable implements Term {
    * @param name the name of the variable.
    * @param type the type of the variable.
    */
-  Variable(final String name, final Type type) {
+  public Variable(final String name, final Type type) {
     this.name = name;
     this.type = type;
   }

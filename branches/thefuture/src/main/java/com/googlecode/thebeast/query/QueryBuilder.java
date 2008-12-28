@@ -3,7 +3,6 @@ package com.googlecode.thebeast.query;
 import com.googlecode.thebeast.world.Predicate;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A QueryBuilder can be used to conveniently create queries.
@@ -37,8 +36,9 @@ public final class QueryBuilder {
   }
 
   /**
-   * Add a new atom, either to the body (if {@link QueryBuilder#outer()} has not
-   * been called yet, or to the head, if it has been called.
+   * Add a new atom, either to the outer conjunction (if {@link
+   * QueryBuilder#outer()} has not been called yet, or to the inner conjunction,
+   * if it has been called.
    *
    * @param pred the predicate of the atom.
    * @param args the arguments of the atoms. Each capitalized String is
@@ -48,22 +48,7 @@ public final class QueryBuilder {
    * @return this builder.
    */
   public QueryBuilder atom(Predicate pred, Object... args) {
-    List<Term> argTerms = new ArrayList<Term>();
-    for (int i = 0; i < args.length; ++i) {
-      if (args[i] instanceof String) {
-        String arg = (String) args[i];
-        if (Character.isLowerCase(arg.charAt(0))) {
-          argTerms.add(new Variable(arg, pred.getArgumentTypes().get(i)));
-        } else {
-          argTerms.add(pred.getArgumentTypes().get(i).getConstant(arg));
-        }
-      } else if (args[i] instanceof Term) {
-        argTerms.add((Term) args[i]);
-      } else {
-        throw new UnsupportedOperationException("args must be strings for now");
-      }
-    }
-    atoms.add(factory.createAtom(pred, argTerms));
+    atoms.add(factory.createAtom(pred, args));
     return this;
   }
 
