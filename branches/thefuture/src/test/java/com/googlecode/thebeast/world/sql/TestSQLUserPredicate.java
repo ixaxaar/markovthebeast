@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Sebastian Riedel
  */
-public final class TestUserPredicate {
+public final class TestSQLUserPredicate {
 
   /**
    * Tests the UserPredicate constructor.

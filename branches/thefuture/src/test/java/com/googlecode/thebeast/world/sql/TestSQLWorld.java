@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
  * @author Sebastian Riedel
  * @see com.googlecode.thebeast.world.sql.SQLWorld
  */
-public final class TestWorld  {
+public final class TestSQLWorld {
   /**
    * Binary predicate.
    */

@@ -6,12 +6,13 @@ import java.util.Set;
 
 /**
  * A Signature maintains a set of types, predicates and functions. In
- * particular, it provides a mapping from their String names to the
+ * particular, it provides a mapping from their string names to the
  * corresponding objects.
  *
  * @author Sebastian Riedel
  */
 public interface Signature {
+
   /**
    * Returns the symbol for the given name.
    *
@@ -181,4 +182,14 @@ public interface Signature {
    *         collection maintains the order of type creation.
    */
   Collection<Type> getTypes();
+
+  /**
+   * Each signature has to provide a single type called "Integer" that can be
+   * used to represent integers. This method returns this type.
+   *
+   * @return the integer type of this signature.
+   */
+  IntegerType getIntegerType();
+
+
 }

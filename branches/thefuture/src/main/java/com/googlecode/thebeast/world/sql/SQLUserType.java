@@ -18,16 +18,12 @@ import java.util.LinkedHashMap;
  * can only be created using {@link com.googlecode.thebeast.world.sql.SQLSignature#createPredicate(String,
  * java.util.List)}.
  *
- * <p>By default there is no order defined on constants of this type. This can
- * be achieved by defining a corresponding (user)predicate.
- *
  * @author Sebastian Riedel
  * @see SQLUserConstant
  * @see com.googlecode.thebeast.world.sql.SQLSignature
  */
 final class SQLUserType extends SQLRepresentableType
   implements UserType {
-
 
   /**
    * Indicates whether type can be extended on the fly.
@@ -57,7 +53,7 @@ final class SQLUserType extends SQLRepresentableType
    * @param signature  the signature this type belongs to.
    */
   SQLUserType(final String name, final boolean extendable,
-           final SQLSignature signature) {
+              final SQLSignature signature) {
     super(name, signature);
     this.extendable = extendable;
   }
@@ -83,8 +79,8 @@ final class SQLUserType extends SQLRepresentableType
    */
   public SQLUserConstant createConstant(final String name) {
     SQLUserConstant constant =
-      new SQLUserConstant(name, this, constants.size(), getSignature());
-    getSignature().registerSymbol(constant);
+      new SQLUserConstant(name, this, constants.size());
+    ((SQLSignature)getSignature()).registerSymbol(constant);
     constants.put(name, constant);
     id2constant.put(constant.getId(), constant);
     return constant;
@@ -176,7 +172,6 @@ final class SQLUserType extends SQLRepresentableType
    *
    * @return Iterator<Constant> an iterator that iterates over all constants in
    *         this type.
-   *
    * @see com.googlecode.thebeast.world.sql.SQLRepresentableType#iterator()
    */
   public Iterator<Constant> iterator() {

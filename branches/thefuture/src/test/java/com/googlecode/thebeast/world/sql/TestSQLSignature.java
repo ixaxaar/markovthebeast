@@ -19,9 +19,9 @@ import java.util.ArrayList;
  * Tests methods of the Signature class.
  *
  * @author Sebastian Riedel
- * @see com.googlecode.thebeast.world.sql.SQLSignature
+ * @see SQLSignature
  */
-public final class TestSignature  {
+public final class TestSQLSignature {
 
   /**
    * Tests the (hidden) constructor of the signature class.
