@@ -60,11 +60,9 @@ public class TestWorldQueries {
 
   /**
    * Sets up the basic test fixture.
-   *
-   * @throws Exception if the super method throws an exception.
    */
   @BeforeMethod
-  protected void setUp() throws Exception {
+  protected void setUp() {
     signature = SQLSignature.createSignature();
     person = signature.createType("Person", false);
     peter = person.createConstant("Peter");

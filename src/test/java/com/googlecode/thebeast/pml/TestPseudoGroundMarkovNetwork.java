@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.world.SocialNetworkFixture;
 import org.testng.annotations.Test;
 
 /**
@@ -11,7 +12,15 @@ public class TestPseudoGroundMarkovNetwork {
   @Test
   public void testGround() {
     PseudoGroundMarkovNetwork gmn = new PseudoGroundMarkovNetwork();
+    SocialNetworkFixture fixture = new SocialNetworkFixture();
+
     ClauseBuilder builder = new ClauseBuilder(QueryFactory.getInstance());
+
+    PMLClause clause = builder.
+      atom(fixture.friends,"x","y").
+      body().
+      head(fixture.friends,"y","x").
+      clause(null, null,null);
 
     //PMLClause clause = builder.atom"+("
 

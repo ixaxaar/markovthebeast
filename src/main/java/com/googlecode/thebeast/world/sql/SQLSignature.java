@@ -1,17 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.Predicate;
-import com.googlecode.thebeast.world.PredicateNotInSignatureException;
-import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.SignatureListener;
-import com.googlecode.thebeast.world.SignatureMismatchException;
-import com.googlecode.thebeast.world.Symbol;
-import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
-import com.googlecode.thebeast.world.SymbolNotPartOfSignatureException;
-import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.TypeNotInSignatureException;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.World;
+import com.googlecode.thebeast.world.*;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -54,6 +43,8 @@ public final class SQLSignature implements Serializable, Signature {
    * The query engine to use for all worlds of this signature.
    */
   private SQLBasedQueryEngine queryEngine;
+
+  private SQLIntegerType integerType;
 
   /**
    * A map from type names to types. This map contains user types as well as
@@ -110,6 +101,7 @@ public final class SQLSignature implements Serializable, Signature {
       connection = DriverManager.getConnection("jdbc:h2:~/test", "sa", "");
       sqlTablePool = new SQLTablePool(this);
       queryEngine = new SQLBasedQueryEngine();
+      integerType = new SQLIntegerType("Integer",this);
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (SQLException e) {
@@ -459,6 +451,13 @@ public final class SQLSignature implements Serializable, Signature {
    */
   public Collection<Type> getTypes() {
     return Collections.unmodifiableCollection(types.values());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public IntegerType getIntegerType() {
+    return integerType;
   }
 
 

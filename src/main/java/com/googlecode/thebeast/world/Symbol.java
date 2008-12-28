@@ -1,7 +1,5 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.world.sql.SQLSignature;
-
 /**
  * A Symbol object represents one of the following symbols in a First Order
  * Logic signature: a constant, a type or a predicate.
@@ -29,6 +27,6 @@ public interface Symbol {
    *
    * @return a Signature that contains this symbol.
    */
-  SQLSignature getSignature();
+  Signature getSignature();
 
 }

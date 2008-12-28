@@ -49,14 +49,15 @@ final class SQLRelation extends AbstractCollection<Tuple>
     listeners = new ArrayList<RelationListener>();
 
   /**
-   * Creates a new Relation using the SQL table specified in the tableDescription.
+   * Creates a new Relation using the SQL table specified in the
+   * tableDescription.
    *
    * @param tableDescription the specification of the table to back this
    *                         relation.
    */
   SQLRelation(final SQLTableDescription tableDescription) {
     this.tableDescription = tableDescription;
-    signature = tableDescription.getTypes().get(0).getSignature();
+    signature = (SQLSignature) tableDescription.getTypes().get(0).getSignature();
   }
 
   /**
@@ -206,7 +207,6 @@ final class SQLRelation extends AbstractCollection<Tuple>
    * Adds a tuple to the relation by using an updatable result set.
    *
    * @param tuple the tuple to add.
-   *
    * @see com.googlecode.thebeast.world.MutableRelation#add(Tuple)
    */
   public boolean add(final Tuple tuple) {

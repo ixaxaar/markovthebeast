@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  * @author Sebastian Riedel
  */
-public final class TestUserType {
+public final class TestSQLUserType {
 
   /**
    * Tests the constructor.

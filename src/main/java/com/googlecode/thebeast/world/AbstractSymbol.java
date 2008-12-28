@@ -18,7 +18,7 @@ public abstract class AbstractSymbol implements Symbol {
   /**
    * The signature of this symbol.
    */
-  private final SQLSignature signature;
+  private final Signature signature;
 
   /**
    * Creates an AbstractSymbol with the given name and signature.
@@ -49,7 +49,7 @@ public abstract class AbstractSymbol implements Symbol {
    *
    * @see Symbol#getSignature()
    */
-  public final SQLSignature getSignature() {
+  public final Signature getSignature() {
     return signature;
   }
 
@@ -61,6 +61,7 @@ public abstract class AbstractSymbol implements Symbol {
    * @param o the other symbol.
    * @return true iff both symbols have the same name and signature.
    */
+  @SuppressWarnings({"RedundantIfStatement"})
   public boolean equals(final Object o) {
     if (this == o) {
       return true;
