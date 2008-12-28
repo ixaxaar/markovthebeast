@@ -1,18 +1,15 @@
 package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.Atom;
-import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.Variable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A PMLClause maps a possible world to a feature vector. It
- * contains of a query, a double variable of the outer variables of the query
- * which denotes the scaling factor (scaling variable), a set of at least one
- * variables in the outer variables of the query which identify the indices
- * within the feature vectors (index variables), an target atom and a first
- * order operator.
+ * A PMLClause maps a possible world to a feature vector. todo
  *
- * <p/> Let m be a PMLClause with query q, scale variable s and
+ * todo: fixing <p/> Let m be a PMLClause with query q, scale variable s and
  * index variable i, and w a possible world, and let r be the result of applying
  * the query q to the world w. Then m maps w to a feature vector f(w) that
  * contains one component for each possible binding b of the index variable i
@@ -27,28 +24,35 @@ import com.googlecode.thebeast.query.Variable;
 public class PMLClause {
 
   /**
-   * The query of this clause.
-   */
-  private final Query query;
-  /**
    * The scale variable.
    */
   private final Variable scaleVariable;
-
-  private Atom targetAtom;
-
-  private FirstOrderOperator firstOrderOperator;
 
   /**
    * The index variable.
    */
   private final Variable indexVariables;
 
-  public PMLClause(final Query query,
-                                 final Variable scaleVariable,
-                                 final Variable variable) {
-    this.query = query;
+  private final List<Atom> body = new ArrayList<Atom>();
+  private final List<Atom> restriction = new ArrayList<Atom>();
+  private final Atom head;
+
+  private final FirstOrderOperator firstOrderOperator;
+
+  public PMLClause(List<Atom> body,
+                   Atom head,
+                   List<Atom> restriction,
+                   FirstOrderOperator operator,
+                   Variable indexVariable,
+                   Variable scaleVariable){
+    this.body.addAll(body);
+    this.head = head;
+    this.restriction.addAll(restriction);
+    this.firstOrderOperator = operator;
+    this.indexVariables = indexVariable;
     this.scaleVariable = scaleVariable;
-    this.indexVariables = variable;
   }
+
+
+
 }

@@ -85,11 +85,11 @@
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>googlecode</id>
-            <url>svn:https://thebeast.googlecode.com/svn/repo</url>
+            <url>svn:https://therepo.googlecode.com/svn/repo</url>
         </repository>
         <site>
-            <id>svn-www</id>
-            <url>svn:https://thebeast.googlecode.com/svn/www</url>
+            <id>googlegode</id>
+            <url>svn:https://therepo.googlecode.com/svn/www</url>
         </site>
     </distributionManagement>
 
