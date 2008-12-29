@@ -2,9 +2,7 @@ package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Signature;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,6 +105,17 @@ public final class NestedSubstitution {
     return result.toString();
   }
 
+  public static List<NestedSubstitution> createNestedSubstitutions(
+    final Signature signature,
+    final String... substitutions) {
+
+    ArrayList<NestedSubstitution>
+      result = new ArrayList<NestedSubstitution>(substitutions.length);
+    for (String text : substitutions)
+      result.add(createNestedSubstitution(signature, text));
+    return result;
+  }
+
   /**
    * Create a new NestedSubstitution  based on a string representation. The
    * required format is
@@ -121,8 +130,9 @@ public final class NestedSubstitution {
    *                  described above.
    * @return the NestedSubstitution described by the provided text.
    */
-  public static NestedSubstitution createGrounding(final Signature signature,
-                                                   final String text) {
+  public static NestedSubstitution createNestedSubstitution(
+    final Signature signature,
+    final String text) {
 
     int startOfExistentials = text.indexOf('{');
     String universalString = startOfExistentials == -1

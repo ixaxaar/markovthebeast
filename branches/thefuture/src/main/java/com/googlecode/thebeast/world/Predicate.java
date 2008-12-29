@@ -19,7 +19,8 @@ public interface Predicate extends Symbol {
 
   /**
    * Returns the list of types that denotes which type of constants can be the
-   * arguments to this predicate.
+   * arguments to this predicate. This list must be unmodifiable and allow
+   * {@link java.util.RandomAccess}.
    *
    * @return a {@link java.util.RandomAccess} list of types in the order in
    *         which their constants can act as arguments of this predicate.

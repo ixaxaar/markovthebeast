@@ -5,7 +5,7 @@ import com.googlecode.thebeast.world.*;
 /**
  * @author Sebastian Riedel
  */
-public class SQLDoubleType extends SQLRepresentableType
+final class SQLDoubleType extends SQLRepresentableType
   implements DoubleType {
 
 

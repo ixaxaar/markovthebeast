@@ -93,9 +93,12 @@ public class TestWorldQueries {
       actual.add(nestedSubstitution);
     }
     HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Sebastian"));
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Sebastian y/Peter"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Peter y/Anna"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Peter y/Sebastian"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Sebastian y/Peter"));
 
     assertEquals(expected, actual);
 
@@ -119,7 +122,8 @@ public class TestWorldQueries {
       actual.add(nestedSubstitution);
     }
     HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Peter y/Anna"));
 
     assertEquals(expected, actual);
 
@@ -146,8 +150,10 @@ public class TestWorldQueries {
       actual.add(nestedSubstitution);
     }
     HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter y/Anna"));
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Anna y/Peter"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Peter y/Anna"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Anna y/Peter"));
 
     assertEquals(expected, actual);
   }
@@ -172,8 +178,10 @@ public class TestWorldQueries {
       actual.add(nestedSubstitution);
     }
     HashSet<NestedSubstitution> expected = new HashSet<NestedSubstitution>();
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Anna {y/Peter}"));
-    expected.add(NestedSubstitution.createGrounding(signature, "x/Peter {y/Anna}"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Anna {y/Peter}"));
+    expected.add(NestedSubstitution.createNestedSubstitution(
+      signature, "x/Peter {y/Anna}"));
     assertEquals(expected, actual);
   }
 

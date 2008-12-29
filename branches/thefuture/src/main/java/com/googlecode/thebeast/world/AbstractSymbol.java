@@ -1,7 +1,5 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.world.sql.SQLSignature;
-
 /**
  * An abstract helper implementation of Symbol. Provides a simple implementation
  * of this methods required by the Symbol interface.
@@ -26,7 +24,7 @@ public abstract class AbstractSymbol implements Symbol {
    * @param name      the name of the symbol.
    * @param signature the signature of the symbol.
    */
-  protected AbstractSymbol(final String name, final SQLSignature signature) {
+  protected AbstractSymbol(final String name, final Signature signature) {
     this.name = name;
     this.signature = signature;
   }

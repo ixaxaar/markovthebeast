@@ -1,12 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.SignatureListener;
-import com.googlecode.thebeast.world.Symbol;
-import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
-import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.UserType;
+import com.googlecode.thebeast.world.*;
 import junit.framework.Assert;
 import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertNull;
@@ -22,6 +16,7 @@ import java.util.ArrayList;
  * @see SQLSignature
  */
 public final class TestSQLSignature {
+
 
   /**
    * Tests the (hidden) constructor of the signature class.
@@ -110,6 +105,18 @@ public final class TestSQLSignature {
       listener.symbol);
 
   }
+
+  /**
+   * Test whether the get symbol method returns the right (default) symbols.
+   */
+  @Test
+  public void testGetSymbolForBuiltInSymbols(){
+    Signature signature = new SQLSignature();
+    assertEquals(1.0, ((DoubleConstant)signature.getSymbol("1.0")).getValue());
+    assertEquals(0, ((IntegerConstant)signature.getSymbol("0")).getValue());
+
+  }
+
 
   /**
    * This class helps to test whether the signature sends out the right events.

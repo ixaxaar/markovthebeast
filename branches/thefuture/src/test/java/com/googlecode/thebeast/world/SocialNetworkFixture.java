@@ -1,7 +1,5 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.world.sql.SQLSignature;
-
 /**
  * A SocialNetworkFixture consists of a signature with a Person type and
  * friends, smokes and cancer predicates, as well as a few named constants.
@@ -11,7 +9,7 @@ import com.googlecode.thebeast.world.sql.SQLSignature;
 public class SocialNetworkFixture {
 
   /**
-   * The signature we use in these tests.
+   * The signature we use to create the symbols.
    */
   public final Signature signature;
 
@@ -50,9 +48,11 @@ public class SocialNetworkFixture {
 
   /**
    * Sets up the basic social network fixture.
+   *
+   * @param signature the signature to use.
    */
-  public SocialNetworkFixture() {
-    signature = SQLSignature.createSignature();
+  public SocialNetworkFixture(Signature signature) {
+    this.signature = signature;
     person = signature.createType("Person", false);
     peter = person.createConstant("Peter");
     anna = person.createConstant("Anna");

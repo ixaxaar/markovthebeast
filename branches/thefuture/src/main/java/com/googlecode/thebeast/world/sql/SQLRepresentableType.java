@@ -1,9 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.AbstractSymbol;
-import com.googlecode.thebeast.world.Constant;
-import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.TypeNotIterableException;
+import com.googlecode.thebeast.world.*;
 
 import java.util.Iterator;
 
@@ -16,6 +13,12 @@ import java.util.Iterator;
  */
 abstract class SQLRepresentableType extends AbstractSymbol implements Type {
 
+
+  /**
+   * The equals predicate defined over constants of this type.
+   */
+  private final SQLEquals equals;
+
   /**
    * Creates an SQLRepresentableType with the given name and signature.
    *
@@ -24,6 +27,7 @@ abstract class SQLRepresentableType extends AbstractSymbol implements Type {
    */
   protected SQLRepresentableType(final String name, final SQLSignature signature) {
     super(name, signature);
+    equals = new SQLEquals(this, signature);
   }
 
   /**
@@ -68,10 +72,16 @@ abstract class SQLRepresentableType extends AbstractSymbol implements Type {
    * Throws an exception by default.
    *
    * @return nothing since an exception is thrown before.
-   *
    * @see Type#iterator()
    */
   public Iterator<Constant> iterator() {
     throw new TypeNotIterableException(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public StaticPredicate getEquals() {
+    return equals;
   }
 }

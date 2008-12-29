@@ -5,7 +5,7 @@ import com.googlecode.thebeast.world.IntegerConstant;
 /**
  * @author Sebastian Riedel
  */
-public class SQLIntegerConstant extends SQLRepresentableConstant
+final class SQLIntegerConstant extends SQLRepresentableConstant
   implements IntegerConstant {
 
   /**

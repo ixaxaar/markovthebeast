@@ -46,6 +46,8 @@ public final class SQLSignature implements Serializable, Signature {
 
   private SQLIntegerType integerType;
 
+  private SQLDoubleType doubleType;
+
   /**
    * A map from type names to types. This map contains user types as well as
    * built-in types.
@@ -102,6 +104,9 @@ public final class SQLSignature implements Serializable, Signature {
       sqlTablePool = new SQLTablePool(this);
       queryEngine = new SQLBasedQueryEngine();
       integerType = new SQLIntegerType("Integer",this);
+      doubleType = new SQLDoubleType("Double",this);
+      registerType(integerType);
+      registerType(doubleType);
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (SQLException e) {
@@ -211,7 +216,15 @@ public final class SQLSignature implements Serializable, Signature {
    * @return the symbol with the given name.
    */
   public Symbol getSymbol(final String name) {
-    return symbols.get(name);
+    try {
+      return integerType.getConstant(Integer.parseInt(name));
+    } catch (NumberFormatException e1){
+      try {
+        return doubleType.getConstant(Double.parseDouble(name));
+      } catch (NumberFormatException e2){
+        return symbols.get(name);        
+      }
+    }
   }
 
 
@@ -263,15 +276,16 @@ public final class SQLSignature implements Serializable, Signature {
     throws SymbolAlreadyExistsException {
 
     SQLUserType type = new SQLUserType(name, extendable, this);
-    registerSymbol(type);
-    types.put(name, type);
+    registerType(type);
     userTypes.put(name, type);
-    for (SignatureListener l : listeners) {
-      l.symbolAdded(type);
-    }
     return type;
   }
 
+
+  private void registerType(final Type type){
+    registerSymbol(type);
+    types.put(type.getName(), type);
+  }
 
   /**
    * Convenience method to create a type that already contains a set of
@@ -458,6 +472,13 @@ public final class SQLSignature implements Serializable, Signature {
    */
   public IntegerType getIntegerType() {
     return integerType;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public DoubleType getDoubleType() {
+    return doubleType;
   }
 
 

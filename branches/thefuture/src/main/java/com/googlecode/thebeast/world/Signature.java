@@ -192,4 +192,11 @@ public interface Signature {
   IntegerType getIntegerType();
 
 
+  /**
+   * Each signature has to provide a single type called "Double" that can be
+   * used to represent double values. This method returns this type.
+   *
+   * @return the double type of this signature.
+   */
+  DoubleType getDoubleType();
 }

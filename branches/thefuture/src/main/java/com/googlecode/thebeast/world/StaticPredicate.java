@@ -24,6 +24,6 @@ public interface StaticPredicate extends Predicate {
    * @return the truth value of <code>pred(arg1,arg2,...)</code> in every
    *         possible world.
    */
-  boolean evaluate(final List<Constant> arguments);
+  boolean evaluate(final Tuple arguments);
 
 }

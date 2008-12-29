@@ -59,4 +59,17 @@ public interface Type extends Symbol, Iterable<Constant> {
    */
   Constant getConstant(String name)
     throws ConstantNameNotInTypeException;
+
+
+  /**
+   * Returns a static predicate that represents the equality relation between
+   * constants. Note that two constants of the same type are equal iff their
+   * {@link Constant#equals(Object)} method return true. The name of this
+   * predicate is "[Typename].equals".
+   *
+   * @return a static predicate that represents the equality relation between
+   *         constants.
+   */
+  StaticPredicate getEquals();
+
 }

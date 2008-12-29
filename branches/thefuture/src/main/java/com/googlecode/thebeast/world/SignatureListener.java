@@ -12,7 +12,9 @@ public interface SignatureListener {
    * Called when a new symbol is added to the signature. Note that this method
    * is called after the symbol was registered but possibly before it was stored
    * in its corresponding container. For example, if a type was added it might
-   * not be contained in {@link com.googlecode.thebeast.world.sql.SQLSignature#getTypes()} yet.
+   * not be contained in {@link com.googlecode.thebeast.world.sql.SQLSignature#getTypes()}
+   * yet. Also note that this method is not called for the constants of
+   * non-iterable types. 
    *
    * @param symbol the symbol that was added to the signature.
    */
