@@ -77,19 +77,29 @@
                 <artifactId>wagon-svn</artifactId>
                 <version>1.8</version>
             </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-4</version>
+            </extension>
         </extensions>
 
     </build>
 
     <distributionManagement>
+        <!--<repository>-->
+            <!--<uniqueVersion>false</uniqueVersion>-->
+            <!--<id>googlecode</id>-->
+            <!--<url>svn:https://therepo.googlecode.com/svn/repo</url>-->
+        <!--</repository>-->
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>googlecode</id>
-            <url>svn:https://therepo.googlecode.com/svn/repo</url>
+            <id>freehostia</id>
+            <url>ftp://sebrie.freehostia.com/maven/repo</url>
         </repository>
         <site>
-            <id>googlegode</id>
-            <url>svn:https://therepo.googlecode.com/svn/www</url>
+            <id>freehostia</id>
+            <url>ftp://sebrie.freehostia.com/maven/www</url>
         </site>
     </distributionManagement>
 

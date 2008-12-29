@@ -1,13 +1,11 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.world.sql.SQLSignature;
-
 import java.util.List;
 
 /**
- * A StaticPredicate represents a predicate for the interpretation is fixed and
- * already given. That is, if the predicate <code>pred</code> is a
- * BuiltInPredicate than for any sequence of arguments <code>arg1,arg2,...
+ * A StaticPredicate represents a predicate for which the interpretation is
+ * fixed and already given. That is, if the predicate <code>pred</code> is a
+ * StaticPredicate than for any sequence of arguments <code>arg1,arg2,...
  * </code> the truth value of <code>pred(arg1,arg2,...)</code> in every possible
  * world is the same and known in advance (i.e. built into thebeast).
  *
@@ -16,19 +14,7 @@ import java.util.List;
  *
  * @author Sebastian Riedel
  */
-public abstract class StaticPredicate extends AbstractSymbol
-  implements Predicate {
-
-  /**
-   * Create a new BuiltInPredicate with the given name and in the given
-   * signature.
-   *
-   * @param name      the name of the predicate
-   * @param signature the signature this predicate should belong to.
-   */
-  protected StaticPredicate(final String name, final SQLSignature signature) {
-    super(name, signature);
-  }
+public interface StaticPredicate extends Predicate {
 
   /**
    * This method has to return true if the relation of this built-in predicate
@@ -38,17 +24,6 @@ public abstract class StaticPredicate extends AbstractSymbol
    * @return the truth value of <code>pred(arg1,arg2,...)</code> in every
    *         possible world.
    */
-  public abstract boolean evaluate(final List<Constant> arguments);
+  boolean evaluate(final List<Constant> arguments);
 
-
-  /**
-   * A StaticPredicate is by definition static.
-   *
-   * @return true.
-   *
-   * @see Predicate#isStatic()
-   */
-  public boolean isStatic() {
-    return true;
-  }
 }
