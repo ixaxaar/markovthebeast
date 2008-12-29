@@ -1,9 +1,5 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.world.World;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.Tuple;
-
 import java.util.Collection;
 
 /**
@@ -11,8 +7,6 @@ import java.util.Collection;
  */
 public interface FirstOrderOperator {
 
-  double evaluate(World world,
-                  UserPredicate predicate,
-                  Collection<Tuple> tuples);
+  double evaluate(Collection<GroundNode> nodes, Assignment assignment);
 
 }

@@ -5,7 +5,7 @@ import com.googlecode.thebeast.world.DoubleConstant;
 /**
  * @author Sebastian Riedel
  */
-public class SQLDoubleConstant extends SQLRepresentableConstant
+class SQLDoubleConstant extends SQLRepresentableConstant
   implements DoubleConstant {
 
   /**

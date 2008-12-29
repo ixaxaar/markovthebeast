@@ -8,7 +8,7 @@ import com.googlecode.thebeast.world.IntegerConstant;
 /**
  * @author Sebastian Riedel
  */
-public class SQLIntegerType extends SQLRepresentableType
+class SQLIntegerType extends SQLRepresentableType
   implements IntegerType {
 
 

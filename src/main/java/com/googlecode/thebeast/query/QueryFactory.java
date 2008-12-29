@@ -45,6 +45,18 @@ public final class QueryFactory {
     return new Atom(pred, args);
   }
 
+  /**
+   * Convenience method that creates atoms for arguments can be terms or normal
+   * java objects. In case non-term objects are used they are naturally mapped
+   * to their corresponding constant with respect to the argument types of the
+   * predicate.
+   * <p/>
+   * Note that lowercase strings are mapped to Variables.
+   *
+   * @param pred the predicate of the atom.
+   * @param args the argument sequence of objects.
+   * @return an atom with the given predicate and arguments.
+   */
   public Atom createAtom(final Predicate pred, final Object... args) {
     List<Term> argTerms = new ArrayList<Term>();
     for (int i = 0; i < args.length; ++i) {

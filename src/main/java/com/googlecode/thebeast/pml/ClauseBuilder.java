@@ -5,6 +5,7 @@ import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.query.Variable;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.Signature;
 
 import java.util.ArrayList;
 
@@ -17,11 +18,13 @@ public class ClauseBuilder {
   private ArrayList<Atom> body = new ArrayList<Atom>();
   private ArrayList<Atom> restriction = new ArrayList<Atom>();
   private Atom head;
+  private Signature signature;
 
   private QueryFactory factory;
 
-  public ClauseBuilder(QueryFactory factory) {
+  public ClauseBuilder(QueryFactory factory, Signature signature) {
     this.factory = factory;
+    this.signature = signature;
   }
 
   public ClauseBuilder atom(Predicate pred, Object... args) {
@@ -59,5 +62,13 @@ public class ClauseBuilder {
     return result;
   }
 
+  public PMLClause clause(FirstOrderOperator operator,
+                          String indexVariable,
+                          String scaleVariable) {
+
+    return clause(operator,
+      new Variable(indexVariable,signature.getIntegerType()),
+      new Variable(scaleVariable,signature.getDoubleType()));
+  }
 
 }

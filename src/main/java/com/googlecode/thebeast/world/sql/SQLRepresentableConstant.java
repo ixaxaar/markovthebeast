@@ -23,7 +23,7 @@ abstract class SQLRepresentableConstant extends AbstractSymbol
    */
   protected SQLRepresentableConstant(final String name,
                                      final SQLRepresentableType type) {
-    super(name, (SQLSignature) type.getSignature());
+    super(name, type.getSignature());
     this.type = type;
   }
 

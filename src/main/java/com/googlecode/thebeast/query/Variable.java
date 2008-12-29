@@ -2,6 +2,11 @@ package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Type;
 
+import java.util.Set;
+import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 /**
  * A Variable object represents a First Order Logic variable.
  *
@@ -92,4 +97,21 @@ public final class Variable implements Term {
     result = 31 * result + (type != null ? type.hashCode() : 0);
     return result;
   }
+
+  /**
+   * Collects all variables in a collection of atoms.
+   *
+   * @param atoms the atoms to collect the variables from.
+   * @return the set of variables mentioned in the given atoms.
+   */
+  public static Set<Variable> getAllVariables(Collection<Atom> atoms) {
+    LinkedHashSet<Variable> result = new LinkedHashSet<Variable>();
+    for (Atom atom : atoms) {
+      for (Term term : atom.getArguments()) {
+        if (term instanceof Variable) result.add((Variable) term);
+      }
+    }
+    return result;
+  }
+
 }

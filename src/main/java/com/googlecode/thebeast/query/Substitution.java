@@ -1,5 +1,6 @@
 package com.googlecode.thebeast.query;
 
+import com.googlecode.thebeast.world.Constant;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.Symbol;
 
@@ -28,6 +29,22 @@ public final class Substitution {
   public Substitution(final Map<Variable, Term> mapping) {
     this.mapping.putAll(mapping);
   }
+
+  public Term resolve(final Term term){
+    if (term instanceof Constant) return term;
+    if (term instanceof Variable) return get((Variable)term);
+    else return null;
+  }
+
+  public Term resolveWithBackup(final Term term, Substitution substitution){
+    if (term instanceof Constant) return term;
+    if (term instanceof Variable) {
+      Term resolved = get((Variable) term);
+      return resolved == null ? substitution.get((Variable)term) : resolved;
+    }
+    else return null;
+  }
+
 
   /**
    * Creates an empty substitution.
@@ -64,6 +81,7 @@ public final class Substitution {
    * @return true if this and the other substitution map the same variables to
    *         the same terms.
    */
+  @SuppressWarnings({"RedundantIfStatement"})
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
@@ -126,8 +144,9 @@ public final class Substitution {
         Variable var = new Variable(fromTo[0], term.getType());
         substitution.put(var, term);
       } else {
-        throw new IllegalArgumentException("Substitution must map to terms" +
-          " of the signagure");
+        throw new IllegalArgumentException("The symbol "
+          + fromTo[1] + " is not part of the given signature and hence " +
+          "cannot be mapped to by a substitution.");
       }
     }
     return substitution;
