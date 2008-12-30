@@ -1,12 +1,12 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.query.NestedSubstitution;
+import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.world.SocialNetworkFixture;
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static org.testng.Assert.assertEquals;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
@@ -93,45 +93,35 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
   }
 
   @Test
-  public void testGround() {
-    List<GroundFactor> factors = gmn.ground(clause,
-      substitutions);
+  public void testGroundCreatesRightNumberOfUserPredicateNodes() {
+    gmn.ground(clause, substitutions);
+    assertEquals(2, gmn.getNodes(fixture.friends).size());
 
-    GroundFactor factor = factors.get(0);
+  }
 
-    assertEquals(3, factor.getBody().size());
-    assertEquals(fixture.friends, factor.getBody().get(0).getPredicate());
-    assertEquals(fixture.peter, factor.getBody().get(0).getArguments().get(0));
-    assertEquals(fixture.anna, factor.getBody().get(0).getArguments().get(1));
-    assertEquals(fixture.signature.getIntegerType().getEquals(),
-      factor.getBody().get(1).getPredicate());
-
-    assertEquals(
-      2, gmn.getNodes(fixture.friends).size());
+  @Test
+  public void testGroundCreatesRightNumberOfIntegerEqualsNodes() {
+    gmn.ground(clause, substitutions);
     assertEquals(
       2, gmn.getNodes(fixture.signature.getIntegerType().getEquals()).size());
+
+  }
+
+  @Test
+  public void testGroundCreatesRightNumberOfDoubleEqualsNodes() {
+    gmn.ground(clause, substitutions);
     assertEquals(
       1, gmn.getNodes(fixture.signature.getDoubleType().getEquals()).size());
-    assertEquals(
-      5, gmn.getNodes().size());
 
-
-    //PMLClause clause = builder.atom"+("
-
-    //let us create a simple formula
-    //clause = builder.body("likes(x,y),+id=0,*s=1.0").head("likes(y,x)")
-    //PMLClause clause = new PMLClause(null,null,null);
-
-    //clause = builder.body("likes(x,y),_id(x,+id),*s=1.0").head("likes(y,x)")
-
-    //more complex formula: if you like someone someone (else) will like you
-    //clause = builder.atom("likes(x,y)").body().head(AtLeastOne, "likes(z,x)")
-
-    //more complex formula: if you like someone someone else will like you
-    //clause = builder.atom("likes(x,y)").body().atom("z!=y").condition(). head("likes(z,x)")
-
-    // Add your code here
   }
+
+  @Test
+  public void testGroundCreatesRightNumberOfTotalNodes() {
+    gmn.ground(clause, substitutions);
+    assertEquals(5, gmn.getNodes().size());
+
+  }
+
 
 
 }
