@@ -36,6 +36,22 @@ public final class Tuple extends AbstractList<Constant> {
   }
 
   /**
+   * This method creates a tuple from plain java
+   * objects with respect to the argument types of the given predicate.
+   *
+   * @param predicate the predicate for which the created tuple should be an
+   *                  argument for.
+   * @param args      an array of java objects such as Integers, Doubles etc.
+   */
+  public Tuple(Predicate predicate, Object... args) {
+    this.constants = new Constant[args.length];
+    for (int i = 0; i < args.length; ++i) {
+      constants[i] =
+        predicate.getArgumentTypes().get(i).getConstant(args[i].toString());
+    }
+  }
+
+  /**
    * Returns the constant at the specified position in this list.
    *
    * @param index index of the constant to return.
@@ -62,6 +78,7 @@ public final class Tuple extends AbstractList<Constant> {
   public UserConstant getUserConstant(final int index) {
     return (UserConstant) constants[index];
   }
+
 
   /**
    * Returns the length of this tuple.
