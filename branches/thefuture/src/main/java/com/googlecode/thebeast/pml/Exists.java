@@ -11,7 +11,7 @@ public class Exists implements FirstOrderOperator {
 
   public double evaluate(Collection<GroundNode> nodes, Assignment assignment) {
     for (GroundNode node : nodes)
-      if (assignment.getValue(node)) return 1.0;
+      if (assignment.getValue(node) == 1.0) return 1.0;
     return 0.0;
   }
 }

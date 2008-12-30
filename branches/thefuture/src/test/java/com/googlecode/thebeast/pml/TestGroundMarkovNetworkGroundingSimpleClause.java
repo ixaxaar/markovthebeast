@@ -1,12 +1,15 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.NestedSubstitution;
 import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.query.NestedSubstitution;
 import com.googlecode.thebeast.world.SocialNetworkFixture;
+import com.googlecode.thebeast.world.IntegerType;
+import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import static org.testng.Assert.assertEquals;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.List;
 
@@ -93,34 +96,13 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
   }
 
   @Test
-  public void testGroundCreatesRightNumberOfUserPredicateNodes() {
+  public void testGroundCreatesNodeThatCanBeAccessedByAnAtomSpec() {
     gmn.ground(clause, substitutions);
-    assertEquals(2, gmn.getNodes(fixture.friends).size());
-
+    IntegerType intType = fixture.signature.getIntegerType();
+    assertNotNull(gmn.getNode(intType.getEquals(),
+      new Tuple(intType.getEquals(), 1, 1)));
   }
 
-  @Test
-  public void testGroundCreatesRightNumberOfIntegerEqualsNodes() {
-    gmn.ground(clause, substitutions);
-    assertEquals(
-      2, gmn.getNodes(fixture.signature.getIntegerType().getEquals()).size());
-
-  }
-
-  @Test
-  public void testGroundCreatesRightNumberOfDoubleEqualsNodes() {
-    gmn.ground(clause, substitutions);
-    assertEquals(
-      1, gmn.getNodes(fixture.signature.getDoubleType().getEquals()).size());
-
-  }
-
-  @Test
-  public void testGroundCreatesRightNumberOfTotalNodes() {
-    gmn.ground(clause, substitutions);
-    assertEquals(5, gmn.getNodes().size());
-
-  }
 
 
 

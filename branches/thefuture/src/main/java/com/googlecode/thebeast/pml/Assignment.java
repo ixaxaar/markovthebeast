@@ -1,20 +1,20 @@
 package com.googlecode.thebeast.pml;
 
 /**
- * An Assignment assigns truth states to ground nodes (atoms).
+ * An Assignment assigns double values to ground nodes (atoms).
  *
  * @author Sebastian Riedel
  */
 public class Assignment {
 
   /**
-   * Get the truth value of the given node.
+   * Get the value for the given node.
    *
-   * @param node the node to get the truth value for.
-   * @return the truth value of the given node.
+   * @param node the node to get the value for.
+   * @return the value for the given node.
    */
-  public boolean getValue(GroundNode node) {
-    return false;
+  public double getValue(GroundNode node) {
+    return 0.0;
   }
 
 }
