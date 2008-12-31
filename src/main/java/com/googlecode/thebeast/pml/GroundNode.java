@@ -11,16 +11,22 @@ import java.util.Collections;
 /**
  * @author Sebastian Riedel
  */
-public class GroundNode {
+public final class GroundNode {
 
   private Predicate predicate;
   private Tuple arguments;
+  private int index;
 
   private ArrayList<GroundFactor> connectedFactors;
 
-  GroundNode(Predicate predicate, Tuple arguments) {
+  GroundNode(Predicate predicate, Tuple arguments, int index) {
     this.predicate = predicate;
     this.arguments = arguments;
+    this.index = index;
+  }
+
+  public int getIndex() {
+    return index;
   }
 
   public Predicate getPredicate() {

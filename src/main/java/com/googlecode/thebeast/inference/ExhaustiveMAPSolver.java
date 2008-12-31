@@ -18,7 +18,7 @@ public class ExhaustiveMAPSolver {
   }
 
   public Assignment solve(){
-    return new Assignment();
+    return new Assignment(gmn);
   }
 
 }

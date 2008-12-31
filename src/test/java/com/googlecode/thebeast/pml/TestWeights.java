@@ -33,17 +33,17 @@ public class TestWeights {
       head(fixture.friends, "y", "x").
       clause(Exists.EXISTS, "i", "s");
   }
-  
+
 
   @Test
-  public void testSet(){
+  public void testSet() {
     weights.setWeight(clause, 0, 1.0);
-    assertEquals(1.0, weights.getWeight(clause, 0));
+    assertEquals(weights.getWeight(clause, 0), 1.0);
   }
 
   @Test
-  public void testDefaultValue(){
-    assertEquals(0.0, weights.getWeight(clause, 0));
+  public void testDefaultValue() {
+    assertEquals(weights.getWeight(clause, 0), 0.0);
   }
 
 }
