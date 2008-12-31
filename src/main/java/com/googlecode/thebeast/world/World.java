@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
-import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.NestedSubstitutionSet;
+import com.googlecode.thebeast.query.Query;
 
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
@@ -87,14 +87,12 @@ public interface World {
 
 
   /**
-   * Returns all groundings of the given clause for which, in this world, the
-   * body is true and which contain as existential substitutions all groundings
-   * that make the head true wrt to the universal substitution.
+   * Returns all substitutions that satisfy the given query in this world.
    *
-   * @param clause the clause to find groundings for.
-   * @return a set of groundings for the given clause.
+   * @param query the query to use.
+   * @return a set of substitutions that satisfy the given query.
    */
-  NestedSubstitutionSet query(Query clause);
+  NestedSubstitutionSet query(Query query);
 
 
 }
