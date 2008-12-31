@@ -58,9 +58,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
 
     Weights weights = new Weights();
     weights.setWeight(reflexityClause, 0, 1.0);
-    weights.setWeight(reflexityClause, 1, 1.0);
-    weights.setWeight(localClause, 0, 1.0);
-    weights.setWeight(localClause, 1, 1.0);
+    weights.setWeight(localClause, 0, 2.0);
     solver = new ExhaustiveMAPSolver(gmn, weights);
   }
 
@@ -76,8 +74,18 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
     Assignment result = solver.solve();
     IntegerType intType = fixture.signature.getIntegerType();
     assertEquals(
-      1.0,
       result.getValue(gmn.getNode(
-        intType.getEquals(),new Tuple(intType.getEquals(), 1, 1))));
+        intType.getEquals(), new Tuple(intType.getEquals(), 0, 0))),
+      1.0);
   }
+
+  @Test
+  public void testSolveResultAssignsCorrectValuesToUserPredicates() {
+    Assignment result = solver.solve();
+    assertEquals(
+      result.getValue(gmn.getNode(
+        fixture.friends, new Tuple(fixture.friends, "Peter", "Anna"))),
+      1.0);
+  }
+
 }

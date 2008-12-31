@@ -63,7 +63,7 @@ public class GroundMarkovNetwork {
     }
     GroundNode node = tuple2node.get(args);
     if (node == null) {
-      node = new GroundNode(predicate, args);
+      node = new GroundNode(predicate, args, nodes.size());
       nodes.add(node);
       tuple2node.put(args, node);
     }
@@ -78,6 +78,10 @@ public class GroundMarkovNetwork {
   public List<GroundNode> getNodes(){
     return Collections.unmodifiableList(nodes);
   }
+
+ 
+
   
+
 
 }

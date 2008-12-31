@@ -8,7 +8,7 @@ import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 import java.util.List;
