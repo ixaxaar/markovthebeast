@@ -1,19 +1,19 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.world.SocialNetworkFixture;
-import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.sql.SQLSignature;
 import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.SocialNetworkFixture;
+import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
-import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author Sebastian Riedel
  */
 public class TestWeights {
   private Signature signature;
-  private Weights weights;
+  private PMLVector weights;
   private SocialNetworkFixture fixture;
   private ClauseBuilder builder;
   private PMLClause clause;
@@ -21,7 +21,7 @@ public class TestWeights {
   @BeforeMethod
   protected void setUp() throws Exception {
     signature = SQLSignature.createSignature();
-    weights = new Weights();
+    weights = new PMLVector();
     fixture = new SocialNetworkFixture(signature);
     builder = new ClauseBuilder(
       QueryFactory.getInstance(), fixture.signature);
@@ -37,13 +37,13 @@ public class TestWeights {
 
   @Test
   public void testSet() {
-    weights.setWeight(clause, 0, 1.0);
-    assertEquals(weights.getWeight(clause, 0), 1.0);
+    weights.setValue(clause, 0, 1.0);
+    assertEquals(weights.getValue(clause, 0), 1.0);
   }
 
   @Test
   public void testDefaultValue() {
-    assertEquals(weights.getWeight(clause, 0), 0.0);
+    assertEquals(weights.getValue(clause, 0), 0.0);
   }
 
 }

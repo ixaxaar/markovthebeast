@@ -1,8 +1,8 @@
 package com.googlecode.thebeast.inference;
 
-import com.googlecode.thebeast.pml.GroundMarkovNetwork;
 import com.googlecode.thebeast.pml.Assignment;
-import com.googlecode.thebeast.pml.Weights;
+import com.googlecode.thebeast.pml.GroundMarkovNetwork;
+import com.googlecode.thebeast.pml.PMLVector;
 
 /**
  * @author Sebastian Riedel
@@ -10,9 +10,9 @@ import com.googlecode.thebeast.pml.Weights;
 public class ExhaustiveMAPSolver {
 
   private GroundMarkovNetwork gmn;
-  private Weights weights;
+  private PMLVector weights;
 
-  public ExhaustiveMAPSolver(GroundMarkovNetwork gmn, Weights weights) {
+  public ExhaustiveMAPSolver(GroundMarkovNetwork gmn, PMLVector weights) {
     this.gmn = gmn;
     this.weights = weights;
   }

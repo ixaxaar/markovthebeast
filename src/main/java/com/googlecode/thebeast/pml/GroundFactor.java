@@ -42,4 +42,11 @@ public final class GroundFactor {
   public double getScale() {
     return scale;
   }
+
+  public double evaluate(Assignment assignment){
+    for (GroundNode node : body)
+      if (assignment.getValue(node) == 0.0) return 1.0;
+    return clause.getFirstOrderOperator().evaluate(head,assignment);
+  }
+
 }
