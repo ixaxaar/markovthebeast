@@ -1,9 +1,21 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.*;
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.query.Atom;
+import com.googlecode.thebeast.query.NestedSubstitution;
+import com.googlecode.thebeast.query.Substitution;
+import com.googlecode.thebeast.query.Term;
+import com.googlecode.thebeast.world.Constant;
+import com.googlecode.thebeast.world.DoubleConstant;
+import com.googlecode.thebeast.world.IntegerConstant;
+import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.Tuple;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sebastian Riedel
@@ -75,13 +87,19 @@ public class GroundMarkovNetwork {
       nodeMapping.get(predicate).values());
   }
 
-  public List<GroundNode> getNodes(){
+  public List<GroundNode> getNodes() {
     return Collections.unmodifiableList(nodes);
   }
 
- 
-
-  
+  public PMLVector extractFeatureVector(Assignment assignment) {
+    //go over all factors and evaluate features.
+    PMLVector result = new PMLVector();
+    for (GroundFactor factor : factors){
+      result.addValue(factor.getClause(), factor.getIndex(),
+        factor.evaluate(assignment) * factor.getScale());
+    }
+    return result;
+  }
 
 
 }

@@ -1,65 +1,36 @@
 package com.googlecode.thebeast.inference;
 
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+import com.googlecode.thebeast.pml.Assignment;
+import com.googlecode.thebeast.pml.PMLVector;
+import com.googlecode.thebeast.pml.SocialNetworkGroundMarkovNetworkFixture;
+import com.googlecode.thebeast.world.IntegerType;
+import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import com.googlecode.thebeast.pml.*;
-import com.googlecode.thebeast.world.SocialNetworkFixture;
-import com.googlecode.thebeast.world.Tuple;
-import com.googlecode.thebeast.world.IntegerType;
-import com.googlecode.thebeast.world.sql.SQLSignature;
-import com.googlecode.thebeast.query.QueryFactory;
-import com.googlecode.thebeast.query.NestedSubstitution;
-
-import java.util.List;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author Sebastian Riedel
  */
 public class TestExhaustiveMAPSolverSolveSimpleNetwork {
-  private GroundMarkovNetwork gmn;
-  private SocialNetworkFixture fixture;
-  private PMLClause reflexityClause;
-  private List<NestedSubstitution> substitutions;
   private ExhaustiveMAPSolver solver;
-  private PMLClause localClause;
+  private SocialNetworkGroundMarkovNetworkFixture fixture;
 
   @BeforeMethod
   public void setUp() {
 
-    gmn = new GroundMarkovNetwork();
-    fixture = new SocialNetworkFixture(SQLSignature.createSignature());
-    ClauseBuilder builder = new ClauseBuilder(
-      QueryFactory.getInstance(), fixture.signature);
-    reflexityClause = builder.
-      atom(fixture.friends, "x", "y").
-      atom(fixture.signature.getIntegerType().getEquals(), "i", "0").
-      atom(fixture.signature.getDoubleType().getEquals(), "s", "1.0").
-      body().
-      head(fixture.friends, "y", "x").
-      clause(Exists.EXISTS, "i", "s");
-    gmn.ground(reflexityClause,
-      NestedSubstitution.createNestedSubstitutions(fixture.signature,
-        "x/Peter y/Anna i/0 s/1.0",
-        "x/Anna y/Peter i/1 s/1.0"));
+    fixture = new SocialNetworkGroundMarkovNetworkFixture(
+      SQLSignature.createSignature());
 
-    localClause = builder.
-      atom(fixture.signature.getIntegerType().getEquals(), "i", "0").
-      atom(fixture.signature.getDoubleType().getEquals(), "s", "1.0").
-      body().
-      head(fixture.friends, "x", "y").
-      clause(Exists.EXISTS, "i", "s");
+    fixture.groundFriendsPeterAnnaImpliesFriendsAnnaPeter();
+    fixture.groundLocalPeterAnnaAreFriendsClause();
 
-    gmn.ground(reflexityClause,
-      NestedSubstitution.createNestedSubstitutions(fixture.signature,
-        "x/Peter y/Anna i/0 s/1.0",
-        "x/Anna y/Peter i/1 s/1.0"));
-
-    Weights weights = new Weights();
-    weights.setWeight(reflexityClause, 0, 1.0);
-    weights.setWeight(localClause, 0, 2.0);
-    solver = new ExhaustiveMAPSolver(gmn, weights);
+    PMLVector weights = new PMLVector();
+    weights.setValue(fixture.reflexityClause, 0, 1.0);
+    weights.setValue(fixture.localClause, 0, 2.0);
+    solver = new ExhaustiveMAPSolver(fixture.gmn, weights);
   }
 
   @Test
@@ -74,7 +45,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
     Assignment result = solver.solve();
     IntegerType intType = fixture.signature.getIntegerType();
     assertEquals(
-      result.getValue(gmn.getNode(
+      result.getValue(fixture.gmn.getNode(
         intType.getEquals(), new Tuple(intType.getEquals(), 0, 0))),
       1.0);
   }
@@ -83,8 +54,9 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   public void testSolveResultAssignsCorrectValuesToUserPredicates() {
     Assignment result = solver.solve();
     assertEquals(
-      result.getValue(gmn.getNode(
-        fixture.friends, new Tuple(fixture.friends, "Peter", "Anna"))),
+      result.getValue(fixture.gmn.getNode(
+        fixture.socialNetworkFixture.friends,
+        new Tuple(fixture.socialNetworkFixture.friends, "Peter", "Anna"))),
       1.0);
   }
 

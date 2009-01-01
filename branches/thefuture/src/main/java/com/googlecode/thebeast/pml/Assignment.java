@@ -1,6 +1,8 @@
 package com.googlecode.thebeast.pml;
 
+import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.StaticPredicate;
+import com.googlecode.thebeast.world.Tuple;
 import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntHashSet;
 
@@ -38,6 +40,11 @@ public class Assignment {
     return values.get(node.getIndex());
   }
 
+  public double getValue(Predicate predicate, Object ... args){
+    return getValue(groundMarkovNetwork.getNode(predicate,
+      new Tuple(predicate,args)));
+  }
+
   public boolean hasValue(GroundNode node) {
     return keys.contains(node.getIndex());
   }
@@ -45,6 +52,11 @@ public class Assignment {
   public void setValue(GroundNode node, double value) {
     values.put(node.getIndex(), value);
     keys.add(node.getIndex());
+  }
+
+  public void setValue(double value, Predicate predicate, Object... args) {
+    setValue(groundMarkovNetwork.getNode(predicate,
+      new Tuple(predicate, args)), value);
   }
 
 }
