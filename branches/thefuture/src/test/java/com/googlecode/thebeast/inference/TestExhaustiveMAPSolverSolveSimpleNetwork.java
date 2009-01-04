@@ -4,7 +4,6 @@ import com.googlecode.thebeast.pml.Assignment;
 import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.SocialNetworkGroundMarkovNetworkFixture;
 import com.googlecode.thebeast.world.IntegerType;
-import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
