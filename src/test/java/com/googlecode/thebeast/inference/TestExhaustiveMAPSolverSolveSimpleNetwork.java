@@ -50,6 +50,14 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   }
 
   @Test
+  public void testSolverPerformsCorrectNumberOfEvaluations() {
+    solver.solve();
+    assertEquals(solver.getEvaluationCount(), 4, "Solver has to do 4 " +
+      "iterations because there are 4 possible states");
+  }
+
+
+  @Test
   public void testSolveResultAssignsCorrectValuesToUserPredicates() {
     Assignment result = solver.solve();
     assertEquals(result.getValue(friends, "Peter", "Anna"), 1.0);
