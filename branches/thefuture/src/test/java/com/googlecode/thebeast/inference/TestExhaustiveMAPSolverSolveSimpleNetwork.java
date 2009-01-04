@@ -5,6 +5,7 @@ import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.SocialNetworkGroundMarkovNetworkFixture;
 import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -17,6 +18,7 @@ import org.testng.annotations.Test;
 public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   private ExhaustiveMAPSolver solver;
   private SocialNetworkGroundMarkovNetworkFixture fixture;
+  private UserPredicate friends;
 
   @BeforeMethod
   public void setUp() {
@@ -31,6 +33,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
     weights.setValue(fixture.reflexityClause, 0, 1.0);
     weights.setValue(fixture.localClause, 0, 2.0);
     solver = new ExhaustiveMAPSolver(fixture.gmn, weights);
+    friends = fixture.socialNetworkFixture.friends;
   }
 
   @Test
@@ -44,20 +47,13 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   public void testSolveResultIsConsistentWithStaticPredicates() {
     Assignment result = solver.solve();
     IntegerType intType = fixture.signature.getIntegerType();
-    assertEquals(
-      result.getValue(fixture.gmn.getNode(
-        intType.getEquals(), new Tuple(intType.getEquals(), 0, 0))),
-      1.0);
+    assertEquals(result.getValue(intType.getEquals(), 0, 0), 1.0);
   }
 
   @Test
   public void testSolveResultAssignsCorrectValuesToUserPredicates() {
     Assignment result = solver.solve();
-    assertEquals(
-      result.getValue(fixture.gmn.getNode(
-        fixture.socialNetworkFixture.friends,
-        new Tuple(fixture.socialNetworkFixture.friends, "Peter", "Anna"))),
-      1.0);
+    assertEquals(result.getValue(friends, "Peter", "Anna"), 1.0);
   }
 
 }
