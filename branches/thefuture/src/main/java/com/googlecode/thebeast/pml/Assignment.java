@@ -6,6 +6,8 @@ import com.googlecode.thebeast.world.Tuple;
 import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntHashSet;
 
+import java.util.Collection;
+
 /**
  * An Assignment assigns double values to ground nodes (atoms). By default each
  * assignment assigns 1.0 to all static predicate ground atoms.
@@ -18,6 +20,14 @@ public class Assignment {
   private TIntHashSet keys = new TIntHashSet();
   private GroundMarkovNetwork groundMarkovNetwork;
 
+
+  public Assignment(Assignment original){
+    this.groundMarkovNetwork = original.groundMarkovNetwork;
+    for (GroundNode node : groundMarkovNetwork.getNodes()){
+      if (original.hasValue(node))
+        setValue(node,original.getValue(node));
+    }
+  }
 
   public Assignment(GroundMarkovNetwork groundMarkovNetwork) {
     this.groundMarkovNetwork = groundMarkovNetwork;
@@ -52,6 +62,11 @@ public class Assignment {
   public void setValue(GroundNode node, double value) {
     values.put(node.getIndex(), value);
     keys.add(node.getIndex());
+  }
+
+  public void setValue(Collection<GroundNode> nodes, double value){
+    for (GroundNode node : nodes)
+      setValue(node, value);
   }
 
   public void setValue(double value, Predicate predicate, Object... args) {
