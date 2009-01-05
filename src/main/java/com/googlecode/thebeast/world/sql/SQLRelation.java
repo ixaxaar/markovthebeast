@@ -40,8 +40,7 @@ final class SQLRelation extends AbstractCollection<Tuple>
    * The signature this relation uses symbols of.
    */
   private final SQLSignature signature;
-
-
+  
   /**
    * The list of listeners of this relation.
    */

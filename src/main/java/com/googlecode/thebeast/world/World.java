@@ -5,8 +5,20 @@ import com.googlecode.thebeast.query.Query;
 
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
- * of ground atoms, either added manually, through solving, or with built-in
- * predicates.</p>
+ * of ground atoms, either added manually, through solving, or with static
+ * (built-in) predicates.</p>
+ * <p/>
+ * By default a World is closed; that is, every ground atom not in the world is
+ * considered to be false. However, clients can explicitely set predicates to be
+ * open---in this case the world makes no assumptions at all about the extension
+ * of the given predicate (it also neglects all ground atoms for the predicate
+ * the world might contain until now).
+ * <p/>
+ * Note that a World represents a view on the relations associated to all (User)
+ * predicates in a signature; however, not all of these relations need to be
+ * stored in the World itself---some can be provided by "parent" worlds (added
+ * by the {@link #addParent(UserPredicate, World)} method). This allows clients
+ * to re-use data from one world in another without the need for copying data.
  *
  * @author Sebastian Riedel
  */
@@ -93,6 +105,24 @@ public interface World {
    * @return a set of substitutions that satisfy the given query.
    */
   NestedSubstitutionSet query(Query query);
+
+  /**
+   * Returns true iff the world is open for the given predicate.
+   *
+   * @param predicate the predicate to check whether the world is open.
+   * @return true off the world is open wrt to the given predicate.
+   */
+  boolean isOpen(UserPredicate predicate);
+
+  /**
+   * Sets the world to be open or closed for the given predicate.
+   *
+   * @param predicate the predicate for which the world should be open/closed.
+   * @param open      true if the world should be open for the given predicate,
+   *                  false if the world should be closed for the given
+   *                  predicate.
+   */
+  void setOpen(UserPredicate predicate, boolean open);
 
 
 }
