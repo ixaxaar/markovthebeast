@@ -46,6 +46,16 @@ public interface Signature {
   World createWorld();
 
   /**
+   * Creates a new possible world that inherits the relations from the parent
+   * world for all predicates which are closed in the parent world.
+   *
+   * @param parent the world to get the closed relations from.
+   * @return a new World which contains all ground atoms of the parent world for
+   *         the predicates which are closed in the parent world.
+   */
+  World createWorld(World parent);
+
+  /**
    * Creates a new UserType with the given name.
    *
    * @param name       the name of the type.

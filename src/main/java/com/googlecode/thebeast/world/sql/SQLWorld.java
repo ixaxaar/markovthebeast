@@ -1,12 +1,18 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.google.common.collect.HashBiMap;
-import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.NestedSubstitutionSet;
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.query.Query;
+import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
+import com.googlecode.thebeast.world.Relation;
+import com.googlecode.thebeast.world.RelationListener;
+import com.googlecode.thebeast.world.RelationNotUpdatableException;
+import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.World;
+import com.googlecode.thebeast.world.WorldListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
@@ -87,7 +93,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
     signature.match(predicate.getSignature());
     signature.match(parent.getSignature());
     if (relations.get(predicate) != null) {
-      throw new PredicateAlreadyInUseException("Can't add a parent world "
+      throw new PredicateAlreadyInUseException("Can't addTuple a parent world "
         + " for " + predicate + " because there already exists "
         + "a local relation object for it", predicate, this);
     }
@@ -147,7 +153,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
     if (relation == null) {
       SQLTableDescription tableDescription = signature.getSqlTablePool().
         requestTable(sqlPredicate.getSQLRepresentableArgumentTypes());
-      relation = new SQLRelation(tableDescription);
+      relation = new SQLRelation(tableDescription,sqlPredicate);
       relations.put(predicate, relation);
 
     }
@@ -167,6 +173,8 @@ final class SQLWorld implements RelationListener, WorldListener, World {
    */
   public SQLRelation getMutableRelation(UserPredicate predicate)
     throws RelationNotUpdatableException {
+    if (parents.containsKey(predicate))
+      throw new RelationNotUpdatableException(predicate, this);
     return (SQLRelation) getRelation(predicate);
   }
 

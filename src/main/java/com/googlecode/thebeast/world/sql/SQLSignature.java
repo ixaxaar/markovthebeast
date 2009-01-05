@@ -1,6 +1,19 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.world.DoubleType;
+import com.googlecode.thebeast.world.IntegerType;
+import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.PredicateNotInSignatureException;
+import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.SignatureListener;
+import com.googlecode.thebeast.world.SignatureMismatchException;
+import com.googlecode.thebeast.world.Symbol;
+import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
+import com.googlecode.thebeast.world.SymbolNotPartOfSignatureException;
+import com.googlecode.thebeast.world.Type;
+import com.googlecode.thebeast.world.TypeNotInSignatureException;
+import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.World;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -258,6 +271,17 @@ public final class SQLSignature implements Serializable, Signature {
    */
   public World createWorld() {
     return new SQLWorld(this, currentWorldId++);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public World createWorld(World parent) {
+    World result = createWorld();
+    for (UserPredicate predicate : getUserPredicates())
+      if (!parent.isOpen(predicate))
+        result.addParent(predicate, parent);
+    return result;
   }
 
   /**

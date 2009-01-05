@@ -10,22 +10,41 @@ import java.util.ArrayList;
 /**
  * @author Sebastian Riedel
  */
-public class ExhaustiveMAPSolver {
+public class ExhaustiveMAPSolver implements PropositionalSolver {
 
-  private GroundMarkovNetwork gmn;
+  private GroundMarkovNetwork groundMarkovNetwork;
   private PMLVector weights;
   private int evaluations = 0;
 
-  public ExhaustiveMAPSolver(GroundMarkovNetwork gmn, PMLVector weights) {
-    this.gmn = gmn;
+  public ExhaustiveMAPSolver(GroundMarkovNetwork groundMarkovNetwork,
+                             PMLVector weights) {
+    setGroundMarkovNetwork(groundMarkovNetwork);
+    setWeights(weights);
+  }
+
+  public ExhaustiveMAPSolver() {
+  }
+
+  public GroundMarkovNetwork getGroundMarkovNetwork() {
+    return groundMarkovNetwork;
+  }
+
+  public void setGroundMarkovNetwork(GroundMarkovNetwork groundMarkovNetwork) {
+    this.groundMarkovNetwork = groundMarkovNetwork;
+  }
+
+  public PMLVector getWeights() {
+    return weights;
+  }
+
+  public void setWeights(PMLVector weights) {
     this.weights = weights;
   }
 
-  public Assignment solve() {
+  public Assignment solve(Assignment observed) {
     //build list of atoms to change
-    Assignment observed = new Assignment(gmn);
     ArrayList<GroundNode> hiddenNodes = new ArrayList<GroundNode>();
-    for (GroundNode node : gmn.getNodes())
+    for (GroundNode node : groundMarkovNetwork.getNodes())
       if (!observed.hasValue(node))
         hiddenNodes.add(node);
 
@@ -50,7 +69,7 @@ public class ExhaustiveMAPSolver {
     int minIndex = currentIndex;
     for (int flip = 0; flip < Math.pow(2, size); ++flip) {
       //extract feature vector
-      PMLVector features = gmn.extractFeatureVector(currentAssignment);
+      PMLVector features = groundMarkovNetwork.extractFeatureVector(currentAssignment);
       ++evaluations;
       double score = weights.dotProduct(features);
       if (score > maxScore) {

@@ -18,6 +18,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   private ExhaustiveMAPSolver solver;
   private SocialNetworkGroundMarkovNetworkFixture fixture;
   private UserPredicate friends;
+  private Assignment emptyObserved;
 
   @BeforeMethod
   public void setUp() {
@@ -29,29 +30,30 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
     fixture.groundLocalPeterAnnaAreFriendsClause();
 
     PMLVector weights = new PMLVector();
-    weights.setValue(fixture.reflexityClause, 0, 1.0);
+    weights.setValue(fixture.symmetryClause, 0, 1.0);
     weights.setValue(fixture.localClause, 0, 2.0);
     solver = new ExhaustiveMAPSolver(fixture.gmn, weights);
-    friends = fixture.socialNetworkFixture.friends;
+    friends = fixture.socialNetworkSignatureFixture.friends;
+    emptyObserved = new Assignment(fixture.gmn);
   }
 
   @Test
   public void testSolveResultIsNotNull() {
-    Assignment result = solver.solve();
+    Assignment result = solver.solve(emptyObserved);
     assertNotNull(result, "solver returned a null result.");
   }
 
 
   @Test
   public void testSolveResultIsConsistentWithStaticPredicates() {
-    Assignment result = solver.solve();
+    Assignment result = solver.solve(emptyObserved);
     IntegerType intType = fixture.signature.getIntegerType();
     assertEquals(result.getValue(intType.getEquals(), 0, 0), 1.0);
   }
 
   @Test
   public void testSolverPerformsCorrectNumberOfEvaluations() {
-    solver.solve();
+    solver.solve(emptyObserved);
     assertEquals(solver.getEvaluationCount(), 4, "Solver has to do 4 " +
       "iterations because there are 4 possible states");
   }
@@ -59,7 +61,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
 
   @Test
   public void testSolveResultAssignsCorrectValuesToUserPredicates() {
-    Assignment result = solver.solve();
+    Assignment result = solver.solve(emptyObserved);
     assertEquals(result.getValue(friends, "Peter", "Anna"), 1.0);
   }
 

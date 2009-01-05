@@ -1,10 +1,14 @@
 package com.googlecode.thebeast.pml;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * A PseudoMarkovLogicNetwork is a set of PseudoMLClause objects. It defines a
+ * A PseudoMarkovLogicNetwork is a set of PMLClause objects. It defines a
  * mapping from possible worlds to feature vectors. Note that in order to map a
  * possible world to a score/probability we need {@link
- * PMLVector}, they are not included in a
+ * PMLVector}---weights are not included in a
  * PseudoMarkovLogicNetwork.
  * <p> A PseudoMarkovLogicNetwork differs from a
  * Markov Logic Network a la Richardson and Domingos in the following ways:
@@ -16,4 +20,17 @@ package com.googlecode.thebeast.pml;
  * @author Sebastian Riedel
  */
 public class PseudoMarkovLogicNetwork {
+
+  private ArrayList<PMLClause>
+    clauses = new ArrayList<PMLClause>();
+
+  public void addClause(PMLClause clause){
+    clauses.add(clause);
+  }
+
+  public List<PMLClause> getClauses(){
+    return Collections.unmodifiableList(clauses);
+  }
+
+
 }
