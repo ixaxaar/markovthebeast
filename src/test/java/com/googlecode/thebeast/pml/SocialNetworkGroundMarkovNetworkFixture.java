@@ -44,8 +44,7 @@ public class SocialNetworkGroundMarkovNetworkFixture {
     gmn.ground(reflexityClause,
       NestedSubstitution.createNestedSubstitutions(
         socialNetworkFixture.signature, 
-        "x/Peter y/Anna i/0 s/1.0",
-        "x/Anna y/Peter i/1 s/1.0"));
+        "x/Peter y/Anna i/0 s/1.0"));
 
   }
 
@@ -53,8 +52,7 @@ public class SocialNetworkGroundMarkovNetworkFixture {
     gmn.ground(localClause,
       NestedSubstitution.createNestedSubstitutions(
         socialNetworkFixture.signature, 
-        "x/Peter y/Anna i/0 s/1.0",
-        "x/Anna y/Peter i/1 s/1.0"));
+        "x/Peter y/Anna i/0 s/1.0"));
 
   }
 
