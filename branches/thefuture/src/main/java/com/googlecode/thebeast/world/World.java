@@ -6,19 +6,17 @@ import com.googlecode.thebeast.query.Query;
 /**
  * <p>A World represents a possible world or Herbrand Model. It contains a set
  * of ground atoms, either added manually, through solving, or with static
- * (built-in) predicates.</p>
- * <p/>
- * By default a World is closed; that is, every ground atom not in the world is
- * considered to be false. However, clients can explicitely set predicates to be
- * open---in this case the world makes no assumptions at all about the extension
- * of the given predicate (it also neglects all ground atoms for the predicate
- * the world might contain until now).
- * <p/>
- * Note that a World represents a view on the relations associated to all (User)
- * predicates in a signature; however, not all of these relations need to be
- * stored in the World itself---some can be provided by "parent" worlds (added
- * by the {@link #addParent(UserPredicate, World)} method). This allows clients
- * to re-use data from one world in another without the need for copying data.
+ * (built-in) predicates.</p> <p/> By default a World is closed; that is, every
+ * ground atom not in the world is considered to be false. However, clients can
+ * explicitely set predicates to be open---in this case the world makes no
+ * assumptions at all about the extension of the given predicate (it also
+ * neglects all ground atoms for the predicate the world might contain until
+ * now). <p/> Note that a World represents a view on the relations associated to
+ * all (User) predicates in a signature; however, not all of these relations
+ * need to be stored in the World itself---some can be provided by "parent"
+ * worlds (added by the {@link #addParent(UserPredicate, World)} method). This
+ * allows clients to re-use data from one world in another without the need for
+ * copying data.
  *
  * @author Sebastian Riedel
  */
@@ -97,6 +95,20 @@ public interface World {
   MutableRelation getMutableRelation(UserPredicate predicate)
     throws RelationNotUpdatableException;
 
+
+  /**
+   * This method checks whether this world contains the given ground atom as
+   * specified by the predicate and vararg array of objects.
+   *
+   * @param predicate the predicate of the ground atom.
+   * @param args      the arguments of the ground atom, either as {@link
+   *                  com.googlecode.thebeast.world.Constant} objects, as
+   *                  Doubles, Integers or Strings. In the latter cases the
+   *                  objects are implicitely mapped to the corresponding
+   *                  Constant objects.
+   * @return true iff the world contains the given ground atom.
+   */
+  boolean containsGroundAtom(UserPredicate predicate, Object... args);
 
   /**
    * Returns all substitutions that satisfy the given query in this world.
