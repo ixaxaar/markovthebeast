@@ -3,17 +3,12 @@ package com.googlecode.thebeast.world.sql;
 import com.google.common.collect.HashBiMap;
 import com.googlecode.thebeast.query.Query;
 import com.googlecode.thebeast.query.NestedSubstitutionSet;
-import com.googlecode.thebeast.world.PredicateAlreadyInUseException;
-import com.googlecode.thebeast.world.Relation;
-import com.googlecode.thebeast.world.RelationListener;
-import com.googlecode.thebeast.world.RelationNotUpdatableException;
-import com.googlecode.thebeast.world.Tuple;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.World;
-import com.googlecode.thebeast.world.WorldListener;
+import com.googlecode.thebeast.world.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 /**
  * <p>A SQLWorld is a SQL based implementation of a World.
@@ -34,6 +29,12 @@ final class SQLWorld implements RelationListener, WorldListener, World {
 
 
   /**
+   * The set of open predicates.
+   */
+  private final LinkedHashSet<UserPredicate>
+    openPredicates = new LinkedHashSet<UserPredicate>();
+
+  /**
    * The listeners of this world.
    */
   private final ArrayList<WorldListener>
@@ -43,8 +44,8 @@ final class SQLWorld implements RelationListener, WorldListener, World {
    * A mapping from user predicates to parent worlds which provide the relations
    * for the given predicate.
    */
-  private final HashMap<UserPredicate, SQLWorld>
-    parents = new HashMap<UserPredicate, SQLWorld>();
+  private final LinkedHashMap<UserPredicate, SQLWorld>
+    parents = new LinkedHashMap<UserPredicate, SQLWorld>();
 
   /**
    * The set of relation objects representing the relations in this possible
@@ -178,8 +179,27 @@ final class SQLWorld implements RelationListener, WorldListener, World {
    * @return a set of groundings for the given clause.
    */
   public NestedSubstitutionSet query(Query clause) {
-    return signature.getQueryEngine().query(clause,this);
+    return signature.getQueryEngine().query(clause, this);
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isOpen(UserPredicate predicate) {
+    return openPredicates.contains(predicate);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setOpen(UserPredicate predicate, boolean open) {
+    if (open) {
+      openPredicates.add(predicate);
+    } else {
+      openPredicates.remove(predicate);
+    }
+  }
+
 
   /**
    * Method getSQLRelation returns the relation of the corresponding predicate
@@ -223,7 +243,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
   /**
    * Listens to its parent worlds and informs its own listeners of changes in
    * the relevant parts of the parents.
-   *
+   * <p/>
    * <p>Note that a World should only be a listener to its parent worlds.
    *
    * @param predicate the predicate that was changed in a parent. If this world
