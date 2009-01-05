@@ -1,15 +1,15 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.query.NestedSubstitution;
-import com.googlecode.thebeast.world.SocialNetworkFixture;
+import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.world.IntegerType;
+import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
 import com.googlecode.thebeast.world.Tuple;
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class TestGroundMarkovNetworkGroundingSimpleClause {
   private GroundMarkovNetwork gmn;
-  private SocialNetworkFixture fixture;
+  private SocialNetworkSignatureFixture signatureFixture;
   private PMLClause clause;
   private List<NestedSubstitution> substitutions;
 
@@ -27,17 +27,17 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
   public void setUp() {
 
     gmn = new GroundMarkovNetwork();
-    fixture = new SocialNetworkFixture(SQLSignature.createSignature());
+    signatureFixture = new SocialNetworkSignatureFixture(SQLSignature.createSignature());
     ClauseBuilder builder = new ClauseBuilder(
-      QueryFactory.getInstance(), fixture.signature);
+      QueryFactory.getInstance(), signatureFixture.signature);
     clause = builder.
-      atom(fixture.friends, "x", "y").
-      atom(fixture.signature.getIntegerType().getEquals(), "i", "0").
-      atom(fixture.signature.getDoubleType().getEquals(), "s", "1.0").
+      atom(signatureFixture.friends, "x", "y").
+      atom(signatureFixture.signature.getIntegerType().getEquals(), "i", "0").
+      atom(signatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
       body().
-      head(fixture.friends, "y", "x").
+      head(signatureFixture.friends, "y", "x").
       clause(Exists.EXISTS, "i", "s");
-    substitutions = NestedSubstitution.createNestedSubstitutions(fixture.signature,
+    substitutions = NestedSubstitution.createNestedSubstitutions(signatureFixture.signature,
       "x/Peter y/Anna i/0 s/1.0",
       "x/Peter y/Anna i/1 s/1.0");
   }
@@ -66,7 +66,7 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
       substitutions);
 
     GroundFactor factor = factors.get(0);
-    assertEquals(fixture.friends, factor.getBody().get(0).getPredicate());
+    assertEquals(signatureFixture.friends, factor.getBody().get(0).getPredicate());
   }
 
   @Test
@@ -75,7 +75,7 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
       substitutions);
 
     GroundFactor factor = factors.get(0);
-    assertEquals(fixture.anna, factor.getBody().get(0).getArguments().get(1));
+    assertEquals(signatureFixture.anna, factor.getBody().get(0).getArguments().get(1));
   }
 
   @Test
@@ -84,7 +84,7 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
       substitutions);
 
     GroundFactor factor = factors.get(0);
-    assertEquals(fixture.signature.getIntegerType().getEquals(),
+    assertEquals(signatureFixture.signature.getIntegerType().getEquals(),
       factor.getBody().get(1).getPredicate());
   }
 
@@ -98,7 +98,7 @@ public class TestGroundMarkovNetworkGroundingSimpleClause {
   @Test
   public void testGroundCreatesNodeThatCanBeAccessedByAnAtomSpec() {
     gmn.ground(clause, substitutions);
-    IntegerType intType = fixture.signature.getIntegerType();
+    IntegerType intType = signatureFixture.signature.getIntegerType();
     assertNotNull(gmn.getNode(intType.getEquals(),
       new Tuple(intType.getEquals(), 1, 1)));
   }

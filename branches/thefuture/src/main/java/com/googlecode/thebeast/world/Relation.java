@@ -1,7 +1,7 @@
 package com.googlecode.thebeast.world;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A Relation object represents a relation over constants. It contains {@link
@@ -42,4 +42,27 @@ public interface Relation extends Collection<Tuple> {
    * @return the argument types.
    */
   List<? extends Type> getTypes();
+
+  /**
+   * Convenience method that allows clients to add tuples in form of generic
+   * vararg arrays.
+   *
+   * @param args vararg array of arguments, can be constants, Integers, Doubles
+   *             or Strings---in the latter cases constants are automatically
+   *             generated.
+   * @return true (as by contract of the general Collection interface).
+   */
+  boolean addTuple(Object... args);
+
+  /**
+   * Convenience method that allows clients to check whether a relation contains
+   * a tuple specified through an argvar array.
+   *
+   * @param args vararg array of arguments, can be constants, Integers, Doubles
+   *             or Strings---in the latter cases constants are automatically
+   *             generated.
+   * @return if the relation contains the specified tuple.
+   */
+  boolean containsTuple(Object... args);
+
 }

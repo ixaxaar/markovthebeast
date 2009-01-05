@@ -32,6 +32,11 @@ final class SQLRelation extends AbstractCollection<Tuple>
 
 
   /**
+   * The predicate for which this relation holds tuples.
+   */
+  private final SQLUserPredicate userPredicate;
+
+  /**
    * The size of this relation.
    */
   private int size = 0;
@@ -40,7 +45,7 @@ final class SQLRelation extends AbstractCollection<Tuple>
    * The signature this relation uses symbols of.
    */
   private final SQLSignature signature;
-  
+
   /**
    * The list of listeners of this relation.
    */
@@ -53,9 +58,13 @@ final class SQLRelation extends AbstractCollection<Tuple>
    *
    * @param tableDescription the specification of the table to back this
    *                         relation.
+   * @param userPredicate    the predicate for which this relation holds
+   *                         tuples.
    */
-  SQLRelation(final SQLTableDescription tableDescription) {
+  SQLRelation(final SQLTableDescription tableDescription,
+              final SQLUserPredicate userPredicate) {
     this.tableDescription = tableDescription;
+    this.userPredicate = userPredicate;
     signature = (SQLSignature) tableDescription.getTypes().get(0).getSignature();
   }
 
@@ -200,6 +209,20 @@ final class SQLRelation extends AbstractCollection<Tuple>
    */
   public List<? extends Type> getTypes() {
     return tableDescription.getTypes();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean addTuple(Object... args) {
+    return add(new Tuple(userPredicate, args));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean containsTuple(Object... args) {
+    return contains(new Tuple(userPredicate,args));
   }
 
   /**

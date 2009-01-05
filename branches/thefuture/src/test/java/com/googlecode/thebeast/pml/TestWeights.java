@@ -2,7 +2,7 @@ package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.SocialNetworkFixture;
+import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.BeforeMethod;
@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 public class TestWeights {
   private Signature signature;
   private PMLVector weights;
-  private SocialNetworkFixture fixture;
+  private SocialNetworkSignatureFixture signatureFixture;
   private ClauseBuilder builder;
   private PMLClause clause;
 
@@ -22,15 +22,15 @@ public class TestWeights {
   protected void setUp() throws Exception {
     signature = SQLSignature.createSignature();
     weights = new PMLVector();
-    fixture = new SocialNetworkFixture(signature);
+    signatureFixture = new SocialNetworkSignatureFixture(signature);
     builder = new ClauseBuilder(
-      QueryFactory.getInstance(), fixture.signature);
+      QueryFactory.getInstance(), signatureFixture.signature);
     clause = builder.
-      atom(fixture.friends, "x", "y").
-      atom(fixture.signature.getIntegerType().getEquals(), "i", "0").
-      atom(fixture.signature.getDoubleType().getEquals(), "s", "1.0").
+      atom(signatureFixture.friends, "x", "y").
+      atom(signatureFixture.signature.getIntegerType().getEquals(), "i", "0").
+      atom(signatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
       body().
-      head(fixture.friends, "y", "x").
+      head(signatureFixture.friends, "y", "x").
       clause(Exists.EXISTS, "i", "s");
   }
 

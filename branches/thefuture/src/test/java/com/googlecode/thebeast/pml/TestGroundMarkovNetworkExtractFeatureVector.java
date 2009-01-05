@@ -16,10 +16,10 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
   public void testExtractedFeatureVectorHasCorrectValueForFalseClause() {
 
     Assignment assignment = new Assignment(fixture.gmn);
-    assignment.setValue(1.0, fixture.socialNetworkFixture.friends,
-      fixture.socialNetworkFixture.peter, fixture.socialNetworkFixture.anna);
-    assignment.setValue(0.0, fixture.socialNetworkFixture.friends,
-      fixture.socialNetworkFixture.anna, fixture.socialNetworkFixture.peter);
+    assignment.setValue(1.0, fixture.socialNetworkSignatureFixture.friends,
+      fixture.socialNetworkSignatureFixture.peter, fixture.socialNetworkSignatureFixture.anna);
+    assignment.setValue(0.0, fixture.socialNetworkSignatureFixture.friends,
+      fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
     PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
     assertEquals(featureVector.getValue(fixture.localClause, 0), 1.0,
@@ -31,13 +31,13 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
   public void testExtractedFeatureVectorHasCorrectValueForTrueClause() {
 
     Assignment assignment = new Assignment(fixture.gmn);
-    assignment.setValue(1.0, fixture.socialNetworkFixture.friends,
-      fixture.socialNetworkFixture.peter, fixture.socialNetworkFixture.anna);
-    assignment.setValue(0.0, fixture.socialNetworkFixture.friends,
-      fixture.socialNetworkFixture.anna, fixture.socialNetworkFixture.peter);
+    assignment.setValue(1.0, fixture.socialNetworkSignatureFixture.friends,
+      fixture.socialNetworkSignatureFixture.peter, fixture.socialNetworkSignatureFixture.anna);
+    assignment.setValue(0.0, fixture.socialNetworkSignatureFixture.friends,
+      fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
     PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
-    assertEquals(featureVector.getValue(fixture.reflexityClause, 0), 0.0,
+    assertEquals(featureVector.getValue(fixture.symmetryClause, 0), 0.0,
       "If friends(Peter,Anna) but not friends(Anna,Peter) then " +
         "the reflective feature should be 0.0 but it isn't");
   }

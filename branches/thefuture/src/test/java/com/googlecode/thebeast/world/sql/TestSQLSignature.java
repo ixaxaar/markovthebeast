@@ -1,6 +1,15 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.world.DoubleConstant;
+import com.googlecode.thebeast.world.IntegerConstant;
+import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.SignatureListener;
+import com.googlecode.thebeast.world.Symbol;
+import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
+import com.googlecode.thebeast.world.Type;
+import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.UserType;
+import com.googlecode.thebeast.world.World;
 import junit.framework.Assert;
 import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertNull;
@@ -64,6 +73,27 @@ public final class TestSQLSignature {
     }
   }
 
+  @Test
+  public void testCreateWorldWithInheritedClosedPredicates() {
+    Signature signature = new SQLSignature();
+    UserType type = signature.createType("type", false, "A", "B");
+    UserPredicate predOpen = signature.createPredicate("predOpen", type);
+    UserPredicate predClosed =
+      signature.createPredicate("predClosed", type, type);
+
+    World world = signature.createWorld();
+    world.getRelation(predClosed).addTuple("A", "B");
+    world.setOpen(predOpen, true);
+
+    World inherited = signature.createWorld(world);
+    assertTrue("Inherited world need to contain the same closed relations as " +
+      "the parent world",
+      inherited.getRelation(predClosed).containsTuple("A", "B"));
+
+
+  }
+
+
   /**
    * Tests whether the signature class fires type added events properly.
    */
@@ -110,10 +140,10 @@ public final class TestSQLSignature {
    * Test whether the get symbol method returns the right (default) symbols.
    */
   @Test
-  public void testGetSymbolForBuiltInSymbols(){
+  public void testGetSymbolForBuiltInSymbols() {
     Signature signature = new SQLSignature();
-    assertEquals(1.0, ((DoubleConstant)signature.getSymbol("1.0")).getValue());
-    assertEquals(0, ((IntegerConstant)signature.getSymbol("0")).getValue());
+    assertEquals(1.0, ((DoubleConstant) signature.getSymbol("1.0")).getValue());
+    assertEquals(0, ((IntegerConstant) signature.getSymbol("0")).getValue());
 
   }
 

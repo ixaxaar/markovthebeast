@@ -6,7 +6,7 @@ package com.googlecode.thebeast.world;
  *
  * @author Sebastian Riedel
  */
-public class SocialNetworkFixture {
+public class SocialNetworkSignatureFixture {
 
   /**
    * The signature we use to create the symbols.
@@ -22,6 +22,8 @@ public class SocialNetworkFixture {
    * The predicate representing the friends relation.
    */
   public final UserPredicate friends;
+
+  public final UserPredicate friendsScore;
 
   /**
    * The predicate representing the (unary) smokes relation.
@@ -51,7 +53,7 @@ public class SocialNetworkFixture {
    *
    * @param signature the signature to use.
    */
-  public SocialNetworkFixture(Signature signature) {
+  public SocialNetworkSignatureFixture(Signature signature) {
     this.signature = signature;
     person = signature.createType("Person", false);
     peter = person.createConstant("Peter");
@@ -61,5 +63,7 @@ public class SocialNetworkFixture {
     friends = signature.createPredicate("friends", person, person);
     smokes = signature.createPredicate("smokes", person);
     cancer = signature.createPredicate("cancer", person);
+    friendsScore = signature.createPredicate("friendsScore",
+      person, person, signature.getDoubleType());
   }
 }
