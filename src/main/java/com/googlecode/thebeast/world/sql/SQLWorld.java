@@ -179,6 +179,13 @@ final class SQLWorld implements RelationListener, WorldListener, World {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public boolean containsGroundAtom(UserPredicate predicate, Object... args) {
+    return getRelation(predicate).containsTuple(args);
+  }
+
+  /**
    * Returns all groundings of the given clause for which, in this world, the
    * body is true and which contain as existential substitutions all groundings
    * that make the head true wrt to the universal substitution.

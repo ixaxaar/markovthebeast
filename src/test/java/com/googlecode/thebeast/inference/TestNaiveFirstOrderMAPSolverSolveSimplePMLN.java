@@ -28,12 +28,12 @@ public class TestNaiveFirstOrderMAPSolverSolveSimplePMLN {
     observation = fixture.signature.createWorld();
     observation.setOpen(fixture.friends, true);
     Relation friendsScores = observation.getRelation(fixture.friendsScore);
-    friendsScores.addTuple("Peter", "Anna", 1.0);
-    friendsScores.addTuple("Anna", "Peter", 1.0);
+    friendsScores.addTuple("Peter", "Anna", 2.0);
+    friendsScores.addTuple("Anna", "Peter", -1.0);
     friendsScores.addTuple("Sebastian", "Peter", 1.0);
-    friendsScores.addTuple("Peter", "Sebastian", 1.0);
+    friendsScores.addTuple("Peter", "Sebastian", -3.0);
     weights = new PMLVector();
-    weights.setValue(fixture.symmetryClause, 0, 1.0);
+    weights.setValue(fixture.symmetryClause, 0, 2.0);
     weights.setValue(fixture.friendsScoreClause, 0, 1.0);
 
     fixture.addFriendsScoreClause();
@@ -52,8 +52,19 @@ public class TestNaiveFirstOrderMAPSolverSolveSimplePMLN {
   @Test
   public void testSolveResultIsConsistentWithObservedUserPredicates() {
     World result = solver.solve(observation);
-    assertTrue(result.getRelation(fixture.friendsScore).
-      containsTuple("Peter", "Anna", 1.0));
+    assertTrue(result.containsGroundAtom(
+      fixture.friendsScore, "Peter", "Anna", 2.0),
+      "The result fails contain a ground atom that was contained in " +
+        "the given observation");
   }
+
+  @Test
+  public void testSolveResultIsCorrectForHiddenUserPredicates() {
+    World result = solver.solve(observation);
+    assertTrue(result.getRelation(fixture.friends).
+      containsTuple("Anna", "Peter"),
+      "The result does not contain a ground atom that should be included.");
+  }
+
 
 }
