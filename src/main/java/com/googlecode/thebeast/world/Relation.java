@@ -13,6 +13,54 @@ import java.util.List;
 public interface Relation extends Collection<Tuple> {
 
   /**
+   * The Closedness of a relation defines how the existing and non-existing
+   * tuples in the tuple collection contained in a Relation object are
+   * interpreted.
+   */
+  enum Closedness {
+
+    /**
+     * If a relation is Open, all tuples contained in the tuple set are given a
+     * user defined probability, and all others are given probability 0.5.
+     */
+    Open,
+
+    /**
+     * If a relation is SemiOpen, all tuples contained in the tuple set are
+     * given a user defined probability, and all others are given probability
+     * 0.0.
+     */
+    SemiOpen,
+
+    /**
+     * If a relation is Closed, all tuples contained in the tuple set are given
+     * probability 1.0 (even if they have been given another probability by the
+     * client), and all others are given 0.0.
+     */
+    Closed
+  }
+
+
+  /**
+   * Explicitely a Relation contains a set of tuples (with probabilities). How
+   * these tuples are interpreted depends on the "closedness" of the relation.
+   * This method sets this closedness.
+   *
+   * @param closedness the closedness of the relation.
+   */
+  void setClosedness(Closedness closedness);
+
+
+  /**
+   * Explicitely a Relation contains a set of tuples (with probabilities). How
+   * these tuples are interpreted depends on the "closedness" of the relation.
+   * This method returns this closedness.
+   *
+   * @return the closedness of the relation.
+   */
+  Closedness getClosedness();
+
+  /**
    * Adds a listener to this relation that will be informed whenever a new tuple
    * was added.
    *
