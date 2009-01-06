@@ -1,10 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.Constant;
-import com.googlecode.thebeast.world.MutableRelation;
-import com.googlecode.thebeast.world.RelationListener;
-import com.googlecode.thebeast.world.Tuple;
-import com.googlecode.thebeast.world.Type;
+import com.googlecode.thebeast.world.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,6 +62,21 @@ final class SQLRelation extends AbstractCollection<Tuple>
     this.tableDescription = tableDescription;
     this.userPredicate = userPredicate;
     signature = (SQLSignature) tableDescription.getTypes().get(0).getSignature();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void setClosedness(Closedness closedness) {
+    //todo
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Closedness getClosedness() {
+    //todo
+    return null;
   }
 
   /**
@@ -222,7 +233,7 @@ final class SQLRelation extends AbstractCollection<Tuple>
    * {@inheritDoc}
    */
   public boolean containsTuple(Object... args) {
-    return contains(new Tuple(userPredicate,args));
+    return contains(new Tuple(userPredicate, args));
   }
 
   /**
