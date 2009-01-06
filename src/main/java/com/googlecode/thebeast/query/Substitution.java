@@ -5,6 +5,7 @@ import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.Symbol;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,19 +31,18 @@ public final class Substitution {
     this.mapping.putAll(mapping);
   }
 
-  public Term resolve(final Term term){
+  public Term resolve(final Term term) {
     if (term instanceof Constant) return term;
-    if (term instanceof Variable) return get((Variable)term);
+    if (term instanceof Variable) return get((Variable) term);
     else return null;
   }
 
-  public Term resolveWithBackup(final Term term, Substitution substitution){
+  public Term resolveWithBackup(final Term term, Substitution substitution) {
     if (term instanceof Constant) return term;
     if (term instanceof Variable) {
       Term resolved = get((Variable) term);
-      return resolved == null ? substitution.get((Variable)term) : resolved;
-    }
-    else return null;
+      return resolved == null ? substitution.get((Variable) term) : resolved;
+    } else return null;
   }
 
 
@@ -159,5 +159,19 @@ public final class Substitution {
    */
   public int size() {
     return mapping.size();
+  }
+
+  /**
+   * Creates a subset of the given substitution using the specified variables.
+   *
+   * @param variables a set of variables.
+   * @return a substitution that maps each variable in the given list to the
+   *         term it is mapped to in this substition.
+   */
+  public Substitution getSubset(List<Variable> variables) {
+    Substitution result = new Substitution();
+    for (Variable variable : variables)
+      result.put(variable, get(variable));
+    return result;
   }
 }

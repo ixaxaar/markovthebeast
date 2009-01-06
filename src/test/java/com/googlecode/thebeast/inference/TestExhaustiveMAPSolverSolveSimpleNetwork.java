@@ -1,8 +1,10 @@
 package com.googlecode.thebeast.inference;
 
 import com.googlecode.thebeast.pml.Assignment;
+import com.googlecode.thebeast.pml.FeatureIndex;
 import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.SocialNetworkGroundMarkovNetworkFixture;
+import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.sql.SQLSignature;
@@ -19,6 +21,7 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
   private SocialNetworkGroundMarkovNetworkFixture fixture;
   private UserPredicate friends;
   private Assignment emptyObserved;
+  private FeatureIndex index;
 
   @BeforeMethod
   public void setUp() {
@@ -29,9 +32,12 @@ public class TestExhaustiveMAPSolverSolveSimpleNetwork {
     fixture.groundFriendsPeterAnnaImpliesFriendsAnnaPeter();
     fixture.groundLocalPeterAnnaAreFriendsClause();
 
+    index = new FeatureIndex(Substitution.createSubstitution(
+      fixture.signature, "i/0"));
+
     PMLVector weights = new PMLVector();
-    weights.setValue(fixture.symmetryClause, 0, 1.0);
-    weights.setValue(fixture.localClause, 0, 2.0);
+    weights.setValue(fixture.symmetryClause, index, 1.0);
+    weights.setValue(fixture.localClause, index, 2.0);
     solver = new ExhaustiveMAPSolver(fixture.gmn, weights);
     friends = fixture.socialNetworkSignatureFixture.friends;
     emptyObserved = new Assignment(fixture.gmn);

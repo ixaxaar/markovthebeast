@@ -1,7 +1,8 @@
 package com.googlecode.thebeast.pml;
 
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntDoubleProcedure;
+import com.googlecode.thebeast.query.Substitution;
+import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleProcedure;
 
 import java.util.LinkedHashMap;
 
@@ -10,33 +11,44 @@ import java.util.LinkedHashMap;
  */
 public class PMLVector {
 
-  private LinkedHashMap<PMLClause, TIntDoubleHashMap>
-    clause2Weights = new LinkedHashMap<PMLClause, TIntDoubleHashMap>();
+  private LinkedHashMap<PMLClause, TObjectDoubleHashMap>
+    clause2Weights = new LinkedHashMap<PMLClause, TObjectDoubleHashMap>();
 
-  public double getValue(PMLClause clause, int index){
-    TIntDoubleHashMap weights = clause2Weights.get(clause);
+  public double getValue(PMLClause clause, FeatureIndex index) {
+    TObjectDoubleHashMap weights = clause2Weights.get(clause);
     if (weights == null) return 0;
     return weights.get(index);
   }
 
-  public void setValue(PMLClause clause, int index, double value) {
-    TIntDoubleHashMap weights = clause2Weights.get(clause);
-    if (weights == null){
-      weights = new TIntDoubleHashMap();
-      clause2Weights.put(clause,weights);
-    }
-    weights.put(index,value);
+  public void setValue(PMLClause clause, double value) {
+    setValue(clause, new FeatureIndex(new Substitution()), value);
   }
 
-  public void addValue(PMLClause clause, int index, double value) {
+  public void setValue(PMLClause clause, String substitutions, double value) {
+    setValue(clause, new FeatureIndex(
+      Substitution.createSubstitution(clause.getSignature(), substitutions)
+    ), value);
+  }
+
+
+  public void setValue(PMLClause clause, FeatureIndex index, double value) {
+    TObjectDoubleHashMap weights = clause2Weights.get(clause);
+    if (weights == null) {
+      weights = new TObjectDoubleHashMap();
+      clause2Weights.put(clause, weights);
+    }
+    weights.put(index, value);
+  }
+
+  public void addValue(PMLClause clause, FeatureIndex index, double value) {
     setValue(clause, index, getValue(clause, index) + value);
   }
 
   public double dotProduct(final PMLVector vector) {
     double result = 0;
-    for (final PMLClause clause : clause2Weights.keySet()){
+    for (final PMLClause clause : clause2Weights.keySet()) {
       DotProductCalculator calculator = new DotProductCalculator(vector, clause);
-      TIntDoubleHashMap weights = clause2Weights.get(clause);
+      TObjectDoubleHashMap weights = clause2Weights.get(clause);
       weights.forEachEntry(calculator);
       result += calculator.result;
     }
@@ -44,7 +56,7 @@ public class PMLVector {
   }
 
 
-  private static class DotProductCalculator implements TIntDoubleProcedure {
+  private static class DotProductCalculator implements TObjectDoubleProcedure {
     double result;
     private final PMLVector vector;
     private final PMLClause clause;
@@ -55,8 +67,8 @@ public class PMLVector {
       result = 0;
     }
 
-    public boolean execute(int i, double v) {
-      result += vector.getValue(clause, i) * v;
+    public boolean execute(Object o, double v) {
+      result += vector.getValue(clause, (FeatureIndex) o) * v;
       return true;
     }
   }

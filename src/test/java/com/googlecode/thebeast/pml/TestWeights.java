@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
 import com.googlecode.thebeast.world.sql.SQLSignature;
@@ -17,6 +18,7 @@ public class TestWeights {
   private SocialNetworkSignatureFixture signatureFixture;
   private ClauseBuilder builder;
   private PMLClause clause;
+  private FeatureIndex index;
 
   @BeforeMethod
   protected void setUp() throws Exception {
@@ -32,18 +34,20 @@ public class TestWeights {
       body().
       head(signatureFixture.friends, "y", "x").
       clause(Exists.EXISTS, "i", "s");
+    index = new FeatureIndex(Substitution.createSubstitution(
+      signature, "i/0"));
   }
 
 
   @Test
   public void testSet() {
-    weights.setValue(clause, 0, 1.0);
-    assertEquals(weights.getValue(clause, 0), 1.0);
+    weights.setValue(clause, index, 1.0);
+    assertEquals(weights.getValue(clause, index), 1.0);
   }
 
   @Test
   public void testDefaultValue() {
-    assertEquals(weights.getValue(clause, 0), 0.0);
+    assertEquals(weights.getValue(clause, index), 0.0);
   }
 
 }

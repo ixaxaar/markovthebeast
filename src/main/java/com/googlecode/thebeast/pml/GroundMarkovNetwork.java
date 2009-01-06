@@ -6,7 +6,6 @@ import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.query.Term;
 import com.googlecode.thebeast.world.Constant;
 import com.googlecode.thebeast.world.DoubleConstant;
-import com.googlecode.thebeast.world.IntegerConstant;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.Tuple;
 
@@ -59,8 +58,8 @@ public class GroundMarkovNetwork {
         }
         head.add(getNode(clause.getHead().getPredicate(), new Tuple(constants)));
       }
-      int index =
-        ((IntegerConstant) outer.get(clause.getIndexVariable())).getValue();
+      FeatureIndex index =
+        new FeatureIndex(outer.getSubset(clause.getIndexVariables()));
       double scale =
         ((DoubleConstant) outer.get(clause.getScaleVariable())).getValue();
       GroundFactor factor = new GroundFactor(body, head, clause, index, scale);

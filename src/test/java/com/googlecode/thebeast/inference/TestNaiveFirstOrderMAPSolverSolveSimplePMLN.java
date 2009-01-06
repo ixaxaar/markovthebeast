@@ -1,7 +1,9 @@
 package com.googlecode.thebeast.inference;
 
+import com.googlecode.thebeast.pml.FeatureIndex;
 import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.SocialNetworkPMLNFixture;
+import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.Relation;
 import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
 import com.googlecode.thebeast.world.World;
@@ -33,8 +35,12 @@ public class TestNaiveFirstOrderMAPSolverSolveSimplePMLN {
     friendsScores.addTuple("Sebastian", "Peter", 1.0);
     friendsScores.addTuple("Peter", "Sebastian", -3.0);
     weights = new PMLVector();
-    weights.setValue(fixture.symmetryClause, 0, 2.0);
-    weights.setValue(fixture.friendsScoreClause, 0, 1.0);
+    weights.setValue(fixture.symmetryClause,
+      new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
+        "i/0")), 2.0);
+    weights.setValue(fixture.friendsScoreClause,
+      new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
+        "i/0")), 1.0);
 
     fixture.addFriendsScoreClause();
     fixture.addSymmetryClause();
