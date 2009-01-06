@@ -1,5 +1,6 @@
 package com.googlecode.thebeast.pml;
 
+import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.sql.SQLSignature;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.BeforeMethod;
@@ -10,6 +11,7 @@ import org.testng.annotations.Test;
  */
 public class TestGroundMarkovNetworkExtractFeatureVector {
   private SocialNetworkGroundMarkovNetworkFixture fixture;
+  private FeatureIndex index;
 
 
   @Test
@@ -22,7 +24,7 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
       fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
     PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
-    assertEquals(featureVector.getValue(fixture.localClause, 0), 1.0,
+    assertEquals(featureVector.getValue(fixture.localClause, index), 1.0,
       "If friends(Peter,Anna) then the local feature should be 1.0 " +
         "but it isn't");
   }
@@ -37,7 +39,7 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
       fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
     PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
-    assertEquals(featureVector.getValue(fixture.symmetryClause, 0), 0.0,
+    assertEquals(featureVector.getValue(fixture.symmetryClause, index), 0.0,
       "If friends(Peter,Anna) but not friends(Anna,Peter) then " +
         "the reflective feature should be 0.0 but it isn't");
   }
@@ -45,9 +47,13 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
 
   @BeforeMethod
   protected void setUp() throws Exception {
-    fixture = new SocialNetworkGroundMarkovNetworkFixture(SQLSignature.createSignature());
+    fixture = new SocialNetworkGroundMarkovNetworkFixture(
+      SQLSignature.createSignature());
     fixture.groundLocalPeterAnnaAreFriendsClause();
     fixture.groundFriendsPeterAnnaImpliesFriendsAnnaPeter();
+
+    index = new FeatureIndex(Substitution.createSubstitution(
+      fixture.signature, "i/0"));
 
   }
 }

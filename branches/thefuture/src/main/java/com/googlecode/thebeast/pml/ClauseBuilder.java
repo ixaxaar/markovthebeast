@@ -4,10 +4,11 @@ import com.googlecode.thebeast.query.Atom;
 import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.query.Variable;
 import com.googlecode.thebeast.world.Predicate;
-import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.UserPredicate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Sebastian Riedel
@@ -54,7 +55,7 @@ public class ClauseBuilder {
                           Variable scaleVariable) {
 
     PMLClause result = new PMLClause(body, head, restriction,
-      operator, indexVariable, scaleVariable);
+      operator, Collections.singletonList(indexVariable), scaleVariable);
     body.clear();
     head = null;
     restriction.clear();

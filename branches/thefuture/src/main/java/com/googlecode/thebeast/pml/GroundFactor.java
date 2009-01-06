@@ -11,11 +11,11 @@ public final class GroundFactor {
   private List<GroundNode> head;
 
   private PMLClause clause;
-  private int index;
+  private FeatureIndex index;
   private double scale;
 
   GroundFactor(List<GroundNode> body, List<GroundNode> head,
-                      PMLClause clause, int index, double scale) {
+                      PMLClause clause, FeatureIndex index, double scale) {
     this.body = body;
     this.head = head;
     this.clause = clause;
@@ -35,7 +35,7 @@ public final class GroundFactor {
     return clause;
   }
 
-  public int getIndex() {
+  public FeatureIndex getIndex() {
     return index;
   }
 
