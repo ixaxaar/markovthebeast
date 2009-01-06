@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * A GroundMarkovNetwork is a Markov Network/factor graph in which factors
+ * represent grounded versions of weighted first order formulae and nodes
+ * represent ground atoms.
+ *
  * @author Sebastian Riedel
  */
 public class GroundMarkovNetwork {
@@ -94,7 +98,7 @@ public class GroundMarkovNetwork {
   public PMLVector extractFeatureVector(Assignment assignment) {
     //go over all factors and evaluate features.
     PMLVector result = new PMLVector();
-    for (GroundFactor factor : factors){
+    for (GroundFactor factor : factors) {
       result.addValue(factor.getClause(), factor.getIndex(),
         factor.evaluate(assignment) * factor.getScale());
     }

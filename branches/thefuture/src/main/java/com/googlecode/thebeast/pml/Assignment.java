@@ -3,6 +3,7 @@ package com.googlecode.thebeast.pml;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.StaticPredicate;
 import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.UserPredicate;
 import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntHashSet;
 
@@ -20,16 +21,15 @@ public class Assignment {
   private TIntHashSet keys = new TIntHashSet();
   private GroundMarkovNetwork groundMarkovNetwork;
 
-
-  public Assignment(Assignment original){
+  public Assignment(final Assignment original) {
     this.groundMarkovNetwork = original.groundMarkovNetwork;
-    for (GroundNode node : groundMarkovNetwork.getNodes()){
+    for (GroundNode node : groundMarkovNetwork.getNodes()) {
       if (original.hasValue(node))
-        setValue(node,original.getValue(node));
+        setValue(node, original.getValue(node));
     }
   }
 
-  public Assignment(GroundMarkovNetwork groundMarkovNetwork) {
+  public Assignment(final GroundMarkovNetwork groundMarkovNetwork) {
     this.groundMarkovNetwork = groundMarkovNetwork;
     for (GroundNode node : groundMarkovNetwork.getNodes()) {
       if (node.getPredicate().isStatic()) {
@@ -39,6 +39,14 @@ public class Assignment {
     }
   }
 
+  public Assignment(final GroundMarkovNetwork groundMarkovNetwork,
+                    final Collection<UserPredicate> alwaysTruePredicates) {
+    this(groundMarkovNetwork);
+    for (UserPredicate pred : alwaysTruePredicates) {
+      for (GroundNode node : groundMarkovNetwork.getNodes(pred))
+        setValue(node, 1.0);
+    }
+  }
 
   /**
    * Get the value for the given node.
@@ -50,9 +58,9 @@ public class Assignment {
     return values.get(node.getIndex());
   }
 
-  public double getValue(Predicate predicate, Object ... args){
+  public double getValue(Predicate predicate, Object... args) {
     return getValue(groundMarkovNetwork.getNode(predicate,
-      new Tuple(predicate,args)));
+      new Tuple(predicate, args)));
   }
 
   public boolean hasValue(GroundNode node) {
@@ -64,7 +72,7 @@ public class Assignment {
     keys.add(node.getIndex());
   }
 
-  public void setValue(Collection<GroundNode> nodes, double value){
+  public void setValue(Collection<GroundNode> nodes, double value) {
     for (GroundNode node : nodes)
       setValue(node, value);
   }
