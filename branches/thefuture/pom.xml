@@ -118,11 +118,11 @@
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/sebrie.freehostia.com/maven/repo</url>
+            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/repo</url>
         </repository>
         <site>
             <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/sebrie.freehostia.com/maven/www/thebeast</url>
+            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/site/thebeast</url>
         </site>
     </distributionManagement>
 
