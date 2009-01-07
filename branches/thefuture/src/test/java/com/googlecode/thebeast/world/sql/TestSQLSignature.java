@@ -2,6 +2,7 @@ package com.googlecode.thebeast.world.sql;
 
 import com.googlecode.thebeast.world.DoubleConstant;
 import com.googlecode.thebeast.world.IntegerConstant;
+import static com.googlecode.thebeast.world.Relation.Closedness.Open;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.SignatureListener;
 import com.googlecode.thebeast.world.Symbol;
@@ -83,7 +84,7 @@ public final class TestSQLSignature {
 
     World world = signature.createWorld();
     world.getRelation(predClosed).addTuple("A", "B");
-    world.setOpen(predOpen, true);
+    world.getRelation(predOpen).setClosedness(Open);
 
     World inherited = signature.createWorld(world);
     assertTrue("Inherited world need to contain the same closed relations as " +

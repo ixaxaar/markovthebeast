@@ -1,6 +1,10 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.world.Constant;
+import com.googlecode.thebeast.world.MutableRelation;
+import com.googlecode.thebeast.world.RelationListener;
+import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.Type;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,6 +47,12 @@ final class SQLRelation extends AbstractCollection<Tuple>
   private final SQLSignature signature;
 
   /**
+   * The closedness of this relation.
+   * @see #setClosedness(com.googlecode.thebeast.world.Relation.Closedness) 
+   */
+  private Closedness closedness = Closedness.Closed;
+
+  /**
    * The list of listeners of this relation.
    */
   private final ArrayList<RelationListener>
@@ -68,15 +78,14 @@ final class SQLRelation extends AbstractCollection<Tuple>
    * {@inheritDoc}
    */
   public void setClosedness(Closedness closedness) {
-    //todo
+    this.closedness = closedness;
   }
 
   /**
    * {@inheritDoc}
    */
   public Closedness getClosedness() {
-    //todo
-    return null;
+    return closedness;
   }
 
   /**
