@@ -11,9 +11,27 @@
     <developers>
         <developer>
             <name>Sebastian Riedel</name>
-            <url>http://homepages.inf.ed.ac.uk/s0349492</url>
+            <url>http://sebrie.freehostia.com/cms</url>
         </developer>
     </developers>
+    <licenses>
+      <license>
+	<name>The Apache Software License, Version 2.0</name>
+	<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	<distribution>repo</distribution>
+	<comments>A business-friendly OSS license</comments>
+      </license>
+    </licenses>
+    <issueManagement>
+      <system>Google Code</system>
+      <url>http://code.google.com/p/thebeast/issues/list</url>
+    </issueManagement>
+    <scm>
+      <connection>scm:svn:http://thebeast.googlecode.com/svn/branches/thefuture</connection>
+      <developerConnection>scm:svn:https://thebeast.googlecode.com/svn/branches/thefuture</developerConnection>
+      <tag>HEAD</tag>
+      <url>http://code.google.com/p/thebeast/source/browse/</url>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -100,11 +118,11 @@
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/maven/repo</url>
+            <url>ftp://sebrie.freehostia.com/sebrie.freehostia.com/maven/repo</url>
         </repository>
         <site>
             <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/maven/www</url>
+            <url>ftp://sebrie.freehostia.com/sebrie.freehostia.com/maven/www/thebeast</url>
         </site>
     </distributionManagement>
 
