@@ -16,6 +16,7 @@ public interface Relation extends Collection<Tuple> {
    * The Closedness of a relation defines how the existing and non-existing
    * tuples in the tuple collection contained in a Relation object are
    * interpreted.
+   * todo: implement tuples with probabilties
    */
   enum Closedness {
 

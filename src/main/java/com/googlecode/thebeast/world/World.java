@@ -118,23 +118,6 @@ public interface World {
    */
   NestedSubstitutionSet query(Query query);
 
-  /**
-   * Returns true iff the world is open for the given predicate.
-   *
-   * @param predicate the predicate to check whether the world is open.
-   * @return true off the world is open wrt to the given predicate.
-   */
-  boolean isOpen(UserPredicate predicate);
-
-  /**
-   * Sets the world to be open or closed for the given predicate.
-   *
-   * @param predicate the predicate for which the world should be open/closed.
-   * @param open      true if the world should be open for the given predicate,
-   *                  false if the world should be closed for the given
-   *                  predicate.
-   */
-  void setOpen(UserPredicate predicate, boolean open);
-
+ 
 
 }

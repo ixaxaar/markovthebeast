@@ -197,25 +197,7 @@ final class SQLWorld implements RelationListener, WorldListener, World {
     return signature.getQueryEngine().query(clause, this);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isOpen(UserPredicate predicate) {
-    return openPredicates.contains(predicate);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setOpen(UserPredicate predicate, boolean open) {
-    if (open) {
-      openPredicates.add(predicate);
-    } else {
-      openPredicates.remove(predicate);
-    }
-  }
-
-
+  
   /**
    * Method getSQLRelation returns the relation of the corresponding predicate
    * as SQLRelation.

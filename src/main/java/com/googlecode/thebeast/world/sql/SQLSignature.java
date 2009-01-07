@@ -4,6 +4,7 @@ import com.googlecode.thebeast.world.DoubleType;
 import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.PredicateNotInSignatureException;
+import static com.googlecode.thebeast.world.Relation.Closedness.Closed;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.SignatureListener;
 import com.googlecode.thebeast.world.SignatureMismatchException;
@@ -116,8 +117,8 @@ public final class SQLSignature implements Serializable, Signature {
       connection = DriverManager.getConnection("jdbc:h2:~/test", "sa", "");
       sqlTablePool = new SQLTablePool(this);
       queryEngine = new SQLBasedQueryEngine();
-      integerType = new SQLIntegerType("Integer",this);
-      doubleType = new SQLDoubleType("Double",this);
+      integerType = new SQLIntegerType("Integer", this);
+      doubleType = new SQLDoubleType("Double", this);
       registerType(integerType);
       registerType(doubleType);
     } catch (ClassNotFoundException e) {
@@ -231,11 +232,11 @@ public final class SQLSignature implements Serializable, Signature {
   public Symbol getSymbol(final String name) {
     try {
       return integerType.getConstant(Integer.parseInt(name));
-    } catch (NumberFormatException e1){
+    } catch (NumberFormatException e1) {
       try {
         return doubleType.getConstant(Double.parseDouble(name));
-      } catch (NumberFormatException e2){
-        return symbols.get(name);        
+      } catch (NumberFormatException e2) {
+        return symbols.get(name);
       }
     }
   }
@@ -279,7 +280,7 @@ public final class SQLSignature implements Serializable, Signature {
   public World createWorld(World parent) {
     World result = createWorld();
     for (UserPredicate predicate : getUserPredicates())
-      if (!parent.isOpen(predicate))
+      if (parent.getRelation(predicate).getClosedness() == Closed)
         result.addParent(predicate, parent);
     return result;
   }
@@ -306,7 +307,7 @@ public final class SQLSignature implements Serializable, Signature {
   }
 
 
-  private void registerType(final Type type){
+  private void registerType(final Type type) {
     registerSymbol(type);
     types.put(type.getName(), type);
   }

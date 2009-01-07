@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A PMLClause maps a possible world to a feature vector. todo <p/> todo: fixing
+ * A PMLClause maps a possible world to a feature vector. todo: fixing
  * <p/> Let m be a PMLClause with query q, scale variable s and index variable
  * i, and w a possible world, and let r be the result of applying the query q to
  * the world w. Then m maps w to a feature vector f(w) that contains one
