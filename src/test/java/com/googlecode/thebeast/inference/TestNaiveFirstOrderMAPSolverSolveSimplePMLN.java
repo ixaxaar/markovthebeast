@@ -5,7 +5,6 @@ import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.SocialNetworkPMLNFixture;
 import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.Relation;
-import static com.googlecode.thebeast.world.Relation.Closedness.Open;
 import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
 import com.googlecode.thebeast.world.World;
 import com.googlecode.thebeast.world.sql.SQLSignature;
@@ -29,7 +28,7 @@ public class TestNaiveFirstOrderMAPSolverSolveSimplePMLN {
     fixture = new SocialNetworkPMLNFixture(
       new SocialNetworkSignatureFixture(SQLSignature.createSignature()));
     observation = fixture.signature.createWorld();
-    observation.getRelation(fixture.friends).setClosedness(Open);
+    observation.getRelation(fixture.friends).setOpen(true);
     Relation friendsScores = observation.getRelation(fixture.friendsScore);
     friendsScores.addTuple("Peter", "Anna", 2.0);
     friendsScores.addTuple("Anna", "Peter", -1.0);

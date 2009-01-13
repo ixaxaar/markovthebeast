@@ -4,7 +4,6 @@ import com.googlecode.thebeast.world.DoubleType;
 import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.PredicateNotInSignatureException;
-import static com.googlecode.thebeast.world.Relation.Closedness.Closed;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.SignatureListener;
 import com.googlecode.thebeast.world.SignatureMismatchException;
@@ -280,7 +279,7 @@ public final class SQLSignature implements Serializable, Signature {
   public World createWorld(World parent) {
     World result = createWorld();
     for (UserPredicate predicate : getUserPredicates())
-      if (parent.getRelation(predicate).getClosedness() == Closed)
+      if (!parent.getRelation(predicate).isOpen())
         result.addParent(predicate, parent);
     return result;
   }

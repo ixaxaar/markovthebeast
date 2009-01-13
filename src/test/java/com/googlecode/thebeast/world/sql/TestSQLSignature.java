@@ -1,16 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.DoubleConstant;
-import com.googlecode.thebeast.world.IntegerConstant;
-import static com.googlecode.thebeast.world.Relation.Closedness.Open;
-import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.SignatureListener;
-import com.googlecode.thebeast.world.Symbol;
-import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
-import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.UserType;
-import com.googlecode.thebeast.world.World;
+import com.googlecode.thebeast.world.*;
 import junit.framework.Assert;
 import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertNull;
@@ -84,7 +74,7 @@ public final class TestSQLSignature {
 
     World world = signature.createWorld();
     world.getRelation(predClosed).addTuple("A", "B");
-    world.getRelation(predOpen).setClosedness(Open);
+    world.getRelation(predOpen).setOpen(true);
 
     World inherited = signature.createWorld(world);
     assertTrue("Inherited world need to contain the same closed relations as " +
