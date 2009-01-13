@@ -48,9 +48,8 @@ final class SQLRelation extends AbstractCollection<Tuple>
 
   /**
    * The closedness of this relation.
-   * @see #setClosedness(com.googlecode.thebeast.world.Relation.Closedness) 
    */
-  private Closedness closedness = Closedness.Closed;
+  private boolean open = false;
 
   /**
    * The list of listeners of this relation.
@@ -58,7 +57,7 @@ final class SQLRelation extends AbstractCollection<Tuple>
   private final ArrayList<RelationListener>
     listeners = new ArrayList<RelationListener>();
 
-  /**
+    /**
    * Creates a new Relation using the SQL table specified in the
    * tableDescription.
    *
@@ -77,15 +76,15 @@ final class SQLRelation extends AbstractCollection<Tuple>
   /**
    * {@inheritDoc}
    */
-  public void setClosedness(Closedness closedness) {
-    this.closedness = closedness;
+  public void setOpen(boolean open) {
+    this.open = open;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Closedness getClosedness() {
-    return closedness;
+  public boolean isOpen() {
+    return open;
   }
 
   /**

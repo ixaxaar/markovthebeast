@@ -83,7 +83,7 @@ public final class TestRelation  {
   @Test
   public void testDefaultClosednessIsClosed(){
     Relation relation = world.getRelation(pred);
-    assertEquals(relation.getClosedness(), Relation.Closedness.Closed);
+    assertEquals(relation.isOpen(), false);
   }
 
   /**
