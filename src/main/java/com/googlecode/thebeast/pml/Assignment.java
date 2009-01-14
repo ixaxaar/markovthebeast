@@ -1,17 +1,14 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.world.Predicate;
-import com.googlecode.thebeast.world.StaticPredicate;
-import com.googlecode.thebeast.world.Tuple;
-import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.*;
 import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntHashSet;
 
 import java.util.Collection;
 
 /**
- * An Assignment assigns double values to ground nodes (atoms). By default each assignment assigns 1.0 to all static
- * predicate ground atoms.
+ * An Assignment assigns double values to ground nodes (atoms) of a ground Markov Network. By default each assignment
+ * assigns 1.0 to all static predicate ground atoms.
  *
  * @author Sebastian Riedel
  */
@@ -45,6 +42,23 @@ public class Assignment {
         for (UserPredicate pred : alwaysTruePredicates) {
             for (GroundNode node : groundMarkovNetwork.getNodes(pred))
                 setValue(node, 1.0);
+        }
+    }
+
+    public Assignment(final GroundMarkovNetwork groundMarkovNetwork,
+                      final World world) {
+        this(groundMarkovNetwork);
+        for (UserPredicate pred : world.getSignature().getUserPredicates()) {
+            Relation relation = world.getRelation(pred);
+            for (Tuple tuple : relation) {
+                setValue(groundMarkovNetwork.getNode(pred, tuple), 1.0);
+            }
+            if (!relation.isOpen()) {
+                for (GroundNode node : groundMarkovNetwork.getNodes(pred)) {
+                    if (!hasValue(node))
+                        setValue(node, 0.0);
+                }
+            }
         }
     }
 
@@ -82,4 +96,20 @@ public class Assignment {
             new Tuple(predicate, args)), value);
     }
 
+    public World createWorld(World parent) {
+        World result = parent.getSignature().createWorld(parent);
+        for (UserPredicate pred : parent.getSignature().getUserPredicates()){
+            Relation oldRelation = parent.getRelation(pred);
+            Relation newRelation = result.getRelation(pred);
+            if (oldRelation.isOpen()){
+                for (GroundNode node : groundMarkovNetwork.getNodes(pred)){
+                    if (getValue(node) == 1.0)
+                        newRelation.add(node.getArguments());
+                }
+            }
+            newRelation.setOpen(false);
+        }
+
+        return result;  
+    }
 }

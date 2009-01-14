@@ -12,9 +12,11 @@ import java.util.List;
 public interface Relation extends Collection<Tuple> {
 
 
+    //todo move to World because a Relation is a relation (as no inherent possible world semantics).
     void setOpen(boolean open);
 
 
+    //todo move to World
     boolean isOpen();
 
     /**

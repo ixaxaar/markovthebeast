@@ -36,6 +36,17 @@ class SQLIntegerType extends SQLRepresentableType
         return new SQLIntegerConstant(this, (Integer) representation);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean containsConstantWithName(String constantName) {
+        try {
+            Integer.valueOf(constantName);
+        } catch (NumberFormatException e){
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Returns <code>Integer.MAX_VALUE</code> as size of this type. Note that this only half of the actual size of this

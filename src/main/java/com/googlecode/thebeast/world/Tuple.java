@@ -42,6 +42,9 @@ public final class Tuple extends AbstractList<Constant> {
      * @param args      an array of java objects such as Integers, Doubles etc.
      */
     public Tuple(Predicate predicate, Object... args) {
+        if (args.length != predicate.getArgumentTypes().size())
+            throw new IllegalArgumentException(predicate + " has " + predicate.getArgumentTypes().size()
+            + " arguments but you gave us " + args.length);
         this.constants = new Constant[args.length];
         for (int i = 0; i < args.length; ++i) {
             constants[i] =

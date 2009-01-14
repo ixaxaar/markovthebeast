@@ -37,6 +37,18 @@ final class SQLDoubleType extends SQLRepresentableType
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean containsConstantWithName(String constantName) {
+        try {
+            Double.valueOf(constantName);
+        } catch (NumberFormatException e){
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Returns <code>Integer.MAX_VALUE</code> as size of this type. Note that this only half of the actual size of this
      * type, but should serve as rough approximation.
      *

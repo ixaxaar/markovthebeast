@@ -54,8 +54,9 @@ public class GroundMarkovNetwork {
             }
             FeatureIndex index =
                 new FeatureIndex(outer.getSubset(clause.getIndexVariables()));
-            double scale =
-                ((DoubleConstant) outer.get(clause.getScaleVariable())).getValue();
+            double scale = clause.getScaleVariable() != null ?
+                ((DoubleConstant) outer.get(clause.getScaleVariable())).getValue()
+                : 1.0;
             GroundFactor factor = new GroundFactor(body, head, clause, index, scale);
             factors.add(factor);
             result.add(factor);

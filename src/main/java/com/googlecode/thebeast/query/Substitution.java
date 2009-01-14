@@ -63,6 +63,14 @@ public final class Substitution {
     }
 
     /**
+     * Adds the mappings from the given substitution to the mappings of this substition/
+     * @param substitution the substitution to add.
+     */
+    public void merge(final Substitution substitution){
+        mapping.putAll(substitution.mapping);    
+    }
+
+    /**
      * Get the term the given variable is mapped to, if existent. If the variable is not mapped to any type null is
      * returned.
      *
@@ -108,7 +116,7 @@ public final class Substitution {
      * @return a string representation of this substitution.
      */
     public String toString() {
-        StringBuffer result = new StringBuffer();
+        StringBuffer result = new StringBuffer("{");
         int index = 0;
         for (Variable var : mapping.keySet()) {
             if (index++ > 0) {
@@ -116,6 +124,7 @@ public final class Substitution {
             }
             result.append(var.getName()).append("/").append(mapping.get(var));
         }
+        result.append("}");
         return result.toString();
     }
 

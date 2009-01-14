@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +29,16 @@ public final class Atom {
      *
      * @param predicate the predicate of this atom.
      * @param arguments the arguments of this atom.
+     * @throws TypeMismatchException if the argument terms do not match the argument types of the predicate.
      */
-    Atom(final Predicate predicate, final List<Term> arguments) {
+    Atom(final Predicate predicate, final List<Term> arguments) throws TypeMismatchException {
         this.predicate = predicate;
+        for (int argIndex = 0; argIndex < predicate.getArgumentTypes().size(); ++argIndex) {
+            Type expectedType = predicate.getArgumentTypes().get(argIndex);
+            Type actualType = arguments.get(argIndex).getType();
+            if (!actualType.equals(expectedType))
+                throw new TypeMismatchException(expectedType, actualType, arguments.get(argIndex),predicate);
+        }
         this.arguments =
             Collections.unmodifiableList(new ArrayList<Term>(arguments));
     }
