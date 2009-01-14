@@ -18,59 +18,59 @@ import org.testng.annotations.Test;
  */
 public class TestNaiveFirstOrderMAPSolverSolveSimplePMLN {
 
-  private SocialNetworkPMLNFixture fixture;
-  private World observation;
-  private PMLVector weights;
-  private NaiveFirstOrderMAPSolver solver;
+    private SocialNetworkPMLNFixture fixture;
+    private World observation;
+    private PMLVector weights;
+    private NaiveFirstOrderMAPSolver solver;
 
-  @BeforeMethod
-  public void setUp() {
-    fixture = new SocialNetworkPMLNFixture(
-      new SocialNetworkSignatureFixture(SQLSignature.createSignature()));
-    observation = fixture.signature.createWorld();
-    observation.getRelation(fixture.friends).setOpen(true);
-    Relation friendsScores = observation.getRelation(fixture.friendsScore);
-    friendsScores.addTuple("Peter", "Anna", 2.0);
-    friendsScores.addTuple("Anna", "Peter", -1.0);
-    friendsScores.addTuple("Sebastian", "Peter", 1.0);
-    friendsScores.addTuple("Peter", "Sebastian", -3.0);
-    weights = new PMLVector();
-    weights.setValue(fixture.symmetryClause,
-      new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
-        "i/0")), 2.0);
-    weights.setValue(fixture.friendsScoreClause,
-      new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
-        "i/0")), 1.0);
+    @BeforeMethod
+    public void setUp() {
+        fixture = new SocialNetworkPMLNFixture(
+            new SocialNetworkSignatureFixture(SQLSignature.createSignature()));
+        observation = fixture.signature.createWorld();
+        observation.getRelation(fixture.friends).setOpen(true);
+        Relation friendsScores = observation.getRelation(fixture.friendsScore);
+        friendsScores.addTuple("Peter", "Anna", 2.0);
+        friendsScores.addTuple("Anna", "Peter", -1.0);
+        friendsScores.addTuple("Sebastian", "Peter", 1.0);
+        friendsScores.addTuple("Peter", "Sebastian", -3.0);
+        weights = new PMLVector();
+        weights.setValue(fixture.symmetryClause,
+            new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
+                "i/0")), 2.0);
+        weights.setValue(fixture.friendsScoreClause,
+            new FeatureIndex(Substitution.createSubstitution(fixture.signature, "" +
+                "i/0")), 1.0);
 
-    fixture.addFriendsScoreClause();
-    fixture.addSymmetryClause();
+        fixture.addFriendsScoreClause();
+        fixture.addSymmetryClause();
 
-    solver = new NaiveFirstOrderMAPSolver(fixture.pmln, weights,
-      new ExhaustiveMAPSolver());
-  }
+        solver = new NaiveFirstOrderMAPSolver(fixture.pmln, weights,
+            new ExhaustiveMAPSolver());
+    }
 
-  @Test
-  public void testSolveResultIsNotNull() {
-    World result = solver.solve(observation);
-    assertNotNull(result, "The solver should not return null.");
-  }
+    @Test
+    public void testSolveResultIsNotNull() {
+        World result = solver.solve(observation);
+        assertNotNull(result, "The solver should not return null.");
+    }
 
-  @Test
-  public void testSolveResultIsConsistentWithObservedUserPredicates() {
-    World result = solver.solve(observation);
-    assertTrue(result.containsGroundAtom(
-      fixture.friendsScore, "Peter", "Anna", 2.0),
-      "The result fails contain a ground atom that was contained in " +
-        "the given observation");
-  }
+    @Test
+    public void testSolveResultIsConsistentWithObservedUserPredicates() {
+        World result = solver.solve(observation);
+        assertTrue(result.containsGroundAtom(
+            fixture.friendsScore, "Peter", "Anna", 2.0),
+            "The result fails contain a ground atom that was contained in " +
+                "the given observation");
+    }
 
-  @Test
-  public void testSolveResultIsCorrectForHiddenUserPredicates() {
-    World result = solver.solve(observation);
-    assertTrue(result.getRelation(fixture.friends).
-      containsTuple("Anna", "Peter"),
-      "The result does not contain a ground atom that should be included.");
-  }
+    @Test
+    public void testSolveResultIsCorrectForHiddenUserPredicates() {
+        World result = solver.solve(observation);
+        assertTrue(result.getRelation(fixture.friends).
+            containsTuple("Anna", "Peter"),
+            "The result does not contain a ground atom that should be included.");
+    }
 
 
 }

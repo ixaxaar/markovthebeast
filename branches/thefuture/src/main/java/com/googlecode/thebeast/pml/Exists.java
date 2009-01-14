@@ -7,11 +7,11 @@ import java.util.Collection;
  */
 public class Exists implements FirstOrderOperator {
 
-  public final static Exists EXISTS = new Exists();
+    public final static Exists EXISTS = new Exists();
 
-  public double evaluate(Collection<GroundNode> nodes, Assignment assignment) {
-    for (GroundNode node : nodes)
-      if (assignment.getValue(node) == 1.0) return 1.0;
-    return 0.0;
-  }
+    public double evaluate(Collection<GroundNode> nodes, Assignment assignment) {
+        for (GroundNode node : nodes)
+            if (assignment.getValue(node) == 1.0) return 1.0;
+        return 0.0;
+    }
 }

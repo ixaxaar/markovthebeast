@@ -7,10 +7,10 @@ package com.googlecode.thebeast.world;
  */
 public interface DoubleConstant extends Constant {
 
-  /**
-   * Returns the double value this constant represents.
-   *
-   * @return the double value this constant represents.
-   */
-  double getValue();
+    /**
+     * Returns the double value this constant represents.
+     *
+     * @return the double value this constant represents.
+     */
+    double getValue();
 }

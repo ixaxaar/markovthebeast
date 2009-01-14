@@ -11,30 +11,30 @@ import org.testng.annotations.Test;
  */
 public class TestPMLVector {
 
-  private SocialNetworkGroundMarkovNetworkFixture fixture;
+    private SocialNetworkGroundMarkovNetworkFixture fixture;
 
-  @BeforeMethod
-  protected void setUp() throws Exception {
-    fixture = new SocialNetworkGroundMarkovNetworkFixture(
-      SQLSignature.createSignature());
-    fixture.groundLocalPeterAnnaAreFriendsClause();
-    fixture.groundFriendsPeterAnnaImpliesFriendsAnnaPeter();
-  }
+    @BeforeMethod
+    protected void setUp() throws Exception {
+        fixture = new SocialNetworkGroundMarkovNetworkFixture(
+            SQLSignature.createSignature());
+        fixture.groundLocalPeterAnnaAreFriendsClause();
+        fixture.groundFriendsPeterAnnaImpliesFriendsAnnaPeter();
+    }
 
-  @Test
-  public void testSetAndGetWithIdenticalIndicesButDifferentObjects() {
-    FeatureIndex index1 = new FeatureIndex(Substitution.createSubstitution(
-      fixture.signature, "i/0"));
-    FeatureIndex index2 = new FeatureIndex(Substitution.createSubstitution(
-      fixture.signature, "i/0"));
+    @Test
+    public void testSetAndGetWithIdenticalIndicesButDifferentObjects() {
+        FeatureIndex index1 = new FeatureIndex(Substitution.createSubstitution(
+            fixture.signature, "i/0"));
+        FeatureIndex index2 = new FeatureIndex(Substitution.createSubstitution(
+            fixture.signature, "i/0"));
 
-    PMLVector vector = new PMLVector();
-    vector.setValue(fixture.localClause, index1, 1.0);
-    assertEquals(vector.getValue(fixture.localClause, index2), 1.0,
-      "Vector must return same value for two feature indices with " +
-        "identical substitution");
+        PMLVector vector = new PMLVector();
+        vector.setValue(fixture.localClause, index1, 1.0);
+        assertEquals(vector.getValue(fixture.localClause, index2), 1.0,
+            "Vector must return same value for two feature indices with " +
+                "identical substitution");
 
-  }
+    }
 
 
 }
