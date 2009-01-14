@@ -7,6 +7,6 @@ import java.util.Collection;
  */
 public interface FirstOrderOperator {
 
-  double evaluate(Collection<GroundNode> nodes, Assignment assignment);
+    double evaluate(Collection<GroundNode> nodes, Assignment assignment);
 
 }

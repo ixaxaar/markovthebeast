@@ -14,19 +14,19 @@ import java.util.List;
  */
 final class SQLEquals extends SQLStaticPredicate {
 
-  private final List<SQLRepresentableType> argTypes;
+    private final List<SQLRepresentableType> argTypes;
 
-  SQLEquals(final SQLRepresentableType type, final SQLSignature signature) {
-    super(type.getName() + ".equals", signature);
-    this.argTypes = Collections.unmodifiableList(Arrays.asList(type,type));
-  }
+    SQLEquals(final SQLRepresentableType type, final SQLSignature signature) {
+        super(type.getName() + ".equals", signature);
+        this.argTypes = Collections.unmodifiableList(Arrays.asList(type, type));
+    }
 
-  public boolean evaluate(final Tuple arguments) {
-    return arguments.get(0).equals(arguments.get(1));
-  }
+    public boolean evaluate(final Tuple arguments) {
+        return arguments.get(0).equals(arguments.get(1));
+    }
 
-  public List<? extends Type> getArgumentTypes() {
-    return argTypes;
-  }
+    public List<? extends Type> getArgumentTypes() {
+        return argTypes;
+    }
 
 }

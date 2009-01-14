@@ -7,10 +7,10 @@ package com.googlecode.thebeast.world;
  */
 public interface MutableRelation extends Relation {
 
-  /**
-   * Adds a tuple to the relation.
-   *
-   * @param tuple the tuple to add.
-   */
-  boolean add(Tuple tuple);
+    /**
+     * Adds a tuple to the relation.
+     *
+     * @param tuple the tuple to add.
+     */
+    boolean add(Tuple tuple);
 }

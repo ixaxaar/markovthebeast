@@ -9,21 +9,21 @@ import com.googlecode.thebeast.world.World;
  */
 public class NaiveFirstOrderMAPSolver {
 
-  private PMLVector weights;
-  private PseudoMarkovLogicNetwork mln;
-  private PropositionalSolver propositionalSolver;
+    private PMLVector weights;
+    private PseudoMarkovLogicNetwork mln;
+    private PropositionalSolver propositionalSolver;
 
-  public NaiveFirstOrderMAPSolver(PseudoMarkovLogicNetwork mln,
-                                  PMLVector weights,
-                                  PropositionalSolver propositionalSolver) {
-    this.mln = mln;
-    this.weights = weights;
-    this.propositionalSolver = propositionalSolver;
-  }
+    public NaiveFirstOrderMAPSolver(PseudoMarkovLogicNetwork mln,
+                                    PMLVector weights,
+                                    PropositionalSolver propositionalSolver) {
+        this.mln = mln;
+        this.weights = weights;
+        this.propositionalSolver = propositionalSolver;
+    }
 
-  public World solve(World observation){
-    World result = observation.getSignature().createWorld(observation);
-    return result;
-  }
+    public World solve(World observation) {
+        World result = observation.getSignature().createWorld(observation);
+        return result;
+    }
 
 }

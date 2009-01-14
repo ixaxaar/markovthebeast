@@ -7,9 +7,10 @@ package com.googlecode.thebeast.world;
  */
 public interface IntegerConstant extends Constant {
 
-  /**
-   * Returns the integer value this constant represents.
-   * @return the integer value this constant represents.
-   */
-  int getValue();
+    /**
+     * Returns the integer value this constant represents.
+     *
+     * @return the integer value this constant represents.
+     */
+    int getValue();
 }

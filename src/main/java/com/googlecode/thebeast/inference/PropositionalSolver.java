@@ -6,5 +6,5 @@ import com.googlecode.thebeast.pml.Assignment;
  * @author Sebastian Riedel
  */
 public interface PropositionalSolver {
-  Assignment solve(Assignment observed);
+    Assignment solve(Assignment observed);
 }
