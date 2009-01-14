@@ -18,6 +18,14 @@ public interface Type extends Symbol, Iterable<Constant> {
     boolean contains(Constant constant);
 
     /**
+     * Checks whether this type contains the given constant.
+     *
+     * @param constantName the name of the constant to check whether it is  in the type.
+     * @return true iff the constant is a member of this type.
+     */
+    boolean containsConstantWithName(String constantName);
+    
+    /**
      * Returns whether it is possible to iterate over the constants of this type. If not calls to the iterator method (and
      * using the type in a foreach loop) will cause an exception.
      *

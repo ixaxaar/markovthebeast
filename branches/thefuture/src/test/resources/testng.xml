@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="All Tests" verbose="1" parallel="false">
+    <parameter name="propositionalMAPInferenceEngineClass"
+               value="com.googlecode.thebeast.inference.propositional.ExhaustivePropositionalMAPInferenceEngine"/>
+    <parameter name="signatureClass"
+               value="com.googlecode.thebeast.world.sql.SQLSignature"/>
+    <test name="Default">
+        <packages>
+            <package name="com.googlecode.thebeast"/>
+            <package name="com.googlecode.thebeast.*"/>
+        </packages>
+    </test>
+</suite>

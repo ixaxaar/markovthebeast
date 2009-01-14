@@ -139,6 +139,13 @@ final class SQLUserType extends SQLRepresentableType
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean containsConstantWithName(String constantName) {
+        return constants.containsKey(constantName);
+    }
+
+    /**
      * By default types are not iterable.
      *
      * @return false by default.

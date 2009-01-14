@@ -31,7 +31,7 @@ public final class NestedSubstitution {
      * @param innerSubstitutions the set of inner substitutions.
      */
     public NestedSubstitution(final Substitution outerSubstitution,
-                              final Set<Substitution> innerSubstitutions) {
+                              final Collection<Substitution> innerSubstitutions) {
         this.outerSubstitution = outerSubstitution;
         if (innerSubstitutions.size() == 0) {
             this.innerSubstitutions = Collections.unmodifiableSet(
@@ -92,14 +92,20 @@ public final class NestedSubstitution {
             if (index++ > 0) {
                 result.append(", ");
             }
-            result.append("{");
             result.append(s.toString());
-            result.append("}");
         }
         result.append("}");
         return result.toString();
     }
 
+    /**
+     * Creates a list of nested substitutions. This method assumes strings formatted according to {@link
+     * #createNestedSubstitution(com.googlecode.thebeast.world.Signature, String)}.
+     *
+     * @param signature     the signature to use.
+     * @param substitutions the nested substitution strings.
+     * @return all nested substitions represented by the strings in <code>substitions</code>
+     */
     public static List<NestedSubstitution> createNestedSubstitutions(
         final Signature signature,
         final String... substitutions) {
@@ -112,9 +118,9 @@ public final class NestedSubstitution {
     }
 
     /**
-     * Create a new NestedSubstitution  based on a string representation. The required format is
+     * Create a new NestedSubstitution based on a string representation. The required format is
      * <pre>
-     *  x1/c1, x2/c2 ...  {y1/e1,y2/e2 ...} {y1/e3,y2/e4 ...} ...
+     *  x1/c1  x2/c2 ...  {y1/e1 y2/e2 ...} {y1/e3 y2/e4 ...} ...
      * </pre>
      * Here every constant <code>c1,c2,...,e1,e2,...</code> must be a ground term of the signature.
      *
@@ -132,16 +138,16 @@ public final class NestedSubstitution {
             : text.substring(0, startOfExistentials);
         Substitution universal =
             Substitution.createSubstitution(signature, universalString);
-        Pattern existentialStrings = Pattern.compile("\\{([^\\}]+)\\}");
-        Matcher m = existentialStrings.matcher(text);
-        Set<Substitution> universals = new HashSet<Substitution>();
+        Pattern innerStrings = Pattern.compile("\\{([^\\}]+)\\}");
+        Matcher m = innerStrings.matcher(text);
+        Set<Substitution> innerSubstitutions = new HashSet<Substitution>();
         while (m.find()) {
             for (int g = 0; g < m.groupCount(); ++g) {
-                universals.add(Substitution.createSubstitution(signature,
+                innerSubstitutions.add(Substitution.createSubstitution(signature,
                     m.group(g + 1)));
             }
         }
-        return new NestedSubstitution(universal, universals);
+        return new NestedSubstitution(universal, innerSubstitutions);
     }
 
 

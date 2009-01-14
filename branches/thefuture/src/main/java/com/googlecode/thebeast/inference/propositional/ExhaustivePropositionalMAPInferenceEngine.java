@@ -1,47 +1,37 @@
-package com.googlecode.thebeast.inference;
+package com.googlecode.thebeast.inference.propositional;
 
 import com.googlecode.thebeast.pml.Assignment;
 import com.googlecode.thebeast.pml.GroundMarkovNetwork;
 import com.googlecode.thebeast.pml.GroundNode;
 import com.googlecode.thebeast.pml.PMLVector;
+import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
 
 import java.util.ArrayList;
 
 /**
  * @author Sebastian Riedel
  */
-public class ExhaustiveMAPSolver implements PropositionalSolver {
+public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalMAPInferenceEngine {
 
     private GroundMarkovNetwork groundMarkovNetwork;
+    private Assignment observed;
     private PMLVector weights;
     private int evaluations = 0;
 
-    public ExhaustiveMAPSolver(GroundMarkovNetwork groundMarkovNetwork,
+    public ExhaustivePropositionalMAPInferenceEngine(GroundMarkovNetwork groundMarkovNetwork,
                                PMLVector weights) {
         setGroundMarkovNetwork(groundMarkovNetwork);
         setWeights(weights);
     }
 
-    public ExhaustiveMAPSolver() {
+    public ExhaustivePropositionalMAPInferenceEngine() {
     }
 
     public GroundMarkovNetwork getGroundMarkovNetwork() {
         return groundMarkovNetwork;
     }
 
-    public void setGroundMarkovNetwork(GroundMarkovNetwork groundMarkovNetwork) {
-        this.groundMarkovNetwork = groundMarkovNetwork;
-    }
-
-    public PMLVector getWeights() {
-        return weights;
-    }
-
-    public void setWeights(PMLVector weights) {
-        this.weights = weights;
-    }
-
-    public Assignment solve(Assignment observed) {
+    public PropositionalMAPResult infer() {
         //build list of atoms to change
         ArrayList<GroundNode> hiddenNodes = new ArrayList<GroundNode>();
         for (GroundNode node : groundMarkovNetwork.getNodes())
@@ -65,8 +55,6 @@ public class ExhaustiveMAPSolver implements PropositionalSolver {
 
         //iterate over all possible assignments of the hidden atoms
         int size = hiddenNodes.size();
-        int currentIndex = hiddenNodes.size() - 1;
-        int minIndex = currentIndex;
         for (int flip = 0; flip < Math.pow(2, size); ++flip) {
             //extract feature vector
             PMLVector features = groundMarkovNetwork.extractFeatureVector(currentAssignment);
@@ -85,9 +73,24 @@ public class ExhaustiveMAPSolver implements PropositionalSolver {
                 }
             }
         }
-        return currentResult;
+        return new PropositionalMAPResult(currentResult);
     }
 
+    public void setGroundMarkovNetwork(GroundMarkovNetwork groundMarkovNetwork) {
+        this.groundMarkovNetwork = groundMarkovNetwork;
+    }
+
+    public PMLVector getWeights() {
+        return weights;
+    }
+
+    public void setWeights(PMLVector weights) {
+        this.weights = weights;
+    }
+
+    public void setObservation(Assignment observation) {
+        this.observed = observation;
+    }
 
     public int getEvaluationCount() {
         return evaluations;
