@@ -2,7 +2,12 @@ package com.googlecode.thebeast.inference.firstorder;
 
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPInferenceEngine;
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
-import com.googlecode.thebeast.pml.*;
+import com.googlecode.thebeast.pml.Assignment;
+import com.googlecode.thebeast.pml.GroundMarkovNetwork;
+import com.googlecode.thebeast.pml.PMLClause;
+import com.googlecode.thebeast.pml.PMLUtils;
+import com.googlecode.thebeast.pml.PMLVector;
+import com.googlecode.thebeast.pml.PseudoMarkovLogicNetwork;
 import com.googlecode.thebeast.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +26,7 @@ public class NaiveFirstOrderMAPInferenceEngine implements FirstOrderMAPInference
     private PseudoMarkovLogicNetwork mln;
     private PropositionalMAPInferenceEngine propositionalMAPInferenceEngine;
     private World observation;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static Logger logger = LoggerFactory.getLogger(NaiveFirstOrderMAPInferenceEngine.class);
 
     /**
      * Creates a new NaiveFirstOrderMAPInferenceEngine for the given inference task.

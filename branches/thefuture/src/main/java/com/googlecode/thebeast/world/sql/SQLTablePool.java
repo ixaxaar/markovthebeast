@@ -3,6 +3,8 @@ package com.googlecode.thebeast.world.sql;
 import com.google.common.collect.ArrayListMultimap;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -28,6 +30,11 @@ final class SQLTablePool {
      * The id the pool will assign to the next created table.
      */
     private int currentId = 0;
+
+    /**
+     * A logger for this SQL table pool
+     */
+    private static Logger logger = LoggerFactory.getLogger(SQLTablePool.class);
 
     /**
      * A multimap from type lists to table descriptions.
@@ -77,7 +84,7 @@ final class SQLTablePool {
         List<SQLTableDescription> descriptions = tables.get(types);
         if (descriptions.size() == 0) {
             return createTable(types);
-        } else {
+        } else {            
             return descriptions.remove(descriptions.size() - 1);
         }
     }
@@ -111,8 +118,10 @@ final class SQLTablePool {
                 ++argIndex;
             }
 
-            st.executeUpdate(String.format("CREATE TABLE %s(%s, PRIMARY KEY (%s))",
-                tableName, createTable.toString(), primaryKeyString));
+            final String createTableString = String.format("CREATE TABLE %s(%s, PRIMARY KEY (%s))",
+                tableName, createTable.toString(), primaryKeyString);
+            st.executeUpdate(createTableString);
+            logger.debug("Created table using the command " + createTableString);
             return new SQLTableDescription(tableName, types, columnNames);
         } catch (SQLException e) {
             throw new NestedSQLException("Couldn't create a table for the "

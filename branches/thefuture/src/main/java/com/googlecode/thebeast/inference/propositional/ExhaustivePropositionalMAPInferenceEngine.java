@@ -18,7 +18,7 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
     private Assignment observed;
     private PMLVector weights;
     private int evaluations = 0;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static Logger logger = LoggerFactory.getLogger(ExhaustivePropositionalMAPInferenceEngine.class);
 
     public ExhaustivePropositionalMAPInferenceEngine(GroundMarkovNetwork groundMarkovNetwork,
                                PMLVector weights) {
