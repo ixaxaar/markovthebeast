@@ -1,6 +1,11 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.Relation;
+import com.googlecode.thebeast.world.StaticPredicate;
+import com.googlecode.thebeast.world.Tuple;
+import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.World;
 import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntHashSet;
 
@@ -77,6 +82,11 @@ public class Assignment {
             new Tuple(predicate, args)));
     }
 
+    public boolean hasValue(Predicate predicate, Object... args) {
+        return hasValue(groundMarkovNetwork.getNode(predicate,
+            new Tuple(predicate, args)));
+    }
+
     public boolean hasValue(GroundNode node) {
         return keys.contains(node.getIndex());
     }
@@ -98,11 +108,11 @@ public class Assignment {
 
     public World createWorld(World parent) {
         World result = parent.getSignature().createWorld(parent);
-        for (UserPredicate pred : parent.getSignature().getUserPredicates()){
+        for (UserPredicate pred : parent.getSignature().getUserPredicates()) {
             Relation oldRelation = parent.getRelation(pred);
             Relation newRelation = result.getRelation(pred);
-            if (oldRelation.isOpen()){
-                for (GroundNode node : groundMarkovNetwork.getNodes(pred)){
+            if (oldRelation.isOpen()) {
+                for (GroundNode node : groundMarkovNetwork.getNodes(pred)) {
                     if (getValue(node) == 1.0)
                         newRelation.add(node.getArguments());
                 }
@@ -110,6 +120,6 @@ public class Assignment {
             newRelation.setOpen(false);
         }
 
-        return result;  
+        return result;
     }
 }

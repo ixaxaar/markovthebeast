@@ -4,7 +4,8 @@ import com.googlecode.thebeast.pml.Assignment;
 import com.googlecode.thebeast.pml.GroundMarkovNetwork;
 import com.googlecode.thebeast.pml.GroundNode;
 import com.googlecode.thebeast.pml.PMLVector;
-import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
     private Assignment observed;
     private PMLVector weights;
     private int evaluations = 0;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ExhaustivePropositionalMAPInferenceEngine(GroundMarkovNetwork groundMarkovNetwork,
                                PMLVector weights) {
@@ -33,6 +35,7 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
 
     public PropositionalMAPResult infer() {
         //build list of atoms to change
+        logger.info("Started Inference");
         ArrayList<GroundNode> hiddenNodes = new ArrayList<GroundNode>();
         for (GroundNode node : groundMarkovNetwork.getNodes())
             if (!observed.hasValue(node))
@@ -73,6 +76,7 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
                 }
             }
         }
+        logger.info("Completed Inference after " + evaluations + " evaluations");        
         return new PropositionalMAPResult(currentResult);
     }
 

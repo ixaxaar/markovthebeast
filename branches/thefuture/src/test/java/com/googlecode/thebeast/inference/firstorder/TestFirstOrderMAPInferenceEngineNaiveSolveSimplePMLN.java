@@ -6,6 +6,7 @@ import com.googlecode.thebeast.pml.PMLClause;
 import com.googlecode.thebeast.pml.PMLVector;
 import com.googlecode.thebeast.pml.PseudoMarkovLogicNetwork;
 import com.googlecode.thebeast.query.QueryFactory;
+import com.googlecode.thebeast.world.Constant;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.UserType;
@@ -21,15 +22,14 @@ import org.testng.annotations.Test;
  */
 public class TestFirstOrderMAPInferenceEngineNaiveSolveSimplePMLN {
 
-    private World observation;
-    private PMLVector weights;
     private NaiveFirstOrderMAPInferenceEngine inferenceEngine;
     private UserPredicate friends;
+    private UserType person;
 
     @BeforeMethod
     public void setUp() {
         Signature signature = SQLSignature.createSignature();
-        UserType person = signature.createType("Person", false, "Peter", "Anna", "Sebastian");
+        person = signature.createType("Person", false, "Peter", "Anna", "Sebastian");
         friends = signature.createPredicate("friends", person, person);
 
         ClauseBuilder builder = new ClauseBuilder(QueryFactory.getInstance(), signature);
@@ -41,14 +41,16 @@ public class TestFirstOrderMAPInferenceEngineNaiveSolveSimplePMLN {
         pmln.addClause(reflexity);
 
         PMLVector weights = new PMLVector();
-        weights.setValue(localClause, "x/Peter y/Anna", 2.0);
-        weights.setValue(localClause, "x/Anna y/Peter", 2.0);
-        weights.setValue(localClause, "x/Sebastian y/Peter", 2.0);
-        weights.setValue(localClause, "x/Peter y/Sebastian", 2.0);
+        weights.setValue(localClause, "x/Peter y/Anna", 20.0);
+        weights.setValue(localClause, "x/Anna y/Peter", -1.0);
+        weights.setValue(localClause, "x/Sebastian y/Peter", 20.0);
+        weights.setValue(localClause, "x/Peter y/Sebastian", -1.0);
+        weights.setValue(localClause, "x/Sebastian y/Anna", -2.0);
 
-        weights.setValue(reflexity, 2.0);
+        weights.setValue(reflexity, 10.0);
 
-        observation = signature.createWorld();
+        World observation = signature.createWorld();
+        observation.getRelation(friends).setOpen(true);
 
         inferenceEngine = new NaiveFirstOrderMAPInferenceEngine(new ExhaustivePropositionalMAPInferenceEngine());
         inferenceEngine.setPseudoMarkovLogicNetwork(pmln);
@@ -63,12 +65,31 @@ public class TestFirstOrderMAPInferenceEngineNaiveSolveSimplePMLN {
     }
 
     @Test
-    public void testSolveResultIsCorrectForHiddenUserPredicates() {
+    public void testSolveResultReflexityHolds() {
         World result = inferenceEngine.infer().getWorld();
-        System.out.println("relation: " + result.getRelation(friends));
-        assertTrue(result.getRelation(friends).
-            containsTuple("Anna", "Peter"),
-            "The result does not contain a ground atom that should be included.");
+        for (Constant p1 : person)
+            for (Constant p2 : person)
+                assertTrue(!result.containsGroundAtom(friends, p1, p2)
+                    || result.containsGroundAtom(friends, p2, p1),
+                    "Reflexity does not hold for " + p1 + " and " + p2);
+    }
+
+    @Test
+    public void testSolveResultContainsAtomWithHighLocalWeight() {
+        World result = inferenceEngine.infer().getWorld();
+        assertTrue(result.containsGroundAtom(friends, "Peter", "Anna"),
+            "Result should contain (Peter,Anna) because we gave it high weight");
+
+    }
+
+    @Test
+    public void testSolveResultDoesNotContainAtomWithLowLocalWeightAndNoInversePairWithHighWeight() {
+        World result = inferenceEngine.infer().getWorld();
+        assertTrue(!result.containsGroundAtom(friends, "Sebastian", "Anna"),
+            "Result should not contain (Sebastian,Anna) because we gave it a very low weight " +
+                "and the inverse pair has zero local weight---hence the reflexity clause  has" +
+                "no effect.");
+
     }
 
 

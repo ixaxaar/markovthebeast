@@ -9,7 +9,12 @@ import com.googlecode.thebeast.world.DoubleConstant;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.Tuple;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A GroundMarkovNetwork is a Markov Network/factor graph in which factors represent grounded versions of weighted first
@@ -24,6 +29,12 @@ public class GroundMarkovNetwork {
 
     private final Map<Predicate, Map<Tuple, GroundNode>>
         nodeMapping = new LinkedHashMap<Predicate, Map<Tuple, GroundNode>>();
+
+    public List<GroundFactor> ground(final PMLClause clause, String ... substitutionTexts){
+        return ground(clause, NestedSubstitution.createNestedSubstitutions(
+            clause.getSignature(),
+            substitutionTexts));
+    }
 
     public List<GroundFactor> ground(
         final PMLClause clause,
