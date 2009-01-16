@@ -1,33 +1,90 @@
+/**
+    This is a grammar for the Pseudo Markov Logic Signature language (SIGL). 
+*/
+
 Package com.googlecode.thebeast.world.sigl;
 
+Helpers
+
+    tab = 9;
+    cr = 13;
+    lf = 10;
+    eol = [[cr + lf] + [cr + lf]];
+    white = [[' ' + tab] + eol];
+
+    letter = [['A'..'Z'] + ['a'..'z']];
+    digit = ['0'..'9'];
+    normal = [[digit + '_'] + letter];
+    special_character = [[['?' + '_'] + ['*' + '%']] + '\'];
+    character = [[letter + digit] + special_character];
+
+    type = 'type';
+    predicate = 'predicate';
+    cross = 'x';
+    colon = ':';
+    comma = ',';
+    semicolon = ';';
+    ellipsis = '...';
+
 Tokens
- number = ['0' .. '9']+;
- plus = '+';
- minus = '-';
- mult = '*';
- div = '/';
- mod = '%';
- l_par = '(';
- r_par = ')';
- blank = (' ' | 13 | 10)+;
+    white = white+;
+    type = type;
+    predicate = predicate;
+    ellipsis = ellipsis;
+    colon = colon;
+    comma = comma;
+    cross = cross;
+    semicolon = semicolon;
+
+    identifier = letter (normal)* ;
+    double_literal = digit (digit)* '.' digit (digit)* (('E' | 'e') ('+' | '-')? digit (digit)*)?;
+    long_literal = digit (digit)*;
+    char_literal = ''' character ''';
+    string_literal = '"' [[0 .. 0xffff] - ['"' + [cr + lf]]]* '"';
+    line_comment = '/' '/' [[0 .. 0xffff] - [cr + lf]]* eol |
+                '#' [[0 .. 0xffff] - [cr + lf]]* eol ;
+
+    multiline_comment = '/' '*' [[0 .. 0xffff] - ['*' + '/']]* '*' '/' ;
+
 
 
 Ignored Tokens
- blank;
+    white, line_comment, multiline_comment;
 
 Productions
- expr =
-  {factor} factor |
-  {plus} expr plus factor |
-  {minus} expr minus factor;
 
- factor =
-  {term} term |
-  {mult} factor mult term |
-  {div} factor div term |
-  {mod} factor mod term;
+    sigl =
+    {single}    sigl_statement |
+    {program}   sigl_extra_statement+;
 
+    sigl_extra_statement =
+                sigl_statement semicolon;
 
- term =
-  {number} number |
-  {expr} l_par expr r_par;
+    sigl_statement =
+    {type}      type_declation |
+    {pred}      pred_declaration;
+
+    /* Type declarations */
+        
+    type_declation =
+                type identifier colon type_constants;
+
+    type_extra_constant =
+                comma type_constant;
+
+    type_constants =
+                type_constant type_extra_constant*;
+
+    type_constant =
+    {id}        identifier |
+    {string}    string_literal;
+
+    /* Predicate declaration */
+
+    pred_declaration = predicate identifier colon arg_types;
+
+    arg_extra_type = cross arg_type ;
+
+    arg_types = arg_type arg_extra_type*;
+
+    arg_type = identifier;
