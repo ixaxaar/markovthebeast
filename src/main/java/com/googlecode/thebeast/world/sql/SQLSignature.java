@@ -1,12 +1,32 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.*;
+import com.googlecode.thebeast.world.DoubleType;
+import com.googlecode.thebeast.world.IntegerType;
+import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.PredicateNotInSignatureException;
+import com.googlecode.thebeast.world.Signature;
+import com.googlecode.thebeast.world.SignatureListener;
+import com.googlecode.thebeast.world.SignatureMismatchException;
+import com.googlecode.thebeast.world.Symbol;
+import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
+import com.googlecode.thebeast.world.SymbolNotPartOfSignatureException;
+import com.googlecode.thebeast.world.Type;
+import com.googlecode.thebeast.world.TypeNotInSignatureException;
+import com.googlecode.thebeast.world.UserPredicate;
+import com.googlecode.thebeast.world.World;
+import com.googlecode.thebeast.world.sigl.SIGLInterpreter;
 
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An SQLSignature is an SQL based implementation of a Signature. Essentially relations are stored as SQL tables and
@@ -84,6 +104,7 @@ public final class SQLSignature implements Serializable, Signature {
      * Connection to database that is used to store ground atoms.
      */
     private Connection connection;
+    private SIGLInterpreter interpreter = new SIGLInterpreter(this);
 
     /**
      * Creates a new signature and opens a connection to the H2 database.
@@ -196,6 +217,13 @@ public final class SQLSignature implements Serializable, Signature {
             l.symbolRemoved(symbol);
         }
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void interpret(String sigl) {
+        interpreter.interpret(sigl);
     }
 
     /**

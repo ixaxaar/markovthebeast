@@ -19,7 +19,6 @@ Helpers
     character = [[letter + digit] + special_character];
 
     type = 'type';
-    cross = 'x';
     plus = '+';
     colon = ':';
     comma = ',';
@@ -29,14 +28,13 @@ Helpers
     l_br = '(';
     r_br = ')';
     hash = '#';
-
+     
 Tokens
     white = white+;
     type = type;
     ellipsis = ellipsis;
     colon = colon;
     comma = comma;
-    cross = cross;
     semicolon = semicolon;
     colondash = colondash;
     r_br = r_br;

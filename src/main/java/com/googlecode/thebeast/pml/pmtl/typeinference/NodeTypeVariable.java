@@ -3,8 +3,10 @@ package com.googlecode.thebeast.pml.pmtl.typeinference;
 import com.googlecode.thebeast.pml.pmtl.node.Node;
 
 /**
+ * A NodeTypeVariable is variable that one can assign node types to.
+ *
  * @author Sebastian Riedel
-*/
+ */
 public class NodeTypeVariable implements NodeTypeExpression {
 
     public NodeTypeVariable(Node node) {
@@ -32,5 +34,10 @@ public class NodeTypeVariable implements NodeTypeExpression {
     @Override
     public int hashCode() {
         return node != null ? node.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return node.toString();
     }
 }
