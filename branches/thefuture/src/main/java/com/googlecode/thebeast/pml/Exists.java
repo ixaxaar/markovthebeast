@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * @author Sebastian Riedel
  */
-public class Exists implements FirstOrderOperator {
+public final class Exists implements FirstOrderOperator {
 
     public final static Exists EXISTS = new Exists();
 
