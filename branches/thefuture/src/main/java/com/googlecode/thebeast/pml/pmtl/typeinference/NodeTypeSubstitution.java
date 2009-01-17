@@ -27,7 +27,7 @@ public class NodeTypeSubstitution extends LinkedHashMap<NodeTypeVariable, NodeTy
     }
 
     void substituteAll(NodeTypeSubstitution substitution) {
-        for (NodeTypeVariable var : substitution.keySet()) {
+        for (NodeTypeVariable var : keySet()) {
             put(var, substitution.substitute(get(var)));
         }
     }

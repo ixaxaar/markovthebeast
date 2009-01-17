@@ -13,6 +13,14 @@ import java.util.Set;
 public interface Signature {
 
     /**
+     * Interprets a Signature Language statement.
+     *
+     * @param sigl the signature language statement.
+     * @see com.googlecode.thebeast.world.sigl.SIGLInterpreter
+     */
+    void interpret(String sigl);
+
+    /**
      * Returns the symbol for the given name.
      *
      * @param name the name of the symbol.
@@ -43,12 +51,12 @@ public interface Signature {
     World createWorld();
 
     /**
-     * Creates a new possible world that inherits the relations from the parent world for all predicates which are closed
-     * in the parent world.
+     * Creates a new possible world that inherits the relations from the parent world for all predicates which are
+     * closed in the parent world.
      *
      * @param parent the world to get the closed relations from.
-     * @return a new World which contains all ground atoms of the parent world for the predicates which are closed in the
-     *         parent world.
+     * @return a new World which contains all ground atoms of the parent world for the predicates which are closed in
+     *         the parent world.
      */
     World createWorld(World parent);
 
@@ -124,9 +132,9 @@ public interface Signature {
         throws SymbolNotPartOfSignatureException;
 
     /**
-     * Returns the type corresponding to the given type name. An exception is thrown if there is no such type. If you want
-     * to find out whether a type exists use {@link com.googlecode.thebeast.world.Signature#getTypeNames()} and {@link
-     * java.util.Set#contains(Object)} instead.
+     * Returns the type corresponding to the given type name. An exception is thrown if there is no such type. If you
+     * want to find out whether a type exists use {@link com.googlecode.thebeast.world.Signature#getTypeNames()} and
+     * {@link java.util.Set#contains(Object)} instead.
      *
      * @param name the name of the type to return.
      * @return either a built-in type of a {@link com.googlecode.thebeast.world.sql.SQLUserType}
