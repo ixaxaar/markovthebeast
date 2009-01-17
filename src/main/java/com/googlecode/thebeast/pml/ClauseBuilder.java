@@ -8,12 +8,16 @@ import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.WorldUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sebastian Riedel
  */
-public class ClauseBuilder {
+public final class ClauseBuilder {
 
     private ArrayList<Atom> atoms = new ArrayList<Atom>();
     private ArrayList<Atom> body = new ArrayList<Atom>();

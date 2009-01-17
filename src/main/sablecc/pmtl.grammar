@@ -1,33 +1,119 @@
+/**
+    This is a grammar for the Pseudo Markov Logic Template Language (PMLT).
+*/
 Package com.googlecode.thebeast.pml.pmtl;
 
-Tokens
- number = ['0' .. '9']+;
- plus = '+';
- minus = '-';
- mult = '*';
- div = '/';
- mod = '%';
- l_par = '(';
- r_par = ')';
- blank = (' ' | 13 | 10)+;
+Helpers
 
+    tab = 9;
+    cr = 13;
+    lf = 10;
+    eol = [[cr + lf] + [cr + lf]];
+    white = [[' ' + tab] + eol];
+    lowercase = ['a'..'z'];
+    uppercase = ['A'..'Z'];
+    letter = [['A'..'Z'] + ['a'..'z']];
+    digit = ['0'..'9'];
+    normal = [[digit + '_'] + letter];
+    special_character = [[['?' + '_'] + ['*' + '%']] + '\'];
+    character = [[letter + digit] + special_character];
+
+    type = 'type';
+    cross = 'x';
+    plus = '+';
+    colon = ':';
+    comma = ',';
+    semicolon = ';';
+    ellipsis = '...';
+    colondash = ':-';
+    l_br = '(';
+    r_br = ')';
+    hash = '#';
+
+Tokens
+    white = white+;
+    type = type;
+    ellipsis = ellipsis;
+    colon = colon;
+    comma = comma;
+    cross = cross;
+    semicolon = semicolon;
+    colondash = colondash;
+    r_br = r_br;
+    l_br = l_br;
+    plus = plus;
+    hash = hash;
+
+    lowercase_id = lowercase (normal)* ;
+    uppercase_id = uppercase (normal)* ;
+    double_literal = digit (digit)* '.' digit (digit)* (('E' | 'e') ('+' | '-')? digit (digit)*)?;
+    long_literal = digit (digit)*;
+    char_literal = ''' character ''';
+    string_literal = '"' [[0 .. 0xffff] - ['"' + [cr + lf]]]* '"';
+    line_comment = '/' '/' [[0 .. 0xffff] - [cr + lf]]* eol |
+                '#' [[0 .. 0xffff] - [cr + lf]]* eol ;
+
+    multiline_comment = '/' '*' [[0 .. 0xffff] - ['*' + '/']]* '*' '/' ;
 
 Ignored Tokens
- blank;
+    white, line_comment, multiline_comment;
+
 
 Productions
- expr =
-  {factor} factor |
-  {plus} expr plus factor |
-  {minus} expr minus factor;
 
- factor =
-  {term} term |
-  {mult} factor mult term |
-  {div} factor div term |
-  {mod} factor mod term;
+    pmtl {->pmtl} =
+            clause {->New pmtl(clause)};
+
+    clause {->clause} =
+            [head]:atom colondash [body]:atoms {-> New clause(head.atom,[body.atom])};
+
+    atoms {->atom*} =
+            {single}    [atom]:atom {-> [atom.atom]}
+        |   {multiple}  [atom]:atom comma [rest]:atoms {-> [atom.atom, rest.atom] };
+
+    predicate {->predicate} =
+        [name]:lowercase_id {-> New predicate(name)};
+
+    atom {->atom} =
+            [predicate]:predicate l_br [args]:args r_br {-> New atom(predicate.predicate, [args.term])};
+
+    args {->term*} =
+            {single}    [arg]:term {-> [arg.term]}
+        |   {multiple}  [arg]:term comma [rest]:args {-> [arg.term, rest.term] };
+
+    term {->term} =
+            {variable}  [name]:uppercase_id {-> New term.variable(name)}
+        |   {constant}  [name]:lowercase_id {-> New term.constant(name)}
+        |   {string}    [value]:string_literal {-> New term.string(value)}
+        |   {long}      [value]:long_literal {-> New term.long(value)}
+        |   {double}    [value]:double_literal {-> New term.double(value)}
+        |   {index}     plus [name]:uppercase_id {-> New term.index(name)}
+        |   {scale}     hash [name]:uppercase_id {-> New term.scale(name)};
 
 
- term =
-  {number} number |
-  {expr} l_par expr r_par;
+
+Abstract Syntax Tree
+    pmtl = clause;
+
+    clause = [head]:atom [body]:atom*;
+
+    predicate = [name]:lowercase_id;
+    
+    term =
+          {variable}    [name]:uppercase_id
+        | {constant}    [name]:lowercase_id
+        | {string}      [value]:string_literal
+        | {long}        [value]:long_literal
+        | {double}      [value]:double_literal
+        | {index}       [name]:uppercase_id
+        | {scale}       [name]:uppercase_id;
+
+    atom = [predicate]:predicate [args]:term*;
+
+
+    
+
+
+
+
+
