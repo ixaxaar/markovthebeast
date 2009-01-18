@@ -9,7 +9,7 @@ import java.util.Stack;
  *
  * @author Sebastian Riedel
  */
-public class NodeTypeExpressionUnifier {
+public final class NodeTypeExpressionUnifier {
 
     /**
      * This method takes a list of node type equations and finds a node type substitution that satisfies all equations.
