@@ -5,9 +5,16 @@ package com.googlecode.thebeast.pml.pmtl.typeinference;
  *
  * @author Sebastian Riedel
  */
-public class NodeTypeEquation {
+public final class NodeTypeEquation {
 
-    private NodeTypeExpression left, right;
+    /**
+     * The left node type expression.
+     */
+    private NodeTypeExpression left;
+    /**
+     * The right node type expression.
+     */
+    private NodeTypeExpression right;
 
     /**
      * Creates a new NodeTypeEquation with the given parameters.

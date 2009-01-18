@@ -41,25 +41,65 @@ import java.util.List;
  *
  * @author Sebastian Riedel
  */
-public class PMTLInterpreter extends DepthFirstAdapter {
+public final class PMTLInterpreter extends DepthFirstAdapter {
 
+    /**
+     * The terms the interpreter collects while tree-walking in a clause subtree.
+     */
     private ArrayList<Term> terms = new ArrayList<Term>();
+    /**
+     * The atoms the interpreter collects while tree-walking in a clause subtree.
+     */
     private ArrayList<Atom> atoms = new ArrayList<Atom>();
+    /**
+     * The index variables the interpreter collects while tree-walking in a clause subtree.
+     */
     private ArrayList<Variable> indexVariables = new ArrayList<Variable>();
+
+    /**
+     * The scale variable the interpreter found while tree-walking in a clause subtree.
+     */
     private Variable scaleVariable;
-    private ArrayList<Atom> body = new ArrayList<Atom>();
+
+    /**
+     * The signature the interpreter uses to create/get symbols.
+     */
     private Signature signature;
+
+    /**
+     * The factory to use for constructing atoms.
+     */
     private QueryFactory queryFactory = QueryFactory.getInstance();
+
+    /**
+     * The type substitution (that provides the right type for the nodes of the AST).
+     */
     private NodeTypeSubstitution substitution;
+
+    /**
+     * The clauses generated while tree-walking the complete pmtl statement/programm.
+     */
     private ArrayList<PMLClause> clauses = new ArrayList<PMLClause>();
 
 
+    /**
+     * Creates a new interpreter that uses the given signature in order to create/get the symbols mentioned in the each
+     * PMTL statement.
+     *
+     * @param signature the signature to use for creating/getting the symbols mentioned in each pmtl statement.
+     */
     public PMTLInterpreter(Signature signature) {
         this.signature = signature;
     }
 
+    /**
+     * Returns all clauses described in the given PMTL statement/program.
+     *
+     * @param statement the PMTL statement to interpret.
+     * @return the PMLClause objects described in the statement/statements.
+     */
     public List<PMLClause> interpret(String statement) {
-        Parser parser = new Parser(new Lexer(new PushbackReader(new StringReader(statement))));
+        Parser parser = new Parser(new Lexer(new PushbackReader(new StringReader(statement), 1000)));
         clauses.clear();
         try {
             Start start = parser.parse();
@@ -83,7 +123,7 @@ public class PMTLInterpreter extends DepthFirstAdapter {
         atoms.clear();
         for (PAtom atom : node.getBody())
             atom.apply(this);
-        body.addAll(atoms);
+        List<Atom> body = new ArrayList<Atom>(atoms);
         PMLClause clause = new PMLClause(body, head, new ArrayList<Variable>(), new ArrayList<Atom>(),
             new Exists(), indexVariables, scaleVariable);
         clauses.add(clause);
@@ -93,7 +133,7 @@ public class PMTLInterpreter extends DepthFirstAdapter {
 
     @Override
     public void outAVariableTerm(AVariableTerm node) {
-        terms.add(new Variable(node.getName().getText(),substitution.getType(node)));
+        terms.add(new Variable(node.getName().getText(), substitution.getType(node)));
     }
 
     @Override
@@ -142,7 +182,7 @@ public class PMTLInterpreter extends DepthFirstAdapter {
 
     @Override
     public void outAAtom(AAtom node) {
-        String predName = ((APredicate)node.getPredicate()).getName().getText();
+        String predName = ((APredicate) node.getPredicate()).getName().getText();
         if (predName.equals("=")) {
 
         } else {

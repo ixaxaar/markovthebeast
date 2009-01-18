@@ -9,11 +9,15 @@ import com.googlecode.thebeast.pml.pmtl.node.Node;
  */
 public class NodeTypeVariable implements NodeTypeExpression {
 
+    /**
+     * The node for which this type variable holds/represents the type.
+     */
+    private Node node;
+
     public NodeTypeVariable(Node node) {
         this.node = node;
     }
 
-    Node node;
 
     public void accept(NodeTypeExpressionVisitor visitor) {
         visitor.visitNodeTypeVariable(this);

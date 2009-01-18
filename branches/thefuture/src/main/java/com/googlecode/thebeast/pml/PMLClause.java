@@ -3,19 +3,30 @@ package com.googlecode.thebeast.pml;
 import com.googlecode.thebeast.query.Atom;
 import com.googlecode.thebeast.query.Variable;
 import com.googlecode.thebeast.world.DoubleType;
-import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.Signature;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
- * A PMLClause maps a possible world to a feature vector. todo: fixing <p/> Let m be a PMLClause with query q, scale
- * variable s and index variable i, and w a possible world, and let r be the result of applying the query q to the world
- * w. Then m maps w to a feature vector f(w) that contains one component for each possible binding b of the index
- * variable i and the value f_b(w) is defined as follows. For each nested substitution s in r for which the outer
- * substitution is consistent with b we add 1.0 to f_b(w) if the outer conjunction of q is false in w when applied to s,
- * and the value of the first order operator applied to the set of ground atoms defined by the target atom and the inner
- * substitutions in s.
+ * A PMLClause maps a possible world to a feature vector. This mapping is defined through the following attributes of a
+ * PMLClause:
+ *
+ * <ul>
+ *  <li>a set of <b>body</b> atoms</li>
+ *  <li>a <b>head</b> atom</li>
+ *  <li>a <b>First Order Operator</b></li>
+ *  <li>a list of <b>inner</b> variables</li>
+ *  <li>a list of <b>index</b> variables</li>
+ *  <li>a <b>scale</b> variable (optional)</li>
+ * </ul>
+ *
+ * todo: complete description of PMLCLause
+ * These attributes define a feature vector f(w) for the possible world w as follows. Let the set of <b>outer</b>
+ * variables be all variables appearing in the body and head of the clause but not in the set of inner variables.
  *
  * @author Sebastian Riedel
  */
@@ -52,7 +63,6 @@ public class PMLClause {
                      final List<Variable> indexVariables,
                      final Variable scaleVariable
     ) throws ConstructionException {
-
 
 
         this.body.addAll(body);
