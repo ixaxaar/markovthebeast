@@ -14,12 +14,20 @@ public class NodeTypeVariable implements NodeTypeExpression {
      */
     private Node node;
 
-    public NodeTypeVariable(Node node) {
+    /**
+     * Creates a new NodeTypeVariable for the given node.
+     *
+     * @param node the node for which this variable represents the type.
+     */
+    public NodeTypeVariable(final Node node) {
         this.node = node;
     }
 
 
-    public void accept(NodeTypeExpressionVisitor visitor) {
+    /**
+     * {@inheritDoc}
+     */
+    public void accept(final NodeTypeExpressionVisitor visitor) {
         visitor.visitNodeTypeVariable(this);
     }
 
