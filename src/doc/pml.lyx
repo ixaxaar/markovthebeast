@@ -1,0 +1,210 @@
+#LyX 1.6.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Pseudo Markov Logic
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Markov Logic has seen increased interest.
+\end_layout
+
+\begin_layout Standard
+Pseudo Markov Logic (PML) is a variant of Markov Logic which need arose
+ from the following observations we made in our day-to-day use of Markov
+ Logic as a tool for Natural Language Processing and the reactions/questions/pro
+blems that other users of our tool experienced:
+\end_layout
+
+\begin_layout Itemize
+There is a only a relatively small set of types of formulae that can be
+ efficiently processed, and we had to go through great lengths in explaining
+ when formulae can or cannot be dealt with efficiently.
+\end_layout
+
+\begin_layout Itemize
+There is only a small set of types formulae that we're actually needed in
+ the tasks we encounter, and most of them fall in the type mentioned in
+ the first step.
+\end_layout
+
+\begin_layout Itemize
+Often we could have a formula with ten thousands of different weights depending
+ on the variable binding.
+ Creating a own formula for each of these weights does not scale.
+\end_layout
+
+\begin_layout Itemize
+Often we want to include probabilities/confidences from other tools or estimator
+s.
+\end_layout
+
+\begin_layout Itemize
+We have no way to reuse inference techniques for model substructure with
+ particular structure.
+\end_layout
+
+\begin_layout Itemize
+Some knowledge is really difficult to capture with FOL as is (acyclicity)
+ and/or requires additional predicates.
+\end_layout
+
+\begin_layout Section
+Formulae
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $pred\left(\ldots\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $FeatureFunction\left(\ldots\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $id:FOOperator\ x.\phi\left(x\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $id:FOPlugin\ x\left[pred\left(x\right)\right].\phi\left(x\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Operator
+\end_layout
+
+\begin_layout LyX-Code
+double evaluate(Assignment y);
+\end_layout
+
+\begin_layout Subsection
+FOPPlugin
+\end_layout
+
+\begin_layout LyX-Code
+double evaluate(Assignment y, List<GroundNode> atoms);
+\end_layout
+
+\begin_layout Subsection
+FOOperator
+\end_layout
+
+\begin_layout LyX-Code
+FeatureFunction ground(List<FeatureFunction> args);
+\end_layout
+
+\begin_layout Section
+Requirements
+\end_layout
+
+\begin_layout Subsection
+Parametrized Weights as Part of the Language
+\end_layout
+
+\begin_layout Subsection
+Single Signature for all instances
+\end_layout
+
+\begin_layout Subsection
+Pluggable FOL Operator that can implement special concepts such as acyclicity,
+ exactlyOne, 2ndOrderMarkovModel (see D.Smith)
+\end_layout
+
+\begin_layout Subsection
+Real-valued 
+\begin_inset Quotes eld
+\end_inset
+
+features
+\begin_inset Quotes erd
+\end_inset
+
+, ability to include confidences/probabilities from elsewhere
+\end_layout
+
+\begin_layout Subsection
+Allow for Simple Conditional Query-Based Networks
+\end_layout
+
+\begin_layout Subsection
+Simple Separation
+\end_layout
+
+\begin_layout Subsection
+No Convoluted formulae
+\end_layout
+
+\begin_layout Subsection
+Allows efficient Cutting Plane Inference = 
+\begin_inset Quotes eld
+\end_inset
+
+Building up atoms
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Simple 
+\end_layout
+
+\end_body
+\end_document

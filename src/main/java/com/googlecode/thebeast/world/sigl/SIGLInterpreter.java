@@ -20,8 +20,8 @@ import java.util.ArrayList;
  *
  * <p>The SIGL format can be described through the following grammar.
  * <pre>
- * start = sigl_statement | (sigl_statement ';')+;
- * sigl_statement = type_statement | pred_statement;
+ * start = sigl_statement | (sigl_statement ';')+
+ * sigl_statement = type_statement | pred_statement
  * type_statement = 'type' id ':' constant (',' constant)*
  * pred_statement = 'predicate' id ':' type ('x' type)*
  * </pre>
