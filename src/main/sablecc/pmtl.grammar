@@ -66,7 +66,8 @@ Ignored Tokens
 Productions
 
     pmtl {->pmtl} =
-            clause {->New pmtl(clause)};
+            {clause} clause {->New pmtl.clause(clause)}
+        |   {formula} composable {->New pmtl.formula(composable)};
 
     clause {->clause} =
             [head]:atom colondash [body]:atoms {-> New clause(head.atom,[body.atom])};
@@ -96,14 +97,22 @@ Productions
 
 
     composable {->composable} =
-            {atom}      [atom]:atom {-> New composable.atom(atom) }
-        |   {and}       [arg1]:composable and [arg2]:composable
+           {and}       [arg1]:composable and [arg2]:atomic
                     {-> New composable.and(arg1.composable ,arg2.composable )}
-        |   {implies}   [arg1]:composable implies [arg2]:composable
-                    {-> New composable.implies(arg1.composable ,arg2.composable )};
+        |  {implies}   [arg1]:composable implies [arg2]:atomic
+                    {-> New composable.implies(arg1.composable ,arg2.composable )}
+        |  {atomic}    atomic {-> atomic.composable };
+
+
+    atomic {->composable} =
+            {atom}      atom {-> New composable.atom(atom)}
+        |   {parens}    l_br composable r_br {-> composable.composable };
+
 
 Abstract Syntax Tree
-    pmtl = clause;
+    pmtl =
+          {clause}      clause
+        | {formula}     composable ;
 
     clause = [head]:atom [body]:atom*;
 

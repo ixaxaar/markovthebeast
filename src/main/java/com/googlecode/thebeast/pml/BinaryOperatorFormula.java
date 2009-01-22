@@ -32,4 +32,9 @@ public final class BinaryOperatorFormula extends ComposableFormula  {
     public void accept(FormulaVisitor visitor) {
         visitor.visitBinaryOperatorFormula(this);
     }
+
+    @Override
+    public String toString() {
+        return "(" + arg1 + " " + operator.getInfix() + " " + arg2 + ")";
+    }
 }

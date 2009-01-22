@@ -5,6 +5,9 @@ package com.googlecode.thebeast.pml;
  */
 public final class Implies extends BinaryOperator {
 
+
+    public final static Implies IMPLIES = new Implies();
+
     public Implies(){
         super("implies", "=>");
     }

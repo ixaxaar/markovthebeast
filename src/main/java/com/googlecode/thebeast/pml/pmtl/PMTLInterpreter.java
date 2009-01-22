@@ -2,6 +2,7 @@ package com.googlecode.thebeast.pml.pmtl;
 
 import com.googlecode.thebeast.pml.Exists;
 import com.googlecode.thebeast.pml.PMLClause;
+import com.googlecode.thebeast.pml.Formula;
 import com.googlecode.thebeast.pml.pmtl.analysis.DepthFirstAdapter;
 import com.googlecode.thebeast.pml.pmtl.lexer.Lexer;
 import com.googlecode.thebeast.pml.pmtl.lexer.LexerException;
@@ -113,6 +114,7 @@ public final class PMTLInterpreter extends DepthFirstAdapter {
         }
         return new ArrayList<PMLClause>(clauses);
     }
+    
 
     @Override
     public void caseAClause(AClause node) {

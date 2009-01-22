@@ -1,14 +1,7 @@
 package com.googlecode.thebeast.pml.pmtl.typeinference;
 
 import com.googlecode.thebeast.pml.pmtl.analysis.DepthFirstAdapter;
-import com.googlecode.thebeast.pml.pmtl.node.AAtom;
-import com.googlecode.thebeast.pml.pmtl.node.AClause;
-import com.googlecode.thebeast.pml.pmtl.node.AConstantTerm;
-import com.googlecode.thebeast.pml.pmtl.node.ADoubleTerm;
-import com.googlecode.thebeast.pml.pmtl.node.ALongTerm;
-import com.googlecode.thebeast.pml.pmtl.node.APredicate;
-import com.googlecode.thebeast.pml.pmtl.node.AStringTerm;
-import com.googlecode.thebeast.pml.pmtl.node.AVariableTerm;
+import com.googlecode.thebeast.pml.pmtl.node.*;
 import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.UserConstant;
@@ -31,12 +24,12 @@ public class TypeEquationExtractor extends DepthFirstAdapter {
      * Extract a list of type expression equations from the given clause node.
      *
      * @param signature the signature from which to take the types.
-     * @param clause    the syntax tree node describing the clause.
+     * @param node    the syntax tree node describing the clause.
      * @return the set of type expression constraints defined by the clause syntax node.
      */
-    public static List<NodeTypeEquation> extractEquations(Signature signature, AClause clause) {
+    public static List<NodeTypeEquation> extractEquations(Signature signature, Node node) {
         final TypeEquationExtractor extractor = new TypeEquationExtractor(signature);
-        clause.apply(extractor);
+        node.apply(extractor);
         return extractor.equations;
     }
 

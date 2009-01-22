@@ -2,10 +2,7 @@ package com.googlecode.thebeast.pml.pmtl.typeinference;
 
 import com.googlecode.thebeast.pml.pmtl.lexer.Lexer;
 import com.googlecode.thebeast.pml.pmtl.lexer.LexerException;
-import com.googlecode.thebeast.pml.pmtl.node.AAtom;
-import com.googlecode.thebeast.pml.pmtl.node.AClause;
-import com.googlecode.thebeast.pml.pmtl.node.APmtl;
-import com.googlecode.thebeast.pml.pmtl.node.Start;
+import com.googlecode.thebeast.pml.pmtl.node.*;
 import com.googlecode.thebeast.pml.pmtl.parser.Parser;
 import com.googlecode.thebeast.pml.pmtl.parser.ParserException;
 import com.googlecode.thebeast.world.Signature;
@@ -31,7 +28,7 @@ public class TestNodeTypeExpressionUnifier {
         Parser parser = new Parser(new Lexer(new PushbackReader(
             new StringReader("pred(X,Y) :- pred(Y,X), pred(X,a)"))));
         Start start = parser.parse();
-        APmtl aPmtl = (APmtl) start.getPPmtl();
+        AClausePmtl aPmtl = (AClausePmtl) start.getPPmtl();
         AClause aClause = (AClause) aPmtl.getClause();
         AAtom aAtom = (AAtom) aClause.getHead();
 
