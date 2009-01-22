@@ -32,4 +32,17 @@ public final class AtomFormula extends ComposableFormula {
     public void accept(FormulaVisitor visitor) {
         visitor.visitAtomFormula(this);
     }
+
+    @Override
+    public String toString() {
+        StringBuffer result = new StringBuffer(predicate.getName());
+        result.append("(");
+        if (arguments.size() > 0){
+            result.append(arguments.get(0));
+            for (int i = 1; i < arguments.size(); ++i)
+                result.append(",").append(arguments.get(i));
+        }
+        result.append(")");
+        return result.toString();
+    }
 }

@@ -5,6 +5,8 @@ package com.googlecode.thebeast.pml;
  */
 public final class And extends BinaryOperator {
 
+    public final static And AND = new And();
+
     public And(){
         super("and", "^");
     }

@@ -4,7 +4,7 @@ import com.googlecode.thebeast.pml.pmtl.lexer.Lexer;
 import com.googlecode.thebeast.pml.pmtl.lexer.LexerException;
 import com.googlecode.thebeast.pml.pmtl.node.AAtom;
 import com.googlecode.thebeast.pml.pmtl.node.AClause;
-import com.googlecode.thebeast.pml.pmtl.node.APmtl;
+import com.googlecode.thebeast.pml.pmtl.node.AClausePmtl;
 import com.googlecode.thebeast.pml.pmtl.node.Start;
 import com.googlecode.thebeast.pml.pmtl.parser.Parser;
 import com.googlecode.thebeast.pml.pmtl.parser.ParserException;
@@ -32,8 +32,8 @@ public class TestTypeEquationExtractor {
         Parser parser = new Parser(new Lexer(new PushbackReader(
             new StringReader("pred(X,Y) :- pred(Y,X), pred(X,a)"))));
         Start start = parser.parse();
-        APmtl aPmtl = (APmtl) start.getPPmtl();
-        AClause aClause = (AClause) aPmtl.getClause();
+        AClausePmtl AClausePmtl = (AClausePmtl) start.getPPmtl();
+        AClause aClause = (AClause) AClausePmtl.getClause();
         AAtom aAtom = (AAtom) aClause.getHead();
 
         List<NodeTypeEquation> result = TypeEquationExtractor.extractEquations(signature, aClause);
@@ -50,8 +50,8 @@ public class TestTypeEquationExtractor {
         Parser parser = new Parser(new Lexer(new PushbackReader(
             new StringReader("pred(a,Y) :- pred(Y,X), pred(X,a)"))));
         Start start = parser.parse();
-        APmtl aPmtl = (APmtl) start.getPPmtl();
-        AClause aClause = (AClause) aPmtl.getClause();
+        AClausePmtl AClausePmtl = (AClausePmtl) start.getPPmtl();
+        AClause aClause = (AClause) AClausePmtl.getClause();
         AAtom aAtom = (AAtom) aClause.getHead();
 
         List<NodeTypeEquation> result = TypeEquationExtractor.extractEquations(signature, aClause);
