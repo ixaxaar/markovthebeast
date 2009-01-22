@@ -28,7 +28,10 @@ Helpers
     l_br = '(';
     r_br = ')';
     hash = '#';
-     
+    and = '^';
+    or = 'v';
+    implies = '=>';
+
 Tokens
     white = white+;
     type = type;
@@ -41,6 +44,9 @@ Tokens
     l_br = l_br;
     plus = plus;
     hash = hash;
+    and = and;
+    or = or;
+    implies = implies;
 
     lowercase_id = lowercase (normal)* ;
     uppercase_id = uppercase (normal)* ;
@@ -89,6 +95,12 @@ Productions
         |   {scale}     hash [name]:uppercase_id {-> New term.scale(name)};
 
 
+    composable {->composable} =
+            {atom}      [atom]:atom {-> New composable.atom(atom) }
+        |   {and}       [arg1]:composable and [arg2]:composable
+                    {-> New composable.and(arg1.composable ,arg2.composable )}
+        |   {implies}   [arg1]:composable implies [arg2]:composable
+                    {-> New composable.implies(arg1.composable ,arg2.composable )};
 
 Abstract Syntax Tree
     pmtl = clause;
@@ -96,7 +108,7 @@ Abstract Syntax Tree
     clause = [head]:atom [body]:atom*;
 
     predicate = [name]:lowercase_id;
-    
+
     term =
           {variable}    [name]:uppercase_id
         | {constant}    [name]:lowercase_id
@@ -108,8 +120,12 @@ Abstract Syntax Tree
 
     atom = [predicate]:predicate [args]:term*;
 
+    composable =
+            {atom}      atom
+        |   {and}       [arg1]:composable [arg2]:composable
+        |   {implies}   [arg1]:composable [arg2]:composable;
 
-    
+
 
 
 

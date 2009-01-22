@@ -1,7 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
 import com.googlecode.thebeast.world.*;
-import junit.framework.Assert;
 import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -95,8 +94,8 @@ public final class TestSQLSignature {
         signature.addSignatureListener(listener);
         UserType type = signature.createType("type", false);
 
-        Assert.assertEquals("Signature did not fire symbol added event properly",
-            type, listener.symbol);
+        assertEquals(listener.symbol,
+            type, "Signature did not fire symbol added event properly");
 
         signature.removeType(type);
 
@@ -118,8 +117,8 @@ public final class TestSQLSignature {
         argumentTypes.add(signature.createType("type", false));
         UserPredicate predicate = signature.createPredicate("pred", argumentTypes);
 
-        Assert.assertEquals("Signature did not fire symbol added event properly",
-            predicate, listener.symbol);
+        assertEquals(listener.symbol,
+            predicate, "Signature did not fire symbol added event properly");
 
         signature.removePredicate(predicate);
         assertNull("Signature did not fire symbol removed event properly",
