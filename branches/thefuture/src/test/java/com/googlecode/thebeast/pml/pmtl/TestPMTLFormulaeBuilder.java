@@ -17,7 +17,7 @@ public class TestPMTLFormulaeBuilder {
 
         PMTLFormulaeBuilder builder = new PMTLFormulaeBuilder(signature);
 
-        System.out.println(builder.interpret("pred(X,Y) ^ (pred(X,a) => pred(Y,X))"));
+        System.out.println(builder.interpret("pred(+X,Y) ^ (pred(X,a) => pred(Y,X))"));
         
 
     }
