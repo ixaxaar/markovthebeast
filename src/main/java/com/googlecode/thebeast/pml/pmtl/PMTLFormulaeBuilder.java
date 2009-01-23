@@ -1,10 +1,27 @@
 package com.googlecode.thebeast.pml.pmtl;
 
-import com.googlecode.thebeast.pml.*;
+import com.googlecode.thebeast.pml.And;
+import com.googlecode.thebeast.pml.AtomFormula;
+import com.googlecode.thebeast.pml.BinaryOperatorFormula;
+import com.googlecode.thebeast.pml.ComposableFormula;
+import com.googlecode.thebeast.pml.Implies;
+import com.googlecode.thebeast.pml.PMLFormula;
 import com.googlecode.thebeast.pml.pmtl.analysis.DepthFirstAdapter;
 import com.googlecode.thebeast.pml.pmtl.lexer.Lexer;
 import com.googlecode.thebeast.pml.pmtl.lexer.LexerException;
-import com.googlecode.thebeast.pml.pmtl.node.*;
+import com.googlecode.thebeast.pml.pmtl.node.AAndComposable;
+import com.googlecode.thebeast.pml.pmtl.node.AAtom;
+import com.googlecode.thebeast.pml.pmtl.node.AConstantTerm;
+import com.googlecode.thebeast.pml.pmtl.node.ADoubleTerm;
+import com.googlecode.thebeast.pml.pmtl.node.AFormulaPmtl;
+import com.googlecode.thebeast.pml.pmtl.node.AImpliesComposable;
+import com.googlecode.thebeast.pml.pmtl.node.AIndexTerm;
+import com.googlecode.thebeast.pml.pmtl.node.ALongTerm;
+import com.googlecode.thebeast.pml.pmtl.node.APredicate;
+import com.googlecode.thebeast.pml.pmtl.node.AScaleTerm;
+import com.googlecode.thebeast.pml.pmtl.node.AStringTerm;
+import com.googlecode.thebeast.pml.pmtl.node.AVariableTerm;
+import com.googlecode.thebeast.pml.pmtl.node.Start;
 import com.googlecode.thebeast.pml.pmtl.parser.Parser;
 import com.googlecode.thebeast.pml.pmtl.parser.ParserException;
 import com.googlecode.thebeast.pml.pmtl.typeinference.NodeTypeEquation;
@@ -31,6 +48,7 @@ public class PMTLFormulaeBuilder extends DepthFirstAdapter {
     private Stack<ComposableFormula> formulae = new Stack<ComposableFormula>();
     private NodeTypeSubstitution substitution;
     private Signature signature;
+    private List<PMLFormula> pmlFormulae = new ArrayList<PMLFormula>();
 
     public PMTLFormulaeBuilder(Signature signature) {
         this.signature = signature;
@@ -51,7 +69,7 @@ public class PMTLFormulaeBuilder extends DepthFirstAdapter {
      */
     private ArrayList<Term> terms = new ArrayList<Term>();
 
-    public List<Formula> interpret(String statement) {
+    public List<PMLFormula> interpret(String statement) {
         Parser parser = new Parser(new Lexer(new PushbackReader(new StringReader(statement), 1000)));
         try {
             Start start = parser.parse();
@@ -63,13 +81,20 @@ public class PMTLFormulaeBuilder extends DepthFirstAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new ArrayList<Formula>(formulae);
+        return new ArrayList<PMLFormula>(pmlFormulae);
     }
 
     @Override
     public void inAFormulaPmtl(AFormulaPmtl node) {
         List<NodeTypeEquation> typeEquationList = TypeEquationExtractor.extractEquations(signature, node);
+        indexVariables.clear();
+        scaleVariable = null;
         substitution = NodeTypeExpressionUnifier.unify(typeEquationList);
+    }
+
+    @Override
+    public void outAFormulaPmtl(AFormulaPmtl node) {
+        pmlFormulae.add(new PMLFormula(formulae.pop(),indexVariables, scaleVariable));
     }
 
     @Override
