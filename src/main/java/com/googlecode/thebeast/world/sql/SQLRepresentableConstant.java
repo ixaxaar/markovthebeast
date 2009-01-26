@@ -1,5 +1,6 @@
 package com.googlecode.thebeast.world.sql;
 
+import com.googlecode.thebeast.query.TermVisitor;
 import com.googlecode.thebeast.world.AbstractSymbol;
 import com.googlecode.thebeast.world.Constant;
 
@@ -42,6 +43,15 @@ abstract class SQLRepresentableConstant extends AbstractSymbol
      */
     public boolean isGround() {
         return true;
+    }
+
+    /**
+     * Calls the visitConstant method of the visitor.
+     *
+     * @param visitor the visitor to accept.
+     */
+    public void accept(TermVisitor visitor) {
+        visitor.visitConstant(this);
     }
 
     /**

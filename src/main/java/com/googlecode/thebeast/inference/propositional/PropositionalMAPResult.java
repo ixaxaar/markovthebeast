@@ -1,19 +1,20 @@
 package com.googlecode.thebeast.inference.propositional;
 
-import com.googlecode.thebeast.pml.Assignment;
+import com.googlecode.thebeast.pml.GroundAtomAssignment;
 
 /**
  * @author Sebastian Riedel
  */
 public class PropositionalMAPResult {
 
-    private Assignment assignment;
+    private GroundAtomAssignment assignment;
 
-    public PropositionalMAPResult(Assignment assignment) {
+
+    public PropositionalMAPResult(GroundAtomAssignment assignment) {
         this.assignment = assignment;
     }
 
-    public Assignment getAssignment() {
+    public GroundAtomAssignment getAssignment() {
         return assignment;
     }
 }
