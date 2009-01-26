@@ -1,11 +1,11 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.world.Predicate;
 import com.googlecode.thebeast.query.Term;
+import com.googlecode.thebeast.world.Predicate;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Sebastian Riedel
@@ -44,5 +44,25 @@ public final class AtomFormula extends ComposableFormula {
         }
         result.append(")");
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AtomFormula that = (AtomFormula) o;
+
+        if (arguments != null ? !arguments.equals(that.arguments) : that.arguments != null) return false;
+        if (predicate != null ? !predicate.equals(that.predicate) : that.predicate != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = predicate != null ? predicate.hashCode() : 0;
+        result = 31 * result + (arguments != null ? arguments.hashCode() : 0);
+        return result;
     }
 }

@@ -2,7 +2,10 @@ package com.googlecode.thebeast.query;
 
 import com.googlecode.thebeast.world.Type;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * A Variable object represents a First Order Logic variable.
@@ -59,6 +62,15 @@ public final class Variable implements Term {
      */
     public boolean isGround() {
         return false;
+    }
+
+    /**
+     * Calls the visitVariable method of the visitor.
+     *
+     * @param visitor the visitor to accept.
+     */
+    public void accept(TermVisitor visitor) {
+        visitor.visitVariable(this);
     }
 
     /**

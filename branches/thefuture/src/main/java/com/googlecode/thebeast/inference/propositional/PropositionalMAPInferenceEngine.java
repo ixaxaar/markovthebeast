@@ -1,9 +1,8 @@
 package com.googlecode.thebeast.inference.propositional;
 
-import com.googlecode.thebeast.pml.Assignment;
-import com.googlecode.thebeast.pml.GroundMarkovNetwork;
+import com.googlecode.thebeast.pml.GroundAtomAssignment;
+import com.googlecode.thebeast.pml.GroundFactorGraph;
 import com.googlecode.thebeast.pml.PMLVector;
-import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
 
 /**
  * @author Sebastian Riedel
@@ -11,8 +10,8 @@ import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
 public interface PropositionalMAPInferenceEngine {
 
     PropositionalMAPResult infer();
-    void setGroundMarkovNetwork(GroundMarkovNetwork groundMarkovNetwork);
+    void setGroundFactorGraph(GroundFactorGraph groundFactorGraph);
     void setWeights(PMLVector weights);
-    void setObservation(Assignment observation);
+    void setObservation(GroundAtomAssignment observation);
 
 }

@@ -3,10 +3,9 @@ package com.googlecode.thebeast.query;
 import com.googlecode.thebeast.world.Type;
 
 /**
- * A Term object represents a First Order Logic term: a placeholder for an object of the domain.
- * <p/>
- * <p>Since we assume Herbrand semantics the objects of the domain are the constants of the signature. Hence terms are
- * placeholders for constants.
+ * A Term object represents a First Order Logic term: a placeholder for an object of the domain. <p/> <p>Since we assume
+ * Herbrand semantics the objects of the domain are the constants of the signature. Hence terms are placeholders for
+ * constants.
  *
  * @author Sebastian Riedel
  */
@@ -26,5 +25,13 @@ public interface Term {
      * @return true if this term is a ground term.
      */
     boolean isGround();
+
+
+    /**
+     * Accepts a TermVisitor and calls the correct visit method depending on the implementation of this interface.
+     *
+     * @param visitor the visitor to accept.
+     */
+    void accept(TermVisitor visitor);
 
 }

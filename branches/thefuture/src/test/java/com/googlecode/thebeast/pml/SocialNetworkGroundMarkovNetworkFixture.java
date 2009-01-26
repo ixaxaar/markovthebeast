@@ -9,7 +9,7 @@ import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
  * @author Sebastian Riedel
  */
 public class SocialNetworkGroundMarkovNetworkFixture {
-    public final GroundMarkovNetwork gmn;
+    public final GroundFactorGraph gmn;
     public final SocialNetworkSignatureFixture socialNetworkSignatureFixture;
     public final PMLClause symmetryClause;
     public final PMLClause localClause;

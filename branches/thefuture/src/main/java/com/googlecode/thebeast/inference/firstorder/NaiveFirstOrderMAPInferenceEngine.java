@@ -3,6 +3,7 @@ package com.googlecode.thebeast.inference.firstorder;
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPInferenceEngine;
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
 import com.googlecode.thebeast.pml.Assignment;
+import com.googlecode.thebeast.pml.GroundFactorGraph;
 import com.googlecode.thebeast.pml.GroundMarkovNetwork;
 import com.googlecode.thebeast.pml.PMLClause;
 import com.googlecode.thebeast.pml.PMLUtils;
@@ -82,7 +83,7 @@ public class NaiveFirstOrderMAPInferenceEngine implements FirstOrderMAPInference
         logger.info("Starting inference");
 
         logger.debug("Fully grounding network");
-        GroundMarkovNetwork gmn = new GroundMarkovNetwork();
+        GroundFactorGraph gmn = new GroundMarkovNetwork();
         for (PMLClause clause : mln.getClauses()) {
             gmn.ground(clause, PMLUtils.getAllSubstitutions(clause));
         }
@@ -91,7 +92,7 @@ public class NaiveFirstOrderMAPInferenceEngine implements FirstOrderMAPInference
         Assignment observedAssignment = new Assignment(gmn, observation);
 
         logger.debug("Starting Propositional inference");
-        propositionalMAPInferenceEngine.setGroundMarkovNetwork(gmn);
+        propositionalMAPInferenceEngine.setGroundFactorGraph(gmn);
         propositionalMAPInferenceEngine.setObservation(observedAssignment);
         propositionalMAPInferenceEngine.setWeights(weights);
         PropositionalMAPResult propositionalResult = propositionalMAPInferenceEngine.infer();
