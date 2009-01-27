@@ -1,0 +1,32 @@
+
+Following {[}german etc{]} we can formulate the {[}MAP problem, max
+likelihood alignment? There was a proper term for this{]} for IBM
+Model 4 as an Integer Linear Program. To this end we introduce a set
+of variables. 
+
+First, for all pairs of source words (in noisy channel lingo, from
+here on) $s_{1}$ and $s_{2}$ we define a variable $f_{s_{1},s_{2}}$
+that yields 1 if the word $j$ follows the word $i$ in the source
+translation, and zero otherwise. Furthermore, for each target word
+$ $$t$ and each source word $s$ with $s\in S\left(t\right)$ {[}the
+set of possible translations for $t${]} the variable $a_{s}^{t}$
+is 1 if $s$ is the translation of $t$ and 0 otherwise. 
+
+To ensure that each assignment of the $f$ and $a$ variables represents
+a model 4 translation we add the following constraints.
+\begin{description}
+\item [{One~Active~Source}] For all target words $t$\[
+\sum_{s\in S\left(t\right)}a_{s}^{t}=1\]
+
+\item [{No~Cycles}] For all cycles $C$ of source words\[
+\sum_{\left(s_{1},s_{2}\right)\in C}f_{s_{1},s_{2}}\leq1\]
+
+\item [{Follows~Active~Consistency}] Hmmm? Not sure how to translate
+the ML here in the best way. Todo
+\item [{Null~Issues}] Blah
+\end{description}
+Finally, the linear objective function incorporates the model 4 probabilities
+of a translation (as represented by an assignment for $f$ and $a$
+variables) \[
+\sum_{t}\sum_{s\in S\left(t\right)}w_{s}^{t}a_{s}^{t}+\sum_{s_{1},s_{2}}w_{s_{1},s_{2}}f_{s_{1},s_{2}}\]
+ where $w_{s}^{t}$ is $\ldots$ and $w_{s_{1},s_{2}}$

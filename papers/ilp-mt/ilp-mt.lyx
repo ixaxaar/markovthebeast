@@ -1,0 +1,219 @@
+#LyX 1.6.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Integer Linear Programming Formulation
+\end_layout
+
+\begin_layout Standard
+Following [german etc] we can formulate the [MAP problem, max likelihood
+ alignment? There was a proper term for this] for IBM Model 4 as an Integer
+ Linear Program.
+ To this end we introduce a set of variables.
+ 
+\end_layout
+
+\begin_layout Standard
+First, for all pairs of source words (in noisy channel lingo, from here
+ on) 
+\begin_inset Formula $s_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $s_{2}$
+\end_inset
+
+ we define a variable 
+\begin_inset Formula $f_{s_{1},s_{2}}$
+\end_inset
+
+ that yields 1 if the word 
+\begin_inset Formula $j$
+\end_inset
+
+ follows the word 
+\begin_inset Formula $i$
+\end_inset
+
+ in the source translation, and zero otherwise.
+ Furthermore, for each target word 
+\begin_inset Formula $ $
+\end_inset
+
+
+\begin_inset Formula $t$
+\end_inset
+
+ and each source word 
+\begin_inset Formula $s$
+\end_inset
+
+ with 
+\begin_inset Formula $s\in S\left(t\right)$
+\end_inset
+
+ [the set of possible translations for 
+\begin_inset Formula $t$
+\end_inset
+
+] the variable 
+\begin_inset Formula $a_{s}^{t}$
+\end_inset
+
+ is 1 if 
+\begin_inset Formula $s$
+\end_inset
+
+ is the translation of 
+\begin_inset Formula $t$
+\end_inset
+
+ and 0 otherwise.
+ 
+\end_layout
+
+\begin_layout Standard
+To ensure that each assignment of the 
+\begin_inset Formula $f$
+\end_inset
+
+ and 
+\begin_inset Formula $a$
+\end_inset
+
+ variables represents a model 4 translation we add the following constraints.
+\end_layout
+
+\begin_layout Description
+One
+\begin_inset space ~
+\end_inset
+
+Active
+\begin_inset space ~
+\end_inset
+
+Source For all target words 
+\begin_inset Formula $t$
+\end_inset
+
+
+\begin_inset Formula \[
+\sum_{s\in S\left(t\right)}a_{s}^{t}=1\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+No
+\begin_inset space ~
+\end_inset
+
+Cycles For all cycles 
+\begin_inset Formula $C$
+\end_inset
+
+ of source words
+\begin_inset Formula \[
+\sum_{\left(s_{1},s_{2}\right)\in C}f_{s_{1},s_{2}}\leq1\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Follows
+\begin_inset space ~
+\end_inset
+
+Active
+\begin_inset space ~
+\end_inset
+
+Consistency Hmmm? Not sure how to translate the ML here in the best way.
+ Todo
+\end_layout
+
+\begin_layout Description
+Null
+\begin_inset space ~
+\end_inset
+
+Issues Blah
+\end_layout
+
+\begin_layout Standard
+Finally, the linear objective function incorporates the model 4 probabilities
+ of a translation (as represented by an assignment for 
+\begin_inset Formula $f$
+\end_inset
+
+ and 
+\begin_inset Formula $a$
+\end_inset
+
+ variables) 
+\begin_inset Formula \[
+\sum_{t}\sum_{s\in S\left(t\right)}w_{s}^{t}a_{s}^{t}+\sum_{s_{1},s_{2}}w_{s_{1},s_{2}}f_{s_{1},s_{2}}\]
+
+\end_inset
+
+ where 
+\begin_inset Formula $w_{s}^{t}$
+\end_inset
+
+ is 
+\begin_inset Formula $\ldots$
+\end_inset
+
+ and 
+\begin_inset Formula $w_{s_{1},s_{2}}$
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
