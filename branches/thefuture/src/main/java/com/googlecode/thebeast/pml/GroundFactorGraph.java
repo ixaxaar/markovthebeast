@@ -78,6 +78,12 @@ public final class GroundFactorGraph {
     }
 
     public PMLVector extractFeatureVector(GroundAtomAssignment currentAssignment) {
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        Evaluator evaluator = new Evaluator();
+        PMLVector result = new PMLVector();
+        for (GroundFormulaFactor factor : factors){
+            result.addValue(factor.getPmlFormula(), factor.getFeatureIndex(),
+                factor.getScale() * evaluator.evaluate(factor.getGroundFormula(),currentAssignment));    
+        }
+        return result;  
     }
 }
