@@ -3,11 +3,22 @@
 %
 % Contact: nasmith@cs.cmu.edu
 
-\documentclass[11pt]{article}
+\documentclass[english,11pt]{article}
 \usepackage{naaclhlt2009}
 \usepackage{times}
 \usepackage{latexsym}
+\usepackage{amsthm}
+\usepackage{amsmath}
+
 \setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+\theoremstyle{plain}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+  \theoremstyle{plain}
+  \newtheorem{algorithm}[thm]{Algorithm}
+
+\usepackage{babel}
 
 % just a working title
 \title{Optimal IBM Model 4 Decoding Revisited}
@@ -39,12 +50,13 @@
 % we could wrap a supersection around the following 3 sections, but that usually
 % takes extra space. 
 
-\section{IBM Model 4}
-
+\section{IBM Model 4}  
+ 
 \section{Integer Linear Programming Formulation}
 \input{ilp}
 
 \section{Cutting Plane Algorithm}
+\input{cuttingplane}
 
 \section{Results}
 

@@ -1,0 +1,43 @@
+The Integer Linear Program we have described above has an exponential
+number of (cycle) constraints. Hence, simply passing the ILP to an
+off-the-shelf ILP solver is not practical for all but the smallest
+sentences. For this reason the original {}``Optimal Decoding'' work
+only considers sentences up to a length of 8? words. However, recent
+work {[}riedel\&clarke{]} has shown that even exponentially large
+MAP problems can efficiently solved using ILP solvers if a so-called
+Cutting-Plane Algorithm is used. In the following we will present
+this algorithm in a nutshell.
+\begin{algorithm}
+Cutting Plane algorithm for MT
+\begin{enumerate}
+\item Construct ILP $I$ without cycle constraints
+\item \textbf{do}
+
+\begin{enumerate}
+\item solve $I$ and assign to $y$
+\item find cycles in solution $y$
+\item add corresponding cycle constraints to $I$
+\end{enumerate}
+\textbf{until} no more cycles can be found
+
+\item return $y$
+\end{enumerate}
+\end{algorithm}
+The Cutting Plane algorithm starts with a subset of the complete set
+of constraints, namely all constraints but the (exponentially many)
+cycle constraints. The corresponding ILP is solved by a standard ILP
+solver, and the solution $y$ is inspected for cycles. If it contains
+no cycles we are done (we have found the true optimum: the solution
+with highest score that does not violate any constraints). If the
+solution does contain cycles, the corresponding constraints are added
+to the ILP which is in turn solved again. This process is continued
+until no more cycles can be found. 
+
+It is difficult to make claims about a guaranteed worst-case runtime
+(or number of iterations) of this algorithm. However, if the linear
+scoring function (in other words, the translation model and language
+model parameters) already provides a preference for cycle-free solutions,
+we can expect this algorithm to be efficient. For example, if we assume
+that the translation/distortion model has a very strong preference
+for monotonic solutions then clearly the highest scoring solution
+is likely to be cycle-free.
