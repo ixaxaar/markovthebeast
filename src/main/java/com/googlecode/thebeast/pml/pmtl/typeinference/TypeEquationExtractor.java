@@ -70,6 +70,8 @@ public class TypeEquationExtractor extends DepthFirstAdapter {
             equations.add(new NodeTypeEquation(
                 new NodeTypeVariable(node.getPredicate()),
                 argumentTypeExpressions));
+        } else {
+            throw new IllegalArgumentException("The predicate " + predicateName + " cannot be resolved");
         }
     }
 

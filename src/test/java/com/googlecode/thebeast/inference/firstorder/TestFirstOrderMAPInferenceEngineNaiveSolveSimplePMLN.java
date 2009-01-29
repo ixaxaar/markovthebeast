@@ -1,10 +1,7 @@
 package com.googlecode.thebeast.inference.firstorder;
 
 import com.googlecode.thebeast.inference.propositional.ExhaustivePropositionalMAPInferenceEngine;
-import com.googlecode.thebeast.pml.ClauseBuilder;
-import com.googlecode.thebeast.pml.PMLClause;
-import com.googlecode.thebeast.pml.PMLVector;
-import com.googlecode.thebeast.pml.PseudoMarkovLogicNetwork;
+import com.googlecode.thebeast.pml.*;
 import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.world.Constant;
 import com.googlecode.thebeast.world.Signature;
@@ -32,13 +29,13 @@ public class TestFirstOrderMAPInferenceEngineNaiveSolveSimplePMLN {
         person = signature.createType("Person", false, "Peter", "Anna", "Sebastian");
         friends = signature.createPredicate("friends", person, person);
 
-        ClauseBuilder builder = new ClauseBuilder(QueryFactory.getInstance(), signature);
-        PMLClause localClause = builder.head(friends, "x", "y").clause("x", "y");
-        PMLClause reflexity = builder.atom(friends, "x", "y").body().head(friends, "y", "x").clause();
+//        ClauseBuilder builder = new ClauseBuilder(QueryFactory.getInstance(), signature);
+        PMLFormula localClause = null;//builder.head(friends, "x", "y").clause("x", "y");
+        PMLFormula reflexity = null;//builder.atom(friends, "x", "y").body().head(friends, "y", "x").clause();
 
         PseudoMarkovLogicNetwork pmln = new PseudoMarkovLogicNetwork();
-        pmln.addClause(localClause);
-        pmln.addClause(reflexity);
+        pmln.addFormula(localClause);
+        pmln.addFormula(reflexity);
 
         PMLVector weights = new PMLVector();
         weights.setValue(localClause, "x/Peter y/Anna", 20.0);

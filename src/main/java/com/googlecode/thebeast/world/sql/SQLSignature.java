@@ -1,32 +1,13 @@
 package com.googlecode.thebeast.world.sql;
 
-import com.googlecode.thebeast.world.DoubleType;
-import com.googlecode.thebeast.world.IntegerType;
-import com.googlecode.thebeast.world.Predicate;
-import com.googlecode.thebeast.world.PredicateNotInSignatureException;
-import com.googlecode.thebeast.world.Signature;
-import com.googlecode.thebeast.world.SignatureListener;
-import com.googlecode.thebeast.world.SignatureMismatchException;
-import com.googlecode.thebeast.world.Symbol;
-import com.googlecode.thebeast.world.SymbolAlreadyExistsException;
-import com.googlecode.thebeast.world.SymbolNotPartOfSignatureException;
-import com.googlecode.thebeast.world.Type;
-import com.googlecode.thebeast.world.TypeNotInSignatureException;
-import com.googlecode.thebeast.world.UserPredicate;
-import com.googlecode.thebeast.world.World;
+import com.googlecode.thebeast.world.*;
 import com.googlecode.thebeast.world.sigl.SIGLInterpreter;
 
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An SQLSignature is an SQL based implementation of a Signature. Essentially relations are stored as SQL tables and
@@ -310,6 +291,8 @@ public final class SQLSignature implements Serializable, Signature {
     private void registerType(final Type type) {
         registerSymbol(type);
         types.put(type.getName(), type);
+        registerPredicate(type.getEquals());
+
     }
 
     /**
@@ -364,9 +347,18 @@ public final class SQLSignature implements Serializable, Signature {
         }
         SQLUserPredicate predicate = new SQLUserPredicate(name, sqlTypes, this);
         registerSymbol(predicate);
-        predicates.put(name, predicate);
+        registerPredicate(predicate);
         userPredicates.put(name, predicate);
         return predicate;
+    }
+
+    /**
+     * Registers a predicate (makes it accessable by {@link #getPredicate(String)})
+     *
+     * @param predicate the predicate to register.
+     */
+    private void registerPredicate(Predicate predicate) {
+        predicates.put(predicate.getName(), predicate);
     }
 
     /**
@@ -377,7 +369,6 @@ public final class SQLSignature implements Serializable, Signature {
      * @return a UserPredicate with the specified properties.
      * @throws com.googlecode.thebeast.world.SymbolAlreadyExistsException
      *          if there is a symbol in the signature that already has this name.
-     * @see Signature#createPredicate(String, Type...)
      */
     public SQLUserPredicate createPredicate(final String name,
                                             final Type... argumentTypes)
@@ -402,9 +393,9 @@ public final class SQLSignature implements Serializable, Signature {
 
 
     /**
-     * Returns the type corresponding to the given type name. An exception is thrown if there is no such type. If you want
-     * to find out whether a type exists use {@link com.googlecode.thebeast.world.Signature#getTypeNames()} and {@link
-     * java.util.Set#contains(Object)} instead.
+     * Returns the type corresponding to the given type name. An exception is thrown if there is no such type. If you
+     * want to find out whether a type exists use {@link com.googlecode.thebeast.world.Signature#getTypeNames()} and
+     * {@link java.util.Set#contains(Object)} instead.
      *
      * @param name the name of the type to return.
      * @return either a built-in type of a {@link com.googlecode.thebeast.world.sql.SQLUserType}

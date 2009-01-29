@@ -1,16 +1,12 @@
 package com.googlecode.thebeast.inference.propositional;
 
-import com.googlecode.thebeast.pml.Assignment;
-import com.googlecode.thebeast.pml.FeatureIndex;
-import com.googlecode.thebeast.pml.PMLVector;
-import com.googlecode.thebeast.pml.SocialNetworkGroundMarkovNetworkFixture;
+import com.googlecode.thebeast.pml.*;
 import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.IntegerType;
 import com.googlecode.thebeast.world.UserPredicate;
 import com.googlecode.thebeast.world.sql.SQLSignature;
-import com.googlecode.thebeast.inference.propositional.ExhaustivePropositionalMAPInferenceEngine;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -21,7 +17,7 @@ public class TestPropositionalMAPInferenceEngineExhaustiveSolveSimpleNetwork {
     private ExhaustivePropositionalMAPInferenceEngine solver;
     private SocialNetworkGroundMarkovNetworkFixture fixture;
     private UserPredicate friends;
-    private Assignment emptyObserved;
+    private GroundAtomAssignment emptyObserved;
     private FeatureIndex index;
 
     @BeforeMethod
@@ -39,24 +35,24 @@ public class TestPropositionalMAPInferenceEngineExhaustiveSolveSimpleNetwork {
         PMLVector weights = new PMLVector();
         weights.setValue(fixture.symmetryClause, index, 1.0);
         weights.setValue(fixture.localClause, index, 2.0);
-        solver = new ExhaustivePropositionalMAPInferenceEngine(fixture.gmn, weights);
+        solver = new ExhaustivePropositionalMAPInferenceEngine(fixture.groundFactorGraph, weights);
         friends = fixture.socialNetworkSignatureFixture.friends;
-        emptyObserved = new Assignment(fixture.gmn);
+        emptyObserved = new GroundAtomAssignment(fixture.groundFactorGraph);
         solver.setObservation(emptyObserved);
     }
 
     @Test
     public void testSolveResultIsNotNull() {
-        Assignment result = solver.infer().getAssignment();
+        GroundAtomAssignment result = solver.infer().getAssignment();
         assertNotNull(result, "solver returned a null result.");
     }
 
 
     @Test
     public void testSolveResultIsConsistentWithStaticPredicates() {
-        Assignment result = solver.infer().getAssignment();
+        GroundAtomAssignment result = solver.infer().getAssignment();
         IntegerType intType = fixture.signature.getIntegerType();
-        assertEquals(result.getValue(intType.getEquals(), 0, 0), 1.0);
+        assertEquals(result.getValue(intType.getEquals(), 0, 0), true);
     }
 
     @Test
@@ -69,7 +65,7 @@ public class TestPropositionalMAPInferenceEngineExhaustiveSolveSimpleNetwork {
 
     @Test
     public void testSolveResultAssignsCorrectValuesToUserPredicates() {
-        Assignment result = solver.infer().getAssignment();
+        GroundAtomAssignment result = solver.infer().getAssignment();
         assertEquals(result.getValue(friends, "Peter", "Anna"), 1.0);
     }
 

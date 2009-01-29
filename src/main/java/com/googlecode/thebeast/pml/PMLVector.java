@@ -11,44 +11,44 @@ import java.util.LinkedHashMap;
  */
 public class PMLVector {
 
-    private LinkedHashMap<PMLClause, TObjectDoubleHashMap>
-        clause2Weights = new LinkedHashMap<PMLClause, TObjectDoubleHashMap>();
+    private LinkedHashMap<PMLFormula, TObjectDoubleHashMap>
+        formula2Weights = new LinkedHashMap<PMLFormula, TObjectDoubleHashMap>();
 
-    public double getValue(PMLClause clause, FeatureIndex index) {
-        TObjectDoubleHashMap weights = clause2Weights.get(clause);
+    public double getValue(PMLFormula formula, FeatureIndex index) {
+        TObjectDoubleHashMap weights = formula2Weights.get(formula);
         if (weights == null) return 0;
         return weights.get(index);
     }
 
-    public void setValue(PMLClause clause, double value) {
-        setValue(clause, new FeatureIndex(new Substitution()), value);
+    public void setValue(PMLFormula formula, double value) {
+        setValue(formula, new FeatureIndex(new Substitution()), value);
     }
 
-    public void setValue(PMLClause clause, String substitutions, double value) {
-        setValue(clause, new FeatureIndex(
-            Substitution.createSubstitution(clause.getSignature(), substitutions)
+    public void setValue(PMLFormula formula, String substitutions, double value) {
+        setValue(formula, new FeatureIndex(
+            Substitution.createSubstitution(formula.getSignature(), substitutions)
         ), value);
     }
 
 
-    public void setValue(PMLClause clause, FeatureIndex index, double value) {
-        TObjectDoubleHashMap weights = clause2Weights.get(clause);
+    public void setValue(PMLFormula formula, FeatureIndex index, double value) {
+        TObjectDoubleHashMap weights = formula2Weights.get(formula);
         if (weights == null) {
             weights = new TObjectDoubleHashMap();
-            clause2Weights.put(clause, weights);
+            formula2Weights.put(formula, weights);
         }
         weights.put(index, value);
     }
 
-    public void addValue(PMLClause clause, FeatureIndex index, double value) {
-        setValue(clause, index, getValue(clause, index) + value);
+    public void addValue(PMLFormula formula, FeatureIndex index, double value) {
+        setValue(formula, index, getValue(formula, index) + value);
     }
 
     public double dotProduct(final PMLVector vector) {
         double result = 0;
-        for (final PMLClause clause : clause2Weights.keySet()) {
-            DotProductCalculator calculator = new DotProductCalculator(vector, clause);
-            TObjectDoubleHashMap weights = clause2Weights.get(clause);
+        for (final PMLFormula formula : formula2Weights.keySet()) {
+            DotProductCalculator calculator = new DotProductCalculator(vector, formula);
+            TObjectDoubleHashMap weights = formula2Weights.get(formula);
             weights.forEachEntry(calculator);
             result += calculator.result;
         }
@@ -59,16 +59,16 @@ public class PMLVector {
     private static class DotProductCalculator implements TObjectDoubleProcedure {
         double result;
         private final PMLVector vector;
-        private final PMLClause clause;
+        private final PMLFormula formula;
 
-        public DotProductCalculator(PMLVector vector, PMLClause clause) {
+        public DotProductCalculator(PMLVector vector, PMLFormula formula) {
             this.vector = vector;
-            this.clause = clause;
+            this.formula = formula;
             result = 0;
         }
 
         public boolean execute(Object o, double v) {
-            result += vector.getValue(clause, (FeatureIndex) o) * v;
+            result += vector.getValue(formula, (FeatureIndex) o) * v;
             return true;
         }
     }

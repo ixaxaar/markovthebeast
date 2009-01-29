@@ -4,6 +4,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.googlecode.thebeast.query.NestedSubstitution;
 import com.googlecode.thebeast.world.Predicate;
+import com.googlecode.thebeast.world.Tuple;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,8 +43,18 @@ public final class GroundFactorGraph {
         return result;
     }
 
+    public List<GroundFormulaFactor> ground(final PMLFormula formula,
+                                            final String ... substitutionsStrings){
+        return ground(formula,
+            NestedSubstitution.createNestedSubstitutions(formula.getSignature(),substitutionsStrings));
+    }
+
     public GroundAtomNode getNode(AtomFormula atom) {
         return nodeMapping.get(atom);
+    }
+
+    public GroundAtomNode getNode(Predicate predicate, Tuple args){
+        return getNode(new AtomFormula(predicate, args));
     }
 
     private GroundAtomNode getNodeCreateIfNecessary(AtomFormula atom) {

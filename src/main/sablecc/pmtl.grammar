@@ -87,13 +87,13 @@ Productions
         |   {multiple}  [arg]:term comma [rest]:args {-> [arg.term, rest.term] };
 
     term {->term} =
-            {variable}  [name]:uppercase_id {-> New term.variable(name)}
-        |   {constant}  [name]:lowercase_id {-> New term.constant(name)}
+            {variable}  [name]:lowercase_id {-> New term.variable(name)}
+        |   {constant}  [name]:uppercase_id {-> New term.constant(name)}
         |   {string}    [value]:string_literal {-> New term.string(value)}
         |   {long}      [value]:long_literal {-> New term.long(value)}
         |   {double}    [value]:double_literal {-> New term.double(value)}
-        |   {index}     plus [name]:uppercase_id {-> New term.index(name)}
-        |   {scale}     hash [name]:uppercase_id {-> New term.scale(name)};
+        |   {index}     plus [name]:lowercase_id {-> New term.index(name)}
+        |   {scale}     hash [name]:lowercase_id {-> New term.scale(name)};
 
 
     composable {->composable} =
@@ -119,13 +119,13 @@ Abstract Syntax Tree
     predicate = [name]:lowercase_id;
 
     term =
-          {variable}    [name]:uppercase_id
-        | {constant}    [name]:lowercase_id
+          {variable}    [name]:lowercase_id
+        | {constant}    [name]:uppercase_id
         | {string}      [value]:string_literal
         | {long}        [value]:long_literal
         | {double}      [value]:double_literal
-        | {index}       [name]:uppercase_id
-        | {scale}       [name]:uppercase_id;
+        | {index}       [name]:lowercase_id
+        | {scale}       [name]:lowercase_id ;
 
     atom = [predicate]:predicate [args]:term*;
 

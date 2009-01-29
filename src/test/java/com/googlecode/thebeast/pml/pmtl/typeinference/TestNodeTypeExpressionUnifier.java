@@ -23,16 +23,16 @@ public class TestNodeTypeExpressionUnifier {
     @Test
     public void testUnification() throws ParserException, LexerException, IOException {
         Signature signature = SQLSignature.createSignature();
-        signature.interpret("type TypeA: a,b,c; predicate pred: TypeA x TypeA;");
+        signature.interpret("type TypeA: A,B,C; predicate pred: TypeA x TypeA;");
 
         Parser parser = new Parser(new Lexer(new PushbackReader(
-            new StringReader("pred(X,Y) :- pred(Y,X), pred(X,a)"))));
+            new StringReader("(pred(y,x) ^ pred(x,A)) => pred(x,y)"))));
         Start start = parser.parse();
-        AClausePmtl aPmtl = (AClausePmtl) start.getPPmtl();
-        AClause aClause = (AClause) aPmtl.getClause();
-        AAtom aAtom = (AAtom) aClause.getHead();
+        AFormulaPmtl aPmtl = (AFormulaPmtl) start.getPPmtl();
+        AAtomComposable aAtomComposable =  (AAtomComposable)((AImpliesComposable)aPmtl.getComposable()).getArg2();
+        AAtom aAtom = (AAtom) aAtomComposable.getAtom();
 
-        List<NodeTypeEquation> equations = TypeEquationExtractor.extractEquations(signature, aClause);
+        List<NodeTypeEquation> equations = TypeEquationExtractor.extractEquations(signature, aPmtl);
         NodeTypeSubstitution result = NodeTypeExpressionUnifier.unify(equations);
         assertEquals(result.getType(aAtom.getArgs().get(0)), signature.getType("TypeA"));
 
