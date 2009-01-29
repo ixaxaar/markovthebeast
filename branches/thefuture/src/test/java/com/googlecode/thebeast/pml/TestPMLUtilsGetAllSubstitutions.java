@@ -20,7 +20,7 @@ import java.util.List;
  * @author Sebastian Riedel
  */
 public class TestPMLUtilsGetAllSubstitutions {
-    private PMLClause clause;
+    private PMLFormula clause;
     private UserType typeA;
     private Signature signature;
 
@@ -30,9 +30,9 @@ public class TestPMLUtilsGetAllSubstitutions {
         typeA = signature.createType("typeA", false, "A", "B");
         UserPredicate pred = signature.createPredicate("pred", typeA, typeA);
 
-        ClauseBuilder clauseBuilder = new ClauseBuilder(QueryFactory.getInstance(), signature);
-        clauseBuilder.atom(pred, "x", "y").body().head(pred, "y", "z").atom(pred, "x", "z").restrict().inner("z");
-        clause = clauseBuilder.clause();
+//        ClauseBuilder clauseBuilder = new ClauseBuilder(QueryFactory.getInstance(), signature);
+//        clauseBuilder.atom(pred, "x", "y").body().head(pred, "y", "z").atom(pred, "x", "z").restrict().inner("z");
+//        clause = clauseBuilder.clause();
     }
 
     @Test

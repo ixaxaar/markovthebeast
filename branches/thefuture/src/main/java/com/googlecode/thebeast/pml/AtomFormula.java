@@ -15,7 +15,7 @@ public final class AtomFormula extends ComposableFormula {
     private final Predicate predicate;
     private final List<Term> arguments;
 
-    public AtomFormula(Predicate predicate, List<Term> arguments) {
+    public AtomFormula(Predicate predicate, List<? extends Term> arguments) {
         this.predicate = predicate;
         this.arguments = new ArrayList<Term>(arguments);
     }

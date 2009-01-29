@@ -15,11 +15,11 @@ public class TestPMTLFormulaeBuilder {
     @Test
     public void testBuildFormulaRightTopLevelFormulaType() {
         Signature signature = SQLSignature.createSignature();
-        signature.interpret("type TypeA: a,b,c; predicate pred: TypeA x TypeA;");
+        signature.interpret("type TypeA: A,B,C; predicate pred: TypeA x TypeA;");
 
         PMTLFormulaeBuilder builder = new PMTLFormulaeBuilder(signature);
 
-        assertTrue(builder.interpret("pred(+X,Y) ^ (pred(X,a) => pred(Y,X))").get(0).getFormula()
+        assertTrue(builder.interpret("pred(+x,y) ^ (pred(x,A) => pred(y,x))").get(0).getFormula()
             instanceof BinaryOperatorFormula);
 
     }
@@ -27,12 +27,12 @@ public class TestPMTLFormulaeBuilder {
     @Test
     public void testBuildFormulaCorrectIndexVariable() {
         Signature signature = SQLSignature.createSignature();
-        signature.interpret("type TypeA: a,b,c; predicate pred: TypeA x TypeA;");
+        signature.interpret("type TypeA: A,B,C; predicate pred: TypeA x TypeA;");
 
         PMTLFormulaeBuilder builder = new PMTLFormulaeBuilder(signature);
 
-        assertEquals(builder.interpret("pred(+X,Y) ^ (pred(X,a) => pred(Y,X))").
-            get(0).getIndexVariables().get(0).getName(), "X");
+        assertEquals(builder.interpret("pred(+x,y) ^ (pred(x,A) => pred(y,x))").
+            get(0).getIndexVariables().get(0).getName(), "x");
 
 
     }

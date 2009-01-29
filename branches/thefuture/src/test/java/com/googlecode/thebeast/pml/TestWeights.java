@@ -1,6 +1,5 @@
 package com.googlecode.thebeast.pml;
 
-import com.googlecode.thebeast.query.QueryFactory;
 import com.googlecode.thebeast.query.Substitution;
 import com.googlecode.thebeast.world.Signature;
 import com.googlecode.thebeast.world.SocialNetworkSignatureFixture;
@@ -16,8 +15,7 @@ public class TestWeights {
     private Signature signature;
     private PMLVector weights;
     private SocialNetworkSignatureFixture signatureFixture;
-    private ClauseBuilder builder;
-    private PMLClause clause;
+    private PMLFormula clause;
     private FeatureIndex index;
 
     @BeforeMethod
@@ -25,15 +23,15 @@ public class TestWeights {
         signature = SQLSignature.createSignature();
         weights = new PMLVector();
         signatureFixture = new SocialNetworkSignatureFixture(signature);
-        builder = new ClauseBuilder(
-            QueryFactory.getInstance(), signatureFixture.signature);
-        clause = builder.
-            atom(signatureFixture.friends, "x", "y").
-            atom(signatureFixture.signature.getIntegerType().getEquals(), "i", "0").
-            atom(signatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
-            body().
-            head(signatureFixture.friends, "y", "x").
-            clause(Exists.EXISTS, "i", "s");
+//        builder = new ClauseBuilder(
+//            QueryFactory.getInstance(), signatureFixture.signature);
+//        clause = builder.
+//            atom(signatureFixture.friends, "x", "y").
+//            atom(signatureFixture.signature.getIntegerType().getEquals(), "i", "0").
+//            atom(signatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
+//            body().
+//            head(signatureFixture.friends, "y", "x").
+//            clause(Exists.EXISTS, "i", "s");
         index = new FeatureIndex(Substitution.createSubstitution(
             signature, "i/0"));
     }

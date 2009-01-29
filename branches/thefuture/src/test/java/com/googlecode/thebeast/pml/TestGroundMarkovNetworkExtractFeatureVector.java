@@ -17,13 +17,13 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
     @Test
     public void testExtractedFeatureVectorHasCorrectValueForFalseClause() {
 
-        Assignment assignment = new Assignment(fixture.gmn);
-        assignment.setValue(1.0, fixture.socialNetworkSignatureFixture.friends,
+        GroundAtomAssignment assignment = new GroundAtomAssignment(fixture.groundFactorGraph);
+        assignment.setValue(true, fixture.socialNetworkSignatureFixture.friends,
             fixture.socialNetworkSignatureFixture.peter, fixture.socialNetworkSignatureFixture.anna);
-        assignment.setValue(0.0, fixture.socialNetworkSignatureFixture.friends,
+        assignment.setValue(false, fixture.socialNetworkSignatureFixture.friends,
             fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
-        PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
+        PMLVector featureVector = fixture.groundFactorGraph.extractFeatureVector(assignment);
         assertEquals(featureVector.getValue(fixture.localClause, index), 1.0,
             "If friends(Peter,Anna) then the local feature should be 1.0 " +
                 "but it isn't");
@@ -32,13 +32,13 @@ public class TestGroundMarkovNetworkExtractFeatureVector {
     @Test
     public void testExtractedFeatureVectorHasCorrectValueForTrueClause() {
 
-        Assignment assignment = new Assignment(fixture.gmn);
-        assignment.setValue(1.0, fixture.socialNetworkSignatureFixture.friends,
+        GroundAtomAssignment assignment = new GroundAtomAssignment(fixture.groundFactorGraph);
+        assignment.setValue(true, fixture.socialNetworkSignatureFixture.friends,
             fixture.socialNetworkSignatureFixture.peter, fixture.socialNetworkSignatureFixture.anna);
-        assignment.setValue(0.0, fixture.socialNetworkSignatureFixture.friends,
+        assignment.setValue(false, fixture.socialNetworkSignatureFixture.friends,
             fixture.socialNetworkSignatureFixture.anna, fixture.socialNetworkSignatureFixture.peter);
 
-        PMLVector featureVector = fixture.gmn.extractFeatureVector(assignment);
+        PMLVector featureVector = fixture.groundFactorGraph.extractFeatureVector(assignment);
         assertEquals(featureVector.getValue(fixture.symmetryClause, index), 0.0,
             "If friends(Peter,Anna) but not friends(Anna,Peter) then " +
                 "the reflective feature should be 0.0 but it isn't");

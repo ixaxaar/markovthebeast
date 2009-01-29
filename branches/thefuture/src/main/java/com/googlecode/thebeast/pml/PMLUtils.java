@@ -17,20 +17,11 @@ public class PMLUtils {
     /**
      * Returns all nested substitutions that can ground the given clause.
      *
-     * @param clause the clause to be grounded with these substitutions.
+     * @param formula the formula to be grounded with these substitutions.
      * @return a list of all bested substitutions for the given clause.
      */
-    public static List<NestedSubstitution> getAllSubstitutions(final PMLClause clause) {
-        List<Substitution> outerSubstitutions =
-            getAllSubstitutions(new ArrayList<Variable>(clause.getOuterVariables()));
-        List<Substitution> innerSubstitutions =
-            getAllSubstitutions(new ArrayList<Variable>(clause.getInnerVariables()));
-        List<NestedSubstitution> result = new ArrayList<NestedSubstitution>();
-        for (Substitution outer : outerSubstitutions) {
-            NestedSubstitution nestedSubstitution = new NestedSubstitution(outer, innerSubstitutions);
-            result.add(nestedSubstitution);
-        }
-        return result;
+    public static List<NestedSubstitution> getAllSubstitutions(final PMLFormula formula) {
+        return null;
     }
 
     /**

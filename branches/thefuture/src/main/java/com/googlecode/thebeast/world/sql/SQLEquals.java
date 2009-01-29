@@ -17,7 +17,7 @@ final class SQLEquals extends SQLStaticPredicate {
     private final List<SQLRepresentableType> argTypes;
 
     SQLEquals(final SQLRepresentableType type, final SQLSignature signature) {
-        super(type.getName() + ".equals", signature);
+        super(type.getName().toLowerCase() + "Equals", signature);
         this.argTypes = Collections.unmodifiableList(Arrays.asList(type, type));
     }
 

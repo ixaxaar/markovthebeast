@@ -1,5 +1,7 @@
 package com.googlecode.thebeast.world;
 
+import com.googlecode.thebeast.query.Term;
+
 import java.util.AbstractList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public final class Tuple extends AbstractList<Constant> {
         this.constants = constants.toArray(new Constant[constants.size()]);
     }
 
+
     /**
      * Creates a tuple with the constants given in the vararg array.
      *
@@ -36,6 +39,19 @@ public final class Tuple extends AbstractList<Constant> {
     }
 
     /**
+     * Creates a tuple of constants from a list of ground terms.
+     *
+     * @param groundTerms a list of terms of which all need to be constants.
+     * @return a tuple containing the constants in the <code>groundTerms</code> list.
+     */
+    public static Tuple createFromGroundTerms(final List<Term> groundTerms) {
+        Constant[] args = new Constant[groundTerms.size()];
+        for (int i = 0; i < args.length; ++i)
+            args[i] = (Constant) groundTerms.get(i);
+        return new Tuple(args);
+    }
+
+    /**
      * This method creates a tuple from plain java objects with respect to the argument types of the given predicate.
      *
      * @param predicate the predicate for which the created tuple should be an argument for.
@@ -44,7 +60,7 @@ public final class Tuple extends AbstractList<Constant> {
     public Tuple(Predicate predicate, Object... args) {
         if (args.length != predicate.getArgumentTypes().size())
             throw new IllegalArgumentException(predicate + " has " + predicate.getArgumentTypes().size()
-            + " arguments but you gave us " + args.length);
+                + " arguments but you gave us " + args.length);
         this.constants = new Constant[args.length];
         for (int i = 0; i < args.length; ++i) {
             constants[i] =

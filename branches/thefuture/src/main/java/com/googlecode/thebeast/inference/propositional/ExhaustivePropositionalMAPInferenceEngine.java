@@ -1,6 +1,5 @@
 package com.googlecode.thebeast.inference.propositional;
 
-import com.googlecode.thebeast.pml.AtomFormula;
 import com.googlecode.thebeast.pml.GroundAtomAssignment;
 import com.googlecode.thebeast.pml.GroundAtomNode;
 import com.googlecode.thebeast.pml.GroundFactorGraph;
@@ -38,10 +37,10 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
     public PropositionalMAPResult infer() {
         //build list of atoms to change
         logger.info("Started Inference");
-        ArrayList<AtomFormula> hiddenAtoms = new ArrayList<AtomFormula>();
+        ArrayList<GroundAtomNode> hiddenAtoms = new ArrayList<GroundAtomNode>();
         for (GroundAtomNode node : groundFactorGraph.getNodes())
-            if (!observed.hasValue(node.getAtom()))
-                hiddenAtoms.add(node.getAtom());
+            if (!observed.hasValue(node))
+                hiddenAtoms.add(node);
 
         //create result with observed assignments
         GroundAtomAssignment currentAssignment = new GroundAtomAssignment(observed);
@@ -72,7 +71,7 @@ public class ExhaustivePropositionalMAPInferenceEngine implements PropositionalM
             //flip
             for (int nodeIndex = 0; nodeIndex < size; ++nodeIndex) {
                 if (flip % Math.pow(2, nodeIndex) == 0) {
-                    AtomFormula node = hiddenAtoms.get(nodeIndex);
+                    GroundAtomNode node = hiddenAtoms.get(nodeIndex);
                     currentAssignment.setValue(node, !currentAssignment.getValue(node));
                 }
             }

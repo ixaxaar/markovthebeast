@@ -2,13 +2,7 @@ package com.googlecode.thebeast.inference.firstorder;
 
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPInferenceEngine;
 import com.googlecode.thebeast.inference.propositional.PropositionalMAPResult;
-import com.googlecode.thebeast.pml.Assignment;
-import com.googlecode.thebeast.pml.GroundFactorGraph;
-import com.googlecode.thebeast.pml.GroundMarkovNetwork;
-import com.googlecode.thebeast.pml.PMLClause;
-import com.googlecode.thebeast.pml.PMLUtils;
-import com.googlecode.thebeast.pml.PMLVector;
-import com.googlecode.thebeast.pml.PseudoMarkovLogicNetwork;
+import com.googlecode.thebeast.pml.*;
 import com.googlecode.thebeast.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,14 +76,15 @@ public class NaiveFirstOrderMAPInferenceEngine implements FirstOrderMAPInference
     public FirstOrderMAPResult infer() {
         logger.info("Starting inference");
 
-        logger.debug("Fully grounding network");
-        GroundFactorGraph gmn = new GroundMarkovNetwork();
-        for (PMLClause clause : mln.getClauses()) {
-            gmn.ground(clause, PMLUtils.getAllSubstitutions(clause));
+        logger.debug("Fully grounding factor graph");
+        GroundFactorGraph gmn = new GroundFactorGraph();
+        for (PMLFormula formula : mln.getFormulas()) {
+            gmn.ground(formula, PMLUtils.getAllSubstitutions(formula));
         }
 
         logger.debug("Converting relational world to node assignment");
-        Assignment observedAssignment = new Assignment(gmn, observation);
+        GroundAtomAssignment  observedAssignment =
+            new GroundAtomAssignment(gmn, observation);
 
         logger.debug("Starting Propositional inference");
         propositionalMAPInferenceEngine.setGroundFactorGraph(gmn);
