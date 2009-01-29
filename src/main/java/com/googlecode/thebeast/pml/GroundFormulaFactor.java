@@ -1,6 +1,7 @@
 package com.googlecode.thebeast.pml;
 
 import com.googlecode.thebeast.query.NestedSubstitution;
+import com.googlecode.thebeast.world.DoubleConstant;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ public final class GroundFormulaFactor {
     private final Formula groundFormula;
     private final List<GroundAtomNode> nodes;
     private final FeatureIndex featureIndex;
+    private final double scale;
 
     GroundFormulaFactor(final PMLFormula pmlFormula,
                         final Formula groundFormula,
@@ -27,11 +29,14 @@ public final class GroundFormulaFactor {
         this.nodes = new ArrayList<GroundAtomNode>(nodes);
         this.featureIndex = new FeatureIndex(
             substitution.getOuterSubstitution().getSubset(pmlFormula.getIndexVariables()));
+        this.scale = pmlFormula.getScaleVariable() != null ?
+            ((DoubleConstant)substitution.getOuterSubstitution().get(pmlFormula.getScaleVariable())).getValue() : 1.0;
     }
 
     public FeatureIndex getFeatureIndex() {
         return featureIndex;
     }
+
 
     public List<GroundAtomNode> getNodes() {
         return Collections.unmodifiableList(nodes);
@@ -47,5 +52,9 @@ public final class GroundFormulaFactor {
 
     public Formula getGroundFormula() {
         return groundFormula;
+    }
+
+    public double getScale() {
+        return scale;
     }
 }

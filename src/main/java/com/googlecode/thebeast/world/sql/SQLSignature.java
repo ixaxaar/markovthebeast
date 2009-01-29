@@ -38,8 +38,14 @@ public final class SQLSignature implements Serializable, Signature {
      */
     private SQLBasedQueryEngine queryEngine;
 
+    /**
+     * The Integer type for this signature.
+     */
     private SQLIntegerType integerType;
 
+    /**
+     * The double type for this signature.
+     */
     private SQLDoubleType doubleType;
 
     /**

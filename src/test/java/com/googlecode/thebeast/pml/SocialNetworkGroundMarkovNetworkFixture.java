@@ -21,21 +21,11 @@ public class SocialNetworkGroundMarkovNetworkFixture {
         this.signature = signature;
         groundFactorGraph = new GroundFactorGraph();
         this.socialNetworkSignatureFixture = new SocialNetworkSignatureFixture(signature);
-//        ClauseBuilder builder = new ClauseBuilder(
-//            QueryFactory.getInstance(), signature);
-//        symmetryClause = builder.
-//            atom(socialNetworkSignatureFixture.friends, "x", "y").
-//            atom(socialNetworkSignatureFixture.signature.getIntegerType().getEquals(), "i", "0").
-//            atom(socialNetworkSignatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
-//            body().
-//            head(socialNetworkSignatureFixture.friends, "y", "x").
-//            clause(Exists.EXISTS, "i", "s");
-//        localClause = builder.
-//            atom(socialNetworkSignatureFixture.signature.getIntegerType().getEquals(), "i", "0").
-//            atom(socialNetworkSignatureFixture.signature.getDoubleType().getEquals(), "s", "1.0").
-//            body().
-//            head(socialNetworkSignatureFixture.friends, "x", "y").
-//            clause(Exists.EXISTS, "i", "s");
+        symmetryClause = PMLFormula.createFormula(signature,
+            "friends(x,y) ^ integerEquals(+i,0) ^ doubleEquals(#s,1.0) => friends(y,x)");
+
+        localClause = PMLFormula.createFormula(signature,
+            "integerEquals(+i,0) ^ doubleEquals(#s,1.0) => friends(x,y)");
 
     }
 

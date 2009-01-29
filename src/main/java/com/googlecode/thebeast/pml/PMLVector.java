@@ -11,11 +11,11 @@ import java.util.LinkedHashMap;
  */
 public class PMLVector {
 
-    private LinkedHashMap<PMLFormula, TObjectDoubleHashMap>
-        formula2Weights = new LinkedHashMap<PMLFormula, TObjectDoubleHashMap>();
+    private LinkedHashMap<PMLFormula, TObjectDoubleHashMap<FeatureIndex>>
+        formula2Weights = new LinkedHashMap<PMLFormula, TObjectDoubleHashMap<FeatureIndex>>();
 
     public double getValue(PMLFormula formula, FeatureIndex index) {
-        TObjectDoubleHashMap weights = formula2Weights.get(formula);
+        TObjectDoubleHashMap<FeatureIndex> weights = formula2Weights.get(formula);
         if (weights == null) return 0;
         return weights.get(index);
     }
@@ -32,9 +32,9 @@ public class PMLVector {
 
 
     public void setValue(PMLFormula formula, FeatureIndex index, double value) {
-        TObjectDoubleHashMap weights = formula2Weights.get(formula);
+        TObjectDoubleHashMap<FeatureIndex> weights = formula2Weights.get(formula);
         if (weights == null) {
-            weights = new TObjectDoubleHashMap();
+            weights = new TObjectDoubleHashMap<FeatureIndex>();
             formula2Weights.put(formula, weights);
         }
         weights.put(index, value);
@@ -48,7 +48,7 @@ public class PMLVector {
         double result = 0;
         for (final PMLFormula formula : formula2Weights.keySet()) {
             DotProductCalculator calculator = new DotProductCalculator(vector, formula);
-            TObjectDoubleHashMap weights = formula2Weights.get(formula);
+            TObjectDoubleHashMap<FeatureIndex> weights = formula2Weights.get(formula);
             weights.forEachEntry(calculator);
             result += calculator.result;
         }
@@ -56,7 +56,7 @@ public class PMLVector {
     }
 
 
-    private static class DotProductCalculator implements TObjectDoubleProcedure {
+    private static class DotProductCalculator implements TObjectDoubleProcedure<FeatureIndex> {
         double result;
         private final PMLVector vector;
         private final PMLFormula formula;
@@ -67,8 +67,8 @@ public class PMLVector {
             result = 0;
         }
 
-        public boolean execute(Object o, double v) {
-            result += vector.getValue(formula, (FeatureIndex) o) * v;
+        public boolean execute(FeatureIndex index, double v) {
+            result += vector.getValue(formula, index) * v;
             return true;
         }
     }

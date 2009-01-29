@@ -111,4 +111,17 @@ public final class GroundAtomAssignment {
             "factor graph");
         return getValue(node);
     }
+
+    @Override
+    public String toString() {
+        StringBuffer result = new StringBuffer("(");
+        if (values.size() > 0) {
+            result.append(values.keys()[0]).append("->").append(values.get((GroundAtomNode) values.keys()[0]));
+            for (int i = 1; i < values.size(); ++i)
+                result.append(",").append(values.keys()[i]).append("->").
+                    append(values.get((GroundAtomNode) values.keys()[i]));
+        }
+        result.append(")");
+        return result.toString();
+    }
 }
