@@ -1,3 +1,42 @@
+IBM Model 4 {[}cite{]} tells a generative story of how a sequence
+of (french) target word is generated based a sequence of (english)
+source tokens. First, for each english token $i$ we draw a \emph{fertility}
+$\phi_{i}$ from a probability distribution $n\left(\phi_{i}|e_{i}\right)$.
+The fertility $\phi_{i}$ determines the number of french words the
+english token $i$ is translated to, and we will call words with $\phi_{i}>0$
+\emph{fertile} and those with $\phi_{i}>1$ \emph{very fertile}. 
+
+Once the fertilities of all tokens are generated, we generate the
+fertility of a invisible english NULL element. This element will be
+translated into french words in the target sentence that are not generated
+by tokens of the English sentence. 
+
+After we have determined the fertilities of all source elements (tokens
+and NULL element), we independently draw a sequence of french target
+words $\left(\tau_{ik}\right)_{k=1\ldots\phi_{i}}$ for each element
+$i$ according to a translation table $t\left(\tau_{ik}|e_{i}\right)$. 
+
+In turn we process the english source tokens in sequence in order
+to pick the positions of their generated target words. For each fertile
+english token $i$ we first randomly order all translations of $e_{i}$
+into a sequence. Then we place the leftmost french word (so called
+\emph{head}) of this sequence at position $j$ based on the averaged
+(and rounded) position $c_{\rho_{i}}$ of the translations of the
+last previous fertile word $\rho_{i}$. The distance $j-c_{\rho_{i}}$
+between $j$ and $c_{\rho_{i}}$ is picked according to the distribution
+$d_{1}\left(j-c_{\rho_{i}}|class\left(e_{\rho_{i}}\right),class\left(f_{j}\right)\right)$
+conditioned on the word classes%
+\footnote{todo: Explain%
+} of the previous fertile english word and the french word we just
+translated. 
+
+For words other than the leftmost (i.e. non-head words) the position
+$k$ is determined with respect to the position of the head word $j$
+according to a distribution $d_{>1}\left(k-j|class\left(f_{k}\right)\right)$
+.
+
+Finally, the positions of all Null-generated words are distributed
+to the remaining slots uniformly {[}explain formula bit{]}
 \begin{eqnarray*}
  & p\left(a,f|e\right)=\\
  & \prod_{i=1}^{l}n\left(\phi_{i}|e_{i}\right)\times\prod_{i=1}^{l}\prod_{k=1}^{\phi_{i}}t\left(\tau_{ik},e_{i}\right)\times\\
