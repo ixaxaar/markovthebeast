@@ -1,0 +1,54 @@
+The search for the most likely translation (aka decoding, search,
+MAP inference) given a statistical MT model has traditionally been
+peformed by greedy or beam-based methods/heuristics {[}site some{]}.
+While being efficient, most of these methods (do we know enough about
+decoding to make any claims here?) have two drawbacks: (1) they are
+approximate and give no bounds as to how far their solution is away
+from the true optimum---this makes it sometimes hard to tell whether
+the model or the search algorithm need to be improved; (2) they don't
+scale (development-wise, not efficience) well with additional global
+constraints. 
+
+By constrast, recently researchers in other NLP appliciation areas
+have increasingly relied on Integer Linear Programming as means to
+find MAP solutions. ILP overcomes the two drawbacks mentioned above
+as is guaranteed to be exact, and can be easily used to enforce global
+constraints through additional linear inequalities. However, guaranteed
+exactness, and generic global inference comes usually at the price
+of efficiency. 
+
+In fact, ILP has also been used as a method for MT decoding with IBM
+Model 4 {[}cite Germann{]}. In {[}cite{]} work it became clear that
+a naive ILP-based does not scale up to more than simple short sentences
+due to an exponential number of constraints necessary to represent
+the decoding problem in ILP. However, recent work in Dependency Parsing
+{[}cite you and me{]} showed that ILP can still be efficient for very
+large prograns when used in an incremental fashion. This raises the
+question whether incremental/Cutting Plane ILP can also be used for
+decoding of Model 4 for real world sentences. 
+
+In this work we show that it is indeed possible to decode Model 4
+with incremental ILP, at least for sentences to up to 30(? we have
+to be more defensive here I think) words, and a simple two-gramm languange
+model. This allowed us to give a definite answer as to how good/bad
+Model 4 actually is, and how good/bad its state-of-the-art rewrite
+decoder {[}cite{]}. Exact inference increases Bleu score by about
+1 point for two language pairs when compared to the results of the
+rewrite decoder {[}this is not really the answer{]}. From this we
+conclude that the rewrite decoder indeed performs well, but still
+can be slightly improved. (At the price of efficiency, that is)
+
+Moreover, we believe that our work can be the basis of exciting and
+really cool and also sexy future work. For example, as mentioned ILP
+allows for a principled and declarative implementation of global constraints
+and hence we may ask whether Model 4 can be improved through additional
+global linguistic constraints; can we map other MT problems to an
+ILP representation, and will this get slower, or maybe faster {[}why
+could it{]}? How can larger language models be handled? (such models
+are relatively easy to incorporate in left to right or greedy approaches
+but pose a serious problem in the ILP sense). 
+
+Finally, we observed that preprocessing and generating of ILPs is
+as cpu-intensive as actual inference. This leads to the more general
+question of how to integrate model construction more tightly with
+the ILP solver (maybe by using Pricing strategies).
