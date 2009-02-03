@@ -32,28 +32,30 @@ object CoNLL09To06 {
       }
     }
     val fileName = args(0)
-    val splits = Integer.valueOf(args(1))
-    val indices = splitIndices(0 until sentences.length, splits)
-    val splitSize = sentences.length / splits
-    for (split <- 0 until splits) {
-      val train = new java.io.PrintStream(new FileOutputStream(fileName + "." + split + ".conll06.train"), true, "UTF-8")
-      val test = new java.io.PrintStream(new FileOutputStream(fileName + "." + split + ".conll06.test"), true, "UTF-8")
-      for (i <- 0 until splits if i != split) {
-        for (sentenceNr <- indices(i))
-          train.println(sentences(sentenceNr))
+    val splits = args(1).toInt
+    if (splits > 0) {
+      val indices = splitIndices(0 until sentences.length, splits)
+      val splitSize = sentences.length / splits
+      for (split <- 0 until splits) {
+        val train = new java.io.PrintStream(new FileOutputStream(fileName + "." + split + ".conll06.train"), true, "UTF-8")
+        val test = new java.io.PrintStream(new FileOutputStream(fileName + "." + split + ".conll06.test"), true, "UTF-8")
+        for (i <- 0 until splits if i != split) {
+          for (sentenceNr <- indices(i))
+            train.println(sentences(sentenceNr))
+        }
+        for (sentenceNr <- indices(split))
+          test.println(sentences(sentenceNr))
       }
-      for (sentenceNr <- indices(split))
-        test.println(sentences(sentenceNr))
     }
     for (s <- sentences) {
       out.println(s)
     }
   }
 
-  def splitIndices(range : Seq[Int], splits : Int) : List[Seq[Int]] = {
+  def splitIndices(range: Seq[Int], splits: Int): List[Seq[Int]] = {
     if (splits == 1) List(range) else {
       val splitSize = range.length / splits
-      List(range.take(splitSize)) ::: splitIndices(range.drop(splitSize), splits - 1)   
+      List(range.take(splitSize)) ::: splitIndices(range.drop(splitSize), splits - 1)
     }
 
   }
