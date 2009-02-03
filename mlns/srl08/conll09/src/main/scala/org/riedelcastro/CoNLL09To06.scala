@@ -1,10 +1,8 @@
 package org.riedelcastro
 
-import _root_.scala.io.Source
+import scala.io.Source
 import java.io.{File, FileOutputStream}
 import java.util.ArrayList
-//import scalax.data._
-//import scalax.io.CommandLineParser
 
 /**
  * CoNLL 09
@@ -19,7 +17,7 @@ object CoNLL09To06 {
     val src = Source.fromInputStream(System.in)
     val out = new java.io.PrintStream(System.out, true, "UTF-8")
     var sentences = Array[String]()
-    val sentence = new StringBuilder()
+    val sentence = new scala.StringBuilder()
     for (line: String <- src.getLines) {
       val split = line.split("\\s+");
       if (split.length == 0) {
