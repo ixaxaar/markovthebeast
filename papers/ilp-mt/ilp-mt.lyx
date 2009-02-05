@@ -305,32 +305,32 @@ Integer Linear Programming Decoding
 
 \begin_layout Standard
 \begin_inset FormulaMacro
-\newcommand{\source}{\mathbf{e}}
+\renewcommand{\source}{\mathbf{e}}
 \end_inset
 
 
 \begin_inset FormulaMacro
-\newcommand{\target}{\mathbf{f}}
+\renewcommand{\target}{\mathbf{f}}
 \end_inset
 
 
 \begin_inset FormulaMacro
-\newcommand{\align}{\mathbf{a}}
+\renewcommand{\align}{\mathbf{a}}
 \end_inset
 
 
 \begin_inset FormulaMacro
-\newcommand{\start}{\text{START}}
+\renewcommand{\start}{\text{START}}
 \end_inset
 
 
 \begin_inset FormulaMacro
-\newcommand{\end}{\text{END}}
+\renewcommand{\stop}{\text{END}}
 \end_inset
 
 
 \begin_inset FormulaMacro
-\newcommand{\null}{\text{NULL}}
+\renewcommand{\null}{\text{NULL}}
 \end_inset
 
 
@@ -405,7 +405,7 @@ Our formulation differs slightly because we use a first order modelling
 
 \begin_layout Standard
 \begin_inset Formula \[
-S=\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in S_{i,10}\right\} \cup\left\{ s_{\left\{ \start\right\} },s_{\left\{ \end\right\} }\right\} \]
+S=\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in S_{i,10}\right\} \cup\left\{ s_{\left\{ \start\right\} },s_{\left\{ \stop\right\} }\right\} \]
 
 \end_inset
 
@@ -414,11 +414,7 @@ That is,
 \end_inset
 
  contains one token 
-\begin_inset Formula $ $
-\end_inset
-
-
-\begin_inset Formula $e_{I}$
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
  for each possible non-empty set 
@@ -463,10 +459,6 @@ Note that this search space restriction is based on a reversal of the noisy
 
  token to indicate sentence beginning and end.
  For example, if a source word 
-\begin_inset Formula $ $
-\end_inset
-
-
 \begin_inset Formula $is$
 \end_inset
 
@@ -508,7 +500,7 @@ CE NE EST PAS CLAIR
 
 \begin_layout Standard
 Each acyclic path 
-\begin_inset Formula $\left(s_{\left\{ \start\right\} },s_{1},\ldots,s_{n},s_{\left\{ \end\right\} }\right)$
+\begin_inset Formula $\left(s_{\left\{ \start\right\} },s_{1},\ldots,s_{n},s_{\left\{ \stop\right\} }\right)$
 \end_inset
 
  through 
@@ -619,11 +611,7 @@ Word For each target token
 \begin_inset Formula $i$
 \end_inset
 
- 
-\begin_inset Formula $ $
-\end_inset
-
-there is exactly one source token 
+ there is exactly one source token 
 \begin_inset Formula $s$
 \end_inset
 
@@ -771,10 +759,6 @@ do
 \begin_deeper
 \begin_layout Enumerate
 solve 
-\begin_inset Formula $ $
-\end_inset
-
-
 \begin_inset Formula $I$
 \end_inset
 
@@ -787,10 +771,10 @@ solve
 
 \begin_layout Enumerate
 find cycles in 
-\begin_inset Formula $ $
+\begin_inset Formula $I$
 \end_inset
 
-solution
+ solution
 \end_layout
 
 \begin_layout Enumerate

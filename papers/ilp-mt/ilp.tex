@@ -1,29 +1,78 @@
 
-Following {[}german etc{]} we can formulate the {[}MAP problem, max
-likelihood alignment? There was a proper term for this{]} for IBM
-Model 4 as an Integer Linear Program. To this end we introduce a set
-of variables. 
+\global\long\def\source{\mathbf{e}}
+\global\long\def\target{\mathbf{f}}
+\global\long\def\align{\mathbf{a}}
+\global\long\def\start{\text{START}}
+\global\long\def\stop{\text{END}}
+\global\long\def\null{\text{NULL}}
 
-First, for all pairs of source words (in noisy channel lingo, from
-here on) $s_{1}$ and $s_{2}$ we define a variable $f_{s_{1},s_{2}}$
-that yields 1 if the word $j$ follows the word $i$ in the source
-translation, and zero otherwise. Furthermore, for each target word
-$ $$t$ and each source word $s$ with $s\in S\left(t\right)$ {[}the
-set of possible translations for $t${]} the variable $a_{s}^{t}$
-is 1 if $s$ is the translation of $t$ and 0 otherwise. 
 
-To ensure that each assignment of the $f$ and $a$ variables represents
-a model 4 translation we add the following constraints.
+Given a trained IBM model 4, and an input target sentence $\target$
+we need to find the source sentence $\hat{\source}$ and alignment
+$\hat{\align}$ with maximal $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$.
+{[}german at all etc{]} showed that we can formulate this problem
+using Integer Linear Programming~{[}cite{]}. In this section we will
+present our variant%
+\footnote{Our formulation differs slightly because we use a first order modelling
+language that imposed certain restrictions on the type of constraints
+allowed.%
+} of this ILP formulation. 
+
+{[}German et al{]} framed the search for the highest scoring translation
+(plus allignment) as the search for a single path over a set of source
+candidate tokens $S$. Let $S_{i,10}$ be the 10 most likely translations
+of $\target_{i}$ according to the probability $p\left(e|f_{i}\right)$.
+Then $S$ is defined as
+
+\[
+S=\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in S_{i,10}\right\} \cup\left\{ s_{\left\{ \start\right\} },s_{\left\{ \stop\right\} }\right\} \]
+That is, $S$ contains one token $s_{I}^{e}$ for each possible non-empty
+set $I$ of target tokens that can likely generate the source word
+$e$.%
+\footnote{Note that this search space restriction is based on a reversal of
+the noisy channel methaphor where source words generate target words.
+This approach is consistent with previous work {[}German{]}, and signicantly
+reduces the noise that would appear in a heuristic based on $p\left(f|e\right)$
+instead. However, it should be remembered that strictly speaking we
+(and {[}German{]}) do not perform optimal decoding in IBM Model 4,
+but in a heuristically simplified version.%
+} In addition, $S$ contains a $Start$ and an $End$ token to indicate
+sentence beginning and end. For example, if a source word $is$ can
+generate $f_{1}=CE$ and $f_{2}=NE$ of the sentence {}``CE NE EST
+PAS CLAIR'', the $S$ contains, among others, $s_{\left\{ 1\right\} }^{is},s_{\left\{ 2\right\} }^{is}$
+and $s_{\left\{ 1,2\right\} }^{is}$$ $. 
+
+Each acyclic path $\left(s_{\left\{ \start\right\} },s_{1},\ldots,s_{n},s_{\left\{ \stop\right\} }\right)$
+through $S$ that starts at $Start$ and ends at $End$ defines an
+English sentence $\source$ by sequentially appending all non-Null
+words $e$ of the $s_{I}^{e}$ tokens in the path. Such a path also
+defines an alignment $\align$ as follows: a token $j=s_{I}^{e}$
+that appears in a path is aligned to all tokens $i\in I$ of the target
+sentence (in other words: source token $j=s_{I}^{e}$ generates all
+target tokens in $I$).
+
+We describe a path through the source tokens $S$ using two types
+of variables. First, for each $s\in S$ we have a binary variable
+$\alpha_{s}$ that indicates whether token $s$ is part of the path.
+Second, we define a binary variable $\sigma_{s,t}$ for each $s_{I},t_{J}\in S$
+with $I\cap J=\emptyset$ that indicates whether token $s$ is followed
+by token $t$ in the source sentence. 
 \begin{description}
-\item [{One~Active~Source}] For all target words $t$\[
-\sum_{s\in S\left(t\right)}a_{s}^{t}=1\]
+\item [{Exactly~One~Source~Word}] For each target token $i$ there is
+exactly one source token $s$ that generates it \[
+\sum_{s_{I}^{e}|i\in I}\alpha_{s_{I}^{e}}=1\]
 
-\item [{No~Cycles}] For all cycles $C$ of source words\[
-\sum_{\left(s_{1},s_{2}\right)\in C}f_{s_{1},s_{2}}\leq1\]
+\item [{No~Cycles}] For all cycles $C\subseteq2^{S}$ of source words
+\[
+\sum_{\left(s_{1},s_{2}\right)\in C}\sigma_{s_{1},s_{2}}\leq1\]
 
-\item [{Follows~Active~Consistency}] Hmmm? Not sure how to translate
-the ML here in the best way. Todo
-\item [{Null~Issues}] Blah
+\item [{Follows~Active~Consistency}] \[
+\alpha_{s_{I}^{e}}=\sum_{s}\sigma_{s_{I}^{e},s}=\sum_{s}\sigma_{s,s_{I}^{e}}\]
+
+\item [{Null~Target~Words}] We follow {[}German et. al{]} and require
+that there is at most a single active$\null$ source token $s_{I}^{\null}$
+, and that this token is not part of the actual path (or at its end).
+We omit the corresponding constraints for brevity.
 \end{description}
 Finally, the linear objective function incorporates the model 4 probabilities
 of a translation (as represented by an assignment for $f$ and $a$
