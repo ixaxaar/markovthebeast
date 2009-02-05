@@ -300,104 +300,336 @@ m-\phi_{0}\\
 \end_layout
 
 \begin_layout Section
-Integer Linear Programming Formulation
+Integer Linear Programming Decoding
 \end_layout
 
 \begin_layout Standard
-Following [german etc] we can formulate the [MAP problem, max likelihood
- alignment? There was a proper term for this] for IBM Model 4 as an Integer
- Linear Program.
- To this end we introduce a set of variables.
+\begin_inset FormulaMacro
+\newcommand{\source}{\mathbf{e}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\target}{\mathbf{f}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\align}{\mathbf{a}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\start}{\text{START}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\end}{\text{END}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\null}{\text{NULL}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Given a trained IBM model 4, and an input target sentence 
+\begin_inset Formula $\target$
+\end_inset
+
+ we need to find the source sentence 
+\begin_inset Formula $\hat{\source}$
+\end_inset
+
+ and alignment 
+\begin_inset Formula $\hat{\align}$
+\end_inset
+
+ with maximal 
+\begin_inset Formula $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$
+\end_inset
+
+.
+ [german at all etc] showed that we can formulate this problem using Integer
+ Linear Programming
+\begin_inset space ~
+\end_inset
+
+[cite].
+ In this section we will present our variant
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Our formulation differs slightly because we use a first order modelling
+ language that imposed certain restrictions on the type of constraints allowed.
+\end_layout
+
+\end_inset
+
+ of this ILP formulation.
  
 \end_layout
 
 \begin_layout Standard
-First, for all pairs of source words (in noisy channel lingo, from here
- on) 
-\begin_inset Formula $s_{1}$
+[German et al] framed the search for the highest scoring translation (plus
+ allignment) as the search for a single path over a set of source candidate
+ tokens 
+\begin_inset Formula $S$
 \end_inset
 
- and 
-\begin_inset Formula $s_{2}$
+.
+ Let 
+\begin_inset Formula $S_{i,10}$
 \end_inset
 
- we define a variable 
-\begin_inset Formula $f_{s_{1},s_{2}}$
+ be the 10 most likely translations of 
+\begin_inset Formula $\target_{i}$
 \end_inset
 
- that yields 1 if the word 
-\begin_inset Formula $j$
+ according to the probability 
+\begin_inset Formula $p\left(e|f_{i}\right)$
 \end_inset
 
- follows the word 
-\begin_inset Formula $i$
+.
+ Then 
+\begin_inset Formula $S$
 \end_inset
 
- in the source translation, and zero otherwise.
- Furthermore, for each target word 
+ is defined as
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+S=\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in S_{i,10}\right\} \cup\left\{ s_{\left\{ \start\right\} },s_{\left\{ \end\right\} }\right\} \]
+
+\end_inset
+
+That is, 
+\begin_inset Formula $S$
+\end_inset
+
+ contains one token 
 \begin_inset Formula $ $
 \end_inset
 
 
-\begin_inset Formula $t$
+\begin_inset Formula $e_{I}$
 \end_inset
 
- and each source word 
-\begin_inset Formula $s$
+ for each possible non-empty set 
+\begin_inset Formula $I$
 \end_inset
 
- with 
-\begin_inset Formula $s\in S\left(t\right)$
+ of target tokens that can likely generate the source word 
+\begin_inset Formula $e$
 \end_inset
 
- [the set of possible translations for 
-\begin_inset Formula $t$
+.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Note that this search space restriction is based on a reversal of the noisy
+ channel methaphor where source words generate target words.
+ This approach is consistent with previous work [German], and signicantly
+ reduces the noise that would appear in a heuristic based on 
+\begin_inset Formula $p\left(f|e\right)$
 \end_inset
 
-] the variable 
-\begin_inset Formula $a_{s}^{t}$
+ instead.
+ However, it should be remembered that strictly speaking we (and [German])
+ do not perform optimal decoding in IBM Model 4, but in a heuristically
+ simplified version.
+\end_layout
+
 \end_inset
 
- is 1 if 
-\begin_inset Formula $s$
+ In addition, 
+\begin_inset Formula $S$
 \end_inset
 
- is the translation of 
-\begin_inset Formula $t$
+ contains a 
+\begin_inset Formula $Start$
 \end_inset
 
- and 0 otherwise.
+ and an 
+\begin_inset Formula $End$
+\end_inset
+
+ token to indicate sentence beginning and end.
+ For example, if a source word 
+\begin_inset Formula $ $
+\end_inset
+
+
+\begin_inset Formula $is$
+\end_inset
+
+ can generate 
+\begin_inset Formula $f_{1}=CE$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{2}=NE$
+\end_inset
+
+ of the sentence 
+\begin_inset Quotes eld
+\end_inset
+
+CE NE EST PAS CLAIR
+\begin_inset Quotes erd
+\end_inset
+
+, the 
+\begin_inset Formula $S$
+\end_inset
+
+ contains, among others, 
+\begin_inset Formula $s_{\left\{ 1\right\} }^{is},s_{\left\{ 2\right\} }^{is}$
+\end_inset
+
+ and 
+\begin_inset Formula $s_{\left\{ 1,2\right\} }^{is}$
+\end_inset
+
+
+\begin_inset Formula $ $
+\end_inset
+
+.
  
 \end_layout
 
 \begin_layout Standard
-To ensure that each assignment of the 
-\begin_inset Formula $f$
+Each acyclic path 
+\begin_inset Formula $\left(s_{\left\{ \start\right\} },s_{1},\ldots,s_{n},s_{\left\{ \end\right\} }\right)$
 \end_inset
 
- and 
-\begin_inset Formula $a$
+ through 
+\begin_inset Formula $S$
 \end_inset
 
- variables represents a model 4 translation we add the following constraints.
+ that starts at 
+\begin_inset Formula $Start$
+\end_inset
+
+ and ends at 
+\begin_inset Formula $End$
+\end_inset
+
+ defines an English sentence 
+\begin_inset Formula $\source$
+\end_inset
+
+ by sequentially appending all non-Null words 
+\begin_inset Formula $e$
+\end_inset
+
+ of the 
+\begin_inset Formula $s_{I}^{e}$
+\end_inset
+
+ tokens in the path.
+ Such a path also defines an alignment 
+\begin_inset Formula $\align$
+\end_inset
+
+ as follows: a token 
+\begin_inset Formula $j=s_{I}^{e}$
+\end_inset
+
+ that appears in a path is aligned to all tokens 
+\begin_inset Formula $i\in I$
+\end_inset
+
+ of the target sentence (in other words: source token 
+\begin_inset Formula $j=s_{I}^{e}$
+\end_inset
+
+ generates all target tokens in 
+\begin_inset Formula $I$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+We describe a path through the source tokens 
+\begin_inset Formula $S$
+\end_inset
+
+ using two types of variables.
+ First, for each 
+\begin_inset Formula $s\in S$
+\end_inset
+
+ we have a binary variable 
+\begin_inset Formula $\alpha_{s}$
+\end_inset
+
+ that indicates whether token 
+\begin_inset Formula $s$
+\end_inset
+
+ is part of the path.
+ Second, we define a binary variable 
+\begin_inset Formula $\sigma_{s,t}$
+\end_inset
+
+ for each 
+\begin_inset Formula $s_{I},t_{J}\in S$
+\end_inset
+
+ with 
+\begin_inset Formula $I\cap J=\emptyset$
+\end_inset
+
+ that indicates whether token 
+\begin_inset Formula $s$
+\end_inset
+
+ is followed by token 
+\begin_inset Formula $t$
+\end_inset
+
+ in the source sentence.
+ 
 \end_layout
 
 \begin_layout Description
+Exactly
+\begin_inset space ~
+\end_inset
+
 One
 \begin_inset space ~
 \end_inset
 
-Active
+Source
 \begin_inset space ~
 \end_inset
 
-Source For all target words 
-\begin_inset Formula $t$
+Word For each target token 
+\begin_inset Formula $i$
 \end_inset
 
+ 
+\begin_inset Formula $ $
+\end_inset
 
+there is exactly one source token 
+\begin_inset Formula $s$
+\end_inset
+
+ that generates it 
 \begin_inset Formula \[
-\sum_{s\in S\left(t\right)}a_{s}^{t}=1\]
+\sum_{s_{I}^{e}|i\in I}\alpha_{s_{I}^{e}}=1\]
 
 \end_inset
 
@@ -410,12 +642,12 @@ No
 \end_inset
 
 Cycles For all cycles 
-\begin_inset Formula $C$
+\begin_inset Formula $C\subseteq2^{S}$
 \end_inset
 
- of source words
+ of source words 
 \begin_inset Formula \[
-\sum_{\left(s_{1},s_{2}\right)\in C}f_{s_{1},s_{2}}\leq1\]
+\sum_{\left(s_{1},s_{2}\right)\in C}\sigma_{s_{1},s_{2}}\leq1\]
 
 \end_inset
 
@@ -431,8 +663,13 @@ Active
 \begin_inset space ~
 \end_inset
 
-Consistency Hmmm? Not sure how to translate the ML here in the best way.
- Todo
+Consistency 
+\begin_inset Formula \[
+\alpha_{s_{I}^{e}}=\sum_{s}\sigma_{s_{I}^{e},s}=\sum_{s}\sigma_{s,s_{I}^{e}}\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Description
@@ -440,7 +677,21 @@ Null
 \begin_inset space ~
 \end_inset
 
-Issues Blah
+Target
+\begin_inset space ~
+\end_inset
+
+Words We follow [German et.
+ al] and require that there is at most a single active
+\begin_inset Formula $\null$
+\end_inset
+
+ source token 
+\begin_inset Formula $s_{I}^{\null}$
+\end_inset
+
+ , and that this token is not part of the actual path (or at its end).
+ We omit the corresponding constraints for brevity.
 \end_layout
 
 \begin_layout Standard
