@@ -18,14 +18,17 @@ object CoNLL09To06 {
     val out = new java.io.PrintStream(System.out, true, "UTF-8")
     var sentences = Array[String]()
     val sentence = new scala.StringBuilder()
+    val processors = if (args.length == 3 && args(2) == "guess")
+      Array(Col(0), Col(1), Col(3), Coarse(Col(5)), Col(5), Col(7), Col(9), Col(11), Text("_"), Text("_"))
+    else
+      Array(Col(0), Col(1), Col(3), Coarse(Col(5)), Col(5), Col(7), Col(8), Col(10), Text("_"), Text("_"))
     for (line: String <- src.getLines) {
       val split = line.split("\\s+");
       if (split.length == 0) {
         sentences = sentences ++ Array(sentence.toString)
         sentence.setLength(0)
       } else {
-        sentence.append(separate(LineProcessor(split,
-          Col(0), Col(1), Col(3), Coarse(Col(5)), Col(5), Col(7), Col(9), Col(11), Text("_"), Text("_")),
+        sentence.append(separate(LineProcessor(split,processors),
           "\t")).append("\n")
       }
     }
@@ -50,6 +53,8 @@ object CoNLL09To06 {
     }
   }
 
+
+
   def splitIndices(range: Seq[Int], splits: Int): List[Seq[Int]] = {
     if (splits == 1) List(range) else {
       val splitSize = range.length / splits
@@ -69,7 +74,7 @@ object CoNLL09To06 {
 }
 
 object LineProcessor {
-  def apply(cols: Seq[String], processors: TokenProcessor*): Seq[String] = {
+  def apply(cols: Seq[String], processors: Iterable[TokenProcessor]): Seq[String] = {
     return processors.foldRight(List[String]()){(processor, result) => processor(cols) :: result}
   }
 }
