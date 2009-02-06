@@ -27,7 +27,7 @@ theorems-ams-extended
 \use_geometry false
 \use_amsmath 1
 \use_esint 1
-\cite_engine basic
+\cite_engine natbib_authoryear
 \use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
@@ -334,19 +334,24 @@ Integer Linear Programming Decoding
 \end_inset
 
 
+\begin_inset FormulaMacro
+\renewcommand{\sourceset}{S}
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Given a trained IBM model 4, and an input target sentence 
+Given a trained IBM model 4, and a French sentence 
 \begin_inset Formula $\target$
 \end_inset
 
- we need to find the source sentence 
-\begin_inset Formula $\hat{\source}$
+ we need to find the English sentence 
+\begin_inset Formula $\source$
 \end_inset
 
  and alignment 
-\begin_inset Formula $\hat{\align}$
+\begin_inset Formula $\align$
 \end_inset
 
  with maximal 
@@ -354,13 +359,15 @@ Given a trained IBM model 4, and an input target sentence
 \end_inset
 
 .
- [german at all etc] showed that we can formulate this problem using Integer
- Linear Programming
-\begin_inset space ~
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "germann01fast"
+
 \end_inset
 
-[cite].
- In this section we will present our variant
+ showed that we can formulate this problem using Integer Linear Programming.
+ In this section we will present our variant of their ILP formulation.
 \begin_inset Foot
 status collapsed
 
@@ -371,24 +378,24 @@ Our formulation differs slightly because we use a first order modelling
 
 \end_inset
 
- of this ILP formulation.
  
 \end_layout
 
 \begin_layout Standard
-[German et al] framed the search for the highest scoring translation (plus
- allignment) as the search for a single path over a set of source candidate
- tokens 
-\begin_inset Formula $S$
+\begin_inset CommandInset citation
+LatexCommand citet
+key "germann01fast"
+
 \end_inset
 
-.
+ framed the search for the highest scoring English sentence and alignment
+ as the search for a single path over a set of English candidate tokens.
  Let 
 \begin_inset Formula $S_{i,10}$
 \end_inset
 
- be the 10 most likely translations of 
-\begin_inset Formula $\target_{i}$
+ be the set of 10 most likely translations of 
+\begin_inset Formula $f_{i}$
 \end_inset
 
  according to the probability 
@@ -396,32 +403,33 @@ Our formulation differs slightly because we use a first order modelling
 \end_inset
 
 .
- Then 
+ Then we define the set of candidate English tokens 
 \begin_inset Formula $S$
 \end_inset
 
- is defined as
-\end_layout
-
-\begin_layout Standard
+ as
 \begin_inset Formula \[
-S=\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in S_{i,10}\right\} \cup\left\{ s_{\left\{ \start\right\} },s_{\left\{ \stop\right\} }\right\} \]
+\left\{ s_{I}^{e}|I\neq\emptyset\wedge\forall i\in I:e\in\sourceset_{i,10}\right\} \cup\left\{ s_{\left\{ 0\right\} }^{\start},s_{\left\{ n+1\right\} }^{\stop}\right\} \]
 
 \end_inset
 
 That is, 
-\begin_inset Formula $S$
+\begin_inset Formula $\sourceset$
 \end_inset
 
- contains one token 
+ contains one token candidate 
 \begin_inset Formula $s_{I}^{e}$
 \end_inset
 
- for each possible non-empty set 
+ for each English word 
+\begin_inset Formula $e$
+\end_inset
+
+ and possible non-empty set 
 \begin_inset Formula $I$
 \end_inset
 
- of target tokens that can likely generate the source word 
+ of French tokens that can (likely) generate 
 \begin_inset Formula $e$
 \end_inset
 
@@ -431,8 +439,8 @@ status collapsed
 
 \begin_layout Plain Layout
 Note that this search space restriction is based on a reversal of the noisy
- channel methaphor where source words generate target words.
- This approach is consistent with previous work [German], and signicantly
+ channel metaphor where source words generate target words.
+ This approach is consistent with previous work [German], and significantly
  reduces the noise that would appear in a heuristic based on 
 \begin_inset Formula $p\left(f|e\right)$
 \end_inset
@@ -446,52 +454,77 @@ Note that this search space restriction is based on a reversal of the noisy
 \end_inset
 
  In addition, 
-\begin_inset Formula $S$
+\begin_inset Formula $\sourceset$
 \end_inset
 
- contains a 
-\begin_inset Formula $Start$
-\end_inset
-
- and an 
-\begin_inset Formula $End$
-\end_inset
-
- token to indicate sentence beginning and end.
- For example, if a source word 
-\begin_inset Formula $is$
-\end_inset
-
- can generate 
-\begin_inset Formula $f_{1}=CE$
+ contains 
+\begin_inset Formula $s_{\left\{ 0\right\} }^{\start}$
 \end_inset
 
  and 
-\begin_inset Formula $f_{2}=NE$
+\begin_inset Formula $s_{\left\{ n+1\right\} }^{\stop}$
 \end_inset
 
- of the sentence 
+ tokens that serve as the translation of sentence beginning and end, respectivel
+y.
+ For example, if the English word 
 \begin_inset Quotes eld
 \end_inset
 
-CE NE EST PAS CLAIR
+is
 \begin_inset Quotes erd
 \end_inset
 
-, the 
-\begin_inset Formula $S$
-\end_inset
-
- contains, among others, 
-\begin_inset Formula $s_{\left\{ 1\right\} }^{is},s_{\left\{ 2\right\} }^{is}$
+ can be generated by 
+\begin_inset Formula $f_{1}=\text{CE}$
 \end_inset
 
  and 
-\begin_inset Formula $s_{\left\{ 1,2\right\} }^{is}$
+\begin_inset Formula $f_{2}=\text{NE}$
+\end_inset
+
+ in the sentence 
+\begin_inset Quotes eld
+\end_inset
+
+CE
+\begin_inset Formula $ $
 \end_inset
 
 
-\begin_inset Formula $ $
+\begin_inset Formula $_{1}$
+\end_inset
+
+ NE
+\begin_inset Formula $_{2}$
+\end_inset
+
+ EST
+\begin_inset Formula $_{3}$
+\end_inset
+
+ PAS
+\begin_inset Formula $_{4}$
+\end_inset
+
+ CLAIR
+\begin_inset Formula $_{5}$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+, then 
+\begin_inset Formula $\sourceset$
+\end_inset
+
+ contains, among others, 
+\begin_inset Formula $s_{\left\{ 1\right\} }^{\text{is}},s_{\left\{ 2\right\} }^{\text{is}}$
+\end_inset
+
+ and 
+\begin_inset Formula $s_{\left\{ 1,2\right\} }^{\text{is}}$
 \end_inset
 
 .
@@ -500,221 +533,208 @@ CE NE EST PAS CLAIR
 
 \begin_layout Standard
 Each acyclic path 
-\begin_inset Formula $\left(s_{\left\{ \start\right\} },s_{1},\ldots,s_{n},s_{\left\{ \stop\right\} }\right)$
-\end_inset
-
- through 
-\begin_inset Formula $S$
-\end_inset
-
- that starts at 
-\begin_inset Formula $Start$
-\end_inset
-
- and ends at 
-\begin_inset Formula $End$
+\begin_inset Formula $\left(s_{\left\{ 0\right\} }^{\start},s_{I_{1}}^{e_{1}},\ldots,s_{I_{m}}^{e_{m}},s_{\left\{ n+1\right\} }^{\stop}\right)$
 \end_inset
 
  defines an English sentence 
-\begin_inset Formula $\source$
+\begin_inset Formula $\source=\left(e_{1},\ldots,e_{m}\right)$
 \end_inset
 
- by sequentially appending all non-Null words 
-\begin_inset Formula $e$
-\end_inset
-
- of the 
-\begin_inset Formula $s_{I}^{e}$
-\end_inset
-
- tokens in the path.
- Such a path also defines an alignment 
+ .
+ A path also defines an alignment 
 \begin_inset Formula $\align$
 \end_inset
 
- as follows: a token 
-\begin_inset Formula $j=s_{I}^{e}$
+: a token 
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
- that appears in a path is aligned to all tokens 
-\begin_inset Formula $i\in I$
+ that appears in a path is aligned to all target tokens 
+\begin_inset Formula $i$
 \end_inset
 
- of the target sentence (in other words: source token 
-\begin_inset Formula $j=s_{I}^{e}$
+ in 
+\begin_inset Formula $I$
+\end_inset
+
+ (in other words: source token 
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
  generates all target tokens in 
 \begin_inset Formula $I$
 \end_inset
 
-).
+ --- say something about noisy channel being used here again, instead of
+ reverse).
 \end_layout
 
 \begin_layout Standard
-We describe a path through the source tokens 
+We describe a path through the English tokens 
 \begin_inset Formula $S$
 \end_inset
 
  using two types of variables.
  First, for each 
-\begin_inset Formula $s\in S$
+\begin_inset Formula $s_{I}^{e}\in\sourceset$
 \end_inset
 
  we have a binary variable 
-\begin_inset Formula $\alpha_{s}$
+\begin_inset Formula $\alpha_{I}^{e}$
 \end_inset
 
  that indicates whether token 
-\begin_inset Formula $s$
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
  is part of the path.
  Second, we define a binary variable 
-\begin_inset Formula $\sigma_{s,t}$
+\begin_inset Formula $\sigma_{I_{1},I_{1}}^{e_{1},e_{2}}$
 \end_inset
 
  for each 
-\begin_inset Formula $s_{I},t_{J}\in S$
+\begin_inset Formula $s_{I_{1}}^{e_{1}},s_{I_{2}}^{e_{2}}\in S$
 \end_inset
 
  with 
-\begin_inset Formula $I\cap J=\emptyset$
+\begin_inset Formula $I_{1}\cap I_{2}=\emptyset$
 \end_inset
 
  that indicates whether token 
-\begin_inset Formula $s$
+\begin_inset Formula $s_{I_{1}}^{e_{1}}$
 \end_inset
 
  is followed by token 
-\begin_inset Formula $t$
+\begin_inset Formula $s_{I_{2}}^{e_{2}}\in S$
 \end_inset
 
- in the source sentence.
- 
+ in the English sentence.
 \end_layout
 
-\begin_layout Description
-Exactly
-\begin_inset space ~
+\begin_layout Standard
+In order for the 
+\begin_inset Formula $\alpha$
 \end_inset
 
-One
-\begin_inset space ~
+ and 
+\begin_inset Formula $\sigma$
 \end_inset
 
-Source
-\begin_inset space ~
-\end_inset
-
-Word For each target token 
+ variables to represent a valid path and alignment we add the following
+ constraints to our ILP.
+ First, for each French token 
 \begin_inset Formula $i$
 \end_inset
 
- there is exactly one source token 
-\begin_inset Formula $s$
+ there is exactly one English token 
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
- that generates it 
+ with 
+\begin_inset Formula $i\in I$
+\end_inset
+
+ that generates it: 
 \begin_inset Formula \[
-\sum_{s_{I}^{e}|i\in I}\alpha_{s_{I}^{e}}=1\]
+\sum_{i\in I}\alpha_{I}^{e}=1\]
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Description
-No
-\begin_inset space ~
+Second, for each English token candidate 
+\begin_inset Formula $\alpha_{I}^{e}$
 \end_inset
 
-Cycles For all cycles 
-\begin_inset Formula $C\subseteq2^{S}$
-\end_inset
-
- of source words 
+ we ensure that if it is part of the path, there needs to be exactly one
+ English token that follows it and one that precedes it (note that for the
+ start and end tokens this constraint has to be altered accordingly).
 \begin_inset Formula \[
-\sum_{\left(s_{1},s_{2}\right)\in C}\sigma_{s_{1},s_{2}}\leq1\]
+\alpha_{I}^{e}=\sum_{k}\sigma_{I,J_{k}}^{e,e_{k}}=\sum_{k}\sigma_{J_{k},I}^{e_{k},e}\]
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Description
-Follows
-\begin_inset space ~
+Third, we need to guarantee that the path contains no cycles.
+ This can be achieved by an exponential number of constraints, one for each
+ cycle 
+\begin_inset Formula $C=\left(s_{I_{1}}^{e_{1}},\ldots,,s_{I_{m}=I_{1}}^{e_{m}=e_{1}}\right)$
 \end_inset
 
-Active
-\begin_inset space ~
-\end_inset
-
-Consistency 
+: 
 \begin_inset Formula \[
-\alpha_{s_{I}^{e}}=\sum_{s}\sigma_{s_{I}^{e},s}=\sum_{s}\sigma_{s,s_{I}^{e}}\]
+\sum_{i=1}^{m-1}\sigma_{I_{i},I_{i+1}}^{e_{i},e_{i+1}}\leq1\]
 
 \end_inset
 
+Finally, we follow 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "germann01fast"
 
-\end_layout
-
-\begin_layout Description
-Null
-\begin_inset space ~
 \end_inset
 
-Target
-\begin_inset space ~
-\end_inset
-
-Words We follow [German et.
- al] and require that there is at most a single active
+ and require that there is at most a single active 
 \begin_inset Formula $\null$
 \end_inset
 
- source token 
+ English token 
 \begin_inset Formula $s_{I}^{\null}$
 \end_inset
 
- , and that this token is not part of the actual path (or at its end).
+ (which generates all spurious French words in 
+\begin_inset Formula $I$
+\end_inset
+
+), and that this token is not part of the actual path.
  We omit the corresponding constraints for brevity.
 \end_layout
 
 \begin_layout Standard
-Finally, the linear objective function incorporates the model 4 probabilities
- of a translation (as represented by an assignment for 
-\begin_inset Formula $f$
-\end_inset
-
- and 
-\begin_inset Formula $a$
-\end_inset
-
- variables) 
+The objective function
 \begin_inset Formula \[
-\sum_{t}\sum_{s\in S\left(t\right)}w_{s}^{t}a_{s}^{t}+\sum_{s_{1},s_{2}}w_{s_{1},s_{2}}f_{s_{1},s_{2}}\]
+\sum w_{I}^{e}\alpha_{I}^{e}+\sum w_{I_{1},I_{1}}^{e_{1},e_{2}}\sigma_{I_{1},I_{1}}^{e_{1},e_{2}}\]
 
 \end_inset
 
- where 
-\begin_inset Formula $w_{s}^{t}$
+ensures that each path and alignment is assigned the correct log probability
+ according to model 4.
+ Here each 
+\begin_inset Formula $w_{I}^{e}$
 \end_inset
 
- is 
-\begin_inset Formula $\ldots$
+ is the sum of all log probabilities corresponding to the decision that
+ the tokens 
+\begin_inset Formula $I$
 \end_inset
 
- and 
-\begin_inset Formula $w_{s_{1},s_{2}}$
+ are generated by 
+\begin_inset Formula $s_{I}^{e}$
 \end_inset
 
+ (i.e., fertility and translation probabilities).
+ Likewise, each 
+\begin_inset Formula $w_{I_{1},I_{1}}^{e_{1},e_{2}}$
+\end_inset
 
+ sums up all log probabilities corresponding to the decision that 
+\begin_inset Formula $s_{I_{1}}^{e_{1}}$
+\end_inset
+
+ is followed by 
+\begin_inset Formula $s_{I_{2}}^{e_{2}}$
+\end_inset
+
+ (i.e., distortion and language model probabilities).
 \end_layout
 
 \begin_layout Section
 Cutting Plane Algorithm
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\y}{\mathbf{y}}
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -730,18 +750,46 @@ Optimal Decoding
 \begin_inset Quotes erd
 \end_inset
 
- work only considers sentences up to a length of 8? words.
- However, recent work [riedel&clarke] has shown that even exponentially
- large MAP problems can efficiently solved using ILP solvers if a so-called
- Cutting-Plane Algorithm is used.
- In the following we will present this algorithm in a nutshell.
+ work only considers sentences up to a length of 8 words.
+ However, recent work
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand citep
+key "riedel06incremental"
+
+\end_inset
+
+ has shown that even exponentially large decoding/search problems can efficientl
+y solved using ILP solvers if a so-called Cutting-Plane Algorithm
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand citep
+key "dantzig54solution"
+
+\end_inset
+
+ is used.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+It is worth mentioning that Cutting Plane Algorithms have been successfully
+ applied for solving very large instances of the Travelling Salesman Problem,
+ a problem essentially equivalent to the decoding in Model 4 [cite someone?.
 \end_layout
 
-\begin_layout Algorithm
-Cutting Plane algorithm for MT
+\end_inset
+
+ In the following we will present a Cutting Plane algorithm for IBM Model
+ 4:
 \end_layout
 
-\begin_deeper
 \begin_layout Enumerate
 Construct ILP 
 \begin_inset Formula $I$
@@ -750,6 +798,7 @@ Construct ILP
  without cycle constraints
 \end_layout
 
+\begin_deeper
 \begin_layout Enumerate
 
 \series bold
@@ -762,19 +811,19 @@ solve
 \begin_inset Formula $I$
 \end_inset
 
- and assign to 
-\begin_inset Formula $y$
+ and assign to solution 
+\begin_inset Formula $\y$
 \end_inset
 
 
 \end_layout
 
 \begin_layout Enumerate
-find cycles in 
-\begin_inset Formula $I$
+find cyclic paths in solution 
+\begin_inset Formula $\y$
 \end_inset
 
- solution
+
 \end_layout
 
 \begin_layout Enumerate
@@ -790,13 +839,17 @@ add corresponding cycle constraints to
 \series bold
 until
 \series default
- no more cycles can be found
+ no more cyclic paths can be found
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-return 
-\begin_inset Formula $y$
+
+\series bold
+return
+\series default
+ 
+\begin_inset Formula $\y$
 \end_inset
 
 
@@ -830,14 +883,18 @@ It is difficult to make claims about a guaranteed worst-case runtime (or
  For example, if we assume that the translation/distortion model has a very
  strong preference for monotonic solutions then clearly the highest scoring
  solution is likely to be cycle-free.
-\end_layout
-
-\begin_layout Section
-Rewrite Decoder
+ 
 \end_layout
 
 \begin_layout Standard
-Briefly describe...
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "seb"
+options "plainnat"
+
+\end_inset
+
+
 \end_layout
 
 \end_body
