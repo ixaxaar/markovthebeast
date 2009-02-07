@@ -1,0 +1,149 @@
+
+\subsection{Experimental setup}
+\label{sec:experimental-setup}
+
+Run GIZA++ following the instructions on SMT-WS08 baseline page.
+Build language model using CMU-Cambridge Language Modelling Toolkit to
+build a bigram language model with Witten-Bell smoothing.
+
+Generate model files for all sentences of length less than or equal to
+30 for French and 25 for German. 
+
+
+\subsection{Results}
+\label{sec:results-results}
+
+Sentences were discarded due to:
+\begin{itemize}
+\item Solver timed out after 30 minutes.
+\item Solver ran out of memory.
+\item One word output where source has multiple words (probably strange Model4 problem).
+\end{itemize}
+
+There are 1101 French sentences of length less than or equal to 30.
+We discard 115 sentences and produce output for the remaining 986.
+
+There are 1062 German sentences of length less than or equal to 25 (we
+only went up to 25 because python ran out of memory generating model
+files for higher lengths).  We discard 108 sentences and produce
+output for the remaining 954.
+
+General averages:
+French: 
+32.1\% of the time ReWrite and ILP equal in model score.
+67.9\% of the time ILP beats ReWrite in model score.
+Log space stats:
+Micro averaged percentage error: 3.3\% (similar for macro)
+Maximum percentage error: 22.0\%
+Minimum percentage error (on the 67.1\%):  0.1\%
+Probability space stats:
+Micro averaged percentage error: 82.2\%
+Macro averaged percentage error: 60.6\%
+Maximum percentage error: 100.0\%
+Minimum percentage error: 21.5\%
+
+German: 
+100\% of the time ILP beats ReWrite in model score.
+Log space stats:
+Micro averaged percentage error: 5.0\% (similar for macro)
+Maximum percentage error: 65.0\%
+Minimum percentage error:  0.7\%
+Probability space stats:
+Micro averaged percentage error: 95.3\%
+Macro averaged percentage error: 60.9\%
+Maximum percentage error: 100.0\%
+Minimum percentage error: 52.6\%
+
+\begin{table}[tp]
+  \centering
+  \begin{tabular}{|c|l|l|l|l|}
+    \hline
+    Length & Count & \%eq & \%R$<$ILP & Av.\%err \\
+    \hline
+    1--5 & 21 & 52.4 & 47.6 & 6.9 \\
+    6--10 & 121 & 47.9 & 52.1 & 5.2 \\
+    11--15 & 118 & 37.2 & 62.8 & 3.2 \\
+    16--20 & 238 & 32.4 & 67.6 & 3.2 \\
+    21--25 & 266 & 25.2 & 74.8 & 3.1 \\
+    26--30 & 152 & 22.4 & 77.6 & 2.4 \\
+    \hline 
+    1--30 & 986 & 32.1 & 67.9 & 3.3 \\
+    \hline
+  \end{tabular}
+  \caption{French comparisons}
+  \label{tab:french-compare}
+\end{table}
+
+\begin{table}[tp]
+  \centering
+  \begin{tabular}{|c|l|l|l|l|}
+    \hline
+    Length & Count & \%eq & \%R$<$ILP & Av.\%err \\
+    \hline
+    1--5 & 31 & 0.0 & 100.0 & 8.3 \\
+    6--10 & 175 & 0.0 & 100.0 & 6.2 \\
+    11--15 & 242 & 0.0 & 100.0 & 5.3 \\
+    16--20 & 257 & 0.0 & 100.0 & 4.4 \\
+    21--25 & 249 & 0.0 & 100.0 & 4.2 \\
+    \hline 
+    1--25 & 954 & 0.0 & 100.0 & 5.0 \\
+    \hline
+  \end{tabular}
+  \caption{German comparisons}
+  \label{tab:german-compare}
+\end{table}
+
+Length - length range of sentence (inclusive).
+Count - number of sentences in this length range.
+\%eq - percentage of time outputs had equal log model score (precision 0.1)
+\%R$<$ILP - percentage of time ILP had higher log model score than ReWrite.
+Av. \%err - average percentage error between the log model scores
+
+\begin{table}[tp]
+  \centering
+  \begin{tabular}{|c|l|l|l|l|}
+    \hline
+    Length & ReWrite BLEU & ILP BLEU & Diff & ILP ST \\
+    \hline
+    1--5 & 56.47 & 56.15 & -0.32 & 0.7 \\
+    6--10 & 26.11 & 28.01 & 1.90 & 1.4 \\
+    11--15 & 22.85 & 23.70 & 0.85 & 2.7 \\
+    16--20 & 20.40 & 20.81 & 0.41 & 13.9 \\
+    21--25 & 20.89 & 22.51 & 1.62 & 70.1 \\
+    26-30 & 20.92 & 22.30 & 1.38 & 162.6 \\
+    \hline 
+    1--30 & 21.66 & 22.63 & 0.97 & 48.1 \\
+    \hline
+  \end{tabular}
+  \caption{French Analysis}
+  \label{tab:french-analysis}
+\end{table}
+
+\begin{table}[tp]
+  \centering
+  \begin{tabular}{|c|l|l|l|l|}
+    \hline
+    Length & ReWrite BLEU & ILP BLEU & Diff & ILP ST \\
+    \hline
+    1--5 & 40.68 & 41.12 & 0.44 & 0.8 \\
+    6--10 & 19.19 & 20.91 & 1.72 & 1.7 \\
+    11--15 & 15.97 & 16.69 & 0.72 & 5.5 \\
+    16--20 & 15.78 & 15.94 & 0.16 & 23.9 \\
+    21--25 & 15.31 & 15.92 & 0.61 & 173.4 \\
+    \hline 
+    1--25 & 16.10 & 16.71 & 0.61 & 53.5 \\
+    \hline
+  \end{tabular}
+  \caption{German Analysis}
+  \label{tab:german-analysis}
+\end{table}
+
+Diff - BLEU difference between ILP and ReWrite
+ILP ST - average ILP solve time per sentence in seconds.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "ilp-mt"
+%%% End: 
