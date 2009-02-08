@@ -43,14 +43,15 @@ solution does contain cycles, the corresponding constraints are added
 to the ILP which is in turn solved again. This process is continued
 until no more cycles can be found. 
 
-It is difficult to make claims about a guaranteed worst-case runtime
-(or number of iterations) of this algorithm. However, if the linear
-scoring function (in other words, the translation model and language
-model parameters) already provides a preference for cycle-free solutions,
-we can expect this algorithm to be efficient. For example, if we assume
-that the translation/distortion model has a very strong preference
-for monotonic solutions then clearly the highest scoring solution
-is likely to be cycle-free. 
+% It is difficult to make claims about a guaranteed worst-case runtime
+% (or number of iterations) of this algorithm. However, if the linear
+% scoring function (in other words, the translation model and language
+% model parameters) already provides a preference for cycle-free solutions,
+% we can expect this algorithm to be efficient. For example, if we assume
+% that the translation/distortion model has a very strong preference
+% for monotonic solutions then clearly the highest scoring solution
+% is likely to be cycle-free.
+
 
 
 
