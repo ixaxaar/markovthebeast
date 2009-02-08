@@ -11,6 +11,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[authoryear]{natbib}
+\usepackage{multirow}
+\usepackage{subfig}
 
 \setlength\titlebox{6.5cm}    % Expanding the titlebox
 
@@ -49,23 +51,30 @@
 \end{abstract}
 
 \section{Introduction}
+\label{sec:introduction}
 \input{introduction}
 % we could wrap a supersection around the following 3 sections, but that 
 % takes extra space. 
 
 \section{IBM Model 4} 
+\label{sec:ibm-model-4}
 \input{model4} 
  
 \section{Integer Linear Programming Formulation}
+\label{sec:ilp}
 \input{ilp}
 
 \section{Cutting Plane Algorithm}
+\label{sec:cutting-plane}
 \input{cuttingplane}
 
-\section{Results}
+\section{Evaluation}
+\label{sec:evaluation}
 \input{results}
 
 \section{Conclusion}
+\label{sec:conclusion}
+\input{conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{seb}
