@@ -1,33 +1,35 @@
+\vspace{-1ex}
 In this section we describe our experimental setup and results.
-
+\vspace{-1ex}
 \subsection{Experimental setup}
 \label{sec:experimental-setup}
 
-Our experimental setup is designed to answer several questions: (1) Is
+Our experimental setup is designed to answer several questions: (1)~Is
 exact inference in IBM Model 4 possible for sentences of moderate
-length? (2) How fast is exact inference using the cutting plane
-method? (3) How well does the ReWrite decoder perform in terms of
-finding the optimal solution? (4) Does exact decoding increase provide
-better translations?
+length? (2)~How fast is exact inference using Cutting-Plane ILP?
+(3)~How well does the ReWrite decoder perform in terms of finding the
+optimal solution? (4)~Does optimal decoding produce better
+translations?
 
 In order to answer these questions we obtain a trained IBM Model 4 for
 French-English and German-English on Europarl version 3 using GIZA++.
-A bigram language model with Witten-Bell smoothing was estimated from
-the Europarl corpus using the CMU-Cambridge Language Modeling Toolkit.
+A bigram language model with Witten-Bell smoothing was also estimated
+from the corpus using the CMU-Cambridge Language Modeling Toolkit.
 
 For exact decoding we use the two models to generate ILP programs for
-sentences of up to (and including) length 30 tokens for French and 25
-tokens for German\footnote{These limits were imposed to ensure the
+sentences of length up to (and including) 30 tokens for French and 25
+tokens for German.\footnote{These limits were imposed to ensure the
   Python script generating the ILP programs did not run out of
-  memory.}.  We filter translation candidates following (TODO:CITE) by
-using only the top ten translations for each word\footnote{Based on
-  $t(e|f)$.} and a list of zero fertility words\footnote{Extracted
-  using the rules in the filter script
-  \texttt{rewrite.mkZeroFert.perl}}.  This resulted in 1101 French
-sentences and 1062 German sentences for testing purposes.  The ILP
-programs were then solved using the method described in
-Section~\ref{sec:ilp}.  The same models were used with the ISI ReWrite
-Decoder to solve the same set of sentences.
+  memory.}  We filter translation candidates
+following~\cite{GermannFast04} by using only the top ten translations
+for each word\footnote{Based on $t(e|f)$.} and a list of zero
+fertility words.\footnote{Extracted using the rules in the filter
+  script \texttt{rewrite.mkZeroFert.perl}} This resulted in 1101
+French sentences and 1062 German sentences for testing purposes.  The
+ILP programs were then solved using the method described in Section~3.
+The same models were used with the ReWrite Decoder\footnote{Available
+  at \url{http://www.isi.edu/licensed-sw/rewrite-decoder/}} to solve
+the same set of sentences.
 
 
 \subsection{Results}
@@ -41,16 +43,16 @@ Decoder to solve the same set of sentences.
   \begin{tabular}{|l|r|r|r|r|r|r|r|}
     \hline
     \multirow{2}{*}{Len} & \multirow{2}{*}{\#} & \multicolumn{3}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
-    & & \%gt & err & ST & ReW & ILP & Diff \\
+    & & \%Eq & Err & Time & ReW & ILP & Diff \\
     \hline
-    1--5   & 21  & 47.6 & 0.15 & 0.7   & 56.5 & 56.2 &-0.32  \\
-    6--10  & 121 & 52.1 & 0.08 & 1.4   & 26.1 & 28.0 & 1.90  \\
-    11--15 & 118 & 62.8 & 0.06 & 2.7   & 22.9 & 23.7 & 0.85  \\
-    16--20 & 238 & 67.6 & 0.06 & 13.9  & 20.4 & 20.8 & 0.41  \\
-    21--25 & 266 & 74.8 & 0.07 & 70.1  & 20.9 & 22.5 & 1.62  \\
-    26--30 & 152 & 77.6 & 0.05 & 162.6 & 20.9 & 22.3 & 1.38  \\
+    1--5   & 21  & 85.7 & 15.0 & 0.7   & 56.5 & 56.2 &-0.32  \\
+    6--10  & 121 & 64.5 & 7.8 & 1.4   & 26.1 & 28.0 & 1.90  \\
+    11--15 & 118 & 47.9 & 5.9 & 2.7   & 22.9 & 23.7 & 0.85  \\
+    16--20 & 238 & 37.4 & 6.3 & 13.9  & 20.4 & 20.8 & 0.41  \\
+    21--25 & 266 & 30.5 & 6.6 & 70.1  & 20.9 & 22.5 & 1.62  \\
+    26--30 & 152 & 25.7 & 5.3 & 162.6 & 20.9 & 22.3 & 1.38  \\
     \hline                                    
-    1--30  & 986 & 67.9 & 0.06 & 48.1  & 21.7 & 22.6 & 0.97  \\
+    1--30  & 986 & 40.1 & 6.5 & 48.1  & 21.7 & 22.6 & 0.97  \\
     \hline
   \end{tabular}
 }
@@ -60,57 +62,58 @@ Decoder to solve the same set of sentences.
   \begin{tabular}{|l|r|r|r|r|r|r|r|}
     \hline
     \multirow{2}{*}{Len} & \multirow{2}{*}{\#} & \multicolumn{3}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
-    & & \%gt & err & ST & ReW & ILP & Diff \\
+    & & \%Eq & Err & Time & ReW & ILP & Diff \\
     \hline
-    1--5   & 31   & 100 & 0.27 & 0.8   & 40.7 & 41.1 & 0.44  \\
-    6--10  & 175  & 100 & 0.20 & 1.7   & 19.2 & 20.9 & 1.72  \\
-    11--15 & 242  & 100 & 0.17 & 5.5   & 16.0 & 16.7 & 0.72  \\
-    16--20 & 257  & 100 & 0.14 & 23.9  & 15.8 & 15.9 & 0.16  \\
-    21--25 & 249  & 100 & 0.14 & 173.4 & 15.3 & 15.9 & 0.61  \\
+    1--5   & 31   & 83.9 & 27.4 & 0.8   & 40.7 & 41.1 & 0.44  \\
+    6--10  & 175  & 51.4 & 19.7 & 1.7   & 19.2 & 20.9 & 1.72  \\
+    11--15 & 242  & 30.6 & 17.4 & 5.5   & 16.0 & 16.7 & 0.72  \\
+    16--20 & 257  & 19.1 & 14.4 & 23.9  & 15.8 & 15.9 & 0.16  \\
+    21--25 & 249  & 15.7 & 14.0 & 173.4 & 15.3 & 15.9 & 0.61  \\
     \hline                              
-    1--25  & 954  & 100 & 0.16 & 53.5  & 16.1 & 16.7 & 0.61   \\
+    1--25  & 954  & 29.1 & 16.4 & 53.5  & 16.1 & 16.7 & 0.61   \\
     \hline
   \end{tabular}
 }
-\caption{\footnotesize Results on the two corpora.  Len: range of sentence lengths; \#: number of sentences in this range; \%gt: percentage of times ILP decoder returned higher result than ReWrite (all other times equal); err: average difference between decoder scores per token; ST: the average solve time per sentence of ILP decoder in seconds; BLEU ReW, BLEU ILP, BLEU Diff: the BLEU scores of the output and difference between BLEU scores.}  \label{tab:comparison}
+\caption{\footnotesize Results on the two corpora.  Len: range of sentence lengths; \#: number of sentences in this range; \%Eq: percentage of times ILP decoder returned same English sentence; Err: average difference between decoder scores per token ($\times10^{-2}$) in log space; Time: the average solve time per sentence of ILP decoder in seconds; BLEU ReW, BLEU ILP, BLEU Diff: the BLEU scores of the output and difference between BLEU scores.}  \label{tab:comparison}
 \end{table*}
 
 % TODO: difficult to decide how strong our claims can be regarding is
 % ILP-M4 possible?
-The ILP decoder produced output for 986 French sentences and 954
-German sentences.  From this we can conclude that it is possible to
-solve 90\% of our sentences exactly using ILP.  For the remaining 115
-and 108 sentences we did not produce a solution due to: (1) the solver
-not completing within 30 minutes, or (2) the solver running out of
-memory.
+The Cutting-Plane ILP decoder (which we will refer to as ILP decoder)
+produced output for 986 French sentences and 954 German sentences.
+From this we can conclude that it is possible to solve 90\% of our
+sentences exactly using ILP.  For the remaining 115 and 108 sentences
+we did not produce a solution due to: (1) the solver not completing
+within 30 minutes, or (2) the solver running out of memory.
 %TODO: Maybe we just leave this out? as it is a quirk/technical detail
 %or (3) the solver producing a one word output due to
 
 
-Table~1 shows a comparison of the results obtained on the 986 French
-and 954 German sentences using the ILP and ReWrite decoders.  The
-results are broken down by sentence length range of the input
-sentence.  We now turn our attention to the solve times obtained using
-ILP (for the sentences for which the solution was found 30 minutes).
-The table shows that the average solve time is under a minute per
-sentence.  As we increase the sentence length we see the solve time
-increases, however, we never see an order of magnitude increase
-between brackets as witnessed in (TODO: Cite) thus exact decoding is
-more practical than previously suggested.
+Table~1 shows a comparison of the results, broken down by input
+sentence length, obtained on the 986 French and 954 German sentences
+using the ILP and ReWrite decoders.  First we turn our attention to
+the solve times obtained using ILP (for the sentences for which the
+solution was found within 30 minutes).  The table shows that the
+average solve time is under one minute per sentence.  As we increase
+the sentence length we see the solve time increases, however, we never
+see an order of magnitude increase between brackets as witnessed
+by~\cite{GermannFast04} thus optimal decoding is more practical than
+previously suggested.
 
-We next examine the model scores.  The Table shows in the French case
-the ReWrite decoder finds the optimal solution 32.1\% of the time for
-French and 0\% for German.  Although the same English string is
-produced for 40.1\% of the French sentences and 29.1\% of the German
-sentences\footnote{This could be due to precision and rounding errors
-  in comparing the model scores, we call two log model scores equal if
-  they are within 0.1 of one another.}.  Examining the average log
-model error per token shows that the ReWrite decoder error is
-proportional to sentence length (TODO: Can we really say this?).  On
-average the ReWrite decoder is 2.2\% away from the optimal solution in
-log space and 60.6\% in probability space\footnote{These high error
-  rates are an artefact of the extremely small probabilities
-  involved.} for French, and 4.7\% and 60.9\% for German.
+We next examine the performance of the two decoders.
+Following~\cite{GermannFast04} we define the ReWrite decoder as
+finding the optimal solution if the English sentence is the same as
+that produced by the ILP decoder.  Table~1 shows that the ReWrite
+decoder finds the optimal solution 40.1\% of the time for French and
+29.1\% for German.  We also see the ReWrite decoder is less likely to
+find the optimal solution of longer sentences.  We now look at the
+model scores more closely. The average log model error per token shows
+that the ReWrite decoder's error is proportional to sentence length
+and on average the ReWrite decoder is 2.2\% away from the optimal
+solution in log space and 60.6\% in probability space\footnote{These
+  high error rates are an artefact of the extremely small
+  probabilities involved.} for French, and 4.7\% and 60.9\% for
+German.
 
 Performing exact decoding increases the BLEU score by 0.97 points on
 the French-English data set and 0.61 points on the German-English data

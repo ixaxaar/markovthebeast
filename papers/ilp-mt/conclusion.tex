@@ -1,36 +1,45 @@
+In this paper we have demonstrated that optimal decoding of IBM Model
+4 is more practical than previously suggested.  Our results and
+analysis show that exact decoding has a practical purpose.  It has
+allowed us to investigate and validate the performance of the ReWrite
+decoder through comparison of the outputs and model scores from the
+two decoders.  Exact inference also provides an improvement in
+translation quality as measured by BLEU score.
+
 During the course of this research we have encountered numerous
 challenges that were not apparent at the start.  These challenges
 raise some interesting research questions and practical issues one
 must consider when embarking on exact inference using ILP.  The first
-issue is that the generation of the ILP programs can take as long as
-solving the ILP.  This leads us to wonder if their may be a way to
-provide tighter integration of program generation and solving.  Such
-an integration would avoid the need to query the model for \emph{all}
-possible model components the solver may require.  
+issue is that the generation of the ILP programs can take a long time.
+This leads us to wonder if their may be a way to provide tighter
+integration of program generation and solving.  Such an integration
+would avoid the need to query the models in advance for \emph{all}
+possible model components the solver may require.
+
+Related to this issue is how to tackle the incorporation of higher
+order language models. Currently we use our bigram language model in a
+brute-force manner: in order to generate the ILP we evaluate the
+probability of all possible bigrams of English candidate tokens in
+advance. It seems clear that with higher order models this process
+will become prohibitively expensive. Moreover, even if the ILP could
+be generated efficiently, they will obviously be larger and harder to
+solve than our current ILPs. One possible solution may be the use of
+so-called delayed column generation strategies which incrementally add
+parts of the objective function (and hence the language model), but
+only when required by the ILP solver.\footnote{Note that delayed
+  column generation is dual to performing cutting planes.}
 
 The use of ILP in other NLP tasks has provided a principled and
 declarative manner to incorporate global linguistic constraints on the
-system output.  This work lays the foundations for using similar
-global constraints for translation.  However, such constraints may
-require that we consider a higher-level representation of the input
-and output sentence than just the words alone.  To achieve this it is
-desirable, in the future, to investigate how to formulate other models
-of machine translation within the ILP framework.
+system output.  This work lays the foundations for incorporating
+similar global constraints for translation.  We are currently
+investigating linguistic constraints for IBM Model 4 and other
+word-based models in general.  A further extension is to reformulate
+higher-level MT models (phrase- and syntax-based) within the ILP
+framework.  These representations could be more desirable from a
+linguistic constraint perspective as the formulation of constraints
+may be more intuitive.
 
-Discuss:
-\begin{itemize}
-\item Generating the ILP program can take as long as solving.
-\item Tighter integration of program generation and the ILP solver.
-\item How to handle larger language models.  Left-to-right decoders
-  can easily accommodate this, ILP not so.
-\item Limitations of ILP wrt to language model.
-\end{itemize}
-
-Future work:
-\begin{itemize}
-\item Other MT models as ILP, will these be faster/slower etc?
-\item Injection of linguistic knowledge through constraints.
-\end{itemize}
 
 %%% Local Variables: 
 %%% mode: latex

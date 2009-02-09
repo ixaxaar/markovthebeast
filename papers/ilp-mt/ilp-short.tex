@@ -8,30 +8,37 @@
 \global\long\def\sourceset{S}
 
 
-Given a trained IBM model 4 and a French sentence $\target$ we need
-to find the English sentence $\source$ and alignment $\align$ with
-maximal $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$.\footnote{Note that in theory we should be maximizing $p\left(\source|f\right)$. However, this requires summation over all
-possible alignments and hence the problem is usually simplified as described here.}  
+Given a trained IBM Model 4 and a French sentence $\target$ we need to
+find the English sentence $\source$ and alignment $\align$ with
+maximal $p\left(\align,\source|\target\right)\backsimeq
+p\left(\source\right)\cdot
+p\left(\align,\target|\source\right)$.\footnote{Note that in theory we
+  should be maximizing $p\left(\source|\target\right)$. However, this
+  requires summation over all possible alignments and hence the
+  problem is usually simplified as described here.}
 
-\citet{germann01fast} presented an Integer Linear Programming~(ILP) formulation of this problem. In this section we will give a very high-level description of this formulation.%
+\citet{GermannFast04} present an ILP formulation of this problem. In
+this section we will give a very high-level description of the
+formulation.%
 \footnote{Note that our actual formulation differs slightly from the
-original work because we use a first order modelling
-language that imposed certain restrictions on the type of constraints
-allowed.%
-} For brevity we refer the reader to the original work for more details. 
+  original work because we use a first order modelling language that
+  imposed certain restrictions on the type of constraints allowed.%
+} For brevity we refer the reader to the original work for more
+details.
 
-In the formulation of \citet{germann01fast} an English translation is
+In the formulation of \citet{GermannFast04} an English translation is
 represented as the journey of a travelling salesman that visits one
 English token (hotel) per French token (city). Here the English token
-serves as the translation of the French one. A set
-of binary variables denote whether or not certain English token pairs are
-directly connected in this journey. Along with constraints which
-guarantee that for each French token exactly one English
-token is visited, the program also contains an exponential number of
-constraints that forbid the possible cycles the variables can
-represent. It is this set of constraints that renders MT decoding with ILP difficult. 
-
- 
+serves as the translation of the French one. A set of binary variables
+denote whether or not certain English token pairs are directly
+connected in this journey. A set of constraints guarantee that for
+each French token exactly one English token is visited.  The
+formulation also contains an exponential number of constraints which
+forbid the possible cycles the variables can represent. It is this set
+of constraints that renders MT decoding with ILP difficult.
 
 
-
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "ilp-mt"
+%%% End: 

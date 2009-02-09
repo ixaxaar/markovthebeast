@@ -1,20 +1,19 @@
 \global\long\def\y{\mathbf{y}}
 
 
-The Integer Linear Program we have described above has an exponential
-number of (cycle) constraints. Hence, simply passing the ILP to an
-off-the-shelf ILP solver is not practical for all but the smallest
-sentences. For this reason \citet{germann01fast}
-only consider sentences up to a length of 8 words. However, recent
-work~\citep{riedel06incremental} has shown that even exponentially
-large decoding/search problems may be efficiently solved using ILP solvers
-if a Cutting-Plane Algorithm~\citep{dantzig54solution}
-is used.%
-\footnote{It is worth mentioning that Cutting Plane Algorithms have been successfully
-applied for solving very large instances of the Travelling Salesman
-Problem, a problem essentially equivalent to the decoding in Model
-4 {[}cite someone?.%
-} 
+The ILP program above has an exponential number of (cycle)
+constraints. Hence, simply passing the ILP to an off-the-shelf ILP
+solver is not practical for all but the smallest sentences. For this
+reason \citet{GermannFast04} only consider sentences of up to eight
+tokens. However, recent work~\citep{riedel06incremental} has shown
+that even exponentially large decoding problems may be solved
+efficiently using ILP solvers if a Cutting-Plane
+Algorithm~\citep{dantzig54solution} is used.%
+\footnote{It is worth mentioning that Cutting Plane Algorithms have
+  been successfully applied for solving very large instances of the
+  Travelling Salesman Problem, a problem essentially equivalent to the
+  decoding in IBM Model 4.}
+
 % In the following we will present a Cutting Plane algorithm for IBM
 % Model 4:
 % \begin{enumerate}
@@ -33,14 +32,15 @@ Problem, a problem essentially equivalent to the decoding in Model
 % \item \textbf{return} $\y$
 % \end{enumerate}
 % \end{enumerate}
-A Cutting-Plane Algorithm starts a subset of the complete set
-of constraints. In our case this subset contains all but the (exponentially many) cycle constraints. The corresponding ILP is solved by a standard ILP
-solver, and the solution is inspected for cycles. If it contains
-no cycles, we have found the true optimum: the solution
-with highest score that does not violate any constraints. If the
-solution does contain cycles, the corresponding constraints are added
-to the ILP which is in turn solved again. This process is continued
-until no more cycles can be found. 
+A Cutting-Plane Algorithm starts with a subset of the complete set of
+constraints. In our case this subset contains all but the
+(exponentially many) cycle constraints. The corresponding ILP is
+solved by a standard ILP solver, and the solution is inspected for
+cycles. If it contains no cycles, we have found the true optimum: the
+solution with highest score that does not violate any constraints. If
+the solution does contain cycles, the corresponding constraints are
+added to the ILP which is in turn solved again. This process is
+continued until no more cycles can be found.
 
 % It is difficult to make claims about a guaranteed worst-case runtime
 % (or number of iterations) of this algorithm. However, if the linear

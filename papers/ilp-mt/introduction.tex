@@ -1,90 +1,76 @@
 Statistical machine translation systems typical contain three
-essential components: (1) a model, specifies how the process of
-translation occurs; (2) learning regime, dictates how to estimate the
-parameters of the model; (3) decoding algorithm provides the most
+essential components: (1) a model, specifying how the process of
+translation occurs; (2) learning regime, dictating the estimation of
+model's parameters; (3) decoding algorithm which provides the most
 likely translation of an input sentence given a model and its
 parameters.
 
-While models and learning for statistical machine translation are
-being widely explored, there has been less work on the decoding
-problem (also known as, search and MAP inference).  The search space
-in statistical machine translation is vast which make can it
-computationally prohibitively to perform exact decoding especially
-since dynamic programming methods (such as the Viterbi algorithm) are
-not applicable.  Thus greedy or heuristic beam-based methods have been
-traditionally prominent (TODO:CITE) due to their efficiency.  However,
+The search space in statistical machine translation (MT) is vast which
+can make it computationally prohibitively to perform exact/optimal
+decoding (also known as search and MAP inference) especially since
+dynamic programming methods (such as the Viterbi algorithm) are
+typically not applicable.  Thus greedy or heuristic beam-based methods
+have been prominent~\citep{moses} due to their efficiency.  However,
 the efficiency of such methods come with two drawbacks: (1) they are
 approximate and give no bounds as to how far their solution is away
-from the true optimum; (2) they do not scale well in terms of
-development (not efficiency) with additional global constraints.  The
-first point may be especially problematic from a research perspective
-as without bounds on the solutions it is difficult to determine
-whether the model or the search algorithm requires improvement for
-better translations.
+from the true optimum; (2) it can be difficult to incorporate
+additional generic global constraints into the search.  The first
+point may be especially problematic from a research perspective as
+without bounds on the solutions it is difficult to determine whether
+the model or the search algorithm requires improvement for better
+translations.
 
-A similar problem has existed more widely throughout natural language
-processing areas where greedy based methods and heuristic beam search
-have been used in lieu of exact methods.  However, recently their has
-been an increasing interest in using Integer Linear Programming (ILP)
-as a means to find MAP solutions.  ILP overcomes the two drawbacks
+Similar problems exist more widely throughout natural language
+processing where greedy based methods and heuristic beam search have
+been used in lieu of exact methods.  However, recently their has been
+an increasing interest in using Integer Linear Programming (ILP) as a
+means to find MAP solutions.  ILP overcomes the two drawbacks
 mentioned above as it is guaranteed to be exact, and has the ability
 to easily enforce global constraints through additional linear
-constraints.  However, efficiency is usually sacrificed for optimality
-guarantees and generic global inference
+constraints.  However, efficiency is usually sacrificed for these
+benefits.
 
 Integer Linear Programming has previously been used to perform exact
-decoding for machine translation with IBM Model 4(XXX).
-(TODO:CITE) view the translation process akin to the travel salesman
-problem, however, from their reported results it is clear that using
-ILP naively for IBM Model 4 decoding does not scale up past short
-sentences (of eight tokens).  The scalability issues is due to the
-exponential number of constraints required to represent the decoding
-problem as an integer linear program.  However, recent work in
-dependency parsing (TODO: CITE) has demonstrated that it is possible
-to use ILP to perform efficient inference for very large programs when
-used in an incremental manner.  This raises the question as to whether
-incremental (or Cutting Plane) ILP can also be used to decode IBM
-Model 4 on real world sentences.
+decoding for MT using IBM Model 4 and a bigram language model.
+\cite{GermannFast04} view the translation process akin to the
+travelling salesman problem; however, from their reported results it
+is clear that using ILP naively for decoding does not scale up beyond
+short sentences (of eight tokens).  This is due to the exponential
+number of constraints required to represent the decoding problem as an
+ILP program.  However, work in dependency
+parsing~\citep{riedel06incremental} has demonstrated that it is
+possible to use ILP to perform efficient inference for very large
+programs when used in an incremental manner.  This raises the question
+as to whether incremental (or Cutting-Plane) ILP can also be used to
+decode IBM Model 4 on real world sentences.
 
-In this work we show that it is possible to decode IBM Model 4 using
-cutting plane ILP, at least for sentences of a length up to 25 tokens
-using a bigram language model.  Decoding in this manner affords us the
-opportunity to finally analyse the performance of IBM Model 4 and
-performance of its state-of-the-art ReWrite decoder (TODO: CITE).  We
-show that using exact inference provides an increase of approximately
-one BLEU point on two language pairs (French-English and
-German-English) using the standard Europarl corpus (TODO: CITE) in
-comparison to decoding using the ReWrite decoder.  Thus the ReWrite
-decoder performs respectably but can be improved slightly, albeit at
-the cost of efficiency.
+In this work we show that it is possible.  Decoding IBM Model 4 (in
+combination with a bigram language model) using Cutting-Plane ILP
+scales to much longer sentences.  This affords us the opportunity to
+finally analyse the performance of IBM Model 4 and the performance of
+its state-of-the-art ReWrite decoder.  We show that using exact
+inference provides an increase of up to one BLEU point on two language
+pairs (French-English and German-English) in comparison to decoding
+using the ReWrite decoder.  Thus the ReWrite decoder performs
+respectably but can be improved slightly, albeit at the cost of
+efficiency.
 
-We believe that this work is the first step in providing a method for
-researchers to gain greater insight into their translation models by
-mapping the decoding problem of other models into an ILP
-representation.  This work lays the foundations of another avenue of
-future research: the incorporation of global linguistic constraints in
-a similar manner to work in other areas of natural language
-processing (TODO: Cite).
+Although the community has generally moved away from word-based
+models, we believe that displaying optimal decoding in IBM Model 4
+lays the foundations of future work.  It is the first step in
+providing a method for researchers to gain greater insight into their
+translation models by mapping the decoding problem of other models
+into an ILP representation.  ILP decoding will also allow the
+incorporation of global linguistic constraints in a manner similar to
+work in other areas of natural language processing.
 
-The remainder of this paper is organised as follows: ....  We also
-discuss the issues and remaining open questions of using ILP for
-decoding in machine translation (and large scale NLP problems in
-general).
+The remainder of this paper is organised as follows:
+Sections~\ref{sec:ibm-model-4} and~\ref{sec:ilp} briefly recap IBM
+Model 4 and its ILP formulation.  Section~\ref{sec:cutting-plane}
+reviews the Cutting-Plane Algorithm.  Section~\ref{sec:evaluation}
+outlines our experiments and we end the paper with conclusions and a
+discussion of open questions for the community.
 
-% Moreover, we believe that our work can be the basis of exciting and
-% really cool and also sexy future work. For example, as mentioned ILP
-% allows for a principled and declarative implementation of global constraints
-% and hence we may ask whether Model 4 can be improved through additional
-% global linguistic constraints; can we map other MT problems to an
-% ILP representation, and will this get slower, or maybe faster {[}why
-% could it{]}? How can larger language models be handled? (such models
-% are relatively easy to incorporate in left to right or greedy approaches
-% but pose a serious problem in the ILP sense). 
-
-% Finally, we observed that preprocessing and generating of ILPs is
-% as cpu-intensive as actual inference. This leads to the more general
-% question of how to integrate model construction more tightly with
-% the ILP solver (maybe by using Pricing strategies).
 
 %%% Local Variables: 
 %%% mode: latex
