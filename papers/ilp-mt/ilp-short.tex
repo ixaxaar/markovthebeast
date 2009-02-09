@@ -8,16 +8,26 @@
 \global\long\def\sourceset{S}
 
 
-Given a trained IBM model 4, and a French sentence $\target$ we need
+Given a trained IBM model 4 and a French sentence $\target$ we need
 to find the English sentence $\source$ and alignment $\align$ with
 maximal $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$.
-\citet{germann01fast} presented an Integer Linear Programming~(ILP) formulation of this problem. In this section we will give a very high-level description of this ILP formulation.%
-\footnote{Note that our formulation differs slightly because we use a first order modelling
+\citet{germann01fast} presented an Integer Linear Programming~(ILP) formulation of this problem. In this section we will give a very high-level description of this formulation.%
+\footnote{Note that our actual formulation differs slightly from the
+original work because we use a first order modelling
 language that imposed certain restrictions on the type of constraints
 allowed.%
-} For brevity we refer the reader to the original work for details of the ILP formulation. 
+} For brevity we refer the reader to the original work for more details. 
 
-In their ILP formulation an English translation is represented as a path through a set of English candidate tokens. A set of binary variables denote whether or not certain token pairs are directly connected through this path. Among constraints which guarantee that each French word has exactly one English word that generates it, the program also contains an exponential number of constraints that forbid each possible cycle the variables can represent. It is this set of constraints that renders decoding with ILP difficult. 
+In the formulation of \citet{germann01fast} an English translation is
+represented as the journey of a travelling salesman that visits one
+English token (hotel) per French token (city). Here the English token
+serves as the translation of the French one. A set
+of binary variables denote whether or not certain English token pairs are
+directly connected in this journey. Along with constraints which
+guarantee that for each French token exactly one English
+token is visited, the program also contains an exponential number of
+constraints that forbid the possible cycles the variables can
+represent. It is this set of constraints that renders MT decoding with ILP difficult. 
 
  
 
