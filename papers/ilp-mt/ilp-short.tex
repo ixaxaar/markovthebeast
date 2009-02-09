@@ -10,7 +10,9 @@
 
 Given a trained IBM model 4 and a French sentence $\target$ we need
 to find the English sentence $\source$ and alignment $\align$ with
-maximal $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$.
+maximal $p\left(\align,\source|f\right)\backsimeq p\left(\source\right)\cdot p\left(\align,\target|\source\right)$.\footnote{Note that in theory we should be maximizing $p\left(\source|f\right)$. However, this requires summation over all
+possible alignments and hence the problem is usually simplified as described here.}  
+
 \citet{germann01fast} presented an Integer Linear Programming~(ILP) formulation of this problem. In this section we will give a very high-level description of this formulation.%
 \footnote{Note that our actual formulation differs slightly from the
 original work because we use a first order modelling
