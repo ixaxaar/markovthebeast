@@ -1,0 +1,24 @@
+In this paper we focus on the translation model defined by IBM Model 4
+(TODO:Cite).  IBM Model 4 models the translation process as a
+generative story of how a sequence of target words (in our case French
+or German) is generated from a sequence of source words (English).
+
+The generative story is as follows.  Imagine we have an English
+sentence, $\mathbf{e} = e_1, \dots,e_l$ and $e_o$ is the NULL word and
+French sentence, $\mathbf{f} = f_1, \dots, f_m$.  First a fertility is
+drawn for each English word (including the NULL symbol).  Then, for
+each $e_i$ we then independently a number of French words equal to
+$e_i$'s fertility.  Finally we process the English source tokens in
+sequence to determine the positions of their generated French target
+words.  We refer the read to (TODO:Cite) for full details.
+
+Translation using IBM Model 4 is performed by treating the translation
+process a noisy-channel model where the probability of the source
+sentence given a target sentence is, $P(\mathbf{s}|\mathbf{t}) =
+P(\mathbf{t}|\mathbf{s}) \cdot P(\mathbf{s})$, where $P(\mathbf{s}$) is
+a language model of the source language (English).
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "ilp-mt"
+%%% End: 
