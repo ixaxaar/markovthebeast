@@ -1,9 +1,29 @@
+During the course of this research we have encountered numerous
+challenges that were not apparent at the start.  These challenges
+raise some interesting research questions and practical issues one
+must consider when embarking on exact inference using ILP.  The first
+issue is that the generation of the ILP programs can take as long as
+solving the ILP.  This leads us to wonder if their may be a way to
+provide tighter integration of program generation and solving.  Such
+an integration would avoid the need to query the model for \emph{all}
+possible model components the solver may require.  
+
+The use of ILP in other NLP tasks has provided a principled and
+declarative manner to incorporate global linguistic constraints on the
+system output.  This work lays the foundations for using similar
+global constraints for translation.  However, such constraints may
+require that we consider a higher-level representation of the input
+and output sentence than just the words alone.  To achieve this it is
+desirable, in the future, to investigate how to formulate other models
+of machine translation within the ILP framework.
+
 Discuss:
 \begin{itemize}
 \item Generating the ILP program can take as long as solving.
 \item Tighter integration of program generation and the ILP solver.
 \item How to handle larger language models.  Left-to-right decoders
   can easily accommodate this, ILP not so.
+\item Limitations of ILP wrt to language model.
 \end{itemize}
 
 Future work:

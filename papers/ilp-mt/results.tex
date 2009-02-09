@@ -12,17 +12,17 @@ better translations?
 
 In order to answer these questions we obtain a trained IBM Model 4 for
 French-English and German-English on Europarl version 3 using GIZA++.
-A bigram language model with Witten-Bell smoothing was built using the
-CMU-Cambridge Language Modeling Toolkit.
+A bigram language model with Witten-Bell smoothing was estimated from
+the Europarl corpus using the CMU-Cambridge Language Modeling Toolkit.
 
 For exact decoding we use the two models to generate ILP programs for
 sentences of up to (and including) length 30 tokens for French and 25
 tokens for German\footnote{These limits were imposed to ensure the
   Python script generating the ILP programs did not run out of
-  memory.}.  We filter translation candidates in a similar manner to
-(TODO:CITE) by using only the top ten translations for each
-word\footnote{Based on $t(e|f)$.} and a list of zero fertility
-words\footnote{Extracted using the rules in the filter script
+  memory.}.  We filter translation candidates following (TODO:CITE) by
+using only the top ten translations for each word\footnote{Based on
+  $t(e|f)$.} and a list of zero fertility words\footnote{Extracted
+  using the rules in the filter script
   \texttt{rewrite.mkZeroFert.perl}}.  This resulted in 1101 French
 sentences and 1062 German sentences for testing purposes.  The ILP
 programs were then solved using the method described in
@@ -33,46 +33,46 @@ Decoder to solve the same set of sentences.
 \subsection{Results}
 \label{sec:results-results}
 
-\begin{table*}[t]
+\begin{table*}[t!]
   \centering
   \subfloat[French-English\label{tab:results:french}] {
     \footnotesize
   \centering
-  \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+  \begin{tabular}{|l|r|r|r|r|r|r|r|}
     \hline
-    \multirow{2}{*}{Length} & \multirow{2}{*}{\#} & \multicolumn{4}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
-    & & \% eq & \% gt & \%err & ST & ReW & ILP & Diff \\
+    \multirow{2}{*}{Len} & \multirow{2}{*}{\#} & \multicolumn{3}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
+    & & \%gt & err & ST & ReW & ILP & Diff \\
     \hline
-    1--5   & 21  & 52.4 & 47.6 & 6.9 & 0.7   & 56.47 & 56.15 &-0.32  \\
-    6--10  & 121 & 47.9 & 52.1 & 5.2 & 1.4   & 26.11 & 28.01 & 1.90  \\
-    11--15 & 118 & 37.2 & 62.8 & 3.2 & 2.7   & 22.85 & 23.70 & 0.85  \\
-    16--20 & 238 & 32.4 & 67.6 & 3.2 & 13.9  & 20.40 & 20.81 & 0.41  \\
-    21--25 & 266 & 25.2 & 74.8 & 3.1 & 70.1  & 20.89 & 22.51 & 1.62  \\
-    26--30 & 152 & 22.4 & 77.6 & 2.4 & 162.6 & 20.92 & 22.30 & 1.38  \\
+    1--5   & 21  & 47.6 & 0.15 & 0.7   & 56.47 & 56.15 &-0.32  \\
+    6--10  & 121 & 52.1 & 0.08 & 1.4   & 26.11 & 28.01 & 1.90  \\
+    11--15 & 118 & 62.8 & 0.06 & 2.7   & 22.85 & 23.70 & 0.85  \\
+    16--20 & 238 & 67.6 & 0.06 & 13.9  & 20.40 & 20.81 & 0.41  \\
+    21--25 & 266 & 74.8 & 0.07 & 70.1  & 20.89 & 22.51 & 1.62  \\
+    26--30 & 152 & 77.6 & 0.05 & 162.6 & 20.92 & 22.30 & 1.38  \\
     \hline                                    
-    1--30  & 986 & 32.1 & 67.9 & 3.3 & 48.1  & 21.66 & 22.63 & 0.97  \\
-    \hline
-  \end{tabular}
-}\\
-\subfloat[German-English\label{tab:results:german}] {
-  \centering
-  \footnotesize
-  \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
-    \hline
-    \multirow{2}{*}{Length} & \multirow{2}{*}{\#} & \multicolumn{4}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
-    & & \% eq & \% gt & \% err & ST & ReW & ILP & Diff \\
-    \hline
-    1--5   & 31  & 0.0 & 100.0 & 8.3 & 0.8   & 40.68 & 41.12 & 0.44  \\
-    6--10  & 175 & 0.0 & 100.0 & 6.2 & 1.7   & 19.19 & 20.91 & 1.72  \\
-    11--15 & 242 & 0.0 & 100.0 & 5.3 & 5.5   & 15.97 & 16.69 & 0.72  \\
-    16--20 & 257 & 0.0 & 100.0 & 4.4 & 23.9  & 15.78 & 15.94 & 0.16  \\
-    21--25 & 249 & 0.0 & 100.0 & 4.2 & 173.4 & 15.31 & 15.92 & 0.61  \\
-    \hline                                   
-    1--25  & 954 & 0.0 & 100.0 & 5.0 & 53.5  & 16.10 & 16.71 & 0.61   \\
+    1--30  & 986 & 67.9 & 0.06 & 48.1  & 21.66 & 22.63 & 0.97  \\
     \hline
   \end{tabular}
 }
-\caption{\footnotesize Results on the two corpora.  Length: range of sentence lengths; \#: number of sentences in this range; \% eq: percentage of times ReWrite decoder and ILP decoder returned same model score; \% gt: percentage of times ILP decoder returned higher result than ReWrite; \% err: the micro-averaged percentage error between log model scores; ST: the average solve time per sentence of ILP decoder in seconds; BLEU ReW, BLEU ILP, BLEU Diff: the BLEU scores of the output and difference between BLEU scores.}  \label{tab:comparison}
+\subfloat[German-English\label{tab:results:german}] {
+  \centering
+  \footnotesize
+  \begin{tabular}{|l|r|r|r|r|r|r|r|}
+    \hline
+    \multirow{2}{*}{Len} & \multirow{2}{*}{\#} & \multicolumn{3}{|c|}{Solve Stats} & \multicolumn{3}{|c|}{BLEU} \\
+    & & \%gt & err & ST & ReW & ILP & Diff \\
+    \hline
+    1--5   & 31   & 100 & 0.27 & 0.8   & 40.68 & 41.12 & 0.44  \\
+    6--10  & 175  & 100 & 0.20 & 1.7   & 19.19 & 20.91 & 1.72  \\
+    11--15 & 242  & 100 & 0.17 & 5.5   & 15.97 & 16.69 & 0.72  \\
+    16--20 & 257  & 100 & 0.14 & 23.9  & 15.78 & 15.94 & 0.16  \\
+    21--25 & 249  & 100 & 0.14 & 173.4 & 15.31 & 15.92 & 0.61  \\
+    \hline                              
+    1--25  & 954  & 100 & 0.16 & 53.5  & 16.10 & 16.71 & 0.61   \\
+    \hline
+  \end{tabular}
+}
+\caption{\footnotesize Results on the two corpora.  Len: range of sentence lengths; \#: number of sentences in this range; \%gt: percentage of times ILP decoder returned higher result than ReWrite (all other times equal); err: average difference between decoder scores per token; ST: the average solve time per sentence of ILP decoder in seconds; BLEU ReW, BLEU ILP, BLEU Diff: the BLEU scores of the output and difference between BLEU scores.}  \label{tab:comparison}
 \end{table*}
 
 % TODO: difficult to decide how strong our claims can be regarding is
@@ -81,162 +81,41 @@ The ILP decoder produced output for 986 French sentences and 954
 German sentences.  From this we can conclude that it is possible to
 solve 90\% of our sentences exactly using ILP.  For the remaining 115
 and 108 sentences we did not produce a solution due to: (1) the solver
-not completing within 30 minutes, (2) the solver running out of
-memory, or (3) the solver producing a one word output due to
-(TODO:INSERT EXPLANATION).
+not completing within 30 minutes, or (2) the solver running out of
+memory.
+%TODO: Maybe we just leave this out? as it is a quirk/technical detail
+%or (3) the solver producing a one word output due to
+
 
 Table~1 shows a comparison of the results obtained on the 986 French
 and 954 German sentences using the ILP and ReWrite decoders.  The
 results are broken down by sentence length range of the input
 sentence.  We now turn our attention to the solve times obtained using
 ILP (for the sentences for which the solution was found 30 minutes).
-The table shows that the average solve time if under a minute per
-sentence.  This longer sentences taking on average more time.  Thus
-using the cutting planes method with ILP makes solving the ILP
-programs tractable in practice (TODO: Really?).
+The table shows that the average solve time is under a minute per
+sentence.  As we increase the sentence length we see the solve time
+increases, however, we never see an order of magnitude increase
+between brackets as witnessed in (TODO: Cite) thus exact decoding is
+more practical than previously suggested.
 
-% TODO: This next paragraph is strange, the percentage error in log
-% space is strange in general!  And it is kind of out of the blue.
-We next examine the model scores.  We can see in the French case the
-ReWrite decoder finds the optimal solution 32.1\% of the time for
+We next examine the model scores.  The Table shows in the French case
+the ReWrite decoder finds the optimal solution 32.1\% of the time for
 French and 0\% for German.  Although the same English string is
 produced for 40.1\% of the French sentences and 29.1\% of the German
-sentences\footnote{There may be precision and rounding errors in
-  comparing the model scores, we call two log model scores equal if
-  they are within 0.1 of one another}.  The percentage error rate
-indicates how far away the ReWrite decoder's solution was from the
-optimal in terms of log model score\footnote{We consider the
-  percentage error of log scores because the numbers involved when
-  converted to probabilities are very small resulting in large
-  percentage errors.  Approximate macro-averaged percentage error of
-  60\% for both corpora.}.  This number is a little misleading
-although the percentage error rate is decreasing for longer sentences
-in log space it is actually increasing in probability error space.  It
-is difficult to interpret these percentage errors in either log space
-or probability space.
+sentences\footnote{This could be due to precision and rounding errors
+  in comparing the model scores, we call two log model scores equal if
+  they are within 0.1 of one another.}.  Examining the average log
+model error per token shows that the ReWrite decoder error is
+proportional to sentence length (TODO: Can we really say this?).  On
+average the ReWrite decoder is 2.2\% away from the optimal solution in
+log space and 60.6\% in probability space\footnote{These high error
+  rates are an artefact of the extremely small probabilities
+  involved.} for French, and 4.7\% and 60.9\% for German.
 
 Performing exact decoding increases the BLEU score by 0.97 points on
 the French-English data set and 0.61 points on the German-English data
-set.
-
-
-
-% General averages:
-% French: 
-% 32.1\% of the time ReWrite and ILP equal in model score.
-% 67.9\% of the time ILP beats ReWrite in model score.
-% Log space stats:
-% Micro averaged percentage error: 3.3\% (similar for macro)
-% Maximum percentage error: 22.0\%
-% Minimum percentage error (on the 67.1\%):  0.1\%
-% Probability space stats:
-% Micro averaged percentage error: 82.2\%
-% Macro averaged percentage error: 60.6\%
-% Maximum percentage error: 100.0\%
-% Minimum percentage error: 21.5\%
-
-% German: 
-% 100\% of the time ILP beats ReWrite in model score.
-% Log space stats:
-% Micro averaged percentage error: 5.0\% (similar for macro)
-% Maximum percentage error: 65.0\%
-% Minimum percentage error:  0.7\%
-% Probability space stats:
-% Micro averaged percentage error: 95.3\%
-% Macro averaged percentage error: 60.9\%
-% Maximum percentage error: 100.0\%
-% Minimum percentage error: 52.6\%
-
-
-
-% \begin{table}[tp]
-%   \centering
-%   \begin{tabular}{|c|l|l|l|l|}
-%     \hline
-%     Length & Count & \%eq & \%R$<$ILP & Av.\%err \\
-%     \hline
-%     1--5 & 21 & 52.4 & 47.6 & 6.9 \\
-%     6--10 & 121 & 47.9 & 52.1 & 5.2 \\
-%     11--15 & 118 & 37.2 & 62.8 & 3.2 \\
-%     16--20 & 238 & 32.4 & 67.6 & 3.2 \\
-%     21--25 & 266 & 25.2 & 74.8 & 3.1 \\
-%     26--30 & 152 & 22.4 & 77.6 & 2.4 \\
-%     \hline 
-%     1--30 & 986 & 32.1 & 67.9 & 3.3 \\
-%     \hline
-%   \end{tabular}
-%   \caption{French comparisons}
-%   \label{tab:french-compare}
-% \end{table}
-
-% \begin{table}[tp]
-%   \centering
-%   \begin{tabular}{|c|l|l|l|l|}
-%     \hline
-%     Length & Count & \%eq & \%R$<$ILP & Av.\%err \\
-%     \hline
-%     1--5 & 31 & 0.0 & 100.0 & 8.3 \\
-%     6--10 & 175 & 0.0 & 100.0 & 6.2 \\
-%     11--15 & 242 & 0.0 & 100.0 & 5.3 \\
-%     16--20 & 257 & 0.0 & 100.0 & 4.4 \\
-%     21--25 & 249 & 0.0 & 100.0 & 4.2 \\
-%     \hline 
-%     1--25 & 954 & 0.0 & 100.0 & 5.0 \\
-%     \hline
-%   \end{tabular}
-%   \caption{German comparisons}
-%   \label{tab:german-compare}
-% \end{table}
-
-% Length - length range of sentence (inclusive).
-% Count - number of sentences in this length range.
-% \%eq - percentage of time outputs had equal log model score (precision 0.1)
-% \%R$<$ILP - percentage of time ILP had higher log model score than ReWrite.
-% Av. \%err - average percentage error between the log model scores
-
-% \begin{table}[tp]
-%   \centering
-%   \begin{tabular}{|c|l|l|l|l|}
-%     \hline
-%     Length & ReWrite BLEU & ILP BLEU & Diff & ILP ST \\
-%     \hline
-%     1--5 & 56.47 & 56.15 & -0.32 & 0.7 \\
-%     6--10 & 26.11 & 28.01 & 1.90 & 1.4 \\
-%     11--15 & 22.85 & 23.70 & 0.85 & 2.7 \\
-%     16--20 & 20.40 & 20.81 & 0.41 & 13.9 \\
-%     21--25 & 20.89 & 22.51 & 1.62 & 70.1 \\
-%     26-30 & 20.92 & 22.30 & 1.38 & 162.6 \\
-%     \hline 
-%     1--30 & 21.66 & 22.63 & 0.97 & 48.1 \\
-%     \hline
-%   \end{tabular}
-%   \caption{French Analysis}
-%   \label{tab:french-analysis}
-% \end{table}
-
-% \begin{table}[tp]
-%   \centering
-%   \begin{tabular}{|c|l|l|l|l|}
-%     \hline
-%     Length & ReWrite BLEU & ILP BLEU & Diff & ILP ST \\
-%     \hline
-%     1--5 & 40.68 & 41.12 & 0.44 & 0.8 \\
-%     6--10 & 19.19 & 20.91 & 1.72 & 1.7 \\
-%     11--15 & 15.97 & 16.69 & 0.72 & 5.5 \\
-%     16--20 & 15.78 & 15.94 & 0.16 & 23.9 \\
-%     21--25 & 15.31 & 15.92 & 0.61 & 173.4 \\
-%     \hline 
-%     1--25 & 16.10 & 16.71 & 0.61 & 53.5 \\
-%     \hline
-%   \end{tabular}
-%   \caption{German Analysis}
-%   \label{tab:german-analysis}
-% \end{table}
-
-% Diff - BLEU difference between ILP and ReWrite
-% ILP ST - average ILP solve time per sentence in seconds.
-
-
+set with similar performance increases observed for all sentence
+lengths.
 
 %%% Local Variables: 
 %%% mode: latex
