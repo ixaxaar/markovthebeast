@@ -1,12 +1,43 @@
 package org.riedelcastro.thebeast
 
 import scala.collection.mutable.HashMap
-
+import solver.{MAPProblem, ExhaustiveMAPSolver}
 /**
  * @author Sebastian Riedel
  */
 
-class FunctionSymbol[+T, +R](val name: String, val domain: Iterable[T], val range: Iterable[R])
+class FunctionSymbol[+T, +R](val name: String, val domain: Iterable[T], val range: Iterable[R]) {
+  override def toString = name
+  def toFullString = name + " := " + domain + " -> " + range
+}
+
+
+case class FunctionSymbolHelper1[T,R](val f:FunctionSymbol[T,R])
+        extends (Term[T] => AtomBuilder[T, R]) {
+  def apply(t: Term[T]): AtomBuilder[T, R] = AtomBuilder(f,t)
+}
+case class FunctionSymbolHelper2[T1,T2,R](val f:FunctionSymbol[Tuple2[T1,T2],R])  
+        extends ((Term[T1],Term[T2]) => AtomBuilder[Tuple2[T1,T2], R]) {
+  def apply(t1: Term[T1], t2: Term[T2]): AtomBuilder[Tuple2[T1,T2], R] = AtomBuilder(f,TupleTerm2(t1,t2))
+}
+
+
+trait TheBeastApp {
+  case class FunctionSymbolBuilder(val name: String) {
+    def :=[T, R](domainRange: Tuple2[Iterable[T], Iterable[R]]): FunctionSymbol[T, R] = {
+      new FunctionSymbol(name, domainRange._1, domainRange._2)
+    }
+  }
+  implicit def string2FunctionSymbolBuilder(x: String) = new FunctionSymbolBuilder(x)
+  implicit def value2Constant[T](x: T) = Constant(x)
+  implicit def symbol12Helper[T,R](f: FunctionSymbol[T,R]) = FunctionSymbolHelper1(f)
+  implicit def symbol22Helper[T1,T2,R](f: FunctionSymbol[Tuple2[T1,T2],R]) = FunctionSymbolHelper2(f)
+  implicit def iterable2CartesianProduct1[T](i: Iterable[T]) = CartesianProduct1(i)
+  implicit def atomBuilder2predicateAtom[T](builder:AtomBuilder[T,Boolean]) =
+    Atom(builder.f,builder.t,Constant(true))
+
+  def $[T](name: String): Variable[T] = Variable[T](name)
+}
 
 object AllFunctions {
   def apply[T, R](domain: Iterable[T], range: Iterable[R]): Stream[Map[T, R]] = {
@@ -41,23 +72,26 @@ object Cartesian {
 
 trait Signature extends Seq[FunctionSymbol[Any, Any]]
 
-case class MAPProblem(val signature: Seq[FunctionSymbol[Any, Any]],
-                     val observation: PartiallyObservedWorld,
-                     val scorer: Scorer[Score]);
 
-case class MAPResult(val world: World, val score: Score) extends Ordered[MAPResult] {
-  def compare(a: MAPResult) = score compare a.score
+case class CartesianProduct1[T1](val _1:Iterable[T1]) extends Iterable[Tuple1[T1]] {
+  def elements = _1.map(v => Tuple1(v)).elements
+  def x[T2](_2 : Iterable[T2]) = CartesianProduct2(_1,_2)
 }
 
-
+case class CartesianProduct2[T1,T2](val _1:Iterable[T1], val _2:Iterable[T2])
+        extends Iterable[Tuple2[T1,T2]] {
+  def elements = toStream.elements
+  override def toStream = Cartesian.cartesianProduct(Seq(_1.toStream, _2.toStream)).map(
+      seq => Tuple2(seq(0).asInstanceOf[T1],seq(1).asInstanceOf[T2]))
+}
 
 
 case class GroundAtom[T, R](val symbol: FunctionSymbol[T, R], val from: T, val to: R);
 
 
-object Example {
+object Example extends TheBeastApp {
   def main(args: Array[String]) {
-    val f1 = new FunctionSymbol("f1", Set(1, 2, 3), Set(true, false))
+    val f1 = "f1" := Set(1, 2, 3) -> Set(true, false)
     val scorer = new Apply(And, GroundAtomScorer(GroundAtom(f1, 1, true)), GroundAtomScorer(GroundAtom(f1, 2, false)))
     val world = new MutablePartiallyObservedWorld()
     //    val observed = new HashMap[Int, Boolean]() with ClosedWorldFunction[Int, Boolean]
@@ -72,9 +106,20 @@ object Example {
     println(all.map(w => scorer.score(w)).mkString(","))
 
     val solver = new ExhaustiveMAPSolver
-    val result = solver.solve(MAPProblem(Seq(f1),world,scorer))
+    val result = solver.solve(MAPProblem(Seq(f1), world, scorer))
     println(result.world.getFunction(f1)(1))
     println(result.score)
+
+    val atom = f1($("x"))~>true
+    println(atom)
+
+    val f2 = "f2" := (Set(1,2) x Set(3.0,4.0)) -> Set(true,false)
+    println(f2.toFullString)
+    val x = $("x")
+    val formula = f2(x,2) & f2(1,x) |-> f1(x) & f1(2)
+    println(formula)
+    println((Set(1,2) x Set(3,4)).mkString(","))
+
   }
 }
 

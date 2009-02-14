@@ -26,8 +26,15 @@ case class FormulaScorer[S <: Score](val formula: Formula[S], val binding: Bindi
 }
 
 object And extends ((Score, Score) => BoolScore) {
+  override def toString = "And"
   def apply(arg1: Score, arg2: Score): BoolScore = BoolScore(arg1.value > 0 && arg2.value > 0)
 }
+
+object Implies extends ((Score, Score) => BoolScore) {
+  override def toString = "Implies"
+  def apply(arg1: Score, arg2: Score): BoolScore = BoolScore(arg1.value <= 0 || arg2.value > 0)
+}
+
 
 object Count extends ((Score, Score) => IntScore) {
   def sign(value: Double): Int = if (value > 0.0) 1 else 0
