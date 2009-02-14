@@ -2,8 +2,12 @@ package org.riedelcastro.thebeast
 /**
  * @author Sebastian Riedel
  */
-trait Score {
+trait Score extends Ordered[Score]{
   def value(): Double;
+
+  def compare(a: Score) = value compare a.value
+
+  override def equals(obj: Any) = obj.isInstanceOf[Score] && (value == obj.asInstanceOf[Score].value)
 }
 
 case class DoubleScore(val score: Double) extends Score {

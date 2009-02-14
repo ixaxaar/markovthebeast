@@ -3,7 +3,7 @@ package org.riedelcastro.thebeast
  * @author Sebastian Riedel
  */
 
-trait Scorer[S <: Score] {
+trait Scorer[+S <: Score] {
   def score(world: World): S
 }
 
