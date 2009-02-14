@@ -1,4 +1,4 @@
-package org.riedelcastro.thebeast
+package org.riedelcastro.thebeast.solver
 
 import org.specs._
 import org.specs.runner._
@@ -36,7 +36,6 @@ object ExhaustiveMAPSolverSpec extends Specification {
       val result = new ExhaustiveMAPSolver().solve(MAPProblem(Seq(f),obs,scorer)).world
       result.getFunction(f)(1) mustEqual true
       result.getFunction(f)(2) mustEqual false
-
     }
   }
 }
