@@ -11,7 +11,7 @@ class FunctionSymbol[+T, +R](val name: String, val domain: Values[T], val range:
 }
 
 trait Values[+T] extends Iterable[T] {
-    
+  
 }
 
 class ValuesProxy[+T](val self:Iterable[T]) extends Values[T] with IterableProxy[T]
