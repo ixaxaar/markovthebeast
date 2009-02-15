@@ -16,7 +16,7 @@ case class Atom[T, R](symbol: FunctionSymbol[T, R], from: Term[T], to: Term[R]) 
   }
 }
 
-case class ApplyFormula[A1 <: Score, A2 <: Score, R <: Score](val combine:(A1,A2)=>R,
+case class ApplyFormula[A1 <: Score, A2 <: Score, R <: Score](val combine:Combinator[A1,A2,R],
                                                              val arg1:Formula[A1],
                                                              val arg2:Formula[A2]) extends Formula[R] {
   def ground(binding: Binding): Scorer[R] = {
