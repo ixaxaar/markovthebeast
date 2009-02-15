@@ -10,6 +10,7 @@ trait TheBeastApp {
     def :=[T, R](domainRange: Tuple2[Iterable[T], Iterable[R]]): FunctionSymbol[T, R] = {
       new FunctionSymbol(name, new ValuesProxy(domainRange._1), new ValuesProxy(domainRange._2))
     }
+
   }
   implicit def string2FunctionSymbolBuilder(x: String) = new FunctionSymbolBuilder(x)
   implicit def value2Constant[T](x: T) = Constant(x)

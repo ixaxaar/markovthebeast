@@ -1,26 +1,43 @@
 package org.riedelcastro.thebeast.solver
+
 /**
  * @author Sebastian Riedel
  */
-
 class GeneralizedMaxWalkSAT extends MAPSolver {
+  private[this] val rand = new java.util.Random(0)
+  var maxFlips = 1000
+  var greedyProb = 0.5
+
   def solve(problem: MAPProblem) = {
     //only process Fold(Plus,Scorers,_)
     problem.scorer match {
-      case Fold(Plus,scorers,_) => solve(scorers, problem.observation)
-      case x => solve(Seq(x),problem.observation)
+      case Fold(Plus, scorers, _) => solve(scorers, problem.observation)
+      case _ => MAPResult.CantDo
     }
   }
 
-  def solve(scorers:Seq[Scorer[Score]], obs:PartiallyObservedWorld) : MAPResult = {
+  def drawRandomResult[R](node:Node[Any,R]): R =
+    node.symbol.range.toSeq(rand.nextInt(node.symbol.range.toSeq.size))
+
+  def solve(scorers: Seq[Scorer[Score]], obs: PartiallyObservedWorld): MAPResult = {
     //create initial mutable world
     val y = new MutableWorld
     //maintain list of scorers not maximal for current world
-    val unsatisfied = scorers.filter(s => s.score(y) < s.max)
-    //pick scorer randomly
-    //either:
-    // - for each node in domain of scorer calculate global score delta and change node with highest delta
-    // - pick random node in domain and change randomly (however, not to old value)
-    MAPResult.CantDo
+    var unsatisfied = scorers.filter(s => s.score(y) < s.max)
+
+    //now start flipping
+    for (i <- 0 to maxFlips) {
+      //pick scorer randomly
+      val scorer = unsatisfied(rand.nextInt(unsatisfied.length))
+      //pick node to flip
+      val node = if (rand.nextDouble > greedyProb)
+        null
+      else
+        scorer.domain.toSeq(rand.nextInt(scorer.domain.toSeq.size));
+      //flip
+      //y += (node->node.f.range.toSeq(rand.nextInt(node.f.range.size)
+
+    }
+    MAPResult(y,DoubleScore(0.0),Status.Solved)
   }
 }
