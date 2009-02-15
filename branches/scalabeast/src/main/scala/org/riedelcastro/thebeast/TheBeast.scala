@@ -5,27 +5,10 @@ import solver.{MAPProblem, ExhaustiveMAPSolver}
 /**
  * @author Sebastian Riedel
  */
-
-class FunctionSymbol[+T, +R](val name: String, val domain: Iterable[T], val range: Iterable[R]) {
-  override def toString = name
-  def toFullString = name + " := " + domain + " -> " + range
-}
-
-
-case class FunctionSymbolHelper1[T,R](val f:FunctionSymbol[T,R])
-        extends (Term[T] => AtomBuilder[T, R]) {
-  def apply(t: Term[T]): AtomBuilder[T, R] = AtomBuilder(f,t)
-}
-case class FunctionSymbolHelper2[T1,T2,R](val f:FunctionSymbol[Tuple2[T1,T2],R])  
-        extends ((Term[T1],Term[T2]) => AtomBuilder[Tuple2[T1,T2], R]) {
-  def apply(t1: Term[T1], t2: Term[T2]): AtomBuilder[Tuple2[T1,T2], R] = AtomBuilder(f,TupleTerm2(t1,t2))
-}
-
-
 trait TheBeastApp {
   case class FunctionSymbolBuilder(val name: String) {
     def :=[T, R](domainRange: Tuple2[Iterable[T], Iterable[R]]): FunctionSymbol[T, R] = {
-      new FunctionSymbol(name, domainRange._1, domainRange._2)
+      new FunctionSymbol(name, new ValuesProxy(domainRange._1), new ValuesProxy(domainRange._2))
     }
   }
   implicit def string2FunctionSymbolBuilder(x: String) = new FunctionSymbolBuilder(x)
@@ -37,6 +20,8 @@ trait TheBeastApp {
     Atom(builder.f,builder.t,Constant(true))
 
   def $[T](name: String): Variable[T] = Variable[T](name)
+  private[this] var varCount : Int = 0;
+  def freshVar[T] : Variable[T] = {varCount+=1; Variable[T]("x" +((varCount).toString))}
 }
 
 object AllFunctions {
@@ -88,6 +73,9 @@ case class CartesianProduct2[T1,T2](val _1:Iterable[T1], val _2:Iterable[T2])
 
 case class GroundAtom[T, R](val symbol: FunctionSymbol[T, R], val from: T, val to: R);
 
+case class Node[+T,+R] (val symbol:FunctionSymbol[T,R], val arg:T) extends (World=>R) {
+  def apply(world:World) : R = world.getFunction(symbol)(arg)    
+}
 
 object Example extends TheBeastApp {
   def main(args: Array[String]) {
@@ -116,6 +104,7 @@ object Example extends TheBeastApp {
     val f2 = "f2" := (Set(1,2) x Set(3.0,4.0)) -> Set(true,false)
     println(f2.toFullString)
     val x = $("x")
+    val y,z,t1 = freshVar
     val formula = f2(x,2) & f2(1,x) |-> f1(x) & f1(2)
     println(formula)
     println((Set(1,2) x Set(3,4)).mkString(","))
