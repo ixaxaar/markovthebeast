@@ -11,7 +11,9 @@ class FunctionSymbol[+T, +R](val name: String, val domain: Values[T], val range:
 }
 
 trait Values[+T] extends Iterable[T] {
-  
+  def length = toSeq.length
+  def get(index:Int) = toSeq(index)
+  def draw(rand:scala.util.Random) = get(rand.nextInt(length))
 }
 
 class ValuesProxy[+T](val self:Iterable[T]) extends Values[T] with IterableProxy[T]

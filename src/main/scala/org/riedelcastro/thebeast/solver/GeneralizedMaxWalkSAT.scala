@@ -16,9 +16,6 @@ class GeneralizedMaxWalkSAT extends MAPSolver {
     }
   }
 
-  def drawRandomResult[R](node:Node[Any,R]): R =
-    node.symbol.range.toSeq(rand.nextInt(node.symbol.range.toSeq.size))
-
   def solve(scorers: Seq[Scorer[Score]], obs: PartiallyObservedWorld): MAPResult = {
     //create initial mutable world
     val y = new MutableWorld
