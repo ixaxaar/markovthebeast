@@ -38,7 +38,7 @@ case class TupleTerm2[+T1,+T2](val _1: Term[T1], val _2:Term[T2]) extends Term[T
 case class Constant[+T](val value: T) extends Term[T] {
   def resolve(binding: Binding) = value
 }
-
-case class FunApp[T, R](val f: T => R, val arg: Term[T]) extends Term[R] {
-  def resolve(binding: Binding) = f(arg.resolve(binding))
-}
+//
+//case class FunApp[T, R](val f: T => R, val arg: Term[T]) extends Term[R] {
+//  def resolve(binding: Binding) = f(arg.resolve(binding))
+//}
