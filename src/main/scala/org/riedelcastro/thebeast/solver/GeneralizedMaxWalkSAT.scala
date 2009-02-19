@@ -24,7 +24,7 @@ class GeneralizedMaxWalkSAT extends MAPSolver {
 
     //now start flipping
     for (i <- 0 to maxFlips) {
-      //pick scorer randomly
+      //pick oldscorer randomly
       val scorer = unsatisfied(rand.nextInt(unsatisfied.length))
       //pick node to flip
       val node = if (rand.nextDouble > greedyProb)
