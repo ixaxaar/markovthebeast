@@ -1,8 +1,8 @@
 package org.riedelcastro.thebeast.term
 
 
-import scorer.{TermEq, ScorerPredef, Weight}
-
+import _root_.org.riedelcastro.thebeast.semiring.{TropicalSemiring, RealSemiring}
+import scorer.{Sum, TermEq, ScorerPredef, Weight}
 /**
  * @author Sebastian Riedel
  */
@@ -109,6 +109,8 @@ trait TheBeastEnv extends ScorerPredef {
     def ===(rhs: Term[T]) = TermEq(lhs, rhs)
   }
 
+  implicit def bool2termEq[T](term: Term[Boolean]) = TermEq(term,Constant(true))
+
   implicit def values2FunctionValuesBuilder[T, R](domain: Values[T]): FunctionValuesBuilder[T, R] =
     FunctionValuesBuilder[T, R](domain)
 
@@ -139,8 +141,11 @@ object Add extends (Int => (Int => Int)) {
 
 object Example extends Application with TheBeastEnv {
   val Ints = Values(1, 2, 3)
+  val Bools = Values(true,false)
+  val b = "b" in Bools
   val x = "x" in Ints
   val f = "f" in Ints -> Ints
+  val pred = "pred" in Ints -> Bools
   val k = "k" in Ints -> (Ints -> Ints)
   val env = new MutableEnv
   println(env.eval(x))
@@ -155,6 +160,12 @@ object Example extends Application with TheBeastEnv {
   println(env(Add))
   println(env(^(Add)(x)(1)))
   println(env(^(1) + x))
+
+  val model = scorer.Plus(RealSemiring, Seq(
+    %(2.0) * $(f(x) === 1),
+    %(1.0) * $(x === 0),
+    %(1.5) * $(b & pred(x))
+    ))
   println(f(x) === 1)
   println($(f(x) === 1) * Weight(2.0))
   println(($(f(x) === 2) * Weight(2.0)).score(env))
@@ -162,4 +173,5 @@ object Example extends Application with TheBeastEnv {
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
   //env += (f(1)->2)
+
 }
