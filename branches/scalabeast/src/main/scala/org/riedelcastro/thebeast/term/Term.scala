@@ -1,5 +1,8 @@
 package org.riedelcastro.thebeast.term
 
+
+import scorer.{TermEq, ScorerPredef, Weight}
+
 /**
  * @author Sebastian Riedel
  */
@@ -13,8 +16,9 @@ object Values {
 
 class ValuesProxy[+T](override val self: Iterable[T]) extends Values[T] with IterableProxy[T]
 
-class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) extends Values[T => R] {
+case class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) extends Values[T => R] {
   def elements = AllFunctions(domain.toStream, range.toStream).elements
+
 }
 
 sealed trait Term[+T] {
@@ -28,14 +32,14 @@ case class Var[+T](val name: String, val values: Values[T]) extends Term[T] with
 
 
 
-case class FunApp[T, +R](val function: Term[T=>R], val arg: Term[T]) extends Term[R] {
+case class FunApp[T, +R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
 }
 
 sealed trait EnvVar[+T] {
 }
 
 case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvVar[R] {
-  def of[U](arg:U) = FunAppVar(this.asInstanceOf[EnvVar[U=>Any]],arg)  
+  def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], arg)
 }
 
 trait Env {
@@ -81,7 +85,7 @@ class MutableEnv extends Env {
 
 }
 
-trait TheBeastEnv {
+trait TheBeastEnv extends ScorerPredef {
   implicit def string2varbuilder(name: String) = new {
     def in[T](values: Values[T]) = Var(name, values)
 
@@ -91,24 +95,28 @@ trait TheBeastEnv {
 
   implicit def value2constant[T](value: T) = Constant(value)
 
-  case class FunAppVarBuilder[T, R](val funvar: EnvVar[T=>R]) {
+  case class FunAppVarBuilder[T, R](val funvar: EnvVar[T => R]) {
     def of(t: T) = FunAppVar(funvar, t)
   }
 
-  implicit def funvar2funAppVarBuilder[T, R](funvar:EnvVar[T=>R]) = FunAppVarBuilder(funvar)
+  implicit def funvar2funAppVarBuilder[T, R](funvar: EnvVar[T => R]) = FunAppVarBuilder(funvar)
 
-  implicit def term2funAppBuilder[T, R](fun: Term[T=>R]) = new (Term[T] => FunApp[T, R]) {
+  implicit def term2funAppBuilder[T, R](fun: Term[T => R]) = new (Term[T] => FunApp[T, R]) {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
 
-  implicit def values2FunctionValuesBuilder[T,R](domain:Values[T]):FunctionValuesBuilder[T,R] = 
-    FunctionValuesBuilder[T,R](domain)
+  implicit def term2eqBuilder[T](lhs: Term[T]) = new {
+    def ===(rhs: Term[T]) = TermEq(lhs, rhs)
+  }
+
+  implicit def values2FunctionValuesBuilder[T, R](domain: Values[T]): FunctionValuesBuilder[T, R] =
+    FunctionValuesBuilder[T, R](domain)
 
   case class FunctionValuesBuilder[T, R](domain: Values[T]) {
     def ->[R](range: Values[R]) = new FunctionValues(domain, range)
   }
 
-  def ^[T](t:T) = Constant(t)
+  def ^[T](t: T) = Constant(t)
 
   //  implicit def term2envVar[T](term:Term[T]): EnvVar[T] = {
   //    term match {
@@ -117,14 +125,14 @@ trait TheBeastEnv {
   //    }
   //  }
 
-  implicit def intTerm2IntAppBuilder(lhs:Term[Int]) = new {
-    def +(rhs:Term[Int]) = FunApp(FunApp(Constant(Add),lhs),rhs)
+  implicit def intTerm2IntAppBuilder(lhs: Term[Int]) = new {
+    def +(rhs: Term[Int]) = FunApp(FunApp(Constant(Add), lhs), rhs)
   }
 
 }
 
-object Add extends (Int=>(Int=>Int)){
-  def apply(arg1:Int):(Int=>Int) = (arg2:Int)=> arg1 + arg2
+object Add extends (Int => (Int => Int)) {
+  def apply(arg1: Int): (Int => Int) = (arg2: Int) => arg1 + arg2
 }
 
 
@@ -147,6 +155,9 @@ object Example extends Application with TheBeastEnv {
   println(env(Add))
   println(env(^(Add)(x)(1)))
   println(env(^(1) + x))
+  println(f(x) === 1)
+  println($(f(x) === 1) * Weight(2.0))
+  println(($(f(x) === 2) * Weight(2.0)).score(env))
   //val env = MutableEnv
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
