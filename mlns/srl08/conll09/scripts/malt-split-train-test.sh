@@ -33,11 +33,12 @@ for train in ${splitfiles_prefix}*.train ; do
     model=$prefix.malt.model.mco
     test=$prefix.test
     result=$prefix.result
-    tmpModel=_maltmodel
+    tmpModel=echo $(basename $model)
 
     echo Train: $train >&2
     echo Prefix: $prefix >&2
     echo Model: $model >&2
+    echo TmpModel: $tmpModel >&2
     echo Test: $test >&2
     echo Result: $result >&2
 
