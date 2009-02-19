@@ -29,7 +29,7 @@ object ExhaustiveMAPSolverSpec extends Specification with TheBeastApp {
       new ExhaustiveMAPSolver().solve(MAPProblem(Seq(f),obs,scorer)) must notBeNull
     }
 
-    "return a world equivalent to a conjunction of atoms in the scorer if the conjunction is exhaustive" in {
+    "return a world equivalent to a conjunction of atoms in the oldscorer if the conjunction is exhaustive" in {
       val f = "f" := Set(1,2) -> Set(true,false)
       val scorer = Apply(And, GroundAtomScorer(GroundAtom(f,1,true)), GroundAtomScorer(GroundAtom(f,2,false)))
       val obs = new MutablePartiallyObservedWorld

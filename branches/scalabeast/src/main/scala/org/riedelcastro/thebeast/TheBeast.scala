@@ -88,7 +88,7 @@ object Example extends TheBeastApp {
     val observed = new HashMap[Int, Boolean]() with MapAsPartiallyObserved[Int, Boolean]
     observed += (1 -> true)
     world.setFunction(f1, observed)
-    //println(scorer.score(world))
+    //println(oldscorer.score(world))
 
     val all = Cartesian.allWorlds(Seq(f1), world)
     println(all.size)
