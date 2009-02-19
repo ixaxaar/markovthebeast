@@ -4,7 +4,7 @@ original_train=$1
 original_dev=$2
 splits=$3
 malt=$4
-java="java -Xmx1000m"
+java="java -Xmx2000m"
 splitfiles_prefix=${original_train}_${splits}
 conll06_train=${original_train}.gold.conll06
 conll06_train_guess=${original_train}.${splits}splits.guess.malt.conll06
@@ -33,7 +33,7 @@ for train in ${splitfiles_prefix}*.train ; do
     model=$prefix.malt.model.mco
     test=$prefix.test
     result=$prefix.result
-    tmpModel=echo $(basename $model)
+    tmpModel=$(basename $model)
 
     echo Train: $train >&2
     echo Prefix: $prefix >&2
@@ -55,7 +55,7 @@ echo "Evaluating train guess vs gold guess"
 perl scripts/eval07.pl -g ${conll06_train} -s ${conll06_train_guess} > ${conll06_train_guess}.eval
 
 model=${conll06_train}.malt.model.mco
-tmpModel=_maltModel
+tmpModel=$(basename $model)
 
 # final training on full train set and testing on dev set
 echo "Training on full train set and applying to test set, saving model in ${model}"
