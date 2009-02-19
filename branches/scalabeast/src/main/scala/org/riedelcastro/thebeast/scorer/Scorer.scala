@@ -87,6 +87,7 @@ trait ScorerPredef {
 
   //  def log(argument: Scorer[Double, PositiveRealSemiring]) = Log(argument)
   def $(argument: Scorer[Boolean, BooleanSemiring]) = new Soften(argument)
+  def %(term: Term[Double]) = new Weight(term)
   //markov logic formula: Log(Sum(x,Times(Weight(w),Soften(Scorer...))
 
 }
