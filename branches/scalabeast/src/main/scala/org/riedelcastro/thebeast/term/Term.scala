@@ -6,49 +6,37 @@ package org.riedelcastro.thebeast.term
 
 trait Values[+T] extends Iterable[T]
 
-trait AtomicValues[+T] extends Values[T]
-
 object Values {
   def apply[T](values: T*) =
     new ValuesProxy(values.foldLeft(Set.empty[T]){(result, v) => result ++ Set(v)})
 }
 
-class ValuesProxy[+T](override val self: Iterable[T]) extends AtomicValues[T] with IterableProxy[T]
+class ValuesProxy[+T](override val self: Iterable[T]) extends Values[T] with IterableProxy[T]
 
 class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) extends Values[T => R] {
   def elements = AllFunctions(domain.toStream, range.toStream).elements
 }
 
 sealed trait Term[+T] {
-  def values: Values[T]
-}
-
-trait Fun[T, +R] extends Term[T => R] {
-  def values: FunctionValues[T, R]
 }
 
 case class Constant[+T](val value: T) extends Term[T] {
-  def values = new ValuesProxy(Set(value))
 }
 
-case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
+case class Var[+T](val name: String, val values: Values[T]) extends Term[T] with EnvVar[T] {
 }
 
-case class FunConstant[T, +R](override val value: T => R) extends Constant[T => R](value) with Fun[T, R] {
-  override def values = null
-}
 
-case class FunVar[T, +R](override val name: String, override val values: FunctionValues[T, R])
-        extends Var[T => R](name, values) with Fun[T, R]
 
-case class FunApp[T, +R](val function: Fun[T, R], val arg: Term[T]) extends Term[R] {
-  def values = function.values.range
+case class FunApp[T, +R](val function: Term[T=>R], val arg: Term[T]) extends Term[R] {
 }
 
 sealed trait EnvVar[+T] {
 }
 
-case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvVar[R]
+case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvVar[R] {
+  def of[U](arg:U) = FunAppVar(this.asInstanceOf[EnvVar[U=>Any]],arg)  
+}
 
 trait Env {
   def apply[T](term: Term[T]): T = eval(term).get
@@ -95,22 +83,22 @@ class MutableEnv extends Env {
 
 trait TheBeastEnv {
   implicit def string2varbuilder(name: String) = new {
-    def in[T](values: AtomicValues[T]) = Var(name, values)
+    def in[T](values: Values[T]) = Var(name, values)
 
-    def in[T, R](values: FunctionValues[T, R]) = FunVar(name, values)
+    //def in[T, R](values: FunctionValues[T, R]) = FunVar(name, values)
   }
 
 
   implicit def value2constant[T](value: T) = Constant(value)
 
-  case class FunAppVarBuilder[T, R](val funvar: FunVar[T, R]) {
+  case class FunAppVarBuilder[T, R](val funvar: EnvVar[T=>R]) {
     def of(t: T) = FunAppVar(funvar, t)
   }
 
-  implicit def funvar2funAppVarBuilder[T, R](funvar: FunVar[T, R]) = FunAppVarBuilder(funvar)
+  implicit def funvar2funAppVarBuilder[T, R](funvar:EnvVar[T=>R]) = FunAppVarBuilder(funvar)
 
-  implicit def funvar2funAppBuilder[T, R](funvar: FunVar[T, R]) = new (Term[T] => FunApp[T, R]) {
-    def apply(t: Term[T]) = FunApp(funvar, t)
+  implicit def term2funAppBuilder[T, R](fun: Term[T=>R]) = new (Term[T] => FunApp[T, R]) {
+    def apply(t: Term[T]) = FunApp(fun, t)
   }
 
   implicit def values2FunctionValuesBuilder[T,R](domain:Values[T]):FunctionValuesBuilder[T,R] = 
@@ -120,6 +108,7 @@ trait TheBeastEnv {
     def ->[R](range: Values[R]) = new FunctionValues(domain, range)
   }
 
+  def ^[T](t:T) = Constant(t)
 
   //  implicit def term2envVar[T](term:Term[T]): EnvVar[T] = {
   //    term match {
@@ -128,7 +117,16 @@ trait TheBeastEnv {
   //    }
   //  }
 
+  implicit def intTerm2IntAppBuilder(lhs:Term[Int]) = new {
+    def +(rhs:Term[Int]) = FunApp(FunApp(Constant(Add),lhs),rhs)
+  }
+
 }
+
+object Add extends (Int=>(Int=>Int)){
+  def apply(arg1:Int):(Int=>Int) = (arg2:Int)=> arg1 + arg2
+}
+
 
 
 object Example extends Application with TheBeastEnv {
@@ -141,11 +139,14 @@ object Example extends Application with TheBeastEnv {
   env += x -> 1
   env += (f of 1) -> 2
   env += (f of 2) -> 3
-  //env += ((f of 1) of 2) -> 3
+  env += ((k of 1) of 2) -> 3
   println(env.eval(x))
   println(env(FunApp(f, 1)))
   println(env(f(f(x))))
-  //println(env(k()))
+  println(env(k(1)(2)))
+  println(env(Add))
+  println(env(^(Add)(x)(1)))
+  println(env(^(1) + x))
   //val env = MutableEnv
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
