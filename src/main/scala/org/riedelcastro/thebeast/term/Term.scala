@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.term
 
 import _root_.org.riedelcastro.thebeast.semiring.{TropicalSemiring, RealSemiring}
 import scorer.{Sum, TermEq, ScorerPredef, Weight}
+
 /**
  * @author Sebastian Riedel
  */
@@ -58,6 +59,30 @@ trait Env {
     }
   }
 
+  def ground[T](term: Term[T]): Term[T] = {
+    term match {
+      case FunApp(f, arg) => FunApp(ground(f), ground(arg))
+      case c: Constant[_] => c
+      case v: Var[_] => {val x = eval(v); if (x.isDefined) Constant(x.get) else v}
+    }
+  }
+
+  def simplify[T](term: Term[T]): Term[T] = {
+    term match {
+      case FunApp(f, arg) => {
+        simplify(f) match {
+          case Constant(fc) => simplify(arg) match {
+            case Constant(argc) => Constant(fc(argc))
+            case _ => term
+          }
+          case _ => term
+        }
+      }
+      case _ => term
+    }
+  }
+
+
   def resolveVar[T](variable: Var[T]): Option[T]
 }
 
@@ -109,7 +134,7 @@ trait TheBeastEnv extends ScorerPredef {
     def ===(rhs: Term[T]) = TermEq(lhs, rhs)
   }
 
-  implicit def bool2termEq[T](term: Term[Boolean]) = TermEq(term,Constant(true))
+  implicit def bool2termEq[T](term: Term[Boolean]) = TermEq(term, Constant(true))
 
   implicit def values2FunctionValuesBuilder[T, R](domain: Values[T]): FunctionValuesBuilder[T, R] =
     FunctionValuesBuilder[T, R](domain)
@@ -141,7 +166,7 @@ object Add extends (Int => (Int => Int)) {
 
 object Example extends Application with TheBeastEnv {
   val Ints = Values(1, 2, 3)
-  val Bools = Values(true,false)
+  val Bools = Values(true, false)
   val b = "b" in Bools
   val x = "x" in Ints
   val f = "f" in Ints -> Ints
