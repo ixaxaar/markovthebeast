@@ -17,12 +17,8 @@ trait Scorer[E, S <: Semiring[E]] {
   def semiring: S
 
   def score(env: Env): E
-
-  def +(that: Scorer[E, S]) = Plus(semiring, Seq(this, that))
-
-  def *(that: Scorer[E, S]) = Times(semiring, Seq(this, that))
-
 }
+
 
 trait BooleanScorer extends Scorer[Boolean, BooleanSemiring] {
   def &(that: Scorer[Boolean, BooleanSemiring]) = And(Seq(this, that))
@@ -30,18 +26,27 @@ trait BooleanScorer extends Scorer[Boolean, BooleanSemiring] {
   def |(that: Scorer[Boolean, BooleanSemiring]) = Or(Seq(this, that))
 }
 
+trait RealScorer extends Scorer[Double, RealSemiring] {
+  def +(that: Scorer[Double, RealSemiring]) = RealPlus(Seq(this, that))
+
+  def *(that: Scorer[Double, RealSemiring]) = RealTimes(Seq(this, that))
+}
+
+
 case class TermEq[T](lhs: Term[T], rhs: Term[T]) extends BooleanScorer {
   def semiring = BooleanSemiring
 
   def score(env: Env) = env(lhs) == env(rhs)
 }
 
-case class And(arguments: Seq[Scorer[Boolean, BooleanSemiring]]) extends Plus(BooleanSemiring, arguments) with BooleanScorer
-case class Or(arguments: Seq[Scorer[Boolean, BooleanSemiring]]) extends Times(BooleanSemiring, arguments) with BooleanScorer
+case class And(override val args: Seq[Scorer[Boolean, BooleanSemiring]]) extends Plus(BooleanSemiring, args) with BooleanScorer
+case class Or(override val args: Seq[Scorer[Boolean, BooleanSemiring]]) extends Times(BooleanSemiring, args) with BooleanScorer
+case class RealPlus(override val args: Seq[Scorer[Double, RealSemiring]]) extends Plus[Double, RealSemiring](RealSemiring,args)
+case class RealTimes(override val args: Seq[Scorer[Double, RealSemiring]]) extends Times[Double, RealSemiring](RealSemiring,args) 
 
 
 
-case class Weight(weight: Term[Double]) extends Scorer[Double, RealSemiring] {
+case class Weight(weight: Term[Double]) extends RealScorer {
   def semiring = RealSemiring
 
   def score(env: Env) = env(weight)
@@ -80,9 +85,11 @@ case class Exists[T](override val variable: Var[T], override val scorer: Scorer[
         extends Sum(BooleanSemiring, variable, scorer)
 
 
+
+
 trait ScorerPredef {
   class Log(argument: Scorer[Double, PositiveRealSemiring]) extends Transformation(Log, argument)
-  class Soften(argument: Scorer[Boolean, BooleanSemiring]) extends Transformation(Soften, argument)
+  class Soften(argument: Scorer[Boolean, BooleanSemiring]) extends Transformation(Soften, argument) with RealScorer
   class Signed(argument: Scorer[Double, PositiveRealSemiring]) extends Transformation(ToFullReal, argument)
 
   //  def log(argument: Scorer[Double, PositiveRealSemiring]) = Log(argument)

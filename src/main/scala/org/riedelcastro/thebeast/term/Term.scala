@@ -186,7 +186,7 @@ object Example extends Application with TheBeastEnv {
   println(env(^(Add)(x)(1)))
   println(env(^(1) + x))
 
-  val model = scorer.Plus(RealSemiring, Seq(
+  val model = scorer.RealPlus(Seq(
     %(2.0) * $(f(x) === 1),
     %(1.0) * $(x === 0),
     %(1.5) * $(b & pred(x))
