@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.term
 
 
-import _root_.org.riedelcastro.thebeast.semiring.{TropicalSemiring, RealSemiring}
+import semiring.{TropicalSemiring, RealSemiring}
 import scorer.{Sum, TermEq, ScorerPredef, Weight}
 
 /**
@@ -23,17 +23,72 @@ case class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) ex
 }
 
 sealed trait Term[+T] {
+  /**
+   * A puppet of a term t is a EnvVar p so that there exists at least one Env e so that for every possible value
+   * v in values(t) holds:      { e + (p->v) }.eval(t) = v
+   */
+  def puppets: Iterable[EnvVar[T]]
+
+  /**
+   * The domain of a term is the set of all (most atomic) puppets that can affect the evaluation of the term
+   */
+  def domain: Iterable[EnvVar[Any]]
+
+  /**
+   * The values of a term are all objects the term can be evaluated to
+   */
+  def values: Values[T]
+
+  /**
+   * Returns a term where each function application of a constant function with a constant argument
+   * is replaced by a constant representing the application result 
+   */
+  def simplify: Term[T]
+
 }
 
 case class Constant[+T](val value: T) extends Term[T] {
+  def puppets = Set.empty
+
+
+  def domain = Set.empty
+
+  def values = Values(value)
+
+
+  def simplify = this
 }
 
-case class Var[+T](val name: String, val values: Values[T]) extends Term[T] with EnvVar[T] {
+case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
+  def puppets: Iterable[EnvVar[T]] = Set(this)
+
+  def domain: Iterable[EnvVar[T]] = Set(this)
+
+
+  def simplify = this
 }
-
-
 
 case class FunApp[T, +R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
+  def domain = puppets ++ arg.domain
+
+  def puppets = function.puppets.flatMap(f => arg.values.map(v => FunAppVar(f, v)))
+
+  def values =
+    function.values match {
+      case functions: FunctionValues[_, _] => functions.range
+      case _ => new ValuesProxy(function.values.flatMap(f => arg.values.map(v => f(v))))
+    }
+
+
+  def simplify =
+    function.simplify match {
+      case Constant(f) => arg.simplify match {
+        case Constant(x) => Constant(f(x));
+        case x => FunApp(Constant(f), x)
+      }
+      case f => FunApp(f, arg.simplify)
+    }
+
 }
 
 sealed trait EnvVar[+T] {
@@ -66,22 +121,6 @@ trait Env {
       case v: Var[_] => {val x = eval(v); if (x.isDefined) Constant(x.get) else v}
     }
   }
-
-  def simplify[T](term: Term[T]): Term[T] = {
-    term match {
-      case FunApp(f, arg) => {
-        simplify(f) match {
-          case Constant(fc) => simplify(arg) match {
-            case Constant(argc) => Constant(fc(argc))
-            case _ => term
-          }
-          case _ => term
-        }
-      }
-      case _ => term
-    }
-  }
-
 
   def resolveVar[T](variable: Var[T]): Option[T]
 }
@@ -194,6 +233,8 @@ object Example extends Application with TheBeastEnv {
   println(f(x) === 1)
   println($(f(x) === 1) * Weight(2.0))
   println(($(f(x) === 2) * Weight(2.0)).score(env))
+
+  println(f(x).domain)
   //val env = MutableEnv
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
