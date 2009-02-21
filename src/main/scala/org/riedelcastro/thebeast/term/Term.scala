@@ -8,7 +8,9 @@ import scorer.{Sum, TermEq, ScorerPredef, Weight}
  * @author Sebastian Riedel
  */
 
-trait Values[+T] extends Iterable[T]
+trait Values[+T] extends Iterable[T] {
+  def defaultValue:T = elements.next
+}
 
 object Values {
   def apply[T](values: T*) =
@@ -20,6 +22,7 @@ class ValuesProxy[+T](override val self: Iterable[T]) extends Values[T] with Ite
 case class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) extends Values[T => R] {
   def elements = AllFunctions(domain.toStream, range.toStream).elements
 
+  override def defaultValue = (t:T) => range.defaultValue
 }
 
 sealed trait Term[+T] {
