@@ -9,14 +9,12 @@ import org.riedelcastro.thebeast.semiring.SemiringTransformation
 import org.riedelcastro.thebeast.semiring.Soften
 import org.riedelcastro.thebeast.semiring.ToFullReal
 import org.riedelcastro.thebeast.semiring.TropicalSemiring
-import org.riedelcastro.thebeast.term.Env
-import org.riedelcastro.thebeast.term.Term
-import org.riedelcastro.thebeast.term.Var
+import term.{Term, Var, Env, EnvVar}
 
 trait Scorer[E, S <: Semiring[E]] {
   def semiring: S
-
   def score(env: Env): E
+  //def domain:Set[EnvVar[Any]]
 }
 
 
@@ -35,8 +33,9 @@ trait RealScorer extends Scorer[Double, RealSemiring] {
 
 case class TermEq[T](lhs: Term[T], rhs: Term[T]) extends BooleanScorer {
   def semiring = BooleanSemiring
-
   def score(env: Env) = env(lhs) == env(rhs)
+
+  def domain = null //lhs.domain ++
 }
 
 case class And(override val args: Seq[Scorer[Boolean, BooleanSemiring]]) extends Plus(BooleanSemiring, args) with BooleanScorer
@@ -48,7 +47,6 @@ case class RealTimes(override val args: Seq[Scorer[Double, RealSemiring]]) exten
 
 case class Weight(weight: Term[Double]) extends RealScorer {
   def semiring = RealSemiring
-
   def score(env: Env) = env(weight)
 }
 
@@ -56,7 +54,6 @@ case class Transformation[E1, E2, S1 <: Semiring[E1], S2 <: Semiring[E2]](transf
                                                                          argument: Scorer[E1, S1])
         extends Scorer[E2, S2] {
   def semiring = transformation.range
-
   def score(env: Env) = transformation(argument.score(env))
 }
 
