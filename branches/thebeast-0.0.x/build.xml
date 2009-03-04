@@ -240,7 +240,7 @@
     <echo file="bin/thebeast.win32" append="true">java -cp "${classpath}" -Dhome=${PWD} -Xmx1500m thebeast.pml.TheBeast $@</echo>    
 
     <copy file="bin/thebeast.linux" tofile="bin/thebeast"/>
-    <chmod file="bin/thebeast" perm="+x"/>  -->
+    <chmod file="bin/thebeast" perm="+x"/>  
 
   </target>
 
