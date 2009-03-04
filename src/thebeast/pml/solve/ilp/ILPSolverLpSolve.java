@@ -14,6 +14,7 @@ import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
@@ -178,11 +179,16 @@ public class ILPSolverLpSolve implements ILPSolver {
       //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
       //if (bbRuleSet) solver.setBbRule(bbRule);
       solver.solve();
-      if (solver.getStatus() == LpSolve.INFEASIBLE)
-        throw new RuntimeException("ILP Problem infeasible");
+      if (solver.getStatus() == LpSolve.INFEASIBLE){
+        solver.writeLp("/tmp/infeasible.lp");
+        solver.writeParams("/tmp/infeasible.params", "ILPSolverLpSolve.java");
+        System.err.println("Warn: ILP infeasible");
+        //throw new RuntimeException("ILP Problem infeasible");
+
+      }
       double[] solution = new double[numCols];
       solver.getVariables(solution);
-//      System.out.println(solution[21]);
+      //System.out.println(Arrays.toString(solution));
 //      System.out.println(solution[55]);
 //      System.out.println(solver.getStatustext(solver.getStatus()));
       int[] indices = new int[numCols];

@@ -86,8 +86,8 @@ public class IntegerLinearProgram implements PropositionalModel {
   private int newConstraintCount;
   private Weights weights;
 
-  public IntegerLinearProgram copy(){
-    IntegerLinearProgram result = new IntegerLinearProgram(model,weights,solver);
+  public IntegerLinearProgram copy() {
+    IntegerLinearProgram result = new IntegerLinearProgram(model, weights, solver);
     result.initIntegers = initIntegers;
     result.profiler = profiler;
     for (FactorFormula f : fullyGroundFormulae)
@@ -183,7 +183,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     groundFormulaGetWeight.clear();
 
     for (UserPredicate predicate : model.getHiddenPredicates()) {
-      QueryGenerator generator = new QueryGenerator(model,weights, atoms);
+      QueryGenerator generator = new QueryGenerator(model, weights, atoms);
       generator.setClosure(closure);
       RelationVariable variables = interpreter.createRelationVariable(predicate.getHeadingArgsIndexScore());
       interpreter.addIndex(variables, "args", Index.Type.HASH, predicate.getHeading().getAttributeNames());
@@ -392,7 +392,14 @@ public class IntegerLinearProgram implements PropositionalModel {
     }
     profiler.end();
     profiler.start("solve");
-    RelationVariable result = solver.solve();
+    RelationVariable result;
+    try {
+      result = solver.solve();
+    } catch (RuntimeException e){
+      System.out.println(toLpSolveFormat());
+      throw e;
+    }
+
 //    System.out.println(result.value());
     profiler.end();
     profiler.start("extract");
@@ -795,7 +802,7 @@ public class IntegerLinearProgram implements PropositionalModel {
     }
     if ("result".equals(name.getHead()))
       return getResultString();
-    if ("solver".equals(name.getHead())){
+    if ("solver".equals(name.getHead())) {
       if (name.isTerminal()) return solver;
       else return solver.getProperty(name.getTail());
     }
