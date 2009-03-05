@@ -4,6 +4,25 @@ import scala.io.Source
 import java.io.{File, FileOutputStream}
 import java.util.ArrayList
 
+
+object SplitCoNLLData {
+  def main(args: Array[String]) {
+    val from = args(0).toInt
+    val to = args(1).toInt
+    val out = new java.io.PrintStream(System.out, true, "UTF-8")
+    var current = 0
+    for (line: String <- Source.fromInputStream(System.in).getLines) {
+      if (current >= from && current < to)
+        out.print(line)
+      if (line.trim == ""){
+        current += 1
+      }
+    }
+    out.close
+
+  }
+}
+
 /**
  * CoNLL 09
  * ID FORM LEMMA PLEMMA POS PPOS FEAT PFEAT HEAD PHEAD DEPREL PDEPREL FILLPRED PRED APREDs

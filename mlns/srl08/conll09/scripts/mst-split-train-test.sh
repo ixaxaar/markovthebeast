@@ -80,7 +80,7 @@ rm *.forest
 cd $oldDir
 
 # timestamp for result dir
-timestamp=$(date +"%b-%d-%y-%H-%M-%S")
+timestamp=$(date +"%m-%d-%y-%H-%M-%S")
 resultdir=mst_$(basename $original_train)_$timestamp
 
 # move results to current directory
