@@ -9,11 +9,25 @@
 
 from corpus import *
 
+# Evaluates based on the POS tag of a predicate
 def default_predicate(w,args,extra):
     return not w['ppos'] in Impossible.impossiblePredicatePOS 
 
+# Evaluates based on the POS tags of an argument
 def default_argument(w,args):
+    return not w['s_ppos'] in Impossible.impossibleArgumentPOS
+
+def argument_plemma(w,args):
+    return not w['plemma'] in Impossible.impossibleArgumentPOS
+
+def default_argument_ppos(w,args):
     return not w['ppos'] in Impossible.impossibleArgumentPOS
+
+def filler_col(w,args,extra):
+    if w["fillpred"] != '_':
+        return True
+    else:
+        return False
 
 def only_predicate(w,args,extra):
     try:
@@ -77,12 +91,25 @@ class Impossible:
 "WP",
 "WP$",
 "WRB",
-"R"])
+"R",
+"ROOT"])
     impossibleArgumentPOS = set(["DT", "ROOT",".",",","''","``",":",";", "$"])
 
     def  __init__(self):
         self.test_pred=default_predicate
         self.test_arg=default_argument
+
+    def default(self):
+        self.test_pred=default_predicate
+
+    def switch_argument_ppos(self):
+        self.test_arg=default_argument_ppos
+
+    def switch_argument_plemma(self):
+        self.test_arg=argument_plemma
+
+    def switch_filler_col(self):
+        self.test_pred=filler_col
 
     def switch_only(self):
         self.test_pred=only_predicate
@@ -111,6 +138,7 @@ def writeFrameAsAtoms(sig, bs, frameName, frameType,all, labels = True):
                 result += edge[2]
         
         result += "\""
+
         bs.addPred(frameName, (str(start), result))
         sig.addType(frameType[1], result)
 
@@ -145,7 +173,7 @@ def combinePaths(all):
     
     return allSizes
 
-def single_preds(sig,cs,bs,args):
+def single_preds(sig,cs,bs,args,extra):
     for name,type,attr in args:
            sig.addDef(name,type)
 
@@ -178,20 +206,21 @@ def getTree(sntc,label):
             tree[h]=[d]
     return tree
 
-def get_span(tree,id,terminals=[]):
-    
+def get_span(tree,id,terminals=[],id_ori=-1):
+    if id_ori==-1:
+        id_ori=id
     try:
         tree[id]
     except KeyError:
         return terminals
     for d in tree[id]:
-        if d!=id:
+        if d!=id: # and d!=id_ori:
             terminals.append(d)
-            terminals=get_span(tree,d,terminals)
+            terminals=get_span(tree,d,terminals,id_ori)
     return terminals
 
 
-def j08_l_and_r(sig,cs,bs,args):
+def j08_l_and_r(sig,cs,bs,args,extra):
     lt,ltt,rt,rtt,label=args
     sig.addDef(lt,ltt)
     sig.addDef(rt,rtt)
@@ -227,7 +256,7 @@ def getSet(cs,tree,labels):
     return vals
 
 
-def j08_childSets(sig,cs,bs,argss):
+def j08_childSets(sig,cs,bs,argss,extra):
     argss,label=argss
     tree=getTree(cs,label)
     for args in argss:
@@ -266,7 +295,7 @@ def create_path(cs,path,label):
         i+=1
     return "".join(n)
             
-def j08_verbChains(sig,cs,bs,args):
+def j08_verbChains(sig,cs,bs,args,extra):
     name1,type1,name2,type2,label=args
     tree=getTree(cs,label)
     dpreds=dict(cs.preds)
@@ -274,7 +303,7 @@ def j08_verbChains(sig,cs,bs,args):
     sig.addDef(name2,type2)
     for w1 in range(1,len(cs)):
         w=cs[w1]
-        if impossible.test_pred(w,dpreds,None):
+        if impossible.test_pred(w,dpreds,extra):
             head=cs[int(w[label+"head"])]
             while head[label+"dep_rel"]=="VC":                
                 head=cs[int(head[label+"head"])]
@@ -293,14 +322,14 @@ def j08_verbChains(sig,cs,bs,args):
                     bs.addPred(name2,(str(w1),))
 
 
-def j08_subCat(sig,cs,bs,args):
+def j08_subCat(sig,cs,bs,args,extra):
     name1,type1,label=args
     tree=getTree(cs,label)
     dpreds=dict(cs.preds)
     sig.addDef(name1,type1)
     for w1 in range(1,len(cs)):
         w=cs[w1]
-        if impossible.test_pred(w,dpreds,None):
+        if impossible.test_pred(w,dpreds,extra):
             head=cs[int(w[label+"head"])]
             if tree.has_key(w["id"]):
                 chld=[cs[int(c)][label+"dep_rel"]  for c in tree[w["id"]]]
@@ -310,7 +339,7 @@ def j08_subCat(sig,cs,bs,args):
 
 
 
-def j08_relpath(sig,cs,bs,args):
+def j08_relpath(sig,cs,bs,args,extra):
     name,type,label,info=args
     tree=getTree(cs,label)
     sig.addDef(name,type)
@@ -353,7 +382,7 @@ def j08_relpath(sig,cs,bs,args):
                         paths_[pos]=reverse(path)
 
     for w1 in range(1,len(cs)):
-        if not impossible.test_pred(cs[w1],dpreds,None):
+        if not impossible.test_pred(cs[w1],dpreds,extra):
            continue
         for w2 in range(1,len(cs)):
             if not impossible.test_arg(cs[w2],None):
@@ -395,27 +424,51 @@ def j08_relpath(sig,cs,bs,args):
 #    for w1 in range(1,len(cs)):
 #        for w2 in range(w1+1,len(cs)):
 
+def feats(sig,cs,bs,args,extra):
+    name,type,label=args
+    sig.addDef(name,type)
+    sig.addType(type[1],'"NONE"')
+    sig.addType(type[2],'"NONE"')
+    for w in cs:
+        feats=w[label].split('|')
+        for fv in feats:
+            if not fv == "_" and len(fv)>0:
+                fv=fv.strip()
+                bits=fv.split('=')
+                if len(bits) > 1:
+                    f=normalize_entry(bits[0])
+                    v=normalize_entry(bits[1])
+                else:
+                    f=normalize_entry("gen")
+                    v=normalize_entry(bits[0])
+                if v != '"*"':
+                    bs.addPred(name,(w["id"],f,v))
+                    sig.addType(type[1],f)
+                    sig.addType(type[2],v)
+
                 
-def cpos(sig,cs,bs,args):
-    name,type = args
+def cpos(sig,cs,bs,args,extra):
+    if len(args) ==2:
+        name,type = args
+        ppos="ppos"
+    else:
+        name,type,ppos = args
     sig.addDef(name,type)
     for w in cs:
-            val=normalize_entry(w["ppos"][0])
+            val=normalize_entry(w[ppos][0])
             # In case there is not ppos, then we use gpos
-            if val =='"_"':
-                val=normalize_entry(w["gpos"][0])
             bs.addPred(name,(w["id"],val))
             sig.addType(type[1],val)
 
-def possiblePredicate(sig,cs,bs,args):
+def possiblePredicate(sig,cs,bs,args,extra_d):
     name,type,extra = args
     sig.addDef(name,type)
     dpreds=dict(cs.preds)
     for w in cs:
-            if impossible.test_pred(w,dpreds,extra):
+            if impossible.test_pred(w,dpreds,extra_d):
                 bs.addPred(name,[w["id"]])
 
-def possibleArgument(sig,cs,bs,args):
+def possibleArgument(sig,cs,bs,args,extra):
     name,type = args
     sig.addDef(name,type)
     for w in cs:
@@ -423,7 +476,7 @@ def possibleArgument(sig,cs,bs,args):
                 bs.addPred(name,[w["id"]])
 
 
-def ne(sig,cs,bs,args):
+def ne(sig,cs,bs,args,extra):
     name,type,ne_label = args
     sig.addDef(name,type)
     for w in cs:
@@ -432,7 +485,7 @@ def ne(sig,cs,bs,args):
             bs.addPred(name,(w["id"],val))
             sig.addType(type[1],val)
 
-def wnet(sig,cs,bs,args):
+def wnet(sig,cs,bs,args,extra):
     name,type,wnet_label = args
     sig.addDef(name,type)
     for w in cs:
@@ -441,39 +494,96 @@ def wnet(sig,cs,bs,args):
             bs.addPred(name,(w["id"],val))
             sig.addType(type[1],val)
 
-def voice(sig,cs,bs,args):
+def voice(sig,cs,bs,args,extra):
     '''Extracts voice'''
-    name,type = args
+    if len(args) == 2:
+        name,type = args
+        pre="s_"
+    else:
+        name,type,pre = args
+
+
     st = 0 # No verb found
     sig.addDef(name,type)
     for w in cs:
         if st == 0:
-            if w["s_ppos"].startswith('V'):
-                if w["s_form"][0].islower():
-                    if w["s_ppos"].startswith('VBD'):
+            if w[pre+"ppos"].startswith('V'):
+                if w[pre+"form"][0].islower():
+                    if w[pre+"ppos"].startswith('VBD'):
                         st = 1 # Next VBN is passive (unless is be)
-                    elif  w["s_ppos"].startswith("VBZ"):
+                    elif  w[pre+"ppos"].startswith("VBZ"):
                         st = 1 # Next VBN is passive (unless is be)
-                    elif w["s_ppos"]=='VB':
-                        if w["s_lemma"].startswith('be') or\
-                                w["s_lemma"].startswith('have'):
+                    elif w[pre+"ppos"]=='VB':
+                        if w[pre+"lemma"].startswith('be') or\
+                                w[pre+"lemma"].startswith('have'):
                             st = 1 # Next VBN is passive (unless is be)
                     bs.addPred(name,(w["id"],'"act"'))            
 
 
         elif st == 1:
-            if w["s_ppos"].startswith('VBN'):
+            if w[pre+"ppos"].startswith('VBN'):
                 bs.addPred(name,(w["id"],'"pas"'))
-                if not w['s_lemma'].startswith("be"):
+                if not w[pre+'lemma'].startswith("be"):
                     st=0 # Ready for next
-            elif w["s_ppos"].startswith('VB'):
+            elif w[pre+"ppos"].startswith('VB'):
                 bs.addPred(name,(w["id"],'"act"'))            
-            elif not w["s_ppos"] in ['RB','IN','VBN']:
+            elif not w[pre+"ppos"] in ['RB','IN','VBN']:
                 st = 0 # It wasn't wort to check
     sig.addType(type[1],'"act"')
     sig.addType(type[1],'"pas"')
 
 
+
+def voice_catalan_spanish(sig,cs,bs,args,extra):
+    '''Extracts voice for spanish'''
+    name,type = args
+    sig.addDef(name,type)
+    for w in cs:
+        if w['ppos'].startswith('v'):
+            pfeat=w["pfeat"]
+            try:
+                pfeat.index("mood=pastparticiple")
+                bs.addPred(name,(w["id"],'"pas"'))
+            except ValueError:
+                bs.addPred(name,(w["id"],'"act"'))
+    sig.addType(type[1],'"act"')
+    sig.addType(type[1],'"pas"')
+
+
+def voice_czech(sig,cs,bs,args,extra):
+    '''Extracts voice for czech'''
+    name,type = args
+    sig.addDef(name,type)
+    for w in cs:
+        if w['ppos'].startswith('V'):
+            pfeat=w["pfeat"]
+            try:
+                pfeat.index("Voi=P")
+                bs.addPred(name,(w["id"],'"pas"'))
+            except ValueError:
+                bs.addPred(name,(w["id"],'"act"'))
+    sig.addType(type[1],'"act"')
+    sig.addType(type[1],'"pas"')
+
+
+def voice_german(sig,cs,bs,args,extra):
+    '''Extracts voice for czech'''
+    name,type = args
+    sig.addDef(name,type)
+    for w in cs:
+        if w['ppos'].startswith('VAPP'):
+                bs.addPred(name,(w["id"],'"pas"'))
+        else:
+                bs.addPred(name,(w["id"],'"act"'))
+    sig.addType(type[1],'"act"')
+    sig.addType(type[1],'"pas"')
+
+def no_voice(sig,cs,bs,args,extra):
+    '''Extracts voice for chinese'''
+    name,type = args
+    sig.addDef(name,type)
+    sig.addType(type[1],'"act"')
+    sig.addType(type[1],'"pas"')
 
 
 
@@ -500,7 +610,7 @@ def extendPaths(lengthNPaths, length1Paths, undirected):
     return longerPaths
     
 
-def depfeatures(sig,cs,bs,args):
+def depfeatures(sig,cs,bs,args,extra):
     """ creates all dependency paths between all tokens
         also creates frames 
     """
@@ -663,7 +773,7 @@ def pathAsString(start, path, labels = True):
     
 
 # Depreciated don't use with out checking the args of dependecy_links
-def dependency(sig,cs,bs,args):
+def dependency(sig,cs,bs,args,extra):
     name,type = args
     sig.addDef(name,type)
     for w in cs:
@@ -673,7 +783,7 @@ def dependency(sig,cs,bs,args):
             sig.addType(type[2],val)
 
 
-def dependency_link(sig,cs,bs,args):
+def dependency_link(sig,cs,bs,args,extra):
     name,type,head_label,dep_rel_label,link_name= args
     sig.addDef(name,type)
     sig.addDef(link_name,["Int","Int"])
@@ -684,7 +794,7 @@ def dependency_link(sig,cs,bs,args):
             bs.addPred(link_name,(w[head_label],w["id"]))
             sig.addType(type[2],val)
 
-def role_argument_label(sig,cs,bs,args):
+def role_argument_label(sig,cs,bs,args,extra):
     '''Extracts the roles featues, it adds a predicate isArgument, if a token
     is a role, and hasLabel(i,j) if a token i has a role in the token(j)'''
     name,type,mode_label = args[0]
@@ -699,20 +809,26 @@ def role_argument_label(sig,cs,bs,args):
         ix,val = cs.preds[i]
         ixs.append(ix)
         jxs=[]
-        for arg in cs.args[i]:
-            jx,rolev= arg
-            jxs.append(jx)
-            val = normalize_entry(rolev)
-            bs.addPred(name,(str(ix),str(jx),val))
-            sig.addType(type[2],val)
-            isArg[jx]=1
-            bs.addPred(name_hasLabel,(str(ix),str(jx)))
+        if len(cs.args) > 0:
+            for arg in cs.args[i]:
+                jx,rolev= arg
+                jxs.append(jx)
+                val = normalize_entry(rolev)
+                bs.addPred(name,(str(ix),str(jx),val))
+                sig.addType(type[2],val)
+                isArg[jx]=1
+                bs.addPred(name_hasLabel,(str(ix),str(jx)))
+        else:
+                bs.addPred(name,(str(ix),str(ix),'"NONE"'))
+                bs.addPred(name_hasLabel,(str(ix),str(ix)))
+                sig.addType(type[2],'"NONE"')
+            
     for arg,k in isArg.iteritems():
         bs.addPred(name_isArgument,(str(arg),))
 
 
 
-def role_none(sig,cs,bs,args):
+def role_none(sig,cs,bs,args,extra):
     '''Extracts the role predicates, and add a NONE label in case doesn't
     exists, it has three modes:
         ALL = generates all NONEs
@@ -754,7 +870,7 @@ def role_none(sig,cs,bs,args):
 
 
 # Depreciated, now labeling roles which aren't present with NONE
-def role(sig,cs,bs,args):
+def role(sig,cs,bs,args,extra):
     name,type = args
     sig.addDef(name,type)
     for i in range(len(cs.preds)):
@@ -768,7 +884,7 @@ def role(sig,cs,bs,args):
 
 
 # Depreciated, now using lemma as predicate
-def frame(sig,cs,bs,args):
+def frame(sig,cs,bs,args,extra):
     name,type = args
     sig.addDef(name,type)
     for i in range(len(cs.preds)):
@@ -777,7 +893,7 @@ def frame(sig,cs,bs,args):
         bs.addPred(name,(str(ix),val))
         sig.addType(type[1],val)
 
-def frame_lemma(sig,cs,bs,args):
+def frame_lemma(sig,cs,bs,args,extra):
     '''Extracts frames using relying the lemma is the predicate'''
     name_pred,type_pred = args[0]
     name_label,type_label = args[1]
@@ -792,7 +908,23 @@ def frame_lemma(sig,cs,bs,args):
         sig.addType(type_label[1],val)
 
 
-def frame_lemma2(sig,cs,bs,args):
+def sense(sig,cs,bs,args,extra):
+    '''Extracts frames using relying the lemma is the predicate'''
+    name_label,type_label = args[0]
+    sig.addDef(name_label,type_label)
+    for i in range(len(cs.preds)):
+        ix,framev = cs.preds[i]
+        label = framev.split(".")
+        if len(label)>1:
+            val = normalize_entry(label[-1])
+        else:
+            val = "NONE"
+        bs.addPred(name_label,(str(ix),val))
+        sig.addType(type_label[1],val)
+
+
+
+def frame_lemma2(sig,cs,bs,args,extra):
     '''Extracts frames using relying the lemma is the predicate'''
     name_pred,type_pred = args[0]
     name_label,type_label = args[1]

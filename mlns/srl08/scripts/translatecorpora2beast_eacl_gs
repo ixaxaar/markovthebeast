@@ -7,7 +7,7 @@ USAGE="
     -a      No ask for confirmation\n
     -help   Print this"
 
-opts=" -v -H -G "
+opts=" -v -G "
 
 if [ $# -gt 1 ]
 then
@@ -49,7 +49,7 @@ fi
 if [ $ANS = "yes" ]
 then
     set -x
-    nice bin/conll082beast.py ${opts} -d data/conll05/devel_propbank.types.pml -o data/conll05/devel_propbank.atoms  data/conll05/devel_propbank.output
+    nice bin/conll082beast.py ${opts} -8  data/conll05/devel_propbank.conll08 -P data/devel/devel.closed -d data/conll05/devel_propbank.types.pml -o data/conll05/devel_propbank.atoms  data/conll05/devel_propbank.output
     set +x
 fi
 
@@ -70,7 +70,7 @@ fi
 if [  $ANS = "yes" ]
 then
     set -x
-    nice bin/conll082beast.py ${opts} -d data/conll05/train_propbank.types.pml -o data/conll05/train_propbank.atoms data/conll05/train_propbank.output
+    nice bin/conll082beast.py ${opts}  -8  data/conll05/train_propbank.conll08 -P data/train/train.closed -d data/conll05/train_propbank.types.pml -o data/conll05/train_propbank.atoms data/conll05/train_propbank.output
     set +x
 fi
 
@@ -91,7 +91,7 @@ fi
 if [ $ANS = "yes" ]
 then
     set -x
-    nice bin/conll082beast.py ${opts}  -d data/conll05/test_wsj_propbank.types.pml -o  data/conll05/test_wsj_propbank.atoms data/conll05/test_wsj_propbank.output
+    nice bin/conll082beast.py ${opts}  -8  data/conll05/test_wsj_propbank.conll08 -P data/test.wsj/test.wsj.closed -d data/conll05/test_wsj_propbank.types.pml -o  data/conll05/test_wsj_propbank.atoms data/conll05/test_wsj_propbank.output
     set +x
 fi
 
@@ -112,7 +112,7 @@ fi
 if [ $ANS = "yes" ]
 then
     set -x
-    nice bin/conll082beast.py ${opts}  -d data/conll05/test_brown_propbank.types.pml -o data/conll05/test_brown_propbank.atoms data/conll05/test_brown_propbank.output
+    nice bin/conll082beast.py ${opts} -8 data/conll05/test_brown_propbank.conll08 -P data/test.brown/test.brown.closed -d data/conll05/test_brown_propbank.types.pml -o data/conll05/test_brown_propbank.atoms data/conll05/test_brown_propbank.output
     set +x
 fi
 

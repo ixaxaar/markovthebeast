@@ -31,24 +31,24 @@ factor: for Int i, Slemma l if slemma(i,_) & slemma(i+2,l) & possiblePredicate(i
 
 // SPPOS [-2.. i .. +2]
 // is a predicate given the current ppos
-weight w_ip_sppos: Sppos -> Double;
-factor: for Int i, Sppos l if sppos(i,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_sppos(l);
+weight w_ip_ppos: Ppos -> Double;
+factor: for Int i, Ppos l if ppos(i,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_ppos(l);
 
-// is a predicate given the previous sppos
-weight w_ip_prev_sppos: Sppos -> Double;
-factor: for Int i, Sppos l if sppos(i,_) & sppos(i-1,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_prev_sppos(l);
+// is a predicate given the previous ppos
+weight w_ip_prev_ppos: Ppos -> Double;
+factor: for Int i, Ppos l if ppos(i,_) & ppos(i-1,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_prev_ppos(l);
 
-// is a predicate given the next sppos
-weight w_ip_next_sppos: Sppos -> Double;
-factor: for Int i, Sppos l if sppos(i,_) & sppos(i+1,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_next_sppos(l);
+// is a predicate given the next ppos
+weight w_ip_next_ppos: Ppos -> Double;
+factor: for Int i, Ppos l if ppos(i,_) & ppos(i+1,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_next_ppos(l);
 
-// is a predicate given the previous sppos
-weight w_ip_prev2_sppos: Sppos -> Double;
-factor: for Int i, Sppos l if sppos(i,_) & sppos(i-2,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_prev2_sppos(l);
+// is a predicate given the previous ppos
+weight w_ip_prev2_ppos: Ppos -> Double;
+factor: for Int i, Ppos l if ppos(i,_) & ppos(i-2,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_prev2_ppos(l);
 
-// is a predicate given the next sppos
-weight w_ip_next2_sppos: Sppos -> Double;
-factor: for Int i, Sppos l if sppos(i,_) & sppos(i+2,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_next2_sppos(l);
+// is a predicate given the next ppos
+weight w_ip_next2_ppos: Ppos -> Double;
+factor: for Int i, Ppos l if ppos(i,_) & ppos(i+2,l) & possiblePredicate(i) add [isPredicate(i)] * w_ip_next2_ppos(l);
 
 // CPOS
 // Around a word
@@ -86,8 +86,8 @@ factor: for Int i, MDependency m if word(i,_) & mst_dep(_,i,m) & possiblePredica
 weight w_ip_mdep_child_ppos: Ppos -> Double;
 factor: for Int i, Int j, Ppos p if word(i,_) & ppos(j,p) & mst_dep(i,j,_) & possiblePredicate(i) add [isPredicate(i)] * w_ip_mdep_child_ppos(p);
 
-weight w_ip_mdep_child_sppos: Sppos -> Double;
-factor: for Int i, Int j, Sppos p if word(i,_) & sppos(j,p) & mst_dep(i,j,_) & possiblePredicate(i) add [isPredicate(i)] * w_ip_mdep_child_sppos(p);
+weight w_ip_mdep_child_ppos: Ppos -> Double;
+factor: for Int i, Int j, Ppos p if word(i,_) & ppos(j,p) & mst_dep(i,j,_) & possiblePredicate(i) add [isPredicate(i)] * w_ip_mdep_child_ppos(p);
 
 weight w_ip_mdep_pair_child_ppos: Ppos x Ppos -> Double;
 factor: for Int i, Int j, Ppos p_c, Ppos p_p if ppos(i,p_p) & mst_dep(i,j,_) & ppos(j,p_c) & possiblePredicate(i) add [isPredicate(i)] * w_ip_mdep_pair_child_ppos(p_p,p_c);

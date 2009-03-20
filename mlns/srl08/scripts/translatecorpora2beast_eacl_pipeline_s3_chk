@@ -14,7 +14,7 @@ then
     exit 1;
 fi
 
-opts=" -v -H --s3 "
+opts=" -v -H --s3 --possible_preds"
 
 CONFIRM=1
 if [ $# -eq 1 ]

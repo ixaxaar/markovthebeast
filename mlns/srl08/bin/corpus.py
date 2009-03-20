@@ -8,12 +8,271 @@
 
 import re
 import gzip
+import codecs
 import tarfile
 
 re_space=re.compile(r'[\s]+')
 re_space2=re.compile(r'^\s+')
+re_emptyline=re.compile(r'^\t\t')
 re_quota=re.compile(r'"')
 re_quota2=re.compile(r'^"')
+
+# Coll09 corpus class
+class Conll09Corpus:
+    """It handles a corpus in the Conll09 format"""
+
+    #ID FORM LEMMA PLEMMA POS PPOS FEAT PFEAT HEAD PHEAD DEPREL PDEPREL FILLPRED PRED APREDs 
+    # Extra line for root elements
+    e_line = "0\tROOT\tROOT\tROOT\tROOT\tROOT\t_\t_\t0\t0\tROOT\tROOT\t_"
+    use_eline = True
+
+    def __init__(self,filename=None,gold_deps=False,sense=True):
+        """Initilize the handler
+            filename  is the name of the file where the corpus is located
+            gold_deps use gold deps for the mst predicates"""
+        # It doesn't saves the corpus in memory anymore
+        #self.sntcs=[ ]
+        self.ix=None
+        self.len=0
+        self.filename=filename
+        file = None
+        self.sense=sense
+        self.gold_deps=gold_deps
+        if not filename is None:
+            if not "@" in filename:
+               file=open(filename,'r')
+            else:
+               bits=filename.split('@')
+               tf=tarfile.open(bits[0],encoding="utf-8")
+               name=None
+               for ti in tf.getmembers():
+                   if ti.name.find(bits[1]) > -1:
+                       name=ti
+                       break
+               if not name is None:
+                   file=tf.extractfile(name)
+               else:
+                   sys.exit(1)
+
+            line=file.readline()
+            while len(line)==1:
+                line=file.readline()
+            chnk = self.readChunk(file,line)
+            i = 1
+            while len(chnk)>0 :
+                i+=1
+                line=file.readline()
+                while len(line)==1:
+                    line=file.readline()
+                chnk = self.readChunk(file,line)
+        self.len = i
+        file.close()
+
+    def readChunk(self,file,first_line=""):
+        lines = []
+        line = first_line
+        m = re_emptyline.match(line)
+        while len(line) > 1 and not m:
+            line=line.strip()
+            lines.append(line)
+            line = file.readline()
+            m = re_emptyline.match(line)
+        return lines
+
+    def size(self):
+        return self.len
+
+    def __iter__(self):
+        self.file = open(self.filename,'r')
+        return self
+
+    def next(self):
+        line=self.file.readline()
+        while len(line)==1:
+             line=self.file.readline()
+        chnk = self.readChunk(self.file,line)
+        if len(chnk)>0 :
+            return self.chnk2sntc(chnk)
+        else:
+            self.file.close()
+            raise StopIteration 
+
+
+    def chnk2sntc(self,chnk):
+        """Translate a chnk into a sentence"""
+
+        lines = chnk
+        if Conll09Corpus.use_eline:
+            size_line=len(re_space.split(lines[0]))
+            lines=lines+[Conll09Corpus.e_line]
+        return Conll09Sntc(lines,self.gold_deps,sense=self.sense)
+
+#ID FORM LEMMA PLEMMA POS PPOS FEAT PFEAT HEAD PHEAD DEPREL PDEPREL FILLPRED PRED APREDs 
+class Conll09Sntc:
+    def __init__(self,lines,gold_deps=False,sense=True):
+        self.sntc=[]
+        self.preds=[]
+        self.args=[]
+        
+        if  not lines is None:            
+            # Main lines
+            self.createFromLines(lines,gold_deps)
+            preds=[]    
+            # SRL labels            
+            args=[[] for i in re_space.split(lines[1])[13:]]
+            for i in range(len(lines)):
+                line = re_space.split(lines[i])[13:]
+                ix = re_space.split(lines[i])[0]
+                if len(line)>0 and line[0] != '_':
+                    preds.append((ix,line[0]))
+                for j in range(1,len(line)):
+                    if line[j] != '_':
+                        args[j-1].append((ix,line[j]))
+            self.preds=preds
+            self.args=args
+
+
+    def createFromLines(self,lines,olines=[],gold_deps=False):
+        for line in lines:
+            self.sntc.append(Conll09Wrd(line))
+
+#        for w in self.sntc: 
+#            w['pdep_rel']=self.sntc[int(w['phead'])]['ppos']
+
+    def __getitem__(self,id):
+        if id==0:
+            id=len(self.sntc)
+        return self.sntc[id-1]
+
+    def __len__(self):
+        return len(self.sntc)
+
+    def __iter__(self):
+        return self.sntc.__iter__();
+
+    def __str__(self):
+        dpreds=dict(self.preds)
+        dargs=[dict(arg) for arg in self.args]
+        lines = [w.__str__() for w in self.sntc[:-1]]
+
+        for i in range(0,len(lines)):
+            try:
+                pred=dpreds[str(i+1)]
+            except KeyError:
+                pred="_"
+            lines[i]+="\t"+pred
+
+        for j in range(0,len(self.preds)):
+            for i in range(0,len(lines)):
+                try:
+                    arg=dargs[j][str(i+1)]
+                except KeyError:
+                    arg="_"
+                lines[i]+="\t"+arg
+        return "\n".join(lines)
+
+    def utt(self,s=0,label="form"):
+        if s==0:
+            return " ".join([ x[label] for x in self.sntc])
+        else:
+            return " ".join([ x[label] for x in self.sntc[:s]])
+
+    def conll05(self):
+        pass
+
+    def conll06(self):
+        pass
+
+    def conll06_mst(self):
+        pass
+
+    def conll07(self):
+        pass
+
+    def conll07_mst(self):
+        pass
+
+    def conll08_mst(self):
+        pass
+
+    def conll08(self):
+        return self.__str__()
+
+    def replace(self,label,chnk):
+        for i in range(len(self.sntc)):
+            self.sntc[i].replace(label,chnk[i])
+
+    def eliminate(self,label,cn):
+        preds=[ (i,s) for (i,s) in self.preds 
+                if not self.sntc[int(i)-1][label].startswith(cn)]
+        args =[ self.args[i] for i in range(len(self.preds)) 
+                if not self.sntc[int(self.preds[i][0])-1][label].startswith(cn)]
+        self.preds=preds
+        self.args=args
+        
+#ID FORM LEMMA PLEMMA POS PPOS FEAT PFEAT HEAD PHEAD DEPREL PDEPREL FILLPRED PRED APREDs 
+class Conll09Wrd:
+    map=["id",
+            "form",
+            "lemma",
+            "plemma",
+            "pos",
+            "ppos",
+            "feat",
+            "pfeat",
+            "head",
+            "phead",
+            "dep_rel",
+            "pdep_rel",
+            "fillpred"
+            ]
+    omap=dict(zip(map,range(len(map))))
+
+    def __init__(self,line,oline=None,gold_deps=False):
+        self.w=re_space.split(line)[:13]
+            
+    def __getitem__(self,x):
+        return self.w[Conll09Wrd.omap[x]]
+
+    def __setitem__(self,x,y):
+        self.w[Conll09Wrd.omap[x]]=y
+
+    def replace(self,label,val):
+        self.w[Conll09Wrd.omap[label]]=val
+
+    def add(self,eles):
+        pass
+
+    def __str__(self):
+        line = [self.w[0],self.w[1],self.w[2],self.w[3],self.w[4],
+                self.w[5],self.w[6],self.w[7],self.w[8],self.w[9],
+                self.w[10],self.w[11],self.w[12]]
+        return "\t".join(line)
+
+    def conll05(self):
+        pass
+
+    def conll06(self):
+        pass
+
+    def conll06(self):
+        pass
+
+    def conll06_mst(self):
+        pass
+
+    def conll07(self):
+        pass
+
+    def conll07_mst(self):
+        pass
+
+    def conll08(self):
+        return self.__str__()
+    
+    def conll08_mst(self):
+        pass
+
 
 
 # Coll08 corpus class
@@ -208,7 +467,6 @@ class Conll08Sntc:
 
     def createFromLines(self,lines,olines=[],gold_deps=False):
         if len(olines) > 0:
-
             for i in range(len(lines)):
                 self.sntc.append(Conll08Wrd(lines[i],olines[i],gold_deps))
         else:
@@ -431,7 +689,12 @@ class Conll08Sntc:
         for i in range(len(self.sntc)):
             self.sntc[i].replace(label,chnk[i])
 
-
+    def eliminate(self,label,cn):
+        preds=[ (i,s) for (i,s) in self.preds if not self.sntc[int(i)-1][label].startswith(cn)]
+        args =[ self.args[i] for i in range(len(self.preds)) if not self.sntc[int(self.preds[i][0])-1][label].startswith(cn)]
+        
+        self.preds=preds
+        self.args=args
         
 class Conll08Wrd:
     map=["id",
@@ -480,7 +743,7 @@ class Conll08Wrd:
 
     def replace(self,label,val):
         self.w[Conll08Wrd.omap[label]]=val
- 
+
 
     def add(self,eles):
         if len(self.w) == 10:
@@ -534,6 +797,7 @@ class Conll08Wrd:
 def chg_map(eles):
         Conll08Wrd.map+=eles
         Conll08Wrd.omap=dict(zip(Conll08Wrd.map,range(len(Conll08Wrd.map))))
+
 
 
 # TheBeastCorpus 
@@ -662,14 +926,15 @@ def getAtoms(line):
     state=0
 
     for bit in bits:
-        if state==0:
-            if bit[0]=='"':
-                state=1
-            atoms.append(bit)
-        else:
-            if bit[-1]=='"':
-                state=0
-            atoms[-1]+=" "+bit
+        if len(bit) > 0:
+            if state==0:
+                if bit[0]=='"':
+                    state=1
+                atoms.append(bit)
+            else:
+                if bit[-1]=='"':
+                    state=0
+                atoms[-1]+=" "+bit
 
     return tuple(atoms)
         
@@ -722,6 +987,8 @@ class TheBeastIntc:
 
 
 def normalize_entry(val):
+    if '"' in val:
+        val=val.replace('"',"_DQ_")
     if TheBeastCorpus.use_quotes:
         return '"%s"'%val
     return val

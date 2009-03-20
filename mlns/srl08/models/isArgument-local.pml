@@ -96,11 +96,13 @@ weight w_ia_mdep_pair_grandpar_ppos: Ppos x Ppos -> Double;
 factor: for Int i, Int j, Int k,  Ppos p_c, Ppos p_p if ppos(i,p_p) & mst_dep(i,j,_) & mst_dep(j,k,_) & ppos(k,p_c) & possibleArgument(i) add [isArgument(k)] * w_ia_mdep_pair_grandpar_ppos(p_p,p_c);
 set collector.all.w_ia_mdep_pair_grandpar_ppos = true;
 
+weight w_ia_mdep_pair_child_ppos: Ppos x Ppos -> Double;
+factor: for Int i, Int j, Ppos p_c, Ppos p_p if ppos(i,p_p) & mst_dep(i,j,_) & ppos(j,p_c) & possibleArgument(i) add [isArgument(i)] * w_ia_mdep_pair_child_ppos(p_p,p_c);
+set collector.all.w_ia_mdep_pair_child_ppos = true;
 
-
-
-weight w_ia_mdep_child_sppos: Sppos -> Double;
-factor: for Int i, Int j, Sppos p if word(i,_) & sppos(j,p) & mst_dep(i,j,_) & possibleArgument(i) add [isArgument(i)] * w_ia_mdep_child_sppos(p);
+weight w_ia_mdep_pair_grandchild_ppos: Ppos x Ppos -> Double;
+factor: for Int i, Int j, Int k,  Ppos p_c, Ppos p_p if ppos(i,p_p) & mst_dep(i,j,_) & mst_dep(j,k,_) & ppos(k,p_c) & possibleArgument(i) add [isArgument(i)] * w_ia_mdep_pair_grandchild_ppos(p_p,p_c);
+set collector.all.w_ia_mdep_pair_grandchild_ppos = true;
 
 weight w_ia_mframe: MFrame -> Double;
 factor: for Int i, MFrame f if word(i,_) & mst_frame(i,f) & possibleArgument(i) add [isArgument(i)] * w_ia_mframe(f);

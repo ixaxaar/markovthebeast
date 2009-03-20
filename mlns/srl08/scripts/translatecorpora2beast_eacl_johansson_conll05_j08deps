@@ -7,8 +7,7 @@ USAGE="
     -a      No ask for confirmation\n
     -help   Print this"
 
-#opts=" -v -G --possible_ON --mst_conll08 "
-opts=" -v -H -G -f johanson --possible_ON --mst_conll08 "
+opts=" -H -v -f johanson --mst_conll08 --possible_ON"
 
 if [ $# -gt 1 ]
 then

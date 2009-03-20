@@ -8,25 +8,32 @@ predicate rargpair: Role x Role;
 predicate allargs: Role;
 
 // Regular predicates
-observed: word, slemma, gpos, sform, ppos, cpos, sppos,lemma,
-// HIDDEN
-//isPredicate,
-//isArgument,
-//hasLabel,
-//frameLabel,
-//role,
-// MST info
-mst_link,
-mst_dep,
-// Some heuristics
-voice,
-possiblePredicate,
-possibleArgument,
-// Johansson predicates
-rightToken,
-leftToken,
-relPath,
-verbChainHasSubj;
+observed: depSubCat ,
+  slemma ,
+  possibleArgument ,
+  gpos ,
+  ppos ,
+  relPath ,
+  childWordSet ,
+  lemma ,
+  rightToken ,
+  childPosDepSet ,
+  childWordDepSet ,
+  leftToken ,
+  sform ,
+  cpos ,
+  sppos ,
+  possiblePredicate ,
+  verbChainHasSubj ,
+  mst_link ,
+  word ,
+  controllerHasObj ,
+  childDepSet ,
+  mst_dep ,
+  childPosSet ,
+  voice;
+
+
 global: properarg,rarg,rargpair,carg,cargpair,allargs;
 
 index: role(*,*,_);
@@ -51,8 +58,11 @@ index: childPosSet(*,*);
 
 include "model_j08-role.pml";
 include "model_j08-hasLabel.pml";
-include "model_j08-isArgument.pml";
-//include "model_j08-isPredicate.pml";
+// Use features similar to hasLabel
+//include "model_j08-isArgument.pml";
+// Uses features similar to isPredicate
+include "model_j08-isArgument2.pml";
+include "model_j08-isPredicate.pml";
 include "model_j08-frameLabel.pml";
 
 //include "model1-hasLabel.pml";

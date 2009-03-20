@@ -1,5 +1,5 @@
 /* index for faster processing */
-//index: role(*,*,_);
+index: role(*,*,_);
 
 /* what is hidden */
 hidden: role;//,isPredicate,isArgument;
@@ -9,5 +9,6 @@ include "role-hard.pml";
 
 include "role-simple.pml";
 include "role-path.pml";
+include "role-dep.pml";
 
 

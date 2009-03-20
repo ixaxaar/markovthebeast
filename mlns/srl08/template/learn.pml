@@ -6,6 +6,9 @@ load corpus from "ATOMS";
 load instances from dump "INSTANCES";
 load weights from dump "WEIGHTS";
 
+
+set learner.loss = "fpnp";
+set learner.loss.fpScale = 0.6;
 set learner.solver.model.initIntegers = false;
 set learner.solver.maxIterations = 20;
 set learner.saveAfterEpoch = false;
