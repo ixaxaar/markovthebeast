@@ -1,0 +1,24 @@
+
+Semantic Role Labelling~\citep[SRL, ][]{marquez08srl} is generally understood as 
+the task of identifying and classifying the semantic arguments and modifiers of 
+the predicates mentioned in a sentence. For exampl
+e, in the case of the following sentence\footnote{``Haag plays Elianti'' is a 
+segment of a sentence in training corpus.}:
+\begin{quote}
+\begin{center}
+    \includegraphics[scale=.63]{haag-example}
+\end{center}
+\end{quote}
+"have to" we are to find out that for the predicate token {}``plays'' with sense 
+``play a role'' (play.02) the phrase headed by the token {}``Haag'' is referring 
+to the player (A0) of the play event, and the phrase headed by the token 
+{}``Elianti''  is referring to the role (A1) being played. SRL is considered as 
+a key task for applications that require to answer {}``Who'', {}``What'', 
+{}``Where'', etc. questions, such as Information Extraction, Question Answering 
+and Summarization. 
+
+In the next sections we will first briefly introduce Markov Logic. Then we 
+present the Markov Logic model we used in our final submission. We present and 
+analyse our results in section \ref{sec:results} before we conclude in Section 
+\ref{sec:conclusion}.
+

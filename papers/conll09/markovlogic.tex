@@ -1,0 +1,79 @@
+Markov Logic~\citep[ML,][]{richardson05markov} is a Statistical Relational 
+Learning language based on First Order Logic and Markov Networks. It can be seen 
+as a formalism that extends First Order Logic to allow formulae that can be 
+violated with some penalty. From an alternative point of view, it is an 
+expressive template language that uses First Order Logic formulae to instantiate
+Markov Networks of repetitive structure. 
+
+In ML we model the SRL task by fisrt introducing a set of logical predicates  
+\footnote{In the cases were is not obvious whether we refer to SRL or ML 
+predicates we add the prefix SRL or ML, respectively.} such as 
+\emph{word(Token,Ortho)} or \emph{role(Token,Token,Role)}. In the case of 
+\emph{word/2} the predicate represents a word of a sentence. The type 
+\emph{Token} identifies the position of the word and the type \emph{Ortho} its 
+orthography. In the case of \emph{role/3} represents a semantic role. The first 
+token identifies the position of the predicate, the second the syntactic head of 
+the argument and finally the type Role signals the semantic role label.
+
+With the ML predicates we specify a set of weighted first order formulae that 
+define a distribution over sets of ground atoms of these predicates (or 
+so-called \emph{possible worlds}). Ideally, the distribution we define with 
+these weighted formulae assigns high probability to possible worlds where SRL 
+predicates are correctly identified and a low probability to worlds where this 
+is not the case. For instance for the example of the introduction, a suitable 
+set of weighted formulae would assign a high probability to the world
+\begin{eqnarray*}
+ &\{ word\left(1,Haag\right),word(2,plays),\\
+ & word(3,Elianti),role(2,1,A0) \}& \end{eqnarray*}
+and a low one to
+\begin{eqnarray*}
+& \{ word\left(1,Haag\right),word(2,plays),\\
+ & word(3,Elianti),role(2,1,A1) \} &\end{eqnarray*}
+In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of 
+weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It 
+assigns the probability
+\begin{equation}
+\prob\left(\y\right)=\frac{1}{Z}\exp\left(
+\sum_{\left(\phi,w\right)\in M} w
+\sum_{\boldc\in C^{n_{\phi}}}f_{\boldc}^{\phi}\left(\y\right)
+\right)
+\label{eq:prob}
+\end{equation}
+to the possible world $\y$. Here $f_{\boldc}^{\phi}$ is a feature
+function that returns 1 if in the possible world $\y$ the ground
+formula we get by replacing the free variables in $\phi$ by the constants
+in $\boldc$ is true and 0 otherwise. $C^{n_{\phi}}$ is the set
+of all tuples of constants we can replace the free variables in $\phi$
+with. $Z$ is a normalisation constant. Note that this distribution corresponds 
+to a Markov Network where nodes represent ground atoms and factors represent 
+ground formulae. 
+
+For example, if $M$ contains the formula $\phi$ \[
+word\left(x,take\right)\Rightarrow role\left(x,\_,\_\right)\]
+then its corresponding log-linear model has, among others, a feature 
+$f_{t1}^{\phi}$ for which $x$ in $\phi$ has been replaced by the constant $t_1$ 
+and that returns 1 if \[
+word\left(1,take\right) \Rightarrow role\left(1,\_,\_\right)\]
+is true in $\y$ and 0 otherwise.
+
+We will refer predicates such as \emph{word/2} as \emph{observed} because they 
+are known in advance. In contrast, \emph{role/3} is \emph{hidden} because we 
+need to infer it at test time.
+
+\subsection{Learning}
+
+An MLN we use to model the collective SRL task is presented in section 
+\ref{sec:model}. We learn the weights associated this MLN using 1-best 
+MIRA~\citep{crammer01ultraconservative} Online Learning method. 
+%Note that we only consider formulae that appear more than once in the training 
+% set.
+
+\subsection{Inference}
+
+Assuming that we have an MLN, a set of weights and a given sentence then we need 
+to predict the choice of predicates, frame types, arguments and role labels with 
+maximal a posteriori probability. To this end we apply a method that is both 
+exact and efficient: Cutting Plane Inference~\citep[CPI,][]{riedel08improving} 
+with Integer Linear Programming~(ILP) as base solver. We use it for inference at 
+test time as well as during the MIRA online learning process.
+

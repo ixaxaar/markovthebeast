@@ -1,0 +1,29 @@
+
+In order to model the SRL task in the ML framework, we propose four hidden 
+predicates: consider the example of the previous section:
+\begin{itemize}
+    \item \emph{isArgument/1} indicates the phrase for which its head is a 
+        specific position is an SRL argument. The SRL predicate to which they 
+        are linked is undefined.  For instance in our example,     
+        \emph{isArgument(2)} signals that the phrase for which the word in 
+        position $2$ is the head is an argument (i.e., \emph{Ms. Haag}).    
+    \item \emph{hasRole/2} relates a SRL predicate to a SRL argument.  For instance in
+        our example, \emph{hasRole(3,2)} relates the
+        predicate in position $3$ (i.e., \emph{play}) to one of its arguments.
+    \item \emph{role/3}, besides to relating predicate and argument, also
+        relates this pair to a role. For instance in our example,
+        \emph{role(3,2,ARG0)} describe the role that
+        the predicate-argument pairs have.
+    \item \emph{sense/2} signals the sense identifier that a predicate in a
+        specific position has. For instance in our example, \emph{sense(3,02)}
+        signals that the predicate in position $3$ has the sense \emph{02}.
+        This indicates that the predicate \emph{play} has to be read as playing
+        a role, rather than playing a game.
+\end{itemize}
+We also define a set of hidden predicates. Some of them are a direct map of the  
+the information provided in the closed Trank of the Shared Task corpora (e.g., 
+\emph{lemma/2}, \emph{ppos/2}, \emph{dependency/3}). The rest are automatically 
+extracted using heuristics similar to the proposed by \citet{xue04calibrating} 
+(e.g. \emph{prune/1} and \emph{frame/3}).
+
+
