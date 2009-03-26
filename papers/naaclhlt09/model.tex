@@ -49,26 +49,28 @@ presents these predicates.
 
 A formula is \emph{local} if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, two groundings of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Factor Graph of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom with two observed \emph{lemma} ground atoms. Note that the ``+'' prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
+can be seen in the Factor Graph of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom with two observed \emph{lemma} ground atoms. Note that the ``+'' 
+prefix for variables marks the indices for the  weights, in this case the weight is parametrise by the lemma pair $(l_1,l_2)$. This means for this formula there is a different weight for each pair of lemmas.
+%IV -+prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
 
 The local formulae for \emph{isPredicate}, \emph{isArgument} and \emph{sense} aim to capture the relation of the tokens with their lexical and syntactic surroundings. This includes formulae such as 
 \[subcat(p,+f) \Rightarrow isPredicate(p)\]
 which implies that a certain token is a predicate with a weight that depends on the subcategorization frame of the token. Further local formulae are constructed using those observed predicates in table \ref{tbl:o_preds} that relate single tokens and their properties.
 
 The local formulae for \emph{role} and \emph{hasRole} focus on properties of the predicate and argument token---the formula illustrated in figure \ref{fig:local2} is an example of this---and on the relation between the two tokens. An example of the latter type is the formula
-\[depPath(p,a,+dp) \Rightarrow role(p,a,+r)\]
-which implies that token $a$ plays the semantic role $r$ with respect to token $p$, and for which the weight depends on the syntactic (dependency) path $dp$ between $p$ and $a$ and on the actual role to assign. Again, further formulae are constructed using the observed predicates in table \ref{tbl:o_preds}; however, this time we consider both predicates that relate tokens to their individual properties and predicates that describe the relation between tokens.
+\[depPath(p,a,+d) \Rightarrow role(p,a,+r)\]
+which implies that token $a$ plays the semantic role $r$ with respect to token $p$, and for which the weight depends on the syntactic (dependency) path $d$ between $p$ and $a$ and on the actual role to assign. Again, further formulae are constructed using the observed predicates in table \ref{tbl:o_preds}; however, this time we consider both predicates that relate tokens to their individual properties and predicates that describe the relation between tokens.
 
 Unfortunately, the complete set of local formulae is too large to be exhaustively described in this paper. Its size results from the fact that we also consider conjunctions of several atoms as conditions, and lexical windows around tokens. Hence, instead of describing all local formulae we refer the reader
-to our MLN model files.\footnote{\url{http://anonymous.com}} They can be used both as a reference and as input to our Markov Logic
-Engine,\footnote{\url{http://anonymous.com}} and thus allow the reader to easily reproduce our results. 
+to our MLN model files\footnote{\url{http://code.google.com/p/thebeast/source/browse/\#svn/mlns/naacl-hlt}}. They can be used both as a reference and as input to our Markov Logic
+Engine,\footnote{\url{http://code.google.com/p/thebeast}} and thus allow the reader to easily reproduce our results. 
 %We believe that this is another advantage of explicitly separating model and algorithms by using first order probabilistic logic languages.
 
 \begin{figure}
 \begin{center}
     \includegraphics[scale=.70]{LocalFormula2}
 \end{center}
-\caption{Factor graph for the local formula in section \ref{sec:local}. Here round nodes represent variables (corresponding to the states of ground atoms) and the rectangular nodes represent ground formulae and their weights.}
+\caption{Factor graph for the first local formula in section \ref{sec:local}. Here round nodes represent variables (corresponding to the states of ground atoms) and the rectangular nodes represent the factor and their parameters attached to the ground formulae.}
 \label{fig:local2}
 \end{figure}
 

@@ -15,13 +15,14 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 %It would reach the 4th highest score (for both WSJ and Brown) for the closed track, only beaten by systems that use 
 %use highly optimized (ensemble-based, 2nd order, etc.) dependency parsers as input. In the closed track the highest score was obtain by \citet{johansson08dependency} system. Note that this comparison is based only on the results for verbal predicates.
 
+
 \begin{table}[ht]
     \centering
     \begin{tabular}{|p{3.0cm}|c|c|c|}\hline
         System                    & Devel      & WSJ       & Brown \\\hline 
         Full                      & $76.93$  & $79.09$ & $67.64$ \\
 %        Full (-arg)               &          &         &         \\
-        Bottom-up                 & $77.96$  & $80.26$ & $67.75$ \\
+        Bottom-up                 & $77.96$  & $80.16$ & $68.02$ \\
         Bottom-up (-arg)          & $77.57$  & $79.37$ & $66.70$ \\
         Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\
         \hline
@@ -35,6 +36,10 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
     %Systems that do not explicitely model the $isArgument$ decisions are marked with (-arg).}
     \label{tbl:results}
 \end{table}
+
+
+
+
 
 %% Unlabelled dependency accuracy for WSJ
 % We (Charniak): 86.77%

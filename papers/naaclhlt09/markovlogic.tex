@@ -15,6 +15,7 @@ and a low one to
 \begin{eqnarray*}
 & \{ word\left(1,Haag\right),word(2,plays),\\
  & word(3,Elianti),isPredicate(3) \} &\end{eqnarray*}
+% This is the line refered by the reviewer 1 in  point 6.
 In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It assigns the probability
 \begin{equation}
 \prob\left(\y\right)=\frac{1}{Z}\exp\left(
@@ -31,10 +32,10 @@ of all tuples of constants we can replace the free variables in $\phi$
 with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network (the so-called \emph{Ground Markov Network}) where nodes represent ground atoms and factors represent ground formulae.
 
 For example, if $M$ contains the formula $\phi$ \[
-word\left(x,'take'\right)\Rightarrow isPredicate\left(x\right)\]
+word\left(x,take\right)\Rightarrow isPredicate\left(x\right)\]
 then its corresponding log-linear model has, among others, a feature 
 $f_{t1}^{\phi}$ for which $x$ in $\phi$ has been replaced by the constant $t_1$ and that returns 1 if \[
-word\left(1,'take'\right)\Rightarrow isPredicate\left(1\right)\]
+word\left(1,take\right)\Rightarrow isPredicate\left(1\right)\]
 is true in $\y$ and 0 otherwise.
 
 We will refer predicates such as \emph{word} as \emph{observed} because they are known in advance. In contrast, \emph{isPredicate} is \emph{hidden} because we need to infer it at test time.

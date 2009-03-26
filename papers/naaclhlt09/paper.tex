@@ -20,22 +20,23 @@
 
 \title{Jointly Identifying Predicates, Arguments and Senses using Markov Logic}
 
-\author{}
-%Sebastian Riedel \And Ivan Meza-Ruiz\\
-%  Institute for Communicating and Collaborative Systems\\
-%  School of Informatics\\
-%  University of Edinburgh, Scotland\\
-%  {\tt\{S.R.Riedel,I.V.Meza-Ruiz\}@sms.ed.ac.uk} }
+\author{Ivan Meza-Ruiz \\
+  School of Informatics\\
+  University of Edinburgh, UK\\
+  {\tt I.V.Meza-Ruiz@sms.ed.ac.uk} \And
+  Sebastian Riedel\\
+  University of Tokio, Japan\\
+  {\tt S.R.Riedel@sms.ed.ac.uk}
+  }
 
-\date{}
-  
+
 
 \begin{document}
-\input{macros.tex}
 
 % Remember to aknowledge Mihai
 
 \maketitle
+\input{macros.tex}
 \begin{abstract}
 In this paper we present a Markov Logic Network for Semantic Role
 Labelling that jointly performs predicate identification, frame
@@ -91,3 +92,56 @@ system is still efficient.
 
 
 \end{document}
+
+% Comments
+%---
+% Reviewer 1
+%---
+% 1. error analysis can be very difficul, discussed.
+%    IV. Mention this ??
+% 2. The natural question, why the authors didn't switch parsers.
+%    IV. Dogde this ball, for now.
+% 3. Statistical signficant.
+%    IV. Maybe do this
+% 4. Number of assigments
+%    IV. ?? No idea what's this.
+% 5. Pipe-line -> other systems.
+%    IV. Make clear this is seb's implementation (include beast links and models)
+% 6. Equation (1), w is the same as w-sub-phii next line? 
+%    I think it should be the same, check with Seb
+% 7. Phi Subscript for (phi,w), is it right?
+%    I think it is right
+% 8. primes x' and take'.
+%    Erase the simple quotes (Done)
+% 9. Figure 2, functor w?
+%    Figure says rectangles are formulae and functors. We need to clarify this.
+%    (done)
+% 10. Figure 2, subscript a, rather than a simple index.
+%    Change the subscripts.
+% 11. Explanation of '+'
+%     Imply that weights have indeces, rather than what means. (done)
+% 12. End of Section 1.  Second reference to section 3 looks like it should be to
+%     section 4.
+ 
+
+%---
+% Reviewer 2
+%---
+% 1. For comparison purposes, are better parses available?
+%    IV. Dodge the ball.
+% 2. If so, would using them result in significantly different results?
+%    IV. Maybe hint this happens, otherwise dodge the ball.
+% 3. high-level description of previously published inference methods -
+%    I'd suggest either including some lines of pseudocode or just including the pointers to the previous work - right now.
+% 4. which contains not just an interpreter but also a number of inference algorithms ?)
+%    Alchemy
+
+%---
+% Reviewer 3
+%============================================================================
+                            %REVIEWER #3
+%============================================================================ 
+
+% 1. little more detail in the particulars of the MLN training process,i
+% 2. how the data was prepared in order for used as input.
+
