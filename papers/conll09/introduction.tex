@@ -1,24 +1,26 @@
 
 Semantic Role Labelling~\citep[SRL, ][]{marquez08srl} is generally understood as 
 the task of identifying and classifying the semantic arguments and modifiers of 
-the predicates mentioned in a sentence. For exampl
-e, in the case of the following sentence\footnote{``Haag plays Elianti'' is a 
-segment of a sentence in training corpus.}:
+the predicates mentioned in a sentence. For example, in the case of the 
+following sentence\footnote{``Haag plays Elianti'' is a segment of a sentence in 
+training corpus.}:
 \begin{quote}
 \begin{center}
     \includegraphics[scale=.63]{haag-example}
 \end{center}
 \end{quote}
-"have to" we are to find out that for the predicate token {}``plays'' with sense 
-``play a role'' (play.02) the phrase headed by the token {}``Haag'' is referring 
-to the player (A0) of the play event, and the phrase headed by the token 
-{}``Elianti''  is referring to the role (A1) being played. SRL is considered as 
-a key task for applications that require to answer {}``Who'', {}``What'', 
-{}``Where'', etc. questions, such as Information Extraction, Question Answering 
-and Summarization. 
+we are to find out that for the predicate token {}``plays'' with sense ``play a 
+role'' (play.02) the phrase headed by the token {}``Haag'' is referring to the 
+player (A0) of the play event, and the phrase headed by the token {}``Elianti''  
+is referring to the role (A1) being played. SRL is considered as a key task for 
+applications that require to answer {}``Who'', {}``What'', {}``Where'', etc.  
+questions, such as Information Extraction, Question Answering and Summarization.  
 
-In the next sections we will first briefly introduce Markov Logic. Then we 
-present the Markov Logic model we used in our final submission. We present and 
-analyse our results in section \ref{sec:results} before we conclude in Section 
-\ref{sec:conclusion}.
+In this paper we present a Markov Logic \citep[ML,][]{richardson06mln} to define 
+a multi-language joint SRL model. Section \ref{sec:introduction} introduces ML.  
+At the core of ML is a set of First Order Logic (FOL) formulae which models the 
+SRL task. We present our specification of the model in section \ref{sec:model}.  
+ML allows to model the task independently of the language, formulae from one 
+language can be used in different languages. Other formulae can be language 
+specific.  
 

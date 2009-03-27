@@ -8,31 +8,7 @@ For example, a structural constraint is given by the (deterministic) formula
 \[role(p,a,r) \Rightarrow hasRole(p,a)\]
 which ensures that, whenever the argument $a$ is given a label $r$ with respect 
 to the predicate $p$, this argument must be an argument of $a$ as denoted by 
-\emph{hasRole(p,a)}. Note that this formula by itself models the traditional 
-``bottom-up'' argument identification and classification pipeline: it is 
-possible to not assign a role $r$ to an predicate-argument pair $(p,a)$ proposed 
-by the identification stage; however, it is impossible to assign a role $r$ to 
-token pairs $(p,a)$ that have not been proposed as potential arguments.
-
-One example of another class of structural constraints is 
-\[
-hasRole(p,a)\Rightarrow\exists r.role(p,a,r)
-\]
-which, by itself, models an inverted or ``top-down'' pipeline. In this Figure 
-\ref{fig:global2} illustrates the structural formulae we use in form of a Markov 
-Network.
-
-The formulae we use to ensure consistency between the remaining hidden 
-predicates are omitted for brevity as they are very similar to the bottom-up and 
-top-down formulae we presented above.
-
-For the SRL predicates that perform a labelling task (\emph{role} and 
-\emph{sense}) we also need a structural constraint which ensures that not more 
-than one label is assigned. For instance,
-\[
-(role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2)  )
-\]
-forbids two different semantic roles for a pair of words. 
+\emph{hasRole(p,a)}.
 
 The global formulae that capture our intuition about the task itself can be 
 further divided into two classes. The first one uses deterministic or 
@@ -53,6 +29,12 @@ instance, the formula
 is a soft global formula. It captures the observation that the sense of a verb 
 or noun depends on the type of its arguments. Here the type of an argument token 
 is represented by its POS tag.
+
+Simirlarly to the local formulae, the model would include global formulae for 
+the \emph{sense/2} predicate depending if the corpus for a specific languages 
+models the sense of a SRL predicate. More detail information about the 
+structural formulae can be found in previous work 
+\citep{riedel08conll,meza09jointly}.
 
 \begin{figure}
 \begin{center}

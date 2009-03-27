@@ -11,9 +11,10 @@ predicates we add the prefix SRL or ML, respectively.} such as
 \emph{word(Token,Ortho)} or \emph{role(Token,Token,Role)}. In the case of 
 \emph{word/2} the predicate represents a word of a sentence. The type 
 \emph{Token} identifies the position of the word and the type \emph{Ortho} its 
-orthography. In the case of \emph{role/3} represents a semantic role. The first 
-token identifies the position of the predicate, the second the syntactic head of 
-the argument and finally the type Role signals the semantic role label.
+orthography. In the case of \emph{role/3}, the predicate represents a semantic 
+role. The first token identifies the position of the predicate, the second the 
+syntactic head of the argument and finally the type Role signals the semantic 
+role label.
 
 With the ML predicates we specify a set of weighted first order formulae that 
 define a distribution over sets of ground atoms of these predicates (or 
@@ -24,11 +25,12 @@ is not the case. For instance for the example of the introduction, a suitable
 set of weighted formulae would assign a high probability to the world
 \begin{eqnarray*}
  &\{ word\left(1,Haag\right),word(2,plays),\\
- & word(3,Elianti),role(2,1,A0) \}& \end{eqnarray*}
+ & word(3,Elianti),role(2,1,A0),role(2,3,A1) \}& \end{eqnarray*}
 and a low one to
 \begin{eqnarray*}
 & \{ word\left(1,Haag\right),word(2,plays),\\
- & word(3,Elianti),role(2,1,A1) \} &\end{eqnarray*}
+ & word(3,Elianti),role(2,1,A1),role(2,3,A0)\} &\end{eqnarray*}
+
 In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of 
 weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It 
 assigns the probability
