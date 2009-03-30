@@ -170,4 +170,6 @@ public class AlignmentPrinter extends DefaultPrinter {
     printMatrix(out, rows, cols, evaluation.getGold(), srcFert, tgtFert, fps, FP, fns, FN, gold, CORRECT);
 
   }
+
+ 
 }

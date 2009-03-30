@@ -225,9 +225,20 @@ public class GroundAtoms implements Dumpable, SignatureListener {
    * @return a string in column form displaying all ground atoms for all predicates.
    */
   public String toString() {
+    return toString(this.atoms.keySet());
+  }
+
+  /**
+   * Returns a string that shows all ground atoms in column form.
+   *
+   * @param predicates the predicates to print
+   * @return a string in column form displaying all ground atoms for all predicates.
+   */
+  public String toString(Collection<UserPredicate> predicates) {
     StringBuffer result = new StringBuffer();
     result.append(">>\n");
-    for (GroundAtomCollection atoms : this.atoms.values()) {
+    for (UserPredicate pred : predicates){
+      GroundAtomCollection atoms = this.atoms.get(pred);
       result.append(atoms.toString());
     }
     return result.toString();
