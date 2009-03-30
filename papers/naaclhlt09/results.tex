@@ -21,25 +21,36 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
     \begin{tabular}{|p{3.0cm}|c|c|c|}\hline
         System                    & Devel      & WSJ       & Brown \\\hline 
         Full                      & $76.93$  & $79.09$ & $67.64$ \\
-%        Full (-arg)               &          &         &         \\
+        % 112508_235756
         Bottom-up                 & $77.96$  & $80.16$ & $68.02$ \\
+        % 112708_202510
         Bottom-up (-arg)          & $77.57$  & $79.37$ & $66.70$ \\
+        % 112908_202731
         Pipeline                  & $75.69$  & $78.19$ & $64.66$ \\
+        % 112508_223504
         \hline
         Vickrey                   &   N/A    & $79.75$ & $69.57$ \\
         Johansson                 &   N/A    & $86.37$ & $71.87$ \\
         Zhao                      &   N/A    & $79.40$ & $66.38$ \\
         \hline
     \end{tabular}
-    \caption{Semantic $F_1$ scores for our systems and three CoNLL 2008 shared task participants.} 
-    %IV-
+    \caption{Semantic $F_1$ scores for our systems and three CoNLL 2008 shared 
+    task participants. Bottom-up model is statistically significant better than 
+    the rest (i.e., $\rho \le 0.05$.)} %IV-
     %Systems that do not explicitely model the $isArgument$ decisions are marked with (-arg).}
     \label{tbl:results}
 \end{table}
 
+% number of assigments:
+% full          18621
+% bottom-upi    17611
+% bottom-up (-arg) 17545
+% pipeline 18342
 
-
-
+% Siginificanse score for bottom-up model
+% bottom-up vs full = n+ 468, n- 276, p <= 2.53e-12
+% bottom-up vs bottom-up (-arg) = n+ 255, n- 447, p <= 5.68e-13
+% bottom-up vs pipeline = n+ 500, n- 600, p <= 0.00284
 
 %% Unlabelled dependency accuracy for WSJ
 % We (Charniak): 86.77%
