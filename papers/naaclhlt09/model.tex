@@ -49,8 +49,15 @@ presents these predicates.
 
 A formula is \emph{local} if its groundings relate any number of observed ground atoms to exactly one hidden ground atom. For example, two groundings of the local formula 
 \[lemma(p,+l_1) \wedge lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Factor Graph of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom with two observed \emph{lemma} ground atoms. Note that the ``+'' 
-prefix for variables marks the indices for the  weights, in this case the weight is parametrise by the lemma pair $(l_1,l_2)$. This means for this formula there is a different weight for each pair of lemmas.
+can be seen in the Factor Graph of Figure \ref{fig:local2}. Both connect a single  hidden \emph{hasRole} ground atom with two observed \emph{lemma} ground atoms. The “+” notation indicates that the MLN contains one instance of the rule, with a separate weight, 
+for each assignment of the variables with a 
+plus sign~\citep{poon08joint}.
+
+%SR: changed previous version. I think the main problem of the reviewer
+% was that using a unary marker seems wrong, so I just refer to another paper
+% to indicate that it is standard. Actually I now I copied and pasted their text
+% Note that the ``+'' 
+%prefix for variables marks the indices for the  weights, in this case the weight is parametrise by the lemma pair $(l_1,l_2)$. This means for this formula there is a different weight for each pair of lemmas.
 %IV -+prefix for variables indicates that there is a different weight for each possible pair of lemmas $(l_1,l_2)$.
 
 The local formulae for \emph{isPredicate}, \emph{isArgument} and \emph{sense} aim to capture the relation of the tokens with their lexical and syntactic surroundings. This includes formulae such as 

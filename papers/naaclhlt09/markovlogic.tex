@@ -7,35 +7,49 @@ Markov Networks of repetitive structure.
 
 Let us describe Markov Logic by considering the predicate identification task. In Markov Logic we can model this task by first introducing a set of logical predicates\footnote{In the cases were is not obvious whether we refer to SRL or ML predicates we add the prefix SRL or ML, respectively.} such as \emph{isPredicate(Token)} or \emph{word(Token,Word)}. Then we specify a set of weighted first order formulae that define a distribution over sets of ground atoms of these predicates (or so-called \emph{possible worlds}). 
 
-Ideally, the distribution we define with these weighted formulae assigns high probability to possible worlds where SRL predicates are correctly identified and a low probability to worlds where this is not the case. For example, a suitable set of weighted formulae would assign a high probability to the world\footnote{``Haag plays Elianti'' is a segment of a sentence in training corpus.}
+Ideally, the distribution we define with these weighted formulae assigns high probability to possible worlds where SRL predicates are correctly identified and a low probability to worlds where this is not the case. For example, a suitable set of weighted formulae would assign a high probability to the world\footnote{``Haag plays Elianti'' is a segment of a sentence in the training corpus.}
+% SR: made words more distinct from predicates/variables (suggested by Ewan in my thesis)
 \begin{eqnarray*}
- &\{ word\left(1,Haag\right),word(2,plays),\\
- & word(3,Elianti),isPredicate(2) \}& \end{eqnarray*}
+ &\{ word\left(1,\text{Haag}\right),word(2,\text{plays}),\\
+ & word(3,\text{Elianti}),isPredicate(2) \}& \end{eqnarray*}
 and a low one to
 \begin{eqnarray*}
-& \{ word\left(1,Haag\right),word(2,plays),\\
- & word(3,Elianti),isPredicate(3) \} &\end{eqnarray*}
+& \{ word\left(1,\text{Haag}\right),word(2,\text{plays}),\\
+ & word(3,\text{Elianti}),isPredicate(3) \} &\end{eqnarray*}
 % This is the line refered by the reviewer 1 in  point 6.
-In Markov Logic a set $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$ of weighted first order formulae is called a \emph{Markov Logic Network}~(MLN). It assigns the probability
+% SR: Okay, rewrite to get rid of akward indices.
+In Markov Logic a set of weighted formulae is called a \emph{Markov Logic Network}~(MLN). Formally speaking, an MLN $M$ is a set of pairs $\left(\phi,w\right)$ where $\phi$ is a first order formula and $w$ a real weight. $M$ assigns the probability
 \begin{equation}
 \prob\left(\y\right)=\frac{1}{Z}\exp\left(
 \sum_{\left(\phi,w\right)\in M} w
-\sum_{\boldc\in C^{n_{\phi}}}f_{\boldc}^{\phi}\left(\y\right)
+\sum_{\boldc\in C^{\phi}}f_{\boldc}^{\phi}\left(\y\right)
 \right)
 \label{eq:prob}
 \end{equation}
-to the possible world $\y$. Here $f_{\boldc}^{\phi}$ is a feature
-function that returns 1 if in the possible world $\y$ the \emph{ground
-formula} we get by replacing the free variables in $\phi$ by the constants
-in $\boldc$ is true and 0 otherwise. $C^{n_{\phi}}$ is the set
-of all tuples of constants we can replace the free variables in $\phi$
-with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network (the so-called \emph{Ground Markov Network}) where nodes represent ground atoms and factors represent ground formulae.
+% SR: a nice version
+to the possible world $\y$.  Here $C^{\phi}$ is the set of all possible
+bindings of the free variables in $\phi$ with the constants of our
+domain. $f_{\boldc}^{\phi}$ is a feature function that returns 1
+if in the possible world $\y$ the \emph{ground formula} we get by
+replacing the free variables in $\phi$ by the constants in $\boldc$
+is true and 0 otherwise. $Z$ is a normalisation constant. Note that
+this distribution corresponds to a Markov Network (the so-called \emph{Ground
+Markov Network}) where nodes represent ground atoms and factors represent
+ground formulae.
+
+
+% Here $f_{\boldc}^{\phi}$ is a feature
+% function that returns 1 if in the possible world $\y$ the \emph{ground
+% formula} we get by replacing the free variables in $\phi$ by the constants
+% in $\boldc$ is true and 0 otherwise. $C^{n_{\phi}}$ is the set
+% of all tuples of constants we can replace the free variables in $\phi$
+% with. $Z$ is a normalisation constant. Note that this distribution corresponds to a Markov Network (the so-called \emph{Ground Markov Network}) where nodes represent ground atoms and factors represent ground formulae.
 
 For example, if $M$ contains the formula $\phi$ \[
-word\left(x,take\right)\Rightarrow isPredicate\left(x\right)\]
+word\left(x,\text{take}\right)\Rightarrow isPredicate\left(x\right)\]
 then its corresponding log-linear model has, among others, a feature 
 $f_{t1}^{\phi}$ for which $x$ in $\phi$ has been replaced by the constant $t_1$ and that returns 1 if \[
-word\left(1,take\right)\Rightarrow isPredicate\left(1\right)\]
+word\left(1,\text{take}\right)\Rightarrow isPredicate\left(1\right)\]
 is true in $\y$ and 0 otherwise.
 
 We will refer predicates such as \emph{word} as \emph{observed} because they are known in advance. In contrast, \emph{isPredicate} is \emph{hidden} because we need to infer it at test time.

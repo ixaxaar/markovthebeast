@@ -1,9 +1,8 @@
-#LyX 1.6.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX file created by tex2lyx 1.6.2
+\lyxformat 247
 \begin_document
 \begin_header
 \textclass article
-\use_default_options true
 \language english
 \inputencoding auto
 \font_roman default
@@ -14,66 +13,209 @@
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics default
-\paperfontsize default
+\paperfontsize 11
 \spacing single
-\use_hyperref false
 \papersize default
 \use_geometry false
 \use_amsmath 1
-\use_esint 1
 \cite_engine natbib_authoryear
 \use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation skip
-\defskip bigskip
+\paragraph_separation indent
+\defskip medskip
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
 \end_header
 
 \begin_body
 
 \begin_layout Standard
-Semantic Role Labelling
-\begin_inset space ~
-\end_inset
 
 
-\begin_inset CommandInset citation
-LatexCommand citep
-before "SRL, "
-key "carreras05introduction"
+\begin_inset ERT
+status collapsed
 
-\end_inset
+\begin_layout Standard
 
- is generally understood as the task of identifying the semantic arguments
- and modifiers of a given predicate token in a setence.
- For example, for
-\end_layout
-
-\begin_layout Quote
-Ms.
- [Haag
-\begin_inset Formula $_{Player}$
-\end_inset
-
-] plays [Elianti
-\begin_inset Formula $_{Role}$
-\end_inset
-
-].
+%%% Local Variables: 
 \end_layout
 
 \begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%%% mode: latex
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%%% TeX-master: "paper"
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%%% End: 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+Semantic Role Labelling\InsetSpace ~
+
+\begin_inset LatexCommand \citep[][SRL, ]{marquez08srl}
+
+\end_inset
+
+ is generally understood as the task of identifying and classifying the semantic arguments and modifiers of the predicates mentioned in a sentence. For example, in the case of the following sentence: 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV-+ 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Quote
+\align center
+
+
+\begin_inset Graphics 
+	filename haag-example.eps
+	scale 63
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Quote
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%$[_{Player}$Ms. Haag$]$ plays $[_{Role}$Elianti$]$.
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%Ms. {[}Haag$_{Player}$] plays {[}Elianti$_{Role}$].
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV: I think "we are to find" is not english, I propose: illustrates that
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%SR: I think it is English (check google for "we are to"): it's a fancy type of "have to" 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
 we are to find out that for the predicate token 
 \begin_inset Quotes eld
 \end_inset
@@ -82,7 +224,15 @@ plays
 \begin_inset Quotes erd
 \end_inset
 
- the token 
+ with sense 
+\begin_inset Quotes eld
+\end_inset
+
+play a role
+\begin_inset Quotes erd
+\end_inset
+
+ (play.02) the phrase headed by the token 
 \begin_inset Quotes eld
 \end_inset
 
@@ -90,7 +240,7 @@ Haag
 \begin_inset Quotes erd
 \end_inset
 
- is referring to the player of the play event, and 
+ is referring to the player (A0) of the play event, and the phrase headed by the token 
 \begin_inset Quotes eld
 \end_inset
 
@@ -98,26 +248,73 @@ Elianti
 \begin_inset Quotes erd
 \end_inset
 
- is refeerring to the role 
-\begin_inset Quotes eld
-\end_inset
-
-Elianti
-\begin_inset Quotes erd
-\end_inset
-
- is playing (see figure ?).
-\begin_inset Foot
+ is referring to the role (A1) 
+\begin_inset ERT
 status collapsed
 
-\begin_layout Plain Layout
-This is the dependency-based formulation of SRL.
+\begin_layout Standard
+
+%IV-+
+\end_layout
+
+\begin_layout Standard
+
+
 \end_layout
 
 \end_inset
 
- SRL is considered as a key task for applications that require to answer
- 
+being played. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%{}``Elianti'' is playing (see figure ?).%
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV- We can live without saying this now
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%
+\backslash
+footnote{This is the dependency-based formulation of SRL.} 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+SRL is considered as a key task for applications that require to answer 
 \begin_inset Quotes eld
 \end_inset
 
@@ -129,7 +326,7 @@ Who
 \begin_inset Quotes eld
 \end_inset
 
-When
+What
 \begin_inset Quotes erd
 \end_inset
 
@@ -137,90 +334,239 @@ When
 \begin_inset Quotes eld
 \end_inset
 
-What
+Where
 \begin_inset Quotes erd
 \end_inset
 
- etc.
- questions, such as Information Extraction, Question Answering and Summarization.
- 
+, etc. questions, such as Information Extraction, Question Answering and Summarization.
 \end_layout
 
 \begin_layout Standard
-Any real-world SRL system needs to make several decisions, either explicitely
- or implicitely: which are the predicate tokens of a sentence (predicate
- identification), which are the tokens that have semantic roles with respect
- to these predicates (argument identification), which are the roles these
- tokens play (argument classification), and which is the sense of the predicate
- (sense disambiguation).
+
+Any real-world SRL system needs to make several decisions, either explicitly or implicitly: which are the predicate tokens of a sentence (predicate identification), which are the tokens that have semantic roles with respect to these predicates (argument identification), which are the roles these tokens play (argument classification), and which is the sense of the predicate (sense disambiguation).
 \end_layout
 
-\begin_layout Plain Layout
-In this paper we use Markov Logic, a Statistical Relational Learning framework
- that combines First Order Logic and Markov Networks, to develop a joint
- probabilistic model over all decisions mentioned above.
- This has the following reasons.
- 
+\begin_layout Standard
+
+In this paper we use Markov Logic, a Statistical Relational Learning framework that combines First Order Logic and Markov Networks, to develop a joint probabilistic model over all decisions mentioned above. The following paragraphs will motivate this choice. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%% TODO: a bit disconnected here
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
 First, it allows us to readily capture 
 \emph on
 global correlations
 \emph default
- between decisions, such as the constraint that a predicate can only have
- one agent.
- This type of correlations has been succesfully been exploited in several
- previous SRL systems
-\begin_inset space ~
-\end_inset
+ between decisions, such as the constraint that a predicate can only have one agent. This type of correlations has been successfully exploited in several previous SRL approaches\InsetSpace ~
 
-
-\begin_inset CommandInset citation
-LatexCommand citep
-key "toutanova05joint,punyakanok05generalized"
+\begin_inset LatexCommand \citep{toutanova05joint,punyakanok05generalized}
 
 \end_inset
 
 .
- 
 \end_layout
 
-\begin_layout Plain Layout
-Second, we can use the joint model to evaluate the benefit incorporating
- decisions into the joint model that either have not received much attention
- within the SRL community (predicate identification and sense disambiguation),
- or been largely made in isolation (argument classification for 
-\emph on
-all
-\emph default
- predicates of a sentence).
- 
+\begin_layout Standard
+
+Second, we can use the joint model to evaluate the benefit of incorporating decisions into the joint model that either have not received much attention within the SRL community (predicate identification and sense disambiguation), or been largely made in isolation (argument identification and classification for all predicates of a sentence).
 \end_layout
 
-\begin_layout Plain Layout
-Third, our Markov Logic model is essentially a template that describes a
- class of Markov Networks, one for each SRL problem we encounter.
- Algorithms can perform inference in terms of this template without ever
- having to fully instantiate the complete Markov Network
-\begin_inset space ~
-\end_inset
+\begin_layout Standard
+
+Third, our Markov Logic model is essentially a template that describes a class of Markov Networks. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV: Algorithms ?? I suggest: Recent development on the inference algorithms allows to perform inference without ever having to fully instantiate...
+\end_layout
+
+\begin_layout Standard
 
 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "riedel08improving"
+\end_layout
 
 \end_inset
 
-.
- This can dramatically improve the efficiency of an SRL system when compared
- to a propositional approach such as Integer Linear Programming.
+Algorithms can perform inference in terms of this template without ever having to fully instantiate the complete Markov Network\InsetSpace ~
+
+\begin_inset LatexCommand \citep{riedel08improving,singla2008lfo}
+
+\end_inset
+
+. This can dramatically improve the efficiency of an SRL system when compared to a propositional approach such as Integer Linear Programming\InsetSpace ~
+(ILP).
 \end_layout
 
-\begin_layout Plain Layout
-Finally, when it comes to actually building an SRL system with Markov Logic
- (say, in order to reproduce this work) there are 
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%% SR: This bit is just to remind me that we should sell this point,
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%% too. It might not make it into the paper as is, though!
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV: If not space, I think we should take it away
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%Fourth, by framing our problem in Markov Logic we provide a natural
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%upgrade path for the consideration of richer models. For example, it
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%would be relatively straight-forward to include a Relation Extraction
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%component into our model, or the prediction of the next speech act in a
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%dialogue system.
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+Finally, when it comes to actually building an SRL system with Markov Logic 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%(say, in order to reproduce this work) 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+there are 
 \begin_inset Quotes eld
 \end_inset
 
@@ -228,505 +574,154 @@ only
 \begin_inset Quotes erd
 \end_inset
 
- four things left for us to do: preparing input data files, converting output
- data files, and triggering learning and inference.
- The remaining work can be done by an off-the-shelf Markov Logic interpreter.
- This is to be contrasted to Pipeline systems where several components need
- to be trained and connected, or ILP approaches that in which we need to
- write additional wrapper code to generate ILPs.
-\end_layout
-
-\begin_layout Standard
-slemma(i,_) & slemma(i+2,l)
-\begin_inset Formula \[
-possiblePredicate\left(i\right)\wedge O_{1}\left(i+W_{1},+o_{1}\right)\wedge O_{2}\left(i+W_{2},+o_{2}\right)\Rightarrow H\left(i\right)\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="6">
-<features>
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $O_{1}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $W_{1}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $O_{2}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $W_{2}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-a
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-p
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $word$
-\end_inset
-
-,
-\begin_inset Formula $lemma$
-\end_inset
-
-,
-\begin_inset Formula $ppos$
-\end_inset
-
-,
-\begin_inset Formula $sform$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-x
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $slemma$
-\end_inset
-
-,
-\begin_inset Formula $spos$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--2,-1,0,1,2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-x
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $hasHeadLabel,hasModLabel$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-N/A
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-x
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $cpos$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $cpos$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-x
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $ppos$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $hasChildWithPos$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-x
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
+ four things 
+\begin_inset ERT
 status collapsed
 
-\begin_layout Plain Layout
-[not sure whether this should appear here as well] Our approach lead to
- the following findings: (a) Markov Logic allows us to achieve state-of-the-art
- results in SRL (with a given off-the-shelf parser); (b) by jointly performing
- traditional SRL with frame disambiguation significant improvements can
- be achieved for in-domain data, and even more improvements for out-of-domain
- data; (c) jointly modelling all predicates in a sentence allows us to explicitl
-y model whether a token is an argument of 
-\emph on
-some
-\emph default
- predicate, and this results in significant improvements for out-of-domain
- data; (d) SRL with CPI is significantly faster than with pure ILP.
- 
+\begin_layout Standard
+
+%IV-
+\end_layout
+
+\begin_layout Standard
+
+
 \end_layout
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
+\begin_inset ERT
 status collapsed
 
-\begin_layout Plain Layout
-It seems obvious that these decisions interact.
- For example, one would only pick semantic arguments for tokens that have
- been marked as predicates.
- Likewise, one would only pick a semantic role for a token that has been
- identified as an argument.
- It also appears that in order to predict the sense of a predicate one would
- need to know which roles its semantic arguments play.
- There are also interactions between decisions of the same type: for example,
- if we classified one semantic argument as agent (player) of a predicate,
- no other argument can be the agent, too.
- 
+\begin_layout Standard
+
+%left for us 
 \end_layout
 
-\begin_layout Plain Layout
-Some of these interactions have been captured by a simple juxtaposition
- of decisions.
- For example, most SRL systems would first predict which tokens (phrases)
- are semantic arguments, and then predict the roles they play.
- Some of these interactions have been captured by means of 
-\begin_inset Quotes eld
-\end_inset
+\begin_layout Standard
 
-global inference
-\begin_inset Quotes erd
-\end_inset
 
- that jointly picks the best set of decision given some global objective
- function.
- For example, to make sure that there is not more than one agent per predicate
- researchers have been applying Integer Linear Programming or reranking
- techniques to find the best set of role assignments that satisfies this
- constraint.
- [skip]Finally, some of these interactions have not been investigated, because
- until recently SRL has been focussing on the task of finding and labelling
- the semantic arguments of a 
-\emph on
-given
-\emph default
- predicate.
- 
 \end_layout
 
-\begin_layout Plain Layout
-In this paper we propose to tackle SRL and capture the beforementioned interacti
-ons using Markov Logic, a Statistical Relational Learning language that
- uses weighted first order logic formulae to define Markov Networks of repetitiv
-e structure.
- This choice has several benefits.
- 
+\end_inset
+
+to do: preparing input data files, converting output data files, and triggering learning and inference. The remaining work can be done by an off-the-shelf Markov Logic interpreter. This is to be contrasted with pipeline systems where several components need to be trained and connected, or Integer Linear Programming approaches for which we need to write additional wrapper code to generate ILPs.
+\end_layout
+
+\begin_layout Standard
+
+Empirically we find that our system is competitive---our best model would appear on par with the best entry in the CoNLL 2008 shared task open track, and at the 4th place of the closed track---right behind systems that use significantly better parsers
+\begin_inset Foot
+status collapsed
+
+
+\begin_layout Standard
+
+Our unlabelled accuracy for syntactic dependencies is at least 3% points under theirs.
+\end_layout
+
+\end_inset
+
+ to generate their input features.
+\end_layout
+
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%and at the 4th place when compared to systems
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%that use dedicated parsers; this is remarkable in the sense that the
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%top 3 systems use optimized parsers while we use the dependency parses
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%extracted from 
+\backslash
+citet{charniak00amaximum} parse trees.
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+% dependencies provided in the open track dataset.  
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+% We use charniak parses
+\end_layout
+
+\begin_layout Standard
+
+
 \end_layout
 
 \end_inset
@@ -736,14 +731,90 @@ e structure.
 
 \begin_layout Standard
 
-\begin_inset CommandInset bibtex
-LatexCommand bibtex
-bibfiles "seb"
-options "plainnat"
+We also observe that by integrating frame disambiguation into the joint SRL model, and by extracting all arguments for all predicates in a sentence simultaneously, significant improvements compared to more isolated systems can be achieved. These improvements are particularly large in the case of out-of-domain data, suggesting that a joint approach helps to increase the robustness of SRL. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV- putting the who paragraphs together
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+Last but not least, we show that despite the joint approach, our system is still efficient. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%IV
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
 
 \end_inset
 
 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+%(maybe also faster than the pipeline?). 
+\end_layout
+
+\begin_layout Standard
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+Our paper is organized as follows: we first introduce Markov Logic (section 
+\begin_inset LatexCommand \ref{sec:markovlogic}
+
+\end_inset
+
+), then we present our model in terms of Markov Logic (section 
+\begin_inset LatexCommand \ref{sec:model}
+
+\end_inset
+
+) and illustrate how to perform learning and inference with it (section 
+\begin_inset LatexCommand \ref{sec:model}
+
+\end_inset
+
+). How this model will be evaluated is explained in section 
+\begin_inset LatexCommand \ref{sec:experiments}
+
+\end_inset
+
+ with the corresponding evaluation presented in section 
+\begin_inset LatexCommand \ref{sec:results}
+
+\end_inset
+
+ We conclude in section 
+\begin_inset LatexCommand \ref{sec:conclusion}
+
+\end_inset
+
+.
 \end_layout
 
 \end_body
