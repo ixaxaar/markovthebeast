@@ -45,4 +45,5 @@ public class SemtagPrinter extends DefaultPrinter {
     table.write(out, 0, true);
 
   }
+
 }
