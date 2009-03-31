@@ -1,2 +1,104 @@
 
+In our results we found that the ML model for the Czech language was the one 
+which a larger difference in performance when compared with the score of the 
+best system. Looking close to the development set we found that for the language 
+Czech most of the errors come from the predicate identification. Because, the 
+predicates are given we assumed that the predicate corresponds to the lemma of 
+the token. However, this is not the case for the Czech corpus where some 
+predicate are translated into the identifier of a vocabulary. We implemented a 
+set of heuristics which matched PLEMMA and semantic frame to the identifier.  
+However because most of the times the frame does not match any of the listing of 
+the vocabulary the heuristic was poor the performance improvement was minimal 
+(i.e., $76.04\%$ for in domain version of the corpus). In particular the 
+predicate, \emph{být} which has $54$ possible frames was the predicate with more 
+errors ($1,377$). 
+
+Table \ref{tbl:percentage} shows the percentage of the false negatives (FP) and 
+false positives (FN) errors when dealing with errors related with the sense. For 
+instance, in the case of Czech we notic that $61.5\%$ of the FP errors are 
+related to the sense of the preddicate. This means that $38.5\%$ of the FN 
+errors are related to the roles of the predicates. In general, we expect that 
+these precentange are lower since there are more roles to label per predicate 
+than senses. However, this is not the case fo Czech which has the highest 
+precentages for the sense of the predicate in the case of Czech. Mainly, because 
+our model did not take into consideration that predicates could or could not be 
+matched to identifiers.
+
+\begin{table}
+\begin{center}
+\small
+\begin{tabular}{|l|c|c| }\hline
+    Language        & False positives        & False negatives\\\hline
+Catalan         & $25.6\%$ & $19.6\%$  \\
+Chinese         & $10.8\%$ & $6.1\%$   \\
+Czech           & $61.5\%$ & $41.7\%$  \\
+English         & $26.0\%$ & $17.5\%$  \\
+German          & $38.9\%$ & $29.4\%$  \\
+Japanese        & $2.8\%$  & $1.0\%$     \\
+Spanish         & $31.0\%$ & $23.7\%$  \\
+\hline
+\end{tabular}
+\caption{Percentage of errors in sense for false positives and negatives in 
+development set.}
+\label{tbl:percentage}
+\normalsize
+\end{center}
+\end{table}
+
+The other languge for which our model had problem is German. For this case, we 
+also observe that the percentage of errors related to the sense of the predicate 
+is relatively higher than the rest (see Table \ref{tbl:percentage}). In this 
+case, the model was not able to capture differences senses.
+
+\begin{table}
+\begin{center}
+\small
+\begin{tabular}{|l|p{2cm}|p{2cm}| }\hline
+Language        & False positives        & False negatives\\\hline
+Catalan         & argM-loc, argM-adv, arg2-null & argM-adv, argM-loc, arg2-null 
+\\
+Chinese         & A1, 2, LOC, MNR  & C-A0, MNR, DIS, A2  \\
+Czech           & LOC, APP, DIR3   & DIR3, ADDR, LOC, MANN   \\
+English         & AM-LOC, AM-ADV, AM-MNR& AM-ADV, AM-MNR, A3, AM-LOC   \\
+German          & A1, A0, A2 & A2, A1, A0   \\
+Japanese        & GA, TMP, NO  & NI, GA, NO, WO \\
+Spanish         & argM-loc, argM-adv & argM-ad, argM-loc, argM-tmp  \\
+\hline
+\end{tabular}
+\caption{Roles with most percentage of errors in development set and at least 
+100 instances of errors.}
+\label{tbl:percentage}
+\normalsize
+\end{center}
+\end{table}
+
+
+
+
+
+% Czech after fixing error with predicates
+  % SEMANTIC SCORES:
+  %Labeled precision:          (25654 + 35292) / (31867 + 44572) * 100 = 79.73 %
+  %Labeled recall:             (25654 + 35292) / (39288 + 44573) * 100 = 72.68 %
+  %Labeled F1:                 76.04
+  %Unlabeled precision:        (29597 + 44572) / (31867 + 44572) * 100 = 97.03 %
+  %Unlabeled recall:           (29597 + 44572) / (39288 + 44573) * 100 = 88.44 %
+  %Unlabeled F1:               92.54
+  %Proposition precision:      30196 / 44572 * 100 = 67.75 %
+  %Proposition recall:         30196 / 44573 * 100 = 67.75 %
+  %Proposition F1:             67.75
+  %Exact semantic match:       428 / 4213 * 100 = 10.16 %
+  %ood
+  %SEMANTIC SCORES:
+  %Labeled precision:          (8703 + 13753) / (11524 + 16295) * 100 = 80.72 %
+  %Labeled recall:             (8703 + 13753) / (13883 + 16295) * 100 = 74.41 %
+  %Labeled F1:                 77.44
+  %Unlabeled precision:        (10114 + 16295) / (11524 + 16295) * 100 = 94.93 %
+  %Unlabeled recall:           (10114 + 16295) / (13883 + 16295) * 100 = 87.51 %
+  %Unlabeled F1:               91.07
+  %Proposition precision:      11004 / 16295 * 100 = 67.53 %
+  %Proposition recall:         11004 / 16295 * 100 = 67.53 %
+  %Proposition F1:             67.53
+  %Exact semantic match:       35 / 1184 * 100 = 2.96 %
+
 
