@@ -1,5 +1,5 @@
 
-Table \ref{tbl:results} shows the results of our systems for the CoNLL 2008 development set, the WSJ test set and the Brown test set. The scores are calculated using the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric measures the precision, recall and $F_1$ score of the recovered semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such dependency is the role of the argument. Additionally, there is a semantic dependency for each predicate and a $ROOT$ argument which has the sense of the predicate as label.
+Table \ref{tbl:results} shows the results of our systems for the CoNLL 2008 development set and the WSJ and brown test sets. The scores are calculated using the semantic evaluation metric of the CoNLL-08 shared task \citep{surdeanu08conll}. This metric measures the precision, recall and $F_1$ score of the recovered semantic dependencies. A semantic dependency is created for each predicate and its arguments, the label of such dependency is the role of the argument. Additionally, there is a semantic dependency for each predicate and a $ROOT$ argument which has the sense of the predicate as label.
 %This metric not only measures the $F_1$ score in terms of the semantic arguments, but also includes the accuracy of the predicted predicate senses.  
 
 
@@ -47,12 +47,15 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 % bottom-up (-arg) 17545
 % pipeline 18342
 
+% WSJ
 % Siginificanse score for bottom-up model
 % bottom-up vs full = n+ 468, n- 276, p <= 2.53e-12
 % bottom-up vs bottom-up (-arg) = n+ 255, n- 447, p <= 5.68e-13
 % bottom-up vs pipeline = n+ 500, n- 600, p <= 0.00284
 % full vs pipeline = n+ 621, n- 339, p <= 1.22e-19
 % botto-up (isarg) vs pipeline = n+ 640, n- 548, p <= 0.00829
+
+% Brown
 
 %% Unlabelled dependency accuracy for WSJ
 % We (Charniak): 86.77%
@@ -65,7 +68,7 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 \subsection{Joint Model vs. Pipeline}
 Table \ref{tbl:results} suggests that by including sense disambiguation into the joint model (as is the case for all systems but the pipeline) significant improvements can be gained. Where do these improvements come from? We tried to answer this question by taking a closer look at how accurately the pipeline predicts the $isPredicate$, $isArgument$, $hasRole$, $role$ and $sense$ relations, and how this compares to the result of the joint full model.
 
-Table \ref{tbl:predicates} shows that the joint model mainly does better when it comes to predicting the right predicate senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points. These results suggest that a more joint approach may be particularly useful in order to increase the robustness of an SRL system in out-of-domain scenarios.  
+Table \ref{tbl:predicates} shows that the joint model mainly does better when it comes to predicting the right predicate senses. This is particularly true for the case of the Brown corpus---here we gain about 10\% points. These results suggest that a more joint approach may be particularly useful in order to increase the robustness of an SRL system in out-of-domain scenarios \footnote{All scores in the full model when compared with the pipeline model are statistically significant with exception of the $isPredicate$ predicate for the WSJ test set.}.
 
 % The role labelling in figure \ref{fig:jointSense} illustrates how the joint model overcomes a limitation of the pipeline approach. Here the argument identification and classification stage of the pipeline has wrongly picked `You'' the A0 role and ``lawyer'' the A2 role of the predicate ``realize''. Because the role A2 (``created from'') only appears in the  02 (``create'') sense of ``realize'', the sense disambiguation stage wrongly selects the 02 instead of the corrent 01 (``come to know'') sense. In contrast, the joint full model knows that by simply dropping ``You'' as argument all together and changing the A2 to an A0 label, the sense 01 becomes a very suitable and consistent choice (even though the role labelling itself might be slightly less likely).
 
@@ -81,7 +84,7 @@ Table \ref{tbl:predicates} shows that the joint model mainly does better when it
         \emph{role}               & $75.4$ & $75.5$ & $64.2$ & $64.6$ \\
         \emph{sense}              & $85.5$ & $88.5$ & $67.3$ & $77.1$ \\\hline
     \end{tabular}
-    \caption{$F_1$ scores for Markov Logic predicates; Pipe. refers to the Pipeline system, Fu. to the full system.}
+    \caption{$F_1$ scores for M predicates; Pipe. refers to the Pipeline system, Fu. to the full system.}
     \label{tbl:predicates}
 \end{table}
 
@@ -102,6 +105,11 @@ Table \ref{tbl:predicates} shows that the joint model mainly does better when it
  %POS: 400
  %NEG: 226
 
+%using conll08 files:
+%isArgument, n+ 255, n- 114, p <= 3.17e-13
+% POS: 255
+% NEG: 114
+
 % Brown
 %isPredicate, n+ 35, n- 17, p <= 0.0175
  %POS: 35
@@ -118,6 +126,12 @@ Table \ref{tbl:predicates} shows that the joint model mainly does better when it
 %role, n+ 59, n- 26, p <= 0.000447
  %POS: 59
  %NEG: 26
+
+%Using conll08 files
+%isArgument, n+ 60, n- 21, p <= 1.69e-05
+% POS: 60
+% NEG: 21
+
 
 
 % \begin{figure}
@@ -137,7 +151,7 @@ Table \ref{tbl:predicates} shows that the joint model mainly does better when it
 \subsection{Modelling if a Token is an Argument}
 In table \ref{tbl:results} we also observe that improvements can be made if we explicitly model the decision whether a token is a semantic argument of some predicate or not. As we mentioned in section \ref{sec:model}, this aspect of our model requires us to jointly perform inference for all predicates of a sentence, and hence our results justify the per-sentence SRL approach proposed in this paper.
 
-In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels. 
+In order to analyse where these improvements come from, we again list our results on a per-SRL-predicate basis. Table \ref{tbl:isArg} shows that by including the $isArgument$ predicate and the corresponding formulae we gain around 0.6\% and 1.0\% points across the board for WSJ and Brown, respectively. As shown in table \ref{tbl:results}, these improvements result in about 1.0\% improvements for both WSJ and Brown in terms of the CoNLL 2008 metric. Hence, an explicit model of the ``is an argument'' decision helps the SRL at all levels \footnote{All scores in the bottom-up when compared with the version without the $isArgument$ predicate are statistically significant with exception of the $sense/2$ predicate for the Brown test set.}.
 
 How the $isArgument$ helps to improve the overall role labelling score can be illustrated with the example in figure \ref{fig:isArg}. Here the model without a hidden $isArgument$ predicate fails to attach the preposition ``on'' to the predicate ``start.01'' (here 01 refers to the sense of the predicate). Apparently the model has not enough confidence to assign the preposition to either ``start.01'' or ``get.03'', so it just drops the argument altogether. However, because the $isArgument$ model knows that most prepositions have to be modifying some predicate, pressure is created that forces a decision between the two predicates. And because for the role model ``start.01'' looks like a better fit than ``get.03'', the correct attachment is found.
 
@@ -146,7 +160,7 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
 \begin{center}
     \includegraphics[scale=.62]{is-arg-example}
 \end{center}
-\caption{Segment of the CoNLL 2008 development dataset for which the bottom-up model w/o $isArgument$ predicate fails to attach the preposition ``on'' as an ``AM-LOC'' for ``started''. The joint bottom-up model attaches the preposition correctly.}
+\caption{Segment of the CoNLL 2008 development set for which the bottom-up model w/o $isArgument$ predicate fails to attach the preposition ``on'' as an ``AM-LOC'' for ``started''. The joint bottom-up model attaches the preposition correctly.}
 \label{fig:isArg}
 \end{figure}
 
@@ -163,7 +177,7 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
         \emph{role}               & $76.9$  & $77.5$ & $65.2$ & $66.2$ \\
         \emph{sense}              & $88.3$  & $89.0$ & $76.1$ & $77.5$ \\\hline
     \end{tabular}
-    \caption{$F_1$ scores for Markov Logic predicates; w/o refers to a Bottom-up system without isArgument predicate, w/ refers to a Bottom-up system with isArgument predicate.}
+    \caption{$F_1$ scores for ML predicates; w/o refers to a Bottom-up system without isArgument predicate, w/ refers to a Bottom-up system with isArgument predicate.}
     \label{tbl:isArg}
 \end{table}
 
@@ -205,7 +219,7 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
 \subsection{Efficiency}
 In the previous sections we have shown that our joint model indeed does better than an equivalent pipeline system. However, usually most joint approaches come at a price: efficiency. Interestingly, in our case we observe the opposite: our joint model is actually faster than the pipeline. This can be seen in table \ref{tbl:nocpi}, where we list the time it took for several different system to process the WSJ and Brown test corpus, respectively. When we compare the times for the bottom-up model to those of the pipeline, we note that the joint model is twice as fast. While the individual stages within the pipeline may be faster than the joint system (even when we sum up inference times), extracting results from one system and feeding them into another creates overhead which offsets this potential reduction.  
 
-Table \ref{tbl:nocpi} also lists the run-time of a bottom-up system that solves the inference problem by fully grounding the Markov Network that the Markov Logic model describes, mapping this network to an Integer Linear Program, and finding the most likely assignment using an ILP solver. This system (Bottom-up (-CPI)) is four times slower than the equivalent system that uses Cutting Plane Inference  (Bottom-up). This suggests that if we were to implement the same joint model using ILP instead of Markov Logic, our system would either be significantly slower, or we would need to implement a Cutting Plane algorithm for the corresponding ILP formulation---when we use Markov Logic this algorithm comes ``for free''. 
+Table \ref{tbl:nocpi} also lists the run-time of a bottom-up system that solves the inference problem by fully grounding the Markov Network that the Markov Logic (ML) model describes, mapping this network to an Integer Linear Program, and finding the most likely assignment using an ILP solver. This system (Bottom-up (-CPI)) is four times slower than the equivalent system that uses Cutting Plane Inference  (Bottom-up). This suggests that if we were to implement the same joint model using ILP instead of ML, our system would either be significantly slower, or we would need to implement a Cutting Plane algorithm for the corresponding ILP formulation---when we use ML this algorithm comes ``for free''. 
 % \begin{table}[ht]
 
 %     \centering

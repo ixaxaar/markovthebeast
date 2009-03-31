@@ -34,7 +34,7 @@ roles with respect to these predicates (argument identification),
 which are the roles these tokens play (argument classification), and
 which is the sense of the predicate (sense disambiguation).
 
-In this paper we use Markov Logic, a Statistical Relational Learning
+In this paper we use Markov Logic (ML), a Statistical Relational Learning
 framework that combines First Order Logic and Markov Networks, to
 develop a joint probabilistic model over all decisions mentioned above.
 The following paragraphs will motivate this choice. %% TODO: a bit disconnected here
@@ -49,7 +49,7 @@ decisions into the joint model that either have not received much
 attention within the SRL community (predicate identification and sense
 disambiguation), or been largely made in isolation (argument identification and classification for all predicates of a sentence). 
 
-Third, our Markov Logic model is essentially a template that describes
+Third, our ML model is essentially a template that describes
 a class of Markov Networks.
 %IV: Algorithms ?? I suggest: Recent development on the inference algorithms allows to perform inference without ever having to fully instantiate...
 Algorithms can perform inference in terms of this template without
@@ -66,8 +66,7 @@ compared to a propositional approach such as Integer Linear Programming~(ILP).
 %component into our model, or the prediction of the next speech act in a
 %dialogue system.
 
-Finally, when it comes to actually building an SRL system with Markov
-Logic 
+Finally, when it comes to actually building an SRL system with ML 
 %(say, in order to reproduce this work) 
 there are ``only''
 four things
@@ -105,9 +104,9 @@ system is still efficient.
 %IV
 %(maybe also faster than the pipeline?). 
 
-Our paper is organized as follows: we first introduce Markov Logic (section
+Our paper is organized as follows: we first introduce ML (section
 \ref{sec:markovlogic}),
-then we present our model in terms of Markov Logic (section \ref{sec:model}) and illustrate how to perform learning and inference with it (section \ref{sec:inference}). How this model
+then we present our model in terms of ML (section \ref{sec:model}) and illustrate how to perform learning and inference with it (section \ref{sec:inference}). How this model
 will be evaluated is explained in section \ref{sec:experiments} with the corresponding
 % SR: added period before "We".
 evaluation presented in section \ref{sec:results}. We conclude in section
