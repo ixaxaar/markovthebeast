@@ -51,7 +51,8 @@ Finally, akin to \citet{riedel08collective} we observe that the bottom-up joint 
 % bottom-up vs full = n+ 468, n- 276, p <= 2.53e-12
 % bottom-up vs bottom-up (-arg) = n+ 255, n- 447, p <= 5.68e-13
 % bottom-up vs pipeline = n+ 500, n- 600, p <= 0.00284
-% full vs pipeline = n+ 621, n- 339, p <= 1.22e-19 
+% full vs pipeline = n+ 621, n- 339, p <= 1.22e-19
+% botto-up (isarg) vs pipeline = n+ 640, n- 548, p <= 0.00829
 
 %% Unlabelled dependency accuracy for WSJ
 % We (Charniak): 86.77%
@@ -83,6 +84,41 @@ Table \ref{tbl:predicates} shows that the joint model mainly does better when it
     \caption{$F_1$ scores for Markov Logic predicates; Pipe. refers to the Pipeline system, Fu. to the full system.}
     \label{tbl:predicates}
 \end{table}
+
+% WSJ
+%isPredicate, n+ 49, n- 53, p <= 0.766
+ %POS: 49
+ %NEG: 53
+%isArgument, ??? 
+ %POS: 10870
+ %NEG: 4
+%frameLabel, n+ 253 , n- 111, p <= 1.48e-13
+ %POS: 253
+ %NEG: 111
+%hasLabel, n+ 143, n- 346, p <= 6.66e-20
+ %POS: 346
+ %NEG: 143
+%role, n+ 400, n- 226, p <= 4.73e-12
+ %POS: 400
+ %NEG: 226
+
+% Brown
+%isPredicate, n+ 35, n- 17, p <= 0.0175
+ %POS: 35
+ %NEG: 17
+%isArgument, ??
+ %POS: 1285
+ %NEG: 1
+%frameLabel, n+ 67, n- 16, p <= 1.39e-08
+ %POS: 67
+ %NEG: 16,
+%hasLabel, n+ 65, n- 25, p <= 2.97e-05
+ %POS: 65
+ %NEG: 25
+%role, n+ 59, n- 26, p <= 0.000447
+ %POS: 59
+ %NEG: 26
+
 
 % \begin{figure}
 % \begin{center}
@@ -130,6 +166,41 @@ How the $isArgument$ helps to improve the overall role labelling score can be il
     \caption{$F_1$ scores for Markov Logic predicates; w/o refers to a Bottom-up system without isArgument predicate, w/ refers to a Bottom-up system with isArgument predicate.}
     \label{tbl:isArg}
 \end{table}
+
+% WSJ
+%isPredicate, n+ 56, n- 17, p <= 5.27e-06
+ %POS: 56
+ %NEG: 17
+%isArgument
+ %POS: 10800
+ %NEG: 0
+%frameLabel,n+ 100, n- 50, p <= 6.31e-05
+ %POS: 100
+ %NEG: 50
+%hasLabel, n+ 286, n- 174, p <= 2.28e-07
+ %POS: 286
+ %NEG: 174
+%role, n+ 293, n- 196, p <= 1.42e-05
+ %POS: 293
+ %NEG: 196
+
+%Brown
+% isPredicate, n+ 47, n- 7, p <= 2.29e-08
+% POS: 47
+% NEG: 7
+%isArgument
+% POS: 1280
+% NEG: 0
+%frameLabel,n+ 21, n- 12, p <= 0.163
+% POS: 21
+% NEG: 12
+%hasLabel, n+ 55, n- 33, p <= 0.0246
+% POS: 55
+% NEG: 33
+%role, n+ 58, n- 32, p <= 0.00805
+% POS: 58
+% NEG: 32
+
 
 \subsection{Efficiency}
 In the previous sections we have shown that our joint model indeed does better than an equivalent pipeline system. However, usually most joint approaches come at a price: efficiency. Interestingly, in our case we observe the opposite: our joint model is actually faster than the pipeline. This can be seen in table \ref{tbl:nocpi}, where we list the time it took for several different system to process the WSJ and Brown test corpus, respectively. When we compare the times for the bottom-up model to those of the pipeline, we note that the joint model is twice as fast. While the individual stages within the pipeline may be faster than the joint system (even when we sum up inference times), extracting results from one system and feeding them into another creates overhead which offsets this potential reduction.  
