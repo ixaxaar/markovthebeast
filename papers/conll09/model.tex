@@ -1,49 +1,42 @@
 
 In order to model the SRL task in the ML framework, we propose four hidden 
-predicates, consider the example of the previous section:
+predicates. Consider the example of the previous section:
 \begin{description}
     \item [\emph{argument/1}] indicates the phrase for which its head is a 
-        specific position is an SRL argument. For the example,     
+        specific position is an SRL argument. In our example     
         \emph{argument(2)} signals that the phrase for which the word in 
         position $2$ is its head is an argument (i.e., \emph{Ms. Haag}).
-    \item [\emph{hasRole/2}] relates a SRL predicate to a SRL argument. For the 
-        example, \emph{hasRole(3,2)} relates the
+    \item [\emph{hasRole/2}] relates a SRL predicate to a SRL argument. For example, \emph{hasRole(3,2)} relates the
         predicate in position $3$ (i.e., \emph{play}) to the phrase which head 
         is in position $2$ (i.e., \emph{Ms. Haag}).
-    \item [\emph{role/3}] besides to relating predicate and argument, it also
-        identifies a role for the pair. For the example,
-        \emph{role(3,2,ARG0)} signals the role for the predicate-argument role 
+    \item [\emph{role/3}] besides relating predicate and argument, it also
+        identifies a role for the pair. For example,
+        \emph{role(3,2,ARG0)} denotes the role for the predicate-argument pair 
         presented above.
-    \item [\emph{sense/2}] signals the sense identifier that a predicate in a
-        specific position has. For the example, \emph{sense(3,02)}
+    \item [\emph{sense/2}] denotes the sense of a predicate at a
+        specific position. For example, \emph{sense(3,02)}
         signals that the predicate in position $3$ has the sense \emph{02}.
 \end{description}
 
-We also define three sets of observable predicates. The first set are a direct 
-map of the the information provided for each token in the closed Track of the 
-Shared Task corpora:  \emph{word} for the orthography, \emph{plemma/2} for the 
-lemma, \emph{ppos/2} for the POS tag, \emph{feature/3} for each feature-value 
-pair, \emph{dependency/3} for the head dependency and relation, and 
-\emph{predicate/1} if the token is a predicate. We will refer to these 
-predicates as the \emph{token} predicates.
+We also define three sets of observable predicates. The first set represents information about each token as provided in the shared task corpora for the closed track:  \emph{word} for the word form (e.g. \emph{word}(3,plays)); \emph{plemma/2} for the 
+lemma, \emph{ppos/2} for the POS tag; \emph{feature/3} for each feature-value 
+pair; \emph{dependency/3} for the head dependency and relation; 
+\emph{predicate/1} if the token is a predicate according to the ``FILLPRED'' column. We will refer to these 
+predicates as the \emph{token} predicates. 
 
-The second set extends the information provided by the columns of the corpus: 
-\emph{cpos/2} is a coarse pos task, \emph{possibleArg/1} is true if based 
-on heuristics on the POS tag the token is a potential SRL argument and 
-\emph{voice/2} signals the voice for verbal tokens based on heuristics of the 
-syntactic information or the features of the column FEAT of the corpora. We will 
+The second set extends the information provided in the closed track corpus: 
+\emph{cpos/2} is a coarse pos tag (first letter of actual POS tag); \emph{possibleArg/1} is true if the POS tag the token is a potential SRL argument  POS tag (e.g., PUNC is not); \emph{voice/2} denotes the voice for verbal tokens based on heuristics that use
+syntactic information, or based on features in the FEAT column of the data. We will 
 refer to these predicates as the \emph{extended} predicates.
 
-Finally the third set represent dependency information. These predicates are 
-based on the features proposed by \citet{xue04calibrating}. We have two types of 
-predicates for this set: \emph{paths} and \emph{frames}.  Paths capture the 
-dependency path between two tokens, and frame the subcategorisation frame for a 
-unique token or a part of tokens. For the path predicates we have a directed and 
-undirected version. For both path and frame we have labelled and unlabelled 
-versions.  Finally, we have a frame predicate with the distance from the 
+Finally, the third set represents dependency information inspired by the features proposed by \citet{xue04calibrating}. There are two types of 
+predicates in this set: \emph{paths} and \emph{frames}.  Paths capture the 
+dependency path between two tokens, and frames the subcategorisation frame for a 
+token or a pair of tokens. There are directed and 
+undirected versions of paths, and labelled  (with dependency relations) and unlabelled versions of paths and frames. Finally, we have a frame predicate with the distance from the 
 predicate to its head.  We will refer to the paths and most of the frames 
 predicates as the \emph{path} predicates, while we will consider the 
 \emph{frame} predicates for a unique token part \emph{token} predicates.
 
-We use the previous ML predicates to define the formulae of our MLN.  We 
+The here presented ML predicates are used within the formulae of our MLN.  We 
 distinguish between two types of formula: local and global. 
