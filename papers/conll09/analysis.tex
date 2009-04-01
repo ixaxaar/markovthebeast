@@ -1,17 +1,17 @@
 
 In our results we found that the ML model for the Czech language was the one 
-which a larger difference in performance when compared with the score of the 
-best system. Looking close to the development set we found that for Czech most 
-of the errors come from the predicate identification. Because the predicates are 
-given we assumed that the predicate corresponds to the lemma of the token.  
-However, this is not the case for the Czech corpus where some predicate are 
-translated into a identifier given a vocabulary. We implemented a set of 
-heuristics which matched PLEMMA and semantic frame to the identifier.  However 
-because most of the times the frame does not match any of the listing of the 
-vocabulary the heuristic was poor the performance improvement was minimal (i.e., 
-$76.04\%$ for in domain version of the corpus). In particular the predicate, 
-\emph{být} which has $54$ possible frames was the predicate with more errors 
-($1,377$). 
+with a larger difference in performance when compared with the score of the best 
+system. Looking close to the development set we found that for Czech most of the 
+errors originate from the predicate identification/sense disambiguation.  
+Because the predicates were given we assumed that the SRL predicate corresponded 
+to the lemma of the token.  However, this is not the case for the Czech corpus 
+where some predicates are translated into a identifier given a vocabulary. We 
+implemented a set of heuristics which matched PLEMMA and semantic frame to the 
+identifier.  However because most of the times the frame does not match any of 
+the listing of the vocabulary the heuristic was poor the performance improvement 
+was minimal (i.e., $76.04\%$ for in domain version of the testing corpus). In 
+particular the predicate, \emph{být} which has $54$ possible frames was the 
+predicate with more errors ($1,377$). 
 
 %Table \ref{tbl:percentage} shows the percentage of the false negatives (FP) and 
 %false positives (FN) errors when dealing with errors related with the sense. For 
