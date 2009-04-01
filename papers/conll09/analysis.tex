@@ -1,15 +1,21 @@
 
-In our results we found that the ML model for the Czech language was the one 
-with a larger difference in performance when compared with the score of the best 
-system. Looking close to the development set we found that for Czech most of the 
-errors originate from the predicate identification/sense disambiguation.  
-Because the predicates were given we assumed that the SRL predicate corresponded 
-to the lemma of the token.  However, this is not the case for the Czech corpus 
-where some predicates are translated into a identifier given a vocabulary. We 
-implemented a set of heuristics which matched PLEMMA and semantic frame to the 
-identifier.  However because most of the times the frame does not match any of 
-the listing of the vocabulary the heuristic was poor the performance improvement 
-was minimal (i.e., $76.04\%$ for in domain version of the testing corpus). 
+We found that the MLN for Czech was the one 
+with the largest difference in performance when compared to the best 
+system. By inspecting our results for the development set, we found that for Czech many of the 
+errors were of rather technical nature. Our system would usually extract frame IDs (such as ``play.02'') by concatenating the lemma of the token and outcome of the \emph{sense/2} prediction (for the ``02'' part). However, in the case of Czech some frame IDs are not based on the lemma of the token, but on an abstract ID in a vocabulary (e.g., ``v-w1757f1''). In these cases our heuristic failed, leading to poor results for frame ID extraction. 
+
+% SR: I removed the part with the new heuristic, because it wasn't really clear to me what was done, and when.
+
+% are made during sense disambiguation. In Czech the sense of a predicate 
+% there was no sense g
+% the name of the corpus did not   
+% Because the predicates were given we assumed that the SRL predicate corresponded 
+% to the lemma of the token.  However, this is not the case for the Czech corpus 
+% where some predicates are translated into a identifier given a vocabulary. We 
+% implemented a set of heuristics which matched PLEMMA and semantic frame to the 
+% identifier.  However because most of the times the frame does not match any of 
+% the listing of the vocabulary the heuristic was poor the performance improvement 
+% was minimal (i.e., $76.04\%$ for in domain version of the testing corpus). 
 
 %In particular the predicate, \emph{být} which has $54$ possible frames was the 
 %predicate with more errors ($1,377$). 

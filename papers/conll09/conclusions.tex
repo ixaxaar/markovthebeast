@@ -3,11 +3,11 @@
 We presented a Markov Logic Network that performs joint multi-lingual Semantic 
 Role Labelling. This network achieves the third best semantic F-scores in the 
 closed track among the SRLOnly systems of the CoNLL-09 Shared Task, and sixth 
-best semantic among SRLOnly and Joint systems for the closed task.
+best semantic scores among SRLOnly and Joint systems for the closed task.
+% SR closed or open???
 
-We noticed that the inclusion of features which take into account the 
-information from the siblings of the SRL argument were beneficial for the 
-Japanese language. We also identified that our poor performance with Czech 
-language has its origin in the predicate identification/sense disambiguation 
-which our model for the language did not took into consideration. Further work 
-has to be done to look to extend such model. 
+We observed that the inclusion of features which take into account 
+information about the siblings of the argument were benefitial for 
+SRL performance on the Japanese dataset. We also noticed that our poor performance with Czech 
+are caused by our frame ID heuristic. Further work 
+has to be done in order to overcome this problem. 
