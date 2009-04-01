@@ -1,27 +1,26 @@
-For our experiments we use the corpora provided in the SRL only shared task. We 
-test the ML model with the following languages: Catalan and Spanish 
+For our experiments we use the corpora provided in the SRLonly track of the shared task. Our MLN is tested on the following languages: Catalan and Spanish 
 \citep{catalan-and-spanish-data} , Chinese \citep{chinese-data}, Czech 
 \citep{czech-data}\footnote{For training we use only sentences shorter than 40 
 words in this corpus.}, English \citep{english-data}, German 
 \citep{german-data}, Japanese \citep{japanese-data}. 
 
-Table \ref{tbl:results} presents the f1-scores and times for the development and
-in-domain corpora. The model better captures the SRL task for the English 
-language. This is in part because the original model was originally developed 
-using for English. The model has the poorer performance for the German language.  
-In section \ref{sec:analysis} we review the typical errors of our system. In 
-general, our SRL system is the third best of the systems in the \emph{SRLOnly} 
-track of the Shared Task, and it is the sixth for system on both \emph{Joint} 
-and \emph{SRLOnly} tracks. For five of the languages the difference of F1 scores 
-between our system and best score on the language is of $3\%$.  However, for 
-German is of  $6.19\%$ and for Czech $10.76\%$.  Reviewing, the precision and 
-recall of the semantic labelling we found that our system has a higher precision 
-than recall (we have the fifth best average precision and the eighth average 
+Table \ref{tbl:results} presents the f1-scores and training/test times for the development and
+in-domain corpora. Clearly, our model does better for the English. This is in part because the original model was developed for English. 
+
+% SR: needless to say that if we don't argue why
+% The model has the poorer performance for the German language.  
+% Not typical errors, only for Czech
+% In section \ref{sec:analysis} we review the typical errors of our system. 
+To put these results into context: our SRL system is the third best in the \emph{SRLOnly} 
+track of the Shared Task, and it is the sixth best on both \emph{Joint} 
+and \emph{SRLOnly} tracks. For five of the languages the difference to the F1 scores 
+of the best system is $3\%$.  However, for 
+German it is $6.19\%$ and for Czech $10.76\%$.  One possible explanation for the poor performance on Czech data will be given in \ref{sec:analysis}. Note that in comparison our system does slightly better in terms of precision than in terms of recall (we have the fifth best average precision and the eighth average 
 recall).
 
-In terms of time performance, we found the Chinese corpus the slower system to 
-train. We are not sure of the cause of this timing. In the case of testing, our 
-slowest set was Czech which corresponds to the longest testing set. 
+% SR: Despite of what I said previously, I took these out because they don't make sense if we don't know that corpus sizes (and at least for Chinese we don't do here). So we just conform to the organizer request.
+%We found that it took more time to train on the Chinese corpus. We are not sure of the cause of this timing. In the case of testing, our 
+%slowest set was Czech which corresponds to the longest testing set. 
 
 \begin{table}
 \begin{center}
@@ -55,10 +54,10 @@ Spanish         & $78.03\%$    & $77.91\%$  & 6h 9m   & 16m   \\ %0.744
 \end{table}
 
 Table \ref{tbl:outresults} presents the F1 scores of our system for the out of 
-domain test corpora. We observe a similar tendency, our system is the sixth best 
-for both \emph{Joint} and \emph{SRLOnly} tracks. Besides we observe a similar 
-large differences between our system and the best score for German and Czech 
-(i.e., $>7.5\%$), while for English this is relativily small (i.e., $<3\%$). 
+domain test corpora. We observe a similar tendency: our system is the sixth best 
+for both \emph{Joint} and \emph{SRLOnly} tracks. We also observe similar 
+large differences between our scores and the best scores for German and Czech 
+(i.e., $>7.5\%$), while for English the difference is relatively small (i.e., $<3\%$). 
 
 \begin{table}
 \begin{center}
@@ -74,9 +73,9 @@ F-score           & $77.34\%$ & $71.86\%$ & $62.37\%$  \\
 \end{center}
 \end{table}
 
-Additionally, we test the effect of the \emph{argument siblings} set of formulae 
-introduced for the Japanese ML model. Without this set the F-score is $69.52\%$ 
-for the test set of Japanese. This is the system is worst by more that $6\%$.
+Finally, we evaluated the effect of the \emph{argument siblings} set of formulae 
+introduced for the Japanese MLN. Without this set the F-score is $69.52\%$ 
+for the Japanese test set. Hence \emph{argument siblings} formulae  improve performance by more than $6\%$.
 
 %\begin{table}
 %\begin{center}
