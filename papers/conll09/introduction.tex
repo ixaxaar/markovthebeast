@@ -17,10 +17,18 @@ applications that require to answer {}``Who'', {}``What'', {}``Where'', etc.
 questions, such as Information Extraction, Question Answering and Summarization.  
 
 In this paper we present a Markov Logic \citep[ML,][]{richardson06mln} to define 
-a multi-language joint SRL model. Section \ref{sec:introduction} introduces ML.  
-At the core of ML is a set of First Order Logic (FOL) formulae which models the 
-SRL task. We present our specification of the model in section \ref{sec:model}.  
-ML allows to model the task independently of the language, formulae from one 
-language can be used in different languages. Other formulae can be language 
-specific.  
+a multi-language joint SRL model. We present a brief introduction to ML in 
+section \ref{sec:markovlogic}.  At the core of ML there is a set of First Order 
+Logic (FOL) formulae which models the SRL task. And advantage of the ML logic 
+framework is that the FOL formulae can be define the in a modular fashion.  With 
+this in mind we define a modular ML model which captures the different stages of 
+the task: argument identification, argument classification, and sense 
+disambiguation. We also define modules for some of language specific aspects of 
+the task. We present the types and modules of our ML model in section 
+\ref{sec:model}. These ML modules are the building blocks that we use to create 
+a ML model for a specific language. Once we put together a ML model for a 
+specific language we can develop a joint probabilistic model over all decisions 
+involved int the SRL task. We present our experiments and result for each of the 
+languages of the task in section \ref{sec:results} and in section 
+\ref{sec:analysis} we present some error analysis.
 

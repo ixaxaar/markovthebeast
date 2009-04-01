@@ -2,9 +2,8 @@
 \emph{Global} formulae relate several hidden ground atoms. We use them for two 
 purposes: to ensure consistency between the decisions of all SRL stages and to 
 capture some of our intuition about the task. We will refer to formulae that 
-serve the first purpose as \emph{structural constraints}. 
-
-For example, a structural constraint is given by the (deterministic) formula
+serve the first purpose as \emph{structural constraints}. For example, a 
+structural constraint is given by the (deterministic) formula
 \[role(p,a,r) \Rightarrow hasRole(p,a)\]
 which ensures that, whenever the argument $a$ is given a label $r$ with respect 
 to the predicate $p$, this argument must be an argument of $a$ as denoted by 
@@ -14,8 +13,7 @@ The global formulae that capture our intuition about the task itself can be
 further divided into two classes. The first one uses deterministic or 
 \emph{hard} constraints such as
 \begin{eqnarray*}
- &role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq a_{2}  \Rightarrow\\
-  & \neg role\left(p,a_{2},r\right)
+       & role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2)\\
 \end{eqnarray*}
 which forbids cases where distinct arguments of a predicate have the same role 
 unless the role describes a modifier.
@@ -30,20 +28,31 @@ is a soft global formula. It captures the observation that the sense of a verb
 or noun depends on the type of its arguments. Here the type of an argument token 
 is represented by its POS tag.
 
-Simirlarly to the local formulae, the model would include global formulae for 
-the \emph{sense/2} predicate depending if the corpus for a specific languages 
-models the sense of a SRL predicate. More detail information about the 
-structural formulae can be found in previous work 
-\citep{riedel08conll,meza09jointly}.
+Table \ref{tbl:global} presents the global formulae used in this model. 
 
-\begin{figure}
-\begin{center}
-   \includegraphics[scale=.70]{GlobalFormula2}
-\end{center}
-\caption{Markov Network that illustrates the structural constraints we use.}
-\label{fig:global2}
-\end{figure}
-
-
-
+\begin{table}[ht]
+    \centering
+    \small
+    \begin{tabular}{|p{7.0cm}|}\hline
+        \multicolumn{1}{|c|}{Structural constraints}\\\hline
+       $hasRole(p,a) \Rightarrow argument(a)$\\
+       $role(p,a,r) \Rightarrow hasLabel(p,a)$\\\hline
+       $argument(a)  \Rightarrow\exists p.hasRole(p,a)$\\
+       $hasLabel(p,a) \Rightarrow\exists r. role(p,a,r)$\\\hline
+       \multicolumn{1}{|c|}{Hard constraints}\\\hline
+       $role(p,a,r_1) \wedge r_1 \neq r_2 \Rightarrow \neg role(p,a,r_2)$\\
+       $sense(p,s_1) \wedge s_1 \neq s_2 \Rightarrow \neg sense(p,r_2) $\\
+       $role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq 
+       a_{2}  \Rightarrow \neg role\left(p,a_{2},r\right) $ \\\hline
+       \multicolumn{1}{|c|}{Soft constraints}\\\hline
+       $role\left(p,a_{1},r\right)\wedge \neg mod\left(r\right)\wedge a_{1}\neq 
+       a_{2}  \Rightarrow \neg role\left(p,a_{2},r\right) $ \\
+       $ lemma(p,+l) \wedge ppos(a,+p) \wedge hasRole(p,a)  \Rightarrow 
+       sense(p,+f) $ \\
+       $ lemma(p,+l) \wedge role(p,a,+r) \Rightarrow sense(p,+f) $ \\
+        \hline
+    \end{tabular}
+    \caption{Global formulae for ML model}
+    \label{tbl:global}
+\end{table}
 

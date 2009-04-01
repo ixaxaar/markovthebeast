@@ -1,29 +1,51 @@
 
 In order to model the SRL task in the ML framework, we propose four hidden 
-predicates: consider the example of the previous section:
-\begin{itemize}
-    \item \emph{isArgument/1} indicates the phrase for which its head is a 
-        specific position is an SRL argument. The SRL predicate to which they 
-        are linked is undefined.  For instance in our example,     
-        \emph{isArgument(2)} signals that the phrase for which the word in 
-        position $2$ is the head is an argument (i.e., \emph{Ms. Haag}).    
-    \item \emph{hasRole/2} relates a SRL predicate to a SRL argument.  For instance in
-        our example, \emph{hasRole(3,2)} relates the
-        predicate in position $3$ (i.e., \emph{play}) to one of its arguments.
-    \item \emph{role/3}, besides to relating predicate and argument, also
-        relates this pair to a role. For instance in our example,
-        \emph{role(3,2,ARG0)} describe the role that
-        the predicate-argument pairs have.
-    \item \emph{sense/2} signals the sense identifier that a predicate in a
-        specific position has. For instance in our example, \emph{sense(3,02)}
+predicates, consider the example of the previous section:
+\begin{description}
+    \item [\emph{argument/1}] indicates the phrase for which its head is a 
+        specific position is an SRL argument. For the example,     
+        \emph{argument(2)} signals that the phrase for which the word in 
+        position $2$ is the head is an argument (i.e., \emph{Ms. Haag}).
+    \item [\emph{hasRole/2}] relates a SRL predicate to a SRL argument. For the 
+        example, \emph{hasRole(3,2)} relates the
+        predicate in position $3$ (i.e., \emph{play}) to the phrase which head 
+        is in position $2$ (i.e., \emph{Ms. Haag}).
+    \item [\emph{role/3}] besides to relating predicate and argument, it also
+        identifies a role for the pair. For the example,
+        \emph{role(3,2,ARG0)} signals the role for the predicate-argument role 
+        presented above.
+    \item [\emph{sense/2}] signals the sense identifier that a predicate in a
+        specific position has. For the example, \emph{sense(3,02)}
         signals that the predicate in position $3$ has the sense \emph{02}.
-        This indicates that the predicate \emph{play} has to be read as playing
-        a role, rather than playing a game.
-\end{itemize}
-We also define a set of hidden predicates. Some of them are a direct map of the  
-the information provided in the closed Trank of the Shared Task corpora (e.g., 
-\emph{lemma/2}, \emph{ppos/2}, \emph{dependency/3}). The rest are automatically 
-extracted using heuristics similar to the proposed by \citet{xue04calibrating} 
-(e.g. \emph{prune/1} and \emph{frame/3}).
+\end{description}
+
+We also define three sets of observable predicates. The first set are a direct 
+map of the the information provided for each token in the closed Track of the 
+Shared Task corpora:  \emph{word} for the orthography, \emph{plemma/2} for the 
+lemma, \emph{ppos/2} for the POS tag, \emph{feature/3} for each feature-value 
+pair, \emph{dependency/3} for the head dependency and relation, and 
+\emph{predicate/1} if the token is a predicate. We will refer to these 
+predicates as the \emph{token} predicates.
+
+The second set extends the information provided by the columns of the corpus: 
+\emph{cpos/2} is a coarse pos task, \emph{possibleArg/1} is true if based 
+on heuristics on the POS tag the token is a potential SRL argument and 
+\emph{voice/2} signals the voice for verbal tokens based on heuristics of the 
+syntactic information or the features of the column FEAT of the corpora. We 
+were refer to these predicates as the \emph{extended} predicates.
+
+Finally the third set represent syntactic information. These predicates are 
+based on the features proposed by \citet{xue04calibrating}. We have two types of 
+predicates for this set: \emph{paths} and \emph{frames}.  Paths capture the 
+dependency path between two tokens, and frame the subcategorisation frame for a 
+token and its head. For the path predicates we have a directed and undirected 
+version. For both path and frame we have labelled and unlabelled versions.  
+Finally, we have a frame predicate with the distance from the predicate to its 
+head.  We were refer to the paths predicates as the \emph{path} predicates, 
+while we will consider the \emph{frame} predicates part of the \emph{token} 
+predicates.
 
 
+We use the previous ML predicates to define the formulae which is at the core of 
+the ML for SRL there is a set of formulae.  We distinguish between two types of 
+formula: local and global. 

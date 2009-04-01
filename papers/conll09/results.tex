@@ -1,45 +1,50 @@
 For our experiments we use the corpora provided in the SRL only shared task. We 
 test the ML model with the following languages: Catalan and Spanish 
 \citep{catalan-and-spanish-data} , Chinese \citep{chinese-data}, Czech 
-\citep{czech-data}, English \citep{english-data}, German \citep{german-data}, 
-Japanese \citep{japanese-data}. 
+\citep{czech-data}\footnote{For training we use only sentences shorter than 40 
+words in this corpus.}, English \citep{english-data}, German 
+\citep{german-data}, Japanese \citep{japanese-data}. 
 
 Table \ref{tbl:results} presents the f1-scores and times for the develoment and
-in-domian corpora. The model better caputes the SRL for the English language in 
-which it reaches the highest score. This is in part because this system was 
-originaly developed using for English. The model has the poorer performance for 
-the German language. In section \ref{sec:analysis} we review the typical errors 
-of our system. In general, our SRL system is the third best of the systems in 
-the \emph{SRLOnly} track of the Shared Task, and it is the sixth for system on 
-both \emph{Joint} and \emph{SRLOnly} tracks. For five of the languages the 
-difference of F1 scores between our system and best score on the language is of 
-$3\%$.  However, for German is of  $6.19\%$ and for Czech $10.76\%$. Reviewing, 
-the precision and recall of the semantic labelling we found that our system has 
-a higher precision than recall (fifth position for precision, eighth position 
-for recall).  In particular, our system provied the highest precision for 
-Chinese and out-of-domian Enlglish testing corpora.    
+in-domian corpora. The model better captures the SRL task for the English 
+language. This is in part because the original model was originaly developed 
+using for English. The model has the poorer performance for the German language.  
+In section \ref{sec:analysis} we review the typical errors of our system. In 
+general, our SRL system is the third best of the systems in the \emph{SRLOnly} 
+track of the Shared Task, and it is the sixth for system on both \emph{Joint} 
+and \emph{SRLOnly} tracks. For five of the languages the difference of F1 scores 
+between our system and best score on the language is of $3\%$.  However, for 
+German is of  $6.19\%$ and for Czech $10.76\%$.  Reviewing, the precision and 
+recall of the semantic labelling we found that our system has a higher precision 
+than recall (we have the fifth best average precision and the eighth average 
+recall).
+
+In terms of time performance, we found the Chinese corpus the slower system to 
+train. We are not sure of the cause of this timing. In the case of testing, our 
+slowest set was Czech which corresponds to the longest testing set. 
 
 \begin{table}
 \begin{center}
 \small
 \begin{tabular}{|l|l|l|c|c|}\hline
-Language           & Devel        & Test       & Train   & Test  \\%role score 
-and %average sentences
-                &              &            & Time    & Time  \\\hline\hline
+Language           & Devel        & Test       & Train time  & Test time  
+\\\hline\hline
+%role score a
+% average len dev, average len train, num preds
 Catalan         & $78.10\%$    & $78.00\%$  & 6h 11m  & 14m   \\ %0.740
-%53060/1862=28.5
+%53060/1862=28.5, 390302 13200 29.5683, 37508,
 Chinese         & $77.97\%$    & $77.73\%$  & 36h 30m & 34m   \\ %0.700
-%73153/2556=28.6
+%73153/2556=28.6, 609060 22277 27.3403, 102832,
 Czech           & $75.98\%$    & $75.75\%$  & 14h 21m & 1h 7m \\ %0.733
-%70348/4213=16.7
+%70348/4213=16.7, 652544 38727 16.8498, 421281,
 English         & $82.28\%$    & $83.34\%$  & 12h 26m & 16m   \\ %0.770
-%57676/2399=24.0
+%57676/2399=24.0, 958167 39279 24.3939, 192766,
 German          & $72.05\%$    & $73.52\%$  & 2h 28m  & 7m    \\ %0.712
-%31622/2000=15.8
+%31622/2000=15.8, 648677 36020 18.0088, 18661,
 Japanese        & $76.34\%$    & $76.00\%$  & 2h 17m  & 4m    \\ %0.609
-%13615/500=27.2
+%13615/500=27.2, 112555 4393 25.6214, 26605,
 Spanish         & $78.03\%$    & $77.91\%$  & 6h 9m   & 16m   \\ %0.744
-%50630/1725=29.4
+%50630/1725=29.4, 427442 14329 29.8306, 44371,
 \hline
 \end{tabular}
 \caption{F-scores for in-domain in corpora for each language.}
@@ -58,9 +63,8 @@ large differences between our system and the best score for German and Czech
 \begin{center}
 \small
 \begin{tabular}{|l|c|}\hline
-Language        & Test       \\
-                &            \\\hline\hline
-Czech           & $77.34\%$  \\ 
+Language        & Test       \\\hline\hline
+Czech           & $77.34\%$  \\
 English         & $71.86\%$  \\
 German          & $62.37\%$  \\
 \hline
@@ -72,29 +76,29 @@ German          & $62.37\%$  \\
 \end{table}
 
 
-% Notice german high exact match, most of the examples in the development set
-% do not have a predicate to label.
+%% Note german high exact match, most of the examples in the development set
+%% do not have a predicate to label.
 
-\begin{table}
-\begin{center}
-\small
-\begin{tabular}{|l|c|c|}\hline
-Language        & Proposition         & Exact match \\
-                &              &            \\\hline\hline
-Catalan         & $46.69\%$ & $22.02\%$  \\
-Chinese         & $44.00\%$ & $20.70\%$  \\
-Czech           & $68.01\%$ & $8.64\%$  \\
-English         & $50.24\%$ & $19.55\%$  \\
-German          & $44.00\%$ & $85.20\%$  \\
-Japanese        & $35.36\%$ & $5.80\%$  \\
-Spanish         & $47.27\%$ & $20.75\%$  \\
-\hline
-\end{tabular}
-\caption{Proposition and exact semantic match scores for out-of-domain corpora.}
-\label{tbl:results}
-\normalsize
-\end{center}
-\end{table}
+%\begin{table}
+%\begin{center}
+%\small
+%\begin{tabular}{|l|c|c|}\hline
+%Language        & Proposition         & Exact match \\
+                %&              &            \\\hline\hline
+%Catalan         & $46.69\%$ & $22.02\%$  \\
+%Chinese         & $44.00\%$ & $20.70\%$  \\
+%Czech           & $68.01\%$ & $8.64\%$  \\
+%English         & $50.24\%$ & $19.55\%$  \\
+%German          & $44.00\%$ & $85.20\%$  \\
+%Japanese        & $35.36\%$ & $5.80\%$  \\
+%Spanish         & $47.27\%$ & $20.75\%$  \\
+%\hline
+%\end{tabular}
+%\caption{Proposition and exact semantic match scores for out-of-domain corpora.}
+%\label{tbl:results}
+%\normalsize
+%\end{center}
+%\end{table}
 
 
 

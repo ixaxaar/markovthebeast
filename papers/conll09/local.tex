@@ -1,41 +1,125 @@
 
-We define a set of \emph{local} formulae. A formula is local if its groundings 
-relate any number of observed ground atoms to exactly one hidden ground atom.  
-For example, a grounding of the local formula \[lemma(p,+l_1) \wedge 
-lemma(a,+l_2) \Rightarrow hasRole(p,a)\]
-can be seen in the Markov Network of Figure \ref{fig:local2}. It connects a 
-hidden \emph{hasRole} ground atom to two observed \emph{lemma} ground atoms.  
-Note that the ``+'' prefix for variables indicates that there is a different 
-weight for each possible pair of lemmas $(l_1,l_2)$.
+A formula is local if its groundings relate any number of observed ground atoms 
+to exactly one hidden ground atom.  For example, a grounding of the local 
+formula \[plemma(p,+l_1) \wedge plemma(a,+l_2) \Rightarrow hasRole(p,a)\]
+connects a hidden \emph{hasRole/2} ground atom to two observed \emph{lemma/2} 
+ground atoms. This formula can be interpreted as the feature for the predicate 
+and argument lemmas in the argument identification stage of a pipeline SRL 
+system.
+Note that the ``+'' prefix signals that there is a different weight for each 
+possible pair of lemmas $(l_1,l_2)$.
 
-\begin{figure}
-\begin{center}
-    \includegraphics[scale=.70]{LocalFormula2}
-\end{center}
-\caption{Factor graph for the local formula in section \ref{sec:local}.}
-\label{fig:local2}
-\end{figure}
+We divide our local formulae into four sets, one for each hidden predicate.  For 
+instance, the set for \emph{argument/1} only contains formulae which hidden 
+predicate is \emph{argument/1}. 
 
-For predicates we defined local formulae that aimed to reproduce the standard 
-features used in previous work~\citep{xue04calibrating}.  This also required us 
-to develop dependency-based versions of the constituent-based features such as 
-the syntactic path between predicate and argument, as proposed by 
-\citet{xue04calibrating}. Table \ref{tbl:difs} shows the main differences of the 
-models for each language. The features formulae corresponds to the FEAT column 
-provided in the corpus. The presence of these formulae is determined by the 
-availability of this information on the corpus. The sense formula corresponds to 
-the formulae to model the sense of an SRL predicate. The use of the formulae is 
-defined if the corpus labels the senses of the predicates. Finally, the formulae 
-for the siblings of the arguments looks at the head of the children of the 
-predicate and correlates them with an potential argument. These formulae show to 
-provide an improvement for japanese during development. 
+The sets for \emph{argument/1} and \emph{sense/2} predicates have similar 
+formulae since each predicate only involves one token at time: the SRL argument 
+or the SRL predicate. The formulae in this sets are defined using only 
+\emph{token} or \emph{extended} observed predicates. There are two differences 
+among these two sets.  First, the \emph{argument/1} formulae are condition by
+the \emph{possibleArg/1} predicate while sense are condition by 
+\emph{predicate/1} predicate. For instance consider the \emph{argument/1} 
+formula for the orthography: \[word(a,+w) \land possArgument(a) \land 
+argument(a)\], and the contrast for the \emph{sense/2} predicate: \[word(p,+w) 
+\land predicate(p) \land sense(p,+s)\]. This means we only apply the 
+\emph{argument/1} formulae if the token is a potential SRL argument, and we 
+only the \emph{sense/2} formulae if the token is a SRL predicate. The second 
+difference is in the arity of the weights. \emph{sense/2} weights are larger by 
+one than \emph{argument/2}. This is because their weights include the sense 
+label as a part of its indexes. For the orthography formulae, the index for the
+first formula is $(+w)$, which is the orthography, while in the second formula 
+has as indexes $(+w,+s)$, which is the orthography and the sense label.
+
+These is a summary of the formulae for the \emph{argument/1} and 
+\emph{sense/2} sets:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+    \item Orthography of the token.
+    \item Lemma of a token in a window of $-2 \cdots 2$ tokens.
+    \item POS tag of a token in a window of $-2 \cdots 2$ tokens.
+    \item Coarse POS tag for the token.
+    \item Coarse POS of the two previous and two following tokens.
+    \item Dependency relation of the parent and children of a token.
+    \item POS tag of children or parent of a token.
+    \item POS tag of children or grandchildren and POS tag of token.
+    \item POS tag of parent or grandparent and POS tag of token.
+    \item Subcategorisation frame of token.
+\end{itemize}
+
+The formulae in \emph{hasRole/2} and \emph{role/3} sets are condition both by 
+the predicates \emph{possibleArg/1} and \emph{predicate/1} since both try 
+to establish a relation between SRL predicate and argument. For these predicate 
+we use \emph{toeken}, \emph{extended} and \emph{path} predicates.
+
+This is the summary for the formulae for the \emph{hasRole/2} set:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+    \item Lemma of predicate and argument.
+    \item POS tags of predicate and argument.
+    \item POS tag of predicate and POS tags of argument in a window $-1,+1$.
+    \item POS tag predicate and lemma argument.
+    \item Lemma predicate and POS tag argument.
+    \item Coarse POS tags for predicate and argument in a window $-1,+1$.
+    \item POS tag argument and POS tag of children of argument.
+    \item POS tag argument and lemma  of children of argument.
+    \item Dependency relation with parent for predicate and argument.
+    \item Path distance between predicate and argument.
+    \item Path and frame of predicate and argument in combination with voice and 
+        lemma.
+\end{itemize}
+
+This is the summary for the formulae for the \emph{role/3} set:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+    \item Lemma of predicate and argument.
+    \item POS tag predicate and lemma argument.
+    \item POS tag argument and POS tag of children of argument.
+    \item POS tag argument and lemma  of children of argument.
+    \item Dependency relation with parent for predicate and argument.
+    \item Path and frame distance between predicate and argument.
+    \item Path and frame of predicate and argument in combination with voice and 
+        lemma.
+    \item Path of predicate and argument in combination with lemma, POS tag, 
+        coarse POS tag.
+\end{itemize}
+
+Note that these lists does not mention the feature information. This is because 
+this information was not available for each language therefore we  group the 
+formulae which contains this predicate into another a set we called 
+\emph{feature} formulae. This is the summary of these formulae:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+    \item Feature-value pair of the token for \emph{sense/2}.
+    \item Feature-value pair of the token for \emph{argument/1}.
+    \item Feature-value pair for similar features of the predicate and argument 
+        for \emph{hasRole/2}.
+    \item Feature-value pair for similar features of the predicate and argument 
+        for \emph{role/3}.
+\end{itemize}
+
+Additionally, we define a set of language specific formulae. They are aimed to 
+capture the relations between argument and its siblings for the \emph{hasRole/2} 
+and \emph{role/3} predicates.  In particular, these formulae was beneficial for 
+the Japanese language.  This is a summary of such formulae which we called 
+\emph{argument siblings}:
+\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
+    \item POS argument and POS of sibling.
+    \item POS argument and lemma sibling.
+\end{itemize}
+
+With these set of formulae we can build a specific ML model for a language in 
+the share task. Table \ref{tb:diff} shows the difference between languages. We 
+omit the \emph{argument/1}, \emph{hasRole/2} and \emph{role/3} because they 
+are present for all languages. The \emph{feature} set corresponds to the FEAT 
+column provided in the corpus.  The presence of this set is determined by the 
+availability of this information in the corpus.  The presence of the 
+\emph{sense/2} set is determined by the labelling of senses in the corpora.  
+Finally, the formulae for the \emph{argument siblings} was implemented for the 
+Japanese during development. 
 
 \begin{table}
 \begin{center}
 \small
 \begin{tabular}{|l|c|c|c|}\hline
-Formulae        & Features   & Sense  & Children  \\
-                &                     & predicate   \\\hline\hline
+    Set             & Feature   & \emph{sense/2}  & Argument \\
+                &            &        & siblings  \\\hline\hline
 Catalan         &   Yes      &  Yes   &  No  \\
 Chinese         &   No       &  Yes   &  No  \\
 Czech           &   Yes      &  No    &  No  \\
@@ -45,18 +129,16 @@ Japanese        &   Yes      &  No    &  Yes \\
 Spanish         &   Yes      &  Yes   &  No  \\
 \hline
 \end{tabular}
-\caption{Difference of formulae between the languages.}
-\label{tbl:results}
+\caption{Different of formulae between the languages.}
+\label{tbl:diff}
 \normalsize
 \end{center}
 \end{table}
 
-Instead of describing the local feature set in more detail we refer the reader 
-to our MLN model files.  
+A more detail description of the formulae can be found in our MLN model files.  
 \footnote{\url{http://thebeast.googlecode.com/svn/mlns/conll09}} They can be 
 used both as a reference and as input to our Markov Logic 
 Engine\footnote{\url{http://thebeast.googlecode.com}}, and thus allow the reader 
-to easily reproduce our results. We believe that this is another advantage of 
-explicitly separating model and algorithms by using first order probabilistic 
-logic languages.
+to easily reproduce our results.
+
 
