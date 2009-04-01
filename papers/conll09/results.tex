@@ -63,11 +63,9 @@ large differences between our system and the best score for German and Czech
 \begin{table}
 \begin{center}
 \small
-\begin{tabular}{|l|c|}\hline
-Language        & Test       \\\hline\hline
-Czech           & $77.34\%$  \\
-English         & $71.86\%$  \\
-German          & $62.37\%$  \\
+\begin{tabular}{|l|l|l|l|}\hline
+Language        & Czech & English & German\\\hline\hline
+F-score           & $77.34\%$ & $71.86\%$ & $62.37\%$  \\
 \hline
 \end{tabular}
 \caption{F-scores for out-domain in corpora for each language.}
@@ -77,24 +75,23 @@ German          & $62.37\%$  \\
 \end{table}
 
 Additionally, we test the effect of the \emph{argument siblings} set of formulae 
-introduced for the Japanese ML model. Table \ref{tbl:japanese} show the results 
-for this setting for the test set of Japanese. We observe that the performance is 
-worst by more that $6\%$.
+introduced for the Japanese ML model. Without this set the F-score is $69.52\%$ 
+for the test set of Japanese. This is the system is worst by more that $6\%$.
 
-\begin{table}
-\begin{center}
-\small
-\begin{tabular}{|l|l|l|}\hline
-Language           & Test      \\\hline\hline
-Japanese           & $69.52$     \\ %0.609
-\hline
-\end{tabular}
-\caption{F-scores for the Japanese test set without \emph{argument siblings} set 
-of formulae.}
-\label{tbl:japanese}
-\normalsize
-\end{center}
-\end{table}
+%\begin{table}
+%\begin{center}
+%\small
+%\begin{tabular}{|l|l|l|}\hline
+%Language           & Test      \\\hline\hline
+%Japanese           & $69.52$     \\ %0.609
+%\hline
+%\end{tabular}
+%\caption{F-scores for the Japanese test set without \emph{argument siblings} set 
+%of formulae.}
+%\label{tbl:japanese}
+%\normalsize
+%\end{center}
+%\end{table}
 
 
 %% Note german high exact match, most of the examples in the development set
