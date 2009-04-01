@@ -5,9 +5,9 @@ test the ML model with the following languages: Catalan and Spanish
 words in this corpus.}, English \citep{english-data}, German 
 \citep{german-data}, Japanese \citep{japanese-data}. 
 
-Table \ref{tbl:results} presents the f1-scores and times for the develoment and
-in-domian corpora. The model better captures the SRL task for the English 
-language. This is in part because the original model was originaly developed 
+Table \ref{tbl:results} presents the f1-scores and times for the development and
+in-domain corpora. The model better captures the SRL task for the English 
+language. This is in part because the original model was originally developed 
 using for English. The model has the poorer performance for the German language.  
 In section \ref{sec:analysis} we review the typical errors of our system. In 
 general, our SRL system is the third best of the systems in the \emph{SRLOnly} 
@@ -45,6 +45,7 @@ Japanese        & $76.34\%$    & $76.00\%$  & 2h 17m  & 4m    \\ %0.609
 %13615/500=27.2, 112555 4393 25.6214, 26605,
 Spanish         & $78.03\%$    & $77.91\%$  & 6h 9m   & 16m   \\ %0.744
 %50630/1725=29.4, 427442 14329 29.8306, 44371,
+
 \hline
 \end{tabular}
 \caption{F-scores for in-domain in corpora for each language.}
@@ -71,6 +72,26 @@ German          & $62.37\%$  \\
 \end{tabular}
 \caption{F-scores for out-domain in corpora for each language.}
 \label{tbl:outresults}
+\normalsize
+\end{center}
+\end{table}
+
+Additionally, we test the efect of the \emph{argument siblings} set of formula 
+introduced for the Japanese ML model. Table \ref{tbl:japanese} show the results 
+for this setting. We observe  
+
+
+\begin{table}
+\begin{center}
+\small
+\begin{tabular}{|l|l|l|}\hline
+Language           & Devel        & Test       \\\hline\hline
+Japanese           & $30.81$      & $76.00\%$  \\ %0.609
+\hline
+\end{tabular}
+\caption{F-scores for Japanese without \emph{argument siblings} set of 
+formulae.}
+\label{tbl:japanese}
 \normalsize
 \end{center}
 \end{table}

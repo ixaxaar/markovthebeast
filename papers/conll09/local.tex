@@ -20,11 +20,11 @@ or the SRL predicate. The formulae in this sets are defined using only
 among these two sets.  First, the \emph{argument/1} formulae are condition by
 the \emph{possibleArg/1} predicate while sense are condition by 
 \emph{predicate/1} predicate. For instance consider the \emph{argument/1} 
-formula for the orthography: \[word(a,+w) \land possArgument(a) \land 
+formula for the orthography: \[word(a,+w) \land possArgument(a) \Rightarrow 
 argument(a)\], and the contrast for the \emph{sense/2} predicate: \[word(p,+w) 
-\land predicate(p) \land sense(p,+s)\]. This means we only apply the 
-\emph{argument/1} formulae if the token is a potential SRL argument, and we 
-only the \emph{sense/2} formulae if the token is a SRL predicate. The second 
+\land predicate(p) \Rightarrow sense(p,+s)\]. This means we only apply the 
+\emph{argument/1} formulae if the token is a potential SRL argument, and we only 
+the \emph{sense/2} formulae if the token is a SRL predicate. The second 
 difference is in the arity of the weights. \emph{sense/2} weights are larger by 
 one than \emph{argument/2}. This is because their weights include the sense 
 label as a part of its indexes. For the orthography formulae, the index for the

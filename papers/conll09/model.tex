@@ -5,7 +5,7 @@ predicates, consider the example of the previous section:
     \item [\emph{argument/1}] indicates the phrase for which its head is a 
         specific position is an SRL argument. For the example,     
         \emph{argument(2)} signals that the phrase for which the word in 
-        position $2$ is the head is an argument (i.e., \emph{Ms. Haag}).
+        position $2$ is its head is an argument (i.e., \emph{Ms. Haag}).
     \item [\emph{hasRole/2}] relates a SRL predicate to a SRL argument. For the 
         example, \emph{hasRole(3,2)} relates the
         predicate in position $3$ (i.e., \emph{play}) to the phrase which head 
@@ -31,21 +31,19 @@ The second set extends the information provided by the columns of the corpus:
 \emph{cpos/2} is a coarse pos task, \emph{possibleArg/1} is true if based 
 on heuristics on the POS tag the token is a potential SRL argument and 
 \emph{voice/2} signals the voice for verbal tokens based on heuristics of the 
-syntactic information or the features of the column FEAT of the corpora. We 
-were refer to these predicates as the \emph{extended} predicates.
+syntactic information or the features of the column FEAT of the corpora. We will 
+refer to these predicates as the \emph{extended} predicates.
 
-Finally the third set represent syntactic information. These predicates are 
+Finally the third set represent dependency information. These predicates are 
 based on the features proposed by \citet{xue04calibrating}. We have two types of 
 predicates for this set: \emph{paths} and \emph{frames}.  Paths capture the 
 dependency path between two tokens, and frame the subcategorisation frame for a 
-token and its head. For the path predicates we have a directed and undirected 
-version. For both path and frame we have labelled and unlabelled versions.  
-Finally, we have a frame predicate with the distance from the predicate to its 
-head.  We were refer to the paths predicates as the \emph{path} predicates, 
-while we will consider the \emph{frame} predicates part of the \emph{token} 
-predicates.
+unique token or a part of tokens. For the path predicates we have a directed and 
+undirected version. For both path and frame we have labelled and unlabelled 
+versions.  Finally, we have a frame predicate with the distance from the 
+predicate to its head.  We will refer to the paths and most of the frames 
+predicates as the \emph{path} predicates, while we will consider the 
+\emph{frame} predicates for a unique token part \emph{token} predicates.
 
-
-We use the previous ML predicates to define the formulae which is at the core of 
-the ML for SRL there is a set of formulae.  We distinguish between two types of 
-formula: local and global. 
+We use the previous ML predicates to define the formulae of our MLN.  We 
+distinguish between two types of formula: local and global. 
