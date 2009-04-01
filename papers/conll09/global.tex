@@ -36,7 +36,7 @@ Table \ref{tbl:global} presents the global formulae used in this model.
     \begin{tabular}{|p{7.0cm}|}\hline
         \multicolumn{1}{|c|}{Structural constraints}\\\hline
        $hasRole(p,a) \Rightarrow argument(a)$\\
-       $role(p,a,r) \Rightarrow hasLabel(p,a)$\\\hline
+       $role(p,a,r) \Rightarrow hasRole(p,a)$\\\hline
        $argument(a)  \Rightarrow\exists p.hasRole(p,a)$\\
        $hasLabel(p,a) \Rightarrow\exists r. role(p,a,r)$\\\hline
        \multicolumn{1}{|c|}{Hard constraints}\\\hline
