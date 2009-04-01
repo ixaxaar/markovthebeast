@@ -140,9 +140,9 @@ Table \ref{tbl:global} summarises the global formulae we use in this work.
     \small
     \begin{tabular}{|c|l|}\hline
         \multirow{4}{*}{Bottom-up}     
-       & $sense(p,s) \Rightarrow predicate(p)$\\
-       & $hasRole(p,a) \Rightarrow predicate(p)$\\
-       & $hasRole(p,a) \Rightarrow argument(a)$\\
+       & $sense(p,s) \Rightarrow isPredicate(p)$\\
+       & $hasRole(p,a) \Rightarrow isPredicate(p)$\\
+       & $hasRole(p,a) \Rightarrow isArgument(a)$\\
        & $role(p,a,r) \Rightarrow hasLabel(p,a)$\\\hline
        \multirow{4}{*}{Top-Down } &       $isPredicate(p) \Rightarrow\exists s.sense(p,s)$\\
        & $isPredicate(p) \Rightarrow\exists a.hasRole(p,a)$\\
@@ -278,5 +278,6 @@ Table \ref{tbl:global} summarises the global formulae we use in this work.
 %\label{tbl:global}
 %\end{table}
 %
+
 
 
