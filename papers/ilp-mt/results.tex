@@ -5,16 +5,17 @@ In this section we describe our experimental setup and results.
 \label{sec:experimental-setup}
 
 Our experimental setup is designed to answer several questions: (1)~Is
-exact inference in IBM Model 4 possible for sentences of moderate
+exact inference in IBM Model~4 possible for sentences of moderate
 length? (2)~How fast is exact inference using Cutting-Plane ILP?
-(3)~How well does the ReWrite decoder perform in terms of finding the
-optimal solution? (4)~Does optimal decoding produce better
-translations?
+(3)~How well does the ReWrite Decoder\footnote{Available at
+  \url{http://www.isi.edu/licensed-sw/rewrite-decoder/}} perform in
+terms of finding the optimal solution? (4)~Does optimal decoding
+produce better translations?
 
-In order to answer these questions we obtain a trained IBM Model 4 for
-French-English and German-English on Europarl version 3 using GIZA++.
-A bigram language model with Witten-Bell smoothing was also estimated
-from the corpus using the CMU-Cambridge Language Modeling Toolkit.
+In order to answer these questions we obtain a trained IBM Model~4 for
+French-English and German-English on Europarl~v3 using GIZA++.  A
+bigram language model with Witten-Bell smoothing was estimated from
+the corpus using the CMU-Cambridge Language Modeling Toolkit.
 
 For exact decoding we use the two models to generate ILP programs for
 sentences of length up to (and including) 30 tokens for French and 25
@@ -25,11 +26,9 @@ following~\cite{GermannFast04} by using only the top ten translations
 for each word\footnote{Based on $t(e|f)$.} and a list of zero
 fertility words.\footnote{Extracted using the rules in the filter
   script \texttt{rewrite.mkZeroFert.perl}} This resulted in 1101
-French sentences and 1062 German sentences for testing purposes.  The
-ILP programs were then solved using the method described in Section~3.
-The same models were used with the ReWrite Decoder\footnote{Available
-  at \url{http://www.isi.edu/licensed-sw/rewrite-decoder/}} to solve
-the same set of sentences.
+French and 1062 German sentences for testing purposes.  The ILP
+programs were then solved using the method described in Section~3.
+This was repeated using the ReWrite Decoder using the same models.
 
 
 \subsection{Results}
@@ -84,7 +83,9 @@ produced output for 986 French sentences and 954 German sentences.
 From this we can conclude that it is possible to solve 90\% of our
 sentences exactly using ILP.  For the remaining 115 and 108 sentences
 we did not produce a solution due to: (1) the solver not completing
-within 30 minutes, or (2) the solver running out of memory.
+within 30 minutes, or (2) the solver running out of
+memory.\footnote{All experiments were run on 3.0GHz Intel Core 2 Duo
+  with 4GB RAM using a single core.}
 %TODO: Maybe we just leave this out? as it is a quirk/technical detail
 %or (3) the solver producing a one word output due to
 
@@ -98,7 +99,9 @@ average solve time is under one minute per sentence.  As we increase
 the sentence length we see the solve time increases, however, we never
 see an order of magnitude increase between brackets as witnessed
 by~\cite{GermannFast04} thus optimal decoding is more practical than
-previously suggested.
+previously suggested.  The average number of Cutting-Plane iterations
+required was 4.0 and 5.6 iterations for French and German respectively
+with longer sentences requiring more on average.
 
 We next examine the performance of the two decoders.
 Following~\cite{GermannFast04} we define the ReWrite decoder as

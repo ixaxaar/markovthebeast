@@ -24,23 +24,36 @@
 %\sloppy
 
 %% no extra spacing after dots
-%\frenchspacing
+\frenchspacing
 
 %% interline spacing
 \renewcommand{\baselinestretch}{.96}
 
-% just a working title
-\title{Revisiting Optimal Decoding for IBM Machine Translation Model 4}
+\setlength\titlebox{6cm}    % Expanding the titlebox
 
-% \author{}
+\title{Revisiting Optimal Decoding for Machine Translation IBM Model~4}
+
+
+\author{
+Sebastian Riedel\footnotemark[1] \footnotemark[2]    \qquad James Clarke\footnotemark[3]  \\
+\footnotemark[1]  {Department of Computer Science, University of Tokyo, Japan}\\
+\footnotemark[2]  {Database Center for Life Science, Research
+Organization of Information and System, Japan}\\
+\footnotemark[3]  {Department of Computer Science, University of Illinois at Urbana-Champaign, Urbana, IL 61801}\\
+\
+\footnotemark[1]  \texttt{sebastian.riedel@gmail.com} \qquad \footnotemark[2] \texttt{clarkeje@gmail.com}
+}
 
 \date{}
 
 \begin{document}
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
 \maketitle
 \begin{abstract}
   This paper revisits optimal decoding for statistical machine
-  translation using IBM Model 4.  We show that exact/optimal inference
+  translation using IBM Model~4.  We show that exact/optimal inference
   using Integer Linear Programming is more practical than previously
   suggested when used in conjunction with the Cutting-Plane Algorithm.
   In our experiments we see that exact inference can provide a gain of
@@ -53,7 +66,7 @@
 % we could wrap a supersection around the following 3 sections, but that 
 % takes extra space. 
 
-\section{IBM Model 4} 
+\section{IBM Model~4} 
 \label{sec:ibm-model-4}
 \input{model4-short} 
  
@@ -73,8 +86,13 @@
 \label{sec:conclusion}
 \input{conclusion}
 
-\bibliographystyle{acl}
-\small
+\section*{Acknowledgements}
+We would like to thank Ulrich Germann and Daniel Marcu for their help
+with the ISI ReWrite Decoder.
+
+
+\bibliographystyle{acl} 
+\footnotesize
 \bibliography{ilp-mt}
 
 \end{document}
