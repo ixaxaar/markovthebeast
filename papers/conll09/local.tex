@@ -34,158 +34,98 @@ The second difference is the fact that for the \emph{sense/2} formulae we have d
 %irst formula is $(+w)$, which is the orthography, while in the second formula 
 %has as indexes $(+w,+s)$, which is the orthography and the sense label.
 
-What follows is a summary of the formulae in the \emph{sense/2} sets (we omit the \emph{predicate/1} precondition on the formulae, this is equivalent to conjoin the \emph{predicate(t)} in the formulae):
-\begin{tabular}{p{7.0cm}}
-   $\cdot$ $ word(p,+wp) \land sense(p,+s)    $\\
-   $\cdot$ $ plemma(p+i,+lp) \land sense(p,+s)$ for i in $[-2..2]$\\
-   $\cdot$ $ ppos(p+i,+pp) \land sense(p,+s)$ for i in $[-2..2]$\\
-   $\cdot$ $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land sense(p,+s) $\\
-   $\cdot$ $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land cpos(p+2,+cp3) \land cpos(p-2,+cp4) \land sense(p,+s) $\\
-   $\cdot$ $ dep(p,\_,+d) \land sense(p,+s) $\\
-   $\cdot$ $ dep(\_,p,+d) \land sense(p,+s) $\\
-   $\cdot$ $ ppos(j,+pj) \land dep(p,j,+d) \land sense(p,+s) $\\
-   $\cdot$ $ ppos(j,+pj) \land ppos(i,+pa) \land dep(p,j,+d) \land sense(p,+s) $\\
-   $\cdot$ $ ppos(i,+pj) \land ppos(i,+pa) \land dep(i,j,\_) \land dep(j,p,+d) \land sense(p,+s) $\\
-   $\cdot$ $ plemma(j,+pj) \land dep(j,j,+d) \land sense(p,+s) $\\
-   $\cdot$ $ frame(p,+f) \land sense(p,+s)$\\
+%What follows is a summary of the formulae in the \emph{sense/2} sets (we omit 
+%the \emph{predicate/1} precondition on the formulae, this is equivalent to 
+%conjoin the \emph{predicate(t)} in the formulae):
+Table \ref{tbl:f1} presents the templates of the local formuale for 
+\emph{isArgument/1} and \emph{sense/2}. Templates are a way to briefly describe 
+the FOL formulae of a ML. The template column shows the main body of the 
+formulae, the parameters column shows the values that the parameters can take.For 
+example, in the second row, the template contains the parameters $P$ and $i$ and its possible values. In total, this row represents $10$ 
+formulae. For instance, one of these is: \[ plemma(p+1,+l) \], this is replaceing $plemma$ for P and $1$ for i. 
+Additionally, these templates omit the precondition \emph{predicate(p)} which ensures the formulae is only apply to SRL predicates. This means the template should be read as: \[ predicate(p) \land  plemma(p+1,+l) \]
+Finally, the last two columns indicate if there is a version of formula for the 
+$isArgument/1$ (I) and/or $sense/2$ (S). In the case of our example, this means there are two formulae:
+\[ predicate(p) \land plemma(p+1,+l) \land isArgument(p) \] and \[predicate(p) \land plemma(p+1,+l) \land sense(p,+s)\].
+
+\begin{table*}
+\centering
+\begin{tabular}{|p{8cm}|c|c|c|}\hline
+   Template       & Parameters & I & S \\\hline
+   $ word(p,+w)$  &            & X & X \\
+   $ P(p+i,+l)$   & $P \in \{plemma, ppos\}$, $ i \in \{-2..2\}$ & X & X \\
+   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2)$ & & X & X\\
+   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land cpos(p+2,+cp3) \land cpos(p-2,+cp4)$ & & X & X\\
+   $ dep(p,\_,+d)$ & & X & X\\
+   $ dep(\_,p,+d)$ & & X & X\\
+   $ ppos(j,+pj)  \land dep(p,j,+d)$ & & X & X \\
+   $ ppos(j,+pj)  \land ppos(i,+pa) \land dep(p,j,+d)$ & & X & X \\
+   $ ppos(i,+pj)  \land ppos(i,+pa) \land dep(i,j,\_) \land dep(j,p,+d)$ & & X & X \\
+   $ plemma(j,+l) \land dep(j,j,+d)$ & & X & X\\
+   $ frame(p,+f)$ & & X & X\\
+                  & &   & X \\
+\hline
 \end{tabular}
-Recall \emph{isArgument/1} formulae is similar.
+\caption{Templates of the local formulae for \emph{isArgument/1} and 
+\emph{sense/2}. I: head of clause is $isArgument(a)$, S: head of clause is 
+$sense(p,+s)$}
+\label{tbl:f1}
+\end{table*}
 
 The formulae in \emph{hasRole/2} and \emph{role/3} sets are conditioned on both 
 the predicates \emph{possibleArg/1} and \emph{predicate/1} since both try 
 to establish a relation between SRL predicates and arguments. For these predicate 
 we use \emph{token}, \emph{extended} and \emph{path} predicates.
 
-This is the summary for the formulae for the \emph{hasRole/2} set (we omit the \emph{predicate/1} and \emph{possibleArg} precondition, this is equivalent to conjoin $predicate(p) \land possibleArg(a)$ in the formulae):
-\begin{tabular}{p{7.0cm}}
-   $\cdot$ $ plemma(p,+lp) \land hasRole(p,a)  $\\
-   $\cdot$ $ ppos(p,+pp) \land hasRole(p,a)  $\\
-   $\bullet$ $ plemma(p,lp) \land hasRole(p,a)  $\\
-   $\bullet$ $ ppos(p,pp) \land hasRole(p,a)  $\\
+Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} and \emph{role/3} predicates. This table follows similar rules of expansion than the described for the templates in \emph{tbl:f1}. The only difference is that these templetates are precondition by \[ predicate(p) \land possibleArg(a) \]. 
+\begin{table*}
+\centering
+\begin{tabular}{|p{8cm}|p{4cm}|c|c|}\hline
+   Template               & Parameters & H & R \\\hline
+   $                 $    &                        & X & X \\
+   $ P(p,+w)         $    & $P \in \{plemma,ppos\}$ & X & X \\
+   $ P(p,+w) \land +d$    & $P \in \{plemma,ppos\}$, $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+   $ plemma (p,+w_1) \land ppos(a,+w_2) $    & & X &  \\
+   $ ppos(p,+w_1) \land plemma(a,+w_2) $    & & X &  \\
+   $ plemma(p,+w_1) \land plemma(a,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ & X & X \\
+   $ ppos(p,+w_1) \land ppos(a,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+   $ ppos(p,+w_1) \land ppos(a+i,+w_2) \land +d $ & $i \in \{-1,0,1\}$, $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+   $ lemma(p,+w) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ &  & X  \\
+   $ lemma(a,+w) \land voice(p,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ &  & X  \\
+   $ cpos(p,+cp1) \land cpos(p+i,+cp2) \land cpos(a,+cp3) \land cpos(a+j,+cp4)$ & $i,j \in \{-1,1\}^2$ & X & X\\
+   $ ppos(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land P(m,+w_2) $ & $P \in \{ppos, plemma \}$ & X &  X \\
+   $ plemma(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land pposm,+w_2) $ & & X &  X \\
+   $ P(p,a,+w)         $    & $P \in \{frame, unlabelFrame, path\}$ & X & X \\
+   $ P(p,a,+w_1) \land plemma(p,+w_2) $ & $P \in \{frame,pathFrame\}$             & X & X \\
+   $ P(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $P \in \{frame,pathFrame,path\}$   & X & X \\
+   $ pathFrame(p,a,+w_1) \land lemma(p,+w_2) \land voice(p,+v) $ &            & X & X \\
+   $ pathFrameDist(p,a,+d) $ &  $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ pathFrameDist(p,a,+d) \land voice(p,+w) $ &  $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ pathFrameDist(p,a,+d) \land plemma(p,+w) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ P(p,a,+d) \land plemma(a,+w) $ & $P \in \{pathFrameDist, path\}$, $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ P(p,a,+d) \land ppos(p,+w) $ & $P \in \{pathFrameDist, path\}$, $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ pathFrameDist(p,a,+d) \land ppos(p,+w_1) \land ppos(a,+w_2) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ patf(p,a,+d) \land plemma(p,+w_1) \land cpos(a,+w_2) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
+   $ dep(\_,a,+w) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+   $ dep(\_,a,+w_1) \land voice(p,+w_2) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+   $ dep(\_,a,+w_1) \land dep(\_,p,+w_2) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+\hline
 \end{tabular}
+\caption{Templates of the local formulae for \emph{hasRole/2} and 
+\emph{role/3}. H: head of clause is $hasRole(p,a)$, R: head of clause is 
+$role(p,a,+r)$}
+\label{tbl:f2}
+\end{table*}
 
-\begin{tabular}{p{7.0cm}}
-   $\cdot$ $ ppos(p,+cp) \land hasRole(p,a)$\\
-   $\cdot$ $ plemma(p,+l) \land hasRole(p,a)$\\
-   $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land hasRole(p,a)$\\
-   $\bullet$ $ ppos(p,+pp) \land ppos(a+i,+pa) \land hasRole(p,a)$ for i in $[-1..1]$\\
-   $\cdot$ $ plemma(p,+lp) \land ppos(a,+pa) \land hasRole(p,a)$\\
-   $\bullet$ $ ppos(p,+pp) \land plemma(a,+la) \land hasRole(p,a)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-   $\bullet$ $ cpos(p,+cp1) \land cpos(p-i,+cp2) \land cpos(a,+cp3) \land cpos(a+j,+cp4) \land hasRole(p,a)$ for (i,j) in $[(1,1),(-1,1),(1,-1),(1,1)]$\\
-   $\cdot$ $ppos(p,pp) \land ppos(a,IN) \land dep(a,m,\_) \land ppos(m,+pm) \land hasRole(p,a)$\\
-   $\cdot$ $ ppos(p,pp) \land ppos(a,IN) \land dep(a,m,\_) \land plemma(m,+lm) \land hasRole(p,a)$\\
-   $\cdot$ $ plemma(p,+lp) \land ppos(a,IN) \land dep(a,m,\_) \land ppos(m,+pm) \land hasRole(p,a)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-    $\cdot$ $frame(p,a,+f) \land hasRole(p,a)$\\
-    $\cdot$ $unlabelFrame(p,a,+f) \land hasRole(p,a)$\\
-    $\cdot$ $plemma(p,+lp) \land unlabelFrame(p,a,+f) \land hasRole(p,a)$\\
-    $\cdot$ $plemma(p,+lp) \land plemma(a,+la) \land unlabelFrame(p,a) \land hasRole(p,a,+r)$\\
-    $\cdot$ $ plemma(p,+lp) \land pathFrame(p,a,+f) \land hasRole(p,a)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-    $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land pathFrame(p,a,+f) \land 
-    hasRole(p,a)$\\
-    $\cdot$ $ plemma(p,+lp) \land voice(p,+v) \land pathFrame(p,a,+f) \land hasRole(p,a)$\\
-    $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land pathFrame(p,a,+f) \land 
-    hasRole(p,a)$\\
-    $\cdot$ $ pathFrameDistance(p,a,d) \land hasRole(p,a) \land d = 
-    \left[0,1,2,3,4,5,10\right]$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-    $\diamond$ $ voice(p,+v) \land pathFrameDistance(p,a,d) \land hasRole(p,a)$\\
-    $\diamond$ $ plemma(p,+lp) \land pathFrameDistance(p,a,d) \land hasRole(p,a)$\\
-    $\diamond$ $ plemma(a,+la) \land pathFrameDistance(p,a,d) \land hasRole(p,a)$\\
-    $\diamond$ $ ppos(p,+pp) \land pathFrameDistance(p,a,d) \land hasRole(p,a) $\\
-    $\diamond$ $ ppos(p,+pp) \land ppos(a,+pa) \land pathFrameDistance(p,a,d) \land 
-    hasRole(p,a)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-    $\cdot$ $ dep(\_,a,+d) \land hasRole(p,a) \land | a-p | = 
-    \left[0,1,2,3,4,5,10\right]$\\
-    $\cdot$ $ dep(\_,a,+d) \land voice(p,+v) \land hasRole(p,a) \land | a-p | = 
-    \left[0,1,2,3,4,5,10\right]$\\
-    $\cdot$ $ dep(\_,a,+da) \land dep(\_,p,+dp) \land hasRole(p,a)$\\
-    $\diamond$ $ dep(\_,a,+da) \land dep(\_,p,+dp) \land voice(p,+v) \land hasRole(p,a)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-    $\cdot$ $ path(p,a,+p) \land hasRole(p,a)$\\
-    $\cdot$ $ path(p,a,+p) \land ppos(a,+pa) \land hasRole(p,a)$\\
-    $\cdot$ $ path(p,a,+p) \land plemma(a,+la) \land hasRole(p,a)$\\
-    $\cdot$ $ path(p,a,+p) \land cpos(a,+pa) \land plemma(p,+lp) \land hasRole(p,a)$\\
-    $\cdot$ $ path(p,a,+p) \land plemma(a,+la) \land plemma(p,+lp) \land hasRole(p,a)$\\
-\end{tabular}
-
-This is the summary for the formulae for the \emph{role/3} set:
-\emph{Predicate:} Relates the information of the token of the predicate with the 
-role (we omit the \emph{predicate/1} and \emph{possibleArg} precondition, this is equivalent to conjoin $predicate(p) \land possibleArg(a)$ in the formula)\\
-\begin{tabular}{p{7.0cm}}
-   $\cdot$ $ role(p,a,+r)$\\
-   $\cdot$ $ ppos(p,+pp) \land ppos(a,+pa) \land role(p,a,+r)$\\
-   $\bullet$ $ ppos(p,+cp) \land role(p,a,+r)$\\
-   $\bullet$ $ plemma(p,+l) \land role(p,a,+r)$\\
-   $\bullet$ $ plemma(p,+lp) \land plemma(a,+la) \land role(p,a,+r)$\\
-   $\diamond$ $ plemma(a,+la) \land voice(p,+v) \land role(p,a,+r) \land p-a = \left[0,1,2,3,4,5,10\right]$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-   $\diamond$ $ cpos(p,+cp1) \land cpos(p+i,+cp2) \land cpos(a,+cp3) \land cpos(a+j,+cp4) 
-    \land role(p,a,+r)$ for (i,j) in $[(1,1),(1,-1),(-1,1),(-1,-1)]$\\
-   $\cdot$ $ ppos(p,pp) \land ppos(a,IN) \land dep(a,m,\_) \land ppos(m,+pm) \land 
-    role(p,a,+r)$\\
-   $\cdot$ $  ppos(p,pp) \land ppos(a,IN) \land dep(a,m,\_) \land plemma(m,+lm) \land 
-    role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land ppos(a,IN) \land dep(a,m,\_) \land ppos(m,+pm) \land 
-    role(p,a,+r)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-   $\cdot$ $ frame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ unlabelFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land unlabelFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land unlabelFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land pathFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land pathFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land voice(p,+v) \land pathFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\cdot$ $ plemma(p,+lp) \land plemma(a,+la) \land pathFrame(p,a,+f) \land role(p,a,+r)$\\
-   $\diamond$ $ pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-   $\diamond$ $ voice(p,+v) \land pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-   $\diamond$ $ plemma(p,+lp) \land pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-   $\diamond$ $  plemma(a,+la) \land pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-   $\diamond$ $ ppos(p,+pp) \land pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-   $\diamond$ $ ppos(p,+pp) \land ppos(a,+pa) \land pathFrameDistance(p,a,d) \land role(p,a,+r)$\\
-\end{tabular}
-
-\begin{tabular}{p{7.0cm}}
-  $\diamond$ $ dep(\_,a,+d) \land role(p,a,+r)$\\
-  $\diamond$ $ dep(\_,a,+d) \land voice(p,+v) \land role(p,a,+r)$\\
-  $\cdot$ $ dep(\_,a,+da) \land dep(\_,p,+dp) \land role(p,a,+r)$\\
-  $\diamond$ $ dep(\_,a,+da) \land dep(\_,p,+dp) \land voice(p,+v) \land role(p,a,+r)$\\
-  $\cdot$ $ path(p,a,+p) \land role(p,a,+r)$\\
-  $\cdot$ $ path(p,a,+p) \land ppos(a,+pa) \land role(p,a,+r)$\\
-  $\cdot$ $ path(p,a,+p) \land plemma(a,+la) \land role(p,a,+r)$\\
-  $\cdot$ $ path(p,a,+p) \land cpos(a,+pa) \land plemma(p,+lp) \land role(p,a,+r)$\\
-  $\cdot$ $ path(p,a,+p) \land plemma(a,+la) \land plemma(p,+lp) \land role(p,a,+r)$\\
-\end{tabular}
-
-
-Note that these lists do not mention the feature information because 
+Note that Tables \ref{tbl:f1,tbl:f2} do not mention the feature information because 
 this information was not available for every language. We therefore group the 
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
 \begin{tabular}{p{7.0cm}}
-   $\cdot$ $ feature(p,+f,+v) \land sense(p,+s)    $\\
-   $\cdot$ $ feature(p,+f,+v) \land isArgument(a)    $\\
-   $\cdot$ $ feature(p,+f,+v1) \land feature(p,f,+v2) \land hasRole(p,a)    $\\
-   $\cdot$ $ feature(p,+f,+v1) \land feature(p,f,+v2) \land role(p,a,+r)   $\\
+   $ feature(p,+f,+v) \land sense(p,+s)    $\\
+   $ feature(p,+f,+v) \land isArgument(a)    $\\
+   $ feature(p,+f,+v1) \land feature(p,f,+v2) \land hasRole(p,a)    $\\
+   $ feature(p,+f,+v1) \land feature(p,f,+v2) \land role(p,a,+r)   $\\
 \end{tabular}
 
 
@@ -195,17 +135,11 @@ and \emph{role/3} predicates.  In particular, these formulae were beneficial for
 the Japanese language.  This is a summary of such formulae which we called 
 \emph{argument siblings}:
 \begin{tabular}{p{7.0cm}}
-   $\cdot$ $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
-   $\cdot$ $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
-   $\cdot$ $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
-   $\cdot$ $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
 \end{tabular}
-
-
-\begin{itemize}\addtolength{\itemsep}{-0.5\baselineskip}
-    \item POS of argument and POS of argument sibling.
-    \item POS of argument and lemma of argument sibling.
-\end{itemize}
 
 With these sets of formulae we can build specific MLNs for each language in 
 the shared task. Table \ref{tbl:diff} shows the different configurations we use for the individual languages. We 
