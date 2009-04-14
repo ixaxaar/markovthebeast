@@ -6,7 +6,7 @@ template language that uses First Order Logic formulae to instantiate
 Markov Networks of repetitive structure. 
 
 In the ML framework,  we model the SRL task by first introducing a set of 
-logical predicates \footnote{In the cases were is not obvious whether we refer 
+logical predicates\footnote{In the cases were is not obvious whether we refer 
 to SRL or ML predicates we add the prefix SRL or ML, respectively.} such as 
 \emph{word(Token,Ortho)} or \emph{role(Token,Token,Role)}. In the case of 
 \emph{word/2} the predicate represents a word of a sentence, the type 
@@ -14,7 +14,7 @@ to SRL or ML predicates we add the prefix SRL or ML, respectively.} such as
 orthography. In the case of \emph{role/3}, the predicate represents a semantic 
 role. The first token identifies the position of the predicate, the second the 
 syntactic head of the argument and finally the type Role signals the semantic 
-role label. We will refer predicates such as \emph{word/2} as \emph{observed} 
+role label. We will refer to predicates such as \emph{word/2} as \emph{observed} 
 because they are known in advance. In contrast, \emph{role/3} is \emph{hidden} 
 because we need to infer it at test time.
 

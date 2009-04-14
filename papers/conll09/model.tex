@@ -9,10 +9,8 @@ predicates. Consider the example of the previous section:
     \item [\emph{hasRole/2}] relates a SRL predicate to a SRL argument. For example, \emph{hasRole(3,2)} relates the
         predicate in position $3$ (i.e., \emph{play}) to the phrase which head 
         is in position $2$ (i.e., \emph{Ms. Haag}).
-    \item [\emph{role/3}] besides relating predicate and argument, it also
-        identifies a role for the pair. For example,
-        \emph{role(3,2,ARG0)} denotes the role for the predicate-argument pair 
-        presented above.
+    \item [\emph{role/3}] identifies the role for a predicate and argument. For example,
+        \emph{role(3,2,ARG0)} denotes the role for the predicate-argument pair presented for \emph{hasRole/2}.
     \item [\emph{sense/2}] denotes the sense of a predicate at a
         specific position. For example, \emph{sense(3,02)}
         signals that the predicate in position $3$ has the sense \emph{02}.
@@ -38,5 +36,5 @@ predicate to its head.  We will refer to the paths and most of the frames
 predicates as the \emph{path} predicates, while we will consider the 
 \emph{frame} predicates for a unique token part \emph{token} predicates.
 
-The here presented ML predicates are used within the formulae of our MLN.  We 
+The ML predicates here presented are used within the formulae of our MLN.  We 
 distinguish between two types of formula: local and global. 

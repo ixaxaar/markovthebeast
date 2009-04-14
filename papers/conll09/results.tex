@@ -1,11 +1,11 @@
 For our experiments we use the corpora provided in the SRLonly track of the shared task. Our MLN is tested on the following languages: Catalan and Spanish 
 \citep{catalan-and-spanish-data} , Chinese \citep{chinese-data}, Czech 
-\citep{czech-data}\footnote{For training we use only sentences shorter than 40 
-words in this corpus.}, English \citep{english-data}, German 
+\citep{czech-data},\footnote{For training we use only sentences shorter than 40 
+words in this corpus.} English \citep{english-data}, German 
 \citep{german-data}, Japanese \citep{japanese-data}. 
 
-Table \ref{tbl:results} presents the f1-scores and training/test times for the development and
-in-domain corpora. Clearly, our model does better for the English. This is in part because the original model was developed for English. 
+Table \ref{tbl:results} presents the F1-scores and training/test times for the development and
+in-domain corpora. Clearly, our model does better for English. This is in part because the original model was developed for English. 
 
 % SR: needless to say that if we don't argue why
 % The model has the poorer performance for the German language.  
@@ -15,7 +15,7 @@ To put these results into context: our SRL system is the third best in the \emph
 track of the Shared Task, and it is the sixth best on both \emph{Joint} 
 and \emph{SRLOnly} tracks. For five of the languages the difference to the F1 scores 
 of the best system is $3\%$.  However, for 
-German it is $6.19\%$ and for Czech $10.76\%$.  One possible explanation for the poor performance on Czech data will be given in \ref{sec:analysis}. Note that in comparison our system does slightly better in terms of precision than in terms of recall (we have the fifth best average precision and the eighth average 
+German it is $6.19\%$ and for Czech $10.76\%$.  One possible explanation for the poor performance on Czech data will be given below. Note that in comparison our system does slightly better in terms of precision than in terms of recall (we have the fifth best average precision and the eighth average 
 recall).
 
 % SR: Despite of what I said previously, I took these out because they don't make sense if we don't know that corpus sizes (and at least for Chinese we don't do here). So we just conform to the organizer request.
@@ -23,13 +23,14 @@ recall).
 %slowest set was Czech which corresponds to the longest testing set. 
 
 \begin{table}
+
 \begin{center}
 \small
-\begin{tabular}{|l|l|l|c|c|}\hline
-Language           & Devel        & Test       & Train time  & Test time  
-\\\hline\hline
+\begin{tabular}{|l|c|c|c|c|}\hline
+Language           & Devel        & Test       & Train & Test  \\ 
+                   &          &         & time  & time \\\hline
 %role score a
-% average len dev, average len train, num preds
+Average         & $77.25\%$    & $77.46\%$  & 11h 29m & 23m   \\\hline
 Catalan         & $78.10\%$    & $78.00\%$  & 6h 11m  & 14m   \\ %0.740
 %53060/1862=28.5, 390302 13200 29.5683, 37508,
 Chinese         & $77.97\%$    & $77.73\%$  & 36h 30m & 34m   \\ %0.700
@@ -44,7 +45,6 @@ Japanese        & $76.34\%$    & $76.00\%$  & 2h 17m  & 4m    \\ %0.609
 %13615/500=27.2, 112555 4393 25.6214, 26605,
 Spanish         & $78.03\%$    & $77.91\%$  & 6h 9m   & 16m   \\ %0.744
 %50630/1725=29.4, 427442 14329 29.8306, 44371,
-
 \hline
 \end{tabular}
 \caption{F-scores for in-domain in corpora for each language.}

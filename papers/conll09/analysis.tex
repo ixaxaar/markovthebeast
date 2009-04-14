@@ -2,7 +2,7 @@
 We found that the MLN for Czech was the one 
 with the largest difference in performance when compared to the best 
 system. By inspecting our results for the development set, we found that for Czech many of the 
-errors were of rather technical nature. Our system would usually extract frame IDs (such as ``play.02'') by concatenating the lemma of the token and outcome of the \emph{sense/2} prediction (for the ``02'' part). However, in the case of Czech some frame IDs are not based on the lemma of the token, but on an abstract ID in a vocabulary (e.g., ``v-w1757f1''). In these cases our heuristic failed, leading to poor results for frame ID extraction. 
+errors were of a rather technical nature. Our system would usually extract frame IDs (such as ``play.02'') by concatenating the lemma of the token and outcome of the \emph{sense/2} prediction (for the ``02'' part). However, in the case of Czech some frame IDs are not based on the lemma of the token, but on an abstract ID in a vocabulary (e.g., ``v-w1757f1''). In these cases our heuristic failed, leading to poor results for frame ID extraction. 
 
 % SR: I removed the part with the new heuristic, because it wasn't really clear to me what was done, and when.
 

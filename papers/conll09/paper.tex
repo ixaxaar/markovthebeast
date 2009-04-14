@@ -48,17 +48,12 @@ sebastian.riedel@gmail.com
 \maketitle
 \begin{abstract}
 This paper presents our system for the CoNLL 2009 Shared
-Task in Syntactic and Semantic Dependencies in Multiple
+Task on Syntactic and Semantic Dependencies in Multiple
 Languages \citep{CoNLL-2009-ST}. In this work we focus only
-in the Semantic Role Labelling (SRL) task. We use Markov Logic to define a joint SRL model and achieve
-the third best average performance in the closed Track for SRLOnly system and 
-the sixth including for SRLOnly and Joint systems.
+on the Semantic Role Labelling (SRL) task. We use Markov Logic to define a joint SRL model and achieve
+the third best average performance in the closed Track for SRLOnly systems and 
+the sixth including for both SRLOnly and Joint systems.
 \end{abstract}
-
-\section{Introduction}
-
-\input{introduction.tex}
-
 \section{Markov Logic} \label{sec:markovlogic}
 
 \input{markovlogic.tex}
@@ -78,7 +73,7 @@ the sixth including for SRLOnly and Joint systems.
 
 \input{results.tex}
 
-\subsection{Analysis}\label{sec:analysis}
+%\subsection{Analysis}\label{sec:analysis}
 
 \input{analysis}
 
@@ -90,3 +85,48 @@ the sixth including for SRLOnly and Joint systems.
 \bibliography{extra,seb}
 
 \end{document}
+
+% Reviwer 1
+
+% 1. native speaker
+% 2. Remove 4.1 subheading (done! take out the reference to the label as well )
+% 3. Include average scores (done)
+% 4. Table 1 reference wrong render (done)
+% 5. Fix footnotes (done).
+% 6. Use \noindent in the list 
+% 7. Typos
+    %Abstract:
+    %"Task in" -> "Task on" (done)
+    %"focus only in" -> "focus only on" (done)
+    %"closed Track for SRLOnly system" -> "closed track for SRLOnly systems" (done)
+    %Page 1:
+    %"that require to answer ... questions" -> "that are required to answer
+    %questions such as ..." (done)
+    %Page 2:
+    %"refer predicates" -> "refer to predicates" (done)
+    %The third item in the list is not syntactically coherent. (kind of done)
+    %Page 3:
+    %"The here presented ML predicates" -> "The ML predicates presented here" (done)
+    %Page 4:
+    %"these lists does" -> "these lists do" (done)
+    %The caption of Table 1 is garbled. (done)
+    %Page 5:
+    %"empiricaly" -> "empirically" (not found)
+    %"SRLonly-closed track" -> "closed track for SRLOnly systems" (not found)
+    %"f1" -> "F1" (done)
+    %"for the English" -> "for English" (done)
+    %"of rather technical" -> "of a rather technical" (done)
+
+% Reviewer 2.
+% Minor issues:
+% p1. the last sentence in abstract: => .. sixth for joint systems. (done)
+% p4. right column, the reference to Table 1 is broken and shown as ?? 
+
+
+% Our notes:
+%   * Change descripions of rules for shorter versions (use templates, maybe put them into tables with smaller font size—-the bullet points don't look to good I think)
+%   * Clarify the use of modules
+%   * Fix Czech sense heuristic?
+%   * Show some numbers that explain check problems?
+%   * Explain effect of Japanese formulae
+ 

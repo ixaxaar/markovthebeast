@@ -2,8 +2,8 @@
 Semantic Role Labelling~\citep[SRL, ][]{marquez08srl} is generally understood as 
 the task of identifying and classifying the semantic arguments and modifiers of 
 the predicates mentioned in a sentence. For example, in the case of the 
-following sentence\footnote{``Haag plays Elianti'' is a segment of a sentence in 
-training corpus.}:
+following sentence:\footnote{``Haag plays Elianti'' is a segment of a sentence in 
+training corpus.}
 \begin{quote}
 \begin{center}
     \includegraphics[scale=.63]{haag-example}
@@ -13,8 +13,7 @@ we are to find out that for the predicate token {}``plays'' with sense ``play a
 role'' (play.02) the phrase headed by the token {}``Haag'' is referring to the 
 player (A0) of the play event, and the phrase headed by the token {}``Elianti''  
 is referring to the role (A1) being played. SRL is considered as a key task for 
-applications that require to answer {}``Who'', {}``What'', {}``Where'', etc.  
-questions, such as Information Extraction, Question Answering and Summarization.  
+applications that are required to answer questions such as {}``Who'', {}``What'', {}``Where'', etc.  
 
 In this paper we introduce a Markov Logic~\citep[ML,][]{richardson06mln} approach to multi-lingual
 SRL. We present a brief introduction to ML in 
@@ -27,7 +26,7 @@ disambiguation. We also define modules for some of the language specific aspects
 the task. We present all our ML modules in section 
 \ref{sec:model}. These modules are the building blocks that we use to create 
 MLNs for specific languages. We present our experiments and results for each of 
-the languages of the task in section \ref{sec:results}. In section 
-\ref{sec:analysis} we present some error analysis.
+the languages of the task in section \ref{sec:results}.
+% In section \ref{sec:analysis} we present some error analysis.
 
 
