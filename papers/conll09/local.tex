@@ -38,86 +38,83 @@ The second difference is the fact that for the \emph{sense/2} formulae we have d
 %the \emph{predicate/1} precondition on the formulae, this is equivalent to 
 %conjoin the \emph{predicate(t)} in the formulae):
 Table \ref{tbl:f1} presents the templates of the local formuale for 
-\emph{isArgument/1} and \emph{sense/2}. Templates are a way to briefly describe 
+\emph{isArgument/1} and \emph{sense/2}. Templates allow to briefly describe 
 the FOL formulae of a ML. The template column shows the main body of the 
-formulae, the parameters column shows the values that the parameters can take.For 
-example, in the second row, the template contains the parameters $P$ and $i$ and its possible values. In total, this row represents $10$ 
-formulae. For instance, one of these is: \[ plemma(p+1,+l) \], this is replaceing $plemma$ for P and $1$ for i. 
-Additionally, these templates omit the precondition \emph{predicate(p)} which ensures the formulae is only apply to SRL predicates. This means the template should be read as: \[ predicate(p) \land  plemma(p+1,+l) \]
-Finally, the last two columns indicate if there is a version of formula for the 
-$isArgument/1$ (I) and/or $sense/2$ (S). In the case of our example, this means there are two formulae:
-\[ predicate(p) \land plemma(p+1,+l) \land isArgument(p) \] and \[predicate(p) \land plemma(p+1,+l) \land sense(p,+s)\].
+formulae. These templates omit the precondition \emph{predicate(p)} which ensures the formulae is only apply to SRL predicates. The last two columns of the table indicate if there is a version of formula for the 
+$isArgument/1$ (I) and/or $sense/2$ (S). Consider the first row, including the precondition this template is:
+$ predicate(p) \land word(p,+w) $ since the last two columns of the row are marked this template expands into two formulae:
+$predicate(p) \land word(p,+w) \land isArgument(p)$ and $predicate(p) \land word(p,+w) \land sense(p,+s)$
+In the case of the template mark with a ``*'' sign, the paramter $P$ and $I$, where $P \in \{ppos,plemma\}$ and $I \in \{-2..2\}$, have to be replaced by any combination of possible values, in total there are $10$ templates for that row. 
 
-\begin{table*}
+\begin{table}
 \centering
-\begin{tabular}{|p{8cm}|c|c|c|}\hline
-   Template       & Parameters & I & S \\\hline
-   $ word(p,+w)$  &            & X & X \\
-   $ P(p+i,+l)$   & $P \in \{plemma, ppos\}$, $ i \in \{-2..2\}$ & X & X \\
-   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2)$ & & X & X\\
-   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land cpos(p+2,+cp3) \land cpos(p-2,+cp4)$ & & X & X\\
-   $ dep(p,\_,+d)$ & & X & X\\
-   $ dep(\_,p,+d)$ & & X & X\\
-   $ ppos(j,+pj)  \land dep(p,j,+d)$ & & X & X \\
-   $ ppos(j,+pj)  \land ppos(i,+pa) \land dep(p,j,+d)$ & & X & X \\
-   $ ppos(i,+pj)  \land ppos(i,+pa) \land dep(i,j,\_) \land dep(j,p,+d)$ & & X & X \\
-   $ plemma(j,+l) \land dep(j,j,+d)$ & & X & X\\
-   $ frame(p,+f)$ & & X & X\\
-                  & &   & X \\
+\begin{tabular}{|p{6cm}|c|c|}\hline
+   Template       & I & S \\\hline\hline
+   $ word(p,+w)$  & X & X \\\hline
+   $ \mathbf{P}(p+\mathbf{I},+l)$*  & X & X \\\hline
+   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2)$ & X & X\\\hline
+   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land cpos(p+2,+cp3) \land cpos(p-2,+cp4)$ & X & X\\\hline
+   $ dep(p,\_,+d)$ & X & X\\\hline
+   $ dep(\_,p,+d)$ & X & X\\\hline
+   $ ppos(j,+pj)  \land dep(p,j,+d)$ & X & X \\\hline
+   $ ppos(j,+pj)  \land ppos(i,+pa) \land dep(p,j,+d)$ & X & X \\\hline
+   $ ppos(i,+pj)  \land ppos(i,+pa) \land dep(i,j,\_) \land dep(j,p,+d)$ & X & X \\\hline
+   $ plemma(j,+l) \land dep(j,j,+d)$ & X & X\\\hline
+   $ frame(p,+f)$ & X & X\\\hline
+                  &   & X \\
 \hline
 \end{tabular}
 \caption{Templates of the local formulae for \emph{isArgument/1} and 
 \emph{sense/2}. I: head of clause is $isArgument(a)$, S: head of clause is 
 $sense(p,+s)$}
 \label{tbl:f1}
-\end{table*}
+\end{table}
 
 The formulae in \emph{hasRole/2} and \emph{role/3} sets are conditioned on both 
 the predicates \emph{possibleArg/1} and \emph{predicate/1} since both try 
 to establish a relation between SRL predicates and arguments. For these predicate 
 we use \emph{token}, \emph{extended} and \emph{path} predicates.
 
-Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} and \emph{role/3} predicates. This table follows similar rules of expansion than the described for the templates in \emph{tbl:f1}. The only difference is that these templetates are precondition by \[ predicate(p) \land possibleArg(a) \]. 
-\begin{table*}
+Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} and \emph{role/3} predicates. In this case, these templetates have as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures these formulae is only applied for SRL predicates and potential SRL arguments. In this table we include the values for the templates which require one. For this formulae is possible to include a notion of distance between SRL predicate and SRL argument. The formula for which there are two version of the formulae (with and without distance) is marked with \emph{Both}. The formulae which does not have a distance version are marked with \emph{No}. Finally the formulae which only has a distance version is marked with \emph{Only}.   
+\begin{table*}[th]
 \centering
-\begin{tabular}{|p{8cm}|p{4cm}|c|c|}\hline
-   Template               & Parameters & H & R \\\hline
-   $                 $    &                        & X & X \\
-   $ P(p,+w)         $    & $P \in \{plemma,ppos\}$ & X & X \\
-   $ P(p,+w) \land +d$    & $P \in \{plemma,ppos\}$, $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
-   $ plemma (p,+w_1) \land ppos(a,+w_2) $    & & X &  \\
-   $ ppos(p,+w_1) \land plemma(a,+w_2) $    & & X &  \\
-   $ plemma(p,+w_1) \land plemma(a,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ & X & X \\
-   $ ppos(p,+w_1) \land ppos(a,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
-   $ ppos(p,+w_1) \land ppos(a+i,+w_2) \land +d $ & $i \in \{-1,0,1\}$, $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
-   $ lemma(p,+w) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ &  & X  \\
-   $ lemma(a,+w) \land voice(p,+w_2) \land +d $ & $d \in \{0,1,2,3,4,5,10\}$ &  & X  \\
-   $ cpos(p,+cp1) \land cpos(p+i,+cp2) \land cpos(a,+cp3) \land cpos(a+j,+cp4)$ & $i,j \in \{-1,1\}^2$ & X & X\\
-   $ ppos(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land P(m,+w_2) $ & $P \in \{ppos, plemma \}$ & X &  X \\
-   $ plemma(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land pposm,+w_2) $ & & X &  X \\
-   $ P(p,a,+w)         $    & $P \in \{frame, unlabelFrame, path\}$ & X & X \\
-   $ P(p,a,+w_1) \land plemma(p,+w_2) $ & $P \in \{frame,pathFrame\}$             & X & X \\
-   $ P(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $P \in \{frame,pathFrame,path\}$   & X & X \\
-   $ pathFrame(p,a,+w_1) \land lemma(p,+w_2) \land voice(p,+v) $ &            & X & X \\
-   $ pathFrameDist(p,a,+d) $ &  $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ pathFrameDist(p,a,+d) \land voice(p,+w) $ &  $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ pathFrameDist(p,a,+d) \land plemma(p,+w) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ P(p,a,+d) \land plemma(a,+w) $ & $P \in \{pathFrameDist, path\}$, $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ P(p,a,+d) \land ppos(p,+w) $ & $P \in \{pathFrameDist, path\}$, $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ pathFrameDist(p,a,+d) \land ppos(p,+w_1) \land ppos(a,+w_2) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ patf(p,a,+d) \land plemma(p,+w_1) \land cpos(a,+w_2) $ & $d \in \{0,1,2,3,4,5,10\}$           & X & X \\
-   $ dep(\_,a,+w) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
-   $ dep(\_,a,+w_1) \land voice(p,+w_2) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
-   $ dep(\_,a,+w_1) \land dep(\_,p,+w_2) \land +d$    & $d \in \{0,1,2,3,4,5,10\}$ & X &   \\
+\begin{tabular}{|p{11cm}|c|c|c|c|}\hline
+   Template               & Parameters & Dist. & H & R \\\hline\hline
+   $ \mathbf{P}(p,+w)         $    & $P \in S_1$   & Both & X & X \\\hline
+   $ plemma (p,+w_1) \land ppos(a,+w_2) $   & & No    & X &  \\\hline
+   $ ppos(p,+w_1) \land plemma(a,+w_2)  $   & & No    & X &  \\\hline
+   $ plemma(p,+w_1) \land plemma(a,+w_2)$   & & Only  & X & X \\\hline
+   $ ppos(p,+w_1) \land ppos(a,+w_2)$       & & Only  & X &   \\\hline
+   $ ppos(p,+w_1) \land ppos(a+\mathbf{I},+w_2)$     & $\mathbf{I} \in \{-1,0,1\}$ & Only& X &   \\\hline
+   $ lemma(p,+w)$ & & Only & & X  \\\hline
+   $ lemma(a,+w) \land voice(p,+w_2)$ & & Only & & X  \\\hline
+   $ cpos(p,+cp1) \land cpos(p+\mathbf{I},+cp2) \land cpos(a,+cp3) \land cpos(a+\mathbf{J},+cp4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & X\\\hline
+   $ ppos(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land \mathbf{P}(m,+w_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\\hline
+   $ plemma(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land pposm,+w_2) $ & & No & X &  X \\\hline
+   $ \mathbf{P}(p,a,+w)         $    & $P \in S_2$ & No & X & X \\\hline
+   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) $ & $P \in S_3$           & No  & X & X \\\hline
+   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $P \in S_4$ & No  & X & X \\\hline
+   $ pathFrame(p,a,+w_1) \land lemma(p,+w_2) \land voice(p,+v) $ &      & No      & X & X \\\hline
+   $ pathFrameDist(p,a,+d) $      &  & Only   & X & X \\\hline
+   $ pathFrameDist(p,a,+d) \land voice(p,+w) $ &  & Only           & X & X \\\hline
+   $ pathFrameDist(p,a,+d) \land plemma(p,+w)$ &  & Only           & X & X \\\hline
+   $ \mathbf{P}(p,a,+d) \land plemma(a,+w) $ & $P \in S_5$ & Only         & X & X \\\hline
+   $ \mathbf{P}(p,a,+d) \land ppos(p,+w) $ & $P \in S_5$   & Only        & X & X \\\hline
+   $ pathFrameDist(p,a,+d) \land ppos(p,+w_1) \land ppos(a,+w_2) $ &  & Only           & X & X \\\hline
+   $ path(p,a,+d) \land plemma(p,+w_1) \land cpos(a,+w_2) $ &  & Only          & X & X \\\hline
+   $ dep(\_,a,+w)$  & & Only  & X & X \\\hline
+   $ dep(\_,a,+w_1) \land voice(p,+w_2) \land +d$    &  & Only & X & X  \\\hline
+   $ dep(\_,a,+w_1) \land dep(\_,p,+w_2) \land +d$    & & Only & X & X  \\\hline
+   $                 $    &                           & No & X & X \\
 \hline
 \end{tabular}
 \caption{Templates of the local formulae for \emph{hasRole/2} and 
 \emph{role/3}. H: head of clause is $hasRole(p,a)$, R: head of clause is 
-$role(p,a,+r)$}
+$role(p,a,+r)$ and $S_1 = \{ppos,plemma\}, S_2=\{frame, unlabelFrame, path\}, S_3= \{frame,pathFrame\},S_4=\{frame,pathFrame,path\}, S_5= \{pathFrameDist, path\} $}
 \label{tbl:f2}
 \end{table*}
 
-Note that Tables \ref{tbl:f1,tbl:f2} do not mention the feature information because 
+Note that Tables \ref{tbl:f1} and \ref{tbl:f2} do not mention the feature information because 
 this information was not available for every language. We therefore group the 
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
