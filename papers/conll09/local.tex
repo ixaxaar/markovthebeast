@@ -43,7 +43,7 @@ the FOL formulae of a ML. The template column shows the main body of the
 formulae. These templates omit the precondition \emph{predicate(p)} which ensures the formulae is only apply to SRL predicates. The last two columns of the table indicate if there is a version of formula for the 
 $isArgument/1$ (I) and/or $sense/2$ (S). Consider the first row, including the precondition this template is:
 $ predicate(p) \land word(p,+w) $ since the last two columns of the row are marked this template expands into two formulae:
-$predicate(p) \land word(p,+w) \land isArgument(p)$ and $predicate(p) \land word(p,+w) \land sense(p,+s)$
+$predicate(p) \land word(p,+w) \Rightarrow isArgument(p)$ and $predicate(p) \land word(p,+w) \Rightarrow sense(p,+s)$
 In the case of the template mark with a ``*'' sign, the paramter $P$ and $I$, where $P \in \{ppos,plemma\}$ and $I \in \{-2..2\}$, have to be replaced by any combination of possible values, in total there are $10$ templates for that row. 
 
 \begin{table}
@@ -78,9 +78,9 @@ we use \emph{token}, \emph{extended} and \emph{path} predicates.
 Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} and \emph{role/3} predicates. In this case, these templetates have as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures these formulae is only applied for SRL predicates and potential SRL arguments. In this table we include the values for the templates which require one. For this formulae is possible to include a notion of distance between SRL predicate and SRL argument. The formula for which there are two version of the formulae (with and without distance) is marked with \emph{Both}. The formulae which does not have a distance version are marked with \emph{No}. Finally the formulae which only has a distance version is marked with \emph{Only}.   
 \begin{table*}[th]
 \centering
-\begin{tabular}{|p{11cm}|c|c|c|c|}\hline
-   Template               & Parameters & Dist. & H & R \\\hline\hline
-   $ \mathbf{P}(p,+w)         $    & $P \in S_1$   & Both & X & X \\\hline
+\begin{tabular}{|>{\small}p{10cm}|>{\small}c|>{\small}c|>{\small}c|>{\small}c|}\hline
+ Template               & Parameters & Dist. & H & R \\\hline\hline
+   $ \mathbf{P}(p,+w)         $    & $\mathbf{P} \in S_1$   & Both & X & X \\\hline
    $ plemma (p,+w_1) \land ppos(a,+w_2) $   & & No    & X &  \\\hline
    $ ppos(p,+w_1) \land plemma(a,+w_2)  $   & & No    & X &  \\\hline
    $ plemma(p,+w_1) \land plemma(a,+w_2)$   & & Only  & X & X \\\hline
@@ -89,25 +89,28 @@ Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} a
    $ lemma(p,+w)$ & & Only & & X  \\\hline
    $ lemma(a,+w) \land voice(p,+w_2)$ & & Only & & X  \\\hline
    $ cpos(p,+cp1) \land cpos(p+\mathbf{I},+cp2) \land cpos(a,+cp3) \land cpos(a+\mathbf{J},+cp4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & X\\\hline
-   $ ppos(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land \mathbf{P}(m,+w_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\\hline
-   $ plemma(p,+w_1) \land ppos(a,IN) \land dep(a,m,\_) \land pposm,+w_2) $ & & No & X &  X \\\hline
-   $ \mathbf{P}(p,a,+w)         $    & $P \in S_2$ & No & X & X \\\hline
-   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) $ & $P \in S_3$           & No  & X & X \\\hline
-   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $P \in S_4$ & No  & X & X \\\hline
+   $ ppos(p,+w_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land \mathbf{P}(m,+w_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\\hline
+   $ plemma(p,+w_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land ppos(m,+w_2) $ & & No & X &  X \\\hline
+   $ \mathbf{P}(p,a,+w)         $    & $\mathbf{P} \in S_2$ & No & X & X \\\hline
+   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) $ & $\mathbf{P} \in S_3$           & No  & X & X \\\hline
+   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $\mathbf{P} \in S_4$ & No  & X & X \\\hline
    $ pathFrame(p,a,+w_1) \land lemma(p,+w_2) \land voice(p,+v) $ &      & No      & X & X \\\hline
    $ pathFrameDist(p,a,+d) $      &  & Only   & X & X \\\hline
    $ pathFrameDist(p,a,+d) \land voice(p,+w) $ &  & Only           & X & X \\\hline
    $ pathFrameDist(p,a,+d) \land plemma(p,+w)$ &  & Only           & X & X \\\hline
-   $ \mathbf{P}(p,a,+d) \land plemma(a,+w) $ & $P \in S_5$ & Only         & X & X \\\hline
-   $ \mathbf{P}(p,a,+d) \land ppos(p,+w) $ & $P \in S_5$   & Only        & X & X \\\hline
+   $ \mathbf{P}(p,a,+d) \land plemma(a,+w) $ & $\mathbf{P} \in S_5$ & Only         & X & X \\\hline
+   $ \mathbf{P}(p,a,+d) \land ppos(p,+w) $ & $\mathbf{P} \in S_5$   & Only        & X & X \\\hline
    $ pathFrameDist(p,a,+d) \land ppos(p,+w_1) \land ppos(a,+w_2) $ &  & Only           & X & X \\\hline
    $ path(p,a,+d) \land plemma(p,+w_1) \land cpos(a,+w_2) $ &  & Only          & X & X \\\hline
    $ dep(\_,a,+w)$  & & Only  & X & X \\\hline
    $ dep(\_,a,+w_1) \land voice(p,+w_2) \land +d$    &  & Only & X & X  \\\hline
    $ dep(\_,a,+w_1) \land dep(\_,p,+w_2) \land +d$    & & Only & X & X  \\\hline
-   $                 $    &                           & No & X & X \\
-\hline
+% SR: Empty line
+%%   $                 $    &                           & No & X & X \\
+%hline
 \end{tabular}
+
+
 \caption{Templates of the local formulae for \emph{hasRole/2} and 
 \emph{role/3}. H: head of clause is $hasRole(p,a)$, R: head of clause is 
 $role(p,a,+r)$ and $S_1 = \{ppos,plemma\}, S_2=\{frame, unlabelFrame, path\}, S_3= \{frame,pathFrame\},S_4=\{frame,pathFrame,path\}, S_5= \{pathFrameDist, path\} $}
@@ -119,10 +122,10 @@ this information was not available for every language. We therefore group the
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
 \begin{tabular}{p{7.0cm}}
-   $ feature(p,+f,+v) \land sense(p,+s)    $\\
-   $ feature(p,+f,+v) \land isArgument(a)    $\\
-   $ feature(p,+f,+v1) \land feature(p,f,+v2) \land hasRole(p,a)    $\\
-   $ feature(p,+f,+v1) \land feature(p,f,+v2) \land role(p,a,+r)   $\\
+   $ feature(p,+f,+v) \Rightarrow sense(p,+s)    $\\
+   $ feature(p,+f,+v) \Rightarrow isArgument(a)    $\\
+   $ feature(p,+f,+v1) \land feature(p,f,+v2) \Rightarrow hasRole(p,a)    $\\
+   $ feature(p,+f,+v1) \land feature(p,f,+v2) \Rightarrow role(p,a,+r)   $\\
 \end{tabular}
 
 
@@ -132,10 +135,10 @@ and \emph{role/3} predicates.  In particular, these formulae were beneficial for
 the Japanese language.  This is a summary of such formulae which we called 
 \emph{argument siblings}:
 \begin{tabular}{p{7.0cm}}
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \land role(p,a,+r)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \Rightarrow hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \Rightarrow role(p,a,+r)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \Rightarrow hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \Rightarrow role(p,a,+r)    $\\
 \end{tabular}
 
 With these sets of formulae we can build specific MLNs for each language in 
