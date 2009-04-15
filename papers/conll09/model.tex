@@ -16,11 +16,14 @@ predicates. Consider the example of the previous section:
         signals that the predicate in position $3$ has the sense \emph{02}.
 \end{description}
 
-We also define three sets of observable predicates. The first set represents information about each token as provided in the shared task corpora for the closed track:  \emph{word} for the word form (e.g. \emph{word}(3,plays)); \emph{plemma/2} for the 
-lemma; \emph{ppos/2} for the POS tag; \emph{feature/3} for each feature-value 
-pair; \emph{dependency/3} for the head dependency and relation; 
-\emph{predicate/1} for tokens that are predicates according to the ``FILLPRED'' column. We will refer to these 
-predicates as the \emph{token} predicates. 
+We also define three sets of observable predicates. The first set represents 
+information about each token as provided in the shared task corpora for the 
+closed track:  \emph{word} for the word form (e.g. \emph{word}(3,plays)); 
+\emph{plemma/2} for the lemma; \emph{ppos/2} for the POS tag; \emph{feat/3} for 
+each feature-value pair; \emph{dependency/3} for the head dependency and 
+relation; \emph{predicate/1} for tokens that are predicates according to the 
+``FILLPRED'' column. We will refer to these predicates as the \emph{token} 
+predicates. 
 
 The second set extends the information provided in the closed track corpus: 
 \emph{cpos/2} is a coarse POS tag (first letter of actual POS tag); \emph{possibleArg/1} is true if the POS tag the token is a potential SRL argument  POS tag (e.g., PUNC is not); \emph{voice/2} denotes the voice for verbal tokens based on heuristics that use

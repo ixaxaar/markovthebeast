@@ -38,29 +38,40 @@ The second difference is the fact that for the \emph{sense/2} formulae we have d
 %the \emph{predicate/1} precondition on the formulae, this is equivalent to 
 %conjoin the \emph{predicate(t)} in the formulae):
 Table \ref{tbl:f1} presents the templates of the local formuale for 
-\emph{isArgument/1} and \emph{sense/2}. Templates allow to briefly describe 
-the FOL formulae of a ML. The template column shows the main body of the 
-formulae. These templates omit the precondition \emph{predicate(p)} which ensures the formulae is only apply to SRL predicates. The last two columns of the table indicate if there is a version of formula for the 
-$isArgument/1$ (I) and/or $sense/2$ (S). Consider the first row, including the precondition this template is:
-$ predicate(p) \land word(p,+w) $ since the last two columns of the row are marked this template expands into two formulae:
-$predicate(p) \land word(p,+w) \Rightarrow isArgument(p)$ and $predicate(p) \land word(p,+w) \Rightarrow sense(p,+s)$
-In the case of the template mark with a ``*'' sign, the paramter $P$ and $I$, where $P \in \{ppos,plemma\}$ and $I \in \{-2..2\}$, have to be replaced by any combination of possible values, in total there are $10$ templates for that row. 
+\emph{isArgument/1} and \emph{sense/2}. Templates allow to briefly describe the 
+FOL formulae of a ML. The template column shows the main body of the formulae.  
+The templates of this table omit the precondition for the hidden predicate which 
+ensures the formulae are only applied to SRL predicates or potential SRL 
+arguments.  The last two columns of the table indicate if there is a version of 
+formula for the $isArgument/1$ (I) and/or $sense/2$ (S). Consider the first row, 
+since the last two columns of the row are marked this template expands into two 
+formulae:
+$word(p,+w) \Rightarrow isArgument(p)$ and $word(p,+w) \Rightarrow sense(p,+s)$.  
+Including the preconditions for each hidden predicate we obtain the following 
+formulae:
+$possibleArg(a) \land word(p,+w) \Rightarrow isArgument(p)$ and $ predicate(p) 
+\land word(p,+w) \Rightarrow sense(p,+s)$.  In the case of the template mark 
+with a ``*'' sign, the paramters $P$ and $I$, where $P \in \{ppos,plemma\}$ and 
+$I \in \{-2..2\}$, have to be replaced by any combination of possible values, in 
+total there are $10$ templates for that row. 
 
 \begin{table}
 \centering
 \begin{tabular}{|p{6cm}|c|c|}\hline
    Template       & I & S \\\hline\hline
-   $ word(p,+w)$  & X & X \\\hline
-   $ \mathbf{P}(p+\mathbf{I},+l)$*  & X & X \\\hline
-   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2)$ & X & X\\\hline
-   $ cpos(p+1,+cp1) \land cpos(p-1,+cp2) \land cpos(p+2,+cp3) \land cpos(p-2,+cp4)$ & X & X\\\hline
-   $ dep(p,\_,+d)$ & X & X\\\hline
-   $ dep(\_,p,+d)$ & X & X\\\hline
-   $ ppos(j,+pj)  \land dep(p,j,+d)$ & X & X \\\hline
-   $ ppos(j,+pj)  \land ppos(i,+pa) \land dep(p,j,+d)$ & X & X \\\hline
-   $ ppos(i,+pj)  \land ppos(i,+pa) \land dep(i,j,\_) \land dep(j,p,+d)$ & X & X \\\hline
-   $ plemma(j,+l) \land dep(j,j,+d)$ & X & X\\\hline
-   $ frame(p,+f)$ & X & X\\\hline
+   $ word(p,+w)$  & X & X \\
+   $ \mathbf{P}(p+\mathbf{I},+v)$*  & X & X \\
+   $ cpos(p+1,+c_1) \land cpos(p-1,+c_2)$ & X & X\\
+   $ cpos(p+1,+c_1) \land cpos(p-1,+c_2) \land cpos(p+2,+c_3) \land 
+   cpos(p-2,+c_4)$ & X & X\\
+   $ dep(p,\_,+d)$ & X & X\\
+   $ dep(\_,p,+d)$ & X & X\\
+   $ ppos(j,+o)  \land dep(p,j,+d)$ & X & X \\
+   $ ppos(j,+o_1)  \land ppos(i,+o_2) \land dep(p,j,+d)$ & X & X \\
+   $ ppos(i,+o_1)  \land ppos(i,+o_2) \land dep(i,j,\_) \land dep(j,p,+d)$ & X & 
+   X \\
+   $ plemma(j,+l) \land dep(j,j,+d)$ & X & X\\
+   $ frame(p,+f)$ & X & X\\
                   &   & X \\
 \hline
 \end{tabular}
@@ -70,44 +81,60 @@ $sense(p,+s)$}
 \label{tbl:f1}
 \end{table}
 
-The formulae in \emph{hasRole/2} and \emph{role/3} sets are conditioned on both 
-the predicates \emph{possibleArg/1} and \emph{predicate/1} since both try 
-to establish a relation between SRL predicates and arguments. For these predicate 
-we use \emph{token}, \emph{extended} and \emph{path} predicates.
-
-Table \ref{tbl:f2} shows a summary for the local formuale for \emph{hasRole/2} and \emph{role/3} predicates. In this case, these templetates have as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures these formulae is only applied for SRL predicates and potential SRL arguments. In this table we include the values for the templates which require one. For this formulae is possible to include a notion of distance between SRL predicate and SRL argument. The formula for which there are two version of the formulae (with and without distance) is marked with \emph{Both}. The formulae which does not have a distance version are marked with \emph{No}. Finally the formulae which only has a distance version is marked with \emph{Only}.   
+Table \ref{tbl:f2} shows the local formuale for \emph{hasRole/2} and 
+\emph{role/3} predicates,  for these formulae we use \emph{token}, 
+\emph{extended} and \emph{path} predicates. In this case, these templates have 
+as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures 
+these formulae are only applied for SRL predicates and potential SRL arguments.  
+In this table we include the values for the templates which require them. Some 
+of this formulae includes a notion of distance between SRL predicate and SRL 
+argument. The formula for which there are two version of the formulae (with and 
+without distance) is marked with \emph{Both}. The formulae which does not have a 
+distance version are marked with \emph{No}. Finally the formulae which only has 
+a distance version is marked with \emph{Only}.
 \begin{table*}[th]
 \centering
 \begin{tabular}{|>{\small}p{10cm}|>{\small}c|>{\small}c|>{\small}c|>{\small}c|}\hline
  Template               & Parameters & Dist. & H & R \\\hline\hline
-   $ \mathbf{P}(p,+w)         $    & $\mathbf{P} \in S_1$   & Both & X & X \\\hline
-   $ plemma (p,+w_1) \land ppos(a,+w_2) $   & & No    & X &  \\\hline
-   $ ppos(p,+w_1) \land plemma(a,+w_2)  $   & & No    & X &  \\\hline
-   $ plemma(p,+w_1) \land plemma(a,+w_2)$   & & Only  & X & X \\\hline
-   $ ppos(p,+w_1) \land ppos(a,+w_2)$       & & Only  & X &   \\\hline
-   $ ppos(p,+w_1) \land ppos(a+\mathbf{I},+w_2)$     & $\mathbf{I} \in \{-1,0,1\}$ & Only& X &   \\\hline
-   $ lemma(p,+w)$ & & Only & & X  \\\hline
-   $ lemma(a,+w) \land voice(p,+w_2)$ & & Only & & X  \\\hline
-   $ cpos(p,+cp1) \land cpos(p+\mathbf{I},+cp2) \land cpos(a,+cp3) \land cpos(a+\mathbf{J},+cp4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & X\\\hline
-   $ ppos(p,+w_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land \mathbf{P}(m,+w_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\\hline
-   $ plemma(p,+w_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land ppos(m,+w_2) $ & & No & X &  X \\\hline
-   $ \mathbf{P}(p,a,+w)         $    & $\mathbf{P} \in S_2$ & No & X & X \\\hline
-   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) $ & $\mathbf{P} \in S_3$           & No  & X & X \\\hline
-   $ \mathbf{P}(p,a,+w_1) \land plemma(p,+w_2) \land plemma(a,+w_3) $    &   $\mathbf{P} \in S_4$ & No  & X & X \\\hline
-   $ pathFrame(p,a,+w_1) \land lemma(p,+w_2) \land voice(p,+v) $ &      & No      & X & X \\\hline
-   $ pathFrameDist(p,a,+d) $      &  & Only   & X & X \\\hline
-   $ pathFrameDist(p,a,+d) \land voice(p,+w) $ &  & Only           & X & X \\\hline
-   $ pathFrameDist(p,a,+d) \land plemma(p,+w)$ &  & Only           & X & X \\\hline
-   $ \mathbf{P}(p,a,+d) \land plemma(a,+w) $ & $\mathbf{P} \in S_5$ & Only         & X & X \\\hline
-   $ \mathbf{P}(p,a,+d) \land ppos(p,+w) $ & $\mathbf{P} \in S_5$   & Only        & X & X \\\hline
-   $ pathFrameDist(p,a,+d) \land ppos(p,+w_1) \land ppos(a,+w_2) $ &  & Only           & X & X \\\hline
-   $ path(p,a,+d) \land plemma(p,+w_1) \land cpos(a,+w_2) $ &  & Only          & X & X \\\hline
-   $ dep(\_,a,+w)$  & & Only  & X & X \\\hline
-   $ dep(\_,a,+w_1) \land voice(p,+w_2) \land +d$    &  & Only & X & X  \\\hline
-   $ dep(\_,a,+w_1) \land dep(\_,p,+w_2) \land +d$    & & Only & X & X  \\\hline
-% SR: Empty line
-%%   $                 $    &                           & No & X & X \\
-%hline
+   $ \mathbf{P}(p,+v)         $    & $\mathbf{P} \in S_1$   & Both & X & X \\
+   $ plemma (p,+l) \land ppos(a,+o) $   & & No    & X &  \\
+   $ ppos(p,+o)    \land plemma(a,+l)  $   & & No    & X &  \\
+   $ plemma(p,+l_1) \land plemma(a,+l_2)$   & & Only  & X & X \\
+   $ ppos(p,+o_1) \land ppos(a,+o_2)$       & & Only  & X &   \\
+   $ ppos(p,+o_1) \land ppos(a+\mathbf{I},+o_2)$     & $\mathbf{I} \in 
+   \{-1,0,1\}$ & Only& X &   \\
+   $ lemma(p,+l)$ & & Only & & X  \\
+   $ voice(p,+e) \land lemma(a,+l)$ & & Only & & X  \\
+   $ cpos(p,+c_1) \land cpos(p+\mathbf{I},+c_2) \land cpos(a,+c_3) \land 
+   cpos(a+\mathbf{J},c_4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & 
+   X\\
+   $ ppos(p,+v_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land \mathbf{P}(m,+v_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\
+   $ plemma(p,+v_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land ppos(m,+v_2) $ & & No & X &  X \\
+   $ \mathbf{P}(p,a,+v)         $    & $\mathbf{P} \in S_2$ & No & X & X \\
+   $ \mathbf{P}(p,a,+v) \land plemma(p,+l) $ & $\mathbf{P} \in S_3$           & 
+   No  & X & X \\
+   $ \mathbf{P}(p,a,+v) \land plemma(p,+l_1) \land plemma(a,+l_2) $    &   
+   $\mathbf{P} \in S_4$ & No  & X & X \\
+   $ pathFrame(p,a,+t) \land plemma(p,+l) \land voice(p,+e) $ &      & No      & 
+   X & X \\
+   $ pathFrameDist(p,a,+t) $      &  & Only   & X & X \\
+   $ pathFrameDist(p,a,+t) \land voice(p,+e) $ &  & Only           & X & X 
+   \\
+   $ pathFrameDist(p,a,+t) \land plemma(p,+l)$ &  & Only           & X & X 
+   \\
+   $ \mathbf{P}(p,a,+v) \land plemma(a,+l) $ & $\mathbf{P} \in S_5$ & Only         
+   & X & X \\
+   $ \mathbf{P}(p,a,+v) \land ppos(p,+o) $ & $\mathbf{P} \in S_5$   & Only        
+   & X & X \\
+   $ pathFrameDist(p,a,+t) \land ppos(p,+o_1) \land ppos(a,+o_2) $ &  & Only           
+   & X & X \\
+   $ path(p,a,+t) \land plemma(p,+l) \land cpos(a,+c) $ &  & Only          & X & 
+   X \\
+   $ dep(\_,a,+d)$  & & Only  & X & X \\
+   $ dep(\_,a,+) \land voice(p,+e)$    &  & Only & X & X  \\
+   $ dep(\_,a,+d_1) \land dep(\_,p,+d_2)$    & & Only & X & X  \\
+   $                 $    &                           & No & X & X \\
+\hline
 \end{tabular}
 
 
@@ -121,11 +148,11 @@ Note that Tables \ref{tbl:f1} and \ref{tbl:f2} do not mention the feature inform
 this information was not available for every language. We therefore group the 
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
-\begin{tabular}{p{7.0cm}}
-   $ feature(p,+f,+v) \Rightarrow sense(p,+s)    $\\
-   $ feature(p,+f,+v) \Rightarrow isArgument(a)    $\\
-   $ feature(p,+f,+v1) \land feature(p,f,+v2) \Rightarrow hasRole(p,a)    $\\
-   $ feature(p,+f,+v1) \land feature(p,f,+v2) \Rightarrow role(p,a,+r)   $\\
+\begin{tabular}{p{7.5cm}}
+   $ feat(p,+f,+v) \Rightarrow sense(p,+s)    $\\
+   $ feat(p,+f,+v) \Rightarrow isArgument(a)    $\\
+   $ feat(p,+f,+v1) \land feat(p,f,+v2) \Rightarrow $\\$\ \ hasRole(p,a)    $\\
+   $ feat(p,+f,+v1) \land feat(p,f,+v2) \Rightarrow $\\$\ \ role(p,a,+r)   $\\
 \end{tabular}
 
 
@@ -134,17 +161,25 @@ capture the relations between argument and its siblings for the \emph{hasRole/2}
 and \emph{role/3} predicates.  In particular, these formulae were beneficial for 
 the Japanese language.  This is a summary of such formulae which we called 
 \emph{argument siblings}:
-\begin{tabular}{p{7.0cm}}
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \Rightarrow hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land ppos(c,+p2) \Rightarrow role(p,a,+r)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \Rightarrow hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land ppos(c,+p2) \Rightarrow role(p,a,+r)    $\\
+\begin{tabular}{p{7.5cm}}
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land $\\$\ \ ppos(c,+p2) 
+   \Rightarrow hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land $\\$\ \ ppos(c,+p2) 
+   \Rightarrow role(p,a,+r)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land $\\$\ \ ppos(c,+p2) 
+   \Rightarrow hasRole(p,a)    $\\
+   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land $\\$\ \ ppos(c,+p2) 
+   \Rightarrow role(p,a,+r)    $\\
 \end{tabular}
 
-With these sets of formulae we can build specific MLNs for each language in 
-the shared task. Table \ref{tbl:diff} shows the different configurations we use for the individual languages. We 
-omit to mention the \emph{argument/1}, \emph{hasRole/2} and \emph{role/3} sets because they 
-are present for all languages. 
+
+With these sets of formulae we can build specific MLNs for each language in the 
+shared task. We group the formulae into the modules: \emph{isArgument/1}, 
+\emph{hasRole/2}, \emph{role/3}, \emph{sense/3}, \emph{feature} and 
+\emph{argument siblings}.  Table \ref{tbl:diff} shows the different 
+configurations of such modules that we used for the individual languages.  We 
+omit to mention the \emph{argument/1}, \emph{hasRole/2} and \emph{role/3} 
+modules because they are present for all languages. 
 
 % SR: This seems redundant given what was previously written 
 % The \emph{feature} set corresponds to the FEAT 
@@ -169,7 +204,8 @@ Japanese        &   Yes      &  No    &  Yes \\
 Spanish         &   Yes      &  Yes   &  No  \\
 \hline
 \end{tabular}
-\caption{Difference among the formulae between the languages.}
+\caption{Different configuration of the modules for the formulae of the 
+languages.}
 \label{tbl:diff}
 \normalsize
 \end{center}
@@ -178,6 +214,8 @@ Spanish         &   Yes      &  Yes   &  No  \\
 A more detailed description of the formulae can be found in our MLN model files.\footnote{\url{http://thebeast.googlecode.com/svn/mlns/conll09}} They can be 
 used both as a reference and as input to our Markov Logic Engine,\footnote{\url{http://thebeast.googlecode.com}} and thus allow the reader 
 to easily reproduce our results.
+
+
 
 
 
