@@ -22,11 +22,11 @@ There are two differences
 between the  \emph{argument/1} and \emph{sense/2} formulae.  First, the \emph{argument/1} formulae use 
 the \emph{possibleArg/1} predicate as precondition, while the sense formulae are conditioned on the
 \emph{predicate/1} predicate. For instance, consider the \emph{argument/1} 
-formula based on word forms: \[word(a,+w) \land possibleArg(a) \Rightarrow 
-argument(a),\] and the equivalent version for the \emph{sense/2} predicate: \[word(p,+w) 
-\land predicate(p) \Rightarrow sense(p,+s).\] This means we only apply the 
-\emph{argument/1} formulae if the token is a potential SRL argument, and 
-the \emph{sense/2} formulae if the token is a SRL predicate. 
+formula based on word forms: \[\word(a,+w) \land \possibleArg(a) \Rightarrow 
+\isArgument(a),\] and the equivalent version for the \emph{sense/2} predicate: 
+\[\word(p,+w) \land \predicate(p) \Rightarrow \sense(p,+s).\] This means we only 
+apply the \emph{argument/1} formulae if the token is a potential SRL argument, 
+and the \emph{sense/2} formulae if the token is a SRL predicate. 
 
 The second difference is the fact that for the \emph{sense/2} formulae we have different weights for each possible sense (as indicated by the $+s$ term in the second formula above), while for the \emph{argument/1} formulae this is not the case. This follows naturally from the fact that  \emph{argument/1}  do not explicitly consider senses. 
 
@@ -38,40 +38,45 @@ The second difference is the fact that for the \emph{sense/2} formulae we have d
 %the \emph{predicate/1} precondition on the formulae, this is equivalent to 
 %conjoin the \emph{predicate(t)} in the formulae):
 Table \ref{tbl:f1} presents templates for the local formuale of 
-\emph{isArgument/1} and \emph{sense/2}. Templates allow us to compactly describe the 
-FOL clauses of a ML. The template column shows the body of a clause. The last two columns of the table indicate if there is a clause with the given body and $isArgument(i)$ (I) or  $sense(i,+s)$ (S) head, respectively. For example, consider the first row: 
-since the last two columns of the row are marked, this template expands into two 
-formulae:
-$\word(p,+w) \Rightarrow \isArgument(p)$ and $\word(p,+w) \Rightarrow \sense(p,+s)$.  
+\emph{argument/1} and \emph{sense/2}. Templates allow us to compactly describe 
+the FOL clauses of a ML. The template column shows the body of a clause. The 
+last two columns of the table indicate if there is a clause with the given body 
+and $argument(i)$ (I) or  $sense(i,+s)$ (S) head, respectively. For example, 
+consider the first row: since the last two columns of the row are marked, this 
+template expands into two formulae:
+$\word(i,+w) \Rightarrow \isArgument(i)$ and $\word(i,+w) \Rightarrow 
+\sense(i,+s)$.
 Including the preconditions for each hidden predicate we obtain the following 
 formulae:
-\[\mathit{possibleArg}(a) \land \mathit{word}(p,+w) \Rightarrow \mathit{isArgument}(p)\] and \[predicate(p) 
-\land word(p,+w) \Rightarrow sense(p,+s).\]  In the case of the template marked 
-with a ``*'' sign, the parameters $\mathbf{P}$ and $\mathbf{I}$, where $\mathbf{P} \in \{ppos,plemma\}$ and 
-$\mathbf{I} \in \{-2,-1,0,1,2\}$, have to be replaced by any combination of possible values. Since we generate 
-$isArgument$ and $sense$ formulae for this template, the row corresponds to $20$ formulae in total.
+\[\mathit{possibleArg}(i) \land \mathit{word}(i,+w) \Rightarrow 
+\mathit{argument}(i)\] and \[\predicate(i) \land \word(i,+w) \Rightarrow 
+sense(i,+s).\]  In the case of the template marked with a ``*'' sign, the 
+parameters $\mathbf{P}$ and $\mathbf{I}$, where $\mathbf{P} \in \{ppos,plemma\}$ 
+and $\mathbf{I} \in \{-2,-1,0,1,2\}$, have to be replaced by any combination of 
+possible values. Since we generate $argument$ and $sense$ formulae for this 
+template, the row corresponds to $20$ formulae in total.
 \begin{table}
 \centering
 \begin{tabular}{|p{6cm}|c|c|}\hline
    Template       & I & S \\\hline
-   $ word(i,+w)$  & X & X \\
+   $ \word(i,+w)$  & X & X \\
    $ \mathbf{P}(i+\mathbf{I},+v)$*  & X & X \\
-   $ cpos(i+1,+c_1) \land cpos(i-1,+c_2)$ & X & X\\
-   $ cpos(i+1,+c_1) \land cpos(i-1,+c_2) \land cpos(i+2,+c_3) \land 
-   cpos(i-2,+c_4)$ & X & X\\
-   $ dep(i,\_,+d)$ & X & X\\
-   $ dep(\_,i,+d)$ & X & X\\
-   $ ppos(i,+o)  \land dep(i,j,+d)$ & X & X \\
-   $ ppos(i,+o_1)  \land ppos(j,+o_2) \land dep(i,j,+d)$ & X & X \\
-   $ ppos(j,+o_1)  \land ppos(k,+o_2) \land dep(j,k,\_) \land dep(k,i,+d)$ & X & 
-   X \\
-   $ plemma(i,+l) \land dep(j,i,+d)$ & X & X\\
-   $ frame(i,+f)$ & X & X\\
+   $ \cpos(i+1,+c_1) \land \cpos(i-1,+c_2)$ & X & X\\
+   $ \cpos(i+1,+c_1) \land \cpos(i-1,+c_2) \land \cpos(i+2,+c_3) \land 
+   \cpos(i-2,+c_4)$ & X & X\\
+   $ \dep(i,\_,+d)$ & X & X\\
+   $ \dep(\_,i,+d)$ & X & X\\
+   $ \ppos(i,+o)  \land \dep(i,j,+d)$ & X & X \\
+   $ \ppos(i,+o_1)  \land \ppos(j,+o_2) \land \dep(i,j,+d)$ & X & X \\
+   $ \ppos(j,+o_1)  \land \ppos(k,+o_2) \land \dep(j,k,\_) \land \dep(k,i,+d)$ & 
+   X & X \\
+   $ \plemma(i,+l) \land \dep(j,i,+d)$ & X & X\\
+   $ \myframe(i,+f)$ & X & X\\
    (Empty Body)             &   & X \\
 \hline
 \end{tabular}
-\caption{Templates of the local formulae for \emph{isArgument/1} and 
-\emph{sense/2}. I: head of clause is $isArgument(i)$, S: head of clause is 
+\caption{Templates of the local formulae for \emph{argument/1} and 
+\emph{sense/2}. I: head of clause is $argument(i)$, S: head of clause is 
 $sense(i,+s)$}
 \label{tbl:f1}
 \end{table}
@@ -91,50 +96,52 @@ with the $distance$ atom, we write \emph{Only}, otherwise \emph{No}.
 \begin{tabular}{|>{\small}p{10cm}|>{\small}c|>{\small}c|>{\small}c|>{\small}c|}\hline
  Template               & Parameters & Dist. & H & R \\\hline
    $ \mathbf{P}(p,+v)         $    & $\mathbf{P} \in S_1$   & Both & X & X \\
-   $ plemma (p,+l) \land ppos(a,+o) $   & & No    & X &  \\
-   $ ppos(p,+o)    \land plemma(a,+l)  $   & & No    & X &  \\
-   $ plemma(p,+l_1) \land plemma(a,+l_2)$   & & Only  & X & X \\
-   $ ppos(p,+o_1) \land ppos(a,+o_2)$       & & Only  & X &   \\
-   $ ppos(p,+o_1) \land ppos(a+\mathbf{I},+o_2)$     & $\mathbf{I} \in 
+   $ \plemma (p,+l) \land \ppos(a,+o) $   & & No    & X &  \\
+   $ \ppos(p,+o)    \land \plemma(a,+l)  $   & & No    & X &  \\
+   $ \plemma(p,+l_1) \land \plemma(a,+l_2)$   & & Only  & X & X \\
+   $ \ppos(p,+o_1) \land \ppos(a,+o_2)$       & & Only  & X &   \\
+   $ \ppos(p,+o_1) \land \ppos(a+\mathbf{I},+o_2)$     & $\mathbf{I} \in 
    \{-1,0,1\}$ & Only& X &   \\
-   $ lemma(p,+l)$ & & Only & & X  \\
-   $ voice(p,+e) \land lemma(a,+l)$ & & Only & & X  \\
-   $ cpos(p,+c_1) \land cpos(p+\mathbf{I},+c_2) \land cpos(a,+c_3) \land 
-   cpos(a+\mathbf{J},c_4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & 
+   $ \plemma(p,+l)$ & & Only & & X  \\
+   $ \voice(p,+e) \land \lemma(a,+l)$ & & Only & & X  \\
+   $ \cpos(p,+c_1) \land \cpos(p+\mathbf{I},+c_2) \land \cpos(a,+c_3) \land 
+   \cpos(a+\mathbf{J},c_4)$ & $\mathbf{I},\mathbf{J} \in \{-1,1\}^2$ & No & X & 
    X\\
-   $ ppos(p,+v_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land \mathbf{P}(m,+v_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\
-   $ plemma(p,+v_1) \land ppos(a,\text{IN}) \land dep(a,m,\_) \land ppos(m,+v_2) $ & & No & X &  X \\
+   $ \ppos(p,+v_1) \land \ppos(a,\text{IN}) \land \dep(a,m,\_) \land 
+   \mathbf{P}(m,+v_2) $ & $\mathbf{P} \in S_1$ & No & X &  X \\
+   $ \plemma(p,+v_1) \land \ppos(a,\text{IN}) \land \dep(a,m,\_) \land 
+   \ppos(m,+v_2) $ & & No & X &  X \\
    $ \mathbf{P}(p,a,+v)         $    & $\mathbf{P} \in S_2$ & No & X & X \\
-   $ \mathbf{P}(p,a,+v) \land plemma(p,+l) $ & $\mathbf{P} \in S_3$           & 
+   $ \mathbf{P}(p,a,+v) \land \plemma(p,+l) $ & $\mathbf{P} \in S_3$           & 
    No  & X & X \\
-   $ \mathbf{P}(p,a,+v) \land plemma(p,+l_1) \land plemma(a,+l_2) $    &   
+   $ \mathbf{P}(p,a,+v) \land \plemma(p,+l_1) \land \plemma(a,+l_2) $    &   
    $\mathbf{P} \in S_4$ & No  & X & X \\
-   $ pathFrame(p,a,+t) \land plemma(p,+l) \land voice(p,+e) $ &      & No      & 
-   X & X \\
-   $ pathFrameDist(p,a,+t) $      &  & Only   & X & X \\
-   $ pathFrameDist(p,a,+t) \land voice(p,+e) $ &  & Only           & X & X 
-   \\
-   $ pathFrameDist(p,a,+t) \land plemma(p,+l)$ &  & Only           & X & X 
-   \\
-   $ \mathbf{P}(p,a,+v) \land plemma(a,+l) $ & $\mathbf{P} \in S_5$ & Only         
+   $ \pathFrame(p,a,+t) \land \plemma(p,+l) \land \voice(p,+e) $ &      & No      
    & X & X \\
-   $ \mathbf{P}(p,a,+v) \land ppos(p,+o) $ & $\mathbf{P} \in S_5$   & Only        
+   $ \pathFrameDist(p,a,+t) $      &  & Only   & X & X \\
+   $ \pathFrameDist(p,a,+t) \land \voice(p,+e) $ &  & Only           & X & X \\
+   $ \pathFrameDist(p,a,+t) \land \plemma(p,+l)$ &  & Only           & X & X \\
+   $ \mathbf{P}(p,a,+v) \land \plemma(a,+l) $ & $\mathbf{P} \in S_5$ & Only         
    & X & X \\
-   $ pathFrameDist(p,a,+t) \land ppos(p,+o_1) \land ppos(a,+o_2) $ &  & Only           
+   $ \mathbf{P}(p,a,+v) \land \ppos(p,+o) $ & $\mathbf{P} \in S_5$   & Only        
    & X & X \\
-   $ path(p,a,+t) \land plemma(p,+l) \land cpos(a,+c) $ &  & Only          & X & 
-   X \\
-   $ dep(\_,a,+d)$  & & Only  & X & X \\
-   $ dep(\_,a,+) \land voice(p,+e)$    &  & Only & X & X  \\
-   $ dep(\_,a,+d_1) \land dep(\_,p,+d_2)$    & & Only & X & X  \\
+   $ \pathFrameDist(p,a,+t) \land \ppos(p,+o_1) \land \ppos(a,+o_2) $ &  & Only           
+   & X & X \\
+   $ \mypath(p,a,+t) \land \plemma(p,+l) \land \cpos(a,+c) $ &  & Only          
+   & X & X \\
+   $ \dep(\_,a,+d)$  & & Only  & X & X \\
+   $ \dep(\_,a,+) \land \voice(p,+e)$    &  & Only & X & X  \\
+   $ \dep(\_,a,+d_1) \land \dep(\_,p,+d_2)$    & & Only & X & X  \\
    $ (Empty Body)                $    &                           & No & X & X \\
 \hline
 \end{tabular}
 
 
-\caption{Templates of the local formulae for \emph{hasRole/2} and 
-\emph{role/3}. H: head of clause is $hasRole(p,a)$, R: head of clause is 
-$role(p,a,+r)$ and $S_1 = \{ppos,plemma\}, S_2=\{frame, unlabelFrame, path\}, S_3= \{frame,pathFrame\},S_4=\{frame,pathFrame,path\}, S_5= \{pathFrameDist, path\} $}
+\caption{Templates of the local formulae for \emph{hasRole/2} and \emph{role/3}.  
+H: head of clause is $\hasRole(p,a)$, R: head of clause is $\role(p,a,+r)$ and 
+$S_1 = \{ppos,plemma\}, S_2=\{frame, unlabelFrame, path\}, S_3= 
+\{frame,pathFrame\},S_4=\{frame,pathFrame,path\}, S_5= \{pathFrameDist, path\} 
+$}
 \label{tbl:f2}
 \end{table*}
 
@@ -143,10 +150,12 @@ this information was not available for every language. We therefore group the
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
 \begin{tabular}{p{7.5cm}}
-   $ feat(p,+f,+v) \Rightarrow sense(p,+s)    $\\
-   $ feat(p,+f,+v) \Rightarrow isArgument(a)    $\\
-   $ feat(p,+f,+v1) \land feat(p,f,+v2) \Rightarrow $\\$\ \ hasRole(p,a)    $\\
-   $ feat(p,+f,+v1) \land feat(p,f,+v2) \Rightarrow $\\$\ \ role(p,a,+r)   $\\
+   $ \feat(p,+f,+v) \Rightarrow \sense(p,+s)    $\\
+   $ \feat(p,+f,+v) \Rightarrow \isArgument(a)    $\\
+   $ \feat(p,+f,+v1) \land \feat(p,f,+v2) \Rightarrow $\\$\ \ \hasRole(p,a)    
+   $\\
+   $ \feat(p,+f,+v1) \land \feat(p,f,+v2) \Rightarrow $\\$\ \ \role(p,a,+r)   
+   $\\
 \end{tabular}
 
 
@@ -156,19 +165,19 @@ and \emph{role/3} predicates.  In practice in turned out that these formulae wer
 the Japanese language.  This is a summary of such formulae which we called 
 \emph{argument siblings}:
 \begin{tabular}{p{7.5cm}}
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land $\\$\ \ ppos(c,+p2) 
-   \Rightarrow hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land ppos(a,+p1) \land $\\$\ \ ppos(c,+p2) 
-   \Rightarrow role(p,a,+r)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land $\\$\ \ ppos(c,+p2) 
-   \Rightarrow hasRole(p,a)    $\\
-   $ dep(a,h,\_) \land dep(h,c,\_) \land plemma(a,+p1) \land $\\$\ \ ppos(c,+p2) 
-   \Rightarrow role(p,a,+r)    $\\
+   $ \dep(a,h,\_) \land \dep(h,c,\_) \land \ppos(a,+p1) \land $\\$\ \ 
+   \ppos(c,+p2) \Rightarrow \hasRole(p,a)    $\\
+   $ \dep(a,h,\_) \land \dep(h,c,\_) \land \ppos(a,+p1) \land $\\$\ \ 
+   \ppos(c,+p2) \Rightarrow \role(p,a,+r)    $\\
+   $ \dep(a,h,\_) \land \dep(h,c,\_) \land \plemma(a,+p1) \land $\\$\ \ 
+   \ppos(c,+p2) \Rightarrow \hasRole(p,a)    $\\
+   $ \dep(a,h,\_) \land \dep(h,c,\_) \land \plemma(a,+p1) \land $\\$\ \ 
+   \ppos(c,+p2) \Rightarrow \role(p,a,+r)    $\\
 \end{tabular}
 
 
 With these sets of formulae we can build specific MLNs for each language in the 
-shared task. We group the formulae into the modules: \emph{isArgument/1}, 
+shared task. We group the formulae into the modules: \emph{argument/1}, 
 \emph{hasRole/2}, \emph{role/3}, \emph{sense/3}, \emph{feature} and 
 \emph{argument siblings}.  Table \ref{tbl:diff} shows the different 
 configurations of such modules that we used for the individual languages.  We 
@@ -208,6 +217,7 @@ languages.}
 A more detailed description of the formulae can be found in our MLN model files.\footnote{\url{http://thebeast.googlecode.com/svn/mlns/conll09}} They can be 
 used both as a reference and as input to our Markov Logic Engine,\footnote{\url{http://thebeast.googlecode.com}} and thus allow the reader 
 to easily reproduce our results.
+
 
 
 
