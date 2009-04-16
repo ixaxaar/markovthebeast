@@ -20,7 +20,7 @@ or the SRL predicate token. The formulae in these sets are defined using only
 
 There are two differences 
 between the  \emph{argument/1} and \emph{sense/2} formulae.  First, the \emph{argument/1} formulae use 
-the \emph{possibleArg/1} predicate as precondition, while the sense formulae are conditioned on 
+the \emph{possibleArg/1} predicate as precondition, while the sense formulae are conditioned on the
 \emph{predicate/1} predicate. For instance, consider the \emph{argument/1} 
 formula based on word forms: \[word(a,+w) \land possibleArg(a) \Rightarrow 
 argument(a),\] and the equivalent version for the \emph{sense/2} predicate: \[word(p,+w) 
@@ -37,65 +37,59 @@ The second difference is the fact that for the \emph{sense/2} formulae we have d
 %What follows is a summary of the formulae in the \emph{sense/2} sets (we omit 
 %the \emph{predicate/1} precondition on the formulae, this is equivalent to 
 %conjoin the \emph{predicate(t)} in the formulae):
-Table \ref{tbl:f1} presents the templates of the local formuale for 
-\emph{isArgument/1} and \emph{sense/2}. Templates allow to briefly describe the 
-FOL formulae of a ML. The template column shows the main body of the formulae.  
-The templates of this table omit the precondition for the hidden predicate which 
-ensures the formulae are only applied to SRL predicates or potential SRL 
-arguments.  The last two columns of the table indicate if there is a version of 
-formula for the $isArgument/1$ (I) and/or $sense/2$ (S). Consider the first row, 
-since the last two columns of the row are marked this template expands into two 
+Table \ref{tbl:f1} presents templates for the local formuale of 
+\emph{isArgument/1} and \emph{sense/2}. Templates allow us to compactly describe the 
+FOL clauses of a ML. The template column shows the body of a clause. The last two columns of the table indicate if there is a clause with the given body and $isArgument(i)$ (I) or  $sense(i,+s)$ (S) head, respectively. For example, consider the first row: 
+since the last two columns of the row are marked, this template expands into two 
 formulae:
-$word(p,+w) \Rightarrow isArgument(p)$ and $word(p,+w) \Rightarrow sense(p,+s)$.  
+$\word(p,+w) \Rightarrow \isArgument(p)$ and $\word(p,+w) \Rightarrow \sense(p,+s)$.  
 Including the preconditions for each hidden predicate we obtain the following 
 formulae:
-$possibleArg(a) \land word(p,+w) \Rightarrow isArgument(p)$ and $ predicate(p) 
-\land word(p,+w) \Rightarrow sense(p,+s)$.  In the case of the template mark 
-with a ``*'' sign, the paramters $P$ and $I$, where $P \in \{ppos,plemma\}$ and 
-$I \in \{-2..2\}$, have to be replaced by any combination of possible values, in 
-total there are $10$ templates for that row. 
-
+\[\mathit{possibleArg}(a) \land \mathit{word}(p,+w) \Rightarrow \mathit{isArgument}(p)\] and \[predicate(p) 
+\land word(p,+w) \Rightarrow sense(p,+s).\]  In the case of the template marked 
+with a ``*'' sign, the parameters $\mathbf{P}$ and $\mathbf{I}$, where $\mathbf{P} \in \{ppos,plemma\}$ and 
+$\mathbf{I} \in \{-2,-1,0,1,2\}$, have to be replaced by any combination of possible values. Since we generate 
+$isArgument$ and $sense$ formulae for this template, the row corresponds to $20$ formulae in total.
 \begin{table}
 \centering
 \begin{tabular}{|p{6cm}|c|c|}\hline
-   Template       & I & S \\\hline\hline
-   $ word(p,+w)$  & X & X \\
-   $ \mathbf{P}(p+\mathbf{I},+v)$*  & X & X \\
-   $ cpos(p+1,+c_1) \land cpos(p-1,+c_2)$ & X & X\\
-   $ cpos(p+1,+c_1) \land cpos(p-1,+c_2) \land cpos(p+2,+c_3) \land 
-   cpos(p-2,+c_4)$ & X & X\\
-   $ dep(p,\_,+d)$ & X & X\\
-   $ dep(\_,p,+d)$ & X & X\\
-   $ ppos(j,+o)  \land dep(p,j,+d)$ & X & X \\
-   $ ppos(j,+o_1)  \land ppos(i,+o_2) \land dep(p,j,+d)$ & X & X \\
-   $ ppos(i,+o_1)  \land ppos(i,+o_2) \land dep(i,j,\_) \land dep(j,p,+d)$ & X & 
+   Template       & I & S \\\hline
+   $ word(i,+w)$  & X & X \\
+   $ \mathbf{P}(i+\mathbf{I},+v)$*  & X & X \\
+   $ cpos(i+1,+c_1) \land cpos(i-1,+c_2)$ & X & X\\
+   $ cpos(i+1,+c_1) \land cpos(i-1,+c_2) \land cpos(i+2,+c_3) \land 
+   cpos(i-2,+c_4)$ & X & X\\
+   $ dep(i,\_,+d)$ & X & X\\
+   $ dep(\_,i,+d)$ & X & X\\
+   $ ppos(i,+o)  \land dep(i,j,+d)$ & X & X \\
+   $ ppos(i,+o_1)  \land ppos(j,+o_2) \land dep(i,j,+d)$ & X & X \\
+   $ ppos(j,+o_1)  \land ppos(k,+o_2) \land dep(j,k,\_) \land dep(k,i,+d)$ & X & 
    X \\
-   $ plemma(j,+l) \land dep(j,j,+d)$ & X & X\\
-   $ frame(p,+f)$ & X & X\\
-                  &   & X \\
+   $ plemma(i,+l) \land dep(j,i,+d)$ & X & X\\
+   $ frame(i,+f)$ & X & X\\
+   (Empty Body)             &   & X \\
 \hline
 \end{tabular}
 \caption{Templates of the local formulae for \emph{isArgument/1} and 
-\emph{sense/2}. I: head of clause is $isArgument(a)$, S: head of clause is 
-$sense(p,+s)$}
+\emph{sense/2}. I: head of clause is $isArgument(i)$, S: head of clause is 
+$sense(i,+s)$}
 \label{tbl:f1}
 \end{table}
 
 Table \ref{tbl:f2} shows the local formuale for \emph{hasRole/2} and 
 \emph{role/3} predicates,  for these formulae we use \emph{token}, 
 \emph{extended} and \emph{path} predicates. In this case, these templates have 
-as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures 
-these formulae are only applied for SRL predicates and potential SRL arguments.  
-In this table we include the values for the templates which require them. Some 
-of this formulae includes a notion of distance between SRL predicate and SRL 
-argument. The formula for which there are two version of the formulae (with and 
-without distance) is marked with \emph{Both}. The formulae which does not have a 
-distance version are marked with \emph{No}. Finally the formulae which only has 
-a distance version is marked with \emph{Only}.
+as precondition the formula $predicate(p) \land possibleArg(a)$. This ensures that
+the formulae are only applied for SRL predicates and potential SRL arguments.  
+In the table we include the values to replace the template parameters with. Some 
+of these formulae capture a notion of distance between SRL predicate and SRL 
+argument and are implicitely conjoined with a $distance(p,a,+d)$ atom. If a formulae exists
+both with and without $distance$ atom, we write \emph{Both} in the ``Dist'' column; if it only exists
+with the $distance$ atom, we write \emph{Only}, otherwise \emph{No}.
 \begin{table*}[th]
 \centering
 \begin{tabular}{|>{\small}p{10cm}|>{\small}c|>{\small}c|>{\small}c|>{\small}c|}\hline
- Template               & Parameters & Dist. & H & R \\\hline\hline
+ Template               & Parameters & Dist. & H & R \\\hline
    $ \mathbf{P}(p,+v)         $    & $\mathbf{P} \in S_1$   & Both & X & X \\
    $ plemma (p,+l) \land ppos(a,+o) $   & & No    & X &  \\
    $ ppos(p,+o)    \land plemma(a,+l)  $   & & No    & X &  \\
@@ -133,7 +127,7 @@ a distance version is marked with \emph{Only}.
    $ dep(\_,a,+d)$  & & Only  & X & X \\
    $ dep(\_,a,+) \land voice(p,+e)$    &  & Only & X & X  \\
    $ dep(\_,a,+d_1) \land dep(\_,p,+d_2)$    & & Only & X & X  \\
-   $                 $    &                           & No & X & X \\
+   $ (Empty Body)                $    &                           & No & X & X \\
 \hline
 \end{tabular}
 
@@ -144,7 +138,7 @@ $role(p,a,+r)$ and $S_1 = \{ppos,plemma\}, S_2=\{frame, unlabelFrame, path\}, S_
 \label{tbl:f2}
 \end{table*}
 
-Note that Tables \ref{tbl:f1} and \ref{tbl:f2} do not mention the feature information because 
+Note that Tables \ref{tbl:f1} and \ref{tbl:f2} do not mention the feature information provided in the corpora because 
 this information was not available for every language. We therefore group the 
 formulae which consider the \emph{feature/3} predicate into another a set we call 
 \emph{feature} formulae. This is the summary of these formulae:
@@ -158,7 +152,7 @@ formulae which consider the \emph{feature/3} predicate into another a set we cal
 
 Additionally, we define a set of language specific formulae. They are aimed to 
 capture the relations between argument and its siblings for the \emph{hasRole/2} 
-and \emph{role/3} predicates.  In particular, these formulae were beneficial for 
+and \emph{role/3} predicates.  In practice in turned out that these formulae were only beneficial for 
 the Japanese language.  This is a summary of such formulae which we called 
 \emph{argument siblings}:
 \begin{tabular}{p{7.5cm}}
@@ -194,7 +188,7 @@ modules because they are present for all languages.
 \small
 \begin{tabular}{|l|c|c|c|}\hline
     Set         & Feature   & \emph{sense/2}  & Argument \\
-                &            &        & siblings  \\\hline\hline
+                &            &        & siblings  \\\hline
 Catalan         &   Yes      &  Yes   &  No  \\
 Chinese         &   No       &  Yes   &  No  \\
 Czech           &   Yes      &  No    &  No  \\
