@@ -3,7 +3,6 @@ package thebeast.pml.solve.ilp;
 import lpsolve.LpSolve;
 import lpsolve.LpSolveException;
 import thebeast.nod.statement.Interpreter;
-import thebeast.nod.util.ExpressionBuilder;
 import thebeast.nod.value.RelationValue;
 import thebeast.nod.value.TupleValue;
 import thebeast.nod.variable.RelationVariable;
@@ -14,30 +13,30 @@ import thebeast.util.NullProfiler;
 import thebeast.util.Profiler;
 
 import java.util.HashMap;
-import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA. User: s0349492 Date: 06-Feb-2007 Time: 22:30:52
  */
 public class ILPSolverLpSolve implements ILPSolver {
 
-  private LpSolve solver;
-  private int numRows, numCols;
-  private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
-  private boolean enforceInteger = false;
-  private boolean verbose = false;
-  private Profiler profiler = new NullProfiler();
-  private boolean writeLp = false;
-  private long timeout = 1000;
-  private int bbDepthLimit = -50;//3;
-  private int count = 0;
-  private int bbRule;
-  private String paramFile;
-  private boolean bbRuleSet = false;
-  private boolean paramFileSet = false;
-  private boolean breakAtFirst = false;
-  private int maxRank = Integer.MAX_VALUE;
-  private HashMap<Integer, Double> costs = new HashMap<Integer, Double>();
+    private LpSolve solver;
+    private int numRows, numCols;
+    private Interpreter interpreter = TheBeast.getInstance().getNodServer().interpreter();
+    private boolean enforceInteger = false;
+    private boolean verbose = false;
+    private Profiler profiler = new NullProfiler();
+    private boolean writeLp = false;
+    private long timeout = 1000;
+    private int bbDepthLimit = -50;//3;
+    private int count = 0;
+    private int bbRule;
+    private String paramFile;
+    private boolean bbRuleSet = false;
+    private boolean paramFileSet = false;
+    private boolean breakAtFirst = false;
+    private int maxRank = Integer.MAX_VALUE;
+    private HashMap<Integer, Double> costs = new HashMap<Integer, Double>();
+    private boolean throwException = false;
 
 
   public ILPSolverLpSolve copy(){
@@ -163,46 +162,54 @@ public class ILPSolverLpSolve implements ILPSolver {
   }
 
 
-  public RelationVariable solve() {
-    try {
-      if (paramFileSet) solver.readParams(paramFile, "");
-      else {
-        solver.setBreakAtFirst(breakAtFirst);
-        solver.setBbDepthlimit(bbDepthLimit);
-        solver.setTimeout(timeout);
-        if (bbRuleSet) solver.setBbRule(bbRule | LpSolve.NODE_GREEDYMODE | LpSolve.NODE_DYNAMICMODE
-                | LpSolve.NODE_RCOSTFIXING);
-      }
-      //solver.readParams();
-      if (writeLp) solver.writeLp("/tmp/debug_" + count + ".lp");
-      if (writeLp) solver.writeParams("/tmp/debug_" + count + ".params", "ILPSolverLpSolve.java");
-      //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
-      //if (bbRuleSet) solver.setBbRule(bbRule);
-      solver.solve();
-      if (solver.getStatus() == LpSolve.INFEASIBLE){
-        solver.writeLp("/tmp/infeasible.lp");
-        solver.writeParams("/tmp/infeasible.params", "ILPSolverLpSolve.java");
-        System.err.println("Warn: ILP infeasible");
-        //throw new RuntimeException("ILP Problem infeasible");
-
-      }
-      double[] solution = new double[numCols];
-      solver.getVariables(solution);
-      //System.out.println(Arrays.toString(solution));
+    public RelationVariable solve() {
+        RelationVariable variable = interpreter.createRelationVariable(IntegerLinearProgram.getResultHeading());
+        try {
+            if (paramFileSet) solver.readParams(paramFile, "");
+            else {
+                solver.setBreakAtFirst(breakAtFirst);
+                solver.setBbDepthlimit(bbDepthLimit);
+                solver.setTimeout(timeout);
+                if (bbRuleSet) solver.setBbRule(bbRule | LpSolve.NODE_GREEDYMODE | LpSolve.NODE_DYNAMICMODE
+                    | LpSolve.NODE_RCOSTFIXING);
+            }
+            //solver.readParams();
+            if (writeLp) solver.writeLp("/tmp/debug_" + count + ".lp");
+            if (writeLp) solver.writeParams("/tmp/debug_" + count + ".params", "ILPSolverLpSolve.java");
+            //System.out.println("solver.getNcolumns() = " + solver.getNcolumns());;
+            //if (bbRuleSet) solver.setBbRule(bbRule);
+            solver.solve();
+            if (solver.getStatus() == LpSolve.INFEASIBLE)
+                if (throwException)
+                    throw new RuntimeException("ILP Problem infeasible");
+                else
+                    System.err.println("ILP Problem infeasible! This means that the ILP generated based on the MAP" +
+                        "problem is not solvable. In other words, there are some hard constraints that cannot all" +
+                        "be fulfilled at the same time. I don't like this, but let's go on for now. ");
+            double[] solution = new double[numCols];
+            solver.getVariables(solution);
+//      System.out.println(solution[21]);
 //      System.out.println(solution[55]);
 //      System.out.println(solver.getStatustext(solver.getStatus()));
-      int[] indices = new int[numCols];
-      for (int index = 0; index < solution.length; ++index) {
-        indices[index] = index;
-      }
-      RelationVariable variable = interpreter.createRelationVariable(IntegerLinearProgram.getResultHeading());
-      variable.assignByArray(indices, solution);
-      return variable;
-    } catch (LpSolveException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+            int[] indices = new int[numCols];
+            for (int index = 0; index < solution.length; ++index) {
+                indices[index] = index;
+            }
+            variable.assignByArray(indices, solution);
+            return variable;
+        } catch (LpSolveException e) {
+            if (throwException){
+                throw new RuntimeException(e);
+            }
+            else {
+                System.err.println("Look, we observed the following exception and we should really worry about it. " +
+                    "However, for now we let things flow and worry about it later.");
+                e.printStackTrace();
+                return variable;
+            }
+        }
     }
-  }
+  
 
   public void setVerbose(boolean verbose) {
     if (solver != null) solver.setVerbose(verbose ? 5 : 0);
