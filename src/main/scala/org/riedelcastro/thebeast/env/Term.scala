@@ -1,6 +1,8 @@
 package org.riedelcastro.thebeast.env
 
 
+import solve.ExhaustiveArgmax
+
 /**
  * @author Sebastian Riedel
  */
@@ -112,37 +114,51 @@ case class Fold[T, R](val function: Term[R => (T => R)], val args: Seq[Term[T]],
 
 case class Quantification[T, R, V](val function: Term[R => (T => R)], val variable: Var[V], val formula: Term[T], val init: Term[R])
         extends Term[R] {
-  def ground = {
+  lazy val grounded = {
     val env = new MutableEnv
     Fold(function, variable.values.map(value => {env += variable -> value; env.ground(formula)}).toSeq, init)
   }
 
+  def simplify = grounded.simplify
 
-  def simplify = ground.simplify
+  def domain = grounded.domain
 
-  def domain = ground.domain
-
-  def values = ground.values
+  def values = grounded.values
 }
 
 
 sealed trait EnvVar[+T] {
+  /**
+   * The values of a variables are all objects the variable can be assigned to
+   */
+  def values: Values[T]
+
 }
 
 case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvVar[R] {
   def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], arg)
+
+  def values = range
+
+  def range : Values[R] = {
+    funVar match {
+      case x:Var[_] => x.values.asInstanceOf[FunctionValues[T,R]].range
+      case x:FunAppVar[_,_] => x.range.asInstanceOf[FunctionValues[T,R]].range
+    }
+
+  }
+
 }
 
 
 
 
-trait TheBeastEnv  {
-
+trait TheBeastEnv {
   private var varCount = 0;
 
-  private def createVariable[T](values:Values[T]) = {
-    varCount+=1;
-    values.createVariable("x_"+ varCount.toString)
+  private def createVariable[T](values: Values[T]) = {
+    varCount += 1;
+    values.createVariable("x_" + varCount.toString)
   }
 
   implicit def string2varbuilder(name: String) = new {
@@ -209,6 +225,17 @@ trait TheBeastEnv  {
     Quantification(And, variable, formula(variable), true)
   }
 
+  def forall[T1, T2](values1: Values[T1], values2: Values[T2])(formula: (Var[T1], Var[T2]) => Term[Boolean]) = {
+    val v1 = createVariable(values1)
+    val v2 = createVariable(values2)
+    Quantification(And, v1, Quantification(And, v2, formula(v1, v2), true), true)
+  }
+
+  def exists[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {
+    val variable = createVariable(values)
+    Quantification(Or, variable, formula(variable), false)
+  }
+
 }
 
 class EQ[T] extends (T => (T => Boolean)) {
@@ -262,16 +289,21 @@ object Example extends Application with TheBeastEnv {
   println((k(1)(2) + x).domain)
   println(env(k(1)(2) + x))
 
-  println(Quantification(Add, x, f(x), 0).ground)
-  println(sum(Ints) {x => f(x)})
+  println(Quantification(Add, x, f(x), 0).grounded)
+  println(sum(Ints) {x => f(x)})                                                                                          
 
   println(forall(Ints) {x => f(x) === 1})
+  println((forall(Ints) {x => f(x) === 1}).domain)
   println(forall(Ints) {x => forall(Ints) {y => k(x)(y) === 1}})
+  println(forall(Ints, Ints) {(x, y) => k(x)(y) === 1})
+  println((forall(Ints) {x => forall(Ints) {y => k(x)(y) === 1}}).grounded)
 
   println(f(x).domain)
   //val env = MutableEnv
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
   //env += (f(1)->2)
+
+  println(ExhaustiveArgmax.argmax(x).eval(x))
 
 }
