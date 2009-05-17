@@ -1,4 +1,8 @@
 package org.riedelcastro.thebeast.env
+
+
+import util.Util
+
 /**
  * @author Sebastian Riedel
  */
@@ -15,7 +19,7 @@ object Values {
 class ValuesProxy[+T](override val self: Iterable[T]) extends Values[T] with IterableProxy[T]
 
 case class FunctionValues[T, +R](val domain: Values[T], val range: Values[R]) extends Values[T => R] {
-  def elements = AllFunctions(domain.toStream, range.toStream).elements
+  def elements = Util.AllFunctions(domain.toStream, range.toStream).elements
 
   override def defaultValue = (t:T) => range.defaultValue
 }

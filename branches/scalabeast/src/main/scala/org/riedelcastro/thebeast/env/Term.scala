@@ -212,13 +212,19 @@ trait TheBeastEnv {
   //  }
 
   implicit def intTerm2IntAppBuilder(lhs: Term[Int]) = new {
-    def +(rhs: Term[Int]) = FunApp(FunApp(Constant(Add), lhs), rhs)
+    def +(rhs: Term[Int]) = FunApp(FunApp(Constant(IntAdd), lhs), rhs)
   }
 
-  def sum[T](values: Values[T])(formula: Var[T] => Term[Int]) = {
+  def intSum[T](values: Values[T])(formula: Var[T] => Term[Int]) = {
     val variable = createVariable(values)
-    Quantification(Add, variable, formula(variable), 0)
+    Quantification(IntAdd, variable, formula(variable), 0)
   }
+
+  def sum[T](values: Values[T])(formula: Var[T] => Term[Double]) = {
+    val variable = createVariable(values)
+    Quantification(Add, variable, formula(variable), 0.0)
+  }
+
 
   def forall[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {
     val variable = createVariable(values)
@@ -243,11 +249,16 @@ class EQ[T] extends (T => (T => Boolean)) {
   override def toString = "Equals"
 }
 
-object Add extends (Int => (Int => Int)) {
+object IntAdd extends (Int => (Int => Int)) {
   def apply(arg1: Int): (Int => Int) = (arg2: Int) => arg1 + arg2
+  override def toString = "IntAdd"
+}
 
+object Add extends (Double => (Double => Double)) {
+  def apply(arg1: Double): (Double => Double) = (arg2: Double) => arg1 + arg2
   override def toString = "Add"
 }
+
 
 object And extends (Boolean => (Boolean => Boolean)) {
   def apply(arg1: Boolean): (Boolean => Boolean) = (arg2: Boolean) => arg1 && arg2
@@ -280,17 +291,17 @@ object Example extends Application with TheBeastEnv {
   println(env(FunApp(f, 1)))
   println(env(f(f(x))))
   println(env(k(1)(2)))
-  println(env(Add))
-  println(env(^(Add)(x)(1)))
+  println(env(IntAdd))
+  println(env(^(IntAdd)(x)(1)))
   println(env(^(1) + x))
 
-  println(Fold(Add, Seq[Term[Int]](1, 2, x + 3, 4), 0))
+  println(Fold(IntAdd, Seq[Term[Int]](1, 2, x + 3, 4), 0))
 
   println((k(1)(2) + x).domain)
   println(env(k(1)(2) + x))
 
-  println(Quantification(Add, x, f(x), 0).grounded)
-  println(sum(Ints) {x => f(x)})                                                                                          
+  println(Quantification(IntAdd, x, f(x), 0).grounded)
+  println(intSum(Ints) {x => f(x)})
 
   println(forall(Ints) {x => f(x) === 1})
   println((forall(Ints) {x => f(x) === 1}).domain)
@@ -304,6 +315,6 @@ object Example extends Application with TheBeastEnv {
   //env += (f->Map(1->2))
   //env += (f(1)->2)
 
-  println(ExhaustiveArgmax.argmax(x).eval(x))
+  println(ExhaustiveArgmax.argmax(f(x)).eval(f(x)))
 
 }
