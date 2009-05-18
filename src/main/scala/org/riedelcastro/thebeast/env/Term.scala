@@ -184,6 +184,9 @@ trait TheBeastEnv {
     def ===(rhs: Term[T]): Term[Boolean] = FunApp(FunApp(Constant(new EQ[T]), term), rhs)
   }
 
+  case class FunctionValuesBuilder[T, R](domain: Values[T]) {
+    def ->[R](range: Values[R]) = new FunctionValues(domain, range)
+  }
 
   implicit def funvar2funAppVarBuilder[T, R](funvar: EnvVar[T => R]) = FunAppVarBuilder(funvar)
 
@@ -198,9 +201,6 @@ trait TheBeastEnv {
   implicit def values2FunctionValuesBuilder[T, R](domain: Values[T]): FunctionValuesBuilder[T, R] =
     FunctionValuesBuilder[T, R](domain)
 
-  case class FunctionValuesBuilder[T, R](domain: Values[T]) {
-    def ->[R](range: Values[R]) = new FunctionValues(domain, range)
-  }
 
   def ^[T](t: T) = Constant(t)
 
@@ -214,6 +214,22 @@ trait TheBeastEnv {
   implicit def intTerm2IntAppBuilder(lhs: Term[Int]) = new {
     def +(rhs: Term[Int]) = FunApp(FunApp(Constant(IntAdd), lhs), rhs)
   }
+
+  implicit def doubleTerm2DoubleTermBuilder(lhs: Term[Double]) = new {
+    def +(rhs: Term[Double]) = FunApp(FunApp(Constant(Add), lhs), rhs)
+    def *(rhs: Term[Double]) = FunApp(FunApp(Constant(Times), lhs), rhs)
+  }
+
+
+  implicit def boolTerm2BoolAppBuilder(lhs: Term[Boolean]) = new {
+    def @@ = FunApp(Constant(CastBoolToDouble),lhs)
+
+    def &&(rhs: Term[Boolean]) = FunApp(FunApp(Constant(And),lhs),rhs)
+    def ->(rhs: Term[Boolean]) = FunApp(FunApp(Constant(Implies),lhs),rhs)
+  }
+
+  def $(term:Term[Boolean]) = FunApp(Constant(CastBoolToDouble),term)
+
 
   def intSum[T](values: Values[T])(formula: Var[T] => Term[Int]) = {
     val variable = createVariable(values)
@@ -259,6 +275,11 @@ object Add extends (Double => (Double => Double)) {
   override def toString = "Add"
 }
 
+object Times extends (Double => (Double => Double)) {
+  def apply(arg1: Double): (Double => Double) = (arg2: Double) => arg1 * arg2
+  override def toString = "Times"
+}
+
 
 object And extends (Boolean => (Boolean => Boolean)) {
   def apply(arg1: Boolean): (Boolean => Boolean) = (arg2: Boolean) => arg1 && arg2
@@ -270,6 +291,19 @@ object Or extends (Boolean => (Boolean => Boolean)) {
   def apply(arg1: Boolean): (Boolean => Boolean) = (arg2: Boolean) => arg1 || arg2
 
   override def toString = "Or"
+}
+
+object Implies extends (Boolean => (Boolean => Boolean)) {
+  def apply(arg1: Boolean): (Boolean => Boolean) = (arg2: Boolean) => !arg1 || arg2
+
+  override def toString = "Implies"
+}
+
+
+object CastBoolToDouble extends (Boolean => Double) {
+
+  def apply(bool:Boolean) = if (bool) 1.0 else 0.0
+  override def toString = "B2D"  
 }
 
 
@@ -304,6 +338,7 @@ object Example extends Application with TheBeastEnv {
   println(intSum(Ints) {x => f(x)})
 
   println(forall(Ints) {x => f(x) === 1})
+  println(sum(Ints) {x => {f(x) === 1}@@})
   println((forall(Ints) {x => f(x) === 1}).domain)
   println(forall(Ints) {x => forall(Ints) {y => k(x)(y) === 1}})
   println(forall(Ints, Ints) {(x, y) => k(x)(y) === 1})
@@ -317,4 +352,17 @@ object Example extends Application with TheBeastEnv {
 
   println(ExhaustiveArgmax.argmax(f(x)).eval(f(x)))
 
+  println(ExhaustiveArgmax.argmax(sum(Ints){x => ${f(x) === 1} * 0.1}).eval(f(2)))
+
+  val Persons = Values("Anna","Peter","Nick","Ivan")
+  val smokes = "smokes" in Persons->Bools;
+  val cancer = "cancer" in Persons->Bools;
+  val friends = "friends" in Persons->(Persons->Bools);
+
+  val f1 = sum(Persons) {x=> ${smokes(x)->cancer(x)} * 0.1}
+  val f2 = sum(Persons) {x=> sum(Persons) {y => ${friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}
+
+  val mln = f1 + f2
+
+  
 }
