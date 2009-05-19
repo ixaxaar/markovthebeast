@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.env
 
 
-import solve.ExhaustiveArgmax
+import solve.ExhaustiveSearch
 
 /**
  * @author Sebastian Riedel
@@ -350,9 +350,8 @@ object Example extends Application with TheBeastEnv {
   //env += (f->Map(1->2))
   //env += (f(1)->2)
 
-  println(ExhaustiveArgmax.argmax(f(x)).eval(f(x)))
-
-  println(ExhaustiveArgmax.argmax(sum(Ints){x => ${f(x) === 1} * 0.1}).eval(f(2)))
+  println(ExhaustiveSearch.search(f(x)).eval(f(x)))
+  println(ExhaustiveSearch.argmax(sum(Ints){x => ${f(x) === 1} * 0.1}).result.eval(f(2)))
 
   val Persons = Values("Anna","Peter","Nick","Ivan")
   val smokes = "smokes" in Persons->Bools;
