@@ -10,8 +10,16 @@ import env.{Term, Env}
 trait ArgmaxSolver {
 
   def argmax(term:Term[Double]) : ArgmaxResult
+
+  object Status extends Enumeration {
+    type Status = Value
+    val Solved, CantDo, Infeasible = Value
+  }
+
+  import Status._
+
+  case class ArgmaxResult(val result:Env, val status:Status) {
+
+  }
 }
 
-class ArgmaxResult(val result:Env) {
-
-}

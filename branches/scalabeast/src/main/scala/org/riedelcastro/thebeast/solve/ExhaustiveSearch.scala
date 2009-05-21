@@ -12,7 +12,8 @@ import util.Util
 
 object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
   def argmax(term: Term[Double]) =
-    new ArgmaxResult(search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE))
+    new ArgmaxResult(search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE),
+      Status.Solved)
 
   def satisfy(term: Term[Boolean]) =
     search(term.asInstanceOf[Term[Boolean]], (x: Boolean, y: Boolean) => x && !y, false)
