@@ -27,7 +27,7 @@ trait Env {
 
   def ground[T](term: Term[T]): Term[T] = {
     term match {
-      case q: Quantification[_, _, _] => ground(q.grounded)
+      case q: Quantification[_, _] => ground(q.grounded)
       case FunApp(f, arg) => FunApp(ground(f), ground(arg))
       case Fold(f, args, init) => Fold(ground(f), args.map(a => ground(a)), ground(init))
       case c: Constant[_] => c
