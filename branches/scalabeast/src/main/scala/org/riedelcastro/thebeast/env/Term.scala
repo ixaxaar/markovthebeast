@@ -13,7 +13,7 @@ sealed trait Term[+T] {
    * The domain of a term is the set of all variables that appear in the term. If possible, this
    * method may return function application variables. 
    */
-  def domain: Iterable[EnvVar[Any]]
+  def variables: Iterable[EnvVar[Any]]
 
   /**
    * The values of a term are all objects the term can be evaluated to
@@ -31,7 +31,7 @@ sealed trait Term[+T] {
 
 
 case class Constant[+T](val value: T) extends Term[T] {
-  def domain = Set.empty
+  def variables = Set.empty
 
   def values = Values(value)
 
@@ -53,7 +53,7 @@ trait IntTerm extends BoundedTerm[Int]
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
-  def domain: Iterable[EnvVar[T]] = Set(this)
+  def variables: Iterable[EnvVar[T]] = Set(this)
 
   def simplify = this
 
@@ -62,12 +62,12 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
 
 case class FunApp[T, +R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
-  def domain = {
+  def variables = {
     //if we have something like f(1)(2)(3) we should create a funapp variable
     if (isGround)
       Set(asFunAppVar)
     else
-      function.domain ++ arg.domain
+      function.variables ++ arg.variables
   }
 
   def values =
@@ -119,7 +119,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
 
   def simplify = null
 
-  def domain = function.domain ++ init.domain ++ args.flatMap(a => a.domain)
+  def variables = function.variables ++ init.variables ++ args.flatMap(a => a.variables)
 
   override def toString = function.toString + "(" + init + "):" + args
 }
@@ -133,7 +133,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def simplify = grounded.simplify
 
-  def domain = grounded.domain
+  def variables = grounded.variables
 
   def values = grounded.values
 }
@@ -189,7 +189,7 @@ object Example extends Application with TheBeastEnv {
 
   println(Fold(IntAdd, Seq[Term[Int]](1, 2, x + 3, 4), 0))
 
-  println((k(1)(2) + x).domain)
+  println((k(1)(2) + x).variables)
   println(env(k(1)(2) + x))
 
   println(Quantification(IntAdd, x, f(x), 0).grounded)
@@ -197,12 +197,12 @@ object Example extends Application with TheBeastEnv {
 
   println(forall(Ints) {x => f(x) === 1})
   println(sum(Ints) {x => {f(x) === 1} @@})
-  println((forall(Ints) {x => f(x) === 1}).domain)
+  println((forall(Ints) {x => f(x) === 1}).variables)
   println(forall(Ints) {x => forall(Ints) {y => k(x)(y) === 1}})
   println(forall(Ints, Ints) {(x, y) => k(x)(y) === 1})
   println((forall(Ints) {x => forall(Ints) {y => k(x)(y) === 1}}).grounded)
 
-  println(f(x).domain)
+  println(f(x).variables)
   //val env = MutableEnv
   //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))

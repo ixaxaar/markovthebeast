@@ -31,7 +31,7 @@ object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
     val env = new MutableEnv
     var max: T = init
     var best = new MutableEnv
-    val domain = term.domain.toSeq
+    val domain = term.variables.toSeq
     val values = domain.map(v => v.values.toStream)
     var cartesian = Util.Cartesian.cartesianProduct(values)
 

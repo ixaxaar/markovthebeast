@@ -73,7 +73,7 @@ case class AddApp(lhs: Term[Double], rhs: Term[Double]) extends FunApp(FunApp(Co
 case class AndApp(lhs: Term[Boolean], rhs: Term[Boolean]) extends FunApp(FunApp(Constant(And), lhs), rhs)
 case class ImpliesApp(lhs: Term[Boolean], rhs: Term[Boolean]) extends FunApp(FunApp(Constant(Implies), lhs), rhs)
 case class TimesApp(lhs: Term[Double], rhs: Term[Double]) extends FunApp(FunApp(Constant(Times), lhs), rhs)
-case class Sum(override val args: Seq[Term[Double]]) extends Fold[Double](Constant(Add), args, Constant(0))
+case class Sum(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Add), args, Constant(0))
 case class Product(override val args: Seq[Term[Double]]) extends Fold[Double](Constant(Times), args, Constant(0))
 
 

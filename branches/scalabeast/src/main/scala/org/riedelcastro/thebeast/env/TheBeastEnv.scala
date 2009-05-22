@@ -43,6 +43,11 @@ trait TheBeastEnv {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
 
+//  implicit def term2arity2funAppBuilder[T1,T2, R](fun: Term[T1 => (T2=>R)]) = new ((Term[T1],Term[T2]) => FunApp[T2, R]) {
+//    def apply(t: (Term[T1],Term[T2])) = FunApp(FunApp(fun, t._1), t._2)
+//  }
+
+
   //  implicit def term2eqBuilder[T](lhs: Term[T]) = new {
   //    def ===(rhs: Term[T]) = TermEq(lhs, rhs)
   //  }
