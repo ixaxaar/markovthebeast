@@ -35,7 +35,7 @@ trait Env {
     }
   }
 
-  def resolveVar[T](variable: Var[T]): Option[T]
+  def resolveVar[T](variable: EnvVar[T]): Option[T]
 
 
 }
@@ -45,7 +45,12 @@ class MutableEnv extends Env {
   private type MutableMap = scala.collection.mutable.HashMap[Any, Any]
   private var values = new MutableMap
 
-  def resolveVar[T](variable: Var[T]) = values.get(variable).asInstanceOf[Option[T]]
+  def resolveVar[T](variable: EnvVar[T]) = {
+    variable match {
+      case v: Var[_] => values.get(variable).asInstanceOf[Option[T]]
+      case FunAppVar(funVar, arg) => getMap(funVar).get(arg).asInstanceOf[Option[T]]
+    }
+  }
 
   private def getMap(variable: EnvVar[Any]): MutableMap = {
     variable match {
