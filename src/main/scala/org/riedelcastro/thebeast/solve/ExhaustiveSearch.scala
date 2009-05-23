@@ -11,9 +11,10 @@ import util.Util
  */
 
 object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
-  def argmax(term: Term[Double]) =
-    new ArgmaxResult(search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE),
-      Status.Solved)
+  def argmax(term: Term[Double]) = {
+    val y = search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE)
+    ArgmaxResult(y, Status.Solved, y(term))
+  }
 
   def satisfy(term: Term[Boolean]) =
     search(term.asInstanceOf[Term[Boolean]], (x: Boolean, y: Boolean) => x && !y, false)

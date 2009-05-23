@@ -8,6 +8,7 @@ import util.Util
  */
 trait Values[+T] extends Iterable[T] {
   def defaultValue:T = elements.next
+  def randomValue:T = {val seq = toSeq; seq(new Random().nextInt(seq.size))}
   def createVariable(name:String):Var[T] = new Var(name, this)
 }
 
