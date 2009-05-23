@@ -18,7 +18,7 @@ trait ArgmaxSolver {
 
   import Status._
 
-  case class ArgmaxResult(val result:Env, val status:Status) {
+  case class ArgmaxResult(val result:Env, val status:Status, val score:Double) {
 
   }
 }
