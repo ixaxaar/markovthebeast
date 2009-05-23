@@ -57,8 +57,24 @@ class GeneralizedMaxWalkSAT extends ArgmaxSolver {
   }
 
   private def greedy(factor:FactorGraph[DoubleTerm]#Factor, y:MutableEnv) : Double = {
-    //todo: implement this. 
-    randomChange(factor,y)
+    var bestChoice:(EnvVar[_],Any) = null
+    var maxDelta = Math.NEG_INF_DOUBLE
+    for (node <- factor.nodes){
+      val current = y.resolveVar(node.variable).get
+      val oldScore = node.factors.foldLeft(0.0) {(s,f) => s + y(f.term)}
+      for (value <- node.variable.values; if value != current){
+        y += ((node.variable, value))  
+        val newScore = node.factors.foldLeft(0.0) {(s,f) => s + y(f.term)}
+        val delta = newScore - oldScore
+        if (delta > maxDelta) {
+          maxDelta = delta
+          bestChoice = (node.variable,value)
+        }
+      }
+      y += ((node.variable, current))        
+    }
+    y += ((bestChoice._1, bestChoice._2))
+    maxDelta
   }
 
   private def randomChange(factor:FactorGraph[DoubleTerm]#Factor, y:MutableEnv) : Double = {
