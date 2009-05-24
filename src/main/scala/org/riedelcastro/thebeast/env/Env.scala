@@ -21,19 +21,10 @@ trait Env {
           eval(initTerm)
         else
           eval(FunApp(FunApp(funTerm, Fold(funTerm, argTerms.drop(1), initTerm)), argTerms(0)))
-      case x => eval(ground(x))
+      case x => eval(x.ground(this))
     }
   }
 
-  def ground[T](term: Term[T]): Term[T] = {
-    term match {
-      case q: Quantification[_, _] => ground(q.grounded)
-      case FunApp(f, arg) => FunApp(ground(f), ground(arg))
-      case Fold(f, args, init) => Fold(ground(f), args.map(a => ground(a)), ground(init))
-      case c: Constant[_] => c
-      case v: Var[_] => {val x = eval(v); if (x.isDefined) Constant(x.get) else v}
-    }
-  }
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
 
