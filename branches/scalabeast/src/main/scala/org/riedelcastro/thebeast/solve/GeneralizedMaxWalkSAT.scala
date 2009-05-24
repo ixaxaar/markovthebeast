@@ -15,7 +15,7 @@ trait RandomDrawable[T] extends Seq[T] {
 }
 
 class FactorGraph[T <: Term[_]](terms:Seq[T]) {
- 
+
   private val _factors = new ArrayBuffer[Factor] with RandomDrawable[Factor]
   private val _nodes = new ArrayBuffer[Node] with RandomDrawable[Node]
   private val _term2Factor = new HashMap[T,Factor]
@@ -117,6 +117,4 @@ class GeneralizedMaxWalkSAT extends ArgmaxSolver {
 
 
 }
-
-
 
