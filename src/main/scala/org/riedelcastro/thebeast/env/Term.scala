@@ -3,7 +3,7 @@ package org.riedelcastro.thebeast.env
 /**
  * @author Sebastian Riedel
  */
-sealed trait Term[+T] {
+trait Term[+T] {
 
   /**
    * The domain of a term is the set of all variables that appear in the term. If possible, this
@@ -26,6 +26,12 @@ sealed trait Term[+T] {
    * Replace the free variables in this term which are set in the specified environment
    */
   def ground(env:Env) : Term[T]
+
+  /**
+   * Evaluates this term with respect to the given environment.
+   */
+  def eval(env:Env) : Option[T] = env.eval(this)
+
 
 }
 
@@ -81,7 +87,7 @@ trait IntTerm extends BoundedTerm[Int] {
 }
 
 
-case class Var[T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
+case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
 
 
   def variables: Iterable[EnvVar[T]] = Set(this)
