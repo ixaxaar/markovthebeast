@@ -65,7 +65,7 @@ case class DoubleTermProxy(val x:Term[Double]) extends Proxy with DoubleTerm {
 trait DoubleTerm extends BoundedTerm[Double] {
   def +(rhs: DoubleTerm) = AddApp(this,rhs)
   def *(rhs: DoubleTerm) = TimesApp(this,rhs)
-
+  def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
   //def ground(env:Env) : DoubleTerm = super.ground(env).asInstanceOf[DoubleTerm]
 

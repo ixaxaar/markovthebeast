@@ -50,6 +50,8 @@ class Vector {
 trait VectorTerm extends Term[Vector] {
   def ground(env: Env) : VectorTerm
 
+  def *(that:DoubleTerm) = VectorScalarApp(this,that)
+
   def +(that:VectorTerm) = {
     this match {
       case VectorAddApp(lhs,rhs) => that match {
@@ -70,9 +72,17 @@ trait VectorTerm extends Term[Vector] {
 }
 
 case class VectorOne(key : Term[Any]*) extends VectorTerm {
-  def ground(env: Env) = null
 
-  def simplify = this
+  def ground(env: Env) = VectorOne(key.map(k => k.ground(env)):_*)
+
+  def simplify = {
+    if (!key.exists(k => !k.isInstanceOf[Constant[_]])) {
+      val result = new Vector
+      result.set(1.0, key.map(k => k.asInstanceOf[Constant[Any]].value):_*)
+      VectorConstant(result)
+    } else
+      this
+  }
 
   override def eval(env: Env): Option[Vector] = {
     val keyEvals  = new ArrayBuffer[Any]
@@ -84,7 +94,7 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
 
   def variables = key.flatMap(k => k.variables)
 
-  def values = null
+  def values = VectorSpace
 }
 
 case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
@@ -100,6 +110,17 @@ case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
   def upperBound = Math.POS_INF_DOUBLE
 }
 
+case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
+        extends FunApp(FunApp(Constant(VectorScalar),lhs),rhs) with VectorTerm {
+  override def ground(env: Env) = VectorScalarApp(lhs.ground(env),rhs.ground(env))
+
+  def upperBound = Math.POS_INF_DOUBLE
+}
+
+
+case class VectorConstant(override val value:Vector) extends Constant(value) with VectorTerm {
+  override def ground(env: Env) = this
+}
 
 case class VectorSum(override val args:Seq[VectorTerm])
         extends Fold(Constant(VectorAdd),args,Constant(new Vector)) with VectorTerm {
@@ -139,6 +160,15 @@ object VectorScalar extends (Vector=>(Double=>Vector)){
   def apply(lhs:Vector) = (rhs:Double) => lhs.scalar(rhs)
 }
 
+object VectorSpace extends Values[Vector] {
+  def elements = throw new Error("Can't iterate over all vectors")
+  override def defaultValue = VectorZero
+  override def randomValue = throw new Error("Space too large for randomly drawing an element")
+}
+
+object VectorZero extends Vector {
+  override def addInPlace(that: Vector, scale: Double) = throw new Error("Cannot change the zero vector")
+}
 
 object VectorDemo extends Application with TheBeastEnv {
 
@@ -156,6 +186,7 @@ object VectorDemo extends Application with TheBeastEnv {
 
   val f1 = sum(Persons) {x => $ {smokes(x) -> cancer(x)} * 0.1}
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}
+  val f3 = vectorSum(Persons) {x => $ {smokes(x) -> cancer(x)} * VectorOne(x)}
 
 
 }
