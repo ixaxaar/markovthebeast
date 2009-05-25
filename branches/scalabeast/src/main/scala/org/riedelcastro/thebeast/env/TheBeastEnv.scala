@@ -109,6 +109,12 @@ trait TheBeastEnv {
     QuantifiedSum(variable, formula(variable))
   }
 
+  def vectorSum[T](values: Values[T])(formula: Var[T] => VectorTerm) = {
+    val variable = createVariable(values)
+    QuantifiedVectorSum(variable, formula(variable))
+  }
+
+
 
   def forall[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {
     val variable = createVariable(values)
