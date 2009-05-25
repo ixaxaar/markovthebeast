@@ -94,6 +94,7 @@ case class BoolToDoubleCast(boolTerm: BooleanTerm) extends FunApp(Constant(CastB
   override def ground(env: Env) = BoolToDoubleCast(boolTerm.ground(env))
 }
 
+
 case class AddApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunApp(Constant(Add), lhs), rhs) {
   override def ground(env: Env) = AddApp(lhs.ground(env), rhs.ground(env))
 }

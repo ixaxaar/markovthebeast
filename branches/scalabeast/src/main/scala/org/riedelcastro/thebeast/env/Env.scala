@@ -4,7 +4,7 @@ package org.riedelcastro.thebeast.env
  * @author Sebastian Riedel
  */
 trait Env {
-  def apply[T](term: Term[T]): T = eval(term).get
+  def apply[T](term: Term[T]): T = term.eval(this).get
 
   def eval[T](term: Term[T]): Option[T] = {
     term match {
