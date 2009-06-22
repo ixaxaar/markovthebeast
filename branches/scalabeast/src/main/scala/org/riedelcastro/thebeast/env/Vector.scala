@@ -117,7 +117,6 @@ case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
   def upperBound = Math.POS_INF_DOUBLE
 }
 
-
 case class VectorConstant(override val value:Vector) extends Constant(value) with VectorTerm {
   override def ground(env: Env) = this
 }
@@ -184,9 +183,14 @@ object VectorDemo extends Application with TheBeastEnv {
   val cancer = "cancer" in Persons -> Bools;
   val friends = "friends" in Persons -> (Persons -> Bools);
 
+  val weights = "w" in VectorSpace
+
   val f1 = sum(Persons) {x => $ {smokes(x) -> cancer(x)} * 0.1}
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}
   val f3 = vectorSum(Persons) {x => $ {smokes(x) -> cancer(x)} * VectorOne(x)}
+  //val mln = f3 dot weights
 
+  //it should be possible to move the dot product into the summation, replacing VectorOne(x) with weights(x)
 
+  
 }

@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.solve
 
 
-import env.{Term, Env}
+import env.{DoubleTerm, Term, Env}
 
 /**
  * @author Sebastian Riedel
@@ -9,7 +9,7 @@ import env.{Term, Env}
 
 trait ArgmaxSolver {
 
-  def argmax(term:Term[Double]) : ArgmaxResult
+  def argmax(term:DoubleTerm) : ArgmaxResult
 
   object Status extends Enumeration {
     type Status = Value

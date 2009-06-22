@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.solve
 
 
-import env.{Var, MutableEnv, Env, Term}
+import env._
 import java.util.Comparator
 import reflect.Manifest
 import util.Util
@@ -11,7 +11,7 @@ import util.Util
  */
 
 object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
-  def argmax(term: Term[Double]) = {
+  def argmax(term: DoubleTerm) = {
     val y = search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE)
     ArgmaxResult(y, Status.Solved, y(term))
   }

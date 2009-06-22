@@ -1,10 +1,8 @@
-package org.riedelcastro.thebeast.env
+package org.riedelcastro.thebeast.env.functions
 
 /**
  * @author Sebastian Riedel
  */
-
-
 class EQ[T] extends (T => (T => Boolean)) {
   def apply(lhs: T): (T => Boolean) = (rhs: T) => lhs == rhs;
   override def toString = "Equals"
@@ -111,6 +109,11 @@ case class Sum(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant
 
   override def ground(env: Env) = Sum(args.map(a => a.ground(env)))
 }
+
+object SumHelper {
+  def sum(terms : Collection[DoubleTerm], env:Env) = terms.foldLeft(0.0) {(s,t) => s + env(t)}
+}
+
 case class Product(override val args: Seq[Term[Double]]) extends Fold[Double](Constant(Times), args, Constant(0))
 
 
