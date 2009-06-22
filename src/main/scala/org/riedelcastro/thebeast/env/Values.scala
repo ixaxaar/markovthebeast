@@ -7,6 +7,7 @@ import util.Util
  * @author Sebastian Riedel
  */
 trait Values[+T] extends Iterable[T] {
+
   def defaultValue:T = elements.next
   def randomValue:T = {val seq = toSeq; seq(new scala.util.Random().nextInt(seq.size))}
   def createVariable(name:String):Var[T] = new Var(name, this)

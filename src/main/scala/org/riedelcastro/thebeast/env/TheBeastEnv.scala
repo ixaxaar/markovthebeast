@@ -1,5 +1,8 @@
 package org.riedelcastro.thebeast.env
 
+
+import functions._
+
 /**
  * @author Sebastian Riedel
  */
@@ -7,7 +10,7 @@ package org.riedelcastro.thebeast.env
 trait TheBeastEnv {
   private var varCount = 0;
 
-  private def createVariable[T](values: Values[T]) = {
+  private def createVariable[T](values: Values[T]) : Var[T] = {
     varCount += 1;
     values.createVariable("x_" + varCount.toString)
   }

@@ -1,5 +1,7 @@
 package org.riedelcastro.thebeast.env
 
+import functions._
+
 /**
  * @author Sebastian Riedel
  */

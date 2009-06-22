@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast
 
 
 import env._
+import functions._
 import solve.{GeneralizedMaxWalkSAT, ExhaustiveSearch}
 /**
  * @author Sebastian Riedel
