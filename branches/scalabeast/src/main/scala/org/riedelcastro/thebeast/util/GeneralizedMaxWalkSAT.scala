@@ -13,13 +13,15 @@ class Factor[T <: Term[_]](val term: T) {
   val nodes = new ArrayBuffer[Node[T]] with RandomDrawable[Node[T]]
 }
 
-case class AddFactorEvent(factor: Factor[_]);
+sealed trait FactorGraphEvent;
+case class AddFactorEvent(factor: Factor[_]) extends FactorGraphEvent;
+case class AddNodeEvent(Node: Node[_]) extends FactorGraphEvent;
 
 /**
  * @author Sebastian Riedel
  */
 class FactorGraph[T <: Term[_]](terms: Seq[T])
-        extends ListenerManager[AddFactorEvent] {
+        extends ListenerManager[FactorGraphEvent] {
 
   private val _factors = new ArrayBuffer[Factor[T]] with RandomDrawable[Factor[T]]
   private val _nodes = new ArrayBuffer[Node[T]] with RandomDrawable[Node[T]]
@@ -35,13 +37,19 @@ class FactorGraph[T <: Term[_]](terms: Seq[T])
   }
 
   def addTerm(t: T): Factor[T] = {
-    val factor = _term2Factor.getOrElseUpdate(t, {val f = new Factor(t); _factors += f; f})
+    var factorAdded = false;
+    val factor = _term2Factor.getOrElseUpdate(t,
+      {val f = new Factor(t); _factors += f; factorAdded = true; f})
     for (v <- t.variables) {
-      val node = _variable2Node.getOrElseUpdate(v, {val n = new Node[T](v); _nodes += n; n})
+      var nodeAdded = false;
+      val node = _variable2Node.getOrElseUpdate(v,
+        {val n = new Node[T](v); _nodes += n; nodeAdded=true; n})
       node.factors += factor
       factor.nodes += node
+      if (nodeAdded) fireEvent(AddNodeEvent(node))
+
     }
-    fireEvent(AddFactorEvent(factor))
+    if (factorAdded) fireEvent(AddFactorEvent(factor))
     factor
   }
 
