@@ -28,7 +28,14 @@ trait Env {
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
 
+  def mask(hiddenVariables:Set[EnvVar[_]]) = new MaskedEnv(this,hiddenVariables);
 
+}
+
+class MaskedEnv(masked:Env, hiddenVariables:Set[EnvVar[_]]) extends Env {
+  def resolveVar[T](variable: EnvVar[T]) = {
+    if (hiddenVariables.contains(variable)) None else masked.resolveVar(variable)
+  }
 }
 
 class MutableEnv extends Env {
