@@ -10,13 +10,13 @@ import functions._
 trait TheBeastEnv {
   private var varCount = 0;
 
-  private def createVariable[T](values: Values[T]) : Var[T] = {
+  private def createVariable[T](values: Values[T]): Var[T] = {
     varCount += 1;
     values.createVariable("x_" + varCount.toString)
   }
 
   implicit def string2varbuilder(name: String) = new {
-    def in[T](values: Values[T]) = Var(name, values)
+    def <~[T](values: Values[T]) = Var(name, values)
 
     //def in[T, R](values: FunctionValues[T, R]) = FunVar(name, values)
   }
@@ -57,10 +57,14 @@ trait TheBeastEnv {
     def apply(t: Term[T]) = BooleanFunApp(fun, t)
   }
 
+  
 
-//  implicit def term2arity2funAppBuilder[T1,T2, R](fun: Term[T1 => (T2=>R)]) = new ((Term[T1],Term[T2]) => FunApp[T2, R]) {
-//    def apply(t: (Term[T1],Term[T2])) = FunApp(FunApp(fun, t._1), t._2)
-//  }
+  implicit def varWithEnv2mapToBuilder[T, R](varWithEnv: VarWithEnv[T => R]) =
+    MapToBuilder(varWithEnv.envVar, varWithEnv.env)
+
+  //  implicit def term2arity2funAppBuilder[T1,T2, R](fun: Term[T1 => (T2=>R)]) = new ((Term[T1],Term[T2]) => FunApp[T2, R]) {
+  //    def apply(t: (Term[T1],Term[T2])) = FunApp(FunApp(fun, t._1), t._2)
+  //  }
 
 
   //  implicit def term2eqBuilder[T](lhs: Term[T]) = new {
@@ -85,18 +89,18 @@ trait TheBeastEnv {
   }
 
   implicit def doubleTerm2DoubleTermBuilder(lhs: DoubleTerm) = new {
-    def +(rhs: DoubleTerm) = AddApp(lhs,rhs)
+    def +(rhs: DoubleTerm) = AddApp(lhs, rhs)
 
-    def *(rhs: DoubleTerm) = TimesApp(lhs,rhs)
+    def *(rhs: DoubleTerm) = TimesApp(lhs, rhs)
   }
 
 
   implicit def boolTerm2BoolAppBuilder(lhs: BooleanTerm) = new {
     def @@ = BoolToDoubleCast(lhs)
 
-    def &&(rhs: BooleanTerm) = AndApp(lhs,rhs)
+    def &&(rhs: BooleanTerm) = AndApp(lhs, rhs)
 
-    def ->(rhs: BooleanTerm) = ImpliesApp(lhs,rhs)
+    def ->(rhs: BooleanTerm) = ImpliesApp(lhs, rhs)
   }
 
   def $(term: BooleanTerm) = BoolToDoubleCast(term)
@@ -117,6 +121,11 @@ trait TheBeastEnv {
     QuantifiedVectorSum(variable, formula(variable))
   }
 
+  def vectorSum[T1,T2](values1: Values[T1], values2:Values[T2])(formula: (Var[T1],Var[T2]) => VectorTerm) : QuantifiedVectorSum[T1] =
+    vectorSum(values1){x1 => vectorSum(values2){x2 => formula(x1,x2)}}
+
+  def vectorSum[T1,T2,T3](v1: Values[T1], v2:Values[T2], v3:Values[T3])(formula: (Var[T1],Var[T2],Var[T3]) => VectorTerm) : QuantifiedVectorSum[T1] =
+    vectorSum(v1){x1 => vectorSum(v2,v3){(x2,x3) => formula(x1,x2,x3)}}
 
 
   def forall[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {

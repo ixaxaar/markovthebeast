@@ -2,7 +2,7 @@ package org.riedelcastro.thebeast.env
 
 
 import collection.mutable.{ArrayBuffer, HashMap}
-
+import functions.{QuantifiedSum, Sum}
 /**
  * @author Sebastian Riedel
  */
@@ -69,6 +69,9 @@ trait VectorTerm extends Term[Vector] {
 
   }
   def dot(that:VectorTerm) = VectorDotApp(this,that)
+
+  def dot(that:Vector) = VectorDotApp(this,VectorConstant(that))
+
 }
 
 case class VectorOne(key : Term[Any]*) extends VectorTerm {
@@ -108,6 +111,19 @@ case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
   override def ground(env: Env) = VectorDotApp(lhs.ground(env),rhs.ground(env))
 
   def upperBound = Math.POS_INF_DOUBLE
+
+  def distribute : DoubleTerm = {
+    lhs match {
+      case VectorSum(args) => Sum(args.map(a => (a dot rhs).distribute))
+      case QuantifiedVectorSum(variable,formula) => QuantifiedSum(variable, (formula dot rhs).distribute)
+      case _ => rhs match {
+        case VectorSum(args) => Sum(args.map(a => (lhs dot a).distribute))
+        case QuantifiedVectorSum(variable,formula) => QuantifiedSum(variable, (lhs dot formula).distribute)
+        case _ => this
+      }
+    }
+  }
+
 }
 
 case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
@@ -179,11 +195,11 @@ object VectorDemo extends Application with TheBeastEnv {
 
   val Bools = Values(true, false)  
   val Persons = Values("Anna", "Peter", "Nick", "Ivan")
-  val smokes = "smokes" in Persons -> Bools;
-  val cancer = "cancer" in Persons -> Bools;
-  val friends = "friends" in Persons -> (Persons -> Bools);
+  val smokes = "smokes" <~ Persons -> Bools;
+  val cancer = "cancer" <~ Persons -> Bools;
+  val friends = "friends" <~ Persons -> (Persons -> Bools);
 
-  val weights = "w" in VectorSpace
+  val weights = "w" <~ VectorSpace
 
   val f1 = sum(Persons) {x => $ {smokes(x) -> cancer(x)} * 0.1}
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}

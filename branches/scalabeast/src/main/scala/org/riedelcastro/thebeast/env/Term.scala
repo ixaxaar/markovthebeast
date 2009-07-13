@@ -27,18 +27,17 @@ trait Term[+T] {
   /**
    * Replace the free variables in this term which are set in the specified environment
    */
-  def ground(env:Env) : Term[T]
+  def ground(env: Env): Term[T]
 
   /**
    * Evaluates this term with respect to the given environment.
    */
-  def eval(env:Env) : Option[T] = env.eval(this)
+  def eval(env: Env): Option[T] 
 
 
 }
 
 case class Constant[T](val value: T) extends Term[T] {
-
   def variables = Set.empty
 
   def values = Values(value)
@@ -47,39 +46,36 @@ case class Constant[T](val value: T) extends Term[T] {
 
   def ground(env: Env) = this
 
+  override def eval(env: Env) = Some(value)
+
   override def toString = value.toString
 }
 
 
 trait BoundedTerm[T] extends Term[T] {
-  def upperBound : T
+  def upperBound: T
 }
 
-case class DoubleTermProxy(val x:Term[Double]) extends Proxy with DoubleTerm {
-  def self = x
-  def ground(env: Env) = DoubleTermProxy(x.ground(env))
-  def simplify = DoubleTermProxy(x.simplify)
-  def variables = x.variables
-  def values = x.values
-  def upperBound = Math.POS_INF_DOUBLE
-}
 
 trait DoubleTerm extends BoundedTerm[Double] {
-  def +(rhs: DoubleTerm) = AddApp(this,rhs)
-  def *(rhs: DoubleTerm) = TimesApp(this,rhs)
+  def +(rhs: DoubleTerm) = AddApp(this, rhs)
+
+  def *(rhs: DoubleTerm) = TimesApp(this, rhs)
+
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
   //def ground(env:Env) : DoubleTerm = super.ground(env).asInstanceOf[DoubleTerm]
 
-  def ground(env: Env) : DoubleTerm
+  def ground(env: Env): DoubleTerm
 }
 trait BooleanTerm extends BoundedTerm[Boolean] {
-
   def @@ = BoolToDoubleCast(this)
-  def &&(rhs: BooleanTerm) = AndApp(this,rhs)
-  def ->(rhs: BooleanTerm) = ImpliesApp(this,rhs)
 
-  def ground(env: Env) : BooleanTerm
+  def &&(rhs: BooleanTerm) = AndApp(this, rhs)
+
+  def ~>(rhs: BooleanTerm) = ImpliesApp(this, rhs)
+
+  def ground(env: Env): BooleanTerm
 
 
 }
@@ -90,8 +86,6 @@ trait IntTerm extends BoundedTerm[Int] {
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
-
-
   def variables: Iterable[EnvVar[T]] = Set(this)
 
   def simplify = this
@@ -99,11 +93,20 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
   override def toString = name
 
   def ground(env: Env) = {
-    val x = env.eval(this); if (x.isDefined) Constant(x.get) else this
+    val x = env.eval(this);
+    if (x.isDefined) Constant(x.get) else this
   }
+
+
+  override def eval(env: Env) = env.resolveVar[T](this)
 }
 
-case class FunApp[T,R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
+case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
+  override def eval(env: Env) = {
+    val evalFun = env.eval(function);
+    val evalArg = env.eval(arg);
+    if (evalFun.isDefined && evalArg.isDefined) Some(evalFun.get(evalArg.get)) else None
+  }
 
   def variables = {
     //if we have something like f(1)(2)(3) we should create a funapp variable
@@ -147,7 +150,6 @@ case class FunApp[T,R](val function: Term[T => R], val arg: Term[T]) extends Ter
 
 
 case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], val init: Term[R]) extends Term[R] {
-
   def values =
     function.values match {
       case functions: FunctionValues[_, _] => functions.range match {
@@ -171,6 +173,14 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
   def ground(env: Env) = Fold(function.ground(env), args.map(a => a.ground(env)), init.ground(env))
 
   override def toString = function.toString + "(" + init + "):" + args
+
+
+  override def eval(env: Env) = {
+    if (args.isEmpty)
+      env.eval(init)
+    else
+      env.eval(FunApp(FunApp(function, Fold(function, args.drop(1), init)), args(0)))
+  }
 }
 
 
@@ -189,8 +199,9 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def values = unroll.values
 
-
   def ground(env: Env) = unroll.ground(env)
+
+  def eval(env: Env) = unroll.eval(env)
 }
 
 
