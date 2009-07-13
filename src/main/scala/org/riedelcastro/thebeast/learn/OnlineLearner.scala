@@ -2,33 +2,40 @@ package org.riedelcastro.thebeast.learn
 
 
 import env._
-import solve.{GeneralizedMaxWalkSAT, ArgmaxSolver}
+import solve.{ExhaustiveSearch, ArgmaxSolver}
 /**
  * @author Sebastian Riedel
  */
 
 class OnlineLearner {
 
-  var solver: ArgmaxSolver = new GeneralizedMaxWalkSAT
-  var hiddenVariables: Set[EnvVar[_]] = Set()
-  var updateRule: UpdateRule = null
+  var solver: ArgmaxSolver = ExhaustiveSearch
+  var updateRule: UpdateRule = new PerceptronUpdateRule
 
-  def learn(score:DoubleTerm, featureVector:VectorTerm, trainingSet:Seq[Env]) : Vector = {
-    var result = new Vector
+  def learn(featureVector:VectorTerm, trainingSet:Seq[MaskedEnv]) : Vector = {
+    var weights = new Vector
     for (instance <- trainingSet) {
-      var goldFeatures = instance(featureVector)
+      var goldFeatures = instance.unmasked(featureVector)
       //ground observed variables in scoring function and feature function
-      var conditionedScore = score.ground(instance.mask(hiddenVariables))
+      var conditionedScore = (featureVector dot weights).ground(instance)
       var guess = solver.argmax(conditionedScore).result
       var guessFeatures = guess(featureVector)
-      updateRule.update(goldFeatures,guessFeatures, 0.0, result)
+      updateRule.update(goldFeatures,guessFeatures, 0.0, weights)
     }
-    result
+    weights
   }
 
   trait UpdateRule {
     def update(gold:Vector, guess:Vector, loss:Double, weights:Vector)
   }
 
+  class PerceptronUpdateRule extends UpdateRule {
+
+    var learningRate = 1.0
+
+    def update(gold: Vector, guess: Vector, loss: Double, weights: Vector) = {
+      weights.addInPlace(gold.add(guess, -1.0), learningRate)
+    }
+  }
 }
 

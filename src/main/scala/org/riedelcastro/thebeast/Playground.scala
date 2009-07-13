@@ -11,11 +11,11 @@ import solve.{GeneralizedMaxWalkSAT, ExhaustiveSearch}
 object Playground extends Application with TheBeastEnv {
   val Ints = Values[Int](1, 2, 3)
   val Bools = Values(true, false)
-  val b = "b" in Bools
-  val x = "x" in Ints
-  val f = "f" in Ints -> Ints
-  val pred = "pred" in Ints -> Bools
-  val k = "k" in Ints -> (Ints -> Ints)
+  val b = "b" <~ Bools
+  val x = "x" <~ Ints
+  val f = "f" <~ Ints -> Ints
+  val pred = "pred" <~ Ints -> Bools
+  val k = "k" <~ Ints -> (Ints -> Ints)
   val env = new MutableEnv
   println(env.eval(x))
   env += x -> 1
@@ -47,7 +47,7 @@ object Playground extends Application with TheBeastEnv {
 
   println(f(x).variables)
   //val env = MutableEnv
-  //val f = "f" in FunctionValues(Set(1,2,3),Set(1,2))
+  //val f = "f" <~ FunctionValues(Set(1,2,3),Set(1,2))
   //env += (f->Map(1->2))
   //env += (f(1)->2)
 
@@ -58,9 +58,9 @@ object Playground extends Application with TheBeastEnv {
   println(mws.argmax((sum(Ints) {x => $ {f(x) === 2} * 0.1}).unroll).result.eval(f(2)))
 
   val Persons = Values("Anna", "Peter", "Nick", "Ivan")
-  val smokes = "smokes" in Persons -> Bools;
-  val cancer = "cancer" in Persons -> Bools;
-  val friends = "friends" in Persons -> (Persons -> Bools);
+  val smokes = "smokes" <~ Persons -> Bools;
+  val cancer = "cancer" <~ Persons -> Bools;
+  val friends = "friends" <~ Persons -> (Persons -> Bools);
 
   val f1 = sum(Persons) {x => $ {smokes(x) -> cancer(x)} * 0.1}
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}

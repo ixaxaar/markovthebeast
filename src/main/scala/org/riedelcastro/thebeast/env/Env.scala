@@ -1,53 +1,49 @@
 package org.riedelcastro.thebeast.env
 
+
+import collection.mutable.HashSet
+
 /**
  * @author Sebastian Riedel
  */
 trait Env {
   def apply[T](term: Term[T]): T = term.eval(this).get
 
+  //todo: should this be removed
   def eval[T](term: Term[T]): Option[T] = {
-    term match {
-      case Constant(x) => Some(x)
-      case v: Var[_] => resolveVar[T](v)
-      case FunApp(funTerm, argTerm) =>
-        {
-          val fun = eval(funTerm);
-          val arg = eval(argTerm);
-          if (fun.isDefined && arg.isDefined) Some(fun.get(arg.get)) else None
-        }
-      case Fold(funTerm, argTerms, initTerm) =>
-        if (argTerms.isEmpty)
-          eval(initTerm)
-        else
-          eval(FunApp(FunApp(funTerm, Fold(funTerm, argTerms.drop(1), initTerm)), argTerms(0)))
-      case x => eval(x.ground(this))
-    }
+    term.eval(this)
   }
 
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
 
-  def mask(hiddenVariables:Set[EnvVar[_]]) = new MaskedEnv(this,hiddenVariables);
+  def mask(hiddenVariables: Set[EnvVar[_]]) = new MaskedEnv(this, hiddenVariables);
 
 }
 
-class MaskedEnv(masked:Env, hiddenVariables:Set[EnvVar[_]]) extends Env {
+class MaskedEnv(var unmasked: Env, var hiddenVariables: Set[EnvVar[_]]) extends Env {
   def resolveVar[T](variable: EnvVar[T]) = {
-    if (hiddenVariables.contains(variable)) None else masked.resolveVar(variable)
+    if (hiddenVariables.contains(variable)) None else unmasked.resolveVar(variable)
   }
 }
+
 
 class MutableEnv extends Env {
   private type MutableMapCheck = scala.collection.mutable.HashMap[_, _]
   private type MutableMap = scala.collection.mutable.HashMap[Any, Any]
   private var values = new MutableMap
+  private var closed = new HashSet[EnvVar[_]]
 
   def resolveVar[T](variable: EnvVar[T]) = {
-    variable match {
+    var result = variable match {
       case v: Var[_] => values.get(variable).asInstanceOf[Option[T]]
       case FunAppVar(funVar, arg) => getMap(funVar).get(arg).asInstanceOf[Option[T]]
     }
+    result match {
+      case Some(x) => result
+      case None => if (closed.contains(variable)) Some(variable.values.defaultValue) else None
+    }
+
   }
 
   private def getMap(variable: EnvVar[Any]): MutableMap = {
@@ -64,12 +60,17 @@ class MutableEnv extends Env {
     result
   }
 
+  def close(variable: EnvVar[_], closed: Boolean) {
+    if (closed) this.closed += variable else this.closed.removeEntry(variable)
+  }
+
+
   private def cloneMutableMap(map: MutableMap): MutableMap = {
     val result = new MutableMap
     map foreach {
       case (key, value) =>
         if (value.isInstanceOf[MutableMapCheck])
-          result += (key ->cloneMutableMap(value.asInstanceOf[MutableMap]))
+          result += (key -> cloneMutableMap(value.asInstanceOf[MutableMap]))
         else
           result += (key -> value)
     }
@@ -83,6 +84,19 @@ class MutableEnv extends Env {
     }
   }
 
+
   def +=[T](mapping: Tuple2[EnvVar[T], T]) = set(mapping._1, mapping._2)
 
+
+  def mapTo[T](envVar: EnvVar[T]) = new VarWithEnv(envVar,this)
+
+
+}
+
+case class VarWithEnv[T](envVar: EnvVar[T], env: MutableEnv) {
+  def ->(t: T) = env.set(envVar, t)
+}
+
+case class MapToBuilder[T, R](val funVar: EnvVar[T => R], val env: MutableEnv) {
+  def apply(t: T) = VarWithEnv(FunAppVar(funVar, t), env)
 }
