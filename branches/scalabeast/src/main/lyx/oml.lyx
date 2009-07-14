@@ -1,0 +1,352 @@
+#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+(Overgeneralized) Markov Logic on a Hook
+\end_layout
+
+\begin_layout Abstract
+Some would argue that Markov Logic, in order to be the AI interface of choice,
+ is too limited.
+ It doesn't allow any higher order constructions, certain constraints are
+ hard to express (cardinality, acyclicit), functions (functors) cannot be
+ easily modelled.
+ directed graphs (direction not captured)...
+ While one can argue whether all these things are really necessary, the
+ history of alchemy, the leading ML implementation, clearly shows that weighted
+ first order logic as originally proposed was not sufficient: one will find
+ many new constructions (+,!,...) within alchemy that make our life easier.
+ These are sometimes just syntactic sugar, sometimes they extend the language
+ to
+\end_layout
+
+\begin_layout Abstract
+Others would argue that Markov Logic is too general---we can easily end
+ up with intractable inference and learning problems---and that we should
+ focus on well-understood safe subsets of ML to make the life of developers
+ easier.
+ 
+\end_layout
+
+\begin_layout Abstract
+We believe that both is true, and hence we propose a generalized version
+ of Markov Logic, which, at the same time, allows for specialized inference
+ for certain tractable substructures.
+ From an alternative point of view it can be seen as a framework for PP
+ languages.
+ The underlying that many algorithms, datastructures etc can be reused across
+ these languages, and should be.
+ For example, online learning algorithms only require a feature representation
+ of a possible world (thus, if we have MAP/MPE inference for our language
+ we are set).
+ The managment of possible worlds can also be handled uniformly.
+ One can easily define generalized versions of MWS...
+\end_layout
+
+\begin_layout Abstract
+OML: Composing score functions over posible worlds
+\end_layout
+
+\begin_layout Abstract
+In 
+\begin_inset Quotes eld
+\end_inset
+
+real world Markov Logic
+\begin_inset Quotes erd
+\end_inset
+
+ many additional constructs have appeared (cardinality, + notation, ! notation,
+ acyclicity) that will not 
+\end_layout
+
+\begin_layout Standard
+Possible stories:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+ML 
+\begin_inset Quotes eld
+\end_inset
+
+generalized
+\begin_inset Quotes erd
+\end_inset
+
+ other Probabilistic Prog.
+ languages, but looses all it's structure---ML can express cardinality acyclicit
+y etc.
+ but generic inference has a hard time with it/looses structure---we still
+ want to resuse infrastructure should be re-used across languages, and we
+ want to combine tractable, easy substructure with complex ones---provide
+ this infrastructure in a modern generalization of ML
+\end_layout
+
+\begin_layout Enumerate
+ML lacks a lot of constructions that could make our life easier---has been
+ constantly extended---needs framework that supports extension
+\end_layout
+
+\begin_layout Enumerate
+ML is not expressive enough (functors, cardinality, second order, non-boolean
+ discrete variables, formula templates)---ML too expressive (can express
+ a lot of things, inference and learning don't scale up, structure is lost)---th
+us we generalize Markov Logic and focus on allowing hooks and composed inference
+)---OML maintains the special structure of parts of the mode
+\end_layout
+
+\begin_layout Standard
+asdasd
+\end_layout
+
+\begin_layout Itemize
+Markov Logic too general (we can easily build models that we can't run inference
+ in)
+\end_layout
+
+\begin_layout Itemize
+Markov Logic is not general enough (certain structures are hard/impossible
+ to describe---which?)
+\end_layout
+
+\begin_layout Itemize
+Markov Logic (current implementation alchemy) is hard to integrate/extend
+\end_layout
+
+\begin_layout Itemize
+Markov Logic does not provide inference hooks(!)
+\end_layout
+
+\begin_layout Itemize
+Bayesian Networks etc.
+ can be formulated in ML, but loose 
+\begin_inset Quotes eld
+\end_inset
+
+their structures
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Need tight integration with state-of-the-art programming language
+\end_layout
+
+\begin_layout Itemize
+Think of a framework for (possible world scoring) probabilistic programming
+ languages that allows reuse of common parts, specialized inference for
+ certain substructures, ideally combination of generic and specialized methods
+\end_layout
+
+\begin_layout Itemize
+Paradigm: instead of specializing the language further (and guarantee efficient
+ inference), make it more general but support the process of 
+\emph on
+inference-dispatch
+\emph default
+ and 
+\emph on
+multi-paradigm inference
+\emph default
+.
+ Note that there are many methods that can be used across languages independent
+ of inference methods (online learning, evaluation, data management, generalized
+ MWS, possible worlds...)
+\end_layout
+
+\begin_layout Itemize
+While it is expressive enough for many tasks, there will surely more extensions
+ as well as restrictions (similiarity logic) in the future.
+ The purpose of OML is to accomodate for those developments.
+ Thus, instead of trying to formulate everything in ML, make definition
+ of new language constructs easier while leveraging shared code.
+ 
+\end_layout
+
+\begin_layout Itemize
+This leads to a very general language for which inference generally is intractab
+le (as ML).
+ But by making things even more general we 
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Section
+Overgeneralized Markov Logic
+\end_layout
+
+\begin_layout Subsection
+Environments and Variables
+\end_layout
+
+\begin_layout Subsection
+Terms
+\end_layout
+
+\begin_layout LyX-Code
+1.23, 
+\begin_inset Quotes eld
+\end_inset
+
+A
+\begin_inset Quotes erd
+\end_inset
+
+, ...
+\end_layout
+
+\begin_layout Subsection
+Scoring functions & Distributions
+\end_layout
+
+\begin_layout LyX-Code
+1.23
+\end_layout
+
+\begin_layout LyX-Code
+Bool2Double(x == 3)
+\end_layout
+
+\begin_layout LyX-Code
+$(x == 3)
+\end_layout
+
+\begin_layout LyX-Code
+$(friends(Anna,Bob))
+\end_layout
+
+\begin_layout Subsubsection
+Folds
+\end_layout
+
+\begin_layout Subsubsection
+Quantified Folds
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Persons) 
+\end_layout
+
+\begin_layout LyX-Code
+   {(x,y) => $(friends(x,y) && smokes(x) ~> smokes(y)) * 1.35}
+\end_layout
+
+\begin_layout LyX-Code
+for (pred <- Set(token,pos,cap)) vectorsum(Ints) 
+\end_layout
+
+\begin_layout LyX-Code
+   {i -> $(pred(i,v) ~> ner(i,t)) * e_1(pred,v,t)}
+\end_layout
+
+\begin_layout Subsubsection
+Vector Operations
+\end_layout
+
+\begin_layout LyX-Code
+vectorsum(Persons,Persons) 
+\end_layout
+
+\begin_layout LyX-Code
+   {(x,y) => $(friends(x,y) && smokes(x) ~> smokes(y)) * e_(@id)}
+\end_layout
+
+\begin_layout LyX-Code
+f = vectorsum(Persons,Persons) 
+\end_layout
+
+\begin_layout LyX-Code
+   {(x,y) => $(friends(+x,y) && smokes(x) ~> smokes(y))}
+\end_layout
+
+\begin_layout LyX-Code
+prob = exp(f dot weights) / Normalizer(exp(f dot weights).ground(x))
+\end_layout
+
+\begin_layout Subsubsection
+CPT
+\end_layout
+
+\begin_layout LyX-Code
+prod(Persons)
+\end_layout
+
+\begin_layout LyX-Code
+  {x => CPT(cancer(x)|smokes(x), 0.1,0.9,0.5,0.5)}
+\end_layout
+
+\begin_layout Section
+Inference and Learning
+\end_layout
+
+\begin_layout LyX-Code
+val submodel = x + y + z ...
+\end_layout
+
+\begin_layout LyX-Code
+submodel.inferMarginalsWith()
+\end_layout
+
+\begin_layout Subsection
+Hooks
+\end_layout
+
+\begin_layout Subsection
+Generalized MWS
+\end_layout
+
+\begin_layout Subsection
+Gradient Based & Online Learning
+\end_layout
+
+\begin_layout Section
+Examples
+\end_layout
+
+\end_body
+\end_document
