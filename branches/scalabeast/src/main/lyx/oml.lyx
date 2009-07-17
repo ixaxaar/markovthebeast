@@ -36,6 +36,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -45,41 +46,32 @@
 \end_layout
 
 \begin_layout Abstract
-Some would argue that Markov Logic, in order to be the AI interface of choice,
- is too limited.
- It doesn't allow any higher order constructions, certain constraints are
- hard to express (cardinality, acyclicit), functions (functors) cannot be
- easily modelled.
- directed graphs (direction not captured)...
- While one can argue whether all these things are really necessary, the
- history of alchemy, the leading ML implementation, clearly shows that weighted
- first order logic as originally proposed was not sufficient: one will find
- many new constructions (+,!,...) within alchemy that make our life easier.
- These are sometimes just syntactic sugar, sometimes they extend the language
- to
-\end_layout
-
-\begin_layout Abstract
-Others would argue that Markov Logic is too general---we can easily end
- up with intractable inference and learning problems---and that we should
- focus on well-understood safe subsets of ML to make the life of developers
- easier.
+Markov Logic is a SRL language that combines first order logic with Markov
+ Networks.
+ One of its supposed strengths is its generality: most other SRL languages
+ can be mapped to Markov Logic.
+ Moreover, the expressiveness of first order Logic allows KB designers to
+ encode a wide range of constraints---uniqueness, acyclicity, transitivity,
+ etc.
+ In fact, in most real world applications we do not have a hard time expressing
+ the knowledge we have about the data.
+ However, while it is nice to freely express whatever we belief to be true,
+ the generality of Markov Logic comes at a price: often much of the structure
+ that usually lead to more efficient inference and training is lost when
+ framing knowledge in Markov Logic.
+ This holds in the large (when framing a model in one SRL language using
+ ML) and in the small (when framing specific constraints in ML/FOL).
  
 \end_layout
 
 \begin_layout Abstract
-We believe that both is true, and hence we propose a generalized version
- of Markov Logic, which, at the same time, allows for specialized inference
- for certain tractable substructures.
- From an alternative point of view it can be seen as a framework for PP
- languages.
- The underlying that many algorithms, datastructures etc can be reused across
- these languages, and should be.
- For example, online learning algorithms only require a feature representation
- of a possible world (thus, if we have MAP/MPE inference for our language
- we are set).
- The managment of possible worlds can also be handled uniformly.
- One can easily define generalized versions of MWS...
+This can be overcome in at least two ways: (a) develop individual languages
+ (as done) and interpreters, (b) recover structure from the MLN, (c) write
+ specialized models only with known tractable structure.
+ We reject both and go for (c): proposing a generalization of Markov Logic
+ that allows language constructs from several languages, and individual
+ specialized constraints.
+ 
 \end_layout
 
 \begin_layout Abstract
