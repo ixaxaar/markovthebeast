@@ -12,10 +12,20 @@ class Vector {
   private val store = new HashMap[Any,Double]
 
   def set(value:Double, keys:Any*){
-    store += (keys -> value)
+    store += (keys.toList -> value)
   }
 
-  def get(keys:Any*) : Double = store.getOrElse(keys,0.0)
+  def setWithSingleKey(value:Double, key:Any){
+    store += (key -> value)
+  }
+
+
+  private def unpackIfSingle(args:Any*) = if (args.length == 1) args(0) else args
+
+  def get(keys:Any*) : Double = store.getOrElse(keys.toList,0.0)
+
+  def getWithSingleKey(key:Any) : Double = store.getOrElse(key,0.0)
+
 
   def add(that:Vector, scale:Double) : Vector = {
     val result = new Vector
@@ -32,13 +42,13 @@ class Vector {
 
   def addInPlace(that:Vector, scale:Double) : Unit = {
     for (entry <- store.elements)
-      set(entry._2 + scale * that.get(entry._1), entry._1)
+      setWithSingleKey(entry._2 + scale * that.getWithSingleKey(entry._1), entry._1)
     for (entry <- that.store.elements)
       if (!store.keySet.contains(entry._1)) store += (entry._1 -> entry._2 * scale)
   }
 
   def dot(that:Vector) : Double = {
-    store.foldLeft(0.0) {(score,keyValue)=>  score + keyValue._2 * that.get(keyValue._1)} 
+    store.foldLeft(0.0) {(score,keyValue)=>  score + keyValue._2 * that.getWithSingleKey(keyValue._1)} 
   }
 
 
@@ -88,14 +98,14 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
   }
 
   override def eval(env: Env): Option[Vector] = {
-    val keyEvals  = new ArrayBuffer[Any]
+    val keyEvals = new ArrayBuffer[Any]
     for (k <- key) { val eval = k.eval(env); if (eval.isDefined) keyEvals += eval.get else return None }
     val result = new Vector
-    result.set(1.0, keyEvals)
+    result.set(1.0, keyEvals:_*)
     Some(result)
   }
 
-  def variables = key.flatMap(k => k.variables)
+  def variables = key.foldLeft(Set[EnvVar[_]]()){(set,k) => set ++ k.variables} // Set(key.flatMap(k => k.variables))
 
   def values = VectorSpace
 }

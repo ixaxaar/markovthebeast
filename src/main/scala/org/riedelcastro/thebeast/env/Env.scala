@@ -10,14 +10,24 @@ trait Env {
   def apply[T](term: Term[T]): T = term.eval(this).get
 
   //todo: should this be removed
-  def eval[T](term: Term[T]): Option[T] = {
-    term.eval(this)
-  }
-
+  def eval[T](term: Term[T]): Option[T] = term.eval(this)
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
 
   def mask(hiddenVariables: Set[EnvVar[_]]) = new MaskedEnv(this, hiddenVariables);
+
+  def overlay(over:Env) = new OverlayedEnv(this,over)
+
+}
+
+
+class OverlayedEnv(val under:Env, val over:Env) extends Env {
+  def resolveVar[T](variable: EnvVar[T]) = {
+    over.resolveVar(variable) match {
+      case Some(x) => Some(x)
+      case None => under.resolveVar(variable)
+    }
+  }
 
 }
 
@@ -30,7 +40,6 @@ class MaskedEnv(var unmasked: Env, var hiddenVariables: Set[EnvVar[_]]) extends 
 private class MutableMap extends scala.collection.mutable.HashMap[Any, Any] {
   private class ClosedMutableMap(var self: MutableMap, signature: FunctionValues[_, _])
           extends MutableMap with MapProxy[Any, Any] {
-
     override def default(a: Any) = signature.range.defaultValue
 
     override def apply(a: Any) = self.get(a) match {
@@ -38,7 +47,7 @@ private class MutableMap extends scala.collection.mutable.HashMap[Any, Any] {
       case Some(_) => super.apply(a)
       case None => default(a)
     }
-    
+
   }
 
   def close(signature: FunctionValues[_, _]): MutableMap = {
