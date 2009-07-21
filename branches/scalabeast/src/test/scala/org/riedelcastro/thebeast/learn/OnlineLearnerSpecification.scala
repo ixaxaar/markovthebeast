@@ -11,7 +11,7 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv {
   
   "An Online Learner" should {
     "converge with separable data and perceptron learning rule " in {
-      val Bools = Values(true, false)
+      val Bools = Values(false,true)
       val Citations = Values("A","B","C")
       val same = "same" <~ Citations -> (Citations -> Bools)
       val similar = "similar" <~ Citations -> (Citations -> Bools)
@@ -36,7 +36,7 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv {
         vectorSum(Citations,Citations)
                   {(c1,c2)=>$(similar(c1)(c2) ~> same(c1)(c2)) * VectorOne("similar")} +
         vectorSum(Citations,Citations,Citations)
-                  {(c1,c2,c3)=>$(same(c1)(c2) && same(c2)(c3) ~> same(c1)(c3)) * VectorOne("trans")}
+                  {(c1,c2,c3)=>$((same(c1)(c2) && same(c2)(c3)) ~> same(c1)(c3)) * VectorOne("trans")}
       var trainingSet = Seq(y1,y2).map(y => y.mask(Set(same)))
 
       var learner = new OnlineLearner

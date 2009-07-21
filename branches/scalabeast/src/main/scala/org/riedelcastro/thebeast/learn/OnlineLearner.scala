@@ -16,10 +16,9 @@ class OnlineLearner {
     var weights = new Vector
     for (instance <- trainingSet) {
       var goldFeatures = instance.unmasked(featureVector)
-      //ground observed variables in scoring function and feature function
       var conditionedScore = (featureVector dot weights).ground(instance)
       var guess = solver.argmax(conditionedScore).result
-      var guessFeatures = guess(featureVector)
+      var guessFeatures = instance.overlay(guess)(featureVector)
       updateRule.update(goldFeatures,guessFeatures, 0.0, weights)
     }
     weights

@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env
 
 import functions._
 
+
 /**
  * @author Sebastian Riedel
  */
@@ -11,7 +12,7 @@ trait Term[+T] {
    * The domain of a term is the set of all variables that appear in the term. If possible, this
    * method may return function application variables. 
    */
-  def variables: Iterable[EnvVar[Any]]
+  def variables: Set[EnvVar[Any]]
 
   /**
    * The values of a term are all objects the term can be evaluated to
@@ -86,7 +87,7 @@ trait IntTerm extends BoundedTerm[Int] {
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
-  def variables: Iterable[EnvVar[T]] = Set(this)
+  def variables = Set(this)
 
   def simplify = this
 
@@ -97,8 +98,8 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
     if (x.isDefined) Constant(x.get) else this
   }
 
-
   override def eval(env: Env) = env.resolveVar[T](this)
+
 }
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
@@ -226,6 +227,8 @@ case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvV
 
   }
 
+
+  
 }
 
 
