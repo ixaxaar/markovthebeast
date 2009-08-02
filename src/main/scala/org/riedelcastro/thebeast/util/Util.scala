@@ -7,9 +7,14 @@ package org.riedelcastro.thebeast.util
 object Util {
   object AllFunctions {
     def apply[T, R](domain: Iterable[T], range: Iterable[R]): Stream[Map[T, R]] = {
+      //we take each function from the previous stream of functions and
+      //create n new functions from it, one for each element in the range
+      //we can map the current domain object to. 
       domain.foldLeft(Stream.make(1, Map[T, R]()))
                 {(result, d) => result.flatMap(f => range.map(r => f + (d -> r)))}
     }
+    
+
   }
 
   object Cartesian {

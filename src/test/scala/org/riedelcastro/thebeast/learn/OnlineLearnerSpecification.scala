@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.learn
 
 import env._
 import org.specs._
+import solve.ExhaustiveSearch
 
 /**
  * @author Sebastian Riedel
@@ -41,10 +42,15 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv {
 
       var learner = new OnlineLearner
 
-      //learn until no more changes have been made
+      learner.maxEpochs = 1
+
       var weights = learner.learn(features,trainingSet)
 
-      //the weights should separate the training 
+      for (y <- trainingSet){
+        var score = (features dot weights).ground(y)
+        var guess = ExhaustiveSearch.argmax(score).result
+        println(guess)
+      }
 
       println(weights)
 
