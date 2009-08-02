@@ -9,7 +9,7 @@ import collection.mutable.{MapProxy, HashSet}
 trait Env {
   def apply[T](term: Term[T]): T = term.eval(this).get
 
-  //todo: should this be removed
+  //todo: should this be removed?
   def eval[T](term: Term[T]): Option[T] = term.eval(this)
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
@@ -18,7 +18,32 @@ trait Env {
 
   def overlay(over:Env) = new OverlayedEnv(this,over)
 
+  def variables:Set[EnvVar[_]]
+
 }
+
+case class EnvComparison(env1:Env, env2:Env) {
+
+  //we compare composed functions by counting how often, for a given value v in the range,
+  //both env1 and env2 map the same sequence of arguments (composed) to v
+  //this amounts to true positives (v=true) and true negatives (v=false) for functions
+  //mapping to the Bools (i.e. V1->V2->...->Bools)
+  //if values are of atomic type T, we consider them of type T->{Nothing}
+
+  def overlap[T,V](funVar:Var[T=>V], value:V) : Int = {
+    //this is probably the slowest implementation possible
+    var functionValues = funVar.values.asInstanceOf[FunctionValues[T,V]]
+    var count = 0
+    for (arg <- functionValues.domain){
+      val v1 = env1.resolveVar(FunAppVar(funVar,arg))
+      val v2 = env2.resolveVar(FunAppVar(funVar,arg))
+      if (v1 == value && v1 == v2) count += 1
+    }
+    count
+  }
+
+}
+
 
 
 class OverlayedEnv(val under:Env, val over:Env) extends Env {
@@ -29,12 +54,17 @@ class OverlayedEnv(val under:Env, val over:Env) extends Env {
     }
   }
 
+
+  def variables = over.variables ++ under.variables
 }
 
 class MaskedEnv(var unmasked: Env, var hiddenVariables: Set[EnvVar[_]]) extends Env {
   def resolveVar[T](variable: EnvVar[T]) = {
     if (hiddenVariables.contains(variable)) None else unmasked.resolveVar(variable)
   }
+
+  //todo: this doesn't work if hiddenVariables contain funapp vars
+  def variables = unmasked.variables -- hiddenVariables
 }
 
 private class MutableMap extends scala.collection.mutable.HashMap[Any, Any] {
@@ -122,7 +152,7 @@ class MutableEnv extends Env {
 
   def mapTo[T](envVar: EnvVar[T]) = new VarWithEnv(envVar, this)
 
-
+  def variables = values.keySet.asInstanceOf[Set[EnvVar[_]]]
 }
 
 case class VarWithEnv[T](envVar: EnvVar[T], env: MutableEnv) {

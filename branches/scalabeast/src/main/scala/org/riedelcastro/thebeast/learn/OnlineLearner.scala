@@ -3,33 +3,35 @@ package org.riedelcastro.thebeast.learn
 
 import env._
 import solve.{ExhaustiveSearch, ArgmaxSolver}
+
 /**
  * @author Sebastian Riedel
  */
 
 class OnlineLearner {
-
   var solver: ArgmaxSolver = ExhaustiveSearch
   var updateRule: UpdateRule = new PerceptronUpdateRule
+  var maxEpochs: Int = 1
 
-  def learn(featureVector:VectorTerm, trainingSet:Seq[MaskedEnv]) : Vector = {
+  def learn(featureVector: VectorTerm, trainingSet: Seq[MaskedEnv]): Vector = {
     var weights = new Vector
-    for (instance <- trainingSet) {
-      var goldFeatures = instance.unmasked(featureVector)
-      var conditionedScore = (featureVector dot weights).ground(instance)
-      var guess = solver.argmax(conditionedScore).result
-      var guessFeatures = instance.overlay(guess)(featureVector)
-      updateRule.update(goldFeatures,guessFeatures, 0.0, weights)
+    for (epoch <- 0 until maxEpochs) {
+      for (instance <- trainingSet) {
+        var goldFeatures = instance.unmasked(featureVector)
+        var conditionedScore = (featureVector dot weights).ground(instance)
+        var guess = solver.argmax(conditionedScore).result
+        var guessFeatures = instance.overlay(guess)(featureVector)
+        updateRule.update(goldFeatures, guessFeatures, 0.0, weights)
+      }
     }
     weights
   }
 
   trait UpdateRule {
-    def update(gold:Vector, guess:Vector, loss:Double, weights:Vector)
+    def update(gold: Vector, guess: Vector, loss: Double, weights: Vector)
   }
 
   class PerceptronUpdateRule extends UpdateRule {
-
     var learningRate = 1.0
 
     def update(gold: Vector, guess: Vector, loss: Double, weights: Vector) = {
