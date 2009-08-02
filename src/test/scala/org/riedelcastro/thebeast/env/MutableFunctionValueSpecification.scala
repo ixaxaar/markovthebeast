@@ -23,6 +23,18 @@ class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
       f(1) = "B"
       f.close(2) must_== "A"
     }
+    "provide a closed function that recursively returns closed functions" in {
+      val f = new MutableFunctionValue(Values(1,2)->(Values(1,2)->Values("A","B")))
+      val g = new MutableFunctionValue(Values(1,2)->Values("A","B"))
+      g(2) = "B"
+      f(1) = g
+      val closed = f.close
+      closed(1)(1) must_== "A"
+      closed(2)(1) must_== "A"
+      closed(2)(2) must_== "A"
+      closed(1)(2) must_== "B"
+    }
+
     "return all sources that map to a specific return value in" in {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B"))
       f(1) = "B"

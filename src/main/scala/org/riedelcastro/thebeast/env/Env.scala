@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.env
 
 
-import collection.mutable.{MapProxy, HashSet}
+import collection.mutable.{HashMap, HashSet}
 
 /**
  * @author Sebastian Riedel
@@ -16,13 +16,13 @@ trait Env {
 
   def mask(hiddenVariables: Set[EnvVar[_]]) = new MaskedEnv(this, hiddenVariables);
 
-  def overlay(over:Env) = new OverlayedEnv(this,over)
+  def overlay(over: Env) = new OverlayedEnv(this, over)
 
-  def variables:Set[EnvVar[_]]
+  def variables: Set[EnvVar[_]]
 
 }
 
-case class EnvComparison(env1:Env, env2:Env) {
+case class EnvComparison(env1: Env, env2: Env) {
 
   //we compare composed functions by counting how often, for a given value v in the range,
   //both env1 and env2 map the same sequence of arguments (composed) to v
@@ -30,13 +30,13 @@ case class EnvComparison(env1:Env, env2:Env) {
   //mapping to the Bools (i.e. V1->V2->...->Bools)
   //if values are of atomic type T, we consider them of type T->{Nothing}
 
-  def overlap[T,V](funVar:Var[T=>V], value:V) : Int = {
+  def overlap[T, V](funVar: Var[T => V], value: V): Int = {
     //this is probably the slowest implementation possible
-    var functionValues = funVar.values.asInstanceOf[FunctionValues[T,V]]
+    var functionValues = funVar.values.asInstanceOf[FunctionValues[T, V]]
     var count = 0
-    for (arg <- functionValues.domain){
-      val v1 = env1.resolveVar(FunAppVar(funVar,arg))
-      val v2 = env2.resolveVar(FunAppVar(funVar,arg))
+    for (arg <- functionValues.domain) {
+      val v1 = env1.resolveVar(FunAppVar(funVar, arg))
+      val v2 = env2.resolveVar(FunAppVar(funVar, arg))
       if (v1 == value && v1 == v2) count += 1
     }
     count
@@ -46,7 +46,7 @@ case class EnvComparison(env1:Env, env2:Env) {
 
 
 
-class OverlayedEnv(val under:Env, val over:Env) extends Env {
+class OverlayedEnv(val under: Env, val over: Env) extends Env {
   def resolveVar[T](variable: EnvVar[T]) = {
     over.resolveVar(variable) match {
       case Some(x) => Some(x)
@@ -67,29 +67,11 @@ class MaskedEnv(var unmasked: Env, var hiddenVariables: Set[EnvVar[_]]) extends 
   def variables = unmasked.variables -- hiddenVariables
 }
 
-private class MutableMap extends scala.collection.mutable.HashMap[Any, Any] {
-  private class ClosedMutableMap(var self: MutableMap, signature: FunctionValues[_, _])
-          extends MutableMap with MapProxy[Any, Any] {
-    override def default(a: Any) = signature.range.defaultValue
-
-    override def apply(a: Any) = self.get(a) match {
-      case Some(x: MutableMap) => x.close(signature.range.asInstanceOf[FunctionValues[_, _]])
-      case Some(_) => super.apply(a)
-      case None => default(a)
-    }
-
-  }
-
-  def close(signature: FunctionValues[_, _]): MutableMap = {
-    new ClosedMutableMap(this, signature)
-  }
-
-}
-
 class MutableEnv extends Env {
-  private type MutableMapCheck = scala.collection.mutable.HashMap[_, _]
 
-  private var values = new MutableMap
+  private type MapType = HashMap[Any,Any]
+  
+  private var values = new MapType
   private var closed = new HashSet[EnvVar[_]]
 
   def resolveVar[T](variable: EnvVar[T]) = {
@@ -102,16 +84,19 @@ class MutableEnv extends Env {
 
   def convertToClosed[T](variable: EnvVar[T], value: Option[T]): Option[T] = {
     value match {
-      case Some(x: MutableMap) => Some(x.close(variable.values.asInstanceOf[FunctionValues[_, _]]).asInstanceOf[T])
+      case Some(x: MutableFunctionValue[_, _]) => Some(x.close.asInstanceOf[T])
       case Some(_) => value
       case None => Some(variable.values.defaultValue)
     }
   }
 
-  private def getMap(variable: EnvVar[Any]): MutableMap = {
+  private def getMap(variable: EnvVar[Any]): MutableFunctionValue[Any,Any] = {
+    val signature = variable.values.asInstanceOf[FunctionValues[Any,Any]]
     variable match {
-      case v: Var[_] => values.getOrElseUpdate(v, new MutableMap()).asInstanceOf[MutableMap]
-      case FunAppVar(funVar, arg) => getMap(funVar).getOrElseUpdate(arg, new MutableMap()).asInstanceOf[MutableMap]
+      case v: Var[_] => values.getOrElseUpdate(v, new MutableFunctionValue(signature)).
+              asInstanceOf[MutableFunctionValue[Any,Any]]
+      case FunAppVar(funVar, arg) => getMap(funVar).getOrElseUpdate(arg, new MutableFunctionValue(signature)).
+              asInstanceOf[MutableFunctionValue[Any, Any]]
     }
   }
 
@@ -127,12 +112,12 @@ class MutableEnv extends Env {
   }
 
 
-  private def cloneMutableMap(map: MutableMap): MutableMap = {
-    val result = new MutableMap
+  private def cloneMutableMap(map: MapType): MapType = {
+    val result = new MapType
     map foreach {
       case (key, value) =>
-        if (value.isInstanceOf[MutableMapCheck])
-          result += (key -> cloneMutableMap(value.asInstanceOf[MutableMap]))
+        if (value.isInstanceOf[MutableFunctionValue[_,_]])
+          result += (key -> value.asInstanceOf[MutableFunctionValue[_,_]].clone)
         else
           result += (key -> value)
     }
@@ -142,7 +127,7 @@ class MutableEnv extends Env {
   def set[T](variable: EnvVar[T], value: T) {
     variable match {
       case v: Var[_] => values += Tuple2[Any, Any](v, value)
-      case FunAppVar(funVar, arg) => getMap(funVar) += Tuple2[Any, Any](arg, value)
+      case FunAppVar(funVar, arg) => getMap(funVar.asInstanceOf[FunAppVar[Any,Any]]) += Tuple2[Any, Any](arg, value)
     }
   }
 
