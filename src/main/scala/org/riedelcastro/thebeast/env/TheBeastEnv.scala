@@ -41,6 +41,8 @@ trait TheBeastEnv {
 
   case class FunctionValuesBuilder[T, R](domain: Values[T]) {
     def ->[R](range: Values[R]) = new FunctionValues(domain, range)
+    def x[T2](other:Values[T2]) = TupleValues2(domain,other)
+    
   }
 
   implicit def funvar2funAppVarBuilder[T, R](funvar: EnvVar[T => R]) = FunAppVarBuilder(funvar)
@@ -48,7 +50,7 @@ trait TheBeastEnv {
   implicit def term2funAppBuilder[T, R](fun: Term[T => R]) = new (Term[T] => FunApp[T, R]) {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
-
+    
   implicit def term2doubleFunAppBuilder[T](fun: Term[T => Double]) = new (Term[T] => DoubleFunApp[T]) {
     def apply(t: Term[T]) = DoubleFunApp(fun, t)
   }

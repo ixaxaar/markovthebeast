@@ -13,6 +13,11 @@ class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
       f(1) = "A"
       f(1) must_== "A"
     }
+    "store a mapping for tuples" in {
+      val f = new MutableFunctionValue((Values(1,2) x Values(1,2) x Values(1,2))->Values("A","B"))
+      f(Tuple3(1,2,1)) = "A"
+      f(1,2,1) must_== "A"
+    }
     "return None for keys that have not been set" in {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B"))
       f(1) = "A"
