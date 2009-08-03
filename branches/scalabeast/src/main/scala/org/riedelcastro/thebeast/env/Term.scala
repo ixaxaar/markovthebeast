@@ -52,6 +52,24 @@ case class Constant[T](val value: T) extends Term[T] {
   override def toString = value.toString
 }
 
+case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] {
+  def eval(env: Env) = {
+    val arg1: Option[T1] = _1.eval(env)
+    val arg2: Option[T2] = _2.eval(env)
+    if (arg1 != None && arg2 != None) Some(Tuple2(arg1.get, arg2.get)) else None
+  }
+
+  def values = TupleValues2(_1.values,_2.values)
+
+  def ground(env: Env) = TupleTerm2(_1.ground(env),_2.ground(env))
+
+  def simplify = if (_1.isInstanceOf[Constant[_]] && _2.isInstanceOf[Constant[_]])
+    Constant(Tuple2(_1.asInstanceOf[Constant[T1]].value,_2.asInstanceOf[Constant[T2]].value ))
+    else this
+
+  def variables = _1.variables ++ _2.variables
+}
+
 
 trait BoundedTerm[T] extends Term[T] {
   def upperBound: T

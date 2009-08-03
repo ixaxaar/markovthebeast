@@ -28,6 +28,8 @@ trait TheBeastEnv {
 
   implicit def value2constant[T](value: T) = Constant(value)
 
+  implicit def tuple2toTupleTerm2[T1,T2](value: (Term[T1],Term[T2])) = TupleTerm2(value._1,value._2)
+
   implicit def double2constant(value: Double) = DoubleConstant(value)
 
 
@@ -61,7 +63,7 @@ trait TheBeastEnv {
 
   
 
-  implicit def varWithEnv2mapToBuilder[T, R](varWithEnv: VarWithEnv[T => R]) =
+  implicit def varWithEnv2mapToBuilder[T, R](varWithEnv: VarWithEnv[FunctionValue[T,R]]) =
     MapToBuilder(varWithEnv.envVar, varWithEnv.env)
 
   //  implicit def term2arity2funAppBuilder[T1,T2, R](fun: Term[T1 => (T2=>R)]) = new ((Term[T1],Term[T2]) => FunApp[T2, R]) {
