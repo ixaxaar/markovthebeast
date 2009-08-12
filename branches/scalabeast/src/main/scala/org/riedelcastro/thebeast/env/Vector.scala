@@ -108,6 +108,9 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
   def variables = key.foldLeft(Set[EnvVar[_]]()){(set,k) => set ++ k.variables} // Set(key.flatMap(k => k.variables))
 
   def values = VectorSpace
+
+
+  def isGround = key.forall(k => k.isGround)
 }
 
 case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)

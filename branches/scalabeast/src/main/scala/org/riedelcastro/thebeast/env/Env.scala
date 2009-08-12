@@ -70,7 +70,7 @@ class MaskedEnv(var unmasked: Env, var hiddenVariables: Set[EnvVar[_]]) extends 
 class MutableEnv extends Env {
 
   private type MapType = HashMap[Any,Any]
-  
+
   private var values = new MapType
   private var closed = new HashSet[EnvVar[_]]
 
@@ -127,7 +127,8 @@ class MutableEnv extends Env {
   def set[T](variable: EnvVar[T], value: T) {
     variable match {
       case v: Var[_] => values += Tuple2[Any, Any](v, value)
-      case FunAppVar(funVar, arg) => getMap(funVar.asInstanceOf[FunAppVar[Any,Any]]) += Tuple2[Any, Any](arg, value)
+      case FunAppVar(funVar, arg) =>
+        getMap(funVar) += Tuple2[Any, Any](arg, value)
     }
   }
 
