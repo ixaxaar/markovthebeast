@@ -2,15 +2,13 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
-import java.util.Comparator
 import reflect.Manifest
-import util.Util
-
+import util.{Trackable, Util}
 /**
  * @author Sebastian Riedel
  */
 
-object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
+object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver with Trackable {
   def argmax(term: DoubleTerm) = {
     val y = search(term.asInstanceOf[Term[Double]], (x: Double, y: Double) => x > y, Math.MIN_DOUBLE)
     ArgmaxResult(y, Status.Solved, y(term))
@@ -29,6 +27,7 @@ object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
   }
 
   def search[T](term: Term[T], larger: (T, T) => Boolean, init: T): Env = {
+    |**("Exhaustive Search for " + term)
     val env = new MutableEnv
     var max: T = init
     var best = new MutableEnv
@@ -40,12 +39,15 @@ object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver {
       for (index <- 0 until domain.size) {
         env += (domain(index) -> tuple(index))
       }
-      val result = env(term)
+
+      val result = env(term); 
+
       if (max == null || larger(result, max)) {
         max = result
         best = env.clone
       }
     }
+    **|
     best
   }
 

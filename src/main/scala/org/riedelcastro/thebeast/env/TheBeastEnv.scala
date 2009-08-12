@@ -26,11 +26,19 @@ trait TheBeastEnv {
   implicit def termToTermBuilder[T](term: Term[T]) = TermBuilder(term)
 
 
-  implicit def value2constant[T](value: T) = Constant(value)
+  //implicit def value2constant[T](value: T) = Constant(value)
+
+  implicit def function2constant[T1,T2](value: T1=>T2) = Constant(value)
 
   implicit def tuple2toTupleTerm2[T1,T2](value: (Term[T1],Term[T2])) = TupleTerm2(value._1,value._2)
 
   implicit def double2constant(value: Double) = DoubleConstant(value)
+
+  implicit def int2constant(value: Int) = IntConstant(value)
+
+  implicit def string2constant(value: String) = Constant(value)
+
+  implicit def bool2constant(value: Boolean) = BooleanConstant(value)
 
 
   case class FunAppVarBuilder[T, R](val funvar: EnvVar[T => R]) {
@@ -52,16 +60,29 @@ trait TheBeastEnv {
   implicit def term2funAppBuilder[T, R](fun: Term[T => R]) = new (Term[T] => FunApp[T, R]) {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
-    
+
   implicit def term2doubleFunAppBuilder[T](fun: Term[T => Double]) = new (Term[T] => DoubleFunApp[T]) {
     def apply(t: Term[T]) = DoubleFunApp(fun, t)
   }
 
-  implicit def term2booleanFunAppBuilder[T](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
+  implicit def term2booleanFunAppBuilder[T>:AnyVal](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
     def apply(t: Term[T]) = BooleanFunApp(fun, t)
   }
 
-  
+  implicit def tuple2term2booleanFunAppBuilder[T1,T2](fun: Term[FunctionValue[(T1,T2),Boolean]]) = new (TupleTerm2[T1,T2] => BooleanFunApp[(T1,T2)]) {
+    def apply(t: TupleTerm2[T1,T2]) = BooleanFunApp(fun, t)
+    def apply(t1: Term[T1], t2: Term[T2]) = BooleanFunApp(fun, TupleTerm2(t1,t2))
+  }
+
+  implicit def tuple3term2booleanFunAppBuilder[T1,T2,T3](fun: Term[FunctionValue[(T1,T2,T3),Boolean]]) = new (TupleTerm3[T1,T2,T3] => BooleanFunApp[(T1,T2,T3)]) {
+    def apply(t: TupleTerm3[T1,T2,T3]) = BooleanFunApp(fun, t)
+    def apply(t1: Term[T1], t2: Term[T2], t3: Term[T3]) = BooleanFunApp(fun, TupleTerm3(t1,t2,t3))
+  }
+
+
+  implicit def stringterm2booleanFunAppBuilder(fun: Term[String => Boolean]) = new (Term[String] => BooleanFunApp[String]) {
+    def apply(t: Term[String]) = BooleanFunApp(fun, t)
+  }
 
   implicit def varWithEnv2mapToBuilder[T, R](varWithEnv: VarWithEnv[FunctionValue[T,R]]) =
     MapToBuilder(varWithEnv.envVar, varWithEnv.env)
@@ -105,6 +126,9 @@ trait TheBeastEnv {
     def &&(rhs: BooleanTerm) = AndApp(lhs, rhs)
 
     def ->(rhs: BooleanTerm) = ImpliesApp(lhs, rhs)
+
+    def -->(rhs: BooleanTerm) = ImpliesApp(lhs, rhs)
+
   }
 
   def $(term: BooleanTerm) = BoolToDoubleCast(term)
@@ -119,6 +143,10 @@ trait TheBeastEnv {
     val variable = createVariable(values)
     QuantifiedSum(variable, formula(variable))
   }
+
+  def sum[T1,T2](values1: Values[T1], values2:Values[T2])(formula: (Var[T1],Var[T2]) => DoubleTerm) : QuantifiedSum[T1] =
+    sum(values1){x1 => sum(values2){x2 => formula(x1,x2)}}
+
 
   def vectorSum[T](values: Values[T])(formula: Var[T] => VectorTerm) = {
     val variable = createVariable(values)

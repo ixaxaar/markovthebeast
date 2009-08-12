@@ -10,7 +10,7 @@ import solve.{GeneralizedMaxWalkSAT, ExhaustiveSearch}
 
 object Playground extends Application with TheBeastEnv {
   val Ints = Values[Int](1, 2, 3)
-  val Bools = Values(true, false)
+  val Bools = Values(false, true)
   val b = "b" <~ Bools
   val x = "x" <~ Ints
   val f = "f" <~ Ints -> Ints
@@ -66,6 +66,10 @@ object Playground extends Application with TheBeastEnv {
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}
 
   val mln = f1 + f2
+
+  val Citations = Values("A","B","C")
+  val same = "same" <~ (Citations x Citations) -> Bools
+  val reflex = sum(Citations,Citations) {(x,y)=> ${same(x,y) -> same(y,x)}}
 
 
 }

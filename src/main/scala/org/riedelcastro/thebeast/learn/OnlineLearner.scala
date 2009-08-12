@@ -3,27 +3,32 @@ package org.riedelcastro.thebeast.learn
 
 import env._
 import solve.{ExhaustiveSearch, ArgmaxSolver}
+import util.Trackable
 
 /**
  * @author Sebastian Riedel
  */
 
-class OnlineLearner {
+class OnlineLearner extends Trackable {
   var solver: ArgmaxSolver = ExhaustiveSearch
   var updateRule: UpdateRule = new PerceptronUpdateRule
   var maxEpochs: Int = 1
 
   def learn(featureVector: VectorTerm, trainingSet: Seq[MaskedEnv]): Vector = {
+    |**("Learning"); 
     var weights = new Vector
     for (epoch <- 0 until maxEpochs) {
       for (instance <- trainingSet) {
+        |**("Instance")
         var goldFeatures = instance.unmasked(featureVector)
         var conditionedScore = (featureVector dot weights).ground(instance)
         var guess = solver.argmax(conditionedScore).result
         var guessFeatures = instance.overlay(guess)(featureVector)
         updateRule.update(goldFeatures, guessFeatures, 0.0, weights)
+        **|
       }
     }
+    **|
     weights
   }
 

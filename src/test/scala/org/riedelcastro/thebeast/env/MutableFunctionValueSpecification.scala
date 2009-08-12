@@ -28,6 +28,18 @@ class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
       f(1) = "B"
       f.close(2) must_== "A"
     }
+    "provide a closed function returns the correct sources for the default range element" in {
+      val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B")).close
+      f(1) = "B"
+      val sources = f.getSources(Some("A"))
+      println(sources)
+      //sources mu
+      //sources  3
+
+      1 must_== 1
+      
+      //f.close(2) must_== "A"
+    }
     "provide a closed function that recursively returns closed functions" in {
       val f = new MutableFunctionValue(Values(1,2)->(Values(1,2)->Values("A","B")))
       val g = new MutableFunctionValue(Values(1,2)->Values("A","B"))
@@ -50,6 +62,21 @@ class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
       f(1) = "B"
       f.getSources(None) must_== Set(2,3)
     }
+
+    "should count arguments mapped to the same element" in {
+      val f1 = new MutableFunctionValue((Values(1,2) x Values(1,2)) ->Values("A","B")).close
+      f1((1,2)) = "B"
+      f1((2,1)) = "B"
+
+      val f2 = new MutableFunctionValue((Values(1,2) x Values(1,2)) ->Values("A","B")).close
+      f2((1,2)) = "B"
+      f2((1,1)) = "B"
+
+      f1.countMatches(f2)("A") must_== 1 // (2,2)
+      f1.countMatches(f2)("B") must_== 1 // (1,2)
+
+    }
+
 
   }
 

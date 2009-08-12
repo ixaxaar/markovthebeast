@@ -33,8 +33,12 @@ trait Term[+T] {
   /**
    * Evaluates this term with respect to the given environment.
    */
-  def eval(env: Env): Option[T] 
+  def eval(env: Env): Option[T]
 
+  /**
+   * Are there no free variables in this term 
+   */
+  def isGround: Boolean
 
 }
 
@@ -50,9 +54,19 @@ case class Constant[T](val value: T) extends Term[T] {
   override def eval(env: Env) = Some(value)
 
   override def toString = value.toString
+
+  def isGround = true
 }
 
-case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] {
+
+trait TupleTerm extends scala.Product {
+  def isGround : Boolean = {    
+    for (i <- 0 until productArity) if (!productElement(i).asInstanceOf[Term[Any]].isGround) return false;
+    return true;
+  }
+}
+
+case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] with TupleTerm {
   def eval(env: Env) = {
     val arg1: Option[T1] = _1.eval(env)
     val arg2: Option[T2] = _2.eval(env)
@@ -69,6 +83,26 @@ case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]
 
   def variables = _1.variables ++ _2.variables
 }
+
+case class TupleTerm3[T1,T2,T3](_1:Term[T1],_2:Term[T2],_3:Term[T3]) extends Term[Tuple3[T1,T2,T3]] with TupleTerm {
+  def eval(env: Env) = {
+    val arg1: Option[T1] = _1.eval(env)
+    val arg2: Option[T2] = _2.eval(env)
+    val arg3: Option[T3] = _3.eval(env)
+    if (arg1 != None && arg2 != None && arg3 != None) Some(Tuple3(arg1.get, arg2.get,arg3.get)) else None
+  }
+
+  def values = TupleValues3(_1.values,_2.values, _3.values)
+
+  def ground(env: Env) = TupleTerm3(_1.ground(env),_2.ground(env), _3.ground(env))
+
+  def simplify = if (_1.isInstanceOf[Constant[_]] && _2.isInstanceOf[Constant[_]] && _3.isInstanceOf[Constant[_]])
+    Constant(Tuple3(_1.asInstanceOf[Constant[T1]].value,_2.asInstanceOf[Constant[T2]].value, _3.asInstanceOf[Constant[T3]].value))
+    else this
+
+  def variables = _1.variables ++ _2.variables ++ _3.variables
+}
+
 
 
 trait BoundedTerm[T] extends Term[T] {
@@ -118,6 +152,8 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
   override def eval(env: Env) = env.resolveVar[T](this)
 
+
+  def isGround = false
 }
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
@@ -129,7 +165,7 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
 
   def variables = {
     //if we have something like f(1)(2)(3) we should create a funapp variable
-    if (isGround)
+    if (isAtomic)
       Set(asFunAppVar)
     else
       function.variables ++ arg.variables
@@ -151,13 +187,15 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
       case f => FunApp(f, arg.simplify)
     }
 
-  def isGround: Boolean = arg.isInstanceOf[Constant[_]] &&
+  def isGround = arg.isGround && function.isGround
+
+  def isAtomic: Boolean = arg.simplify.isInstanceOf[Constant[_]] &&
           (function.isInstanceOf[EnvVar[_]] ||
-                  (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isGround))
+                  (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isAtomic))
 
   def asFunAppVar: FunAppVar[T, R] =
     if (function.isInstanceOf[EnvVar[_]])
-      FunAppVar(function.asInstanceOf[EnvVar[T => R]], arg.asInstanceOf[Constant[T]].value)
+      FunAppVar(function.asInstanceOf[EnvVar[T => R]], arg.simplify.asInstanceOf[Constant[T]].value)
     else
       FunAppVar(function.asInstanceOf[FunApp[Any, T => R]].asFunAppVar, arg.asInstanceOf[Constant[T]].value)
 
@@ -200,6 +238,9 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
     else
       env.eval(FunApp(FunApp(function, Fold(function, args.drop(1), init)), args(0)))
   }
+
+
+  def isGround = function.isGround && init.isGround && args.forall(x => x.isGround)
 }
 
 
@@ -221,12 +262,19 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
   def ground(env: Env) = unroll.ground(env)
 
   def eval(env: Env) = unroll.eval(env)
+
+
+  def isGround = {
+    val env = new MutableEnv
+    env += variable -> variable.values.defaultValue
+    formula.ground(env).isGround
+  }
 }
 
 
 sealed trait EnvVar[+T] {
   /**
-   * The values of a variables are all objects the variable can be assigned to
+   *  The values of a variables are all objects the variable can be assigned to
    */
   def values: Values[T]
 
