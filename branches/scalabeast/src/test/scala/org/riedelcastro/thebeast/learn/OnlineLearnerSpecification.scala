@@ -3,7 +3,7 @@ package org.riedelcastro.thebeast.learn
 import env._
 import org.specs._
 import solve.ExhaustiveSearch
-import thebeast.util.{PrintingTracker, Trackers}
+import vectors.VectorOne
 /**
  * @author Sebastian Riedel
  */

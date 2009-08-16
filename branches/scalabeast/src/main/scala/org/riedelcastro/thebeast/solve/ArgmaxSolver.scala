@@ -1,7 +1,8 @@
 package org.riedelcastro.thebeast.solve
 
 
-import env.{DoubleTerm, Term, Env}
+import env.doubles.DoubleTerm
+import env.{Env}
 
 /**
  * @author Sebastian Riedel

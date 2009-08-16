@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
+import doubles.DoubleTerm
 import reflect.Manifest
 import util.{Trackable, Util}
 /**

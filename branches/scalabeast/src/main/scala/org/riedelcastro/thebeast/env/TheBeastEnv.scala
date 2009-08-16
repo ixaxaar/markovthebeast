@@ -1,7 +1,11 @@
 package org.riedelcastro.thebeast.env
 
-
+import doubles._
+import ints._
+import booleans._
+import tuples._
 import functions._
+import vectors._
 
 /**
  * @author Sebastian Riedel

@@ -2,7 +2,7 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
-import util.{DoubleFactorGraph, Factor}
+import doubles.DoubleTerm
 /**
  * @author Sebastian Riedel
  */

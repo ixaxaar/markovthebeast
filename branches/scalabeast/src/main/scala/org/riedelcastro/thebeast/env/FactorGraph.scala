@@ -1,9 +1,10 @@
-package org.riedelcastro.thebeast.util
+package org.riedelcastro.thebeast.env
 
 import collection.mutable.{HashMap, ArrayBuffer}
+import doubles.{DoubleTerm, SumHelper}
 import env._
 import functions._
-
+import util.{RandomDrawable, ListenerManager}
 
 class Node[T <: Term[_]](val variable: EnvVar[_]) {
   val factors = new ArrayBuffer[Factor[T]] with RandomDrawable[Factor[T]]
