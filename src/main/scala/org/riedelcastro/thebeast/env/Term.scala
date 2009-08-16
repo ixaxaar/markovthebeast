@@ -203,7 +203,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 }
 
 
-sealed trait EnvVar[+T] {
+sealed trait EnvVar[+T] extends Term[T]{
   /**
    *  The values of a variables are all objects the variable can be assigned to
    */
@@ -211,21 +211,22 @@ sealed trait EnvVar[+T] {
 
 }
 
-case class FunAppVar[T, +R](val funVar: EnvVar[T => R], val arg: T) extends EnvVar[R] {
-  def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], arg)
+case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
+        extends FunApp(funVar, Constant(argValue))
+        with EnvVar[R] {
+  //def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], argValue)
 
-  def values = range
+//  def values = range
+//
+//  def range: Values[R] = {
+//    funVar match {
+//      case x: Var[_] => x.values.asInstanceOf[FunctionValues[T, R]].range
+//      case x: FunAppVar[_, _] => x.range.asInstanceOf[FunctionValues[T, R]].range
+//    }
+//
+//  }
 
-  def range: Values[R] = {
-    funVar match {
-      case x: Var[_] => x.values.asInstanceOf[FunctionValues[T, R]].range
-      case x: FunAppVar[_, _] => x.range.asInstanceOf[FunctionValues[T, R]].range
-    }
 
-  }
-
-
-  
 }
 
 

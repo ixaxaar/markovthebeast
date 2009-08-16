@@ -57,9 +57,9 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv {
 //        println(guess(same).)
       }
 
-      println(weights)
+      //println(weights)
 
-      null
+      //null
     }
   }
 }
