@@ -4,7 +4,7 @@ package org.riedelcastro.thebeast.learn
 import env._
 import solve.{ExhaustiveSearch, ArgmaxSolver}
 import util.Trackable
-
+import vectors.{VectorTerm, Vector}
 /**
  * @author Sebastian Riedel
  */

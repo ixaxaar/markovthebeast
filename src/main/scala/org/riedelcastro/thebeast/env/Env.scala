@@ -10,6 +10,7 @@ trait Env {
   def apply[T](term: Term[T]): T = term.eval(this).get
 
   //todo: should this be removed?
+  //todo: should we 
   def eval[T](term: Term[T]): Option[T] = term.eval(this)
 
   def resolveVar[T](variable: EnvVar[T]): Option[T]
@@ -21,6 +22,8 @@ trait Env {
   def variables: Set[EnvVar[_]]
 
 }
+
+
 
 case class EnvComparison(env1: Env, env2: Env) {
 

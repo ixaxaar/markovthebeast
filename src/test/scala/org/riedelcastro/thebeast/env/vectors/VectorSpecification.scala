@@ -1,4 +1,4 @@
-package org.riedelcastro.thebeast.env
+package org.riedelcastro.thebeast.env.vectors
 
 
 import specs.runner.JUnit
