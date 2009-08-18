@@ -14,10 +14,14 @@ import vectors._
 trait TheBeastEnv {
   private var varCount = 0;
 
+  val Bools = Values(false,true)
+
   private def createVariable[T](values: Values[T]): Var[T] = {
     varCount += 1;
     values.createVariable("x_" + varCount.toString)
   }
+
+  def one_(key : Term[Any]*) = VectorOne(key:_*)
 
   implicit def string2varbuilder(name: String) = new {
     def <~[T](values: Values[T]) = Var(name, values)
@@ -28,6 +32,9 @@ trait TheBeastEnv {
   //def ground(variable:Var[T], t:T)
 
   implicit def termToTermBuilder[T](term: Term[T]) = TermBuilder(term)
+
+
+
 
 
   //implicit def value2constant[T](value: T) = Constant(value)

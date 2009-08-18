@@ -10,7 +10,7 @@ import solve.{GeneralizedMaxWalkSAT, ExhaustiveSearch}
 
 object Playground extends Application with TheBeastEnv {
   val Ints = Values[Int](1, 2, 3)
-  val Bools = Values(false, true)
+  //val Bools = Values(false, true)
   val b = "b" <~ Bools
   val x = "x" <~ Ints
   val f = "f" <~ Ints -> Ints

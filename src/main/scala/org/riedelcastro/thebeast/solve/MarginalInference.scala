@@ -2,7 +2,7 @@ package org.riedelcastro.thebeast.solve
 
 
 import env.doubles.DoubleTerm
-import env.{MutableBelief, MutableBeliefs, MutableEnv, Beliefs}
+import env.{MutableBeliefs, MutableEnv, Beliefs}
 import util.{Trackable, Util}
 /**
  * @author Sebastian Riedel
@@ -23,6 +23,8 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     val domain = term.variables.toSeq
     val values = domain.map(v => v.values.toStream)
     var cartesian = Util.Cartesian.cartesianProduct(values)
+
+    println(domain)
 
     for (tuple <- cartesian) {
       for (index <- 0 until domain.size) {
