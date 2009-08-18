@@ -32,6 +32,10 @@ sealed trait Belief[T] {
   def belief(value:T) : Double
 }
 
+case class Ignorance[T](val values:Values[T]) extends Belief[T] {
+  def belief(value: T) = 1.0
+}
+
 class MutableBelief[T](val values:Values[T]) extends Belief[T] {
   private val _belief = new HashMap[T,Double]
 

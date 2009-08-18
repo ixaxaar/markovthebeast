@@ -8,25 +8,28 @@ import doubles.DoubleTerm
  */
 
 class GeneralizedMaxWalkSAT extends FactorGraphArgmaxSolver {
+  type FactorGraphType = MWSFactorGraph
 
   class MWSFactorGraph extends DoubleFactorGraph {
-    type NodeType = Node
+    type NodeType = DoubleNode
     type FactorType = MWSFactor
+    type EdgeType = Edge
 
     protected def createFactor(term: TermType) = new MWSFactor(term)
-    protected def createNode(variable: EnvVar[_]) = new Node(variable)
+    protected def createNode(variable: EnvVar[_]) = new DoubleNode(variable)
+    protected def createEdge(node: NodeType, factor: FactorType) = new Edge(node,factor)
 
     class MWSFactor(term:DoubleTerm) extends Factor(term) {
 
       def greedy(y:MutableEnv) : Double = {
         var bestChoice:(EnvVar[_],Any) = null
         var maxDelta = Math.NEG_INF_DOUBLE
-        for (node <- nodes){
+        for (node <- edges.map(e => e.node)){
           val current = y.resolveVar(node.variable).get
-          val oldScore = node.factors.foldLeft(0.0) {(s,f) => s + y(f.term)}
+          val oldScore = node.scoreNeighbours(y)
           for (value <- node.variable.values; if value != current){
             y += ((node.variable, value))
-            val newScore = node.factors.foldLeft(0.0) {(s,f) => s + y(f.term)}
+            val newScore = node.scoreNeighbours(y)
             val delta = newScore - oldScore
             if (delta > maxDelta) {
               maxDelta = delta
@@ -40,10 +43,10 @@ class GeneralizedMaxWalkSAT extends FactorGraphArgmaxSolver {
       }
 
       def randomChange(y:MutableEnv) : Double = {
-        val node = nodes.randomValue
-        val oldScore = node.factors.foldLeft(0.0) {(s,f)=>s + y(f.term)}
+        val node = edges.randomValue.node
+        val oldScore = node.scoreNeighbours(y)
         y += ((node.variable, node.variable.values.randomValue))
-        val newScore = node.factors.foldLeft(0.0) {(s,f)=>s + y(f.term)}
+        val newScore = node.scoreNeighbours(y)
         newScore - oldScore
       }
 
@@ -53,7 +56,7 @@ class GeneralizedMaxWalkSAT extends FactorGraphArgmaxSolver {
 
 
   private val random = new scala.util.Random
-  private var graph:MWSFactorGraph = null
+  private var graph:MWSFactorGraph = new MWSFactorGraph
 
   val maxFlips = 1000
 
