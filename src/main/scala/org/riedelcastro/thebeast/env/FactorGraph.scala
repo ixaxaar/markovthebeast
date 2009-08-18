@@ -10,6 +10,7 @@ trait FactorGraph extends ListenerManager{
   type TermType <: Term[_]
   type NodeType <: Node
   type FactorType <: Factor
+  type EdgeType <: Edge
 
   private val _factors = new ArrayBuffer[FactorType] with RandomDrawable[FactorType]
   private val _nodes = new ArrayBuffer[NodeType] with RandomDrawable[NodeType]
@@ -22,11 +23,15 @@ trait FactorGraph extends ListenerManager{
   
 
   case class Factor(val term:TermType){
-    val nodes = new ArrayBuffer[NodeType] with RandomDrawable[NodeType]    
+    val edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
+    def addEdge(edge:EdgeType) = edges += edge
   }
   case class Node(val variable: EnvVar[_]){
-    val factors = new ArrayBuffer[FactorType] with RandomDrawable[FactorType]    
+    val edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
+    def addEdge(edge:EdgeType) = edges += edge
   }
+
+  case class Edge(val node:NodeType, val factor:FactorType)
 
   sealed trait Event
   case class AddNodeEvent(node:NodeType) extends Event
@@ -36,6 +41,7 @@ trait FactorGraph extends ListenerManager{
 
   protected def createFactor(term:TermType) : FactorType
   protected def createNode(variable:EnvVar[_]) : NodeType
+  protected def createEdge(node:NodeType, factor:FactorType) : EdgeType
 
   def addTerm(t: TermType): FactorType = {
     var factorAdded = false;
@@ -45,8 +51,9 @@ trait FactorGraph extends ListenerManager{
       var nodeAdded = false;
       val node = _variable2Node.getOrElseUpdate(v,
         {val n = createNode(v); _nodes += n; nodeAdded=true; n})
-      node.factors += factor
-      factor.nodes += node
+      val edge = createEdge(node,factor)
+      node.addEdge(edge)
+      factor.addEdge(edge)
       if (nodeAdded) fireEvent(AddNodeEvent(node))
 
     }
@@ -61,6 +68,12 @@ trait FactorGraph extends ListenerManager{
 trait DoubleFactorGraph extends FactorGraph {
 
   type TermType = DoubleTerm
+
+  class DoubleNode(override val variable:EnvVar[_]) extends Node(variable) {
+    def scoreNeighbours(env:Env) = {
+      edges.map(e=>e.factor).foldLeft(0.0) {(s,f) => s + env(f.term)}
+    }
+  }
   
   def sum(env:Env) = SumHelper.sum(factors.map(f=>f.term),env)
   
@@ -69,10 +82,11 @@ trait DoubleFactorGraph extends FactorGraph {
 class TestFactorGraph extends DoubleFactorGraph {
   type FactorType = Factor
   type NodeType = Node
+  type EdgeType = Edge
 
   protected def createFactor(term: TermType) = new Factor(term)
   protected def createNode(variable: EnvVar[_]) = new Node(variable)
-  
+  protected def createEdge(node: NodeType, factor: FactorType) = new Edge(node,factor)
 }
 
 object TestNewFG extends Application {

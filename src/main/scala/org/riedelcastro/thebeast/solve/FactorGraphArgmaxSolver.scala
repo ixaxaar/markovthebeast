@@ -10,10 +10,13 @@ import vectors.VectorDotApp
  */
 
 trait FactorGraphArgmaxSolver extends ArgmaxSolver {
+
+  type FactorGraphType <: DoubleFactorGraph
+
   def solve(): ArgmaxResult;
 
-  def getFactorGraph() : DoubleFactorGraph
-  def createFactorGraph() : DoubleFactorGraph
+  def getFactorGraph() : FactorGraphType
+  def createFactorGraph() : FactorGraphType
 
   def argmax(term: DoubleTerm) = {
     term match {
