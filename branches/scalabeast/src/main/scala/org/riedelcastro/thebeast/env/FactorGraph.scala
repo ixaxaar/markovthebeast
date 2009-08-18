@@ -1,50 +1,50 @@
 package org.riedelcastro.thebeast.env
 
 import collection.mutable.{HashMap, ArrayBuffer}
-import doubles.{DoubleTerm, SumHelper}
+import doubles.{DoubleConstant, DoubleTerm, SumHelper}
 import env._
-import functions._
-import util.{RandomDrawable, ListenerManager}
+import util.{ListenerManager, RandomDrawable}
 
-class Node[T <: Term[_]](val variable: EnvVar[_]) {
-  val factors = new ArrayBuffer[Factor[T]] with RandomDrawable[Factor[T]]
-}
 
-class Factor[T <: Term[_]](val term: T) {
-  val nodes = new ArrayBuffer[Node[T]] with RandomDrawable[Node[T]]
-}
+trait FactorGraph extends ListenerManager{
+  type TermType <: Term[_]
+  type NodeType <: Node
+  type FactorType <: Factor
 
-sealed trait FactorGraphEvent;
-case class AddFactorEvent(factor: Factor[_]) extends FactorGraphEvent;
-case class AddNodeEvent(Node: Node[_]) extends FactorGraphEvent;
+  private val _factors = new ArrayBuffer[FactorType] with RandomDrawable[FactorType]
+  private val _nodes = new ArrayBuffer[NodeType] with RandomDrawable[NodeType]
+  private val _term2Factor = new HashMap[TermType, FactorType]
+  private val _variable2Node = new HashMap[EnvVar[_], NodeType]
 
-/**
- * @author Sebastian Riedel
- */
-class FactorGraph[T <: Term[_]](terms: Seq[T])
-        extends ListenerManager[FactorGraphEvent] {
+  def factors: RandomDrawable[FactorType] = _factors
 
-  private val _factors = new ArrayBuffer[Factor[T]] with RandomDrawable[Factor[T]]
-  private val _nodes = new ArrayBuffer[Node[T]] with RandomDrawable[Node[T]]
-  private val _term2Factor = new HashMap[T, Factor[T]]
-  private val _variable2Node = new HashMap[EnvVar[_], Node[T]]
+  def nodes: RandomDrawable[NodeType] = _nodes
+  
 
-  def factors: RandomDrawable[Factor[T]] = _factors
-
-  def nodes: RandomDrawable[Node[T]] = _nodes
-
-  for (t <- terms) {
-    addTerm(t);
+  case class Factor(val term:TermType){
+    val nodes = new ArrayBuffer[NodeType] with RandomDrawable[NodeType]    
+  }
+  case class Node(val variable: EnvVar[_]){
+    val factors = new ArrayBuffer[FactorType] with RandomDrawable[FactorType]    
   }
 
-  def addTerm(t: T): Factor[T] = {
+  sealed trait Event
+  case class AddNodeEvent(node:NodeType) extends Event
+  case class AddFactorEvent(factor:FactorType) extends Event
+
+  type EventType = Event
+
+  protected def createFactor(term:TermType) : FactorType
+  protected def createNode(variable:EnvVar[_]) : NodeType
+
+  def addTerm(t: TermType): FactorType = {
     var factorAdded = false;
     val factor = _term2Factor.getOrElseUpdate(t,
-      {val f = new Factor(t); _factors += f; factorAdded = true; f})
+      {val f = createFactor(t); _factors += f; factorAdded = true; f})
     for (v <- t.variables) {
       var nodeAdded = false;
       val node = _variable2Node.getOrElseUpdate(v,
-        {val n = new Node[T](v); _nodes += n; nodeAdded=true; n})
+        {val n = createNode(v); _nodes += n; nodeAdded=true; n})
       node.factors += factor
       factor.nodes += node
       if (nodeAdded) fireEvent(AddNodeEvent(node))
@@ -54,11 +54,35 @@ class FactorGraph[T <: Term[_]](terms: Seq[T])
     factor
   }
 
+  def addTerms(terms:Iterable[TermType]) = for (t <- terms) addTerm(t)
+
 }
 
+trait DoubleFactorGraph extends FactorGraph {
 
-class DoubleFactorGraph(terms:Seq[DoubleTerm]) extends FactorGraph[DoubleTerm](terms) {
-
+  type TermType = DoubleTerm
+  
   def sum(env:Env) = SumHelper.sum(factors.map(f=>f.term),env)
+  
 }
 
+class TestFactorGraph extends DoubleFactorGraph {
+  type FactorType = Factor
+  type NodeType = Node
+
+  protected def createFactor(term: TermType) = new Factor(term)
+  protected def createNode(variable: EnvVar[_]) = new Node(variable)
+  
+}
+
+object TestNewFG extends Application {
+
+  val fg = new TestFactorGraph
+  fg.addListener(e => e match {
+    case fg.AddFactorEvent(factor) => println(factor)
+    case _ => println("Don't know")
+  })
+  fg.addTerm(new DoubleConstant(1.0))
+  
+
+}

@@ -90,7 +90,7 @@ object VectorDemo extends Application with TheBeastEnv {
 
   println(vector)
 
-  val Bools = Values(true, false)  
+  //val Bools = Values(true, false)  
   val Persons = Values("Anna", "Peter", "Nick", "Ivan")
   val smokes = "smokes" <~ Persons -> Bools;
   val cancer = "cancer" <~ Persons -> Bools;

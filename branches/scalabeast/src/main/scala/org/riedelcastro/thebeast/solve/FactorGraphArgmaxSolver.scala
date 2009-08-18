@@ -12,12 +12,14 @@ import vectors.VectorDotApp
 trait FactorGraphArgmaxSolver extends ArgmaxSolver {
   def solve(): ArgmaxResult;
 
-  def setFactorGraph(graph: DoubleFactorGraph);
+  def getFactorGraph() : DoubleFactorGraph
+  def createFactorGraph() : DoubleFactorGraph
 
   def argmax(term: DoubleTerm) = {
     term match {
       case x: Sum => {
-        setFactorGraph(new DoubleFactorGraph(x.args));
+        val graph = createFactorGraph
+        graph.addTerms(x.args)
         solve();
       }
       case x: VectorDotApp => argmax(x.distribute)

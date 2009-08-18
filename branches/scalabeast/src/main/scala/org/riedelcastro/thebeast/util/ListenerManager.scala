@@ -5,8 +5,10 @@ package org.riedelcastro.thebeast.util
  * @author Sebastian Riedel
  */
 
-trait ListenerManager[E] {
-  type L = (E) => Unit
+
+trait ListenerManager {
+  type EventType
+  type L = (EventType) => Unit
   private var listeners: List[L] = Nil
   private var listenersLock = new Object()
 
@@ -25,7 +27,7 @@ trait ListenerManager[E] {
   }
 
   /**Apply the given closure to all of the listeners in the list. */
-  protected def fireEvent(event: E) = listenersLock.synchronized {
+  protected def fireEvent(event: EventType) = listenersLock.synchronized {
     listeners.foreach(_.apply(event))
   }
 }
