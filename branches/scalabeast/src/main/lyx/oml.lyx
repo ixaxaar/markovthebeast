@@ -400,6 +400,34 @@ but this requires a new variable (w_age) for each formula.
  
 \end_layout
 
+\begin_layout Subsection
+Alchemy Style Markov Logic
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x)) * 1.0 + $(b(x)) * 1.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 1_(x)
+\end_layout
+
+\begin_layout LyX-Code
+AlchemyTerm(BooleanTerm) extends Sum(...)
+\end_layout
+
+\begin_layout LyX-Code
+Individisble(BooleanTerm) extends BooleanTerm
+\end_layout
+
 \begin_layout Section
 Extending Extentable Markov Logic
 \end_layout
