@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.env.doubles
 
 import booleans.BooleanTerm
 import functions._
+import solve.ExhaustiveMarginalInference
 import vectors.{VectorTerm, VectorScalarApp}
 /**
  * @author Sebastian Riedel
@@ -14,6 +15,11 @@ trait DoubleTerm extends BoundedTerm[Double] {
   def *(rhs: DoubleTerm) = TimesApp(this, rhs)
 
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
+
+  def marginalize(incoming:Beliefs) : Beliefs = {
+    val term = this + Sum(variables.map(v => BeliefTerm(incoming.belief(v),v)).toSeq)
+    ExhaustiveMarginalInference.infer(term)
+  }
 
   //def ground(env:Env) : DoubleTerm = super.ground(env).asInstanceOf[DoubleTerm]
 

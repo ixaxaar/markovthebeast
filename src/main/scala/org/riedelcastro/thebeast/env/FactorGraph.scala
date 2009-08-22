@@ -14,19 +14,22 @@ trait FactorGraph extends ListenerManager{
 
   private val _factors = new ArrayBuffer[FactorType] with RandomDrawable[FactorType]
   private val _nodes = new ArrayBuffer[NodeType] with RandomDrawable[NodeType]
+  private val _edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
   private val _term2Factor = new HashMap[TermType, FactorType]
   private val _variable2Node = new HashMap[EnvVar[_], NodeType]
 
   def factors: RandomDrawable[FactorType] = _factors
 
   def nodes: RandomDrawable[NodeType] = _nodes
+
+  def edges: RandomDrawable[EdgeType] = _edges
   
 
   case class Factor(val term:TermType){
     val edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
     def addEdge(edge:EdgeType) = edges += edge
   }
-  case class Node(val variable: EnvVar[_]){
+  case class Node(val variable: EnvVar[Any]){
     val edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
     def addEdge(edge:EdgeType) = edges += edge
   }
@@ -52,6 +55,7 @@ trait FactorGraph extends ListenerManager{
       val node = _variable2Node.getOrElseUpdate(v,
         {val n = createNode(v); _nodes += n; nodeAdded=true; n})
       val edge = createEdge(node,factor)
+      _edges += edge
       node.addEdge(edge)
       factor.addEdge(edge)
       if (nodeAdded) fireEvent(AddNodeEvent(node))
