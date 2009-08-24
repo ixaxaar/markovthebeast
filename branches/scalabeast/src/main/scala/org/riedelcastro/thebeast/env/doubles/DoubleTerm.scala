@@ -4,7 +4,9 @@ package org.riedelcastro.thebeast.env.doubles
 import booleans.BooleanTerm
 import functions._
 import solve.ExhaustiveMarginalInference
+import tuples.TupleTerm2
 import vectors.{VectorTerm, VectorScalarApp}
+
 /**
  * @author Sebastian Riedel
  */
@@ -16,8 +18,8 @@ trait DoubleTerm extends BoundedTerm[Double] {
 
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
-  def marginalize(incoming:Beliefs) : Beliefs = {
-    val term = this + Sum(variables.map(v => BeliefTerm(incoming.belief(v),v)).toSeq)
+  def marginalize(incoming: Beliefs): Beliefs = {
+    val term = this * Product(variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
     ExhaustiveMarginalInference.infer(term)
   }
 
@@ -25,6 +27,13 @@ trait DoubleTerm extends BoundedTerm[Double] {
 
   def ground(env: Env): DoubleTerm
 }
+
+
+case class CPD[O, C](conditioned: ConditionedTerm[O, C], parameters: Term[Tuple2[O, C] => Double])
+        extends DoubleFunApp(parameters, TupleTerm2(conditioned.term, conditioned.condition)) {
+}
+
+
 
 case class AddApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunApp(Constant(Add), lhs), rhs) {
   override def ground(env: Env) = AddApp(lhs.ground(env), rhs.ground(env))
@@ -34,18 +43,25 @@ case class TimesApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunAp
   override def upperBound = Math.max(lhs.upperBound * rhs.upperBound, 0.0)
 }
 case class Sum(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Add), args, Constant(0.0))
-  with DoubleTerm{
-  def upperBound = args.foldLeft(0.0){(b,a)=> b + a.upperBound }
+        with DoubleTerm {
+  def upperBound = args.foldLeft(0.0) {(b, a) => b + a.upperBound}
 
   override def ground(env: Env) = Sum(args.map(a => a.ground(env)))
 
 }
 
 object SumHelper {
-  def sum(terms : Collection[DoubleTerm], env:Env) = terms.foldLeft(0.0) {(s,t) => s + env(t)}
+  def sum(terms: Collection[DoubleTerm], env: Env) = terms.foldLeft(0.0) {(s, t) => s + env(t)}
 }
 
-case class Product(override val args: Seq[Term[Double]]) extends Fold[Double](Constant(Times), args, Constant(0))
+case class Product(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Times), args, Constant(0))
+        with DoubleTerm {
+  override def ground(env: Env) = Product(args.map(a => a.ground(env)))
+
+  def upperBound = args.foldLeft(1.0) {(b, a) => b * Math.abs(a.upperBound)}
+
+
+}
 
 
 case class QuantifiedSum[T](override val variable: Var[T], override val formula: DoubleTerm)
@@ -54,7 +70,9 @@ case class QuantifiedSum[T](override val variable: Var[T], override val formula:
     val env = new MutableEnv
     Sum(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
   }
+
   def upperBound = unroll.upperBound
+
   override def ground(env: Env) = unroll.ground(env)
 
 }
@@ -69,7 +87,7 @@ case class DoubleFunApp[T](override val function: Term[T => Double], override va
         extends FunApp(function, arg) with DoubleTerm {
   def upperBound = Math.POS_INF_DOUBLE
 
-  override def ground(env: Env) = DoubleFunApp(function.ground(env),arg.ground(env))
+  override def ground(env: Env) = DoubleFunApp(function.ground(env), arg.ground(env))
 }
 
 case class DoubleConstant(override val value: Double) extends BoundedConstant(value) with DoubleTerm {
