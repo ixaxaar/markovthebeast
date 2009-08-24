@@ -17,6 +17,8 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 
   def ground(env: Env): BooleanTerm
 
+  
+
 
 }
 

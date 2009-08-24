@@ -1,8 +1,5 @@
 package org.riedelcastro.thebeast.env
 
-import functions._
-
-
 /**
  * @author Sebastian Riedel
  */
@@ -39,6 +36,8 @@ trait Term[+T] {
    * Are there no free variables in this term 
    */
   def isGround: Boolean
+
+  
 
 }
 
@@ -228,6 +227,31 @@ case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
 
 
 }
+
+case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])
+
+sealed class Singleton extends Term[Singleton] {
+
+  def simplify = this
+
+  def isGround = true
+
+  def variables = Set()
+
+  def ground(env: Env) = this
+
+  def eval(env: Env) = Some(this)
+
+  def values = Values(this)
+
+}
+
+object Singleton {
+  val Singleton = new Singleton
+}
+
+
+
 
 
 
