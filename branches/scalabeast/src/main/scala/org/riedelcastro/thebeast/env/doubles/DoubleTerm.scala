@@ -88,6 +88,7 @@ case class Multiplication(override val args: Seq[DoubleTerm]) extends Fold[Doubl
   def upperBound = args.foldLeft(1.0) {(b, a) => b * Math.abs(a.upperBound)}
 
 
+  override def toString = "Multiplication(" + args + ")"
 }
 
 
