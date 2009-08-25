@@ -37,7 +37,6 @@ trait Term[+T] {
    */
   def isGround: Boolean
 
-  
 
 }
 
@@ -202,7 +201,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 }
 
 
-sealed trait EnvVar[+T] extends Term[T]{
+sealed trait EnvVar[+T] extends Term[T] {
   /**
    *  The values of a variables are all objects the variable can be assigned to
    */
@@ -212,26 +211,25 @@ sealed trait EnvVar[+T] extends Term[T]{
 
 case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
         extends FunApp(funVar, Constant(argValue))
-        with EnvVar[R] {
+                with EnvVar[R] {
   //def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], argValue)
 
-//  def values = range
-//
-//  def range: Values[R] = {
-//    funVar match {
-//      case x: Var[_] => x.values.asInstanceOf[FunctionValues[T, R]].range
-//      case x: FunAppVar[_, _] => x.range.asInstanceOf[FunctionValues[T, R]].range
-//    }
-//
-//  }
+  //  def values = range
+  //
+  //  def range: Values[R] = {
+  //    funVar match {
+  //      case x: Var[_] => x.values.asInstanceOf[FunctionValues[T, R]].range
+  //      case x: FunAppVar[_, _] => x.range.asInstanceOf[FunctionValues[T, R]].range
+  //    }
+  //
+  //  }
 
 
 }
 
 case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])
 
-sealed class Singleton extends Term[Singleton] {
-
+class SingletonClass extends Term[SingletonClass] with Values[SingletonClass]  {
   def simplify = this
 
   def isGround = true
@@ -240,14 +238,15 @@ sealed class Singleton extends Term[Singleton] {
 
   def ground(env: Env) = this
 
-  def eval(env: Env) = Some(this)
+  def eval(env: Env):Option[SingletonClass] = Some(this)
 
-  def values = Values(this)
+  def values = this
 
+  def elements = Seq(this).elements
 }
 
-object Singleton {
-  val Singleton = new Singleton
+object Singleton extends SingletonClass {
+  override def toString = "Singleton"
 }
 
 

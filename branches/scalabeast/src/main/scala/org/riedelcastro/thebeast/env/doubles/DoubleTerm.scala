@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env.doubles
 
 
 import booleans.BooleanTerm
+import collection.mutable.{HashSet, HashMap}
 import functions._
 import solve.ExhaustiveMarginalInference
 import tuples.TupleTerm2
@@ -19,7 +20,7 @@ trait DoubleTerm extends BoundedTerm[Double] {
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
   def marginalize(incoming: Beliefs): Beliefs = {
-    val term = this * Product(variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
+    val term = this * Multiplication(variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
     ExhaustiveMarginalInference.infer(term)
   }
 
@@ -29,10 +30,36 @@ trait DoubleTerm extends BoundedTerm[Double] {
 }
 
 
+case class CPDParams[O,C](outcomeValues:Values[O], conditionValues:Values[C], mapping:Pair[(O,C),Double]*)
+        extends HashMap[(O,C),Double] {
+  for (pair <- mapping) this += pair
+
+  for (condition <- conditionValues) {
+    val undefined = new HashSet[O]
+    var totalProb = 0.0
+    for (outcome <- outcomeValues) {
+      this.get((outcome,condition)) match {
+        case Some(prob) => totalProb += prob
+        case None => undefined += outcome
+      }
+    }
+    val probOfRest = (1.0 - totalProb) / undefined.size
+    for (outcome <- undefined) {
+      this += (outcome,condition)-> probOfRest
+    }
+  }
+}
+
+case class PriorPDParams[O](override val outcomeValues:Values[O], singleMapping:Pair[O,Double]*)
+        extends CPDParams(outcomeValues,Singleton,singleMapping.map(pair=>((pair._1,Singleton),pair._2)):_*)
+
 case class CPD[O, C](conditioned: ConditionedTerm[O, C], parameters: Term[Tuple2[O, C] => Double])
         extends DoubleFunApp(parameters, TupleTerm2(conditioned.term, conditioned.condition)) {
 }
 
+case class PriorPD[O](outcome:Term[O], override val parameters: Term[Tuple2[O, SingletonClass] => Double])
+        extends CPD(ConditionedTerm(outcome,Singleton),parameters) {
+}
 
 
 case class AddApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunApp(Constant(Add), lhs), rhs) {
@@ -54,9 +81,9 @@ object SumHelper {
   def sum(terms: Collection[DoubleTerm], env: Env) = terms.foldLeft(0.0) {(s, t) => s + env(t)}
 }
 
-case class Product(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Times), args, Constant(0))
+case class Multiplication(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Times), args, Constant(1.0))
         with DoubleTerm {
-  override def ground(env: Env) = Product(args.map(a => a.ground(env)))
+  override def ground(env: Env) = Multiplication(args.map(a => a.ground(env)))
 
   def upperBound = args.foldLeft(1.0) {(b, a) => b * Math.abs(a.upperBound)}
 

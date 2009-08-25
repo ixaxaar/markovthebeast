@@ -38,6 +38,7 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
       }
       
     }
+    println("marginal beliefs:" + beliefs)
     **|
     beliefs
   }
