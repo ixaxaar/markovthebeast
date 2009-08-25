@@ -2,8 +2,7 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
-import env.doubles.{Sum, DoubleTerm}
-
+import doubles.{Multiplication, Sum, DoubleTerm}
 /**
  * @author Sebastian Riedel
  */
@@ -35,7 +34,7 @@ class SumProductBeliefPropagation extends MarginalInference {
       def updateOutgoingMessages = {
         val incomingBeliefs = new MutableBeliefs
         for (edge <- edges) incomingBeliefs.setBelief(edge.node.variable, edge.node2factor)
-        val outgoingBeliefs = incomingBeliefs //this should be term.marginalize(incomingBeliefs)
+        val outgoingBeliefs = term.marginalize(incomingBeliefs)
         for (edge <- edges) edge.factor2node = outgoingBeliefs.belief(edge.node.variable) / edge.node2factor
       }
     }
@@ -58,13 +57,27 @@ class SumProductBeliefPropagation extends MarginalInference {
     val graph = new SPBPFactorGraph
     term match {
       case Sum(args) => graph.addTerms(args)
+      case Multiplication(args) => graph.addTerms(args)
       case _ => graph.addTerm(term)
     }
-    //synchronous edge processing
 
-    //go through all factors, take the belief of the neigbouring nodes, divide by previous message from
-    //factor to node, pass to factor, and calculate new beliefs over variables through marginalize
-    //method of term
-    null
+    println(graph.factors)
+
+
+    //synchronous edge processing
+    for (factor <- graph.factors)
+      factor.updateOutgoingMessages
+
+    for (node <- graph.nodes)
+      node.updateBelief
+
+    for (edge <- graph.edges)
+      edge.updateNode2Factor
+
+    val result = new MutableBeliefs
+    for (node <-graph.nodes)
+      result.setBelief(node.variable,node.belief)
+
+    result
   }
 }

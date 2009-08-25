@@ -14,6 +14,8 @@ trait Values[+T] extends Iterable[T] {
 
   def createVariable(name: String): Var[T] = new Var(name, this)
 
+  def size:Int = toSeq.size
+
 
 }
 

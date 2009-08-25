@@ -25,6 +25,9 @@ class MutableBeliefs extends Beliefs  {
   }
 
   def belief[T](term: Term[T]) : Belief[T] = beliefs(term).asInstanceOf[Belief[T]]
+
+
+  override def toString = beliefs.toString
 }
 
 sealed trait Belief[T] {
@@ -37,7 +40,9 @@ sealed trait Belief[T] {
 }
 
 case class BeliefTerm[T](belief:Belief[T], override val arg:Term[T])
-        extends DoubleFunApp(Constant((t:T) => belief.belief(t)), arg)  
+        extends DoubleFunApp(Constant((t:T) => belief.belief(t)), arg) {
+  override def toString = "Belief("+arg+")=" + belief
+}
 
 case class Ignorance[T](val values:Values[T]) extends Belief[T] {
   def belief(value: T) = 1.0
@@ -73,4 +78,7 @@ class MutableBelief[T](val values:Values[T]) extends Belief[T] {
       result
     }
   }
+
+
+  override def toString = _belief.toString
 }

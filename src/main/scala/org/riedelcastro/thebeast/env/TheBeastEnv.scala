@@ -52,7 +52,7 @@ trait TheBeastEnv {
   //  }
 
 
-  implicit def term2SingletonConditionedTerm[T](term : Term[T]) = new ConditionedTerm(term,Singleton.Singleton)
+  implicit def term2SingletonConditionedTerm[T](term : Term[T]) = new ConditionedTerm(term,Singleton)
 
   implicit def term2ConditionedTermBuilder[T](term: Term[T]) = new {
 
