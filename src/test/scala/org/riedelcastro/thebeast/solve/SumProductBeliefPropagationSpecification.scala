@@ -31,8 +31,9 @@ class SumProductBeliefPropagationSpecification extends Specification with TheBea
       val result = inference.infer(model)
       result.belief(Sick).belief(true) must beCloseTo (0.1, 0.00001)
       result.belief(Loses).belief(true) must beCloseTo (0.1832, 0.00001)
-      println(model)
-      println(result)
+//      println(model)
+//      println(result)
+//      println(ExhaustiveMarginalInference.infer(model))
     }
   }
 
