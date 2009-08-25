@@ -2,7 +2,8 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
-import doubles.{Multiplication, Sum, DoubleTerm}
+import doubles.{Multiplication, DoubleTerm}
+
 /**
  * @author Sebastian Riedel
  */
@@ -14,7 +15,7 @@ class SumProductBeliefPropagation extends MarginalInference {
       var factor2node: Belief[Any] = Ignorance(node.variable.values)
 
       def updateNode2Factor = {
-        node2factor = node.belief / factor2node
+        node2factor = (node.belief / factor2node).normalize
       }
 
     }
@@ -25,7 +26,7 @@ class SumProductBeliefPropagation extends MarginalInference {
       def updateBelief = {
         belief = edges.foldLeft[Belief[Any]](Ignorance(variable.values)) {
           (r, e) => r * e.factor2node
-        }
+        }.normalize
       }
 
     }
@@ -35,7 +36,7 @@ class SumProductBeliefPropagation extends MarginalInference {
         val incomingBeliefs = new MutableBeliefs
         for (edge <- edges) incomingBeliefs.setBelief(edge.node.variable, edge.node2factor)
         val outgoingBeliefs = term.marginalize(incomingBeliefs)
-        for (edge <- edges) edge.factor2node = outgoingBeliefs.belief(edge.node.variable) / edge.node2factor
+        for (edge <- edges) edge.factor2node = (outgoingBeliefs.belief(edge.node.variable) / edge.node2factor).normalize
       }
     }
 
@@ -50,33 +51,40 @@ class SumProductBeliefPropagation extends MarginalInference {
     protected def createNode(variable: EnvVar[_]) = SPBPNode(variable)
 
     protected def createEdge(node: NodeType, factor: FactorType) = SPBPEdge(node, factor)
+
+    def updateMessages() {
+      //synchronous edge processing
+      for (factor <- factors)
+        factor.updateOutgoingMessages
+
+      for (node <- nodes)
+        node.updateBelief
+
+      for (edge <- edges)
+        edge.updateNode2Factor
+
+
+    }
   }
+
+
 
 
   def infer(term: DoubleTerm) = {
     val graph = new SPBPFactorGraph
     term match {
-      case Sum(args) => graph.addTerms(args)
       case Multiplication(args) => graph.addTerms(args)
       case _ => graph.addTerm(term)
     }
 
     println(graph.factors)
 
-
-    //synchronous edge processing
-    for (factor <- graph.factors)
-      factor.updateOutgoingMessages
-
-    for (node <- graph.nodes)
-      node.updateBelief
-
-    for (edge <- graph.edges)
-      edge.updateNode2Factor
+    graph.updateMessages
+    graph.updateMessages
 
     val result = new MutableBeliefs
-    for (node <-graph.nodes)
-      result.setBelief(node.variable,node.belief)
+    for (node <- graph.nodes)
+      result.setBelief(node.variable, node.belief)
 
     result
   }

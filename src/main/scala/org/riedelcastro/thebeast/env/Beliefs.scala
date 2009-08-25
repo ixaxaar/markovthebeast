@@ -33,6 +33,7 @@ class MutableBeliefs extends Beliefs  {
 sealed trait Belief[T] {
   def values:Values[T]
   def belief(value:T) : Double
+  def normalize:Belief[T]
 
   def *(that:Belief[T]) : Belief[T]
   def /(that:Belief[T]) : Belief[T]
@@ -50,6 +51,8 @@ case class Ignorance[T](val values:Values[T]) extends Belief[T] {
   def *(that: Belief[T]) = that
 
   def /(that: Belief[T]) = that
+
+  def normalize = this
 }
 
 class MutableBelief[T](val values:Values[T]) extends Belief[T] {
@@ -79,6 +82,16 @@ class MutableBelief[T](val values:Values[T]) extends Belief[T] {
     }
   }
 
+  def total = _belief.values.foldLeft(0.0) {(r,b) => r + b}
+
+  def normalize = {
+    val norm = total
+    val result = new MutableBelief(values)
+    for (pair <- _belief) {
+      result._belief += pair._1 -> pair._2/norm
+    }
+    result
+  }
 
   override def toString = _belief.toString
 }
