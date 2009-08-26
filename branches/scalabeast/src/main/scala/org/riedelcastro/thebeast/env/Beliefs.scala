@@ -20,7 +20,7 @@ class MutableBeliefs extends Beliefs  {
 
   def increaseBelief[T](term:Term[T], value:T, delta:Double) = {
     var belief = beliefs.getOrElseUpdate(term,
-      new MutableBelief[T](term.values).asInstanceOf[MutableBelief[Any]]).asInstanceOf[MutableBelief[T]]
+                                         new MutableBelief[T](term.values).asInstanceOf[MutableBelief[Any]]).asInstanceOf[MutableBelief[T]]
     belief.increaseBelief(value,delta)
   }
 
@@ -41,7 +41,7 @@ sealed trait Belief[T] {
 }
 
 case class BeliefTerm[T](belief:Belief[T], override val arg:Term[T])
-        extends DoubleFunApp(Constant((t:T) => belief.belief(t)), arg) {
+extends DoubleFunApp(Constant((t:T) => belief.belief(t)), arg) {
   override def toString = "Belief("+arg+")=" + belief
 }
 
@@ -64,23 +64,19 @@ class MutableBelief[T](val values:Values[T]) extends Belief[T] {
 
   def increaseBelief(value:T, belief:Double) = _belief(value) = _belief.getOrElse(value, 0.0) + belief
 
-  def /(that: Belief[T]) = that match {
-    case Ignorance(_) => this
-    case _ => {
-      val result = new MutableBelief(values)
-      for (v <- values) result.setBelief(v,belief(v) / that.belief(v))
-      result
+  private def applyPointWise(that:Belief[T],op:(Double,Double)=>Double) = {
+    that match {
+      case Ignorance(_) => this
+      case _ => {
+          val result = new MutableBelief(values)
+          for (v <- values) result.setBelief(v,op(belief(v),that.belief(v)))
+          result
+        }
     }
   }
+  def /(that: Belief[T]) = applyPointWise(that, (b1,b2)=>b1 / b2)
 
-  def *(that: Belief[T]) = that match {
-    case Ignorance(_) => this
-    case _ => {
-      val result = new MutableBelief(values)
-      for (v <- values) result.setBelief(v,belief(v) * that.belief(v))
-      result
-    }
-  }
+  def *(that: Belief[T]) = applyPointWise(that, (b1,b2)=>b1 * b2)
 
   def total = _belief.values.foldLeft(0.0) {(r,b) => r + b}
 
