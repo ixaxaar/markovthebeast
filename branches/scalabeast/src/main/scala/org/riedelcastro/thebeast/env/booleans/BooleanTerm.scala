@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.env.booleans
 
 
-import doubles.BoolToDoubleCast
+import doubles.Indicator
 import functions._
 
 /**
@@ -9,7 +9,7 @@ import functions._
  */
 
 trait BooleanTerm extends BoundedTerm[Boolean] {
-  def @@ = BoolToDoubleCast(this)
+  def @@ = Indicator(this)
 
   def &&(rhs: BooleanTerm) = AndApp(this, rhs)
 

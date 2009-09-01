@@ -181,7 +181,7 @@ trait TheBeastEnv {
 
 
   implicit def boolTerm2BoolAppBuilder(lhs: BooleanTerm) = new {
-    def @@ = BoolToDoubleCast(lhs)
+    def @@ = Indicator(lhs)
 
     def &&(rhs: BooleanTerm) = AndApp(lhs, rhs)
 
@@ -191,7 +191,7 @@ trait TheBeastEnv {
 
   }
 
-  def $(term: BooleanTerm) = BoolToDoubleCast(term)
+  def $(term: BooleanTerm) = Indicator(term)
 
 
   def intSum[T](values: Values[T])(formula: Var[T] => Term[Int]) = {

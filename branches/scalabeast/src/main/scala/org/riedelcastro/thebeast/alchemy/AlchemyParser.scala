@@ -2,10 +2,11 @@ package org.riedelcastro.thebeast.alchemy
 
 
 import _root_.scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
-import collection.mutable.{ArrayBuffer, HashMap}
-import env.doubles.DoubleTerm
-import env.{Env, Values, Var}
+import collection.mutable.{HashSet, ArrayBuffer, HashMap}
+import env._
+import doubles.{DoubleConstant, DoubleTerm}
 import java.io.{Reader}
+import tuples.{TupleValues3, TupleValues2}
 /**
  * @author Sebastian Riedel
  */
@@ -65,6 +66,7 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   def parens: Parser[Formula] = "(" ~> formula <~ ")"
 
+  def deterministic: Parser[WeightedFormula] =  formula <~ "." ^^ {f => WeightedFormula(Math.POS_INF_DOUBLE,f)}
 
   def binaryOp(level: Int): Parser[((Formula, Formula) => Formula)] = {
     level match {
@@ -125,6 +127,7 @@ object Test extends Application {
 
 class MLN {
 
+  import env.TheBeastImplicits._
 
   /**
    * This loads a set of atoms from the given reader. Note that this will modify
@@ -135,13 +138,73 @@ class MLN {
   def loadAtoms(reader: Reader): Env = {
     //this loads atoms from a database file and updates/adds types, predicates etc.
     val atoms = AlchemyParser.parse(AlchemyParser.database, reader)
-    
+
     null
   }
 
   def loadMLN(reader: Reader) = {
-    val expressions = AlchemyParser.parse(AlchemyParser.mln, reader)
-    null
+    val expressions = AlchemyParser.parse(AlchemyParser.mln, reader) match {
+      case AlchemyParser.Success(expr,_) => expr
+      case _ => null
+    }
+    for (expr <- expressions) expr match {
+      case AlchemyParser.ConstantTypeDefinition(typeName,constants) => {
+        val newType = new MutableValues[String]
+        newType ++= constants.elements
+        values(typeName) = newType
+      }
+      case AlchemyParser.IntegerTypeDefinition(typeName,from,to) => {
+        values(typeName) = new IntRangeValues(from,to)
+      }
+      case AlchemyParser.Atom(predName,args) => {
+        predicates.get(predName) match {
+          case Some(Var(varName,values)) =>
+          case None => {
+            val types = new ArrayBuffer[Values[_]]
+            for (arg <- args) arg match {
+              case AlchemyParser.VariableOrType(typeName) => {
+                types += getType(typeName)
+              }
+              case AlchemyParser.ExclamationType(typeName) => {
+                types += getType(typeName)
+                //add uniqueness constraint
+              }
+            }
+            val predicate:Var[_] = types.size match {
+              case 0 => throw new RuntimeException("Can't do 0 arguments")
+              case 1 => Var(predName, new FunctionValues(types(0),Bools))
+              case 2 => Var(predName, new FunctionValues(TupleValues2(types(0),types(1)),Bools))
+              case 3 => Var(predName, new FunctionValues(TupleValues3(types(0),types(1),types(2)),Bools))
+              case _ => throw new RuntimeException("Can't do more than 3 arguments yet")
+            }
+            predicates(predName) = predicate
+          }
+        }
+      }
+      case AlchemyParser.WeightedFormula(weight,formula) => {
+        formulae += toDoubleTerm(formula,weight)
+      }
+      case f:AlchemyParser.Formula => {
+        formulae += toDoubleTerm(f,1.0)  
+      }
+      case _ =>
+
+    }
+  }
+
+  private def toDoubleTerm(formula:AlchemyParser.Formula, weight:Double):DoubleTerm = {
+    //first we bound variables
+    val bound = new HashSet[String]
+    //then we need to find all variables
+
+
+    //then we create a corresponding vector sum
+    //then we create an alchemy Indicator
+    DoubleConstant(0.0)
+  }
+  
+  private def getType(typeName:String) : Values[_] = {
+    values.getOrElseUpdate(typeName, new MutableValues)
   }
 
   private val values = new HashMap[String, Values[_]]
