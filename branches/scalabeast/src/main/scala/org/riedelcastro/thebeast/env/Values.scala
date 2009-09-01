@@ -1,7 +1,7 @@
 package org.riedelcastro.thebeast.env
 
 
-import collection.mutable.MapProxy
+import collection.mutable.{HashSet, MapProxy}
 import util.Util
 
 /**
@@ -16,7 +16,10 @@ trait Values[+T] extends Iterable[T] {
 
   def size:Int = toSeq.size
 
+}
 
+class MutableValues[T] extends HashSet[T] with Values[T] {
+  override def size = super.size
 }
 
 object Values {

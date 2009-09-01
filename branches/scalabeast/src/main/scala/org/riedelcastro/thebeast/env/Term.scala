@@ -68,7 +68,18 @@ trait BoundedTerm[T] extends Term[T] {
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
-  def variables = Set(this)
+
+  def variables =
+    if (!values.isInstanceOf[FunctionValues[_,_]]) Set(this)
+    else Set() ++ createAllFunAppVars(Seq(this), values.asInstanceOf[FunctionValues[_,_]])
+
+  private def createAllFunAppVars(funVars: Iterable[EnvVar[_]], functionValues: FunctionValues[_, _]): Iterable[FunAppVar[_,_]] = {
+    val funapps = funVars.flatMap(v => functionValues.domain.map(d => FunAppVar(v.asInstanceOf[EnvVar[Function1[Any,Any]]], d)))
+    if (functionValues.range.isInstanceOf[FunctionValues[_, _]])
+      createAllFunAppVars(funapps, functionValues.range.asInstanceOf[FunctionValues[_, _]])
+    else
+      funapps
+  }
 
   def simplify = this
 
@@ -94,6 +105,7 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
 
   def variables = {
     //if we have something like f(1)(2)(3) we should create a funapp variable
+    //todo: instead expand function value variables whenever they have no no conrete/constant arguments.
     if (isAtomic)
       Set(asFunAppVar)
     else
@@ -212,24 +224,11 @@ sealed trait EnvVar[+T] extends Term[T] {
 case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
         extends FunApp(funVar, Constant(argValue))
                 with EnvVar[R] {
-  //def of[U](arg: U) = FunAppVar(this.asInstanceOf[EnvVar[U => Any]], argValue)
-
-  //  def values = range
-  //
-  //  def range: Values[R] = {
-  //    funVar match {
-  //      case x: Var[_] => x.values.asInstanceOf[FunctionValues[T, R]].range
-  //      case x: FunAppVar[_, _] => x.range.asInstanceOf[FunctionValues[T, R]].range
-  //    }
-  //
-  //  }
-
-
 }
 
 case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])
 
-class SingletonClass extends Term[SingletonClass] with Values[SingletonClass]  {
+class SingletonClass extends Term[SingletonClass] with Values[SingletonClass] {
   def simplify = this
 
   def isGround = true
@@ -238,7 +237,7 @@ class SingletonClass extends Term[SingletonClass] with Values[SingletonClass]  {
 
   def ground(env: Env) = this
 
-  def eval(env: Env):Option[SingletonClass] = Some(this)
+  def eval(env: Env): Option[SingletonClass] = Some(this)
 
   def values = this
 

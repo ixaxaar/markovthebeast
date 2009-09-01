@@ -11,6 +11,10 @@ import vectors._
  * @author Sebastian Riedel
  */
 
+object TheBeastImplicits extends TheBeastEnv {
+  
+}
+
 trait TheBeastEnv {
   private var varCount = 0;
 

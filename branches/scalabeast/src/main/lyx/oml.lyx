@@ -1,4 +1,4 @@
-#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -156,6 +156,30 @@ Note that ExML also allows variables to be a) propositional, b) functions
 
 \begin_layout Section
 Variables and Possible Worlds
+\end_layout
+
+\begin_layout LyX-Code
+val link12 = 
+\begin_inset Quotes eld
+\end_inset
+
+link12
+\begin_inset Quotes erd
+\end_inset
+
+ <- Bools
+\end_layout
+
+\begin_layout LyX-Code
+val link23 = ...
+\end_layout
+
+\begin_layout LyX-Code
+val link13 = ...
+\end_layout
+
+\begin_layout LyX-Code
+
 \end_layout
 
 \begin_layout Standard
@@ -398,6 +422,15 @@ sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * w_age(p)}
 \begin_layout Standard
 but this requires a new variable (w_age) for each formula.
  
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\nexists\ \]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
