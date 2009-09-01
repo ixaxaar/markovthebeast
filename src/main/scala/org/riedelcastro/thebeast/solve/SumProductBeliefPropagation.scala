@@ -24,9 +24,11 @@ class SumProductBeliefPropagation extends MarginalInference {
       var belief: Belief[Any] = Ignorance(variable.values)
 
       def updateBelief = {
+        val old = belief
         belief = edges.foldLeft[Belief[Any]](Ignorance(variable.values)) {
           (r, e) => r * e.factor2node
         }.normalize
+        (old - belief).norm
       }
 
     }
@@ -52,18 +54,19 @@ class SumProductBeliefPropagation extends MarginalInference {
 
     protected def createEdge(node: NodeType, factor: FactorType) = SPBPEdge(node, factor)
 
-    def updateMessages() {
+    def updateMessages() : Double = {
       //synchronous edge processing
       for (factor <- factors)
         factor.updateOutgoingMessages
 
+      var maxChange = 0.0
       for (node <- nodes)
-        node.updateBelief
+        maxChange = Math.max(node.updateBelief, maxChange)
 
       for (edge <- edges)
         edge.updateNode2Factor
 
-
+      maxChange
     }
   }
 
@@ -79,8 +82,8 @@ class SumProductBeliefPropagation extends MarginalInference {
 
     println(graph.factors)
 
-    graph.updateMessages
-    graph.updateMessages
+    while (graph.updateMessages > 0.0001) {} 
+    //graph.updateMessages
 
     val result = new MutableBeliefs
     for (node <- graph.nodes)

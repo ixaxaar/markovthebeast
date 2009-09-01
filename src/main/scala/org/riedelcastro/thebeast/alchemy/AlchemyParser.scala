@@ -4,7 +4,8 @@ package org.riedelcastro.thebeast.alchemy
 import _root_.scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
 import collection.mutable.{ArrayBuffer, HashMap}
 import env.doubles.DoubleTerm
-import env.{Values, Var}
+import env.{Env, Values, Var}
+import java.io.{Reader}
 /**
  * @author Sebastian Riedel
  */
@@ -15,11 +16,11 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
   val NumDouble = "-?\\d+(\\.\\d+)?" r
   val NumPosInt = "\\d+"
   val StringLit = "(\\w)*"
-  
+
 
   val multiline = "(/\\*(?:.|[\\n\\r])*?\\*/)"
 
-  override val whiteSpace = """(\s|//.+\n|(/\*(?:.|[\n\r])*?\*/))+"""r
+  override val whiteSpace = """(\s|//.+\n|(/\*(?:.|[\n\r])*?\*/))+""" r
 
   def constantTypeDefinition: Parser[ConstantTypeDefinition] =
     (LowerCaseID ~ "=" ~ "{" ~ repsep(UpperCaseID, ",") ~ "}") ^^
@@ -28,14 +29,13 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   def integerTypeDefinition: Parser[IntegerTypeDefinition] =
     (LowerCaseID ~ "=" ~ "{" ~ NumPosInt ~ "," ~ "..." ~ "," ~ NumPosInt ~ "}") ^^
-            {case name ~ "=" ~ "{" ~ from ~"," ~"..."~"," ~to~ "}" => IntegerTypeDefinition(name, from.toInt,to.toInt)}
+            {case name ~ "=" ~ "{" ~ from ~ "," ~ "..." ~ "," ~ to ~ "}" => IntegerTypeDefinition(name, from.toInt, to.toInt)}
 
-  def include: Parser[Include] = ("#include" ~>  stringLiteral ) ^^ {s => Include(s)}  
+  def include: Parser[Include] = ("#include" ~> stringLiteral) ^^ {s => Include(s)}
 
-//  def integerTypeDefinition: Parser[IntegerTypeDefinition] =
-//    (LowerCaseID ~ ("=" ~> "{" ~> NumPosInt ~ ("," ~> "..." ~> "," ~> NumPosInt <~ "}"))) ^^
-//            {case name ~ from ~ to  => IntegerTypeDefinition(name, from.toInt,to.toInt)}
+  def mln: Parser[List[Expression]] = rep(expression)
 
+  def database: Parser[List[Atom]] = rep(atom)
 
   def atom: Parser[Atom] = UpperCaseID ~ "(" ~ termList ~ ")" ^^ {case s ~ "(" ~ terms ~ ")" => Atom(s, terms)}
 
@@ -107,12 +107,13 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
   case class Implies(lhs: Formula, rhs: Formula) extends Formula
   case class Equivalence(lhs: Formula, rhs: Formula) extends Formula
 
-  case class IntegerTypeDefinition(name:String, from: Int, to: Int) extends Expression
+  case class IntegerTypeDefinition(name: String, from: Int, to: Int) extends Expression
   case class ConstantTypeDefinition(name: String, constants: Seq[String]) extends Expression
 
-  case class Include(fileName:String) extends Expression 
+  case class Include(fileName: String) extends Expression
 
 }
+
 
 object Test extends Application {
   val test = "10.0 Same(+hallo,!po) /* Hallo\nDu Igel */ ^ \n (Popel(du,igel)) => Same(du, nuss)"
@@ -123,6 +124,26 @@ object Test extends Application {
 }
 
 class MLN {
+
+
+  /**
+   * This loads a set of atoms from the given reader. Note that this will modify
+   * the types associated with the predicates mentioned in the reader/file. Also note
+   * that before atoms can be loaded an MLN with the mentioned
+   * predicates has to be loaded. 
+   */
+  def loadAtoms(reader: Reader): Env = {
+    //this loads atoms from a database file and updates/adds types, predicates etc.
+    val atoms = AlchemyParser.parse(AlchemyParser.database, reader)
+    
+    null
+  }
+
+  def loadMLN(reader: Reader) = {
+    val expressions = AlchemyParser.parse(AlchemyParser.mln, reader)
+    null
+  }
+
   private val values = new HashMap[String, Values[_]]
   private val predicates = new HashMap[String, Var[_]]
   private val formulae = new ArrayBuffer[DoubleTerm]
