@@ -22,6 +22,10 @@ class MutableValues[T] extends HashSet[T] with Values[T] {
   override def size = super.size
 }
 
+class IntRangeValues(val from:Int, val to:Int) extends Range(from,to+1,1) with Values[Int] {
+  override def size = super.size
+}
+
 object Values {
   def apply[T](values: T*) =
     new ValuesProxy(values.foldLeft(Set.empty[T]) {(result, v) => result ++ Set(v)})

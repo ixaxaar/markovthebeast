@@ -104,11 +104,19 @@ case class QuantifiedSum[T](override val variable: Var[T], override val formula:
   override def ground(env: Env) = unroll.ground(env)
 
 }
-case class BoolToDoubleCast(boolTerm: BooleanTerm) extends FunApp(Constant(CastBoolToDouble), boolTerm)
+case class Indicator(boolTerm: BooleanTerm) extends FunApp(Constant(CastBoolToDouble), boolTerm)
         with DoubleTerm {
   def upperBound = if (boolTerm.upperBound) 1.0 else 0.0
 
-  override def ground(env: Env) = BoolToDoubleCast(boolTerm.ground(env))
+  override def ground(env: Env) = Indicator(boolTerm.ground(env))
+}
+
+
+object AlchemyIndicator {
+  def toSeq(boolTerm:BooleanTerm): Seq[DoubleTerm] = null   
+}
+
+case class AlchemyIndicator(boolTerm:BooleanTerm) extends Sum(AlchemyIndicator.toSeq(boolTerm)){
 }
 
 case class DoubleFunApp[T](override val function: Term[T => Double], override val arg: Term[T])
