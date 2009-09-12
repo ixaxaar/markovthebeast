@@ -9,6 +9,11 @@ trait TupleTerm extends scala.Product {
     for (i <- 0 until productArity) if (!productElement(i).asInstanceOf[Term[Any]].isGround) return false;
     return true;
   }
+
+  def subterms: Seq[Term[Any]] = {
+    for (i <- 0 until productArity) yield productElement(i).asInstanceOf[Term[Any]]
+  }
+
 }
 
 case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] with TupleTerm {

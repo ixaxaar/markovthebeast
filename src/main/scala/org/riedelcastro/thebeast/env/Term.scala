@@ -37,6 +37,12 @@ trait Term[+T] {
    */
   def isGround: Boolean
 
+  /**
+   * All immediate subterms of this term
+   */
+  def subterms: Seq[Term[Any]]
+
+
 
 }
 
@@ -54,6 +60,8 @@ case class Constant[T](val value: T) extends Term[T] {
   override def toString = value.toString
 
   def isGround = true
+
+  def subterms = Seq()
 }
 
 
@@ -94,6 +102,9 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
 
   def isGround = false
+
+
+  def subterms = Seq()
 }
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
@@ -144,6 +155,8 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
   def ground(env: Env) = FunApp(function.ground(env), arg.ground(env))
 
   override def toString = function.toString + "(" + arg.toString + ")"
+
+  def subterms = Seq(function,arg)
 }
 
 
@@ -181,6 +194,8 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
   }
 
 
+  def subterms = args ++ Seq(init)
+
   def isGround = function.isGround && init.isGround && args.forall(x => x.isGround)
 }
 
@@ -204,12 +219,14 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def eval(env: Env) = unroll.eval(env)
 
-
   def isGround = {
     val env = new MutableEnv
     env += variable -> variable.values.defaultValue
     formula.ground(env).isGround
   }
+
+
+  def subterms = Seq(formula)
 }
 
 
@@ -242,6 +259,8 @@ class SingletonClass extends Term[SingletonClass] with Values[SingletonClass] {
   def values = this
 
   def elements = Seq(this).elements
+
+  def subterms = Seq()
 }
 
 object Singleton extends SingletonClass {

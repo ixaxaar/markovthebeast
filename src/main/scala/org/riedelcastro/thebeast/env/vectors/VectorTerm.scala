@@ -64,6 +64,8 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
   def isGround = key.forall(k => k.isGround)
 
   override def toString = "1_(" + key.mkString(",") + ")"
+
+  def subterms = key.toSeq
 }
 
 case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
