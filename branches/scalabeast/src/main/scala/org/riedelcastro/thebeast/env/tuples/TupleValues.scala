@@ -7,7 +7,7 @@ import util.Util
  * @author Sebastian Riedel
  */
 
-trait TupleValues {
+trait TupleValues extends Product {
 
 }
 

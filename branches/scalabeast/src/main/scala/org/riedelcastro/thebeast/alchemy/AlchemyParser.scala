@@ -4,10 +4,12 @@ package org.riedelcastro.thebeast.alchemy
 import _root_.scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
 import collection.mutable.{HashSet, ArrayBuffer, HashMap}
 import env._
-import doubles.{DoubleConstant, DoubleTerm}
+import booleans.{BooleanFunApp, BooleanTerm}
+import doubles.{AlchemyIndicator, DoubleConstant, DoubleTerm}
 import java.io.{Reader}
-import tuples.{TupleValues3, TupleValues2}
-import vectors.{QuantifiedVectorSum, VectorTerm, VectorSum}
+import tuples.{TupleValues, TupleTerm, TupleValues3, TupleValues2}
+import vectors._
+
 /**
  * @author Sebastian Riedel
  */
@@ -97,14 +99,17 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   trait Expression
   trait Term extends Expression {
-    def subterms:Seq[Term] = Seq()
-    def allVariables:Set[Variable] = this match {
-      case v:Variable => Set(v)
-      case _ => subterms.foldLeft(Set[Variable]()) {(r,s) => r ++ s.allVariables} 
+    def subterms: Seq[Term] = Seq()
+
+    lazy val allVariables: Set[Variable] = this match {
+      case v: Variable => Set(v)
+      case _ => subterms.foldLeft(Set[Variable]()) {(r, s) => r ++ s.allVariables}
     }
+    lazy val allPlusVariables: Seq[PlusVariable] =
+    allVariables.filter(_.isInstanceOf[PlusVariable]).map(_.asInstanceOf[PlusVariable]).toSeq
   }
-  trait Variable extends Term{
-    def name:String
+  trait Variable extends Term {
+    def name: String
   }
   case class Constant(value: String) extends Term
   case class VariableOrType(name: String) extends Variable
@@ -113,10 +118,14 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   sealed trait Formula extends Expression {
     def subformulas: Seq[Formula] = Seq()
-    def allVariables: Set[Variable] = this match {
-      case Atom(_,args) => args.foldLeft(Set[Variable]())(_ ++ _.allVariables)
+
+    lazy val allVariables: Set[Variable] = this match {
+      case Atom(_, args) => args.foldLeft(Set[Variable]())(_ ++ _.allVariables)
       case _ => this.subformulas.foldLeft(Set[Variable]()) {_ ++ _.allVariables}
     }
+    lazy val allPlusVariables =
+    allVariables.filter(_.isInstanceOf[PlusVariable]).map(_.asInstanceOf[PlusVariable]).toSeq
+
   }
   case class WeightedFormula(weight: Double, formula: Formula) extends Formula {
     override def subformulas = Seq(formula)
@@ -198,24 +207,24 @@ class MLN {
                 //add uniqueness constraint
               }
             }
-            val predicate: Var[_] = types.size match {
-              case 0 => throw new RuntimeException("Can't do 0 arguments")
+            val predicate: Var[FunctionValue[Any, Boolean]] = types.size match {
+              case 0 => error("Can't do 0 arguments")
               case 1 => Var(predName, new FunctionValues(types(0), Bools))
               case 2 => Var(predName, new FunctionValues(TupleValues2(types(0), types(1)), Bools))
               case 3 => Var(predName, new FunctionValues(TupleValues3(types(0), types(1), types(2)), Bools))
-              case _ => throw new RuntimeException("Can't do more than 3 arguments yet")
+              case _ => error("Can't do more than 3 arguments yet")
             }
             predicates(predName) = predicate
           }
         }
       }
       case AlchemyParser.WeightedFormula(weight, formula) => {
-        formulae += toDoubleTerm(formula, weight)
+        addFormula(formula, weight)
       }
       case f: AlchemyParser.Formula => {
-        formulae += toDoubleTerm(f, 1.0)
+        addFormula(f, 0.0)
       }
-      case _ =>
+      case _ => error("Don't know how to handle " + expr)
 
     }
   }
@@ -224,43 +233,108 @@ class MLN {
   private def boundVariables(formula: Formula): Set[Variable] = {
     formula match {
       case f => {
-        f.subformulas.foldLeft(Set[Variable]()) {(r,s)=>r ++ boundVariables(s)}
+        f.subformulas.foldLeft(Set[Variable]()) {(r, s) => r ++ boundVariables(s)}
       }
     }
   }
 
-  private def createVectorSum(formula:VectorTerm,  values:Set[Values[Any]]):QuantifiedVectorSum[Any]  = {
-    if (values.size == 0) error("No variable, can't quantify")
-    if (values.size == 1) vectorSum(values.elements.next)(x=>formula)
-    else vectorSum(values.elements.next){x=>createVectorSum(formula, values - values.elements.next)}
+  private def createVectorSum(formula: VectorTerm, variables: Set[Var[Any]]): QuantifiedVectorSum[Any] = {
+    if (variables.size == 0) error("No variable, can't quantify")
+    val first = variables.elements.next
+    if (variables.size == 1) QuantifiedVectorSum(first, formula)
+    else QuantifiedVectorSum(first, createVectorSum(formula, variables - first))
   }
 
-  private def createVectorFormula(formula:Formula):VectorTerm = null
+  private def createVectorFormula(formula: Formula): VectorTerm = {
+    //first create equivalent boolean formula from formula
+    val bool = new BoolTermBuilder().build(formula)
+    //then wrap AlchemyIndicator around it (maps to double)
+    val indicator = AlchemyIndicator(bool)
+    //then multiply by unit vector that has the following index:
+    //1_(FORMULA_ID, plus_var1, plus_var2,...)
+    null
+  }
 
-  private def getValues(alchemyVars:Set[Variable]): Set[Values[Any]] = null
 
-  private def toDoubleTerm(formula: Formula, weight: Double): DoubleTerm = {
-    //first we find bound variables
+  private class BoolTermBuilder {
+    private val name2var = new HashMap[String, Var[Any]]
+
+    def convertArgs(predName: String, args: List[Term]): Seq[env.Term[Any]] = {
+      val domain = getPredicate(predName).values.asInstanceOf[FunctionValues[Any, Boolean]].domain
+      args.size match {
+        case 0 => error("Can't have zero arguments")
+        case 1 => Seq(convertTerm(args(0), domain))
+        case _ => for (i <- 0 until args.size) yield
+          convertTerm(args(i), domain.asInstanceOf[TupleValues].productElement(i).asInstanceOf[Values[Any]])
+      }
+    }
+
+    def build(formula: Formula): BooleanTerm = {
+      formula match {
+        case Atom(name, args) => BooleanFunApp(getPredicate(name), TupleTerm(convertArgs(name, args)))
+        case And(lhs, rhs) => env.booleans.AndApp(build(lhs), build(rhs))
+        case Implies(lhs, rhs) => env.booleans.ImpliesApp(build(lhs), build(rhs))
+        case _ => error("We don't support a " + formula + " formula yet")
+      }
+    }
+
+    def convertTerm(term: Term, values: Values[Any]): env.Term[Any] = {
+      term match {
+        case Constant(text) => env.Constant(text)
+        case PlusVariable(name) => name2var.getOrElseUpdate(name, Var(name, values))
+        case VariableOrType(name) => name2var.getOrElseUpdate(name, Var(name, values))
+        case _ => error("we don't support a " + term + " term yet")
+      }
+    }
+
+    def convertKnownVar(variable: Variable) = name2var(variable.name)
+
+    def convertKnownVars(variables: Iterable[Variable]): List[Var[Any]] = variables.map(convertKnownVar(_)).toList
+
+  }
+
+  private def getVariables(alchemyVars: Set[Variable]): Set[Var[Any]] = null
+
+  private def addFormula(formula: Formula, weight: Double): VectorTerm = {
+    //the id of this formula
+    val id = formulaeIds.getOrElseUpdate(formula, "F" + formulaeIds.size)
+    //formula builder
+    val builder = new BoolTermBuilder
+    //build boolean formula
+    val bool = builder.build(formula)
+    //creating mapping to real values according to AlchemyIndicator
+    val indicator = AlchemyIndicator(bool)
+    //multiply with unit vector indexed with formula id and plus variables
+    val vectorTerm = VectorScalarApp(
+      VectorOne((env.Constant(id) :: builder.convertKnownVars(formula.allPlusVariables): _*)),
+      indicator)
+    //now we find bound variables
     val bound = boundVariables(formula)
     //then we need to find all variables
     val all = formula.allVariables
     //this gives the unbound variables
     val unbound = all -- bound
-    //we create a vector sum with unbound variables
-    val vectorSum = createVectorSum(createVectorFormula(formula),getValues(unbound))
-
-
-    //then we create a corresponding vector sum
-    //then we create an alchemy Indicator
-    DoubleConstant(0.0)
+    //we create a quantified vector sum with unbound variables
+    val converted = if (unbound.size > 0) {
+      createVectorSum(vectorTerm, Set(builder.convertKnownVars(unbound): _*))
+    } else
+      vectorTerm
+    //add converted formula
+    formulae += converted
+    //return
+    converted
   }
 
   private def getType(typeName: String): Values[_] = {
     values.getOrElseUpdate(typeName, new MutableValues)
   }
 
+  private def getPredicate(name: String): Var[FunctionValue[Any, Boolean]] = predicates(name)
+
   private val values = new HashMap[String, Values[_]]
-  private val predicates = new HashMap[String, Var[_]]
-  private val formulae = new ArrayBuffer[DoubleTerm]
+  private val formulaeIds = new HashMap[Formula, String]
+  private val predicates = new HashMap[String, Var[FunctionValue[Any, Boolean]]]
+  private val formulae = new ArrayBuffer[VectorTerm]
+  private val weights = new Vector
 
 }
