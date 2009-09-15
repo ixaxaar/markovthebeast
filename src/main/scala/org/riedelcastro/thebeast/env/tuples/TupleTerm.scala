@@ -13,8 +13,19 @@ trait TupleTerm extends scala.Product {
   def subterms: Seq[Term[Any]] = {
     for (i <- 0 until productArity) yield productElement(i).asInstanceOf[Term[Any]]
   }
-
 }
+
+object TupleTerm {
+  def apply(args:Term[Any]*) : Term[Any] = args.size match {
+    case 1 => args(0)
+    case 2 => TupleTerm2(args(0),args(1))
+    case 3 => TupleTerm3(args(0),args(1),args(2))
+    case _ => error("Can't do tuples with more than 3 arguments yet")
+  }
+
+  //def apply(args:Term[Any]*): Term[Any] = apply(args.toSeq)
+}
+
 
 case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] with TupleTerm {
   def eval(env: Env) = {
