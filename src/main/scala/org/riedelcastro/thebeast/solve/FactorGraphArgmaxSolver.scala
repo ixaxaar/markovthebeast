@@ -20,7 +20,7 @@ trait FactorGraphArgmaxSolver extends ArgmaxSolver {
 
   def argmax(term: DoubleTerm) = {
     term match {
-      case x: Sum => {
+      case x: Sum[_] => {
         val graph = createFactorGraph
         graph.addTerms(x.args)
         solve();

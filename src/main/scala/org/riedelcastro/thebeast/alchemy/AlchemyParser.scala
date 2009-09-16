@@ -195,7 +195,7 @@ class MLN {
       }
       case AlchemyParser.Atom(predName, args) => {
         predicates.get(predName) match {
-          case Some(Var(varName, values)) =>
+          case Some(Predicate(varName, values)) =>
           case None => {
             val types = new ArrayBuffer[Values[_]]
             for (arg <- args) arg match {
@@ -207,11 +207,11 @@ class MLN {
                 //add uniqueness constraint
               }
             }
-            val predicate: Var[FunctionValue[Any, Boolean]] = types.size match {
+            val predicate:Predicate[Any] = types.size match {
               case 0 => error("Can't do 0 arguments")
-              case 1 => Var(predName, new FunctionValues(types(0), Bools))
-              case 2 => Var(predName, new FunctionValues(TupleValues2(types(0), types(1)), Bools))
-              case 3 => Var(predName, new FunctionValues(TupleValues3(types(0), types(1), types(2)), Bools))
+              case 1 => Predicate(predName, new FunctionValues(types(0), Bools))
+              case 2 => Predicate(predName, new FunctionValues(TupleValues2(types(0), types(1)), Bools))
+              case 3 => Predicate(predName, new FunctionValues(TupleValues3(types(0), types(1), types(2)), Bools))
               case _ => error("Can't do more than 3 arguments yet")
             }
             predicates(predName) = predicate
@@ -271,9 +271,10 @@ class MLN {
 
     def build(formula: Formula): BooleanTerm = {
       formula match {
-        case Atom(name, args) => BooleanFunApp(getPredicate(name), TupleTerm(convertArgs(name, args)))
+        case Atom(name, args) => BooleanFunApp(getPredicate(name), TupleTerm(convertArgs(name, args):_*))
         case And(lhs, rhs) => env.booleans.AndApp(build(lhs), build(rhs))
         case Implies(lhs, rhs) => env.booleans.ImpliesApp(build(lhs), build(rhs))
+        case Equivalence(lhs, rhs) => env.booleans.EquivalenceApp(build(lhs), build(rhs))
         case _ => error("We don't support a " + formula + " formula yet")
       }
     }
@@ -325,15 +326,17 @@ class MLN {
     converted
   }
 
-  private def getType(typeName: String): Values[_] = {
+  def getType(typeName: String): Values[_] = {
     values.getOrElseUpdate(typeName, new MutableValues)
   }
 
-  private def getPredicate(name: String): Var[FunctionValue[Any, Boolean]] = predicates(name)
+  def getPredicate(name: String): Predicate[Any] = predicates(name)
+
+  def getFormula(index:Int) = formulae(index)
 
   private val values = new HashMap[String, Values[_]]
   private val formulaeIds = new HashMap[Formula, String]
-  private val predicates = new HashMap[String, Var[FunctionValue[Any, Boolean]]]
+  private val predicates = new HashMap[String, Predicate[Any]]
   private val formulae = new ArrayBuffer[VectorTerm]
   private val weights = new Vector
 

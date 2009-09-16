@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env
 
 
 import collection.mutable.{HashSet, MapProxy}
+import tuples.TupleValues
 import util.Util
 
 /**
@@ -14,7 +15,17 @@ trait Values[+T] extends Iterable[T] {
 
   def createVariable(name: String): Var[T] = new Var(name, this)
 
-  def size:Int = toSeq.size
+  def size: Int = toSeq.size
+
+  def arity = this match {
+    case v: TupleValues => v.productArity
+    case _ => 1
+  }
+
+  def argType(arg: Int): Values[Any] = this match {
+    case v: TupleValues => v.productElement(arg).asInstanceOf[Values[Any]]
+    case _ => if (arg != 0) error("Not tuple values, argType makes no sense") else this
+  }
 
 }
 
@@ -22,7 +33,7 @@ class MutableValues[T] extends HashSet[T] with Values[T] {
   override def size = super.size
 }
 
-class IntRangeValues(val from:Int, val to:Int) extends Range(from,to+1,1) with Values[Int] {
+class IntRangeValues(val from: Int, val to: Int) extends Range(from, to + 1, 1) with Values[Int] {
   override def size = super.size
 }
 
@@ -45,6 +56,7 @@ case class FunctionValues[T, R](val domain: Values[T], val range: Values[R]) ext
     f ++= map
     f
   }
+
 }
 
 case class SingletonFunction[T, R](val signature: FunctionValues[T, R], val value: R) extends FunctionValue[T, R] {
