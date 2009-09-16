@@ -69,7 +69,7 @@ case class AddApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunApp(
 case class TimesApp(lhs: DoubleTerm, rhs: DoubleTerm) extends DoubleFunApp(FunApp(Constant(Times), lhs), rhs) {
   override def upperBound = Math.max(lhs.upperBound * rhs.upperBound, 0.0)
 }
-case class Sum(override val args: Seq[DoubleTerm]) extends Fold[Double](Constant(Add), args, Constant(0.0))
+case class Sum[+T<:DoubleTerm](override val args: Seq[T]) extends Fold[Double](Constant(Add), args, Constant(0.0))
         with DoubleTerm {
   def upperBound = args.foldLeft(0.0) {(b, a) => b + a.upperBound}
 
@@ -116,7 +116,8 @@ object AlchemyIndicator {
   def toSeq(boolTerm:BooleanTerm): Seq[DoubleTerm] = null   
 }
 
-case class AlchemyIndicator(boolTerm:BooleanTerm) extends Sum(AlchemyIndicator.toSeq(boolTerm)){
+case class AlchemyIndicator(boolTerm:BooleanTerm)
+        extends Sum(boolTerm.toCNF.args.map(a=>TimesApp(Indicator(a),DoubleConstant(1.0/boolTerm.toCNF.args.size)))){
 }
 
 case class DoubleFunApp[T](override val function: Term[T => Double], override val arg: Term[T])

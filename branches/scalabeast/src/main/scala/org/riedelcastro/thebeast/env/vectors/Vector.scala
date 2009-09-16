@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env.vectors
 
 
 import collection.mutable.{HashMap}
+import util.SimpleNamed
 /**
  * @author Sebastian Riedel
  */
@@ -57,18 +58,17 @@ class Vector {
 }
 
 
-
-case object VectorAdd extends (Vector=>(Vector=>Vector)){
+case object VectorAdd extends (Vector=>(Vector=>Vector)) with SimpleNamed{
   def apply(lhs:Vector) = (rhs:Vector) => lhs.add(rhs,1.0)
 
 
 }
 
-case object VectorDot extends (Vector=>(Vector=>Double)){
+case object VectorDot extends (Vector=>(Vector=>Double)) with SimpleNamed {
   def apply(lhs:Vector) = (rhs:Vector) => lhs.dot(rhs)
 }
 
-case object VectorScalar extends (Vector=>(Double=>Vector)){
+case object VectorScalar extends (Vector=>(Double=>Vector)) with SimpleNamed {
   def apply(lhs:Vector) = (rhs:Double) => lhs.scalar(rhs)
 }
 

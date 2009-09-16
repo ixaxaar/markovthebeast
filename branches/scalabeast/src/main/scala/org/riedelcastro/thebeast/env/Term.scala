@@ -1,5 +1,8 @@
 package org.riedelcastro.thebeast.env
 
+
+import tuples.TupleValues
+
 /**
  * @author Sebastian Riedel
  */
@@ -41,8 +44,6 @@ trait Term[+T] {
    * All immediate subterms of this term
    */
   def subterms: Seq[Term[Any]]
-
-
 
 }
 
@@ -107,6 +108,11 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
   def subterms = Seq()
 }
 
+case class FunctionVar[T,R](override val name:String,override val values:FunctionValues[T,R]) extends Var(name,values) {
+}
+
+case class Predicate[T](override val name:String,override val values:FunctionValues[T,Boolean]) extends FunctionVar(name,values)
+
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
   override def eval(env: Env) = {
     val evalFun = env.eval(function);
@@ -152,7 +158,7 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
       FunAppVar(function.asInstanceOf[FunApp[Any, T => R]].asFunAppVar, arg.asInstanceOf[Constant[T]].value)
 
 
-  def ground(env: Env) = FunApp(function.ground(env), arg.ground(env))
+  def ground(env: Env):Term[R] = FunApp(function.ground(env), arg.ground(env))
 
   override def toString = function.toString + "(" + arg.toString + ")"
 
@@ -183,7 +189,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
 
   def ground(env: Env) = Fold(function.ground(env), args.map(a => a.ground(env)), init.ground(env))
 
-  override def toString = function.toString + "(" + init + "):" + args
+  override def toString = function.toString + "(" + init + "):" + args.mkString(",")
 
 
   override def eval(env: Env) = {
