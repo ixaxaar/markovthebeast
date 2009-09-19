@@ -1,14 +1,15 @@
 package org.riedelcastro.thebeast.env
 
 
-import specs.runner.JUnit
+import specs.runner.{JUnit4, JUnit}
 import specs.Specification
 
 /**
  * @author Sebastian Riedel
  */
 
-class MutableEnvSpecification extends Specification with TheBeastEnv with JUnit {
+class MutableEnvTest extends JUnit4(MutableEnvSpecification)
+object MutableEnvSpecification extends Specification with TheBeastEnv with JUnit {
   "A Mutable Environment" should {
     "set atomic variables to values" in {
       var x = "x" <~ Values(1,2,3)

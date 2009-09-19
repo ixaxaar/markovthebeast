@@ -10,7 +10,6 @@ import org.specs.runner.JUnit4
  * @author Sebastian Riedel
  */
 class SumProductBeliefPropagationTest extends JUnit4(SumProductBeliefPropagationSpecification)
-
 object SumProductBeliefPropagationSpecification extends Specification with TheBeastEnv with AppleTreeFixtures {
   "Sum Product BP" should {
     "calculate exact marginals in a tree" in {

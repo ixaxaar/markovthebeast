@@ -11,8 +11,6 @@ import util.SimpleNamed
 class Vector {
   private val store = new HashMap[Any, Double] {
     override def default(a: Any) = {
-      println(defaultsForFirstKey)
-      println(a)
       a match {
 
         case seq: Seq[_] => defaultsForFirstKey(seq(0))

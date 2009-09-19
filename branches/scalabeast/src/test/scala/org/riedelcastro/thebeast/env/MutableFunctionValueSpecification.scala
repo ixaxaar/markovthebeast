@@ -2,11 +2,13 @@ package org.riedelcastro.thebeast.env
 
 
 import org.specs._
+import runner.JUnit4
 
 /**
  * @author Sebastian Riedel
  */
-class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
+class MutableFunctionTest extends JUnit4(MutableFunctionValueSpecification)
+object MutableFunctionValueSpecification extends Specification with TheBeastEnv {
   "A mutable function value" should {
     "store a mapping" in {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B"))
@@ -32,10 +34,9 @@ class MutableFunctionValueSpecification extends Specification with TheBeastEnv {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B")).close
       f(1) = "B"
       val sources = f.getSources(Some("A"))
-      println(sources)
       //sources mu
       //sources  3
-
+      //todo this spec
       1 must_== 1
       
       //f.close(2) must_== "A"
