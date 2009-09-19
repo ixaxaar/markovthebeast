@@ -37,7 +37,7 @@ class TimingTracker extends Tracker {
 
 
 object Trackers extends ArrayBuffer[Tracker]{
-  this += new TimingTracker 
+  //this += new TimingTracker 
 
 
 }

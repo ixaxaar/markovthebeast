@@ -80,8 +80,6 @@ class SumProductBeliefPropagation extends MarginalInference {
       case _ => graph.addTerm(term)
     }
 
-    println(graph.factors)
-
     while (graph.updateMessages > 0.0001) {} 
     //graph.updateMessages
 

@@ -1,14 +1,15 @@
 package org.riedelcastro.thebeast.env.vectors
 
 
-import specs.runner.JUnit
+import specs.runner.{JUnit4, JUnit}
 import specs.Specification
 
 /**
  * @author Sebastian Riedel
  */
 
-class VectorSpecification extends Specification with TheBeastEnv with JUnit {
+class VectorTest extends JUnit4(VectorSpecification)
+object VectorSpecification extends Specification with TheBeastEnv with JUnit {
   "A Vector" should {
     "add values in place" in {
       var x = new Vector
@@ -28,20 +29,17 @@ class VectorSpecification extends Specification with TheBeastEnv with JUnit {
     "store values" in {
       var x = new Vector
       x.set(1.0,1)
-      println(x)      
       x.get(1) must_== 1.0
     }
     "store values for multi-dimensional indices" in {
       var x = new Vector
       x.set(1.0,1,"A")
-      println(x)
       x.get(1,"A") must_== 1.0
     }
     "set default values depending on first key" in {
       var x = new Vector
       x.set(1.0,1,"A")
       x.setDefaultForFirstKey(1,100.0)
-      println(x)
       x.get(1,"C") must_== 100.0
     }
   }

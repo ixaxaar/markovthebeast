@@ -24,8 +24,6 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     val values = domain.map(v => v.values.toStream)
     var cartesian = Util.Cartesian.cartesianProduct(values)
 
-    println(domain)
-
     for (tuple <- cartesian) {
       for (index <- 0 until domain.size) {
         env += (domain(index) -> tuple(index))
@@ -38,7 +36,6 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
       }
       
     }
-    println("marginal beliefs:" + beliefs)
     **|
     beliefs
   }
