@@ -107,7 +107,7 @@ case class BooleanFunApp[T](override val function: Term[T => Boolean], override 
   def upperBound = true
 
   //todo: this is bad, ideally this should remain empty here and in FunApp
-  override def ground(env: Env): BooleanTerm = null
+  override def ground(env: Env): BooleanTerm = BooleanFunApp(function.ground(env),arg.ground(env))
 
   def negate: BooleanTerm = NotApp(this)
 

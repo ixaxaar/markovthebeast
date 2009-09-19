@@ -20,7 +20,7 @@ trait Env {
   def overlay(over: Env) = new OverlayedEnv(this, over)
 
   def variables: Set[EnvVar[_]]
-
+  
 }
 
 

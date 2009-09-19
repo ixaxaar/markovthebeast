@@ -180,7 +180,7 @@ class MLN {
    * that before atoms can be loaded an MLN with the mentioned
    * predicates has to be loaded. 
    */
-  def loadAtoms(reader: Reader): Env = {
+  def loadAtoms(reader: Reader): MutableEnv = {
     //this loads atoms from a database file and updates/adds types, predicates etc.
     val atoms = AlchemyParser.parse(AlchemyParser.database, reader) match {
       case Success(expr,_) => expr
