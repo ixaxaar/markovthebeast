@@ -16,14 +16,16 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 
   def ~>(rhs: BooleanTerm) = ImpliesApp(this, rhs)
 
+  def <~>(rhs: BooleanTerm) = EquivalenceApp(this, rhs)
+
   def ground(env: Env): BooleanTerm
 
   lazy val toCNF: CNF = moveInNegation.distributeAnds.flatten match {
-    case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x))))
+    case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x)))).trim
     case Conjunction(args) => CNF(args.map(a => a match {
       case x: Disjunction[_] => x.flatten
       case x => Disjunction(Seq(x))
-    }))
+    })).trim
     case _ => error("After moving in negations and distributing ands the term must be a constant or conjunction")
   }
 
@@ -34,10 +36,6 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
   def distributeAnds: BooleanTerm = this
 
   def flatten: BooleanTerm
-
-  def isAlwaysTrue: Boolean = false
-
-  def isAlwaysFalse: Boolean = false
 
 }
 
@@ -83,6 +81,8 @@ case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
 case class CNF(override val args: Seq[Disjunction[BooleanTerm]]) extends Conjunction(args) {
   override def ground(env: Env): CNF = CNF(args.map(_.ground(env).asInstanceOf[Disjunction[BooleanTerm]]))
+
+  def trim = CNF(args.filter(d=> !d.args.exists(x=>d.args.exists(y=>x == NotApp(y)))))
 }
 
 case class DNF(override val args: Seq[Conjunction[BooleanTerm]]) extends Disjunction(args) {

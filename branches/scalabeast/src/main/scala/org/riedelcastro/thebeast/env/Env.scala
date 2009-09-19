@@ -142,6 +142,9 @@ class MutableEnv extends Env {
   def mapTo[T](envVar: EnvVar[T]) = new VarWithEnv(envVar, this)
 
   def variables = values.keySet.asInstanceOf[Set[EnvVar[_]]]
+
+
+  override def toString = values.toString
 }
 
 case class VarWithEnv[T](envVar: EnvVar[T], env: MutableEnv) {

@@ -39,9 +39,11 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   def mln: Parser[List[Expression]] = rep(expression)
 
-  def database: Parser[List[Atom]] = rep(atom)
-
   def atom: Parser[Atom] = UpperCaseID ~ "(" ~ termList ~ ")" ^^ {case s ~ "(" ~ terms ~ ")" => Atom(s, terms)}
+
+  def databaseAtom: Parser[Atom] = UpperCaseID ~ "(" ~ groundedTermList ~ ")" ^^ {case s ~ "(" ~ terms ~ ")" => Atom(s, terms)}
+
+  def database: Parser[List[Atom]] = rep(databaseAtom) ^^ {case t => t}
 
   def and: Parser[And] = (atom ~ "^" ~ formula) ^^ {case lhs ~ "^" ~ rhs => And(lhs, rhs)}
 
@@ -57,7 +59,13 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   def termList: Parser[List[Term]] = repsep(term, ",") ^^ {case t => t}
 
+  def groundedTermList: Parser[List[Term]] = repsep(groundedTerm, ",") ^^ {case t => t}
+
+
   def term: Parser[Term] = (variable | constant | exclType | plusVariable)
+
+  def groundedTerm: Parser[Term] = (constant)
+
 
   def variable: Parser[VariableOrType] = LowerCaseID ^^ {s => VariableOrType(s)}
 
@@ -174,10 +182,32 @@ class MLN {
    */
   def loadAtoms(reader: Reader): Env = {
     //this loads atoms from a database file and updates/adds types, predicates etc.
-    val atoms = AlchemyParser.parse(AlchemyParser.database, reader)
-
-    null
+    val atoms = AlchemyParser.parse(AlchemyParser.database, reader) match {
+      case Success(expr,_) => expr
+      case x => error("Can't parse:" + x)
+    }
+    val env = new MutableEnv
+    for (atom <- atoms) atom match {
+      case Atom(name,args) => {
+        val predicate = getPredicate(name)
+        env.mapTo(predicate)(toTuple(args.map(toValue(_)))) -> true
+      }
+    }
+    env
   }
+
+  private def toValue(any:Any) = any match {
+    case Constant(x) => x
+    case _ => any
+  }
+
+  private def toTuple(args:Seq[Any]) = args.size match {
+    case 1 => args(0)
+    case 2 => (args(0),args(1))
+    case 3 => (args(0),args(1),args(2))
+    case _ => error("Can't do arity " + args.size + " yet")
+  }
+
 
   def loadMLN(reader: Reader) = {
     val expressions = AlchemyParser.parse(AlchemyParser.mln, reader) match {
@@ -245,15 +275,6 @@ class MLN {
     else QuantifiedVectorSum(first, createVectorSum(formula, variables - first))
   }
 
-  private def createVectorFormula(formula: Formula): VectorTerm = {
-    //first create equivalent boolean formula from formula
-    val bool = new BoolTermBuilder().build(formula)
-    //then wrap AlchemyIndicator around it (maps to double)
-    val indicator = AlchemyIndicator(bool)
-    //then multiply by unit vector that has the following index:
-    //1_(FORMULA_ID, plus_var1, plus_var2,...)
-    null
-  }
 
 
   private class BoolTermBuilder {
@@ -299,6 +320,8 @@ class MLN {
   private def addFormula(formula: Formula, weight: Double): VectorTerm = {
     //the id of this formula
     val id = formulaeIds.getOrElseUpdate(formula, "F" + formulaeIds.size)
+    //set init value for weight
+    weights.setDefaultForFirstKey(id,weight)
     //formula builder
     val builder = new BoolTermBuilder
     //build boolean formula
@@ -333,6 +356,8 @@ class MLN {
   def getPredicate(name: String): Predicate[Any] = predicates(name)
 
   def getFormula(index:Int) = formulae(index)
+
+  def getWeights = weights
 
   private val values = new HashMap[String, Values[_]]
   private val formulaeIds = new HashMap[Formula, String]
