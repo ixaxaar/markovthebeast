@@ -2,13 +2,15 @@ package org.riedelcastro.thebeast.solve
 
 
 import env.{FunAppVar, Values, TheBeastEnv}
+import specs.runner.JUnit4
 import specs.Specification
 
 /**
  * @author Sebastian Riedel
  */
+class ExhaustiveMarginalInferenceTest extends JUnit4(ExhaustiveMarginalInferenceSpecification)
 
-class ExhaustiveMarginalInferenceSpecification extends Specification with TheBeastEnv {
+object ExhaustiveMarginalInferenceSpecification extends Specification with TheBeastEnv {
   "Exhaustive Marginal Inference" should {
     "find the exact marginals" in {
       val Persons = Values("Mika", "Sebastian")
