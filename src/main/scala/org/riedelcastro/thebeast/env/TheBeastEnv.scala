@@ -123,9 +123,19 @@ trait TheBeastEnv {
     def apply(t: Term[T]) = DoubleFunApp(fun, t)
   }
 
-  implicit def term2booleanFunAppBuilder[T >: AnyVal](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
-    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+//  implicit def term2booleanFunAppBuilder[T >: AnyVal](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
+//    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+//  }
+
+  implicit def term2booleanFunAppBuilder(fun: Term[Any => Boolean]) = new (Term[Any] => BooleanFunApp[Any]) {
+    def apply(t: Term[Any]) = BooleanFunApp(fun, t)
   }
+
+//  implicit def anyterm2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[Any, Boolean]]) = new {
+//    def apply(t: TupleTerm2[Any, Any]) = BooleanFunApp(fun, t)
+//    def apply(t1: Term[Any], t2: Term[Any]) = BooleanFunApp(fun, TupleTerm2(t1, t2))
+//  }
+
 
   implicit def tuple2term2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[(T1, T2), Boolean]]) = new (TupleTerm2[T1, T2] => BooleanFunApp[(T1, T2)]) {
     def apply(t: TupleTerm2[T1, T2]) = BooleanFunApp(fun, t)
@@ -192,6 +202,7 @@ trait TheBeastEnv {
   }
 
   def $(term: BooleanTerm) = Indicator(term)
+  def $$(term: BooleanTerm) = AlchemyIndicator(term)
 
 
   def intSum[T](values: Values[T])(formula: Var[T] => Term[Int]) = {

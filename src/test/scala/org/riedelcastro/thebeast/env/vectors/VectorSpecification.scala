@@ -37,5 +37,12 @@ class VectorSpecification extends Specification with TheBeastEnv with JUnit {
       println(x)
       x.get(1,"A") must_== 1.0
     }
+    "set default values depending on first key" in {
+      var x = new Vector
+      x.set(1.0,1,"A")
+      x.setDefaultForFirstKey(1,100.0)
+      println(x)
+      x.get(1,"C") must_== 100.0
+    }
   }
 }
