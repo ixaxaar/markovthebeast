@@ -1,0 +1,529 @@
+#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Extendable Markov Logic (ExML)
+\end_layout
+
+\begin_layout Abstract
+Markov Logic has been very succesful
+\end_layout
+
+\begin_layout Abstract
+At the same time, it remains in flux: new language concepts are constantly
+ introduced (blocking, weight constraints, cardinality).
+ Many of them are actually not increasing the actual expressivity but make
+ inference easier.
+ 
+\end_layout
+
+\begin_layout Abstract
+This suggests a language/framework that accomodates for new extensions or
+ subsets to the language while re-using a maximal amount of existing infrastruct
+ure.
+ 
+\end_layout
+
+\begin_layout Abstract
+We therefore propose 
+\noun on
+Extendable Markov Logic
+\noun default
+, a language that centers around variables, possible worlds and the notion
+ of scoring or prob functions over possible worlds.
+ In Ex Markov Logic the developer gets to compose these prob functions.
+ The core ML building blocks are quantifications, boolean connectives and
+ indicator functions that map boolean values to real values.
+ These allow to reproduce Markov Logic in a very intuitive fashion.
+ 
+\end_layout
+
+\begin_layout Abstract
+However, the core feature of ExML is that it allows us to readily define
+ new building blocks of scoring functions.
+ This can be used to directly implement blocking etc.
+ It can also be used to introduce novel blocks, such as cardinality constraints,
+ or acyclicity constraints.
+ 
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Markov Logic has been successfully applied for various tasks, and is currently
+ gaining momentum as the leading probababilistic programming language.
+ This is probably due to various reasons: its expressivity, its simplicity,
+ the active development of an interpreter, etc.
+ However, when looking at the history of Markov Logic, as well as its main
+ software manifestiation, alchemy, another reason becomes apparent.
+ Markov Logic is actually a somewhat fluent, evolving language that has
+ been accomodating new constructs as see fit.
+ For example, the plus-notation, blocking syntax, hybrid markov logic, etc.
+ 
+\end_layout
+
+\begin_layout Standard
+We argue that this flexibility, or evolution, is essential for the further
+ progress of Markov Logic as interface language between applications and
+ AI technology.
+ In particular, we think that Markov Logic will need to accomodate more
+ types of constraints and expressions than predicates, conjunctions and
+ quantifications.
+ This is best exemplified in the need of tree constraint expressions.
+ While it is possible to use FOL to define a certain predicate to be a tree,
+ it generally leads to hard inference problems.
+ However, there exists a multitude of methods for inference with tree constraint
+s.
+ By default ML, as interface to AI technology, discards all this methods
+ and sees everything as clauses.
+ Another example are CPTs: while a MLN can represent each finite distribution,
+ it discards the structure both for learning and testing.
+ 
+\end_layout
+
+\begin_layout Standard
+In this work we therefore present a framework that will allow Markov Logic
+ to grow in the above presented ways.
+ This is done by extracting what we think are the essential aspects of Markov
+ Logic: the declarative construction/assembly of scoring functions for possible
+ worlds based on quantified formulae and real valued terms over structured
+ first order variables.
+ We provide default building blocks for this assembly, but more importantly,
+ we provide ways to add new types of building blocks, such as a tree constraint.
+ Finally, we present means for inference and learning for models (scoring
+ functions) that include user provided building blocks.
+ 
+\end_layout
+
+\begin_layout Standard
+The first embodiement of ExML is implemented in Scala.
+ This allows us to avoid designing and own syntax for our language---all
+ expressions are realized through operator overloading and other techiques
+ within Scala.
+ It also allows tight integration and the possibility to generate templates.
+ It also makes the definition of new building blocks hassle-free.
+\end_layout
+
+\begin_layout Standard
+Note that ExML also allows variables to be a) propositional, b) functions
+ (over functions) and c) categorical values.
+ Again, while we can use ML to simulate such variables, our framework is
+ cleaner, leads to better inference (or easier to find tractable substructure).
+ 
+\end_layout
+
+\begin_layout Section
+Variables and Possible Worlds
+\end_layout
+
+\begin_layout LyX-Code
+val link12 = 
+\begin_inset Quotes eld
+\end_inset
+
+link12
+\begin_inset Quotes erd
+\end_inset
+
+ <- Bools
+\end_layout
+
+\begin_layout LyX-Code
+val link23 = ...
+\end_layout
+
+\begin_layout LyX-Code
+val link13 = ...
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout Standard
+In Markov Logic we trying seeking to find the extensions of predicates,
+ or the state or marginal beliefs of ground atoms.
+ In Ex-Markov Logic slightly extend this notion to general variables.
+ For example 
+\end_layout
+
+\begin_layout LyX-Code
+val age = 
+\begin_inset Quotes eld
+\end_inset
+
+age
+\begin_inset Quotes erd
+\end_inset
+
+ <- Ints(0,120)
+\end_layout
+
+\begin_layout Standard
+is a variable that can take integer values from 0 to 120.
+ 
+\end_layout
+
+\begin_layout Standard
+A possible world is a assignment from variables to values.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+val world = new MutableWorld
+\end_layout
+
+\begin_layout LyX-Code
+world(age) = 20
+\end_layout
+
+\begin_layout Standard
+Variables can also be functions, and hence predicates:
+\end_layout
+
+\begin_layout LyX-Code
+val age = 
+\begin_inset Quotes eld
+\end_inset
+
+age
+\begin_inset Quotes erd
+\end_inset
+
+ <- Ints(0,120) x Persons -> Bools
+\end_layout
+
+\begin_layout Standard
+again, a possible world is a mapping from variables to their values.
+ In this case
+\end_layout
+
+\begin_layout LyX-Code
+world(age) = Function((12,
+\begin_inset Quotes erd
+\end_inset
+
+Anna
+\begin_inset Quotes erd
+\end_inset
+
+)->true, ...) //or
+\end_layout
+
+\begin_layout LyX-Code
+world(age(12,
+\begin_inset Quotes erd
+\end_inset
+
+Anna
+\begin_inset Quotes erd
+\end_inset
+
+)) = true
+\end_layout
+
+\begin_layout Standard
+note that functions can also be point to functions.
+ 
+\end_layout
+
+\begin_layout Section
+Terms and Scoring Functions
+\end_layout
+
+\begin_layout Standard
+A Markov Logic Network is a probability or score function defined over possible
+ worlds.
+ In ExML we follow the same path.
+ However, we break the scoring function into building blocks.
+ These blocks essentially correspond to the terms we find in the actual
+ definition of MLNs, and actually the definitions of scoring functions in
+ research papers.
+ The main unit of these scoring function are terms.
+ A term is simply a symbolic value that can be evaluated to a an actual
+ value given a possible world.
+ For example, a variable is a term.
+\end_layout
+
+\begin_layout LyX-Code
+age
+\end_layout
+
+\begin_layout Standard
+For a given possible world, this term can be resolved to be, say, 12, by
+ replacing age with its value in the possible world.
+ The same holds for 
+\end_layout
+
+\begin_layout LyX-Code
+age + age
+\end_layout
+
+\begin_layout Standard
+Here the term is recursively resolved in the natural way.
+ 
+\end_layout
+
+\begin_layout Standard
+How can this be used to define a scoring function? We define scoring functions
+ simply as real valued terms.
+ So together with a Cast ToDouble function to real values, this is a scoring
+ function
+\end_layout
+
+\begin_layout LyX-Code
+IntToDouble(age+age)
+\end_layout
+
+\begin_layout Standard
+Surely this is not a sensible one in any sense.
+ However, this one is a bit more:
+\end_layout
+
+\begin_layout LyX-Code
+BoolToDouble(age==12) * 100.0 + BoolToDouble(age=13) * 50.0
+\end_layout
+
+\begin_layout Standard
+Giving the score 100.0 to a world where age is ...
+ Note that this already quite close to an MLN
+\end_layout
+
+\begin_layout Subsection
+Quantification
+\end_layout
+
+\begin_layout Standard
+The above presents terms and double/real terms as the building blocks that
+ make up scoring functions.
+ However, so far we can't generalize.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+quantified(Sum,Persons) {p => $(age(p,12)) * 100.0}
+\end_layout
+
+\begin_layout Standard
+We would write
+\end_layout
+
+\begin_layout LyX-Code
+forall(Values) = quantified(And,Values)
+\end_layout
+
+\begin_layout LyX-Code
+exists(Values) = quantified(Or,Values)
+\end_layout
+
+\begin_layout LyX-Code
+sum(Values) = quantified(Sum,Values)
+\end_layout
+
+\begin_layout Standard
+and so forth.
+ 
+\end_layout
+
+\begin_layout Standard
+In fact we are now ready to specify MLNs, and their propositional counter-parts.
+ However, we can already do much more:
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 2.0}
+\end_layout
+
+\begin_layout Subsection
+Vectors
+\end_layout
+
+\begin_layout Standard
+Many probabilistic models are represented as 
+\begin_inset Formula \[
+exp\left(f\left(\mathbf{x},\mathbf{y}\right)^{\top}\mathbf{w}\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here the moments, parameters of the probabilistic model are clearly separated
+ fromt he structural part.
+ However, in our current scoring function this is not the case.
+ we could write
+\end_layout
+
+\begin_layout LyX-Code
+vectorsum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 1_(
+\begin_inset Quotes eld
+\end_inset
+
+age
+\begin_inset Quotes erd
+\end_inset
+
+,p)}
+\end_layout
+
+\begin_layout Standard
+here 1_(p) is the unit vector active at component p.
+ Now we have a representation of the feature function.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * w_age(p)}
+\end_layout
+
+\begin_layout Standard
+but this requires a new variable (w_age) for each formula.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\nexists\ \]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Alchemy Style Markov Logic
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x)) * 1.0 + $(b(x)) * 1.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 1_(x)
+\end_layout
+
+\begin_layout LyX-Code
+AlchemyTerm(BooleanTerm) extends Sum(...)
+\end_layout
+
+\begin_layout LyX-Code
+Individisble(BooleanTerm) extends BooleanTerm
+\end_layout
+
+\begin_layout Section
+Extending Extentable Markov Logic
+\end_layout
+
+\begin_layout Subsection
+Trees
+\end_layout
+
+\begin_layout LyX-Code
+tree(link,word)
+\end_layout
+
+\begin_layout Itemize
+Network flow representation in ILP
+\end_layout
+
+\begin_layout Itemize
+Separation algorithm
+\end_layout
+
+\begin_layout Itemize
+Matrix Tree theorem
+\end_layout
+
+\begin_layout Subsection
+Similarity Logic
+\end_layout
+
+\begin_layout Subsection
+Cardinality Constraints
+\end_layout
+
+\begin_layout Section
+Inference and Learning
+\end_layout
+
+\begin_layout Subsection
+Trees
+\end_layout
+
+\begin_layout LyX-Code
+val submodel = x + y + z ...
+\end_layout
+
+\begin_layout LyX-Code
+submodel.inferMarginalsWith()
+\end_layout
+
+\begin_layout Subsection
+Hooks
+\end_layout
+
+\begin_layout Subsection
+Generalized MWS
+\end_layout
+
+\begin_layout Subsection
+Gradient Based & Online Learning
+\end_layout
+
+\begin_layout Section
+Examples
+\end_layout
+
+\end_body
+\end_document
