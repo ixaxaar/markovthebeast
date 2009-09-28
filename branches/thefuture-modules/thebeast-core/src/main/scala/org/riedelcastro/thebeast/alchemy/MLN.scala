@@ -140,6 +140,7 @@ class MLN {
         case And(lhs, rhs) => env.booleans.AndApp(build(lhs), build(rhs))
         case Implies(lhs, rhs) => env.booleans.ImpliesApp(build(lhs), build(rhs))
         case Equivalence(lhs, rhs) => env.booleans.EquivalenceApp(build(lhs), build(rhs))
+        case Not(arg) => env.booleans.NotApp(build(arg))
         case _ => error("We don't support a " + formula + " formula yet")
       }
     }
@@ -200,6 +201,8 @@ class MLN {
   def getPredicate(name: String): Predicate[Any] = predicates(name)
 
   def getFormula(index:Int) = formulae(index)
+
+  def getFormulae:Seq[VectorTerm] = formulae
 
   def getWeights = weights
 

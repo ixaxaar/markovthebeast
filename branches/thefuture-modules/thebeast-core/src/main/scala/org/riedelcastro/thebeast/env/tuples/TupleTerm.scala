@@ -13,6 +13,9 @@ trait TupleTerm extends scala.Product {
   def subterms: Seq[Term[Any]] = {
     for (i <- 0 until productArity) yield productElement(i).asInstanceOf[Term[Any]]
   }
+
+
+  override def toString = (for (i <- 0 until productArity) yield productElement(i)).mkString(",")
 }
 
 object TupleTerm {
