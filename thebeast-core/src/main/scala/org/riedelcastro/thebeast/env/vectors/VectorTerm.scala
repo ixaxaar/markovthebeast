@@ -134,4 +134,6 @@ case class QuantifiedVectorSum[T](override val variable: Var[T], override val fo
   }
   override def ground(env: Env) = unroll.ground(env)
 
+
+  override def toString = "vSum(" + variable + "," + formula + ")"
 }

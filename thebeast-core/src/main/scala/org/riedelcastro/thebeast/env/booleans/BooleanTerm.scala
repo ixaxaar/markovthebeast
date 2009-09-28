@@ -21,12 +21,14 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
   def ground(env: Env): BooleanTerm
 
   lazy val toCNF: CNF = moveInNegation.distributeAnds.flatten match {
-    case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x)))).trim
+    case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x))))
     case Conjunction(args) => CNF(args.map(a => a match {
       case x: Disjunction[_] => x.flatten
       case x => Disjunction(Seq(x))
     })).trim
-    case _ => error("After moving in negations and distributing ands the term must be a constant or conjunction")
+    case x: NotApp => CNF(Seq(Disjunction(Seq(x))))
+    case x => error("After moving in negations and distributing ands the term must be a constant or conjunction" +
+            " pr a literal and not a " + x)
   }
 
   def negate: BooleanTerm
@@ -45,7 +47,7 @@ case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
   def upperBound = !args.exists(!_.upperBound)
 
-  def negate = Disjunction(args.map(_.moveInNegation))
+  def negate = Disjunction(args.map(_.negate))
 
   override def distributeAnds = Conjunction(args.map(_.distributeAnds))
 
@@ -53,6 +55,8 @@ case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
   def moveInNegation = Conjunction(args.map(_.moveInNegation))
 
+
+  override def toString = args.mkString("("," & ", ")")
 }
 
 
@@ -63,7 +67,7 @@ case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
   def upperBound = args.exists(_.upperBound)
 
-  def negate = Conjunction(args.map(_.moveInNegation))
+  def negate = Conjunction(args.map(_.negate))
 
   override def distributeAnds = {
     val groups = args.map(_.distributeAnds).map(a => a match {
@@ -76,6 +80,9 @@ case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
   def flatten = Disjunction(args.flatMap(a => a.flatten match {case Disjunction(inner) => inner; case _ => Seq(a)}))
 
   def moveInNegation = Disjunction(args.map(_.moveInNegation))
+
+  override def toString = args.mkString("("," | ", ")")
+  
 
 }
 
@@ -123,7 +130,6 @@ case class OrApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(lhs
 }
 
 case class NotApp(override val arg: BooleanTerm) extends BooleanFunApp(Constant(Not), arg) {
-  override lazy val toCNF = arg.toCNF.negate.toCNF
 
   override def negate = arg
 
@@ -134,12 +140,20 @@ case class NotApp(override val arg: BooleanTerm) extends BooleanFunApp(Constant(
   override def flatten = NotApp(arg.flatten)
 
   override def moveInNegation = arg.negate
+
+  override def toString = "!" + arg
+
 }
 
-case class ImpliesApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(NotApp(lhs), rhs))
+case class ImpliesApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(NotApp(lhs), rhs)) {
+  override def toString = lhs + "=>" + rhs
+}
 
 case class EquivalenceApp(lhs: BooleanTerm, rhs: BooleanTerm)
-        extends Disjunction(Seq(Conjunction(Seq(lhs, rhs)), Conjunction(Seq(NotApp(lhs), NotApp(rhs)))))
+        extends Disjunction(Seq(Conjunction(Seq(lhs, rhs)), Conjunction(Seq(NotApp(lhs), NotApp(rhs))))){
+  override def toString = lhs + "<=>" + rhs
+
+}
 
 trait BooleanBinaryOperator extends (Boolean => (Boolean => Boolean)) with SimpleNamed
 

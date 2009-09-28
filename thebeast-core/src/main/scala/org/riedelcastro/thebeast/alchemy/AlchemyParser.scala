@@ -55,12 +55,12 @@ object AlchemyParser extends JavaTokenParsers with RegexParsers {
 
   def formula: Parser[Formula] = (binary(minPrec) | negated | atomic)
 
-  def negated: Parser[Not] = "!" ~ formula ^^ {case _ ~ f => Not(f)}
+  def negated: Parser[Not] = "!" ~ atomic ^^ {case _ ~ f => Not(f)}
 
   def expression: Parser[Expression] =
     (weightedFormula | formula | integerTypeDefinition | constantTypeDefinition | include)
 
-  def atomic: Parser[Formula] = (parens | atom)
+  def atomic: Parser[Formula] = (parens | atom | negated)
 
   def weightedFormula: Parser[WeightedFormula] =
     (NumDouble ~ formula) ^^ {case weight ~ formula => WeightedFormula(weight.toDouble, formula)}
