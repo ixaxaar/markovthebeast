@@ -27,11 +27,17 @@ trait TheBeastEnv {
 
   def one_(key: Term[Any]*) = VectorOne(key: _*)
 
+  def exp(arg: DoubleTerm) = Exp(arg)
+
+  def normalize(arg: DoubleTerm) = Normalize(arg)
+
   implicit def string2varbuilder(name: String) = new {
     def <~[T](values: Values[T]) = Var(name, values)
 
     //def in[T, R](values: FunctionValues[T, R]) = FunVar(name, values)
   }
+
+  implicit def varDouble2DoubleVar(varDouble:Var[Double]) = DoubleVar(varDouble.name,varDouble.values)
 
   //def ground(variable:Var[T], t:T)
 
@@ -181,6 +187,7 @@ trait TheBeastEnv {
 
   implicit def intTerm2IntAppBuilder(lhs: Term[Int]) = new {
     def +(rhs: Term[Int]) = FunApp(FunApp(Constant(IntAdd), lhs), rhs)
+    def <(rhs: Term[Int]) = BooleanFunApp(FunApp(Constant(IntLT), lhs), rhs)
   }
 
   implicit def doubleTerm2DoubleTermBuilder(lhs: DoubleTerm) = new {

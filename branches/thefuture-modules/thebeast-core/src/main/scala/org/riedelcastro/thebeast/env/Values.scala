@@ -13,6 +13,8 @@ trait Values[+T] extends Iterable[T] {
 
   def randomValue: T = {val seq = toSeq; seq(new scala.util.Random().nextInt(seq.size))}
 
+  def randomValue(random:scala.util.Random): T = {val seq = toSeq; seq(random.nextInt(seq.size))}
+
   def createVariable(name: String): Var[T] = new Var(name, this)
 
   def size: Int = toSeq.size
@@ -38,9 +40,15 @@ class IntRangeValues(val from: Int, val to: Int) extends Range(from, to + 1, 1) 
 }
 
 object Values {
+  def apply[T](values: Collection[T]) = new ValuesProxy(Set.empty[T] ++ values)
   def apply[T](values: T*) =
     new ValuesProxy(values.foldLeft(Set.empty[T]) {(result, v) => result ++ Set(v)})
 }
+
+object Ints {
+  def apply(values: Collection[Int]) = new ValuesProxy(Set.empty[Int] ++ values)
+}
+
 
 class ValuesProxy[T](override val self: Iterable[T]) extends Values[T] with IterableProxy[T]
 

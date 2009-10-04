@@ -1,8 +1,6 @@
 package org.riedelcastro.thebeast.env
 
 
-import tuples.TupleValues
-
 /**
  * @author Sebastian Riedel
  */
@@ -106,12 +104,14 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
 
   def subterms = Seq()
+
 }
 
 case class FunctionVar[T,R](override val name:String,override val values:FunctionValues[T,R]) extends Var(name,values) {
 }
 
-case class Predicate[T](override val name:String,override val values:FunctionValues[T,Boolean]) extends FunctionVar(name,values)
+case class Predicate[T](override val name:String,domain:Values[T])
+        extends FunctionVar(name,FunctionValues(domain,TheBeastImplicits.Bools))
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
   override def eval(env: Env) = {
@@ -203,6 +203,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
   def subterms = args ++ Seq(init)
 
   def isGround = function.isGround && init.isGround && args.forall(x => x.isGround)
+
 }
 
 

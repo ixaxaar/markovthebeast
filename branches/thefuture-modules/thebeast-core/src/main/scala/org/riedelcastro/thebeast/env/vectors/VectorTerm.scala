@@ -2,8 +2,7 @@ package org.riedelcastro.thebeast.env.vectors
 
 
 import collection.mutable.ArrayBuffer
-import doubles.{Sum, QuantifiedSum, DoubleTerm}
-
+import doubles.{DoubleFunApp, Sum, QuantifiedSum, DoubleTerm}
 /**
  * @author Sebastian Riedel
  */
@@ -77,10 +76,8 @@ case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
 }
 
 case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
-        extends FunApp(FunApp(Constant(VectorDot),lhs),rhs) with DoubleTerm {
+        extends DoubleFunApp(FunApp(Constant(VectorDot),lhs),rhs) {
   override def ground(env: Env) = VectorDotApp(lhs.ground(env),rhs.ground(env))
-
-  def upperBound = Math.POS_INF_DOUBLE
 
   def distribute : DoubleTerm = {
     lhs match {
@@ -93,6 +90,7 @@ case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
       }
     }
   }
+
 
 
   override def toString = "<" + lhs + "," + rhs + ">"

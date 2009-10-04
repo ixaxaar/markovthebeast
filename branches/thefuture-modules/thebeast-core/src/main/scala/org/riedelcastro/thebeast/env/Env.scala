@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env
 
 
 import collection.mutable.{HashMap, HashSet}
+import util.Util
 
 /**
  * @author Sebastian Riedel
@@ -23,6 +24,22 @@ trait Env {
   
 }
 
+
+object Env {
+  def forall(variables:Collection[EnvVar[Any]])(procedure:MutableEnv=>Unit) {
+    val env = new MutableEnv
+    val domain = variables.toSeq
+    val values = domain.map(v => v.values.toStream)
+    var cartesian = Util.Cartesian.cartesianProduct(values)
+
+    for (tuple <- cartesian) {
+      for (index <- 0 until domain.size) {
+        env += (domain(index) -> tuple(index))
+      }
+      procedure(env)
+    }
+  }
+}
 
 
 case class EnvComparison(env1: Env, env2: Env) {

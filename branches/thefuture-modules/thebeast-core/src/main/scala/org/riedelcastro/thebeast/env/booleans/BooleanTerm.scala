@@ -20,6 +20,9 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 
   def ground(env: Env): BooleanTerm
 
+
+  def simplify:BooleanTerm
+
   lazy val toCNF: CNF = moveInNegation.distributeAnds.flatten match {
     case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x))))
     case Conjunction(args) => CNF(args.map(a => a match {
@@ -107,6 +110,8 @@ case class BooleanConstant(override val value: Boolean) extends BoundedConstant(
   def moveInNegation = this
 
   def flatten = this
+
+  override def simplify = this
 }
 
 case class BooleanFunApp[T](override val function: Term[T => Boolean], override val arg: Term[T])
@@ -121,6 +126,15 @@ case class BooleanFunApp[T](override val function: Term[T => Boolean], override 
   def flatten = this
 
   def moveInNegation: BooleanTerm = this
+
+  override def simplify:BooleanTerm =
+    function.simplify match {
+      case Constant(f) => arg.simplify match {
+        case Constant(x) => BooleanConstant(f(x));
+        case x => BooleanFunApp(Constant(f), x)
+      }
+      case f => BooleanFunApp(f, arg.simplify)
+    }
 }
 
 

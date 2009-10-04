@@ -10,6 +10,8 @@ import doubles.{DoubleFunApp}
 
 trait Beliefs {
   def belief[T](term: Term[T]): Belief[T]
+
+  def normalize: Beliefs
 }
 
 class MutableBeliefs extends Beliefs {
@@ -27,6 +29,12 @@ class MutableBeliefs extends Beliefs {
 
   def belief[T](term: Term[T]): Belief[T] = beliefs(term).asInstanceOf[Belief[T]]
 
+
+  def normalize = {
+    val result = new MutableBeliefs
+    result.beliefs ++= beliefs.map(entry => (entry._1, entry._2.normalize))
+    result
+  }
 
   override def toString = beliefs.toString
 }

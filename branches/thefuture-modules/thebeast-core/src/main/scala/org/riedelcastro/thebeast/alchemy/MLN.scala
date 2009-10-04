@@ -83,9 +83,9 @@ class MLN {
             }
             val predicate:Predicate[Any] = types.size match {
               case 0 => error("Can't do 0 arguments")
-              case 1 => Predicate(predName, new FunctionValues(types(0), Bools))
-              case 2 => Predicate(predName, new FunctionValues(TupleValues2(types(0), types(1)), Bools))
-              case 3 => Predicate(predName, new FunctionValues(TupleValues3(types(0), types(1), types(2)), Bools))
+              case 1 => Predicate(predName, types(0))
+              case 2 => Predicate(predName, TupleValues2(types(0), types(1)))
+              case 3 => Predicate(predName, TupleValues3(types(0), types(1), types(2)))
               case _ => error("Can't do more than 3 arguments yet")
             }
             predicates(predName) = predicate
