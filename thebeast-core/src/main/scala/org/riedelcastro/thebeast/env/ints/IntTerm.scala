@@ -1,6 +1,7 @@
 package org.riedelcastro.thebeast.env.ints
 
 
+import booleans.BooleanFunApp
 import functions.BoundedConstant
 
 /**
@@ -8,6 +9,8 @@ import functions.BoundedConstant
  */
 
 trait IntTerm extends BoundedTerm[Int] {
+
+  def < (that:IntTerm) = BooleanFunApp(FunApp(Constant(IntLT),this), that)
 }
 
 
@@ -21,4 +24,9 @@ object IntAdd extends (Int => (Int => Int)) {
   override def toString = "IntAdd"
 }
 
+object IntLT extends (Int => (Int => Boolean)) {
+  def apply(arg1: Int): (Int => Boolean) = (arg2: Int) => arg1 < arg2
+
+  override def toString = "IntLT"
+}
 

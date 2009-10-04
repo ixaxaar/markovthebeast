@@ -2,7 +2,7 @@ package org.riedelcastro.thebeast.solve
 
 
 import env._
-import doubles.{Multiplication, DoubleTerm}
+import doubles._
 
 /**
  * @author Sebastian Riedel
@@ -54,7 +54,7 @@ class SumProductBeliefPropagation extends MarginalInference {
 
     protected def createEdge(node: NodeType, factor: FactorType) = SPBPEdge(node, factor)
 
-    def updateMessages() : Double = {
+    def updateMessages(): Double = {
       //synchronous edge processing
       for (factor <- factors)
         factor.updateOutgoingMessages
@@ -72,16 +72,20 @@ class SumProductBeliefPropagation extends MarginalInference {
 
 
 
+  def infer(term: DoubleTerm) = term.flatten match {
+    case Multiplication(args) => infer(args)
+    case Exp(Sum(args)) => infer(args.map(Exp(_)))
+    case Normalize(Multiplication(args)) => infer(args).normalize
+    case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
+    case _ => infer(Seq(term))
 
-  def infer(term: DoubleTerm) = {
+  }
+
+  private def infer(terms: Iterable[DoubleTerm]): Beliefs = {
     val graph = new SPBPFactorGraph
-    term match {
-      case Multiplication(args) => graph.addTerms(args)
-      case _ => graph.addTerm(term)
-    }
+    graph.addTerms(terms)
 
-    while (graph.updateMessages > 0.0001) {} 
-    //graph.updateMessages
+    while (graph.updateMessages > 0.0001) {}
 
     val result = new MutableBeliefs
     for (node <- graph.nodes)

@@ -32,20 +32,14 @@ object ExhaustiveSearch extends ArgmaxSolver with SatisfiabilitySolver with Trac
     val env = new MutableEnv
     var max: T = init
     var best = new MutableEnv
-    val domain = term.variables.toSeq
-    val values = domain.map(v => v.values.toStream)
-    var cartesian = Util.Cartesian.cartesianProduct(values)
 
-    for (tuple <- cartesian) {
-      for (index <- 0 until domain.size) {
-        env += (domain(index) -> tuple(index))
-      }
-
-      val result = env(term); 
-
-      if (max == null || larger(result, max)) {
-        max = result
-        best = env.clone
+    Env.forall(term.variables){
+      env => {
+        val result = env(term);
+        if (max == null || larger(result, max)) {
+          max = result
+          best = env.clone
+        }
       }
     }
     **|
