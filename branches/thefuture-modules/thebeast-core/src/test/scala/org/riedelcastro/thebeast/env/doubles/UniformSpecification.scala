@@ -36,6 +36,13 @@ object UniformSpecification extends Specification with TheBeastEnv {
       binding2.mapTo(to)->8.0
       binding1(term) must_!= binding2(term)
     }
+    "be grounded to independent Uniform terms that (most likely) evaluate to different random values " in {
+      val term = Uniform(0.0,1.0)
+      val binding = new MutableEnv
+      binding(term) must_!= binding(term.ground(binding))
+      binding(term.ground(binding)) must_!= binding(term.ground(binding)) 
+
+    }
   }
 
 }

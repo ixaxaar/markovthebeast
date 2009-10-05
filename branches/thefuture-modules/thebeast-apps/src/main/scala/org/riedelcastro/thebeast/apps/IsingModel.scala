@@ -19,7 +19,7 @@ object IsingModel extends TheBeastEnv {
             sum(Ints(0 until n - 1), Cols) {(x, y) => $(node(x, y) <~> node(x + 1, y)) * 0.5} +
             sum(Rows, Ints(0 until m - 1)) {(x, y) => $(node(x, y) <~> node(x, y + 1)) * 0.5}))
 
-
+    //now what? run sum product
     null
 
 

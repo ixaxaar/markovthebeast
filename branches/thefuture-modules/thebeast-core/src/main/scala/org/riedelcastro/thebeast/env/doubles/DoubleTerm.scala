@@ -217,7 +217,6 @@ case class Uniform(from: DoubleTerm, to: DoubleTerm) extends DoubleTerm {
   def isGround = from.isGround && to.isGround
 
   private val storedRandomValues = new HashMap[(Double, Double), Double]
-  private val random = new scala.util.Random
 
   def eval(env: Env): Option[Double] = {
     val fromValue = from.eval(env)
@@ -226,7 +225,7 @@ case class Uniform(from: DoubleTerm, to: DoubleTerm) extends DoubleTerm {
     if (fromValue == None) return None
     val scale = toValue.get - fromValue.get
     val offset = fromValue.get
-    Some(storedRandomValues.getOrElseUpdate((fromValue.get, toValue.get), random.nextDouble * scale + offset))
+    Some(storedRandomValues.getOrElseUpdate((fromValue.get, toValue.get), util.GlobalRandom.nextDouble * scale + offset))
   }
 
   def variables = from.variables ++ to.variables
