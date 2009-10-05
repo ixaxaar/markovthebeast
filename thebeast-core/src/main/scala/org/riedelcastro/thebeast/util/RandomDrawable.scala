@@ -8,5 +8,5 @@ import scala.util.Random
  */
 
 trait RandomDrawable[T] extends Seq[T] {
-  def randomValue:T = this((new Random).nextInt(size))
+  def randomValue:T = this(GlobalRandom.nextInt(size))
 }
