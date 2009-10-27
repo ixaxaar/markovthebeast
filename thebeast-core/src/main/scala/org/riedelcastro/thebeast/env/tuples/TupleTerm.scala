@@ -5,10 +5,6 @@ package org.riedelcastro.thebeast.env.tuples
  */
 
 trait TupleTerm extends scala.Product {
-  def isGround : Boolean = {
-    for (i <- 0 until productArity) if (!productElement(i).asInstanceOf[Term[Any]].isGround) return false;
-    return true;
-  }
 
   def subterms: Seq[Term[Any]] = {
     for (i <- 0 until productArity) yield productElement(i).asInstanceOf[Term[Any]]

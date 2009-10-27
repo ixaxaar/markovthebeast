@@ -59,9 +59,6 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
 
   def values = VectorSpace
 
-
-  def isGround = key.forall(k => k.isGround)
-
   override def toString = "1_(" + key.mkString(",") + ")"
 
   def subterms = key.toSeq
@@ -74,6 +71,14 @@ case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
 
   override def toString = lhs + "+" + rhs
 }
+
+case class VectorVar(override val name: String)
+        extends Var[Vector](name, VectorValues) with VectorTerm {
+  override def ground(env: Env) = env.eval(this).map(VectorConstant(_)).getOrElse(this)
+
+  override def simplify = this
+}
+
 
 case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
         extends DoubleFunApp(FunApp(Constant(VectorDot),lhs),rhs) {

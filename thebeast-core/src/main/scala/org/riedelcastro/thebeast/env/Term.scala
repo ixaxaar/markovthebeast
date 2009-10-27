@@ -36,7 +36,7 @@ trait Term[+T] {
   /**
    * Are there no free variables in this term 
    */
-  def isGround: Boolean
+  def isGround: Boolean = !subterms.exists(_.isGround)
 
   /**
    * All immediate subterms of this term
@@ -58,7 +58,7 @@ case class Constant[T](val value: T) extends Term[T] {
 
   override def toString = value.toString
 
-  def isGround = true
+  override def isGround = true
 
   def subterms = Seq()
 }
@@ -100,7 +100,7 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
   override def eval(env: Env) = env.resolveVar[T](this)
 
 
-  def isGround = false
+  override def isGround = false
 
 
   def subterms = Seq()
@@ -144,8 +144,6 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
       }
       case f => FunApp(f, arg.simplify)
     }
-
-  def isGround = arg.isGround && function.isGround
 
   def isAtomic: Boolean = arg.simplify.isInstanceOf[Constant[_]] &&
           (function.isInstanceOf[EnvVar[_]] ||
@@ -200,9 +198,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
   }
 
 
-  def subterms = args ++ Seq(init)
-
-  def isGround = function.isGround && init.isGround && args.forall(x => x.isGround)
+  def subterms = args ++ Seq(function, init)
 
 }
 
@@ -226,7 +222,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def eval(env: Env) = unroll.eval(env)
 
-  def isGround = {
+  override def isGround = {
     val env = new MutableEnv
     env += variable -> variable.values.defaultValue
     formula.ground(env).isGround
@@ -255,7 +251,7 @@ case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])
 class SingletonClass extends Term[SingletonClass] with Values[SingletonClass] {
   def simplify = this
 
-  def isGround = true
+  override def isGround = true
 
   def variables = Set()
 

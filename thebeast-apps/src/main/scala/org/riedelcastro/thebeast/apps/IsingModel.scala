@@ -1,8 +1,8 @@
 package org.riedelcastro.thebeast.apps
 
 
-import env.doubles.Uniform
-import env.{Ints, Predicate, TheBeastEnv}
+import org.riedelcastro.thebeast.env.{Predicate, Ints, TheBeastEnv}
+import org.riedelcastro.thebeast.env.doubles.Uniform
 
 /**
  * @author Sebastian Riedel
