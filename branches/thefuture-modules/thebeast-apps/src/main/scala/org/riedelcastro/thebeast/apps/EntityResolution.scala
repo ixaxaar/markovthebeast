@@ -1,9 +1,9 @@
 package org.riedelcastro.thebeast.apps
 
+import java.io.InputStreamReader
+import org.riedelcastro.thebeast.env.TheBeastEnv
+import org.riedelcastro.thebeast.alchemy.MLN
 
-import alchemy.MLN
-import env.TheBeastEnv
-import java.io.{InputStreamReader, FileReader}
 /**
  * @author Sebastian Riedel
  */

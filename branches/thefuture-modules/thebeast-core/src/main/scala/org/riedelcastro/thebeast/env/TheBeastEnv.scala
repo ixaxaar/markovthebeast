@@ -237,6 +237,8 @@ trait TheBeastEnv {
   def vectorSum[T1, T2, T3](v1: Values[T1], v2: Values[T2], v3: Values[T3])(formula: (Var[T1], Var[T2], Var[T3]) => VectorTerm): QuantifiedVectorSum[T1] =
     vectorSum(v1) {x1 => vectorSum(v2, v3) {(x2, x3) => formula(x1, x2, x3)}}
 
+  def vectorSum[T1, T2, T3, T4](v1: Values[T1], v2: Values[T2], v3: Values[T3], v4:Values[T4])(formula: (Var[T1], Var[T2], Var[T3], Var[T4]) => VectorTerm): QuantifiedVectorSum[T1] =
+    vectorSum(v1) {x1 => vectorSum(v2, v3, v4) {(x2, x3, x4) => formula(x1, x2, x3, x4)}}
 
   def forall[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {
     val variable = createVariable(values)

@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.env.vectors
 
 import collection.mutable.{HashMap}
 import util.SimpleNamed
+import org.riedelcastro.thebeast.env.Values
 
 /**
  * @author Sebastian Riedel
@@ -75,6 +76,9 @@ class Vector {
     }
 }
 
+object VectorValues extends Values[Vector] {
+  def elements = error("Can't iterate over infinite set of all vector values")
+}
 
 case object VectorAdd extends (Vector => (Vector => Vector)) with SimpleNamed {
   def apply(lhs: Vector) = (rhs: Vector) => lhs.add(rhs, 1.0)

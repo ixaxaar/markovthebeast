@@ -182,8 +182,6 @@ case class Normalize(arg: DoubleTerm) extends DoubleTerm {
   //todo: simplify of DoubleTerm should return DoubleTerm
   def simplify = null //Normalize(arg.simplify)
 
-  def isGround = arg.isGround
-
   def eval(env: Env): Option[Double] = {
     var sum = 0.0
     Env.forall(variables) {
@@ -213,8 +211,6 @@ case class Uniform(from: DoubleTerm, to: DoubleTerm) extends DoubleTerm {
   def values = null
 
   def simplify = Uniform(from.simplify, to.simplify)
-
-  def isGround = from.isGround && to.isGround
 
   private val storedRandomValues = new HashMap[(Double, Double), Double]
 
