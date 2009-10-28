@@ -1,11 +1,11 @@
 package org.riedelcastro.thebeast.alchemy
 
 
-import env.vectors.QuantifiedVectorSum
-import env.{Predicate, Var, TheBeastEnv}
 import java.io.StringReader
-import specs.runner.JUnit4
-import specs.Specification
+import org.specs.Specification
+import org.specs.runner.JUnit4
+import org.riedelcastro.thebeast.env._
+import vectors.QuantifiedVectorSum
 
 /**
  * @author Sebastian Riedel

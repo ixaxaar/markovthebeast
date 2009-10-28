@@ -125,6 +125,10 @@ trait TheBeastEnv {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
 
+//  implicit def term2groundFunAppBuilder[T, R](fun: FunctionVar[T,R]) = new (T => GroundFunApp[T, R]) {
+//    def apply(t: T) = GroundFunApp(fun, t)
+//  }
+
   implicit def term2doubleFunAppBuilder[T](fun: Term[T => Double]) = new (Term[T] => DoubleFunApp[T]) {
     def apply(t: Term[T]) = DoubleFunApp(fun, t)
   }

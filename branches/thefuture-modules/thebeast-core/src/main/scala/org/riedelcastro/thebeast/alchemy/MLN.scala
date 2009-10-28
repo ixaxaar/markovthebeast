@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.alchemy
 
 
 import collection.mutable.{ArrayBuffer, HashMap}
+import org.riedelcastro.thebeast._
 import env._
 import booleans.{BooleanFunApp, BooleanTerm}
 import doubles.{AlchemyIndicator}
@@ -14,7 +15,7 @@ import vectors._
  */
 
 class MLN {
-  import env.TheBeastImplicits._
+  import TheBeastImplicits._
   import AlchemyParser._
 
 
@@ -34,7 +35,8 @@ class MLN {
     for (atom <- atoms) atom match {
       case DatabaseAtom(name,args,state) => {
         val predicate = getPredicate(name)
-        env.mapTo(predicate)(toTuple(args.map(toValue(_)))) -> state
+        env(predicate,toTuple(args.map(toValue(_)))) = state
+        //env.mapTo(predicate)(toTuple(args.map(toValue(_)))) -> state
       }
     }
     env
@@ -130,7 +132,7 @@ class MLN {
         case 0 => error("Can't have zero arguments")
         case 1 => Seq(convertTerm(args(0), domain))
         case _ => for (i <- 0 until args.size) yield
-          convertTerm(args(i), domain.asInstanceOf[TupleValues].productElement(i).asInstanceOf[Values[Any]])
+          convertTerm(args(i), domain.asInstanceOf[TupleValues[Any]].productElement(i).asInstanceOf[Values[Any]])
       }
     }
 

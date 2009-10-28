@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.apps
 
 import org.riedelcastro.thebeast.env.{Predicate, Ints, TheBeastEnv}
 import org.riedelcastro.thebeast.env.doubles.Uniform
+import org.riedelcastro.thebeast.solve.SumProductBeliefPropagation
 
 /**
  * @author Sebastian Riedel
@@ -10,8 +11,8 @@ import org.riedelcastro.thebeast.env.doubles.Uniform
 
 object IsingModel extends TheBeastEnv {
   def main(args: Array[String]) = {
-    val n = 10
-    val m = 10
+    val n = 2
+    val m = 2
     val Rows = Ints(0 until n)
     val Cols = Ints(0 until m)
     val node = Predicate("node", Rows x Cols)
@@ -20,8 +21,9 @@ object IsingModel extends TheBeastEnv {
             sum(Rows, Ints(0 until m - 1)) {(x, y) => $(node(x, y) <~> node(x, y + 1)) * 0.5}))
 
     //now what? run sum product
+    val solver = new SumProductBeliefPropagation()
+    val beliefs = solver.infer(ising)
+
     null
-
-
   }
 }

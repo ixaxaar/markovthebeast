@@ -5,9 +5,10 @@ import org.riedelcastro.thebeast.env.ints.IntTerm
 import org.riedelcastro.thebeast.env.{Values, Env, FunctionValue, Term}
 
 /**
- *.A TreeConstraint is a term that maps graphs to 0 if they are trees, and to negative infinity otherwise.
+ *.A SpanningTreeConstraint is a term that maps graphs to 0 if they are
+ * spanning trees over length-number-of nodes, and to negative infinity otherwise.
  */
-case class TreeConstraint[V](graph:Term[FunctionValue[(V,V),Boolean]], length:Term[Int]) extends DoubleTerm {
+case class SpanningTreeConstraint[V](graph:Term[FunctionValue[(V,V),Boolean]], length:Term[Int]) extends DoubleTerm {
   def ground(env: Env):DoubleTerm = null
   def simplify:DoubleTerm = null
   def upperBound = 0.0

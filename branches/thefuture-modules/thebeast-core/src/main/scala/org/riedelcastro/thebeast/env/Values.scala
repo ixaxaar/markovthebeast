@@ -4,6 +4,8 @@ package org.riedelcastro.thebeast.env
 import collection.mutable.{HashSet, MapProxy}
 import tuples.TupleValues
 import util.Util
+import org.riedelcastro.thebeast.util.Util
+import reflect.Manifest
 
 /**
  * @author Sebastian Riedel
@@ -13,26 +15,43 @@ trait Values[+T] extends Iterable[T] {
 
   def randomValue: T = {val seq = toSeq; seq(new scala.util.Random().nextInt(seq.size))}
 
-  def randomValue(random:scala.util.Random): T = {val seq = toSeq; seq(random.nextInt(seq.size))}
+  def randomValue(random: scala.util.Random): T = {val seq = toSeq; seq(random.nextInt(seq.size))}
 
   def createVariable(name: String): Var[T] = new Var(name, this)
 
   def size: Int = toSeq.size
 
   def arity = this match {
-    case v: TupleValues => v.productArity
+    case v: TupleValues[_] => v.productArity
     case _ => 1
   }
 
   def argType(arg: Int): Values[Any] = this match {
-    case v: TupleValues => v.productElement(arg).asInstanceOf[Values[Any]]
+    case v: TupleValues[_] => v.productElement(arg).asInstanceOf[Values[Any]]
     case _ => if (arg != 0) error("Not tuple values, argType makes no sense") else this
   }
+
+  def validate[B >: T](value: B): Boolean = true
 
 }
 
 class MutableValues[T] extends HashSet[T] with Values[T] {
   override def size = super.size
+
+  override def validate[B >: T](value: B):Boolean = {
+    try {
+      if (!contains(value.asInstanceOf[T]))
+        this += value.asInstanceOf[T]
+      true
+    } catch {
+      case _ =>
+        error("Can't add " + value + " to this set of values because its type is not compatible")
+    }
+  }
+
+  //todo: this should be something like Anyref.hashCode
+  override def hashCode = 0
+  override def equals(obj: Any) = obj.isInstanceOf[AnyRef] && (this eq obj.asInstanceOf[AnyRef])
 }
 
 class IntRangeValues(val from: Int, val to: Int) extends Range(from, to + 1, 1) with Values[Int] {
@@ -41,6 +60,7 @@ class IntRangeValues(val from: Int, val to: Int) extends Range(from, to + 1, 1) 
 
 object Values {
   def apply[T](values: Collection[T]) = new ValuesProxy(Set.empty[T] ++ values)
+
   def apply[T](values: T*) =
     new ValuesProxy(values.foldLeft(Set.empty[T]) {(result, v) => result ++ Set(v)})
 }
@@ -92,12 +112,18 @@ trait FunctionValue[T, R] extends (T => R) {
 }
 
 class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
-        extends scala.collection.mutable.HashMap[T, R] with FunctionValue[T, R] {
+    extends scala.collection.mutable.HashMap[T, R] with FunctionValue[T, R] {
   def getSources(r: Option[R]): Iterable[T] = {
     r match {
       case Some(x) => signature.domain.filter(d => get(d) == Some(x))
       case None => signature.domain.filter(d => !isDefinedAt(d))
     }
+  }
+
+  override def update(key: T, value: R) = {
+    signature.domain.validate(key)
+    signature.range.validate(value)
+    super.update(key, value)
   }
 
   override def clone: MutableFunctionValue[T, R] = {
@@ -118,7 +144,7 @@ class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
 
 
   private class ClosedMutableMap(var self: MutableFunctionValue[T, R])
-          extends MutableFunctionValue(self.signature) with MapProxy[T, R] {
+      extends MutableFunctionValue(self.signature) with MapProxy[T, R] {
     override def default(a: T) = signature.range.defaultValue
 
     override def apply(a: T) = self.get(a) match {
