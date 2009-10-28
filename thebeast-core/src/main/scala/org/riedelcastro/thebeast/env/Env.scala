@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.env
 
 import collection.mutable.{HashMap, HashSet}
 import util.Util
+import org.riedelcastro.thebeast.util.Util
 
 /**
  * @author Sebastian Riedel
@@ -148,21 +149,48 @@ class MutableEnv extends Env {
     variable match {
       case v: Var[_] => values += Tuple2[Any, Any](v, value)
       case FunAppVar(funVar, arg) =>
-        getMap(funVar) += Tuple2[Any, Any](arg, value)
+        getMap(funVar)(arg)= value
     }
   }
 
+  def update[T,R](funVar: FunctionVar[T,R], arg: T, value:R) = {
+    set(FunAppVar(funVar,arg),value)
+  }
+
+  def update[T,R](groundFunApp:GroundFunApp[T,R],value:R) = {
+    set(FunAppVar(groundFunApp.funVar,groundFunApp.arg),value)
+  }
+
+
+  def +=[T](funVar: FunctionVar[T,Boolean], arg: T) = {
+    set(FunAppVar(funVar,arg),true)
+  }
+  
+  def ++=[T](funVar: FunctionVar[T,Boolean], args: T*) = {
+    for (arg <- args)
+      set(FunAppVar(funVar,arg),true)
+  }
+
+  def atoms[T](funVar:FunctionVar[T,Boolean]) = new {
+    def +=(arg:T) = set(FunAppVar(funVar,arg),true)  
+    def ++=(args:T*) = args.foreach(arg=>set(FunAppVar(funVar,arg),true))  
+    def ++=(args:Iterable[T]) = args.foreach(arg=>set(FunAppVar(funVar,arg),true))  
+  }
+
+  def update[T](variable: EnvVar[T], value: T) = {
+    set(variable,value)
+  }
 
   def +=[T](mapping: Tuple2[EnvVar[T], T]) = set(mapping._1, mapping._2)
-
 
   def mapTo[T](envVar: EnvVar[T]) = new VarWithEnv(envVar, this)
 
   def variables = values.keySet.asInstanceOf[Set[EnvVar[_]]]
 
-
   override def toString = values.toString
 }
+
+case class GroundFunApp[T,R](funVar:FunctionVar[T,R], arg:T)
 
 case class VarWithEnv[T](envVar: EnvVar[T], env: MutableEnv) {
   def ->(t: T) = env.set(envVar, t)
