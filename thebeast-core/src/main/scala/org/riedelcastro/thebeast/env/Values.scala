@@ -4,8 +4,8 @@ package org.riedelcastro.thebeast.env
 import collection.mutable.{HashSet, MapProxy}
 import tuples.TupleValues
 import util.Util
-import org.riedelcastro.thebeast.util.Util
 import reflect.Manifest
+import org.riedelcastro.thebeast.util.{GlobalRandom, Util}
 
 /**
  * @author Sebastian Riedel
@@ -50,7 +50,7 @@ class MutableValues[T] extends HashSet[T] with Values[T] {
   }
 
   //todo: this should be something like Anyref.hashCode
-  override def hashCode = 0
+  override lazy val hashCode = GlobalRandom.nextInt
   override def equals(obj: Any) = obj.isInstanceOf[AnyRef] && (this eq obj.asInstanceOf[AnyRef])
 }
 
