@@ -3,8 +3,6 @@ package org.riedelcastro.thebeast.env
 
 import collection.mutable.{HashSet, MapProxy}
 import tuples.TupleValues
-import util.Util
-import reflect.Manifest
 import org.riedelcastro.thebeast.util.{GlobalRandom, Util}
 
 /**

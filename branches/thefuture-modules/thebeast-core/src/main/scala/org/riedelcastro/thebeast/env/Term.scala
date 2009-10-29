@@ -7,7 +7,7 @@ package org.riedelcastro.thebeast.env
 trait Term[+T] {
 
   /**
-   * The domain of a term is the set of all variables that appear in the term. If possible, this
+   * The set of all variables that appear in the term. If possible, this
    * method may return function application variables. 
    */
   def variables: Set[EnvVar[Any]]
@@ -33,8 +33,14 @@ trait Term[+T] {
    */
   def eval(env: Env): Option[T]
 
+
   /**
-   * Are there no free variables in this term 
+   * evaluate this term with respect to the given environment (with unwrapping).
+   */
+  def apply(env:Env):T = eval(env).get
+
+  /**
+   *  Are there no free variables in this term
    */
   def isGround: Boolean = !subterms.exists(_.isGround)
 
@@ -42,6 +48,12 @@ trait Term[+T] {
    * All immediate subterms of this term
    */
   def subterms: Seq[Term[Any]]
+
+  /**
+   * todo: This method creates a clone of this object, but with the given set of subterms
+   * which are provided in the order that the subterms method provides
+   */
+  //def cloneWithNewSubterms(subterms:Seq[Term[Any]]): Term[T]
 
 }
 
@@ -61,6 +73,8 @@ case class Constant[T](val value: T) extends Term[T] {
   override def isGround = true
 
   def subterms = Seq()
+
+  def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = new Constant(value)
 }
 
 
@@ -99,12 +113,13 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
   override def eval(env: Env) = env.resolveVar[T](this)
 
-
   override def isGround = false
 
 
   def subterms = Seq()
 
+
+  def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = this
 }
 
 case class FunctionVar[T,R](override val name:String,override val values:FunctionValues[T,R]) extends Var(name,values) {
@@ -161,6 +176,10 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
   override def toString = function.toString + "(" + arg.toString + ")"
 
   def subterms = Seq(function,arg)
+
+
+  def cloneWithNewSubterms(subterms: Seq[Term[Any]]) =
+    FunApp(subterms(0).asInstanceOf[Term[T=>R]], subterms(1).asInstanceOf[Term[T]])
 }
 
 
@@ -235,7 +254,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
 sealed trait EnvVar[+T] extends Term[T] {
   /**
-   *  The values of a variables are all objects the variable can be assigned to
+   *   The values of a variables are all objects the variable can be assigned to
    */
   def values: Values[T]
 

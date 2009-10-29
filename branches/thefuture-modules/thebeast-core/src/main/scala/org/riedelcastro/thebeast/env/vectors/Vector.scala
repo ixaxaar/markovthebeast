@@ -32,6 +32,10 @@ class Vector {
     store += (keys.toList -> value)
   }
 
+  def update(key1:Any, value:Double) = set(value, key1)
+  def update(key1:Any, key2:Any, value:Double) = set(value, key1, key2)
+  def update(key1:Any, key2:Any, key3:Any, value:Double) = set(value, key1, key2, key3)
+
   def setWithSingleKey(value: Double, key: Any) {
     store += (key -> value)
   }
