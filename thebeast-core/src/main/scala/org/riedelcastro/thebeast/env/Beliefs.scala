@@ -88,8 +88,6 @@ case class Ignorance[T](val values: Values[T]) extends Belief[T] {
 
   override def *(that: Belief[T]) = that
 
-  override def /(that: Belief[T]) = that
-
   def normalize = this
 }
 

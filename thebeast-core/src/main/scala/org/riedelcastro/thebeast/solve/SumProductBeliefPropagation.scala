@@ -1,14 +1,16 @@
 package org.riedelcastro.thebeast.solve
 
 
+import org.riedelcastro.thebeast._
 import env._
 import doubles._
+import util.Trackable
 
 /**
  * @author Sebastian Riedel
  */
 
-class SumProductBeliefPropagation extends MarginalInference {
+class SumProductBeliefPropagation extends MarginalInference with Trackable {
   class SPBPFactorGraph extends DoubleFactorGraph {
     case class SPBPEdge(override val node: NodeType, override val factor: FactorType) extends Edge(node, factor) {
       var node2factor: Belief[Any] = Ignorance(node.variable.values)
@@ -72,20 +74,35 @@ class SumProductBeliefPropagation extends MarginalInference {
 
 
 
-  def infer(term: DoubleTerm) = term.flatten match {
+  def infer(term: DoubleTerm) = 
+    unroll(term).flatten match {
     case Multiplication(args) => infer(args)
     case Exp(Sum(args)) => infer(args.map(Exp(_)))
     case Normalize(Multiplication(args)) => infer(args).normalize
     case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
     case _ => infer(Seq(term))
+  }
+
+  private def unroll(term:DoubleTerm):DoubleTerm = term match {
+    case Sum(args) => Sum(args.map(unroll(_)))
+    case x:QuantifiedSum[_] => x.unroll
+    case Normalize(x) => Normalize(unroll(x))
+    case Exp(x) => Exp(unroll(x))
+    case x => x
 
   }
+
+  private var _iterations = 0
+  def iterations = _iterations
 
   private def infer(terms: Iterable[DoubleTerm]): Beliefs = {
     val graph = new SPBPFactorGraph
     graph.addTerms(terms)
 
-    while (graph.updateMessages > 0.0001) {}
+    _iterations = 0
+    |**("Message passing") 
+    while (graph.updateMessages > 0.0001) {_iterations += 1}
+    **|
 
     val result = new MutableBeliefs
     for (node <- graph.nodes)

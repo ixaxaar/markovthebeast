@@ -1,7 +1,6 @@
 package org.riedelcastro.thebeast.util
 
-
-import collection.mutable.ArrayBuffer
+import collection.mutable.{LinkedHashMap, HashMap, ArrayBuffer}
 
 /**
  * @author Sebastian Riedel
@@ -33,6 +32,28 @@ class TimingTracker extends Tracker {
     }
   }
 }
+
+class TimingCollector extends Tracker {
+  private val starts = new ArrayBuffer[Long]
+  private val durations = new LinkedHashMap[String,Long]
+  private val counts = new LinkedHashMap[String,Int]
+  private val texts = new ArrayBuffer[String]
+  def marked(text: String, start: Boolean) = {
+    if (start) {
+      starts += System.currentTimeMillis
+      texts += text
+    } else {
+      val duration = System.currentTimeMillis - starts.remove(starts.size - 1)
+      val text = texts.remove(texts.size - 1)
+      durations(text) = durations.getOrElse(text,0l) + duration
+      counts(text) = counts.getOrElse(text,0) + 1
+    }
+  }
+  def timings = durations.keySet.map(text =>
+    text + "\n\tTotal Time: " + durations(text) + "\n\tTotal Calls: " + counts(text)).mkString("\n")
+}
+
+object TimingCollector extends TimingCollector
 
 
 
