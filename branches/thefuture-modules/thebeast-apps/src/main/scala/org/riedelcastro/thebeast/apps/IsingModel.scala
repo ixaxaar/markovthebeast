@@ -4,7 +4,7 @@ package org.riedelcastro.thebeast.apps
 import org.riedelcastro.thebeast.env.doubles.Uniform
 import org.riedelcastro.thebeast.env.{TheBeastImplicits, Predicate, Ints}
 import org.riedelcastro.thebeast.solve.{ExhaustiveMarginalInference, SumProductBeliefPropagation}
-import org.riedelcastro.thebeast.util.{TimingCollector, Trackers, TimingTracker}
+import org.riedelcastro.thebeast.util.{TimingCollector, Trackers}
 
 /**
  * @author Sebastian Riedel

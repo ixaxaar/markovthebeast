@@ -1,6 +1,6 @@
 package org.riedelcastro.thebeast.solve
 
-
+import org.riedelcastro.thebeast._
 import env._
 import doubles.DoubleTerm
 /**

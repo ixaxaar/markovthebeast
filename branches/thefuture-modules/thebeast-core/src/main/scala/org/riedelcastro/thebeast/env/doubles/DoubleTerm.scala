@@ -1,12 +1,12 @@
 package org.riedelcastro.thebeast.env.doubles
 
-
+import org.riedelcastro.thebeast._
+import env._
 import booleans.BooleanTerm
 import collection.mutable.{HashSet, HashMap}
 import functions._
 import solve.ExhaustiveMarginalInference
 import tuples.TupleTerm2
-import util.Util
 import vectors.{VectorTerm, VectorScalarApp}
 
 /**
@@ -20,7 +20,7 @@ trait DoubleTerm extends BoundedTerm[Double] {
 
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
-  def marginalize(incoming: Beliefs): Beliefs = {
+  def marginalize(incoming: Beliefs[Any,EnvVar[Any]]): Beliefs[Any,EnvVar[Any]] = {
     val term = this * Multiplication(variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
     ExhaustiveMarginalInference.infer(term)
   }
