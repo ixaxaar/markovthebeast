@@ -60,7 +60,7 @@ object DependencyParsing extends TheBeastEnv {
     println(Words.mkString(","))
     println(Tags.mkString(","))
 
-    println(linearModel(sentence1))
+    println(sentence1(linearModel))
 
 
 

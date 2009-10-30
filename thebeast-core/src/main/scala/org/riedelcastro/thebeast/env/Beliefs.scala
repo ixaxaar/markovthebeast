@@ -8,30 +8,33 @@ import doubles.{DoubleFunApp}
  * @author Sebastian Riedel
  */
 
-trait Beliefs {
-  def belief[T](term: Term[T]): Belief[T]
+trait Beliefs[V, T <: Term[V]] {
+  def belief(term: T): Belief[V]
 
-  def normalize: Beliefs
+  def normalize: Beliefs[V,T]
+
+  def terms: Collection[T]
 }
 
-class MutableBeliefs extends Beliefs {
-  private val beliefs = new HashMap[Term[Any], Belief[Any]]
+class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V,T] {
+  private val beliefs = new HashMap[T, Belief[V]]
 
-  def setBelief[T](term: Term[T], belief: Belief[T]) = {
-    beliefs(term.asInstanceOf[Term[Any]]) = belief.asInstanceOf[Belief[Any]]
+  def setBelief(term: T, belief: Belief[V]) = {
+    beliefs(term) = belief
   }
 
-  def increaseBelief[T](term: Term[T], value: T, delta: Double) = {
+  def increaseBelief(term: T, value: V, delta: Double) = {
     var belief = beliefs.getOrElseUpdate(term,
-      new MutableBelief[T](term.values).asInstanceOf[MutableBelief[Any]]).asInstanceOf[MutableBelief[T]]
+      new MutableBelief[V](term.values)).asInstanceOf[MutableBelief[V]]
     belief.increaseBelief(value, delta)
   }
 
-  def belief[T](term: Term[T]): Belief[T] = beliefs(term).asInstanceOf[Belief[T]]
+  def belief(term: T): Belief[V] = beliefs(term)
 
+  def terms = beliefs.keySet
 
   def normalize = {
-    val result = new MutableBeliefs
+    val result = new MutableBeliefs[V,T]
     result.beliefs ++= beliefs.map(entry => (entry._1, entry._2.normalize))
     result
   }

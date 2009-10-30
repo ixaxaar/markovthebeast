@@ -25,6 +25,12 @@ trait Env {
   
 }
 
+object EmptyEnv extends Env {
+  def variables = Set()
+
+  def resolveVar[T](variable: EnvVar[T]) = None
+}
+
 
 object Env {
   def forall(variables:Collection[EnvVar[Any]])(procedure:MutableEnv=>Unit) {

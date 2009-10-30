@@ -7,6 +7,12 @@ package org.riedelcastro.thebeast.env
 trait Term[+T] {
 
   /**
+   * todo: make use of this
+   * The value type of the variables that can be contained in this term
+   */
+  type VariableType <: Any
+
+  /**
    * The set of all variables that appear in the term. If possible, this
    * method may return function application variables. 
    */
@@ -35,9 +41,10 @@ trait Term[+T] {
 
 
   /**
+   * todo: this clashes with term contructions of function apps
    * evaluate this term with respect to the given environment (with unwrapping).
    */
-  def apply(env:Env):T = eval(env).get
+  //def apply(env: Env): T = eval(env).get
 
   /**
    *  Are there no free variables in this term
@@ -55,6 +62,16 @@ trait Term[+T] {
    */
   //def cloneWithNewSubterms(subterms:Seq[Term[Any]]): Term[T]
 
+}
+
+/**
+ * Grounded is a pattern matcher that matches terms which are ground (no variables), and extracts
+ * the value the term evaluates to.
+ */
+object Grounded {
+  def unapply[T](term: Term[T]):Option[T] =
+    if (term.isGround) EmptyEnv.eval(term)
+    else None
 }
 
 case class Constant[T](val value: T) extends Term[T] {
@@ -89,13 +106,12 @@ trait BoundedTerm[T] extends Term[T] {
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
-
   def variables =
-    if (!values.isInstanceOf[FunctionValues[_,_]]) Set(this)
-    else Set() ++ createAllFunAppVars(Seq(this), values.asInstanceOf[FunctionValues[_,_]])
+    if (!values.isInstanceOf[FunctionValues[_, _]]) Set(this)
+    else Set() ++ createAllFunAppVars(Seq(this), values.asInstanceOf[FunctionValues[_, _]])
 
-  private def createAllFunAppVars(funVars: Iterable[EnvVar[_]], functionValues: FunctionValues[_, _]): Iterable[FunAppVar[_,_]] = {
-    val funapps = funVars.flatMap(v => functionValues.domain.map(d => FunAppVar(v.asInstanceOf[EnvVar[Function1[Any,Any]]], d)))
+  private def createAllFunAppVars(funVars: Iterable[EnvVar[_]], functionValues: FunctionValues[_, _]): Iterable[FunAppVar[_, _]] = {
+    val funapps = funVars.flatMap(v => functionValues.domain.map(d => FunAppVar(v.asInstanceOf[EnvVar[Function1[Any, Any]]], d)))
     if (functionValues.range.isInstanceOf[FunctionValues[_, _]])
       createAllFunAppVars(funapps, functionValues.range.asInstanceOf[FunctionValues[_, _]])
     else
@@ -122,11 +138,11 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = this
 }
 
-case class FunctionVar[T,R](override val name:String,override val values:FunctionValues[T,R]) extends Var(name,values) {
+case class FunctionVar[T, R](override val name: String, override val values: FunctionValues[T, R]) extends Var(name, values) {
 }
 
-case class Predicate[T](override val name:String,domain:Values[T])
-        extends FunctionVar(name,FunctionValues(domain,TheBeastImplicits.Bools))
+case class Predicate[T](override val name: String, domain: Values[T])
+    extends FunctionVar(name, FunctionValues(domain, TheBeastImplicits.Bools))
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
   override def eval(env: Env) = {
@@ -161,8 +177,8 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
     }
 
   def isAtomic: Boolean = arg.simplify.isInstanceOf[Constant[_]] &&
-          (function.isInstanceOf[EnvVar[_]] ||
-                  (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isAtomic))
+                          (function.isInstanceOf[EnvVar[_]] ||
+                           (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isAtomic))
 
   def asFunAppVar: FunAppVar[T, R] =
     if (function.isInstanceOf[EnvVar[_]])
@@ -171,15 +187,15 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
       FunAppVar(function.asInstanceOf[FunApp[Any, T => R]].asFunAppVar, arg.asInstanceOf[Constant[T]].value)
 
 
-  def ground(env: Env):Term[R] = FunApp(function.ground(env), arg.ground(env))
+  def ground(env: Env): Term[R] = FunApp(function.ground(env), arg.ground(env))
 
   override def toString = function.toString + "(" + arg.toString + ")"
 
-  def subterms = Seq(function,arg)
+  def subterms = Seq(function, arg)
 
 
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) =
-    FunApp(subterms(0).asInstanceOf[Term[T=>R]], subterms(1).asInstanceOf[Term[T]])
+    FunApp(subterms(0).asInstanceOf[Term[T => R]], subterms(1).asInstanceOf[Term[T]])
 }
 
 
@@ -217,7 +233,17 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
   }
 
 
-  def subterms = args ++ Seq(function, init)
+  def subterms = Seq(function, init) ++ args
+
+  def cloneWithNewSubterms(subterms: Seq[Term[Any]]) =
+    subterms match {
+      case Seq(function, init, args@_*) =>
+        Fold(function.asInstanceOf[Term[R => (R => R)]],
+            args.map(_.asInstanceOf[Term[R]]),
+            init.asInstanceOf[Term[R]])
+      case _ => error("subterms incompatible")
+    }
+
 
 }
 
@@ -225,7 +251,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
 
 
 case class Quantification[R, V](val function: Term[R => (R => R)], val variable: Var[V], val formula: Term[R], val init: Term[R])
-        extends Term[R] {
+    extends Term[R] {
   lazy val unroll = {
     val env = new MutableEnv
     Fold(function, variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq, init)
@@ -252,7 +278,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 }
 
 
-sealed trait EnvVar[+T] extends Term[T] {
+trait EnvVar[+T] extends Term[T] {
   /**
    *   The values of a variables are all objects the variable can be assigned to
    */
@@ -261,8 +287,8 @@ sealed trait EnvVar[+T] extends Term[T] {
 }
 
 case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
-        extends FunApp(funVar, Constant(argValue))
-                with EnvVar[R] {
+    extends FunApp(funVar, Constant(argValue))
+        with EnvVar[R] {
 }
 
 case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])

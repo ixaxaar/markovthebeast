@@ -1,9 +1,9 @@
 package org.riedelcastro.thebeast.env.booleans
 
-
+import org.riedelcastro.thebeast.env._
 import doubles.Indicator
 import functions._
-import util.{Util, SimpleNamed}
+import org.riedelcastro.thebeast.util.{Util, SimpleNamed}
 
 /**
  * @author Sebastian Riedel
@@ -21,7 +21,7 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
   def ground(env: Env): BooleanTerm
 
 
-  def simplify:BooleanTerm
+  def simplify: BooleanTerm
 
   lazy val toCNF: CNF = moveInNegation.distributeAnds.flatten match {
     case x: BooleanConstant => CNF(Seq(Disjunction(Seq(x))))
@@ -31,7 +31,7 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
     })).trim
     case x: NotApp => CNF(Seq(Disjunction(Seq(x))))
     case x => error("After moving in negations and distributing ands the term must be a constant or conjunction" +
-            " pr a literal and not a " + x)
+                    " pr a literal and not a " + x)
   }
 
   def negate: BooleanTerm
@@ -45,8 +45,10 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 }
 
 case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fold[Boolean](Constant(And), args, Constant(true))
-        with BooleanTerm {
+    with BooleanTerm {
   override def ground(env: Env) = Conjunction(args.map(_.ground(env)))
+
+  //def this(args:T*) = this((args:*).toSeq)
 
   def upperBound = !args.exists(!_.upperBound)
 
@@ -59,14 +61,16 @@ case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
   def moveInNegation = Conjunction(args.map(_.moveInNegation))
 
 
-  override def toString = args.mkString("("," & ", ")")
+  override def toString = args.mkString("(", " & ", ")")
 }
 
 
 
 case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fold[Boolean](Constant(Or), args, Constant(false))
-        with BooleanTerm {
+    with BooleanTerm {
   override def ground(env: Env) = Disjunction(args.map(_.ground(env)))
+
+  //def this(args:T*) = this((args:*).toSeq)
 
   def upperBound = args.exists(_.upperBound)
 
@@ -84,20 +88,21 @@ case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
   def moveInNegation = Disjunction(args.map(_.moveInNegation))
 
-  override def toString = args.mkString("("," | ", ")")
-  
+  override def toString = args.mkString("(", " | ", ")")
+
 
 }
 
 case class CNF(override val args: Seq[Disjunction[BooleanTerm]]) extends Conjunction(args) {
   override def ground(env: Env): CNF = CNF(args.map(_.ground(env).asInstanceOf[Disjunction[BooleanTerm]]))
 
-  def trim = CNF(args.filter(d=> !d.args.exists(x=>d.args.exists(y=>x == NotApp(y)))))
+  def trim = CNF(args.filter(d => !d.args.exists(x => d.args.exists(y => x == NotApp(y)))))
 }
 
 case class DNF(override val args: Seq[Conjunction[BooleanTerm]]) extends Disjunction(args) {
   override def ground(env: Env): DNF = DNF(args.map(_.ground(env).asInstanceOf[Conjunction[BooleanTerm]]))
 }
+
 
 
 case class BooleanConstant(override val value: Boolean) extends BoundedConstant(value) with BooleanTerm {
@@ -115,11 +120,11 @@ case class BooleanConstant(override val value: Boolean) extends BoundedConstant(
 }
 
 case class BooleanFunApp[T](override val function: Term[T => Boolean], override val arg: Term[T])
-        extends FunApp(function, arg) with BooleanTerm {
+    extends FunApp(function, arg) with BooleanTerm {
   def upperBound = true
 
   //todo: this is bad, ideally this should remain empty here and in FunApp
-  override def ground(env: Env): BooleanTerm = BooleanFunApp(function.ground(env),arg.ground(env))
+  override def ground(env: Env): BooleanTerm = BooleanFunApp(function.ground(env), arg.ground(env))
 
   def negate: BooleanTerm = NotApp(this)
 
@@ -127,7 +132,7 @@ case class BooleanFunApp[T](override val function: Term[T => Boolean], override 
 
   def moveInNegation: BooleanTerm = this
 
-  override def simplify:BooleanTerm =
+  override def simplify: BooleanTerm =
     function.simplify match {
       case Constant(f) => arg.simplify match {
         case Constant(x) => BooleanConstant(f(x));
@@ -144,7 +149,6 @@ case class OrApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(lhs
 }
 
 case class NotApp(override val arg: BooleanTerm) extends BooleanFunApp(Constant(Not), arg) {
-
   override def negate = arg
 
   override def ground(env: Env) = NotApp(arg.ground(env))
@@ -159,12 +163,46 @@ case class NotApp(override val arg: BooleanTerm) extends BooleanFunApp(Constant(
 
 }
 
+case class NegatedVar(variable: BooleanEnvVar) extends NotApp(variable) with BooleanLiteral {
+  def negated = true
+}
+
+trait BooleanLiteral extends BooleanTerm {
+  def variable: BooleanEnvVar
+
+  def negated: Boolean
+}
+
+trait BooleanEnvVar extends BooleanTerm with EnvVar[Boolean] with BooleanLiteral {
+  override def ground(env: Env) = env.eval(this).map(BooleanConstant(_)).getOrElse(this)
+
+  override def simplify = this
+
+  def negated = false
+
+  def variable = this
+
+  def flatten = this
+
+  def moveInNegation = this
+
+  def upperBound = true
+
+  def negate = NegatedVar(this)
+}
+
+case class BooleanVar(override val name: String, override val values: Values[Boolean])
+    extends Var[Boolean](name, values) with BooleanEnvVar {
+  override def simplify = this
+
+}
+
 case class ImpliesApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(NotApp(lhs), rhs)) {
   override def toString = lhs + "=>" + rhs
 }
 
 case class EquivalenceApp(lhs: BooleanTerm, rhs: BooleanTerm)
-        extends Disjunction(Seq(Conjunction(Seq(lhs, rhs)), Conjunction(Seq(NotApp(lhs), NotApp(rhs))))){
+    extends Disjunction(Seq(Conjunction(Seq(lhs, rhs)), Conjunction(Seq(NotApp(lhs), NotApp(rhs))))) {
   override def toString = lhs + "<=>" + rhs
 
 }

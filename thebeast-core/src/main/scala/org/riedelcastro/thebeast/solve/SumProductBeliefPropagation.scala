@@ -37,7 +37,7 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
     case class SPBPFactor(override val term: TermType) extends Factor(term) {
       def updateOutgoingMessages = {
-        val incomingBeliefs = new MutableBeliefs
+        val incomingBeliefs = new MutableBeliefs[Any,EnvVar[Any]]
         for (edge <- edges) incomingBeliefs.setBelief(edge.node.variable, edge.node2factor)
         val outgoingBeliefs = term.marginalize(incomingBeliefs)
         for (edge <- edges) edge.factor2node = (outgoingBeliefs.belief(edge.node.variable) / edge.node2factor).normalize
@@ -95,16 +95,16 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
   private var _iterations = 0
   def iterations = _iterations
 
-  private def infer(terms: Iterable[DoubleTerm]): Beliefs = {
+  private def infer(terms: Iterable[DoubleTerm]): Beliefs[Any,EnvVar[Any]] = {
     val graph = new SPBPFactorGraph
     graph.addTerms(terms)
 
     _iterations = 0
-    |**("Message passing") 
+    |**("Message passing")
     while (graph.updateMessages > 0.0001) {_iterations += 1}
     **|
 
-    val result = new MutableBeliefs
+    val result = new MutableBeliefs[Any,EnvVar[Any]]
     for (node <- graph.nodes)
       result.setBelief(node.variable, node.belief)
 
