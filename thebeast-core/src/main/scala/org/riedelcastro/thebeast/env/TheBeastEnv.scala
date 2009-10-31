@@ -18,7 +18,8 @@ object TheBeastImplicits extends TheBeastEnv {
 trait TheBeastEnv {
   private var varCount = 0;
 
-  val Bools = Values(false, true)
+  val Bools = booleans.Bools
+  //val Bools = Values(false,true)
 
   private def createVariable[T](values: Values[T]): Var[T] = {
     varCount += 1;

@@ -45,6 +45,11 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 
 }
 
+object Bools extends Values[Boolean] {
+  val seq = Seq(false,true)
+  def elements = seq.elements
+}
+
 case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fold[Boolean](Constant(And), args, Constant(true))
     with BooleanTerm {
   override def ground(env: Env) = Conjunction(args.map(_.ground(env)))
@@ -168,7 +173,7 @@ case class NotApp(override val arg: BooleanTerm) extends BooleanFunApp(Constant(
 
 }
 
-case class NegatedVar(variable: BooleanEnvVar) extends NotApp(variable) with BooleanLiteral {
+case class NegatedVar(val variable: BooleanEnvVar) extends NotApp(variable) with BooleanLiteral {
   def negated = true
 }
 
@@ -196,8 +201,8 @@ trait BooleanEnvVar extends BooleanTerm with EnvVar[Boolean] with BooleanLiteral
   def negate = NegatedVar(this)
 }
 
-case class BooleanVar(override val name: String, override val values: Values[Boolean])
-    extends Var[Boolean](name, values) with BooleanEnvVar {
+case class BooleanVar(override val name: String)
+    extends Var[Boolean](name, Bools) with BooleanEnvVar {
   override def simplify = this
 
 }
