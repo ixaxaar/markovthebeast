@@ -4,6 +4,7 @@ import org.riedelcastro.thebeast.env._
 import doubles.Indicator
 import functions._
 import org.riedelcastro.thebeast.util.{Util, SimpleNamed}
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Sebastian Riedel
@@ -99,8 +100,12 @@ case class CNF(override val args: Seq[Disjunction[BooleanTerm]]) extends Conjunc
   def trim = CNF(args.filter(d => !d.args.exists(x => d.args.exists(y => x == NotApp(y)))))
 }
 
-case class DNF(override val args: Seq[Conjunction[BooleanTerm]]) extends Disjunction(args) {
-  override def ground(env: Env): DNF = DNF(args.map(_.ground(env).asInstanceOf[Conjunction[BooleanTerm]]))
+case class DNF[T<:BooleanTerm](override val args: Seq[Conjunction[T]]) extends Disjunction(args) {
+  override def ground(env: Env): DNF[T] = DNF(args.map(_.ground(env).asInstanceOf[Conjunction[T]]))
+
+ 
+
+
 }
 
 
