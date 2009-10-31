@@ -15,6 +15,11 @@ trait MarginalInference {
 
 object ExhaustiveMarginalInference extends MarginalInference with Trackable {
 
+  def marginalize(term:DoubleTerm, incoming: Beliefs[Any,EnvVar[Any]]): Beliefs[Any,EnvVar[Any]] = {
+    val multiplied = term * Multiplication(term.variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
+    ExhaustiveMarginalInference.infer(multiplied)
+  }
+
 
   def infer(term: DoubleTerm) : Beliefs[Any,EnvVar[Any]] = term match {
     case Normalize(x) => inferExhaustively(x).normalize

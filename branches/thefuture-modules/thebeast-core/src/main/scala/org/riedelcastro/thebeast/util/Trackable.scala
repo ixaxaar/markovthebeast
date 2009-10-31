@@ -55,6 +55,12 @@ class TimingCollector extends Tracker {
 
 object TimingCollector extends TimingCollector
 
+object Timer {
+  private var last = 0l
+  def delta = {val now = System.currentTimeMillis; val result = now-last; last = now; result}
+  def start = delta
+
+}
 
 
 object Trackers extends ArrayBuffer[Tracker]{

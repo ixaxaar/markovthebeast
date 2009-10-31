@@ -1,9 +1,9 @@
 package org.riedelcastro.thebeast.solve
 
-
+import org.riedelcastro.thebeast._
 import env.{FunAppVar, Values, TheBeastEnv}
-import specs.runner.JUnit4
-import specs.Specification
+import org.specs.runner.JUnit4
+import org.specs.Specification
 
 /**
  * @author Sebastian Riedel

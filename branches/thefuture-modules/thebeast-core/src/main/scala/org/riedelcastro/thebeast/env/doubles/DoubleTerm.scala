@@ -21,8 +21,7 @@ trait DoubleTerm extends BoundedTerm[Double] {
   def *(rhs: VectorTerm) = VectorScalarApp(rhs, this)
 
   def marginalize(incoming: Beliefs[Any,EnvVar[Any]]): Beliefs[Any,EnvVar[Any]] = {
-    val term = this * Multiplication(variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
-    ExhaustiveMarginalInference.infer(term)
+    ExhaustiveMarginalInference.marginalize(this,incoming)
   }
 
   //def ground(env:Env) : DoubleTerm = super.ground(env).asInstanceOf[DoubleTerm]
