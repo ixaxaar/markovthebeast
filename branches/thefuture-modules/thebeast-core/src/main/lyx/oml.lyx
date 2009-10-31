@@ -231,12 +231,57 @@ relation to factorie
 \end_layout
 
 \begin_layout Section
+Some Theory
+\end_layout
+
+\begin_layout Itemize
+Treat every formula as a term 
+\end_layout
+
+\begin_layout Itemize
+Functional Type Theory (Church, inspired by Frege) used here
+\end_layout
+
+\begin_layout Itemize
+MLNs etc: Relational Type Theory
+\end_layout
+
+\begin_layout Itemize
+Compared to Blog, Church etc: here terms are deterministic, there terms
+ are random variables
+\end_layout
+
+\begin_layout Itemize
+The strength of the lambda-calculus is that it is easily used as a "glue"
+ on top of a richer world of primitives.
+ Its advantages as a glue are that it has a natural correspondence with
+ the way that people program, and natural compilation techniques yield high-perf
+ormance code.
+ The latter comes through optimizations know as tail-call and continuation-passi
+ng, which might be the subject of future talks.
+\end_layout
+
+\begin_layout Itemize
+The Environment Model of Evaluation (functional)
+\end_layout
+
+\begin_layout Itemize
+Title: Functional Programming of Scores over Possible Worlds
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+vs Function Programming of Random Variables
+\end_layout
+
+\end_deeper
+\begin_layout Section
 Variables and Possible Worlds
 \end_layout
 
 \begin_layout Standard
 In Markov Logic we define probability distributions over possible worlds.
- In the widest sense, a possible world is a mapping from variables to a
+ In the widest sense, a possible world is a mapping from variables to the
  set of values these variables take on.
  In the propositional case, consider a boolean variable 
 \begin_inset Formula $x$
@@ -248,7 +293,7 @@ In Markov Logic we define probability distributions over possible worlds.
 
 .
  In the first order case, consider a variable 
-\begin_inset Formula $p\in Person\times Person\Rightarrow B$
+\begin_inset Formula $p\in Person\times Person\Rightarrow\mathbb{B}$
 \end_inset
 
 .
@@ -265,12 +310,12 @@ In Markov Logic we define probability distributions over possible worlds.
 \end_layout
 
 \begin_layout Standard
-The first thing we do in ML, and ExML, is to define our basic atomic datatypes:
+The first thing we do in ML, and ExML, is to define our basic atomic domains:
  the set of values that our variables can take on.
 \end_layout
 
 \begin_layout LyX-Code
-val Persons = Values(
+val Persons = Domain(
 \begin_inset Quotes eld
 \end_inset
 
@@ -388,6 +433,14 @@ note that functions can also be point to functions.
  
 \end_layout
 
+\begin_layout Subsection
+Composite Variables
+\end_layout
+
+\begin_layout Standard
+predicates vs ground atoms
+\end_layout
+
 \begin_layout Section
 Terms and Scoring Functions
 \end_layout
@@ -400,7 +453,15 @@ A Markov Logic Network is a probability or score function defined over possible
  These blocks essentially correspond to the terms we find in the actual
  definition of MLNs, and actually the definitions of scoring functions in
  research papers.
- The main unit of these scoring function are terms.
+ 
+\end_layout
+
+\begin_layout Subsection
+Terms
+\end_layout
+
+\begin_layout Standard
+The main unit of these scoring function are terms.
  A term is simply a symbolic value that can be evaluated to a an actual
  value given a possible world.
  For example, a variable is a term.

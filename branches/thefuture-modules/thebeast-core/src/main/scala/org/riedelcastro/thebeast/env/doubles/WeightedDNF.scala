@@ -1,8 +1,8 @@
 package org.riedelcastro.thebeast.env.doubles
 
 import org.riedelcastro.thebeast.env._
-import booleans.{BooleanVar, BooleanLiteral, Conjunction, Disjunction}
-import collection.mutable.HashSet
+import booleans._
+import collection.mutable.{ArrayBuffer, HashSet}
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,43 +12,43 @@ import collection.mutable.HashSet
  * To change this template use File | Settings | File Templates.
  */
 
-case class WeightedDNF(val dnf: Disjunction[Conjunction[BooleanLiteral]], weight: Double)
+case class WeightedDNF(val dnf: DNF[BooleanLiteral], weight: Double)
     extends Multiplication(Seq(Indicator(dnf), DoubleConstant(weight))) {
+
+  object TableRepresentation {
+    val vars = variables.toArray.asInstanceOf[Array[EnvVar[Boolean]]]
+    val rows = new ArrayBuffer[Array[Boolean]]
+    for (con <- dnf.args) {
+      val fixedPart = new Array[Boolean](vars.size)
+      val argIndices = con.args.map(vars.indexOf(_))
+      val noArgIndices = vars.filter(!con.args.contains(_)).map(vars.indexOf(_))
+      for (arg <- con.args) fixedPart(vars.indexOf(arg.variable)) = !arg.negated
+      val numberOfNoArgs = vars.size - con.args.size
+      for (assignmentId <- 0 until Math.pow(2,numberOfNoArgs).toInt){
+        val row = new Array[Boolean](vars.size)
+        fixedPart.copyToArray(row,0)
+        for (noArgIndex <- noArgIndices)
+          row(noArgIndex) = assignmentId % Math.pow(2,noArgIndex).toInt == 0     
+        if (!rows.exists(_.deepEquals(row)))
+          rows += row
+      }
+    }
+  }
+  //private lazy val binaryRows
 
   override def variables = Set() ++ (for (con <- dnf.args; lit <- con.args) yield lit.variable)
 
-  override def marginalize(incoming: Beliefs[Any,EnvVar[Any]]) = {
-    val incomingBoolVars = incoming.asInstanceOf[Beliefs[Boolean,EnvVar[Boolean]]]
-    val result = new MutableBeliefs[Boolean,EnvVar[Boolean]]
+  override def marginalize(incoming: Beliefs[Any, EnvVar[Any]]) = {
+    val incomingBoolVars = incoming.asInstanceOf[Beliefs[Boolean, EnvVar[Boolean]]]
+    val result = new MutableBeliefs[Boolean, EnvVar[Boolean]]
     //iterate over conjunctions
-    for (conjunction <- dnf.args) {
-      //calculate total score that each literal gets (and each literal not mentioned, but for both states)
-      var score = 1.0
-      val variables = new HashSet[EnvVar[Boolean]]
-      for (literal <- conjunction.args) {
-        score *= incoming.belief(literal.variable).belief(!literal.negated)
-        variables += literal.variable
-      }
-      //now go over literals in the incoming beliefs that are not part of the
-      val remainingVariables = incomingBoolVars.terms.filter(!variables.contains(_)).toSeq
-      var totalScore = 0.0
-      for (assignmentNr <- 0 until Math.pow(2,remainingVariables.size).toInt){
-        var partialScore = score
-        for (varIndex <- 0 until remainingVariables.size) {
-          partialScore *= incoming.belief(remainingVariables(varIndex)).belief(assignmentNr % Math.pow(2,varIndex) == 0)
-        }
-        totalScore += partialScore
-      }
-      //now we can add the total score to the involved beliefs (based on their sign)
-      for (literal <- conjunction.args) {
-        result.increaseBelief(literal.variable, !literal.negated, totalScore)
-      }
-      //and the non-involved beliefs)
-      for (variable <- remainingVariables) {
-        result.increaseBelief(variable, true, totalScore)
-        result.increaseBelief(variable, false, totalScore)
-      }
+    for (row <- TableRepresentation.rows) {
+      var score = weight
+      for (argIndex <- 0 until TableRepresentation.vars.size)
+        score *= incoming.belief(TableRepresentation.vars(argIndex)).belief(row(argIndex))
+      for (argIndex <- 0 until TableRepresentation.vars.size)
+        result.increaseBelief(TableRepresentation.vars(argIndex),row(argIndex), score)
     }
-    result.asInstanceOf[Beliefs[Any,EnvVar[Any]]]
+    result.asInstanceOf[Beliefs[Any, EnvVar[Any]]]
   }
 }
