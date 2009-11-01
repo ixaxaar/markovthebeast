@@ -5,6 +5,15 @@ package org.riedelcastro.thebeast.util
  */
 
 object Util {
+
+  def optionalMap[T,V](iterable:Iterable[T])(fun:T=>Option[V]):Option[Iterable[V]] = {
+    Some(for (t <- iterable) yield fun(t) match {
+      case Some(v) => v
+      case _ => return None
+    })
+  }
+
+
   object AllFunctions {
     def apply[T, R](domain: Iterable[T], range: Iterable[R]): Stream[Map[T, R]] = {
       //we take each function from the previous stream of functions and
