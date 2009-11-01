@@ -23,7 +23,7 @@ trait FactorGraph extends ListenerManager{
   def nodes: RandomDrawable[NodeType] = _nodes
 
   def edges: RandomDrawable[EdgeType] = _edges
-  
+
 
   case class Factor(val term:TermType){
     val edges = new ArrayBuffer[EdgeType] with RandomDrawable[EdgeType]
@@ -78,9 +78,9 @@ trait DoubleFactorGraph extends FactorGraph {
       edges.map(e=>e.factor).foldLeft(0.0) {(s,f) => s + env(f.term)}
     }
   }
-  
+
   def sum(env:Env) = SumHelper.sum(factors.map(f=>f.term),env)
-  
+
 }
 
 class TestFactorGraph extends DoubleFactorGraph {
@@ -101,6 +101,6 @@ object TestNewFG extends Application {
     case _ => println("Don't know")
   })
   fg.addTerm(new DoubleConstant(1.0))
-  
+
 
 }

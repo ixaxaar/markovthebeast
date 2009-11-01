@@ -49,7 +49,7 @@ trait Term[+T] {
   /**
    *  Are there no free variables in this term
    */
-  def isGround: Boolean = !subterms.exists(_.isGround)
+  def isGround: Boolean = subterms.forall(_.isGround)
 
   /**
    * All immediate subterms of this term
@@ -73,6 +73,8 @@ object Grounded {
     if (term.isGround) EmptyEnv.eval(term)
     else None
 }
+
+
 
 case class Constant[T](val value: T) extends Term[T] {
   def variables = Set.empty
@@ -102,7 +104,15 @@ trait BoundedTerm[T] extends Term[T] {
 }
 
 
-
+object EnvVarMatch {
+  def unapply[T](term:Term[T]):Option[EnvVar[T]] = {
+    term match {
+      case x:EnvVar[_] => Some(x)
+      case app @ FunApp(EnvVarMatch(f),Grounded(arg)) =>Some(app.asFunAppVar) 
+      case _=> None
+    }
+  }
+}
 
 
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {

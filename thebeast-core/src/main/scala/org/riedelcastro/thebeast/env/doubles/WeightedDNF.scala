@@ -95,7 +95,7 @@ object WeightedDNFMatch {
     term match {
       case Multiplication(Seq(Indicator(LiteralDNFMatch(dnf)),Grounded(w))) => Some(WeightedDNF(dnf,w.asInstanceOf[Double]))
       case Multiplication(Seq(Grounded(w),Indicator(LiteralDNFMatch(dnf)))) => Some(WeightedDNF(dnf,w.asInstanceOf[Double]))
-
+      case _=> None
     }
   }
 }

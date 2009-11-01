@@ -36,7 +36,9 @@ class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V, T] {
     belief.increaseBelief(value, delta)
   }
 
-  def belief(term: T): Belief[V] = beliefs(term)
+  def belief(term: T): Belief[V] = {
+    beliefs(term)
+  }
 
   def terms = beliefs.keySet
 

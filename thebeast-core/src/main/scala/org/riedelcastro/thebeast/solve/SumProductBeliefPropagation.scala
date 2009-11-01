@@ -97,7 +97,11 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
   private def infer(terms: Iterable[DoubleTerm]): Beliefs[Any,EnvVar[Any]] = {
     val graph = new SPBPFactorGraph
-    graph.addTerms(terms)
+    graph.addTerms(terms.map(_ match {
+      case ExpWeightedDNFMatch(wdnf) => wdnf;
+      case x => x
+      
+    }))
 
     _iterations = 0
     |**("Message passing")
