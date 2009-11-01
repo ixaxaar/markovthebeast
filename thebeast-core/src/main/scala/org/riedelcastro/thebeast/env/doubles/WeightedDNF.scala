@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.env.doubles
 import org.riedelcastro.thebeast.env._
 import booleans._
 import collection.mutable.ArrayBuffer
+import org.riedelcastro.thebeast.util.Trackable
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,7 +38,7 @@ case class ExpWeightedDNF(val dnf: DNF[BooleanLiteral], weight: Double)
 }
 
 
-class TableRepresentation(val dnf:DNF[BooleanLiteral]) {
+class TableRepresentation(val dnf:DNF[BooleanLiteral]) extends Trackable {
   val vars = (Set() ++ (for (con <- dnf.args; lit <- con.args) yield lit.variable)).toArray
   val rows = new ArrayBuffer[Array[Boolean]]
   for (con <- dnf.args) {
@@ -63,6 +64,7 @@ class TableRepresentation(val dnf:DNF[BooleanLiteral]) {
   lazy val domainSize = Math.pow(2,vars.size).toInt
 
   def marginalize(incoming: Beliefs[Any, EnvVar[Any]], rowScore:Double, offSet:Boolean) = {
+    |**("Marginalize Table " + rows.map(_.mkString(" ")).mkString("(",",",")"))
     val incomingBoolVars = incoming.asInstanceOf[Beliefs[Boolean, EnvVar[Boolean]]]
     val result = new MutableBeliefs[Boolean, EnvVar[Boolean]]
     //iterate over conjunctions
@@ -83,7 +85,7 @@ class TableRepresentation(val dnf:DNF[BooleanLiteral]) {
 
       }
     }
-
+    **|
     result.asInstanceOf[Beliefs[Any, EnvVar[Any]]]
   }
 

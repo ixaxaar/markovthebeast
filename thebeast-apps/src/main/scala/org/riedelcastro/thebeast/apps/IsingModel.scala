@@ -23,6 +23,9 @@ object IsingModel {
     val ising = normalize(exp(sum(Rows, Cols) {(x, y) => $(node(x, y)) * Uniform(-2.0,2.0)} +
             sum(Ints(0 until n - 1), Cols) {(x, y) => $(node(x, y) <~> node(x + 1, y)) * Uniform(-2.0,2.0)} +
             sum(Rows, Ints(0 until m - 1)) {(x, y) => $(node(x, y) <~> node(x, y + 1)) * Uniform(-2.0,2.0)}))
+//    val ising = normalize(exp(sum(Rows, Cols) {(x, y) => $(node(x, y)) * 1.0} +
+//            sum(Ints(0 until n - 1), Cols) {(x, y) => $(node(x, y) <~> node(x + 1, y)) * 1.0} +
+//            sum(Rows, Ints(0 until m - 1)) {(x, y) => $(node(x, y) <~> node(x, y + 1)) * 1.0}))
 
     //now what? run sum product
     val solver = new SumProductBeliefPropagation()

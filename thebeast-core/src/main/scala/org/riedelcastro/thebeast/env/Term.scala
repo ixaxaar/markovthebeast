@@ -146,6 +146,13 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
 
 
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = this
+
+  override def hashCode = 31 * name.hashCode + values.hashCode
+  override def equals(obj: Any) = obj match {
+    case Var(n,v)=> name == n && values == v
+    case _=> false
+  }
+
 }
 
 case class FunctionVar[T, R](override val name: String, override val values: FunctionValues[T, R]) extends Var(name, values) {
@@ -299,6 +306,12 @@ trait EnvVar[+T] extends Term[T] {
 case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
     extends FunApp(funVar, Constant(argValue))
         with EnvVar[R] {
+
+  override def hashCode = 31 * funVar.hashCode + argValue.hashCode
+  override def equals(obj: Any) = obj match {
+    case FunAppVar(f,a)=> funVar == f && argValue == a
+    case _=> false
+  }
 }
 
 case class ConditionedTerm[T, C](term: Term[T], condition: Term[C])

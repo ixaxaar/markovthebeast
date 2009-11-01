@@ -251,9 +251,6 @@ case class BooleanFunAppVar[T](override val funVar: EnvVar[T => Boolean], overri
     extends FunAppVar(funVar,argValue) with BooleanEnvVar {
   override def simplify = this
 
-  //todo: does this also work if "this" is a FunAppVar and "that" a BooleanFunAppVar  
-  override def equals(that:Any) = super.equals(that)
-  override def hashCode = super.hashCode
 }
 
 
