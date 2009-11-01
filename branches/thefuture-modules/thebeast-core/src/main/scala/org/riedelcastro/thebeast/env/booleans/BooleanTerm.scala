@@ -122,16 +122,34 @@ object DNFMatch {
 
 
 
+object BooleanEnvVarMatch {
+  def unapply(term: Term[Boolean]): Option[BooleanEnvVar] = {
+    term match {
+      case x: BooleanEnvVar => Some(x)
+      case FunApp(EnvVarMatch(f), Grounded(arg)) => Some(BooleanFunAppVar(f,arg))
+      case _ => None
+    }
+  }
+}
+
+object LiteralMatch {
+  def unapply(term: BooleanTerm): Option[BooleanLiteral] = {
+    term match {
+      case BooleanEnvVarMatch(x) => Some(x)
+      case NotApp(BooleanEnvVarMatch(v)) => Some(NegatedVar(v))
+      case _ => None
+    }
+  }
+}
 
 object LiteralDNFMatch {
   def unapply(term: BooleanTerm): Option[DNF[BooleanLiteral]] = {
     term.flatten match {
-      case Disjunction(args@Seq(Conjunction(_))) =>
+      case Disjunction(args) =>
         Util.optionalMap(args.asInstanceOf[Seq[Conjunction[_]]])(conj => Util.optionalMap(conj.args)(_ match {
-        case arg:BooleanEnvVar => Some(arg)
-        case NotApp(v:BooleanEnvVar) => Some(NegatedVar(v))
-        case _ => None
-        }).map(args=>Conjunction(args.toSeq))).map(conj=>DNF(conj.toSeq))
+          case LiteralMatch(lit) => Some(lit)
+          case _ => None
+        }).map(args => Conjunction(args.toSeq))).map(conj => DNF(conj.toSeq))
       case _ => None
     }
   }
@@ -227,8 +245,17 @@ trait BooleanEnvVar extends BooleanTerm with EnvVar[Boolean] with BooleanLiteral
 case class BooleanVar(override val name: String)
     extends Var[Boolean](name, Bools) with BooleanEnvVar {
   override def simplify = this
-
 }
+
+case class BooleanFunAppVar[T](override val funVar: EnvVar[T => Boolean], override val argValue: T)
+    extends FunAppVar(funVar,argValue) with BooleanEnvVar {
+  override def simplify = this
+
+  //todo: does this also work if "this" is a FunAppVar and "that" a BooleanFunAppVar  
+  override def equals(that:Any) = super.equals(that)
+  override def hashCode = super.hashCode
+}
+
 
 case class ImpliesApp(lhs: BooleanTerm, rhs: BooleanTerm) extends Disjunction(Seq(NotApp(lhs), rhs)) {
   override def toString = lhs + "=>" + rhs

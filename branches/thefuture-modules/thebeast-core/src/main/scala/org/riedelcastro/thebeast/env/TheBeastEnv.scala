@@ -142,6 +142,13 @@ trait TheBeastEnv {
     def apply(t: Term[Any]) = BooleanFunApp(fun, t)
   }
 
+  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T,Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
+    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+  }
+
+  implicit def intTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[Int,Boolean]]) =
+    genericTerm2booleanFunAppBuilder(fun)
+
 //  implicit def anyterm2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[Any, Boolean]]) = new {
 //    def apply(t: TupleTerm2[Any, Any]) = BooleanFunApp(fun, t)
 //    def apply(t1: Term[Any], t2: Term[Any]) = BooleanFunApp(fun, TupleTerm2(t1, t2))

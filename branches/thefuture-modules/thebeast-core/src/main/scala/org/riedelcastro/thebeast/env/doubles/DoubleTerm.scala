@@ -226,6 +226,8 @@ case class Uniform(from: DoubleTerm, to: DoubleTerm) extends DoubleTerm {
   def variables = from.variables ++ to.variables
 
   def subterms = Seq(from, to)
+
+
 }
 
 object Add extends (Double => (Double => Double)) {
