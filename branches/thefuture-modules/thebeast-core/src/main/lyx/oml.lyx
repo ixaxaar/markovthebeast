@@ -275,6 +275,48 @@ vs Function Programming of Random Variables
 \end_layout
 
 \end_deeper
+\begin_layout Itemize
+Formulas are terms.
+ Some (http://mally.stanford.edu/Papers/rtt.pdf) argue: In this paper we develop
+ an argument that suggests Whitehead & Russell’s approach to the foundations
+ of logic, which takes relations as basic, is to be preferred to Frege’s
+ and Church’s.(difference between RTTs and FTTs with regard to their ability
+ to represent systems containing formulas that aren’t, and can’t be converted
+ to, terms.)
+\end_layout
+
+\begin_layout Itemize
+http://en.wikipedia.org/wiki/Principle_of_compositionality
+\end_layout
+
+\begin_layout Itemize
+http://en.wikipedia.org/wiki/Value-level_programming
+\end_layout
+
+\begin_layout Itemize
+http://plato.stanford.edu/entries/type-theory-church/
+\end_layout
+
+\begin_layout Itemize
+Henkin's (1950) standard model for semantics
+\end_layout
+
+\begin_layout Itemize
+look at model theory for church type theory and use a bit of their terminology
+\end_layout
+
+\begin_layout Itemize
+http://imps.mcmaster.ca/doc/seven-virtues.ps
+\end_layout
+
+\begin_layout Itemize
+valuation function
+\end_layout
+
+\begin_layout Itemize
+Quantification=Definite Description
+\end_layout
+
 \begin_layout Section
 Variables and Possible Worlds
 \end_layout

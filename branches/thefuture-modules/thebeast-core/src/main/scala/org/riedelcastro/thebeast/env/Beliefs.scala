@@ -15,6 +15,8 @@ trait Beliefs[V, T <: Term[V]] {
 
   def terms: Collection[T]
 
+  def partitionFunction = terms.foldLeft(1.0) {(s, t) => s * belief(t).totalSum} 
+
   override def equals(obj: Any) = obj match {
     case that: Beliefs[_, _] => terms.forall(t => this.belief(t) == that.asInstanceOf[Beliefs[V, T]].belief(t))
     case _ => false
@@ -45,6 +47,9 @@ class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V, T] {
   }
 
   override def toString = beliefs.toString
+
+
+
 }
 
 sealed trait Belief[T] {
@@ -55,6 +60,8 @@ sealed trait Belief[T] {
   def normalize: Belief[T]
 
   def norm: Double = values.foldLeft(0.0) {(n, v) => {val b = belief(v); n + b * b}}
+
+  def totalSum = values.foldLeft(0.0) {(s, v) => s + belief(v)} 
 
   def /(that: Belief[T]) = applyPointWiseIgnoreIgnorance(that, (b1, b2) => b1 / b2)
 

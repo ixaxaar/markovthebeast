@@ -32,7 +32,7 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
     })).trim
     case x: NotApp => CNF(Seq(Disjunction(Seq(x))))
     case x => error("After moving in negations and distributing ands the term must be a constant or conjunction" +
-                    " pr a literal and not a " + x)
+                    " or a literal and not a " + x)
   }
 
   def negate: BooleanTerm
@@ -46,7 +46,8 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
 }
 
 object Bools extends Values[Boolean] {
-  val seq = Seq(false,true)
+  val seq = Seq(false, true)
+
   def elements = seq.elements
 }
 
@@ -105,14 +106,36 @@ case class CNF(override val args: Seq[Disjunction[BooleanTerm]]) extends Conjunc
   def trim = CNF(args.filter(d => !d.args.exists(x => d.args.exists(y => x == NotApp(y)))))
 }
 
-case class DNF[T<:BooleanTerm](override val args: Seq[Conjunction[T]]) extends Disjunction(args) {
+case class DNF[T <: BooleanTerm](override val args: Seq[Conjunction[T]]) extends Disjunction(args) {
   override def ground(env: Env): DNF[T] = DNF(args.map(_.ground(env).asInstanceOf[Conjunction[T]]))
-
- 
-
 
 }
 
+object DNFMatch {
+  def unapply(term: BooleanTerm): Option[DNF[BooleanTerm]] = {
+    term.flatten match {
+      case Disjunction(args@Seq(Conjunction(_))) => Some(DNF(args.asInstanceOf[Seq[Conjunction[BooleanTerm]]]))
+      case _ => None
+    }
+  }
+}
+
+
+
+
+object LiteralDNFMatch {
+  def unapply(term: BooleanTerm): Option[DNF[BooleanLiteral]] = {
+    term.flatten match {
+      case Disjunction(args@Seq(Conjunction(_))) =>
+        Util.optionalMap(args.asInstanceOf[Seq[Conjunction[_]]])(conj => Util.optionalMap(conj.args)(_ match {
+        case arg:BooleanEnvVar => Some(arg)
+        case NotApp(v:BooleanEnvVar) => Some(NegatedVar(v))
+        case _ => None
+        }).map(args=>Conjunction(args.toSeq))).map(conj=>DNF(conj.toSeq))
+      case _ => None
+    }
+  }
+}
 
 
 case class BooleanConstant(override val value: Boolean) extends BoundedConstant(value) with BooleanTerm {
