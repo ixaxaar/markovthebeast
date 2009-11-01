@@ -37,10 +37,16 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
     case class SPBPFactor(override val term: TermType) extends Factor(term) {
       def updateOutgoingMessages = {
+
+        |**("Term marginalization")
         val incomingBeliefs = new MutableBeliefs[Any,EnvVar[Any]]
         for (edge <- edges) incomingBeliefs.setBelief(edge.node.variable, edge.node2factor)
         val outgoingBeliefs = term.marginalize(incomingBeliefs)
+        **|
+
+        |**("Divide by incoming message and normalize")
         for (edge <- edges) edge.factor2node = (outgoingBeliefs.belief(edge.node.variable) / edge.node2factor).normalize
+        **|
       }
     }
 
@@ -58,15 +64,21 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
     def updateMessages(): Double = {
       //synchronous edge processing
+      |**("Update factor to node messages")
       for (factor <- factors)
         factor.updateOutgoingMessages
+      **|
 
+      |**("Update beliefs")
       var maxChange = 0.0
       for (node <- nodes)
         maxChange = Math.max(node.updateBelief, maxChange)
+      **|
 
+      |**("Update node to factor messages")
       for (edge <- edges)
         edge.updateNode2Factor
+      **|
 
       maxChange
     }
@@ -97,11 +109,14 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
   private def infer(terms: Iterable[DoubleTerm]): Beliefs[Any,EnvVar[Any]] = {
     val graph = new SPBPFactorGraph
+
+    |** ("Constructing graph")
     graph.addTerms(terms.map(_ match {
       case ExpWeightedDNFMatch(wdnf) => wdnf;
       case x => x
       
     }))
+    **|
 
     _iterations = 0
     |**("Message passing")
