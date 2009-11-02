@@ -113,6 +113,7 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
     |** ("Constructing graph")
     graph.addTerms(terms.map(_ match {
       case ExpWeightedDNFMatch(wdnf) => wdnf;
+      case ExpWeightedBooleanLiteralMatch(wlit) => wlit;
       case x => x
       
     }))

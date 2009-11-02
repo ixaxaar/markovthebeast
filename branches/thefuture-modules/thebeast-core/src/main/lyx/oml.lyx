@@ -310,11 +310,21 @@ http://imps.mcmaster.ca/doc/seven-virtues.ps
 \end_layout
 
 \begin_layout Itemize
-valuation function
+Simple Type Theory! valuation function, we are STT with
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+many sortedness
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Quantification=Definite Description
 \end_layout
 
 \begin_layout Itemize
-Quantification=Definite Description
+ExML: mixture of Markov Logic, Simple Type Theory, Church/Figaro
 \end_layout
 
 \begin_layout Section

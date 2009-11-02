@@ -114,6 +114,7 @@ case class Ignorance[T](val values: Values[T]) extends Belief[T] {
   def normalize = this
 }
 
+//todo:  implement a immutable version
 class MutableBelief[T](val values: Values[T]) extends Belief[T] {
   private val _belief = new HashMap[T, Double] {
     override def default(key:T) = 0.0
