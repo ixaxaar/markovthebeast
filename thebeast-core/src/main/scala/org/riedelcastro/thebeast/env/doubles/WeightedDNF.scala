@@ -37,7 +37,7 @@ case class ExpWeightedDNF(val dnf: DNF[BooleanLiteral], weight: Double)
   }
 }
 
-
+//todo:  should this be refactored/moved to booleans? Do we need a general Table framework for CNFs etc.?
 class TableRepresentation(val dnf:DNF[BooleanLiteral]) extends Trackable {
   val vars = (Set() ++ (for (con <- dnf.args; lit <- con.args) yield lit.variable)).toArray
   val rows = new ArrayBuffer[Array[Boolean]]
