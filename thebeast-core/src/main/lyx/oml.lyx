@@ -42,11 +42,20 @@
 \begin_body
 
 \begin_layout Title
-Extendable Markov Logic (ExML)
+Bazaar-Type Probabilistic Programming or 
+\begin_inset Quotes eld
+\end_inset
+
+Growing a Probabilistic Programming Language
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \begin_layout Abstract
-Markov Logic has been very succesful
+[write a short descriptions of bazaar type prob languages, how we implement
+ such a bazaar, and how this helped us to improve compactness and efficiency]
 \end_layout
 
 \begin_layout Abstract
@@ -89,6 +98,127 @@ However, the core feature of ExML is that it allows us to readily define
 
 \begin_layout Section
 Introduction
+\end_layout
+
+\begin_layout Standard
+In Programming, and Programming Language Design, they are two competing
+ metaphors: the cathedral and the bazaar
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "raymond99cathedral,steele99growing"
+
+\end_inset
+
+.
+ The former is a near-perfect building that, designed by only a handful
+ of architects, takes a long time to built and stays unchanged forever.
+ The latter is constantly evolving and extended by its users.
+ In recent years software development practices as well as language design
+ (see Scala) has shifted attention to the Bazaar---primarily because it
+ allows a program or language to grow with the ever changing needs of its
+ users instead of trying to anticipate these in advance.
+\end_layout
+
+\begin_layout Standard
+We argue that Markov Logic
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "richardson06markov"
+
+\end_inset
+
+, to date one of the most widely applied probabilistic programming languages,
+ is inherintely a cathedral and should be made a Bazaar.
+ 
+\end_layout
+
+\begin_layout Standard
+[Markov Logic is a probabilistic programming language, and to date the most
+ widely applied one.
+ However, it can be seen as a cathedral]
+\end_layout
+
+\begin_layout Standard
+In contrast, many probabilistic programming languages can be seen as cathedrals:
+ they are often designed once with the (impossible goal) of being (a) sufficient
+ly expressive while (b) still allowing efficient inference and learning.
+ Later on they are only marginally extended to be a bit more expressive,
+ or less expressive and more efficient.
+ Languages such as Markov Logic RMNs, Bayesian Logic Programs, Prism can
+ be seen as such cathedrals.
+ 
+\end_layout
+
+\begin_layout Standard
+[now focus on Markov Logic] We believe that the time is ripe for a bazaar-type
+ Markov Logic-like probabilistic programming language that allows users
+ to introduce new constructions/expressions.
+ This belief stems from the following observations:
+\end_layout
+
+\begin_layout Itemize
+Many probabilistic models contain identical sub-structure (e.g.
+ models with tree constraints, matching constraints, markov chains, tree
+ alignments).
+ By introducing 
+\begin_inset Quotes eld
+\end_inset
+
+new words into our language
+\begin_inset Quotes erd
+\end_inset
+
+ these structures can be re-used and lead to more compact and maintable
+ models.
+ 
+\end_layout
+
+\begin_layout Itemize
+There often exist specialized inference methods for such substructures that
+ can be used in methods such as belief propagation or mean field methods.
+ By allowing language users to introduce new constructions and giving them
+ the opportunity to provide tailor-made inference routines for these constructio
+ns these inference methods can be exploited.
+ (This helps the language to become an interface to a much larger set of
+ AI technology than ML claims to be)
+\end_layout
+
+\begin_layout Itemize
+One of the most successful PPL, Markov Logic, has been incrementally extended
+ over the years.
+ Extensions include blocking constraints, + notation, hybrid networks and
+ much more.
+ While these extensions have been rather adhoc and not part of the actual
+ language but of the alchemy interpreter, it shows that there is a need
+ for PPLs used in practice to grow.
+ 
+\end_layout
+
+\begin_layout Standard
+Note that languages such as Church and Blog can be seen as Bazaar type languages
+ since they are based on Lambda Calculus which naturally support growth
+ and new constructs, they do not allow for tailor made inference for new
+ constructs.
+ Moreover, these languages are generative, and constructs in the language
+ represent random variables.
+ By contrast, here we present a language in wich terms are used to compose
+ (deterministic) scoring functions over possible worlds.
+ This is along the lines of Markov Logic, parfactors or XX.
+ 
+\end_layout
+
+\begin_layout Standard
+To make this more concrete, let us consider dependency parsing, an application
+ in Natural Language Processing.
+ Here we are asked to ...
 \end_layout
 
 \begin_layout Standard
@@ -324,7 +454,15 @@ Quantification=Definite Description
 \end_layout
 
 \begin_layout Itemize
-ExML: mixture of Markov Logic, Simple Type Theory, Church/Figaro
+ExML: mixture of Markov Logic, Simple Type Theory (with Many Base types),
+ Church/Figaro, Factorie
+\end_layout
+
+\begin_layout Itemize
+The two semantics of ﬁrst-order logic and stt are based on essentially the
+ same ideas: domains of individuals, truth values, and functions; models
+ for languages; variable assignments; and valuation functions deﬁned recursively
+ on the syntax of expressions.
 \end_layout
 
 \begin_layout Section
@@ -835,6 +973,17 @@ Gradient Based & Online Learning
 
 \begin_layout Section
 Examples
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "/Users/riedelcastro/projects/phd/phdthesis"
+options "plain"
+
+\end_inset
+
+
 \end_layout
 
 \end_body
