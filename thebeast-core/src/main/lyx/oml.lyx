@@ -17,6 +17,7 @@
 
 \graphics default
 \paperfontsize default
+\spacing single
 \use_hyperref false
 \papersize default
 \use_geometry false
@@ -30,7 +31,7 @@
 \paragraph_separation indent
 \defskip medskip
 \quotes_language english
-\papercolumns 1
+\papercolumns 2
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
@@ -42,16 +43,13 @@
 \begin_body
 
 \begin_layout Title
-Bazaar-Type Probabilistic Programming or 
-\begin_inset Quotes eld
-\end_inset
-
-Growing a Probabilistic Programming Language
-\begin_inset Quotes erd
-\end_inset
-
-
+Growing a Probabilistic Programming Language: Turning Markov Logic into
+ a Bazaar
 \end_layout
+
+\begin_layout Plain Layout
+\begin_inset Note Note
+status collapsed
 
 \begin_layout Abstract
 [write a short descriptions of bazaar type prob languages, how we implement
@@ -96,12 +94,17 @@ However, the core feature of ExML is that it allows us to readily define
  
 \end_layout
 
+\end_inset
+
+Abstract here.
+\end_layout
+
 \begin_layout Section
 Introduction
 \end_layout
 
 \begin_layout Standard
-In Programming, and Programming Language Design, they are two competing
+In Programming, and Programming Language Design, we often speak of two competing
  metaphors: the cathedral and the bazaar
 \begin_inset space ~
 \end_inset
@@ -118,13 +121,24 @@ key "raymond99cathedral,steele99growing"
  of architects, takes a long time to built and stays unchanged forever.
  The latter is constantly evolving and extended by its users.
  In recent years software development practices as well as language design
- (see Scala) has shifted attention to the Bazaar---primarily because it
- allows a program or language to grow with the ever changing needs of its
- users instead of trying to anticipate these in advance.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "odersky08programming"
+
+\end_inset
+
+ has shifted attention to the Bazaar---primarily because it allows a program
+ or language to grow with the ever changing needs of its users instead of
+ trying to anticipate these in advance.
+ (This has lead to very successful projects such as Linux, firefox etc.)
 \end_layout
 
 \begin_layout Standard
-We argue that Markov Logic
+In this paper we argue that Markov Logic
 \begin_inset space ~
 \end_inset
 
@@ -136,17 +150,365 @@ key "richardson06markov"
 \end_inset
 
 , to date one of the most widely applied probabilistic programming languages,
- is inherintely a cathedral and should be made a Bazaar.
+ is inherintely a cathedral, and should be made a Bazaar.
+ We see it as a cathedral because it only provides very limited possibilities
+ for users to extend the language---users can provide static functions such
+ as 
+\begin_inset Quotes eld
+\end_inset
+
+string-edit distance
+\begin_inset Quotes erd
+\end_inset
+
+ but cannot extend the set of primitive types of formulae
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Note that while it has been evolving (addition of the plus notation, exclamation
+ marks, blocking) and extended (to Hybrid Markov Logic Networks, or Decision
+ Process MLNs) this evolution has either been quite adhoc, or required to
+ change syntax and semantics the language.
+ To remain in the above methaphor: the cathedral 
+\end_layout
+
+\end_inset
+
+.
+ And it should be a Bazaar: a language whose very essence is to grow, change
+ and which allows this growth to be triggered and controlled by its users,
+ as opposed to a small set of language designer.
+\end_layout
+
+\begin_layout Standard
+Let us become more concrete.
+ Assume a Natural Language Processing (NLP) researcher that designs a joint
+ pos tagging and dependency parsing model within Markov Logic.
+ She represents the words with a binary 
+\family typewriter
+word(Token,Word)
+\family default
+ predicate and starts to design a simple pos tager by introducing a predicate
+ 
+\family typewriter
+pos(Token,Pos)
+\family default
+, and a well-designed set of formulae that describe the rough relation between
+ words, their neighborhoods, and their PoS tags.
+ For example:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+word(t,+w) => pos(t,+p)
+\end_layout
+
+\begin_layout Standard
+She goes on to design dependency parse tree model over the tokens of a sentence
+ (see figure).
+ She chooses a dependency(Token,Token) predicate to represent such a tree.
+ She would add formulae that relate pos tags and words to dependency predicates.
+ Moreover, in order to enforce dependency to be a spanning tree she needs
+ to both introduce an additional predicate and write down a range of formulae:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+dependency(h1,m) ^ dependency(h2,m) => h1=h2
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+//to enforce unique heads
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+m > 0 => exists h: dependency(h,m)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+every non-root has a head
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+dependency(h,m) => ancestor(h,m)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+head is an ancestor
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+dependency(h,m) ^ ancestor(a,h) => ancestor(a,m)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+heads of ancestors are ancestors
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+ancestor(a,c) => !ancestor(c,a)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+no loops in the graph
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that while there are other ways to represent the Spanning tree constraint[c
+ite cussens], they all require an equal amount of formulae and the addition
+ of an auxiliarly predicate.
  
 \end_layout
 
 \begin_layout Standard
+In this scenario we see three problems (ordered by increasing severness)
+ with the Markov Logic cathedral:
+\end_layout
+
+\begin_layout Standard
+First, Spanning trees appear in several AI applications, such as vision
+ (for object graphs), clustering (for hierarchical clusters) and many more.
+ Each researcher that needs these spanning tree constraints need to cwrite
+ them up himself.
+ This leads to
+\series bold
+ more bugs, more clutter
+\series default
+ in models.
+ If 
+\begin_inset Quotes eld
+\end_inset
+
+spanning tree
+\begin_inset Quotes erd
+\end_inset
+
+ was a language primitive (
+\family typewriter
+spanningTree(dependency)
+\family default
+), this problem would disappear.
+ However, it seems surely wrong to add primitives for each of such cases
+ and present a new Language.
+ 
+\end_layout
+
+\begin_layout Standard
+Second, after our researcher has carefully designed this model and tested
+ it, other researchers want to reuse this model in their own Information
+ Extraction model as a black box.
+ In this case they need to copy all formulae of this model, and do a copy
+ and replace of any predicates that may have different names.
+ Programming Languages tell us that this type of 
+\series bold
+code duplication
+\series default
+ is bad.
+ If 
+\begin_inset Quotes eld
+\end_inset
+
+tagAndDep
+\begin_inset Quotes erd
+\end_inset
+
+ could become a primitive of Markov Logic this problem disappears.
+\end_layout
+
+\begin_layout Standard
+Finally, and most crucially, the model is 
+\series bold
+not tractable
+\series default
+ with current Markov Logic inference methods (see experiments).
+ However, if we had a spanning tree language construct we could provide
+ specialized inference methods for this model substructure
+\begin_inset space ~
+\end_inset
+
+(cite David, ) and use them in a composible inference method such as BP.
+ 
+\end_layout
+
+\begin_layout Standard
+In the following we show how we generalize Markov Logic to become more of
+ a Bazaar, and less of Cathedral.
+ In essence, we want it to be easy to introduce constructs such as spanningTree(
+dependency) and jointTagger(word,pos,dependency), and provide optimized
+ inference methods for such constructs that can be seamlessly combined with
+ other constructs of the language.
+ We do so by a) using a Functional/Higher Order Logic/Simple Type Theory
+ semantics, (b) using compositional inference methods that can treat factors
+ as black boxes, and (b) using Scala as glue and platform (this allows users
+ to .
+ 
+\end_layout
+
+\begin_layout Standard
+Note that languages such as Church or Blog are naturally Bazaars because
+ they follow a functional design.
+ However, they are generative, and use expression to denote generative models.
+ Our work follows the spirit of Markov Logic and defines factor graphs (scoring
+ functions over possible worlds).
+ Also, they don't focus on more efficient inference for special made constructs.
+ Our language is also close in spirit to Factorie, but inherently declarative.
+ Also related to Learning-Based Java.
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+[go on to build full NLP system, then show problems: other people want to
+ use spanning trees (small problem), other people want to use NLP model
+ (bigger problem: replace all predicates), model not tractable (biggest
+ problem) ]
+\end_layout
+
+\begin_layout Plain Layout
+Now there are at least two problems with this:
+\end_layout
+
+\begin_layout Itemize
+This model is not tractable in Markov Logic (see experiments)---it creates
+ ground networks that are hard to solve with any of the existing MLN approaches.
+ 
+\end_layout
+
+\begin_layout Itemize
+Everyone who needs a spanning tree needs to reproduce these formulae (such
+ as vision researchers, hierarchical classification, etc.) in one way of
+ another.
+ This leads to clutter and more complicated model files (weak).
+\end_layout
+
+\begin_layout Plain Layout
+Now assume someone in vision who is developing a object reconstruction model
+ with MLN.
+ He too follows a spanning tree approach to represent the hierarchical object
+ graph.
+ Hence part of his model looks like what we have seen above---they only
+ difference being a predicate 
+\begin_inset Quotes eld
+\end_inset
+
+parent
+\begin_inset Quotes erd
+\end_inset
+
+ used instead of dependency.
+ In a cathedral, and in Markov Logic, he would have to write the same set
+ of formulae again, along with the addition of extra predicates.
+ And the same would hold for someone in hierarchical clustering, etc.
+ pp.
+ In a bazaar, he would simply write 
+\end_layout
+
+\begin_layout LyX-Code
+spanningTree(parent)
+\end_layout
+
+\begin_layout Plain Layout
+because someone (the NLP researcher?) provided the primitve (or primitive-like)
+ 
+\family typewriter
+spanningTree
+\family default
+ before.
+ [Mention 
+\end_layout
+
+\begin_layout Plain Layout
+Now why is good? On the surface, we have just reduced 5 formulae to one.
+ 
+\end_layout
+
+\begin_layout Itemize
+more compact models, reuse of models in other contexts (factor out dependency
+ parser, tagger etc.)
+\end_layout
+
+\begin_layout Itemize
+provide useful/sensible/intuitive/NATURAL units of optimization 
+\end_layout
+
+\begin_layout Itemize
+models capture and focus on the application specific structure, not on those
+ parts which are generally found in many models.
+\end_layout
+
+\begin_layout Plain Layout
+How to turn into Bazaar? We turn ML into an Bazaar by (a) generalizing to
+ Simple Type Theory/Higher order logic, focussing on inference and learning
+ which interact with new language constructs in a black box fashion, and
+ (c) embedding it into a growable-Bazaar like deterministic programming
+ language (Scala).
+\end_layout
+
+\begin_layout Plain Layout
 [Markov Logic is a probabilistic programming language, and to date the most
  widely applied one.
  However, it can be seen as a cathedral]
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 In contrast, many probabilistic programming languages can be seen as cathedrals:
  they are often designed once with the (impossible goal) of being (a) sufficient
 ly expressive while (b) still allowing efficient inference and learning.
@@ -157,7 +519,7 @@ ly expressive while (b) still allowing efficient inference and learning.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 [now focus on Markov Logic] We believe that the time is ripe for a bazaar-type
  Markov Logic-like probabilistic programming language that allows users
  to introduce new constructions/expressions.
@@ -202,7 +564,7 @@ One of the most successful PPL, Markov Logic, has been incrementally extended
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Note that languages such as Church and Blog can be seen as Bazaar type languages
  since they are based on Lambda Calculus which naturally support growth
  and new constructs, they do not allow for tailor made inference for new
@@ -215,13 +577,13 @@ Note that languages such as Church and Blog can be seen as Bazaar type languages
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 To make this more concrete, let us consider dependency parsing, an application
  in Natural Language Processing.
  Here we are asked to ...
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Markov Logic has been successfully applied for various tasks, and is currently
  gaining momentum as one of the leading probababilistic programming languages.
  This is probably due to various reasons: its expressivity, its simplicity,
@@ -234,7 +596,7 @@ Markov Logic has been successfully applied for various tasks, and is currently
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 We argue that this flexibility, or evolution, is essential for the further
  progress of Markov Logic as interface language between applications and
  AI technology.
@@ -253,7 +615,7 @@ s.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 In this work we therefore present a framework that will allow Markov Logic
  to grow in the above presented ways: 
 \noun on
@@ -270,7 +632,7 @@ Extendable Markov Logic
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ExML is also closely related to factorie: here users can define factor graphs
  (our scoring functions in our lingo) and inference/learning in these graphs
  imperatively.
@@ -282,7 +644,7 @@ ExML is also closely related to factorie: here users can define factor graphs
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Roughly speaking, ExML allows you to write
 \end_layout
 
@@ -308,7 +670,7 @@ DT
 ) ==> link(i,j)) * 2.5} + tree(link)
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 the first summand is essentially the log linear score of a Markov Logic
  formula (note that $ is our shortform for the indicator function mapping
  bools to doubles).
@@ -322,7 +684,7 @@ the first summand is essentially the log linear score of a Markov Logic
  Note that this scoring function is equivalent to 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 \begin_inset Formula \[
 \sum_{i,j}\left[pos\left(i,NN\right)\wedge pos\left(j,DT\right)\Rightarrow link\left(i,j\right)\right]\cdot2.5+tree\left(link\right)\]
 
@@ -331,7 +693,7 @@ the first summand is essentially the log linear score of a Markov Logic
 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Here 
 \begin_inset Formula $\left[\cdot\right]$
 \end_inset
@@ -339,7 +701,7 @@ Here
  is the Iverson bracket[cite].
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The first embodiement of ExML is implemented in Scala.
  This allows us to avoid designing and own syntax for our language---all
  expressions are realized through operator overloading and other techiques
@@ -348,7 +710,7 @@ The first embodiement of ExML is implemented in Scala.
  It also makes the definition of new building blocks hassle-free.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Note that ExML also allows variables to be a) propositional, b) functions
  (over functions) and c) categorical values.
  Again, while we can use ML to simulate such variables, our framework is
@@ -358,6 +720,11 @@ Note that ExML also allows variables to be a) propositional, b) functions
 
 \begin_layout Itemize
 relation to factorie
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
