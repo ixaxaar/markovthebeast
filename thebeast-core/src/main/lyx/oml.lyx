@@ -47,7 +47,7 @@ Growing a Probabilistic Programming Language: Turning Markov Logic into
  a Bazaar
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 \begin_inset Note Note
 status collapsed
 
@@ -197,6 +197,16 @@ pos(Token,Pos)
 , and a well-designed set of formulae that describe the rough relation between
  words, their neighborhoods, and their PoS tags.
  For example:
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Plus notation:
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout LyX-Code
@@ -396,13 +406,25 @@ dependency) and jointTagger(word,pos,dependency), and provide optimized
  We do so by a) using a Functional/Higher Order Logic/Simple Type Theory
  semantics, (b) using compositional inference methods that can treat factors
  as black boxes, and (b) using Scala as glue and platform (this allows users
- to .
+ to.
+ We demonstrate the effectiveness of our approach by comparing DP in Markov
+ Logic with DP in ExML.
  
 \end_layout
 
 \begin_layout Standard
-Note that languages such as Church or Blog are naturally Bazaars because
- they follow a functional design.
+Note that languages such as Church
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "goodman08church"
+
+\end_inset
+
+ or Blog are naturally Bazaars because due to their functional design.
  However, they are generative, and use expression to denote generative models.
  Our work follows the spirit of Markov Logic and defines factor graphs (scoring
  functions over possible worlds).
@@ -411,7 +433,7 @@ Note that languages such as Church or Blog are naturally Bazaars because
  Also related to Learning-Based Java.
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 \begin_inset Note Note
 status collapsed
 
@@ -725,6 +747,57 @@ relation to factorie
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Markov Logic
+\end_layout
+
+\begin_layout Standard
+Introduce Markov Logic, and then generalize...
+\end_layout
+
+\begin_layout Section
+Higher Order Markov Logic
+\end_layout
+
+\begin_layout Standard
+It should be clear from the section 1 that we want to talk about properties
+ not only of simple entities such as tokens or tags, but also about properties
+ of graphs (dependency should be a tree) or sets of relations (all token
+ properties).
+ This clearly suggests a higher order approach
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "farmer08seven"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We want to talk about need terms to 
+\end_layout
+
+\begin_layout Standard
+Core:
+\end_layout
+
+\begin_layout Itemize
+Constant, Fun Application, Quantification
+\end_layout
+
+\begin_layout Standard
+Extended:
+\end_layout
+
+\begin_layout Itemize
+Indicator, Multiplication, Iverson Bracket (delta/real to boolean), Exp
 \end_layout
 
 \begin_layout Section
@@ -1340,6 +1413,26 @@ Gradient Based & Online Learning
 
 \begin_layout Section
 Examples
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+mymodel = lambda tokenProperties, tag.
+ forall p,t,v.
+ token(t) & tokenProperty(p) & p(t,+v) =>tag(t,tag) {
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  marginalize(...)
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+}
 \end_layout
 
 \begin_layout Standard
