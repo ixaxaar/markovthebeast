@@ -111,12 +111,7 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
     val graph = new SPBPFactorGraph
 
     |** ("Constructing graph")
-    graph.addTerms(terms.map(_ match {
-      case ExpWeightedDNFMatch(wdnf) => wdnf;
-      case ExpWeightedBooleanLiteralMatch(wlit) => wlit;
-      case x => x
-      
-    }))
+    graph.addTerms(terms.map(DoubleTermOptimizer.optimize(_)))
     **|
 
     _iterations = 0
