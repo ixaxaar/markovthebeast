@@ -26,23 +26,41 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     case _ => inferExhaustively(term)
   }
 
+  def inferQueries(term: DoubleTerm, queries:Seq[Term[Any]]) : Beliefs[Any,Term[Any]] = term match {
+    case Normalize(x) => inferQueriesExhaustively(x,queries).normalize
+    case _ => inferQueriesExhaustively(term,queries)
+  }
+
+
   private def inferExhaustively(term: DoubleTerm) : Beliefs[Any,EnvVar[Any]] = {
+    val domain = term.variables.toSeq
+    gatherBeliefs(term, domain, domain)
+  }
+
+  private def inferQueriesExhaustively(term: DoubleTerm, queries:Seq[Term[Any]]) : Beliefs[Any,Term[Any]] = {
+    val domain = term.variables.toSeq
+    gatherBeliefs(term, domain, queries)
+  }
+
+  private def gatherBeliefs[V,T<:Term[V]](term:DoubleTerm,
+                                            variables:Collection[EnvVar[Any]], 
+                                            queries:Seq[T]) : Beliefs[V,T] = {
     |**("Exhaustive marginal inference for " + term)
 
-    val beliefs = new MutableBeliefs[Any,EnvVar[Any]]
-    val domain = term.variables.toSeq
+    val beliefs = new MutableBeliefs[V,T]
 
-    Env.forall(term.variables) {
+    Env.forall(variables) {
       env => {
         val score = env(term);
-        for (variable <- domain) {
-          beliefs.increaseBelief(variable,env(variable), score)
+        for (query <- queries) {
+          beliefs.increaseBelief(query,env(query), score)
         }
       }
     }
 
     **|
     beliefs
+
   }
 
 

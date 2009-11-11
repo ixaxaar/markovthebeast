@@ -42,6 +42,29 @@
 
 \begin_body
 
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\y}{\mathbf{y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\prob}{p}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\Yvar}{\mathbf{Y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\boldc}{\mathbf{c}}
+\end_inset
+
+
+\end_layout
+
 \begin_layout Title
 Growing a Probabilistic Programming Language: Turning Markov Logic into
  a Bazaar
@@ -435,7 +458,7 @@ key "goodman08church"
 
 \begin_layout Standard
 \begin_inset Note Note
-status collapsed
+status open
 
 \begin_layout Plain Layout
 [go on to build full NLP system, then show problems: other people want to
@@ -754,7 +777,192 @@ Markov Logic
 \end_layout
 
 \begin_layout Standard
-Introduce Markov Logic, and then generalize...
+Our proposed approach to probabilistic programming is based on, or rather,
+ inspired by Markov Logic---a combination of first order logic and Markov
+ Netoworks.
+ It can be seen as a formalism that extends First Order Logic to allow formulae
+ that can be violated with some penalty.
+ From an alternative point of view, it is an expressive template language
+ that uses First Order Logic formulae to instantiate Markov Networks of
+ repetitive structure.
+ 
+\end_layout
+
+\begin_layout Standard
+[needs fixing] Let us introduce Markov Logic by considering dependency parsing.
+ In Markov Logic we can model this task by first introducing a set of logical
+ predicates such as 
+\emph on
+word(Token,Word),
+\emph default
+ 
+\emph on
+pos(Token,Pos)
+\emph default
+ and 
+\emph on
+dependency(Token,Token)
+\emph default
+.
+ Then we specify a set of weighted first order formulae that define a distributi
+on over sets of ground atoms of these predicates (or so-called 
+\emph on
+possible worlds
+\emph default
+).
+\end_layout
+
+\begin_layout Standard
+In Markov Logic a set 
+\begin_inset Formula $M=\left\{ \left(\phi,w_{\phi}\right)\right\} _{\phi}$
+\end_inset
+
+ of weighted first order formulae is called a 
+\emph on
+Markov Logic Network
+\emph default
+
+\begin_inset space ~
+\end_inset
+
+(MLN).
+ It assigns the probability
+\begin_inset Formula \begin{equation}
+\prob\left(\y\right)=\frac{1}{Z}\exp\left(\sum_{\left(\phi,w\right)\in M}\sum_{\boldc\in C^{\phi}}\left[\phi\left(\boldc\right)\right]\cdot w\right)\label{eq:prob}\end{equation}
+
+\end_inset
+
+to the possible world 
+\begin_inset Formula $\y$
+\end_inset
+
+.
+ Here 
+\begin_inset Formula $C^{\phi}$
+\end_inset
+
+ is the set of all possible bindings of the free variables in 
+\begin_inset Formula $\phi$
+\end_inset
+
+ with the constants of our domain.
+ 
+\begin_inset Formula $\phi\left(\boldc\right)$
+\end_inset
+
+ is the 
+\emph on
+ground formula
+\emph default
+ we get by replacing the free variables in 
+\begin_inset Formula $\phi$
+\end_inset
+
+ by the constants in 
+\begin_inset Formula $\boldc$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\left[\cdot\right]$
+\end_inset
+
+ is the Iverson Bracket that returns 1 if the boolean argument inside the
+ bracket evaluates to true, and 0 otherwise.
+ 
+\begin_inset Formula $Z$
+\end_inset
+
+ is a normalisation constant.
+ Note that this distribution corresponds to a Markov Network (the so-called
+ 
+\emph on
+Ground Markov Network
+\emph default
+) where nodes represent ground atoms and factors represent ground formulae.
+\end_layout
+
+\begin_layout Standard
+By looking at equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:prob"
+
+\end_inset
+
+ one can understand Markov Logic as a language that allows us to compose
+ probability or scoring functions over possible worlds using a small set
+ of building blocks that can be arranged to yield terms conforming to equation
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:prob"
+
+\end_inset
+
+ :
+\end_layout
+
+\begin_layout Itemize
+Normalization and Exp.
+ over a linear product
+\end_layout
+
+\begin_layout Itemize
+Sum over formula-weight pairs
+\end_layout
+
+\begin_layout Itemize
+sum over assignments of free variables (quantification)
+\end_layout
+
+\begin_layout Itemize
+Iverson bracket (mapping booleans to real values)
+\end_layout
+
+\begin_layout Itemize
+multiplication with weight
+\end_layout
+
+\begin_layout Itemize
+basic logic connectives and predicates, forall, exists (within Iverson Bracket).
+\end_layout
+
+\begin_layout Standard
+In other words, a MLN is a term that has the form of equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:prob"
+
+\end_inset
+
+.
+ [Stress view of MLN as composed scoring function term] That is, we can
+ see as our unit of modelling not only as a list of weighted FOL formula,
+ but also as a composed scoring function term that follows a set of construction
+ rules and has a small set of atomic building blocks.
+ Note that in this view the semantics of an MLN are immediately clear---they
+ correspond to the 
+\begin_inset Quotes eld
+\end_inset
+
+natural
+\begin_inset Quotes erd
+\end_inset
+
+ semantics of the mathematical term in equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:prob"
+
+\end_inset
+
+.
+ While can go ahead and define the semantics of this term even further,
+ it should be clear from here.
+ Also note that in this view a model developer could essentially directly
+ translate his mathematical formulae in his paper into running code.
+ 
 \end_layout
 
 \begin_layout Section
