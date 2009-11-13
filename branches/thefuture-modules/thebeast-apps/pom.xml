@@ -9,10 +9,6 @@
     <artifactId>thebeast-apps</artifactId>
     <name>thebeast-apps</name>
     <packaging>jar</packaging>
-    <properties>
-        <scala.version>2.7.5</scala.version>
-    </properties>
-
 
     <repositories>
         <repository>

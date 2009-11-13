@@ -1,13 +1,15 @@
 package org.riedelcastro.thebeast.env.vectors
 
 
+import org.riedelcastro.thebeast.env._
 import collection.mutable.ArrayBuffer
 import doubles.{DoubleFunApp, Sum, QuantifiedSum, DoubleTerm}
+
 /**
  * @author Sebastian Riedel
  */
 
-trait VectorTerm extends Term[Vector] {
+trait VectorTerm extends Term[Vector] with NumericTerm[Vector] {
   def ground(env: Env) : VectorTerm
 
   def *(that:DoubleTerm) = VectorScalarApp(this,that)
@@ -32,6 +34,11 @@ trait VectorTerm extends Term[Vector] {
 
   def dot(that:Vector) = VectorDotApp(this,VectorConstant(that))
 
+  def createExpectation = new Expectation[Vector] {
+    val value = new Vector
+    def add(prob: Double, t: Vector) = value.addInPlace(t,prob)
+    override def toString = value.toString
+  }
 }
 
 case class VectorOne(key : Term[Any]*) extends VectorTerm {
