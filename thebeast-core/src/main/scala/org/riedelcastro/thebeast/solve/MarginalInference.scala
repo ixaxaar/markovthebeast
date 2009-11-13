@@ -22,9 +22,9 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     ExhaustiveMarginalInference.infer(multiplied)
   }
 
-  def marginalizeQueries(term: DoubleTerm,
+  def marginalizeQueries[N](term: DoubleTerm,
                          incoming: Beliefs[Any, EnvVar[Any]],
-                         queries: Collection[Term[Any]]): Beliefs[Any, Term[Any]] = {
+                         queries: Collection[NumericTerm[N]]): Beliefs[Any, EnvVar[Any]] = {
     val multiplied = term * Multiplication(term.variables.map(v => BeliefTerm(incoming.belief(v), v)).toSeq)
     ExhaustiveMarginalInference.inferQueries(multiplied, queries)
   }
@@ -34,7 +34,7 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     case _ => inferExhaustively(term)
   }
 
-  def inferQueries(term: DoubleTerm, queries: Collection[Term[Any]]): Beliefs[Any, Term[Any]] = term match {
+  def inferQueries[N](term: DoubleTerm, queries: Collection[NumericTerm[N]]): Beliefs[Any, EnvVar[Any]] = term match {
     case Normalize(x) => inferQueriesExhaustively(x, queries).normalize
     case _ => inferQueriesExhaustively(term, queries)
   }
@@ -42,26 +42,30 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
 
   private def inferExhaustively(term: DoubleTerm): Beliefs[Any, EnvVar[Any]] = {
     val domain = term.variables.toSeq
-    gatherBeliefs(term, domain, domain)
+    gatherBeliefs(term, domain, Seq.empty)
   }
 
-  private def inferQueriesExhaustively(term: DoubleTerm, queries: Collection[Term[Any]]): Beliefs[Any, Term[Any]] = {
+  private def inferQueriesExhaustively[N](term: DoubleTerm,
+                                       queries: Collection[NumericTerm[N]]): Beliefs[Any, EnvVar[Any]] = {
     val domain = term.variables.toSeq
     gatherBeliefs(term, domain, queries)
   }
 
-  private def gatherBeliefs[V, T <: Term[V]](term: DoubleTerm,
-                                             variables: Collection[EnvVar[Any]],
-                                             queries: Collection[T]): Beliefs[V, T] = {
+  private def gatherBeliefs[N](term: DoubleTerm,
+                            variables: Collection[EnvVar[Any]],
+                            queries: Collection[NumericTerm[N]]): Beliefs[Any, EnvVar[Any]] = {
     |**("Exhaustive marginal inference for " + term)
 
-    val beliefs = new MutableBeliefs[V, T]
+    val beliefs = new MutableBeliefs[Any,EnvVar[Any]]
 
     Env.forall(variables) {
       env => {
         val score = env(term);
+        for (variable <- variables) {
+          beliefs.increaseBelief(variable, env(variable), score)
+        }
         for (query <- queries) {
-          beliefs.increaseBelief(query, env(query), score)
+          beliefs.increaseExpectation(query, env(query), score)
         }
       }
     }

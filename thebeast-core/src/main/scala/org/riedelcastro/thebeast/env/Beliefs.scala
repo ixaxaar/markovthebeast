@@ -8,6 +8,7 @@ import doubles.{DoubleFunApp}
  * @author Sebastian Riedel
  */
 
+//todo: should we get rid of type parameters
 trait Beliefs[V, T <: Term[V]] {
   def belief(term: T): Belief[V]
 
@@ -15,16 +16,41 @@ trait Beliefs[V, T <: Term[V]] {
 
   def terms: Collection[T]
 
+  /**
+   * Considers beliefs as fully factorized distribution over terms
+   */
   def partitionFunction = terms.foldLeft(1.0) {(s, t) => s * belief(t).totalSum} 
 
   override def equals(obj: Any) = obj match {
     case that: Beliefs[_, _] => terms.forall(t => this.belief(t) == that.asInstanceOf[Beliefs[V, T]].belief(t))
     case _ => false
   }
+
+  def termsWithExpectations: Collection[NumericTerm[Any]]
+
+  def expectation[N](term:NumericTerm[N]):N 
+}
+
+class CompleteIgnorance[V,T<:Term[V]] extends Beliefs[V,T] {
+  def expectation[N](term: NumericTerm[N]) = term.createExpectation.value
+
+  def termsWithExpectations = Seq.empty
+
+  def terms = Seq.empty
+
+  def normalize = this
+
+  def belief(term: T) = Ignorance(term.values)
+}
+
+//todo: should be +T but this needs changing of Expectation
+trait NumericTerm[T] extends Term[T] {
+  def createExpectation:Expectation[T]
 }
 
 class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V, T] {
   private val beliefs = new HashMap[T, Belief[V]]
+  private val expectations = new HashMap[NumericTerm[Any], Expectation[Any]]
 
   def setBelief(term: T, belief: Belief[V]) = {
     beliefs(term) = belief
@@ -48,10 +74,18 @@ class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V, T] {
     result
   }
 
-  override def toString = beliefs.toString
+  override def toString = beliefs.toString + (if (expectations.size >0) "\n" + expectations.toString else "")
+
+  def increaseExpectation[N](term:NumericTerm[N], value:N, prob:Double) = {
+    val expectation = expectations.getOrElseUpdate(
+      term.asInstanceOf[NumericTerm[Any]], term.createExpectation.asInstanceOf[Expectation[Any]])
+    expectation.add(prob,value)
+  }
 
 
+  def expectation[N](term: NumericTerm[N]) = expectations(term.asInstanceOf[NumericTerm[Any]]).value.asInstanceOf[N]
 
+  def termsWithExpectations = expectations.keySet
 }
 
 sealed trait Belief[T] {

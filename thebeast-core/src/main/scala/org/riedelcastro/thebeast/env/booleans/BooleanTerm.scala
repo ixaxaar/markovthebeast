@@ -155,6 +155,27 @@ object LiteralDNFMatch {
   }
 }
 
+case class Equality[+T](lhs:Term[T],rhs:Term[T]) extends BooleanTerm {
+  def upperBound = true
+
+  def subterms = Seq(lhs,rhs)
+
+  def eval(env: Env) = lhs.eval(env).flatMap(x=> rhs.eval(env).map(y=> x == y))//for (x <- lhs.eval(env); y <- rhs.eval(env)) x == y
+
+  def values = Bools
+
+  def variables = lhs.variables ++ rhs.variables
+
+  def flatten = this
+
+  def moveInNegation = this
+
+  def negate = NotApp(this)
+
+  def simplify = Equality(lhs.simplify,rhs.simplify)
+
+  def ground(env: Env) = Equality(lhs.ground(env),rhs.ground(env))
+}
 
 case class BooleanConstant(override val value: Boolean) extends BoundedConstant(value) with BooleanTerm {
   override def ground(env: Env) = this

@@ -1,5 +1,7 @@
 package org.riedelcastro.thebeast.env
 
+import booleans.Equality
+
 
 /**
  * @author Sebastian Riedel
@@ -39,12 +41,10 @@ trait Term[+T] {
    */
   def eval(env: Env): Option[T]
 
-
   /**
-   * todo: this clashes with term contructions of function apps
-   * evaluate this term with respect to the given environment (with unwrapping).
+   * Return a term that evaluates to true iff this and that term evaluate to the same value
    */
-  //def apply(env: Env): T = eval(env).get
+  def ===[V>:T](that:Term[V]) = Equality(this,that)
 
   /**
    *  Are there no free variables in this term
@@ -55,6 +55,8 @@ trait Term[+T] {
    * All immediate subterms of this term
    */
   def subterms: Seq[Term[Any]]
+
+  
 
   /**
    * todo: This method creates a clone of this object, but with the given set of subterms
