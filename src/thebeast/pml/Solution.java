@@ -74,13 +74,14 @@ public class Solution {
       if (factorFormula.usesWeights()) {
         if (factorFormula.isAlwaysRewarding()) {
           builder.expr(groundFormulas.getFalseGroundFormulas(factorFormula));
-          builder.by("index").num(-1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+          builder.by("index").doubleAttribute("scale").num(-1.0).doubleTimes().summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+          //builder.by("index").num(-1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalFalseSummarizer.put(factorFormula, builder.getRelation());
         }
         else {
 //        if (factorFormula.isAlwaysPenalizing()) {
           builder.expr(groundFormulas.getTrueGroundFormulas(factorFormula));
-          builder.by("index").num(1.0).summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
+          builder.by("index").doubleAttribute("scale").num(1.0).doubleTimes().summarizeAs("value", Summarize.Spec.DOUBLE_SUM).summarize();
           globalTrueSummarizer.put(factorFormula, builder.getRelation());
         }
       }
