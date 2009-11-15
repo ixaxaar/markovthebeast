@@ -137,6 +137,7 @@ public class CuttingPlaneSolver implements Solver {
       int order = factor2order.remove(formula);
       FactorSet set = factorSets.get(order);
       set.remove(formula);
+      orderedFactors.remove(order);  
       if (set.size() == 0)
         factorSets.remove(order);
     } else
