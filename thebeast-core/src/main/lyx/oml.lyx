@@ -123,7 +123,296 @@ Abstract here.
 \end_layout
 
 \begin_layout Section
-Introduction
+Introduction (Scalability)
+\end_layout
+
+\begin_layout Standard
+Markov Logic
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "richardson06markov"
+
+\end_inset
+
+ is one of the most prominent and sucessful Statistical Relational Learning
+ Languages to date.
+ It has been successfully applied to various tasks in AI such as semantic
+ parsing, coreference resolution, and disease prediction.
+ One of the greatest merits of Markov Logic is its declarative nature: users
+ specify their model structure using weighted first order logic formulae,
+ inference and learning on the other hand are provided by the Markov Logic
+ interpreter.
+ This can greatly reduce the amount of engineering necessary to build a
+ effective Machine Learning application.[##also leads to more comprehensible
+ models] Moreover, in theory, it means that the user does need to understand
+ complex Machine Learning algorithms and theory in order to make use of
+ it.
+ In this sense Markov Logic serves as interface between Applications and
+ Machine Learning technology, just as SQL serves as interface between applicatio
+ns and Database technology
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "domingos07structured"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In practice, however, the declarative nature of Markov Logic is both a blessing
+ and a curse.
+ While most models of interest can be compactly expressed/described in Markov
+ Logic, inference (and therefore learning) is generally intractable for
+ all but a small subset of these.
+ And while many practically relevant models fall into this set (see all
+ successful applications of Markov Logic), many others do not.
+ Moroever, even when models are practical, they often do not scale up or
+ are not efficient enough to be used in actual applications.
+ For example, it is possible to design a syntactic dependency parser within
+ Markov Logic, but even a relatively simple MLN (see section #) for this
+ task requires X minutes of inference during parsing, and the results are
+ not even accurate.
+ [name some more scaling up problems]
+\end_layout
+
+\begin_layout Standard
+There are at least two approaches to tackle this problem.
+ First, we can strive to futher improve and design generic inference methods
+ that scale up better
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "singla06memory,riedel08improving,singla08lifted"
+
+\end_inset
+
+.
+ This is surely important, and has lead to dramatic speed ups and extented
+ the limit of what is possible with Markov Logic.
+ However, they are still many problem instances these methods work poorly
+ for, both in terms of speed and accuracy.
+ Again, depependency parsing is such a problem---even with state-of-the-art
+ models inference does not scale well here [see results].
+ 
+\end_layout
+
+\begin_layout Standard
+Second, we can partially reject the idea of declarative model design and
+ black-box inference and learning.
+ For example, there exist well-established and efficient inference methods
+ for dependency parsing, and hencewe could allow the designer to replace
+ the general inference engine with one of these methods.
+ This requires additional implementation efforts, but still saves the user
+ from implementing other machinery and infrastructure, such as learning
+ methods or factor graph operation[##what?].
+ 
+\end_layout
+
+\begin_layout Standard
+Factorie
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mccallum08factorie"
+
+\end_inset
+
+ is a probabilistic programming language that follows the second, partially
+ imperative or procedural approach.
+ Here users can override generic MCMC jump functions with their own, tailor-made
+ proposals to gain significant efficiences and scale up to much larger data
+ and problems.
+ For example, in dependency parsing the computational complexity arises
+ from the constraint that the dependency graph needs to be a spanning graph---in
+ factorie this problem can be overcome by simply injecting a MCMC jump function
+ that proposes tree-preserving changes to the graph.
+\end_layout
+
+\begin_layout Standard
+The imperative nature of Factorie allows for great flexibility and often
+ leads to significant speed ups.
+ However, we see two problems with the approach followed in factorie.
+ First, model structure in factorie is often not explictely encoded.
+ Instead, it is implicitely represented in the jump function, and, in the
+ form of variable coordination, in the data manipulation methods of the
+ data structure the user has provided.
+ This means that someone can only understand a model after she has inspected
+ the imperative code in the jump function and as well as all data manipulation
+ methods.
+ Moreover, if these implicit model definitions are present in the imperative
+ code, it is impossible to simply exhange MCMC inference with, say, a variationa
+l method.
+ Instead the user would have to either adapt his variational method in order
+ to somehow account for variable coordination and constraint preserving
+ jumps.
+ Or he would need to explicitely (and declaratively) encode variable coordinatio
+n and the knowledge encoded in jump function (including potential bias in
+ this function) as factor templates.
+ [mention that backwards probability is hard to compute, and so we often
+ avoid calculating the actual number] Mention bias more strongly.
+\end_layout
+
+\begin_layout Standard
+[Second, it is likely that the user, when designing his jump function, not
+ only has to take into consideration the hard constraints he wants to encode,
+ but also the remaining structure of his model.
+ In this case his proposal function becomes specific to his personal model,
+ and cannot simply be re-used in another spanning-tree related task.
+ ]
+\end_layout
+
+\begin_layout Standard
+Third, in Factorie the imperative paradigm is also applied to model specificatio
+n and data representation---this often leads to more boilerplate code and
+ less concise representations of models.
+ Moreover, to design (or understand) a factorie model, users cannot just
+ be domain experts, they need to be programmers.
+\end_layout
+
+\begin_layout Standard
+This raises the question: can we incorporate tailor-made inference while
+ still remaining declarative and concise? If we are just looking at the
+ spanning tree constraint, this would be easy.
+ We just introduce yet another SRL language, say 
+\begin_inset Quotes eld
+\end_inset
+
+Markov Logic + Trees
+\begin_inset Quotes erd
+\end_inset
+
+ (MLT), and provide a new language construct, say 
+\begin_inset Quotes eld
+\end_inset
+
+<nameOfBinaryPredicate> is spanningTree
+\begin_inset Quotes erd
+\end_inset
+
+.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Note that this construction is provided in the MLN implementation thebeast
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "thebeast"
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ When implementing the interpreter for this language, we then exploit spanning
+ tree inference methods within some more general divide-and-conquer inference
+ frameworks (see more about this below).
+ While this may not be such a bad idea---spanning trees appear in several
+ AI areas and applications such as vision and clustering---it is clear that
+ this just calls for the next variant, 
+\begin_inset Quotes eld
+\end_inset
+
+Markov Logic + Trees + matching constraints
+\begin_inset Quotes erd
+\end_inset
+
+ (MLTMC) that provides special support for matching constraints [cite koller
+ max product work], or 
+\begin_inset Quotes eld
+\end_inset
+
+Markov Logic + Cardinality constraints
+\begin_inset Quotes erd
+\end_inset
+
+ etc.
+ etc.
+ [why is this bad?]
+\end_layout
+
+\begin_layout Standard
+Hence, we propose to provide a framework/language that supports, and encourages,
+ the extension of Markov Logic with new language constructs and corresponding
+ tailor-made inference methods.
+ This is in line with a general trend  in software engineering and programming
+ language design from so-called cathedrals---software or languages that
+ are designed, often under great efforts, once and for all---and bazaars---softw
+are that is constantly extended and adapted to meet the needs of user in
+ practice
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "raymond99cathedral,steele99growing"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Our approach, we coin it 
+\begin_inset Quotes eld
+\end_inset
+
+Open Markov Logic
+\begin_inset Quotes erd
+\end_inset
+
+, is purely declarative from the perspective of a model designer---he defines
+ probability distributions over possible world using symbolic formulae with
+ well defined semantics.
+ However, these formulae can be constructed using a much richer set of building
+ blocks, not limited to ground atoms, foralls, exists etc.
+ from traditional Logic.
+ For example, he can include spanning tree constraints, cardinality constraints,
+ etc.
+ 
+\end_layout
+
+\begin_layout Standard
+From the view of the language designer or extender, working within Open
+ Markov Logic is partly imperative.
+ He can introduce new building blocks for user to add to their models, and
+ (imperatively) implement efficient inference methods for these if needed.
+ However, every building block he provides must have well-defined probabilistic
+ semantics that allows us to choose a different mode of inference if needed.
+ In other words, the meaning of such a building block is independent of
+ the imperative code that performs efficient inference with it.
+ 
+\end_layout
+
+\begin_layout Standard
+Technically Open Markov Logic 
+\end_layout
+
+\begin_layout Section
+Introduction (Bazaar)
 \end_layout
 
 \begin_layout Standard
