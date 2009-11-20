@@ -672,7 +672,7 @@ public class Shell implements ParserStatementVisitor, ParserFormulaVisitor, Pars
           Iterator<GroundAtoms> instance = corpus.iterator();
           ramCorpus = new RandomAccessCorpus(signature, parserSaveCorpus.to - parserSaveCorpus.from);
           for (int i = 0; i < parserSaveCorpus.from; ++i) instance.next();
-          for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to; ++i) ramCorpus.add(instance.next());
+          for (int i = parserSaveCorpus.from; i < parserSaveCorpus.to && instance.hasNext(); ++i) ramCorpus.add(instance.next());
           corpus = ramCorpus;
         } else {
           ramCorpus = new RandomAccessCorpus(corpus);
