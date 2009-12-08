@@ -4,6 +4,10 @@
 \begin_header
 \textclass article
 \use_default_options true
+\begin_modules
+theorems-ams
+theorems-ams-extended
+\end_modules
 \language english
 \inputencoding auto
 \font_roman default
@@ -18,7 +22,16 @@
 \graphics default
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -63,10 +76,15 @@
 \end_inset
 
 
+\begin_inset FormulaMacro
+\newcommand{\Y}{\mathcal{Y}}
+\end_inset
+
+
 \end_layout
 
 \begin_layout Title
-DFacto: An Open Architecture of Declarative Factor Graphs 
+DFacto STD: An Open Architecture for Declarative Factor Graphs 
 \end_layout
 
 \begin_layout Standard
@@ -118,7 +136,7 @@ However, the core feature of ExML is that it allows us to readily define
 
 \end_inset
 
-Abstract here.
+Declarative FACTOrgraph Scoring Template Definitions
 \end_layout
 
 \begin_layout Section
@@ -556,39 +574,93 @@ key "raymond99cathedral,steele99growing"
 \end_layout
 
 \begin_layout Standard
-Our proposed framework, DFacto, is similar in spirt to Markov Logic, and
- in fact contains it as a special case.
- It uses the notions of quantification and composition to construct scoring
- functions or probability distributions over possible worlds.
+Our proposed framework, 
+\emph on
+DFacto
+\emph default
+, is similar in spirt to Markov Logic, and in fact contains it as a special
+ case.
+ It uses the notions of 
+\emph on
+quantification
+\emph default
+ and 
+\emph on
+composition
+\emph default
+ to construct scoring functions or probability distributions over possible
+ worlds.
  However, instead of providing a fixed set of logical connectives and quantifier
-s, in its core it specifices an interface for new langauge building blocks.
- This interface provides the general interpreter with everything it needs
- to know about the building block (including how to treat it within different
- inference algorithsm such as BP, Linear Programming etc.).
+s, in its core it specifices an interface for new language building blocks,
+ or 
+\emph on
+terms
+\emph default
+.
+ (##And provides func.
+ composition This interface provides the general interpreter with everything
+ it needs to know about the building block, including its semantics, contained
+ variables and how to treat it within different inference algorithsm such
+ as BP, Linear Programming etc.).
  
 \end_layout
 
 \begin_layout Standard
-Our approach, we coin it 
-\begin_inset Quotes eld
+dfacto is also related to factorie
+\begin_inset space ~
 \end_inset
 
-Open Markov Logic
-\begin_inset Quotes erd
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mccallum08factorie"
+
 \end_inset
 
-, is purely declarative from the perspective of a model designer---he defines
- probability distributions over possible world using symbolic formulae with
- well defined semantics.
- However, these formulae can be constructed using a much richer set of building
- blocks, not limited to ground atoms, foralls, exists etc.
- from traditional Logic.
- For example, he can include spanning tree constraints, cardinality constraints,
- etc.
+, an 
+\emph on
+imperative
+\emph default
+ probabilistic programming language.
+ Like factorie, dfacto seeks to exploit our knowledge of inference for certain
+ types of factor graph.
+ However, while users in factorie construct models primarily using concepts
+ from programming such as classes, methods, control flow, dfacto's modelling
+ paradigm is primarily composition and quantification, just as in Markov
+ Logic.
+ That is, the average user declaratively constructs formula composed of
+ terms and quantification.
+ Machine Learning researchers on the other hand can extend the language
+ easily, by providing new terms with well defined declarative semantics.
+ We believe that this makes models more concise, easy to describe and comprehend
+ (no inspection of code necessary) and safer---factorie on the other hand
+ gives more flexibility.
  
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
+Finally, we will see that models in dfacto are similar to the expressions
+ used in recent functional probabilistic programming languages such as Church
+ or Figaro.
+ However, the difference lies in the meaning of such expressions: here a
+ term is always deterministic, but can describe a probabilitity distribution
+ over possible words.
+ In Church terms represent random variables one can draw samples from.
+ In other words, we define a declarative but deterministic function over
+ possible worlds---as in undirected graphical models---while they define
+ a generative story.
+ 
+\end_layout
+
+\begin_layout Standard
+[Mention feature/language construct creep in alchemy]
+\end_layout
+
+\begin_layout Standard
+[Talk about results in terms of efficiency and expressiveness]
+\end_layout
+
+\begin_layout Standard
  
 \begin_inset Note Note
 status collapsed
@@ -1246,15 +1318,89 @@ relation to factorie
 \end_layout
 
 \begin_layout Section
-Higher Order Markov Logic
+DFacto Possible Worlds
 \end_layout
 
 \begin_layout Standard
-It should be clear from the section 1 that we want to talk about properties
- not only of simple entities such as tokens or tags, but also about properties
- of graphs (dependency should be a tree) or sets of relations (all token
- properties).
- This clearly suggests a higher order approach
+The general task we like to solve with dfacto is the following.
+ We are given a set of 
+\emph on
+variables
+\emph default
+, where each variable can be of 
+\emph on
+basic
+\emph default
+ 
+\emph on
+type
+\emph default
+ or some 
+\emph on
+functional type
+\emph default
+.
+ The state or 
+\emph on
+assignment
+\emph default
+ for these variables is hidden and needs to be computed.
+ Now, instead of explicitely calculating this assignment, we provide a 
+\emph on
+scoring function
+\emph default
+, or 
+\emph on
+probability distribution
+\emph default
+ over possible assignments, and then infer the highest scoring assignment
+ (MAP), or a probabilities for each element of an assignment (marginal inference
+).
+ 
+\end_layout
+
+\begin_layout Standard
+Let us flesh this out by giving an example.
+ In dependency parsing we want to compute a function 
+\family typewriter
+dependency
+\family default
+, that maps pairs of tokens to their dependency edge label, or some empty
+ label if the token pair is not directly linked in the dependency graph.
+ However, we have no direct way of computing this function for a given sentence.
+ Instead, we give a 
+\emph on
+declarative
+\emph default
+ definition of what we think are good and bad dependency functions by constructi
+ng a scoring function over possible assignments of functions to the 
+\family typewriter
+dependency
+\family default
+ variable.
+ This scoring function will, for example, return 0 probability if the function
+ does not represent a spanning tree, and give higher probabilities for functions
+ in which dependent tokens are somewhat compatible.
+ Then, at runtime, we use this scoring function to find the highest-scoring,
+ most probable parse, or marginal probabilities for each edge to be part
+ of the graph or not.
+ In the following we show how dfacto supports the above workflow.
+ 
+\end_layout
+
+\begin_layout Subsection
+Domains, Variables and Possible Worlds
+\end_layout
+
+\begin_layout Standard
+As mentioned above, dfacto is a typed language.
+ Hence the first notion we need to introduce are types, or domains, that
+ can be associated with variables and, in general, terms of dfacto.
+ Note that at its heart dfacto is a typed 
+\emph on
+higher order logic
+\emph default
+, or functional calculus, language
 \begin_inset space ~
 \end_inset
 
@@ -1266,142 +1412,149 @@ key "farmer08seven"
 \end_inset
 
 .
+ This means that its terms and variables can not only represent atomic objects
+ of the domain, but also functions, functions of functions, etc.
+ This is necessary when we want to say things about a function (such as
+ dependency).
+ 
+\end_layout
+
+\begin_layout Definition
+A 
+\emph on
+domain
+\emph default
+ 
+\begin_inset Formula $\tau$
+\end_inset
+
+ is a (finite) set of objects 
 \end_layout
 
 \begin_layout Standard
-We want to talk about need terms to 
+In our scala implementation of dfacto we can define a domain in dfacto as
+ follows: 
+\end_layout
+
+\begin_layout LyX-Code
+val DependencyLabels = Domain(...)
+\end_layout
+
+\begin_layout LyX-Code
+val Persons = Domain(
+\begin_inset Quotes eld
+\end_inset
+
+Anna
+\begin_inset Quotes erd
+\end_inset
+
+,...)
 \end_layout
 
 \begin_layout Standard
-Core:
+For convenience, we can compactly introduce integer subset types, too:
 \end_layout
 
-\begin_layout Itemize
-Constant, Fun Application, Quantification
+\begin_layout LyX-Code
+val Ages = Ints(0 until 100)
 \end_layout
 
-\begin_layout Standard
-Extended:
+\begin_layout LyX-Code
+val Heights = Doubles(0,230.0)
 \end_layout
 
-\begin_layout Itemize
-Indicator, Multiplication, Iverson Bracket (delta/real to boolean), Exp
-\end_layout
-
-\begin_layout Section
-Some Theory
-\end_layout
-
-\begin_layout Itemize
-Treat every formula as a term 
-\end_layout
-
-\begin_layout Itemize
-Functional Type Theory (Church, inspired by Frege) used here
-\end_layout
-
-\begin_layout Itemize
-MLNs etc: Relational Type Theory
-\end_layout
-
-\begin_layout Itemize
-Compared to Blog, Church etc: here terms are deterministic, there terms
- are random variables
-\end_layout
-
-\begin_layout Itemize
-The strength of the lambda-calculus is that it is easily used as a "glue"
- on top of a richer world of primitives.
- Its advantages as a glue are that it has a natural correspondence with
- the way that people program, and natural compilation techniques yield high-perf
-ormance code.
- The latter comes through optimizations know as tail-call and continuation-passi
-ng, which might be the subject of future talks.
-\end_layout
-
-\begin_layout Itemize
-The Environment Model of Evaluation (functional)
-\end_layout
-
-\begin_layout Itemize
-Title: Functional Programming of Scores over Possible Worlds
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-vs Function Programming of Random Variables
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Formulas are terms.
- Some (http://mally.stanford.edu/Papers/rtt.pdf) argue: In this paper we develop
- an argument that suggests Whitehead & Russell’s approach to the foundations
- of logic, which takes relations as basic, is to be preferred to Frege’s
- and Church’s.(difference between RTTs and FTTs with regard to their ability
- to represent systems containing formulas that aren’t, and can’t be converted
- to, terms.)
-\end_layout
-
-\begin_layout Itemize
-http://en.wikipedia.org/wiki/Principle_of_compositionality
-\end_layout
-
-\begin_layout Itemize
-http://en.wikipedia.org/wiki/Value-level_programming
-\end_layout
-
-\begin_layout Itemize
-http://plato.stanford.edu/entries/type-theory-church/
-\end_layout
-
-\begin_layout Itemize
-Henkin's (1950) standard model for semantics
-\end_layout
-
-\begin_layout Itemize
-look at model theory for church type theory and use a bit of their terminology
-\end_layout
-
-\begin_layout Itemize
-http://imps.mcmaster.ca/doc/seven-virtues.ps
-\end_layout
-
-\begin_layout Itemize
-Simple Type Theory! valuation function, we are STT with
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-many sortedness
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Quantification=Definite Description
-\end_layout
-
-\begin_layout Itemize
-ExML: mixture of Markov Logic, Simple Type Theory (with Many Base types),
- Church/Figaro, Factorie
-\end_layout
-
-\begin_layout Itemize
-The two semantics of ﬁrst-order logic and stt are based on essentially the
- same ideas: domains of individuals, truth values, and functions; models
- for languages; variable assignments; and valuation functions deﬁned recursively
- on the syntax of expressions.
-\end_layout
-
-\begin_layout Section
-Variables and Possible Worlds
+\begin_layout LyX-Code
+val Tokens = Ints(0 until 100)
 \end_layout
 
 \begin_layout Standard
-In Markov Logic we define probability distributions over possible worlds.
- In the widest sense, a possible world is a mapping from variables to the
- set of values these variables take on.
- In the propositional case, consider a boolean variable 
+Finally, we can use function types, too:
+\end_layout
+
+\begin_layout LyX-Code
+val Property = Person -> Bools
+\end_layout
+
+\begin_layout LyX-Code
+val DependencyGraph = Token x Token -> DependencyLabels
+\end_layout
+
+\begin_layout Standard
+##Relation to Markov Logic
+\end_layout
+
+\begin_layout Definition
+A 
+\emph on
+variable
+\emph default
+ is a pair 
+\begin_inset Formula $x:\tau$
+\end_inset
+
+ where 
+\begin_inset Formula $x$
+\end_inset
+
+ is a name and 
+\begin_inset Formula $\tau$
+\end_inset
+
+ is a domain
+\end_layout
+
+\begin_layout Standard
+Semantically, variables are placeholders for objects of the domain.
+ Note that in dfacto a predicate in Markov Logic is considered to be a variable
+ of type (...
+ -> Bools).
+ 
+\end_layout
+
+\begin_layout Standard
+In our reference implementation dfacto std we can define variables as follows.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+val dependency = Var(DependencyGraph)
+\end_layout
+
+\begin_layout LyX-Code
+val smokes = Var(Property)
+\end_layout
+
+\begin_layout LyX-Code
+val friends = Var(Persons x Persons -> Bools)
+\end_layout
+
+\begin_layout LyX-Code
+val height = Var(Person -> Heights)
+\end_layout
+
+\begin_layout Standard
+Note that domains can be composed within the variable declaration.
+\end_layout
+
+\begin_layout Definition
+A 
+\emph on
+possible world 
+\emph default
+is an assignment from variables 
+\begin_inset Formula $x:\tau$
+\end_inset
+
+ to values 
+\begin_inset Formula $v\in\tau$
+\end_inset
+
+ of their domain.
+\end_layout
+
+\begin_layout Standard
+For example, in the propositional case, consider a boolean variable 
 \begin_inset Formula $x$
 \end_inset
 
@@ -1424,12 +1577,15 @@ In Markov Logic we define probability distributions over possible worlds.
 \end_inset
 
 .
- 
+ In dependency parsing, we might want to consider a variable of type 
+\begin_inset Formula $p\in Token\times Token\Rightarrow EdgeLabel$
+\end_inset
+
+ to represent labelled dependency graphs.
 \end_layout
 
 \begin_layout Standard
-The first thing we do in ML, and ExML, is to define our basic atomic domains:
- the set of values that our variables can take on.
+sdfsd
 \end_layout
 
 \begin_layout LyX-Code
@@ -1450,6 +1606,10 @@ val Ages = Ints(0 until 100)
 
 \begin_layout LyX-Code
 val Heights = Doubles(0,230.0)
+\end_layout
+
+\begin_layout LyX-Code
+val Tokens = Ints(0 until 100)
 \end_layout
 
 \begin_layout LyX-Code
@@ -1495,10 +1655,6 @@ world(smokes) = ClosedFunction(Anna->True) //or
 
 \begin_layout LyX-Code
 world(smokes(Anna)) = true
-\end_layout
-
-\begin_layout LyX-Code
-
 \end_layout
 
 \begin_layout Standard
@@ -1551,129 +1707,259 @@ note that functions can also be point to functions.
  
 \end_layout
 
-\begin_layout Subsection
-Composite Variables
-\end_layout
-
-\begin_layout Standard
-predicates vs ground atoms
-\end_layout
-
 \begin_layout Section
-Terms and Scoring Functions
+DFacto Terms
 \end_layout
 
 \begin_layout Standard
 A Markov Logic Network is a probability or score function defined over possible
  worlds.
- In ExML we follow the same path.
- However, we break the scoring function into building blocks.
- These blocks essentially correspond to the terms we find in the actual
- definition of MLNs, and actually the definitions of scoring functions in
- research papers.
+ In dfacto we follow the same path.
+ However, while in Markov Logic (and first order logic in general) there
+ is a distinction between terms (denoting objects of the domain) and formulae
+ (boolean expressions that concern terms), in higher order logics this distincti
+on often vanishes
+\begin_inset space ~
+\end_inset
+
+[cite paper comparison of the tow].
+ Instead, a formula is simply a term with type Boolean.
  
+\end_layout
+
+\begin_layout Standard
+Intuitively, a term is a symbolic expression that is, given a possible world,
+ evaluated to a value.
+ In 
+\noun on
+dfacto
+\noun default
+ a term is an instance of a term class, which is a subclass of the class
+ 
+\family typewriter
+Term
+\family default
+.
+ A term can have further 
+\emph on
+subterms
+\emph default
+ and 
+\emph on
+internal data
+\emph default
+, and specifies how the internal data and evaluation results for subterms
+ are combined to a value for the term itself.
+ Note that in contrast to a Model in Figaro, a term has no elements of randomnes
+s.
+ Finally, a term is parametrized by the class of values it evaluates to---in
+ scala this amounts to a class 
+\family typewriter
+Term[T]
+\family default
+ for value type 
+\family typewriter
+T
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+A quintessential term is 
+\family typewriter
+Variable[T] (name:String) extends Term[T]
+\family default
+, which is evaluated to the value the variable is assigned to in the possible
+ world.
+ Another core term class is 
+\family typewriter
+Constant[T](value:T) extends Term[T]
+\family default
+, which is always evaluated to 
+\family typewriter
+value
+\family default
+, regardless of the given possible world.
+ Note that scala's implicit conversion feature allows us to write 
+\family typewriter
+value
+\family default
+ instead of 
+\family typewriter
+Constant(value)
+\family default
+ in contexts where terms are expected.
+ 
+\end_layout
+
+\begin_layout Standard
+Dfacto supports functional composition through the term class 
+\family typewriter
+FunApp[T,R] (f:Term[T=>R], arg:T) extends Term[R]
+\family default
+.
+ This term is evaluated by evaluating the function term 
+\family typewriter
+f
+\family default
+, the argument term 
+\family typewriter
+arg
+\family default
+, and then applying the function value to the argument value.
+ Note that this class allows us to incorporate arbitrary native scala functions
+ into dfacto: for a given function 
+\family typewriter
+fun:T=>R
+\family default
+ we can use the term 
+\family typewriter
+FunApp(Constant(fun),x) 
+\family default
+to represent the application of this function to the value that 
+\family typewriter
+x
+\family default
+ evaluates to.
+ 
+\family typewriter
+FunApp
+\family default
+ is hence very similar to 
+\family typewriter
+Apply1
+\family default
+ in Figaro.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+One diference is the fact that we allow the function to be a term as well.
+ 
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Finally, we will often make use of an 
+\family typewriter
+IversonBracket (arg:Term[Boolean]) extends Term[Double]
+\family default
+ class.
+ This term evaluates the booelan 
+\family typewriter
+arg
+\family default
+ term, and evaluates to 1 if 
+\family typewriter
+arg
+\family default
+ evaluated to 
+\family typewriter
+true
+\family default
+, and to 0 otherwise.
+ This term is the cornerstone of Markov Logic---it provides the mapping
+ from boolean expressions to real values that sits in each ground feature.
+ Again, instead of fully writing out this term we accept 
+\family typewriter
+$(arg)
+\family default
+$.
 \end_layout
 
 \begin_layout Subsection
-Terms
+Propositional Models
 \end_layout
 
 \begin_layout Standard
-The main unit of these scoring function are terms.
- A term is simply a symbolic value that can be evaluated to a an actual
- value given a possible world.
- For example, a variable is a term.
+With the above terms, and a set of native scala functions, we are already
+ able to build some simple propositional scoring functions and probability
+ distributiosn over possible worlds.
+ For example, assuming that 
+\family typewriter
+dep
+\family default
+ is a 
+\family typewriter
+Var[Token x Token -> Boolean]
+\family default
+, and 
+\family typewriter
+weight
+\family default
+ is a 
+\family typewriter
+Var[Double]
+\family default
+., then the following is a propositional ground markov network:
 \end_layout
 
 \begin_layout LyX-Code
-smokes
-\end_layout
-
-\begin_layout Standard
-For a given possible world, this term can be resolved to be, say, 
-\begin_inset Formula $\left\{ Anna\rightarrow True\right\} $
+$(word(1,
+\begin_inset Quotes erd
 \end_inset
 
-, by replacing 
-\emph on
-smokes
-\emph default
- with its value in the possible world.
- The same holds for 
+the
+\begin_inset Quotes erd
+\end_inset
+
+) & word(2,
+\begin_inset Quotes erd
+\end_inset
+
+man
+\begin_inset Quotes erd
+\end_inset
+
+) ==> dep(1,2))$ * w_1
 \end_layout
 
 \begin_layout LyX-Code
-smokes(Anna)
+$(friends(A,B) ==> (smokes(A) <==> smokes(B)))$ * w_2
 \end_layout
 
 \begin_layout Standard
-Here the term is recursively resolved in the natural way: the constant Anna
- is resolved to the value Anna, the variable smokes to a function from person
- values to booleans, and the function application to the value of the smokes
- function applied to the value Anna.
- For example, this term could evaluate to 
-\emph on
-True
-\emph default
+This term evaluates to the score 
+\family typewriter
+weight
+\family default
+ if the term in the argument of the bracket evaluates to 
+\family typewriter
+true
+\family default
+, and to 
+\family typewriter
+0
+\family default
+ otherwise.
+ Here 
+\family typewriter
+x * y
+\family default
+ is a shortform of 
+\family typewriter
+FunApp(Constant(plus), TupleTerm(x,y))
+\family default
 .
  
 \end_layout
 
 \begin_layout Standard
-How can this be used to define a scoring function? We define scoring functions
- simply as
-\emph on
- real valued terms
-\emph default
-.
- So together with a
-\emph on
- Indicator operator
-\emph default
- $ that maps booleans to 1.0 or 0.0, this is a scoring function
+Note that dfacto naturally allows you to scoring functions that go beyond
+ weight boolean formulae:
 \end_layout
 
 \begin_layout LyX-Code
-$(smokes(Anna))
+$(dep(1,5))$ * abs(5-1) * weight
 \end_layout
 
 \begin_layout Standard
-which assigns the value 1.0 to worlds where Anna smokes, and 0.0 otherwise.
- Another example is 
-\end_layout
-
-\begin_layout LyX-Code
-$(smokes(Anna)) + height(Anna)
-\end_layout
-
-\begin_layout Standard
-Giving the score 181 to the world 
-\begin_inset Formula $smokes\rightarrow\left\{ Anna\rightarrow true\right\} ,height\rightarrow\left\{ Anna\rightarrow180\right\} $
-\end_inset
-
-.
- Meaning: a world gets more likely with Anna smoking and being tall.
- 
-\end_layout
-
-\begin_layout Standard
-More formally, a term is an instance of an abstract datatype:
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-eval
-\emph default
- function: maps world to value
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-variables
-\emph default
- function: returns all atomic free variables inside the term
+We will later see how this allows us to implement powerful real-valued-features
+ and discrete/continious hybrid models.
 \end_layout
 
 \begin_layout Subsection
@@ -1681,166 +1967,175 @@ Quantification
 \end_layout
 
 \begin_layout Standard
-The above presents terms and double/real terms as the building blocks that
- make up scoring functions.
- However, so far we can only talk about specific problem instances.
- We would need to define a new smoking model for each set of persons we
- encounter.
- This is where quantification comes in to play.
- In ExML we can compose scoring functions that apply a certain to ###.
- For example, the scoring function
-\end_layout
-
-\begin_layout LyX-Code
-$(forall(Persons){x=>smokes(x)})
+So far we can only talk about specific objects in our domain.
+ However, the core advantage of first order language such as Markov Logic
+ is that it allows us to express preferences across a whole population of
+ objects.
+ This is achieved through quantification.
 \end_layout
 
 \begin_layout Standard
-assigns 1.0 to a world where everyone smokes and 0 otherwise.
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-Note that the forall we have here as the usual FOL semantics.
-\end_layout
-
-\end_inset
-
- However, this is not what we want to do.
- Instead we want to assign a higher score to worlds with more people smoking.
+In dfacto quantification is a general class of terms that allows us to apply
+ a binary function (term) to a range of objects.
+ We use the term class 
 \end_layout
 
 \begin_layout LyX-Code
-sum(Persons) {x=>$(smokes(x)) * 1.5}
+
+\family typewriter
+Quant(f:(T,T)=>T, v:Var[R], t: Term[T]) extends Term
 \end_layout
 
 \begin_layout Standard
-The scoring function that this term defines explains itself: we create one
- ...
-\end_layout
-
-\begin_layout LyX-Code
-sum(Persons,Persons) {(x,y)=>$(friends(x,y) ==> (smokes(x)<==>smokes(y))
- * 0.142}
-\end_layout
-
-\begin_layout Standard
-asd
-\end_layout
-
-\begin_layout LyX-Code
-forall(Values) = quantified(And,Values)
-\end_layout
-
-\begin_layout LyX-Code
-exists(Values) = quantified(Or,Values)
-\end_layout
-
-\begin_layout LyX-Code
-sum(Values) = quantified(Sum,Values)
-\end_layout
-
-\begin_layout Standard
-and so forth.
+Terms of this class are evaluated as follows.
+ First, we evaluate 
+\family typewriter
+f
+\family default
+ against the possible world, and then we iterate over the elements of the
+ domain of 
+\family typewriter
+v
+\family default
+, substitute each occurence of 
+\family typewriter
+v
+\family default
+ in t with the current element, then evaluate the modified term 
+\family typewriter
+t
+\family default
+.
+ The results of these evaluations are then incrementally summarized using
  
+\family typewriter
+f
+\family default
+ until we have a single value of type 
+\family typewriter
+T
+\family default
+.
 \end_layout
 
 \begin_layout Standard
-In fact we are now ready to specify MLNs, and their propositional counter-parts.
- However, we can already do much more:
+A few well known specializations of 
+\family typewriter
+Quant
+\family default
+ are
 \end_layout
 
 \begin_layout LyX-Code
-sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 2.0}
-\end_layout
-
-\begin_layout Subsection
-Vectors
-\end_layout
-
-\begin_layout Standard
-Many probabilistic models are represented as 
-\begin_inset Formula \[
-exp\left(f\left(\mathbf{x},\mathbf{y}\right)^{\top}\mathbf{w}\right)\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Here the moments, parameters of the probabilistic model are clearly separated
- fromt he structural part.
- However, in our current scoring function this is not the case.
- we could write
+Forall(v:Var[R],t:Term[Boolean]) 
 \end_layout
 
 \begin_layout LyX-Code
-vectorsum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 1_(
-\begin_inset Quotes eld
-\end_inset
+  extends Quant(Constant(And),v,t)
+\end_layout
 
-age
-\begin_inset Quotes erd
-\end_inset
+\begin_layout LyX-Code
+Sum(v:Var[R],t:Term[Double]) 
+\end_layout
 
-,p)}
+\begin_layout LyX-Code
+  extends Quant(Constant(Plus),v,t)
+\end_layout
+
+\begin_layout LyX-Code
+Product(v:Var[R],t:Term[Double]) 
+\end_layout
+
+\begin_layout LyX-Code
+  extends Quant(Constant(Times),v,t)
 \end_layout
 
 \begin_layout Standard
-here 1_(p) is the unit vector active at component p.
- Now we have a representation of the feature function.
+With quantification we can now build expressive relational models.
+ However, first note that we provide a few scala shortcuts, such as sum(Domain,D
+omain,..) that allow us to write quantifications more compactly and intuitively.
  
 \end_layout
 
 \begin_layout LyX-Code
-sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * w_age(p)}
+sum{(t1,w1,t2,w2) => 
+\end_layout
+
+\begin_layout LyX-Code
+   $(word(t1,w1) & word(t2,w2) ==> dep(t1,t2))$ * w_1(w1,w2)}
+\end_layout
+
+\begin_layout LyX-Code
+sum{(x,y)=>
+\end_layout
+
+\begin_layout LyX-Code
+   $(friends(x,y) ==> (smokes(x) <==> smokes(y)))$ * w_2}
 \end_layout
 
 \begin_layout Standard
-but this requires a new variable (w_age) for each formula.
- 
+Note that the first formula is precisely equivalent to the loglinear semantics
+ of a MLN formula.
+ Also note that we use 
+\family typewriter
+sum
+\family default
+ instead of 
+\family typewriter
+forall
+\family default
+ in the above cases.
+ This in fact is the true meaning of a 
+\emph on
+outer
+\emph default
+ forall in Markov Logic: it sums over the Iverson Bracket applied to a all
+ groundings of the formula.
+ Note that the corresponding probability distribution can also be formulated
+ in dfacto.
+ Assume that 
+\family typewriter
+score
+\family default
+ is one of the sums above, then 
+\end_layout
+
+\begin_layout LyX-Code
+norm(exp(score))
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\nexists\ \]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Alchemy Style Markov Logic
-\end_layout
-
-\begin_layout LyX-Code
-$(a(x) & b(x)) * 2.0
-\end_layout
-
-\begin_layout LyX-Code
-$(a(x)) * 1.0 + $(b(x)) * 1.0
-\end_layout
-
-\begin_layout LyX-Code
-$$(a(x) & b(x)) * 2.0
-\end_layout
-
-\begin_layout LyX-Code
-$$(a(x) & b(x)) * 1_(x)
-\end_layout
-
-\begin_layout LyX-Code
-AlchemyTerm(BooleanTerm) extends Sum(...)
-\end_layout
-
-\begin_layout LyX-Code
-Individisble(BooleanTerm) extends BooleanTerm
+refers to the loglinear distribution based on the linear 
+\family typewriter
+score
+\family default
+ score.
+ Explain score.
 \end_layout
 
 \begin_layout Section
-Extending Extentable Markov Logic
+DFacto Inference
+\end_layout
+
+\begin_layout Standard
+By now we can use dfacto to define most distributions and scoring functions
+ we think of (in 
+\end_layout
+
+\begin_layout Subsection
+Belief Propagation Facet
+\end_layout
+
+\begin_layout Definition
+A
+\emph on
+ BP-optimized term
+\emph default
+ is a term with additional operator 
+\begin_inset Formula $m$
+\end_inset
+
+ that maps 
 \end_layout
 
 \begin_layout Subsection
@@ -1872,7 +2167,7 @@ Cardinality Constraints
 \end_layout
 
 \begin_layout Section
-Inference and Learning
+Inference Facets
 \end_layout
 
 \begin_layout Subsection
@@ -2217,6 +2512,554 @@ reference "eq:prob"
  Also note that in this view a model developer could essentially directly
  translate his mathematical formulae in his paper into running code.
  
+\end_layout
+
+\begin_layout Section
+Higher Order Markov Logic
+\end_layout
+
+\begin_layout Standard
+It should be clear from the section 1 that we want to talk about properties
+ not only of simple entities such as tokens or tags, but also about properties
+ of graphs (dependency should be a tree) or sets of relations (all token
+ properties).
+ This clearly suggests a higher order approach
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "farmer08seven"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We want to talk about need terms to 
+\end_layout
+
+\begin_layout Standard
+Core:
+\end_layout
+
+\begin_layout Itemize
+Constant, Fun Application, Quantification
+\end_layout
+
+\begin_layout Standard
+Extended:
+\end_layout
+
+\begin_layout Itemize
+Indicator, Multiplication, Iverson Bracket (delta/real to boolean), Exp
+\end_layout
+
+\begin_layout Section
+Some Theory
+\end_layout
+
+\begin_layout Itemize
+Treat every formula as a term 
+\end_layout
+
+\begin_layout Itemize
+Functional Type Theory (Church, inspired by Frege) used here
+\end_layout
+
+\begin_layout Itemize
+MLNs etc: Relational Type Theory
+\end_layout
+
+\begin_layout Itemize
+Compared to Blog, Church etc: here terms are deterministic, there terms
+ are random variables
+\end_layout
+
+\begin_layout Itemize
+The strength of the lambda-calculus is that it is easily used as a "glue"
+ on top of a richer world of primitives.
+ Its advantages as a glue are that it has a natural correspondence with
+ the way that people program, and natural compilation techniques yield high-perf
+ormance code.
+ The latter comes through optimizations know as tail-call and continuation-passi
+ng, which might be the subject of future talks.
+\end_layout
+
+\begin_layout Itemize
+The Environment Model of Evaluation (functional)
+\end_layout
+
+\begin_layout Itemize
+Title: Functional Programming of Scores over Possible Worlds
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+vs Function Programming of Random Variables
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Formulas are terms.
+ Some (http://mally.stanford.edu/Papers/rtt.pdf) argue: In this paper we develop
+ an argument that suggests Whitehead & Russell’s approach to the foundations
+ of logic, which takes relations as basic, is to be preferred to Frege’s
+ and Church’s.(difference between RTTs and FTTs with regard to their ability
+ to represent systems containing formulas that aren’t, and can’t be converted
+ to, terms.)
+\end_layout
+
+\begin_layout Itemize
+http://en.wikipedia.org/wiki/Principle_of_compositionality
+\end_layout
+
+\begin_layout Itemize
+http://en.wikipedia.org/wiki/Value-level_programming
+\end_layout
+
+\begin_layout Itemize
+http://plato.stanford.edu/entries/type-theory-church/
+\end_layout
+
+\begin_layout Itemize
+Henkin's (1950) standard model for semantics
+\end_layout
+
+\begin_layout Itemize
+look at model theory for church type theory and use a bit of their terminology
+\end_layout
+
+\begin_layout Itemize
+http://imps.mcmaster.ca/doc/seven-virtues.ps
+\end_layout
+
+\begin_layout Itemize
+Simple Type Theory! valuation function, we are STT with
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+many sortedness
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Quantification=Definite Description
+\end_layout
+
+\begin_layout Itemize
+ExML: mixture of Markov Logic, Simple Type Theory (with Many Base types),
+ Church/Figaro, Factorie
+\end_layout
+
+\begin_layout Itemize
+The two semantics of ﬁrst-order logic and stt are based on essentially the
+ same ideas: domains of individuals, truth values, and functions; models
+ for languages; variable assignments; and valuation functions deﬁned recursively
+ on the syntax of expressions.
+\end_layout
+
+\begin_layout Section
+Variable Terms
+\end_layout
+
+\begin_layout Standard
+To make statements about unknown or generic objects of a domain, we need
+ variables to be terms as well.
+ The following is the natural implementation of this.
+\end_layout
+
+\begin_layout Definition
+A 
+\emph on
+variable term
+\emph default
+ is the term 
+\begin_inset Formula $\left(\left\{ x:\tau\right\} ,I,\tau\right)$
+\end_inset
+
+ for a variable 
+\begin_inset Formula $x:\tau$
+\end_inset
+
+ and 
+\begin_inset Formula $I\left(\y\right)=\y\left[x\right]$
+\end_inset
+
+.
+ It's canonical representation is 
+\begin_inset Formula $x$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In our running example, the variables 
+\family typewriter
+dependency
+\family default
+ , and 
+\family typewriter
+smokes
+\family default
+, are also terms, and on a possible world they are evaluated to what the
+ possible world stores as value for the variable.
+ 
+\end_layout
+
+\begin_layout Subsection
+Constant Terms
+\end_layout
+
+\begin_layout Standard
+Herbrand semantics: constants are objects.
+\end_layout
+
+\begin_layout Definition
+A 
+\emph on
+value term
+\emph default
+ 
+\begin_inset Formula $v\in\tau$
+\end_inset
+
+ is a term 
+\begin_inset Formula $\left(\emptyset,I,\tau\right)$
+\end_inset
+
+ with 
+\begin_inset Formula $I\left(\y\right)=v$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Function Application Terms
+\end_layout
+
+\begin_layout Standard
+Here the term is recursively resolved in the natural way: the constant Anna
+ is resolved to the value Anna, the variable smokes to a function from person
+ values to booleans, and the function application to the value of the smokes
+ function applied to the value Anna.
+ For example, this term could evaluate to 
+\emph on
+True
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+How can this be used to define a scoring function? We define scoring functions
+ simply as
+\emph on
+ real valued terms
+\emph default
+.
+ So together with a
+\emph on
+ Indicator operator
+\emph default
+ $ that maps booleans to 1.0 or 0.0, this is a scoring function
+\end_layout
+
+\begin_layout LyX-Code
+$(smokes(Anna))
+\end_layout
+
+\begin_layout Standard
+which assigns the value 1.0 to worlds where Anna smokes, and 0.0 otherwise.
+ Another example is 
+\end_layout
+
+\begin_layout LyX-Code
+$(smokes(Anna)) + height(Anna)
+\end_layout
+
+\begin_layout Standard
+Giving the score 181 to the world 
+\begin_inset Formula $smokes\rightarrow\left\{ Anna\rightarrow true\right\} ,height\rightarrow\left\{ Anna\rightarrow180\right\} $
+\end_inset
+
+.
+ Meaning: a world gets more likely with Anna smoking and being tall.
+ 
+\end_layout
+
+\begin_layout Standard
+More formally, a term is an instance of an abstract datatype:
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+eval
+\emph default
+ function: maps world to value
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+variables
+\emph default
+ function: returns all atomic free variables inside the term
+\end_layout
+
+\begin_layout Subsubsection
+Built-in Functions
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Quantification Terms
+\end_layout
+
+\begin_layout Standard
+The above presents terms and double/real terms as the building blocks that
+ make up scoring functions.
+ However, so far we can only talk about specific problem instances.
+ We would need to define a new smoking model for each set of persons we
+ encounter.
+ This is where quantification comes in to play.
+ In ExML we can compose scoring functions that apply a certain to ###.
+ For example, the scoring function
+\end_layout
+
+\begin_layout LyX-Code
+$(forall(Persons){x=>smokes(x)})
+\end_layout
+
+\begin_layout Standard
+assigns 1.0 to a world where everyone smokes and 0 otherwise.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Note that the forall we have here as the usual FOL semantics.
+\end_layout
+
+\end_inset
+
+ However, this is not what we want to do.
+ Instead we want to assign a higher score to worlds with more people smoking.
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons) {x=>$(smokes(x)) * 1.5}
+\end_layout
+
+\begin_layout Standard
+The scoring function that this term defines explains itself: we create one
+ ...
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Persons) {(x,y)=>$(friends(x,y) ==> (smokes(x)<==>smokes(y))
+ * 0.142}
+\end_layout
+
+\begin_layout Standard
+asd
+\end_layout
+
+\begin_layout LyX-Code
+forall(Values) = quantified(And,Values)
+\end_layout
+
+\begin_layout LyX-Code
+exists(Values) = quantified(Or,Values)
+\end_layout
+
+\begin_layout LyX-Code
+sum(Values) = quantified(Sum,Values)
+\end_layout
+
+\begin_layout Standard
+and so forth.
+ 
+\end_layout
+
+\begin_layout Standard
+In fact we are now ready to specify MLNs, and their propositional counter-parts.
+ However, we can already do much more:
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 2.0}
+\end_layout
+
+\begin_layout Subsection
+Tuple Terms
+\end_layout
+
+\begin_layout Subsection
+Vectors
+\end_layout
+
+\begin_layout Standard
+Many probabilistic models are represented as 
+\begin_inset Formula \[
+exp\left(f\left(\mathbf{x},\mathbf{y}\right)^{\top}\mathbf{w}\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here the moments, parameters of the probabilistic model are clearly separated
+ fromt he structural part.
+ However, in our current scoring function this is not the case.
+ we could write
+\end_layout
+
+\begin_layout LyX-Code
+vectorsum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * 1_(
+\begin_inset Quotes eld
+\end_inset
+
+age
+\begin_inset Quotes erd
+\end_inset
+
+,p)}
+\end_layout
+
+\begin_layout Standard
+here 1_(p) is the unit vector active at component p.
+ Now we have a representation of the feature function.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+sum(Persons,Ints) {p,a => $(age(p,a)) * $(a) * w_age(p)}
+\end_layout
+
+\begin_layout Standard
+but this requires a new variable (w_age) for each formula.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\nexists\ \]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Alchemy Style Markov Logic
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$(a(x)) * 1.0 + $(b(x)) * 1.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 2.0
+\end_layout
+
+\begin_layout LyX-Code
+$$(a(x) & b(x)) * 1_(x)
+\end_layout
+
+\begin_layout LyX-Code
+AlchemyTerm(BooleanTerm) extends Sum(...)
+\end_layout
+
+\begin_layout LyX-Code
+Individisble(BooleanTerm) extends BooleanTerm
+\end_layout
+
+\begin_layout Standard
+We have gin
+\end_layout
+
+\begin_layout Subsection
+Scoring Functions and Probability Distributions
+\end_layout
+
+\begin_layout Standard
+Until now we have discussed the terms of our language, but not yet the probabili
+ty distributions or scoring functions we need to declaratively differentiate
+ between good and bad worlds, or possible and impossible worlds.
+ However, in fact we do have all the ingredients to do so.
+ In the following we show a few simple examples of scoring functions that
+ show the power of dfacto STD.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+A parse becomes better the shorter its edges are
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+sum{(t1,t2)-> $((dep(t1,t2)) * abs(t1-t2) * w_short}
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+A parse becomes better if edge tags are compatible:
+\end_layout
+
+\begin_layout LyX-Code
+sum{(t1,t2,p1,p2)-> 
+\end_layout
+
+\begin_layout LyX-Code
+   $(tag(t1,p1) & tag(t2,p2) & dep(t1,t2)) * w(p1,p2)}
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+A person is more likely to smoke etc.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+sum{ (p1,p2) -> $(friends(p1,p2) => (smokes(p1) <==> smokes(p2)))
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+generative model
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \end_body
