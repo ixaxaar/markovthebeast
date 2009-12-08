@@ -3,6 +3,9 @@
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\newcommand{\lang}{\noun{DFacto}}
+\end_preamble
 \use_default_options true
 \begin_modules
 theorems-ams
@@ -141,6 +144,10 @@ Declarative FACTOrgraph Scoring Template Definitions
 
 \begin_layout Section
 Introduction
+\end_layout
+
+\begin_layout Standard
+Tension: more expressive languages -> less efficient (guaranteed) inference.
 \end_layout
 
 \begin_layout Standard
@@ -575,9 +582,18 @@ key "raymond99cathedral,steele99growing"
 
 \begin_layout Standard
 Our proposed framework, 
-\emph on
-DFacto
-\emph default
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
 , is similar in spirt to Markov Logic, and in fact contains it as a special
  case.
  It uses the notions of 
@@ -606,7 +622,19 @@ terms
 \end_layout
 
 \begin_layout Standard
-dfacto is also related to factorie
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ is also related to factorie
 \begin_inset space ~
 \end_inset
 
@@ -622,12 +650,37 @@ key "mccallum08factorie"
 imperative
 \emph default
  probabilistic programming language.
- Like factorie, dfacto seeks to exploit our knowledge of inference for certain
- types of factor graph.
+ Like factorie, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ seeks to exploit our knowledge of inference for certain types of factor
+ graph.
  However, while users in factorie construct models primarily using concepts
- from programming such as classes, methods, control flow, dfacto's modelling
- paradigm is primarily composition and quantification, just as in Markov
- Logic.
+ from programming such as classes, methods, control flow, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+'s modelling paradigm is primarily composition and quantification, just
+ as in Markov Logic.
  That is, the average user declaratively constructs formula composed of
  terms and quantification.
  Machine Learning researchers on the other hand can extend the language
@@ -639,9 +692,21 @@ imperative
 \end_layout
 
 \begin_layout Standard
-Finally, we will see that models in dfacto are similar to the expressions
- used in recent functional probabilistic programming languages such as Church
- or Figaro.
+Finally, we will see that models in 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ are similar to the expressions used in recent functional probabilistic
+ programming languages such as Church or Figaro.
  However, the difference lies in the meaning of such expressions: here a
  term is always deterministic, but can describe a probabilitity distribution
  over possible words.
@@ -1318,11 +1383,24 @@ relation to factorie
 \end_layout
 
 \begin_layout Section
-DFacto Possible Worlds
+Domains, Variables and Worlds
 \end_layout
 
 \begin_layout Standard
-The general task we like to solve with dfacto is the following.
+The general task we like to solve with 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ is the following.
  We are given a set of 
 \emph on
 variables
@@ -1389,14 +1467,53 @@ dependency
 \end_layout
 
 \begin_layout Subsection
-Domains, Variables and Possible Worlds
+Domains
 \end_layout
 
 \begin_layout Standard
-As mentioned above, dfacto is a typed language.
+As mentioned above, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ is a typed language.
  Hence the first notion we need to introduce are types, or domains, that
- can be associated with variables and, in general, terms of dfacto.
- Note that at its heart dfacto is a typed 
+ can be associated with variables and, in general, terms of 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+.
+ Note that at its heart 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ is a typed 
 \emph on
 higher order logic
 \emph default
@@ -1419,29 +1536,48 @@ key "farmer08seven"
  
 \end_layout
 
-\begin_layout Definition
-A 
-\emph on
-domain
-\emph default
- 
-\begin_inset Formula $\tau$
+\begin_layout Standard
+A domain in 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
 \end_inset
 
- is a (finite) set of objects 
-\end_layout
-
-\begin_layout Standard
-In our scala implementation of dfacto we can define a domain in dfacto as
- follows: 
+ is a (finite) collection of values of a certain scala runtime type 
+\family typewriter
+T
+\family default
+, and is implemented through objects of class 
+\family typewriter
+Domain[T]
+\family default
+.
+ dfacto provides several 
+\family typewriter
+Domain
+\family default
+ subclasses that can be used to creates different types of domains.
+ The simplest class is 
+\family typewriter
+Values[T] (arg[T]:*) extends Domain[T]
+\family default
+ , which allows the user to explicitely define the collection of values
+ in the domain:
 \end_layout
 
 \begin_layout LyX-Code
-val DependencyLabels = Domain(...)
+val DepLabels = Values('SUBJ,'OBJ,'DET)
 \end_layout
 
 \begin_layout LyX-Code
-val Persons = Domain(
+val Persons = Values(
 \begin_inset Quotes eld
 \end_inset
 
@@ -1449,27 +1585,65 @@ Anna
 \begin_inset Quotes erd
 \end_inset
 
+,
+\begin_inset Quotes erd
+\end_inset
+
+Peter
+\begin_inset Quotes erd
+\end_inset
+
 ,...)
 \end_layout
 
 \begin_layout Standard
-For convenience, we can compactly introduce integer subset types, too:
+Note that it is not necessary to define a domain exhaustively in advance---we
+ can add new values whenever needed.
+ In addition, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
 \end_layout
 
-\begin_layout LyX-Code
-val Ages = Ints(0 until 100)
-\end_layout
+\end_inset
 
-\begin_layout LyX-Code
-val Heights = Doubles(0,230.0)
-\end_layout
-
-\begin_layout LyX-Code
-val Tokens = Ints(0 until 100)
+ provides built-in domains such as 
+\family typewriter
+Bools
+\family default
+, 
+\family typewriter
+Ints
+\family default
+ and 
+\family typewriter
+Doubles
+\family default
+, as well as subsets of these, such as 
+\family typewriter
+Doubles(0, 230.0)
+\family default
+.
+ 
 \end_layout
 
 \begin_layout Standard
-Finally, we can use function types, too:
+Crucially, we can also define domains that consist of all mappings/functions
+ from one domain to another.
+ This is realized through a 
+\family typewriter
+FunctionDomain[T,R] (domain:Domain[T], range:Domain[R]) extends Domain[T=>R]
+\family default
+ class that can be conveniently instantiated using 
+\family typewriter
+domain -> range
+\family default
+:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1481,168 +1655,199 @@ val DependencyGraph = Token x Token -> DependencyLabels
 \end_layout
 
 \begin_layout Standard
-##Relation to Markov Logic
+##TupleDomain
 \end_layout
 
-\begin_layout Definition
-A 
-\emph on
-variable
-\emph default
- is a pair 
-\begin_inset Formula $x:\tau$
-\end_inset
-
- where 
-\begin_inset Formula $x$
-\end_inset
-
- is a name and 
-\begin_inset Formula $\tau$
-\end_inset
-
- is a domain
+\begin_layout Subsection
+Variables
 \end_layout
 
 \begin_layout Standard
-Semantically, variables are placeholders for objects of the domain.
- Note that in dfacto a predicate in Markov Logic is considered to be a variable
- of type (...
- -> Bools).
- 
-\end_layout
-
-\begin_layout Standard
-In our reference implementation dfacto std we can define variables as follows.
- 
-\end_layout
-
-\begin_layout LyX-Code
-val dependency = Var(DependencyGraph)
-\end_layout
-
-\begin_layout LyX-Code
-val smokes = Var(Property)
-\end_layout
-
-\begin_layout LyX-Code
-val friends = Var(Persons x Persons -> Bools)
-\end_layout
-
-\begin_layout LyX-Code
-val height = Var(Person -> Heights)
-\end_layout
-
-\begin_layout Standard
-Note that domains can be composed within the variable declaration.
-\end_layout
-
-\begin_layout Definition
-A 
-\emph on
-possible world 
-\emph default
-is an assignment from variables 
-\begin_inset Formula $x:\tau$
-\end_inset
-
- to values 
-\begin_inset Formula $v\in\tau$
-\end_inset
-
- of their domain.
-\end_layout
-
-\begin_layout Standard
-For example, in the propositional case, consider a boolean variable 
-\begin_inset Formula $x$
-\end_inset
-
-, then a possible world is 
-\begin_inset Formula $x\rightarrow true$
-\end_inset
-
-.
- In the first order case, consider a variable 
-\begin_inset Formula $p\in Person\times Person\Rightarrow\mathbb{B}$
-\end_inset
-
-.
- Here 
-\begin_inset Formula $p$
-\end_inset
-
- is a variable that is mapped to a relation, and a possible world is 
-\begin_inset Formula $p\rightarrow\left\{ \left(Anna,Person\right),\ldots\right\} $
-\end_inset
-
-.
- In dependency parsing, we might want to consider a variable of type 
-\begin_inset Formula $p\in Token\times Token\Rightarrow EdgeLabel$
-\end_inset
-
- to represent labelled dependency graphs.
-\end_layout
-
-\begin_layout Standard
-sdfsd
-\end_layout
-
-\begin_layout LyX-Code
-val Persons = Domain(
+In Machine Learning we usually encounter the following setting: we need
+ to infer the state or belief about some set of variables.
+ Here variables are placeholders of objects of our domain, and we ask the
+ question 
 \begin_inset Quotes eld
 \end_inset
 
-Anna
+which object in the domain should I assign to this placeholder in order
+ to maximize probability/score or (marginal)?
 \begin_inset Quotes erd
 \end_inset
 
-, ...)
-\end_layout
 
-\begin_layout LyX-Code
-val Ages = Ints(0 until 100)
-\end_layout
-
-\begin_layout LyX-Code
-val Heights = Doubles(0,230.0)
-\end_layout
-
-\begin_layout LyX-Code
-val Tokens = Ints(0 until 100)
-\end_layout
-
-\begin_layout LyX-Code
-...
 \end_layout
 
 \begin_layout Standard
-Now we define variables.
- In Markov Logic this means predicates, here it can mean anything from propositi
-onal variables to complex functional variables:
+In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ Variables are instances of the class 
 \end_layout
 
 \begin_layout LyX-Code
-val smokes = Var(Persons -> Bools)
+
+\family typewriter
+Var[T] (name:String, domain:Domain[T]) extends Term[T]
+\end_layout
+
+\begin_layout Standard
+that is, they are named placeholders constrained by a 
+\family typewriter
+domain
+\family default
+ (and type parameter 
+\family typewriter
+T
+\family default
+).
+ For now we ask the reader overlook the superclass Term[T] and bear with
+ us until section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Terms"
+
+\end_inset
+
+.
+ Note that often we can use scala identifiers to refer to variables, and
+ hence the name can be eft out if needed.
+ 
+\end_layout
+
+\begin_layout Standard
+Typical simple type variables are 
+\end_layout
+
+\begin_layout LyX-Code
+val height = Var(Doubles(0,230.0))
+\end_layout
+
+\begin_layout LyX-Code
+val person = Var(Persons)
+\end_layout
+
+\begin_layout LyX-Code
+val pair = Var(Persons x Persons)
+\end_layout
+
+\begin_layout Standard
+Variables are also used to represent the notion of predicate as used in
+ Markov Logic.
+ A predicate is simply a variable that has a 
+\family typewriter
+FunctionDomain
+\family default
+ as type for which the range are 
+\family typewriter
+Bools
+\family default
+.
+ A simple example would be 
+\end_layout
+
+\begin_layout LyX-Code
+val dependency = Var(Tokens x Tokens -> Bools)
 \end_layout
 
 \begin_layout LyX-Code
 val friends = Var(Persons x Persons -> Bools)
 \end_layout
 
+\begin_layout Standard
+Allowing general functions as opposed to only boolean predicates also allows
+ us to write
+\end_layout
+
 \begin_layout LyX-Code
 val height = Var(Person -> Heights)
 \end_layout
 
-\begin_layout LyX-Code
-...
+\begin_layout Subsection
+Worlds
 \end_layout
 
 \begin_layout Standard
-A possible world is a assignment from variables to values.
- The common mode of operation is to partially define possible worlds (the
- observations) and infer the rest (or infer marginal probabilities).
+In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ we seek to make inferences about the possible state of the world.
+ This state is represented through instances of the class (or trait) 
+\family typewriter
+World
+\family default
+.
+ which store a mapping from variables to values in the domain.
  
+\family typewriter
+World
+\family default
+ has one core method, 
+\end_layout
+
+\begin_layout LyX-Code
+resolveVar[T](variable:Var[T]) : Option[T]
+\end_layout
+
+\begin_layout Standard
+that returns the value associated with the variable in the world (wrapped
+ with the 
+\family typewriter
+Option
+\family default
+ monad), or 
+\family typewriter
+None
+\family default
+ in case the world has no assignment for the given variable.
+\end_layout
+
+\begin_layout Standard
+While part of a world is inferred through probablistic inference, another
+ part is usually 
+\emph on
+observed
+\emph default
+.
+ To allows users the definition of an observed world, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ provides the notion of a 
+\family typewriter
+MutableWorld extends World
+\family default
+ for which variable assignments can be made by the user.
+ For example, users can write:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1658,24 +1863,24 @@ world(smokes(Anna)) = true
 \end_layout
 
 \begin_layout Standard
-Variables can also be functions, and hence predicates:
-\end_layout
-
-\begin_layout LyX-Code
-val age = 
-\begin_inset Quotes eld
-\end_inset
-
-age
-\begin_inset Quotes erd
-\end_inset
-
- <- Ints(0,120) x Persons -> Bools
-\end_layout
-
-\begin_layout Standard
-again, a possible world is a mapping from variables to their values.
- In this case
+to create a world where 
+\family typewriter
+smokes
+\family default
+ is assigned to a function that only maps 
+\family typewriter
+Anna
+\family default
+ to 
+\family typewriter
+True
+\family default
+ (i.e.
+ a world where only 
+\family typewriter
+Anna
+\family default
+ smokes).
 \end_layout
 
 \begin_layout LyX-Code
@@ -1708,13 +1913,32 @@ note that functions can also be point to functions.
 \end_layout
 
 \begin_layout Section
-DFacto Terms
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Terms"
+
+\end_inset
+
+Terms
 \end_layout
 
 \begin_layout Standard
 A Markov Logic Network is a probability or score function defined over possible
  worlds.
- In dfacto we follow the same path.
+ In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ we follow the same path.
  However, while in Markov Logic (and first order logic in general) there
  is a distinction between terms (denoting objects of the domain) and formulae
  (boolean expressions that concern terms), in higher order logics this distincti
@@ -1731,9 +1955,18 @@ on often vanishes
 Intuitively, a term is a symbolic expression that is, given a possible world,
  evaluated to a value.
  In 
-\noun on
-dfacto
-\noun default
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
  a term is an instance of a term class, which is a subclass of the class
  
 \family typewriter
@@ -1793,7 +2026,19 @@ Constant(value)
 \end_layout
 
 \begin_layout Standard
-Dfacto supports functional composition through the term class 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ supports functional composition through the term class 
 \family typewriter
 FunApp[T,R] (f:Term[T=>R], arg:T) extends Term[R]
 \family default
@@ -1808,7 +2053,20 @@ arg
 \family default
 , and then applying the function value to the argument value.
  Note that this class allows us to incorporate arbitrary native scala functions
- into dfacto: for a given function 
+ into 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+: for a given function 
 \family typewriter
 fun:T=>R
 \family default
@@ -1949,8 +2207,21 @@ FunApp(Constant(plus), TupleTerm(x,y))
 \end_layout
 
 \begin_layout Standard
-Note that dfacto naturally allows you to scoring functions that go beyond
- weight boolean formulae:
+Note that 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ naturally allows you to scoring functions that go beyond weight boolean
+ formulae:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1975,8 +2246,21 @@ So far we can only talk about specific objects in our domain.
 \end_layout
 
 \begin_layout Standard
-In dfacto quantification is a general class of terms that allows us to apply
- a binary function (term) to a range of objects.
+In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ quantification is a general class of terms that allows us to apply a binary
+ function (term) to a range of objects.
  We use the term class 
 \end_layout
 
@@ -2114,7 +2398,7 @@ score
 \end_layout
 
 \begin_layout Section
-DFacto Inference
+Inference
 \end_layout
 
 \begin_layout Standard
