@@ -4,8 +4,8 @@
 \begin_header
 \textclass article
 \begin_preamble
-%\newcommand{\lang}{\noun{DFacto}}
-\newcommand{\lang}{\noun{Def Maam}}
+\newcommand{\lang}{\noun{DFacto}}
+%\newcommand{\lang}{\noun{Def Maam}}
 \end_preamble
 \use_default_options true
 \begin_modules
@@ -82,6 +82,11 @@ theorems-ams-extended
 
 \begin_inset FormulaMacro
 \newcommand{\Y}{\mathcal{Y}}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\renewcommand{\O}{\mathcal{O}}
 \end_inset
 
 
@@ -182,8 +187,30 @@ key "richardson06markov"
 
  is one of the most prominent and sucessful Statistical Relational Learning
  Languages to date.
- It has been successfully applied to various tasks in AI such as semantic
- parsing, coreference resolution, and disease prediction.
+ It has been successfully applied to various tasks in AI such as forms of
+ semantic parsing
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "meza09jointly"
+
+\end_inset
+
+, coreference resolution
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "poon08joint"
+
+\end_inset
+
+, and disease prediction, to name just a few.
  One of the great merits of Markov Logic is its declarative nature: users
  specify their model structure using weighted first order logic formulae,
  inference and learning on the other hand are provided by the Markov Logic
@@ -193,10 +220,10 @@ key "richardson06markov"
 
 \begin_layout Standard
 The declarative aspect of Markvo Logic can greatly reduce the amount of
- engineering necessary to build a effective Machine Learning application.[##also
- leads to more comprehensible models] Moreover, in theory, it means that
- the user does need to understand complex Machine Learning algorithms and
- theory in order to make use of it.
+ engineering necessary to build a effective Machine Learning application,
+ and lead to more comprehensible models.
+ Moreover, in theory, it does not require the user to understand complex
+ Machine Learning algorithms and theory in order to make use of them.
  In this sense Markov Logic serves as interface between Applications and
  Machine Learning technology, just as SQL serves as interface between applicatio
 ns and Database technology
@@ -347,7 +374,7 @@ link
 \family default
  to be a spanning tree.
  Since such a constraint amounts to a factor with very large arity (
-\begin_inset Formula $O\left(n^{2}\right)$
+\begin_inset Formula $\O\left(n^{2}\right)$
 \end_inset
 
 ) in the factor graph, we also provide an efficient algorithm to calculate
@@ -635,8 +662,18 @@ isSpanningTree(dependency)
 \end_layout
 
 \begin_layout Standard
-While a similar object oriented approach has been followed in Figaro, and
- FACTORIE
+While a similar object oriented approach has been followed in Figaro
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "pfeffer09figaro"
+
+\end_inset
+
+, and FACTORIE
 \begin_inset space ~
 \end_inset
 
@@ -657,7 +694,7 @@ undirected
 declarative
 \series default
  representations (while FACTORIE focuses imperative constructs).
- Most crucially however, 
+ Moreover, 
 \begin_inset ERT
 status open
 
@@ -681,7 +718,11 @@ the encapsulation of inference in factors
 ion as application dependent code (see FACTORIE).
  This enables an open-ended set of factor types that can be declaratively
  composed and still allow for efficient inference.
- [needs more explanation, mention 
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+[needs more explanation, mention 
 \begin_inset Quotes eld
 \end_inset
 
@@ -690,6 +731,11 @@ maximal reuse
 \end_inset
 
  of inference, clean separation of model (in factors+inference) and data]
+\end_layout
+
+\end_inset
+
+
 \begin_inset Note Note
 status collapsed
 
@@ -1160,24 +1206,8 @@ lang{}
 \end_layout
 
 \begin_layout Standard
-[Further advantages of 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-lang{}
-\end_layout
-
-\end_inset
-
-]
-\end_layout
-
-\begin_layout Standard
-We show the advanates of 
+In the following we will first introduce the concepts and constructs of
+ our language/library, and then show the advantages of 
 \begin_inset ERT
 status open
 
@@ -1193,7 +1223,7 @@ lang{}
  in the context of two applications: dependency parsing and ##.
  In both we show (a) the increased compactness of our models in contrast
  to Markov Logic, and more crucially, (b) the increased efficiency we achieve
- by allowing tailor-made inference routines for our language extensions.
+ by allowing for tailor-made inference routines tied to our language extensions.
 \end_layout
 
 \begin_layout Standard
@@ -1920,8 +1950,8 @@ dependency
 \emph on
 declarative
 \emph default
- definition of what we think are good and bad dependency functions by constructi
-ng a scoring function over possible assignments of functions to the 
+ definition of what we think are good and bad dependency graphs by constructing
+ a scoring function over possible assignments of functions to the 
 \family typewriter
 dependency
 \family default
@@ -1929,10 +1959,27 @@ dependency
  This scoring function will, for example, return 0 probability if the function
  does not represent a spanning tree, and give higher probabilities for functions
  in which dependent tokens are somewhat compatible.
- Then, at runtime, we use this scoring function to find the highest-scoring,
+ 
+\end_layout
+
+\begin_layout Standard
+Then, at runtime, we use this scoring function to find the highest-scoring,
  most probable parse, or marginal probabilities for each edge to be part
  of the graph or not.
- In the following we show how dfacto supports the above workflow.
+ In the following we show how 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ supports the above workflow.
  
 \end_layout
 

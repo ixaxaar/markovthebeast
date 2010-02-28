@@ -4,13 +4,13 @@ package org.riedelcastro.thebeast.solve
 import org.riedelcastro.thebeast._
 import env._
 import doubles._
-import util.Trackable
+import util.{Logging, Trackable}
 
 /**
  * @author Sebastian Riedel
  */
 
-class SumProductBeliefPropagation extends MarginalInference with Trackable {
+class SumProductBeliefPropagation extends MarginalInference with Trackable with Logging {
   class SPBPFactorGraph extends DoubleFactorGraph {
     case class SPBPEdge(override val node: NodeType, override val factor: FactorType) extends Edge(node, factor) {
       var node2factor: Belief[Any] = Ignorance(node.variable.values)
@@ -39,7 +39,7 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
       def updateOutgoingMessages = {
 
         |**("Term marginalization")
-        val incomingBeliefs = new MutableBeliefs[Any,EnvVar[Any]]
+        val incomingBeliefs = new MutableBeliefs[Any, EnvVar[Any]]
         for (edge <- edges) incomingBeliefs.setBelief(edge.node.variable, edge.node2factor)
         val outgoingBeliefs = term.marginalize(incomingBeliefs)
         **|
@@ -86,18 +86,18 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
 
 
 
-  def infer(term: DoubleTerm) = 
+  def infer(term: DoubleTerm) =
     unroll(term).flatten match {
-    case Multiplication(args) => infer(args)
-    case Exp(Sum(args)) => infer(args.map(Exp(_)))
-    case Normalize(Multiplication(args)) => infer(args).normalize
-    case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
-    case _ => infer(Seq(term))
-  }
+      case Multiplication(args) => infer(args)
+      case Exp(Sum(args)) => infer(args.map(Exp(_)))
+      case Normalize(Multiplication(args)) => infer(args).normalize
+      case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
+      case _ => infer(Seq(term))
+    }
 
-  private def unroll(term:DoubleTerm):DoubleTerm = term match {
+  private def unroll(term: DoubleTerm): DoubleTerm = term match {
     case Sum(args) => Sum(args.map(unroll(_)))
-    case x:QuantifiedSum[_] => x.unroll
+    case x: QuantifiedSum[_] => x.unroll
     case Normalize(x) => Normalize(unroll(x))
     case Exp(x) => Exp(unroll(x))
     case x => x
@@ -105,21 +105,27 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable {
   }
 
   private var _iterations = 0
+
   def iterations = _iterations
 
-  private def infer(terms: Iterable[DoubleTerm]): Beliefs[Any,EnvVar[Any]] = {
+  private def infer(terms: Collection[DoubleTerm]): Beliefs[Any, EnvVar[Any]] = {
+
+    debug("SPBP for %d terms".format(terms.size))
+
     val graph = new SPBPFactorGraph
 
-    |** ("Constructing graph")
+    |**("Constructing graph")
     graph.addTerms(terms.map(DoubleTermOptimizer.optimize(_)))
     **|
+
+    debug("BP Nodes: %s".format(graph.nodes.mkString(",")))
 
     _iterations = 0
     |**("Message passing")
     while (graph.updateMessages > 0.0001) {_iterations += 1}
     **|
 
-    val result = new MutableBeliefs[Any,EnvVar[Any]]
+    val result = new MutableBeliefs[Any, EnvVar[Any]]
     for (node <- graph.nodes)
       result.setBelief(node.variable, node.belief)
 

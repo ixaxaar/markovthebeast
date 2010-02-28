@@ -1,20 +1,22 @@
 package org.riedelcastro.thebeast.apps
 
 import org.riedelcastro.thebeast.env._
+import org.riedelcastro.thebeast.util._
 import combinatorics.SpanningTreeConstraint
 import vectors.{Vector, VectorVar}
+import org.riedelcastro.thebeast.solve.SumProductBeliefPropagation
+import org.riedelcastro.thebeast.env.TheBeastImplicits._
 
 /**
- * Created by IntelliJ IDEA.
- * User: riedelcastro
- * Date: Oct 26, 2009
- * Time: 10:55:30 PM
- * To change this template use File | Settings | File Templates.
+ * Simple Dependency Parsing model
  */
-
 object DependencyParsing extends TheBeastEnv {
   def main(args: Array[String]): Unit = {
+
+    Logging.level = Logging.DEBUG
+
     val maxLength = 10
+
     val Tokens = Ints(0 until maxLength)
     val Words = new MutableValues[String]()
     val Tags = new MutableValues[String]()
@@ -34,13 +36,13 @@ object DependencyParsing extends TheBeastEnv {
     val treeConstraint = SpanningTreeConstraint(link, length)
 
     val weightVar = VectorVar("weights")
-    val linearModel = ((wordPair + posPair + bias) dot weightVar) + treeConstraint
+    //val linearModel = ((wordPair + posPair + bias) dot weightVar) + treeConstraint
+    val linearModel = ((wordPair + posPair + bias) dot weightVar) 
+    val probModel = normalize(exp(linearModel))
 
     //some example data
     val sentence1 = new MutableEnv
     sentence1(length) = 5
-    //sentence1.atoms(word) += (0,"The")
-    //sentence1.atoms(word) ++= ((1,"man"),(2,"is"))
     sentence1.atoms(word) ++= List("Root", "The", "man", "is", "fast").zipWithIndex.map(_.swap)
     sentence1.atoms(pos) ++=  List("Root", "DT",  "NN",  "VB", "AD").zipWithIndex.map(_.swap)
     sentence1.atoms(link) ++= List((0,3),(3,2),(3,4),(2,1))
@@ -62,9 +64,12 @@ object DependencyParsing extends TheBeastEnv {
 
     println(sentence1(linearModel))
 
+    //run inference
+    val bp = new SumProductBeliefPropagation
+    val marginals = bp.infer(probModel.ground(sentence1.mask(Set(link))))
 
 
-    null
+    println(marginals)
   }
 
 }
