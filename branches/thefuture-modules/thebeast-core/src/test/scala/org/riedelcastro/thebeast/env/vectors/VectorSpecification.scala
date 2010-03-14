@@ -1,8 +1,9 @@
 package org.riedelcastro.thebeast.env.vectors
 
 
-import specs.runner.{JUnit4, JUnit}
-import specs.Specification
+import org.specs.runner.{JUnit, JUnit4}
+import org.riedelcastro.thebeast.env.TheBeastEnv
+import org.specs.Specification
 
 /**
  * @author Sebastian Riedel
@@ -42,5 +43,6 @@ object VectorSpecification extends Specification with TheBeastEnv with JUnit {
       x.setDefaultForFirstKey(1,100.0)
       x.get(1,"C") must_== 100.0
     }
+
   }
 }

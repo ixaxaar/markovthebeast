@@ -5,6 +5,7 @@ import org.riedelcastro.thebeast._
 import env._
 import doubles._
 import util.{Logging, Trackable}
+import vectors.VectorDotApp
 
 /**
  * @author Sebastian Riedel
@@ -92,7 +93,8 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable with 
       case Exp(Sum(args)) => infer(args.map(Exp(_)))
       case Normalize(Multiplication(args)) => infer(args).normalize
       case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
-      case _ => infer(Seq(term))
+      case Normalize(Exp(v:VectorDotApp)) => infer(v.distribute.asInstanceOf[Sum[DoubleTerm]].args.map(Exp(_))).normalize
+      case x => infer(Seq(x))
     }
 
   private def unroll(term: DoubleTerm): DoubleTerm = term match {

@@ -26,13 +26,16 @@ trait VectorTerm extends Term[Vector] with NumericTerm[Vector] {
         case VectorSum(args2) => VectorSum(args ++ args2)
         case x => VectorSum(args ++ Seq(x))
       }
-      case _ => VectorAddApp(this,that)
+      case _ => VectorSum(Seq(this,that))
     }
 
   }
   def dot(that:VectorTerm) = VectorDotApp(this,that)
 
   def dot(that:Vector) = VectorDotApp(this,VectorConstant(that))
+
+  def flatten: VectorTerm = this
+
 
   def createExpectation = new Expectation[Vector] {
     val value = new Vector
@@ -104,8 +107,9 @@ case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
   }
 
 
+  override def flatten: DoubleTerm = VectorDotApp(lhs.flatten,rhs.flatten)
 
-  override def toString = "<" + lhs + "," + rhs + ">"
+  override def toString = "(%s)^T * (%s)".format(lhs,rhs)
 }
 
 case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
@@ -133,7 +137,16 @@ case class VectorSum(override val args:Seq[VectorTerm])
   override def ground(env: Env) = VectorSum(args.map(a=>a.ground(env)))
 
 
-  override def toString = "+." + args.mkString(",")
+  override def toString = if (args.size != 2) "+." + args.mkString(",") else "(%s) .+ (%s)".format(args(0),args(1))
+
+
+  override def flatten: VectorSum =
+    VectorSum(args.flatMap(a => a match {case x: VectorSum => x.flatten.args; case _ => Seq(a)}))
+
+
+  override def equals(obj: Any): Boolean = obj match {
+    case x:VectorSum => (0 until args.size).forall(i=>args(i) == x.args(i))
+  }
 }
 
 case class QuantifiedVectorSum[T](override val variable: Var[T], override val formula: VectorTerm)
