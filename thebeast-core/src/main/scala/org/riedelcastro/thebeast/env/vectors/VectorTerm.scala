@@ -155,6 +155,8 @@ case class QuantifiedVectorSum[T](override val variable: Var[T], override val fo
     val env = new MutableEnv
     VectorSum(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
   }
+
+
   override def ground(env: Env) = unroll.ground(env)
 
 
