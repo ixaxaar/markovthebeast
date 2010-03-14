@@ -69,6 +69,13 @@ case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
 
   override def toString = args.mkString("(", " & ", ")")
+
+  override def simplify:BooleanTerm = Util.mapUntil(args, (arg:T)=> arg match {
+    case BooleanConstant(false) => None
+    case x => Some(x)
+  }).toLeft(None).fold(Conjunction(_),x => BooleanConstant(false))
+
+  
 }
 
 
@@ -96,6 +103,12 @@ case class Disjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
   def moveInNegation = Disjunction(args.map(_.moveInNegation))
 
   override def toString = args.mkString("(", " | ", ")")
+
+  override def simplify:BooleanTerm = Util.mapUntil(args, (arg:T)=> arg match {
+     case BooleanConstant(true) => None
+     case x => Some(x)
+   }).toLeft(None).fold(Conjunction(_),x => BooleanConstant(true))
+
 
 
 }

@@ -235,7 +235,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
     }
   }
 
-  def simplify = null
+  def simplify:Term[R] = Fold(function,args.map(_.simplify),init)
 
   def variables = function.variables ++ init.variables ++ args.flatMap(a => a.variables)
 
@@ -275,6 +275,8 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
     val env = new MutableEnv
     Fold(function, variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq, init)
   }
+
+  def unrollUncertain = Fold(function, unroll.args.filter(arg => !arg.simplify.isGround),init)
 
   def simplify = unroll.simplify
 

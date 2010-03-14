@@ -99,6 +99,9 @@ case class Sum[+T <: DoubleTerm](override val args: Seq[T]) extends Fold[Double]
   override def flatten: Sum[DoubleTerm] = Sum(args.flatMap(a => a match {case x: Sum[_] => x.flatten.args; case _ => Seq(a)}))
 
   override def toString = args.mkString("(", "+", ")")
+
+
+  override def simplify: DoubleTerm = Sum(args.map(_.simplify))
 }
 
 object SumHelper {
@@ -114,6 +117,7 @@ case class Multiplication[+T <: DoubleTerm](override val args: Seq[T]) extends F
   override def toString = args.mkString("(", "*", ")")
 
   //def flatten:Multiplication[DoubleTerm] = Multiplication(args.flatMap(a => a match {case x:Multiplication[_] => x.flatten.args; case _ => Seq(a) }))
+  override def simplify: DoubleTerm = Multiplication(args.map(_.simplify))
 
 
 }
@@ -130,6 +134,7 @@ case class QuantifiedSum[T](override val variable: Var[T], override val formula:
 
   override def ground(env: Env) = unroll.ground(env)
 
+  override def simplify = QuantifiedSum(variable,formula.simplify)
 }
 case class Indicator(boolTerm: BooleanTerm) extends FunApp(Constant(CastBoolToDouble), boolTerm)
         with DoubleTerm {

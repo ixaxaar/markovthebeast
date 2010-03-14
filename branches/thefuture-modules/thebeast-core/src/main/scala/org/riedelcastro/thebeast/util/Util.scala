@@ -1,5 +1,7 @@
 package org.riedelcastro.thebeast.util
 
+import collection.mutable.ArrayBuffer
+
 /**
  * @author Sebastian Riedel
  */
@@ -24,6 +26,16 @@ object Util {
     }
     
 
+  }
+
+  def mapUntil[T,R](seq:Seq[T], function:T=>Option[R]): Option[Seq[R]] = {
+    val result = new ArrayBuffer[R]
+    for (t <- seq){
+      val r = function(t)
+      if (r.isEmpty) return None
+      result += r.get
+    }
+    Some(result)
   }
 
   object Cartesian {
