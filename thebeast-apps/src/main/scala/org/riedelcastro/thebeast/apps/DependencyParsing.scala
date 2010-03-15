@@ -15,7 +15,7 @@ object DependencyParsing extends TheBeastEnv {
 
     Logging.level = Logging.DEBUG
 
-    val maxLength = 10
+    val maxLength = 5
 
     val Tokens = Ints(0 until maxLength)
     val Words = new MutableValues[String]()

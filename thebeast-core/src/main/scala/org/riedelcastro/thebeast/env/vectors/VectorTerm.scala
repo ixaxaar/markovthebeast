@@ -169,7 +169,7 @@ case class QuantifiedVectorSum[T](override val variable: Var[T], override val fo
         extends Quantification(Constant(VectorAdd), variable, formula, Constant(new Vector)) with VectorTerm {
   override lazy val unroll = {
     val env = new MutableEnv
-    VectorSum(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
+    VectorSum(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq).flatten
   }
 
   override def unrollUncertain = VectorSum(unroll.args.filter(arg => !arg.simplify.isGround))
