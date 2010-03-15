@@ -56,12 +56,12 @@ object MutableFunctionValueSpecification extends Specification with TheBeastEnv 
     "return all sources that map to a specific return value in" in {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B"))
       f(1) = "B"
-      f.getSources(Some("B")) must_== Set(1)
+      f.getSources(Some("B")) must_== List(1)
     }
     "return all sources that are not maped to any value in" in {
       val f = new MutableFunctionValue(Values(1,2,3)->Values("A","B"))
       f(1) = "B"
-      f.getSources(None) must_== Set(2,3)
+      f.getSources(None) must_== List(2,3)
     }
 
     "should count arguments mapped to the same element" in {

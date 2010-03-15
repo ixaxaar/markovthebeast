@@ -2,6 +2,7 @@ package org.riedelcastro.thebeast.env
 
 
 import collection.mutable.{HashSet, MapProxy}
+import ints.IntConstant
 import tuples.TupleValues
 import org.riedelcastro.thebeast.util.{GlobalRandom, Util}
 
@@ -36,7 +37,7 @@ trait Values[+T] extends Iterable[T] {
 class MutableValues[T] extends HashSet[T] with Values[T] {
   override def size = super.size
 
-  override def validate[B >: T](value: B):Boolean = {
+  override def validate[B >: T](value: B): Boolean = {
     try {
       if (!contains(value.asInstanceOf[T]))
         this += value.asInstanceOf[T]
@@ -49,6 +50,7 @@ class MutableValues[T] extends HashSet[T] with Values[T] {
 
   //todo: this should be something like Anyref.hashCode
   override lazy val hashCode = GlobalRandom.nextInt
+
   override def equals(obj: Any) = obj.isInstanceOf[AnyRef] && (this eq obj.asInstanceOf[AnyRef])
 }
 
@@ -57,14 +59,14 @@ class IntRangeValues(val from: Int, val to: Int) extends Range(from, to + 1, 1) 
 }
 
 object Values {
-  def apply[T](values: Collection[T]) = new ValuesProxy(Set.empty[T] ++ values)
+  def apply[T](values: Collection[T]) = new ValuesProxy(Seq.empty ++ values)
 
   def apply[T](values: T*) =
-    new ValuesProxy(values.foldLeft(Set.empty[T]) {(result, v) => result ++ Set(v)})
+    new ValuesProxy[T](values.foldLeft(Set[T]()) {(result, v) => result ++ Set(v)}.toList)
 }
 
 object Ints {
-  def apply(values: Collection[Int]) = new ValuesProxy(Set.empty[Int] ++ values)
+  def apply(values: Collection[Int]) = new ValuesProxy(Seq.empty ++ values)
 }
 
 
@@ -110,7 +112,7 @@ trait FunctionValue[T, R] extends (T => R) {
 }
 
 class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
-    extends scala.collection.mutable.HashMap[T, R] with FunctionValue[T, R] {
+        extends scala.collection.mutable.HashMap[T, R] with FunctionValue[T, R] {
   def getSources(r: Option[R]): Iterable[T] = {
     r match {
       case Some(x) => signature.domain.filter(d => get(d) == Some(x))
@@ -141,8 +143,13 @@ class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
   }
 
 
+  override def equals(obj: Any): Boolean = obj match {
+    case x: MutableFunctionValue[_, _] => super.equals(x) && x.signature == signature
+    case _ => false
+  }
+
   private class ClosedMutableMap(var self: MutableFunctionValue[T, R])
-      extends MutableFunctionValue(self.signature) with MapProxy[T, R] {
+          extends MutableFunctionValue(self.signature) with MapProxy[T, R] {
     override def default(a: T) = signature.range.defaultValue
 
     override def apply(a: T) = self.get(a) match {
@@ -151,6 +158,11 @@ class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
 
       case Some(_) => super.apply(a)
       case None => default(a)
+    }
+
+    override def equals(obj: Any): Boolean = obj match {
+      case x: MutableFunctionValue[_,_]#ClosedMutableMap => super.equals(x) && x.signature == signature
+      case _ => false
     }
 
     override def get(a: T) = {

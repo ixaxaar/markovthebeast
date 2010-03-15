@@ -1,9 +1,8 @@
 package org.riedelcastro.thebeast.env.ints
 
-
-import booleans.BooleanFunApp
-import functions.BoundedConstant
-
+import org.riedelcastro.thebeast.env.{BoundedTerm, FunApp, Constant, Env}
+import org.riedelcastro.thebeast.env.booleans.BooleanFunApp
+import org.riedelcastro.thebeast.env.functions.BoundedConstant
 /**
  * @author Sebastian Riedel
  */
@@ -16,6 +15,11 @@ trait IntTerm extends BoundedTerm[Int] {
 
 case class IntConstant(override val value: Int) extends BoundedConstant(value) with IntTerm {
   override def ground(env: Env) = this
+
+  override def equals(obj: Any): Boolean = obj match {
+    case Constant(t) => t == value
+    case _ => false
+  }
 }
 
 object IntAdd extends (Int => (Int => Int)) {

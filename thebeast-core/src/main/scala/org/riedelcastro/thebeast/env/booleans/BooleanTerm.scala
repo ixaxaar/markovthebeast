@@ -4,8 +4,6 @@ import org.riedelcastro.thebeast.env._
 import doubles.Indicator
 import functions._
 import org.riedelcastro.thebeast.util.{Util, SimpleNamed}
-import collection.mutable.ArrayBuffer
-
 /**
  * @author Sebastian Riedel
  */
@@ -70,7 +68,7 @@ case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fol
 
   override def toString = args.mkString("(", " & ", ")")
 
-  override def simplify:BooleanTerm = Util.mapUntil(args, (arg:T)=> arg match {
+  override def simplify:BooleanTerm = Util.mapUntil(args, (arg:T)=> arg.simplify match {
     case BooleanConstant(false) => None
     case x => Some(x)
   }).toLeft(None).fold(Conjunction(_),x => BooleanConstant(false))
