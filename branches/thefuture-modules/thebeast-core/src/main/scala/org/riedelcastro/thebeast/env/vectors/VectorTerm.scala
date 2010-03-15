@@ -4,6 +4,7 @@ package org.riedelcastro.thebeast.env.vectors
 import org.riedelcastro.thebeast.env._
 import collection.mutable.ArrayBuffer
 import doubles.{DoubleFunApp, Sum, QuantifiedSum, DoubleTerm}
+import java.lang.String
 
 /**
  * @author Sebastian Riedel
@@ -72,6 +73,12 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
   override def toString = "1_(" + key.mkString(",") + ")"
 
   def subterms = key.toSeq
+
+
+  override def equals(obj: Any): Boolean = obj match {
+    case x:VectorOne => x.key.size == this.key.size && (0 until key.size).forall(i=> this.key(i) == x.key(i))
+    case _ => false
+  }
 }
 
 case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
@@ -110,6 +117,11 @@ case class VectorDotApp(lhs:VectorTerm, rhs:VectorTerm)
   override def flatten: DoubleTerm = VectorDotApp(lhs.flatten,rhs.flatten)
 
   override def toString = "(%s)^T * (%s)".format(lhs,rhs)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case VectorDotApp(lhs,rhs) => this.lhs == lhs && this.rhs == rhs
+    case _ => false
+  }
 }
 
 case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
@@ -117,6 +129,10 @@ case class VectorScalarApp(lhs:VectorTerm, rhs:DoubleTerm)
   override def ground(env: Env) = VectorScalarApp(lhs.ground(env),rhs.ground(env))
 
   def upperBound = Math.POS_INF_DOUBLE
+
+
+  override def toString: String = "(%s) * (%s)".format(lhs,rhs)
+
 }
 
 case class VectorConstant(override val value:Vector) extends Constant(value) with VectorTerm {
@@ -156,8 +172,10 @@ case class QuantifiedVectorSum[T](override val variable: Var[T], override val fo
     VectorSum(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
   }
 
+  override def unrollUncertain = VectorSum(unroll.args.filter(arg => !arg.simplify.isGround))
 
-  override def ground(env: Env) = unroll.ground(env)
+
+  override def ground(env: Env) = QuantifiedVectorSum(variable,formula.ground(env.mask(Set(variable))))
 
 
   override def toString = "vSum(" + variable + "," + formula + ")"

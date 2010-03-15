@@ -95,6 +95,11 @@ case class Constant[T](val value: T) extends Term[T] {
 
   def subterms = Seq()
 
+  override def equals(obj: Any): Boolean = obj match {
+    case Constant(v)=> v == value
+    case _ => false
+  }
+
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = new Constant(value)
 }
 
@@ -212,6 +217,10 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
 
   def subterms = Seq(function, arg)
 
+  override def equals(obj:Any) = obj match {
+    case FunApp(f,a) => this.function ==  f && this.arg == a
+    case _ => false
+  }
 
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) =
     FunApp(subterms(0).asInstanceOf[Term[T => R]], subterms(1).asInstanceOf[Term[T]])
@@ -264,9 +273,12 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
     }
 
 
+  override def equals(obj: Any): Boolean = obj match {
+    case Fold(f,a,i) => function == f && init == i &&
+            args.size == a.size && (0 until args.size).forall(i=>args(i) == a(i))
+    case _ => false
+  }
 }
-
-
 
 
 case class Quantification[R, V](val function: Term[R => (R => R)], val variable: Var[V], val formula: Term[R], val init: Term[R])
@@ -284,7 +296,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def values = unroll.values
 
-  def ground(env: Env) = unroll.ground(env)
+  def ground(env: Env):Term[R] = unroll.ground(env)
 
   def eval(env: Env) = unroll.eval(env)
 
