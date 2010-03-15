@@ -1,9 +1,10 @@
 package org.riedelcastro.thebeast.env.doubles
 
-
-import booleans.{NotApp, Disjunction}
-import specs.runner.JUnit4
-import specs.Specification
+import org.riedelcastro.thebeast.env.booleans.{NotApp, Disjunction}
+import org.specs.runner.JUnit4
+import org.specs.Specification
+import org.riedelcastro.thebeast.env.TheBeastEnv
+import org.riedelcastro.thebeast.CitationMatchingFixtures
 
 /**
  * @author Sebastian Riedel
