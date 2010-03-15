@@ -31,6 +31,7 @@ trait DoubleTerm extends BoundedTerm[Double] {
   def ground(env: Env): DoubleTerm
 
   def flatten: DoubleTerm = this
+
 }
 
 
@@ -119,9 +120,7 @@ case class Multiplication[+T <: DoubleTerm](override val args: Seq[T]) extends F
   //def flatten:Multiplication[DoubleTerm] = Multiplication(args.flatMap(a => a match {case x:Multiplication[_] => x.flatten.args; case _ => Seq(a) }))
   override def simplify: DoubleTerm = Multiplication(args.map(_.simplify))
 
-
 }
-
 
 case class QuantifiedSum[T](override val variable: Var[T], override val formula: DoubleTerm)
         extends Quantification(Constant(Add), variable, formula, Constant(0.0)) with DoubleTerm {

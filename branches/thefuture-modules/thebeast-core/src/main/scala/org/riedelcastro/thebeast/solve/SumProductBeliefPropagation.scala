@@ -87,32 +87,9 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable with 
 
 
 
-  def infer(term: DoubleTerm) =
-    unroll(term).flatten match {
-      case Multiplication(args) => infer(args)
-      case Exp(Sum(args)) => infer(args.map(Exp(_)))
-      case Normalize(Multiplication(args)) => infer(args).normalize
-      case Normalize(Exp(Sum(args))) => infer(args.map(Exp(_))).normalize
-      case Normalize(Exp(v:VectorDotApp)) => infer(v.distribute.asInstanceOf[Sum[DoubleTerm]].args.map(Exp(_))).normalize
-      case x => infer(Seq(x))
-    }
-
-  private def unroll(term: DoubleTerm): DoubleTerm = term match {
-    case Sum(args) => Sum(args.map(unroll(_)))
-    case x: QuantifiedSum[_] => x.unroll
-    case Normalize(x) => Normalize(unroll(x))
-    case Exp(x) => Exp(unroll(x))
-    case VectorDotApp(lhs,rhs) => VectorDotApp(unrollVectorTerm(lhs),unrollVectorTerm(rhs))
-    case x => x
-  }
-
-  private def unrollVectorTerm(term:VectorTerm) : VectorTerm = term match {
-    case VectorSum(args) => VectorSum(args.map(unrollVectorTerm(_)))
-    case QuantifiedVectorSum(v,f) => {
-      val x = QuantifiedVectorSum(v,unrollVectorTerm(f)).unrollUncertain
-      x
-    }
-    case x => x
+  def infer(term: DoubleTerm) = term match {
+    case Normalize(x) => infer(Factorizer.toMultiplication(x).args).normalize
+    case x => infer(Factorizer.toMultiplication(x).args)
   }
 
   private var _iterations = 0
