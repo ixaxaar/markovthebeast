@@ -177,7 +177,7 @@ class MLN {
     val indicator = AlchemyIndicator(bool)
     //multiply with unit vector indexed with formula id and plus variables
     val vectorTerm = VectorScalarApp(
-      VectorOne((env.Constant(id) :: builder.convertKnownVars(formula.allPlusVariables): _*)),
+      UnitVector((env.Constant(id) :: builder.convertKnownVars(formula.allPlusVariables): _*)),
       indicator)
     //now we find bound variables
     val bound = boundVariables(formula)

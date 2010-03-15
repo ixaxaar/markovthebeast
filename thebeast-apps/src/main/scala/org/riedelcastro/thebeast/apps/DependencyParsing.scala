@@ -27,11 +27,11 @@ object DependencyParsing extends TheBeastEnv {
 
     //first order formulae
     val bias = vectorSum(Tokens, Tokens) {(h, m) =>
-      $(link(h, m)) * one_("bias")}
+      $(link(h, m)) * unit("bias")}
     val wordPair = vectorSum(Tokens, Tokens, Words, Words) {(h, m, h_word, m_word) =>
-      $(word(h, h_word) && word(m, m_word) && link(h, m)) * one_(h_word, m_word)}
+      $(word(h, h_word) && word(m, m_word) && link(h, m)) * unit(h_word, m_word)}
     val posPair = vectorSum(Tokens, Tokens, Tags, Tags) {(h, m, h_pos, m_pos) =>
-      $(pos(h, h_pos) && pos(m, m_pos) && link(h, m)) * one_(h_pos, m_pos)}
+      $(pos(h, h_pos) && pos(m, m_pos) && link(h, m)) * unit(h_pos, m_pos)}
 
     val treeConstraint = SpanningTreeConstraint(link, length)
 

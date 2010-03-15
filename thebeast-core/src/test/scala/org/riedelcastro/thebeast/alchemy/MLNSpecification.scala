@@ -33,9 +33,9 @@ object MLNSpecification extends Specification with TheBeastEnv with AlchemySmoki
       val x = Var("x", person).asInstanceOf[Var[String]]
       val y = Var("y", person).asInstanceOf[Var[String]]
       mln.getFormula(0) must_==
-              QuantifiedVectorSum(x, $$(smokes(x) ~> cancer(x)) * one_("F0"))
+              QuantifiedVectorSum(x, $$(smokes(x) ~> cancer(x)) * unit("F0"))
       mln.getFormula(1) must_==
-              QuantifiedVectorSum(x, QuantifiedVectorSum(y, $$(friends(x, y) ~> (smokes(x) <~> smokes(y))) * one_("F1")))
+              QuantifiedVectorSum(x, QuantifiedVectorSum(y, $$(friends(x, y) ~> (smokes(x) <~> smokes(y))) * unit("F1")))
     }
     "load the weights of formulae in an alchemy file" in {
       val mln = new MLN

@@ -26,7 +26,7 @@ trait TheBeastEnv {
     values.createVariable("x_" + varCount.toString)
   }
 
-  def one_(key: Term[Any]*) = VectorOne(key: _*)
+  def unit(key: Term[Any]*) = UnitVector(key: _*)
 
   def exp(arg: DoubleTerm) = Exp(arg)
 
