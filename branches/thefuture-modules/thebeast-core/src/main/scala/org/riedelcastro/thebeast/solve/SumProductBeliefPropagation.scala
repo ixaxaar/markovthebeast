@@ -5,7 +5,7 @@ import org.riedelcastro.thebeast._
 import env._
 import doubles._
 import util.{Logging, Trackable}
-import vectors.{QuantifiedVectorSum, VectorDotApp}
+import vectors.{VectorSum, VectorTerm, QuantifiedVectorSum, VectorDotApp}
 
 /**
  * @author Sebastian Riedel
@@ -102,9 +102,17 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable with 
     case x: QuantifiedSum[_] => x.unroll
     case Normalize(x) => Normalize(unroll(x))
     case Exp(x) => Exp(unroll(x))
-    case VectorDotApp(lhs:QuantifiedVectorSum[_],rhs) => VectorDotApp(lhs.unrollUncertain,rhs)
+    case VectorDotApp(lhs,rhs) => VectorDotApp(unrollVectorTerm(lhs),unrollVectorTerm(rhs))
     case x => x
+  }
 
+  private def unrollVectorTerm(term:VectorTerm) : VectorTerm = term match {
+    case VectorSum(args) => VectorSum(args.map(unrollVectorTerm(_)))
+    case QuantifiedVectorSum(v,f) => {
+      val x = QuantifiedVectorSum(v,unrollVectorTerm(f)).unrollUncertain
+      x
+    }
+    case x => x
   }
 
   private var _iterations = 0
