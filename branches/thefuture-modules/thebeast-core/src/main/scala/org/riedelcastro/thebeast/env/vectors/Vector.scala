@@ -127,10 +127,10 @@ object VectorDemo extends Application with TheBeastEnv {
 
   val f1 = sum(Persons) {x => $ {smokes(x) -> cancer(x)} * 0.1}
   val f2 = sum(Persons) {x => sum(Persons) {y => $ {friends(x)(y) && smokes(x) -> smokes(y)} * 0.1}}
-  val f3 = vectorSum(Persons) {x => $ {smokes(x) -> cancer(x)} * VectorOne(x)}
+  val f3 = vectorSum(Persons) {x => $ {smokes(x) -> cancer(x)} * UnitVector(x)}
   //val mln = f3 dot weights
 
-  //it should be possible to move the dot product into the summation, replacing VectorOne(x) with weights(x)
+  //it should be possible to move the dot product into the summation, replacing UnitVector(x) with weights(x)
 
 }
 

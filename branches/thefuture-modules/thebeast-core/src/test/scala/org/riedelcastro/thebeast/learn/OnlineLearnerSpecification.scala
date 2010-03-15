@@ -1,10 +1,12 @@
 package org.riedelcastro.thebeast.learn
 
-import env._
 import org.specs._
 import runner.JUnit4
-import solve.ExhaustiveSearch
-import vectors.VectorOne
+import org.riedelcastro.thebeast.solve.ExhaustiveSearch
+import org.riedelcastro.thebeast.env.vectors.UnitVector
+import org.riedelcastro.thebeast.CitationMatchingFixtures
+import org.riedelcastro.thebeast.env.TheBeastEnv
+
 /**
  * @author Sebastian Riedel
  */
@@ -21,9 +23,9 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv with Ci
 
       var features = 
         vectorSum(Citations,Citations)
-                  {(c1,c2)=>$(similar(c1,c2) ~> same(c1,c2)) * VectorOne("similar")} +
+                  {(c1,c2)=>$(similar(c1,c2) ~> same(c1,c2)) * UnitVector("similar")} +
         vectorSum(Citations,Citations,Citations)
-                  {(c1,c2,c3)=>$((same(c1,c2) && same(c2,c3)) ~> same(c1,c3)) * VectorOne("trans")}
+                  {(c1,c2,c3)=>$((same(c1,c2) && same(c2,c3)) ~> same(c1,c3)) * UnitVector("trans")}
       var trainingSet = Seq(y1,y2).map(y => y.mask(Set(same)))
 
       var learner = new OnlineLearner

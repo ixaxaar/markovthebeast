@@ -17,7 +17,7 @@ object LogLinearSpecification extends Specification {
       val Domain = Values("A","B")
       val x = Var("x",Domain)
       val y = Var("y",Domain)
-      val sufficient = $(x === y) * one_("Equals")
+      val sufficient = $(x === y) * unit("Equals")
       val w = VectorVar("w")
       val loglinear = LogLinear(sufficient,w,-Math.log(6.0))
       val incoming = new CompleteIgnorance[Any,EnvVar[Any]]

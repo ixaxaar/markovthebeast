@@ -45,9 +45,9 @@ trait VectorTerm extends Term[Vector] with NumericTerm[Vector] {
   }
 }
 
-case class VectorOne(key : Term[Any]*) extends VectorTerm {
+case class UnitVector(key : Term[Any]*) extends VectorTerm {
 
-  def ground(env: Env) = VectorOne(key.map(k => k.ground(env)):_*)
+  def ground(env: Env) = UnitVector(key.map(k => k.ground(env)):_*)
 
   def simplify = {
     if (!key.exists(k => !k.isInstanceOf[Constant[_]])) {
@@ -76,7 +76,7 @@ case class VectorOne(key : Term[Any]*) extends VectorTerm {
 
 
   override def equals(obj: Any): Boolean = obj match {
-    case x:VectorOne => x.key.size == this.key.size && (0 until key.size).forall(i=> this.key(i) == x.key(i))
+    case x:UnitVector => x.key.size == this.key.size && (0 until key.size).forall(i=> this.key(i) == x.key(i))
     case _ => false
   }
 }

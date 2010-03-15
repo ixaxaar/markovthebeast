@@ -1,7 +1,6 @@
 package org.riedelcastro.thebeast.env.combinatorics
 
 import org.riedelcastro.thebeast.env.doubles.DoubleTerm
-import org.riedelcastro.thebeast.env.ints.IntTerm
 import org.riedelcastro.thebeast.env.{Values, Env, FunctionValue, Term}
 
 /**
@@ -14,7 +13,7 @@ case class SpanningTreeConstraint[V](graph:Term[FunctionValue[(V,V),Boolean]], l
   def upperBound = 0.0
   def subterms = Seq(graph,length)
   def eval(env:Env):Option[Double] = Some(0.0)
-  def values = Values(0.0, Math.NEG_INF_DOUBLE)
+  def values = Values(0.0, 1.0)
   def variables = graph.variables ++ length.variables
 
 }

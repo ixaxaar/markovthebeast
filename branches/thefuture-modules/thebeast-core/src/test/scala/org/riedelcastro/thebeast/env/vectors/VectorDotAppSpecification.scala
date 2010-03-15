@@ -14,8 +14,8 @@ class VectorDotAppTest extends JUnit4(VectorDotAppSpecification)
 object VectorDotAppSpecification extends Specification with TheBeastEnv with JUnit {
   "A Vector dot product application" should {
     "flatten its arguments when flattened" in {
-      var dotproduct = (one_("A") + (one_("B") + one_("C") + one_("L"))) dot (one_("D") + one_("E"))
-      var expected = (one_("A") + one_("B") + one_("C") + one_("L")) dot (one_("D") + one_("E"))
+      var dotproduct = (unit("A") + (unit("B") + unit("C") + unit("L"))) dot (unit("D") + unit("E"))
+      var expected = (unit("A") + unit("B") + unit("C") + unit("L")) dot (unit("D") + unit("E"))
       dotproduct.flatten must_== expected
     }
 
