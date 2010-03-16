@@ -47,5 +47,12 @@ class DependencyParsingFixtures {
       List((0, 3), (3, 2), (3, 4), (2, 1)))
   }
 
+  def createTheMan = {
+    createSentence(
+      List("Root", "The", "man"),
+      List("Root", "DT", "NN"),
+      List((0, 2),(2, 1)))
+  }
+
 }
 
