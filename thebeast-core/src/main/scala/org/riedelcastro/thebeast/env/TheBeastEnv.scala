@@ -50,7 +50,10 @@ trait TheBeastEnv {
 
   //implicit def value2constant[T](value: T) = Constant(value)
 
-  implicit def function2constant[T1, T2](value: T1 => T2) = Constant(value)
+  implicit def function2constant[T1, R](value: T1 => R) = Constant(value)
+
+  implicit def function22constant[T1, T2, R](value: (T1,T2) => R) = Constant(value)
+
 
   implicit def tuple2toTupleTerm2[T1, T2](value: (Term[T1], Term[T2])) = TupleTerm2(value._1, value._2)
 

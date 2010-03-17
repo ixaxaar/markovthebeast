@@ -1,10 +1,11 @@
 package org.riedelcastro.thebeast.env
 
 
+import booleans.Bools
 import collection.mutable.{HashSet, MapProxy}
 import ints.IntConstant
-import tuples.TupleValues
 import org.riedelcastro.thebeast.util.{GlobalRandom, Util}
+import tuples.{TupleValues2, TupleValues}
 
 /**
  * @author Sebastian Riedel
@@ -17,6 +18,8 @@ trait Values[+T] extends Iterable[T] {
   def randomValue(random: scala.util.Random): T = {val seq = toSeq; seq(random.nextInt(seq.size))}
 
   def createVariable(name: String): Var[T] = new Var(name, this)
+
+  def compare[R>:T](x:R,y:R) = false
 
   def size: Int = toSeq.size
 
@@ -66,7 +69,12 @@ object Values {
 }
 
 object Ints {
-  def apply(values: Collection[Int]) = new ValuesProxy(Seq.empty ++ values)
+  def apply(values: Collection[Int]) = new ValuesProxy(Seq.empty ++ values){
+    override def compare[R>:Int](x: R, y: R) = (x,y) match {
+      case (x:Int,y:Int) => x < y
+      case _ => false
+    }
+  }
 }
 
 
@@ -110,6 +118,18 @@ trait FunctionValue[T, R] extends (T => R) {
     }
   }
 }
+
+case class LessThanFunction[T](domain:Values[T]) extends FunctionValue[(T,T),Boolean]{
+
+  val signature = new FunctionValues(TupleValues2(domain,domain),Bools)
+
+  def apply(pair:(T,T)): Boolean = false//domain.compare(pair._1,pair._2)
+
+  def getSources(r: Option[Boolean]): Iterable[(T,T)] = null
+}
+
+case class LessThan[T](domain:Values[T]) extends Constant(LessThanFunction(domain))
+
 
 class MutableFunctionValue[T, R](val signature: FunctionValues[T, R])
         extends scala.collection.mutable.HashMap[T, R] with FunctionValue[T, R] {
