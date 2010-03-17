@@ -7,60 +7,62 @@ import collection.mutable.{HashSet, Stack}
 
 /**
  *.A SpanningTreeConstraint is a term that maps graphs to 1 if they are
- * spanning trees over the set of vertices, and to 0 otherwise. Note
+ * projective spanning trees over the set of vertices, and to 0 otherwise. Note
  * that for efficient processing vertices and root need to be ground
  * and edges needs to be a predicate.
  */
 case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]],
                                      vertices: Term[FunctionValue[V, Boolean]],
-                                     root: Term[V]) extends DoubleTerm {
+                                     root: Term[V],
+                                     order: Term[FunctionValue[(V, V), Boolean]]) extends DoubleTerm {
   def ground(env: Env): DoubleTerm = {
-    SpanningTreeConstraint(edges.ground(env),vertices.ground(env),root.ground(env))
+    SpanningTreeConstraint(edges.ground(env), vertices.ground(env), root.ground(env), order.ground(env))
   }
 
   def simplify: DoubleTerm = {
-    val simplified = SpanningTreeConstraint(edges.simplify,vertices.simplify, root.simplify)
+    val simplified = SpanningTreeConstraint(edges.simplify, vertices.simplify, root.simplify, order.simplify)
     val constant = simplified.eval(EmptyEnv)
     if (constant.isDefined) DoubleConstant(constant.get) else simplified
   }
 
   def upperBound = 1.0
 
-  def subterms = Seq(edges, vertices,root)
+  def subterms = Seq(edges, vertices, root)
 
   def eval(env: Env): Option[Double] = {
     //get edges map
     val v = Set() ++ env(vertices).getSources(Some(true))
     val e = env(edges).getSources(Some(true)).filter(edge => v(edge._1) && v(edge._2))
     val r = env(root)
-    val heads = new HashMap[V,V]
-    for (edge <- e){
+    val heads = new HashMap[V, V]
+    for (edge <- e) {
       if (heads.contains(edge._2)) return Some(0.0)
       heads(edge._2) = edge._1
     }
-    val indices = new HashMap[V,Int]
-    val lowlinks = new HashMap[V,Int]
+    if (v.exists(vertex => vertex != r && !heads.isDefinedAt(vertex))) return Some(0.0)
+    val indices = new HashMap[V, Int]
+    val lowlinks = new HashMap[V, Int]
     val stack = new Stack[V]
     val roots = new HashSet[V]
     var index = 0
-    for (vertex <- v){
+    for (vertex <- v) {
       if (!indices.isDefinedAt(vertex)) tarjan(vertex)
       if (!roots.isEmpty) return Some(0.0)
     }
-    def tarjan(vertex:V) {
+    def tarjan(vertex: V) {
       indices(vertex) = index
       lowlinks(vertex) = index
       index += 1
       stack.push(vertex)
-      for (head <- heads.get(vertex)){
+      for (head <- heads.get(vertex)) {
         if (!indices.isDefinedAt(head)) {
           tarjan(head)
-          lowlinks(vertex)=Math.min(lowlinks(vertex),lowlinks(head))
-        } else if (stack.contains(head)){
-          lowlinks(vertex)=Math.min(lowlinks(vertex),indices(head))          
+          lowlinks(vertex) = Math.min(lowlinks(vertex), lowlinks(head))
+        } else if (stack.contains(head)) {
+          lowlinks(vertex) = Math.min(lowlinks(vertex), indices(head))
         }
       }
-      if (lowlinks(vertex) == indices(vertex)){
+      if (lowlinks(vertex) == indices(vertex)) {
         if (stack.top != vertex) roots += vertex
         var top = vertex
         do {
@@ -73,22 +75,36 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
   }
 
 
-
   def values = Values(0.0, 1.0)
 
   def variables = {
     if (vertices.isGround && root.isGround && edges.isInstanceOf[Predicate[_]]) {
-      val pred = edges.asInstanceOf[Predicate[(V,V)]]
-      val v = EmptyEnv(vertices).getSources(Some(true))
-      val r = EmptyEnv(root)
-      Set() ++ (for (source <- v; dest <- v; if (dest != r && dest != source))
-        yield FunAppVar(pred,(source,dest)))
-
+      linkVariables.asInstanceOf[Set[EnvVar[Any]]]
     } else
       edges.variables ++ vertices.variables ++ root.variables
   }
 
+  private def linkVariables:Set[FunAppVar[(V,V),Boolean]] = {
+    val pred = edges.asInstanceOf[Predicate[(V, V)]]
+    val v = EmptyEnv(vertices).getSources(Some(true))
+    val r = EmptyEnv(root)
+    Set() ++ (for (source <- v; dest <- v; if (dest != r && dest != source))
+    yield FunAppVar(pred, (source, dest)))
+  }
 
+
+  override def marginalize(incoming: Beliefs[Any, EnvVar[Any]]): Beliefs[Any, EnvVar[Any]] = {
+    if (vertices.isGround && root.isGround && edges.isInstanceOf[Predicate[_]]) {
+      case class Signature(from:Int,to:Int,leftParentWithin:Boolean,rightParentWithin:Boolean)
+      val links = linkVariables
+      val vertices = EmptyEnv(this.vertices)
+      val root = EmptyEnv(this.root)
+      val inside = new HashMap[Signature,Double]
+      val outside = new HashMap[Signature,Double]
+      super.marginalize(incoming)
+    } else
+      super.marginalize(incoming)
+  }
 }
 
 /*

@@ -188,6 +188,9 @@ case class Equality[+T](lhs:Term[T],rhs:Term[T]) extends BooleanTerm {
   def ground(env: Env) = Equality(lhs.ground(env),rhs.ground(env))
 }
 
+
+
+
 case class BooleanConstant(override val value: Boolean) extends BoundedConstant(value) with BooleanTerm {
   override def ground(env: Env) = this
 
