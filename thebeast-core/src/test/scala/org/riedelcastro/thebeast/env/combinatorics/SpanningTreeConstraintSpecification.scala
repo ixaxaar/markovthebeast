@@ -11,7 +11,7 @@ import org.riedelcastro.thebeast.env.{Constant, LessThan, FunAppVar, TheBeastEnv
 
 class SpanningTreeConstraintTest extends JUnit4(SpanningTreeConstraintSpecification)
 object SpanningTreeConstraintSpecification extends Specification with TheBeastEnv {
-  "A spanning tree constraint" should {
+  "A projective spanning tree constraint" should {
     "return 1 if the the graph is a spanning tree" in {
       val fixtures = new DependencyParsingFixtures
       import fixtures._
@@ -48,6 +48,17 @@ object SpanningTreeConstraintSpecification extends Specification with TheBeastEn
         List((0,3),(3,2)))
       val constraint = new SpanningTreeConstraint(link, token, 0, LessThan(Tokens))
       sentence(constraint) must_== 0.0
+    }
+    "return 0 if the the graph is not projective" in {
+      val fixtures = new DependencyParsingFixtures
+      import fixtures._
+      val sentence = createSentence(
+        List("root","the","man" ,"walks"),
+        List("root","DT","NN", "VB"),
+        List((0,2),(2,3),(3,1)))
+      val constraint = new SpanningTreeConstraint(link, token, 0, LessThan(Tokens))
+      true
+      //sentence(constraint) must_== 0.0
     }
     "return only edge variables that could be part of a spanning tree if root and vertices are grounded" in {
       val fixtures = new DependencyParsingFixtures
