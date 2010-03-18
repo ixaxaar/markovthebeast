@@ -2,7 +2,7 @@ package org.riedelcastro.thebeast.env.combinatorics
 
 import org.riedelcastro.thebeast.env._
 import doubles.{DoubleConstant, DoubleTerm}
-import collection.mutable.{HashSet, Stack, HashMap}
+import collection.mutable.{HashSet, Stack, HashMap, MultiMap}
 
 /**
  * A SpanningTreeConstraint is a term that maps graphs to 1 if they are
@@ -31,7 +31,7 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
   def eval(env: Env): Option[Double] = {
     //get edges map
     val v = Set() ++ env(vertices).getSources(Some(true))
-    val e = env(edges).getSources(Some(true)).filter(edge => v(edge._1) && v(edge._2))
+    val e = env(this.edges).getSources(Some(true)).filter(edge => v(edge._1) && v(edge._2))
     val r = env(root)
     val heads = new HashMap[V, V]
     //check if each vertex has at most one parent
@@ -81,28 +81,20 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
     val n = sorted.size
     val vertex2index = Map() ++ (for (i <- 0 until n) yield sorted(i) -> i)
     //mapping from vertex to children
+    val edges = for (i <- 1 until n) yield (vertex2index(heads(sorted(i))),i)
 
-
-    def projective(from: Int, to: Int): Boolean = {
-      if (to - from <= 1) return true
-      var current = from + 1
-      while (current < to) {
-        val currentVertex = sorted(current)
-        val headVertex = heads(currentVertex)
-        val head = vertex2index(headVertex)
-        if (head < from || head > to) return false
-        if (head > current) {
-          if (!projective(current, head)) return false
-          current = head
-        } else {
-          current += 1
-        }
-      }
-      true
+    def cross(e1:(Int,Int), e2:(Int,Int)) : Boolean = {
+      val e1l = Math.min(e1._1,e1._2)
+      val e1r = Math.max(e1._1,e1._2)
+      val e2l = Math.min(e2._1,e2._2)
+      val e2r = Math.max(e2._1,e2._2)
+      !(e1l >= e2l && e1r <= e2r || e2l >= e1l && e2r <= e1r || e2r <= e1l || e1r <= e2l)
     }
-
-
-    if (projective(0, n-1)) Some(1.0) else Some(0.0)
+    //todo this should be doable in O(n)
+    for (e1 <- edges; e2 <- edges; if (e1 != e2)) {
+      if (cross(e1,e2)) return Some(0.0)
+    }
+    Some(1.0)
   }
 
 
