@@ -123,7 +123,7 @@ case class LessThanFunction[T](domain:Values[T]) extends FunctionValue[(T,T),Boo
 
   val signature = new FunctionValues(TupleValues2(domain,domain),Bools)
 
-  def apply(pair:(T,T)): Boolean = false//domain.compare(pair._1,pair._2)
+  def apply(pair:(T,T)): Boolean = domain.compare(pair._1,pair._2)
 
   def getSources(r: Option[Boolean]): Iterable[(T,T)] = null
 }

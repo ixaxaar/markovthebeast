@@ -2,8 +2,7 @@ package org.riedelcastro.thebeast.env.combinatorics
 
 import org.riedelcastro.thebeast.env._
 import doubles.{DoubleConstant, DoubleTerm}
-import collection.mutable.HashMap
-import collection.mutable.{HashSet, Stack}
+import collection.mutable.{HashSet, Stack, HashMap}
 
 /**
  * A SpanningTreeConstraint is a term that maps graphs to 1 if they are
@@ -74,22 +73,36 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
       }
     }
+    //test projectiveness
     val lessThan = EmptyEnv(this.order)
 
     //sort vertices according to order
     val sorted = v.toList.sort((x, y) => x == root || lessThan(x, y)).toArray
     val n = sorted.size
     val vertex2index = Map() ++ (for (i <- 0 until n) yield sorted(i) -> i)
+    //mapping from vertex to children
 
-    //check projectiveness
-    def projective(from:Int,to:Int) : Boolean = {
-      //span of length 2 or smaller is always projective
-      if (to - from == 2 || to - 2 < 0) return true
-      val headOfRight = vertex2index(heads(sorted(to-2)))
-      if (headOfRight == to - 1) return projective(from,to-1)
-      return projective(from,headOfRight) && projective(headOfRight,to-1)
+
+    def projective(from: Int, to: Int): Boolean = {
+      if (to - from <= 1) return true
+      var current = from + 1
+      while (current < to) {
+        val currentVertex = sorted(current)
+        val headVertex = heads(currentVertex)
+        val head = vertex2index(headVertex)
+        if (head < from || head > to) return false
+        if (head > current) {
+          if (!projective(current, head)) return false
+          current = head
+        } else {
+          current += 1
+        }
+      }
+      true
     }
-    if (projective(0,n)) Some(1.0) else Some(0.0)
+
+
+    if (projective(0, n-1)) Some(1.0) else Some(0.0)
   }
 
 
@@ -102,7 +115,7 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       edges.variables ++ vertices.variables ++ root.variables ++ order.variables
   }
 
-  private def linkVariables: Set[FunAppVar[(V, V), Boolean]] = {
+  private def linkVariables: scala.collection.immutable.Set[FunAppVar[(V, V), Boolean]] = {
     val pred = edges.asInstanceOf[Predicate[(V, V)]]
     val v = EmptyEnv(vertices).getSources(Some(true))
     val r = EmptyEnv(root)
