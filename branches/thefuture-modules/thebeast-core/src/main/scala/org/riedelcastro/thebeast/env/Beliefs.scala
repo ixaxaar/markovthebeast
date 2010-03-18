@@ -74,7 +74,7 @@ class MutableBeliefs[V, T <: Term[V]] extends Beliefs[V, T] {
     result
   }
 
-  override def toString = beliefs.toString + (if (expectations.size >0) "\n" + expectations.toString else "")
+  override def toString = beliefs.mkString("\n") + (if (expectations.size >0) "\n" + expectations.toString else "")
 
   def increaseExpectation[N](term:NumericTerm[N], value:N, prob:Double) = {
     val expectation = expectations.getOrElseUpdate(
