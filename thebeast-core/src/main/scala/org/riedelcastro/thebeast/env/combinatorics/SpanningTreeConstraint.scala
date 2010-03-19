@@ -3,6 +3,7 @@ package org.riedelcastro.thebeast.env.combinatorics
 import org.riedelcastro.thebeast.env._
 import doubles.{DoubleConstant, DoubleTerm}
 import collection.mutable.{HashSet, Stack, HashMap, MultiMap}
+import java.lang.String
 
 /**
  * A SpanningTreeConstraint is a term that maps graphs to 1 if they are
@@ -81,18 +82,18 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
     val n = sorted.size
     val vertex2index = Map() ++ (for (i <- 0 until n) yield sorted(i) -> i)
     //mapping from vertex to children
-    val edges = for (i <- 1 until n) yield (vertex2index(heads(sorted(i))),i)
+    val edges = for (i <- 1 until n) yield (vertex2index(heads(sorted(i))), i)
 
-    def cross(e1:(Int,Int), e2:(Int,Int)) : Boolean = {
-      val e1l = Math.min(e1._1,e1._2)
-      val e1r = Math.max(e1._1,e1._2)
-      val e2l = Math.min(e2._1,e2._2)
-      val e2r = Math.max(e2._1,e2._2)
+    def cross(e1: (Int, Int), e2: (Int, Int)): Boolean = {
+      val e1l = Math.min(e1._1, e1._2)
+      val e1r = Math.max(e1._1, e1._2)
+      val e2l = Math.min(e2._1, e2._2)
+      val e2r = Math.max(e2._1, e2._2)
       !(e1l >= e2l && e1r <= e2r || e2l >= e1l && e2r <= e1r || e2r <= e1l || e1r <= e2l)
     }
     //todo this should be doable in O(n)
     for (e1 <- edges; e2 <- edges; if (e1 != e2)) {
-      if (cross(e1,e2)) return Some(0.0)
+      if (cross(e1, e2)) return Some(0.0)
     }
     Some(1.0)
   }
@@ -132,12 +133,12 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val weights = new HashMap[(Int, Int), Double] {
         override def default(p: (Int, Int)) = 0.0
       }
-      var pi = 0.0
+      var pi = 1.0
       //calculate weights and pi
       for (i <- 0 until sorted.size; j <- 1 until sorted.size; if (i != j)) {
         val belief = incoming.belief(FunAppVar(pred, (sorted(i), sorted(j))))
         weights(i -> j) = belief.belief(true) / belief.belief(false)
-        pi += belief.belief(false)
+        pi *= belief.belief(false)
       }
       //calculate total weights of all trees with a given edge, and partitition function
       val insideOutside = InsideOutsideAlgorithm.calculate(sorted, weights)
@@ -148,6 +149,7 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val beliefs = new MutableBeliefs[Any, EnvVar[Any]]
       for (i <- 0 until sorted.size; j <- 1 until sorted.size; if (i != j)) {
         val atom = FunAppVar(pred, (sorted(i), sorted(j)))
+        println("%d %d: %f".format(i,j,insideOutside.total(i, j)))
         val trueBelief = insideOutside.total(i, j) * pi
         beliefs.increaseBelief(atom, true, trueBelief)
         beliefs.increaseBelief(atom, false, b - trueBelief)
@@ -165,7 +167,13 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
     }
     import SpanType._
 
-    case class Signature(from: Int, to: Int, spanType: SpanType)
+    case class Signature(from: Int, to: Int, spanType: SpanType, simple: Boolean) {
+      override def toString: String = "(%d,%d,%s,%s)".format(from, to, spanType match {
+        case RightParent => "R"
+        case LeftParent => "L"
+        case NoParents => "N"
+      }, simple)
+    }
 
     class InsideOutsideResult {
       val inside = new HashMap[Signature, Double]
@@ -174,17 +182,22 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
       var Z = 0.0
 
-      def in(from: Int, to: Int, spanType: SpanType) = inside.getOrElse(Signature(from, to, spanType), 0.0)
+      def in(from: Int, to: Int, spanType: SpanType, simple: Boolean): Double =
+        inside.getOrElse(Signature(from, to, spanType, simple), 0.0)
 
-      def out(from: Int, to: Int, spanType: SpanType) = outside.getOrElse(Signature(from, to, spanType), 0.0)
+      def in(from: Int, to: Int, spanType: SpanType): Double =
+        in(from, to, spanType, true) + in(from, to, spanType, false)
 
-      def incrIn(from: Int, to: Int, spanType: SpanType, value: Double) = {
-        val sig = Signature(from, to, spanType)
+      def out(from: Int, to: Int, spanType: SpanType) =
+        outside.getOrElse(Signature(from, to, spanType, false), 0.0)
+
+      def incrIn(from: Int, to: Int, spanType: SpanType, simple: Boolean, value: Double) = {
+        val sig = Signature(from, to, spanType, simple)
         inside(sig) = value + inside.getOrElse(sig, 0.0)
       }
 
       def incrOut(from: Int, to: Int, spanType: SpanType, value: Double) = {
-        val sig = Signature(from, to, spanType)
+        val sig = Signature(from, to, spanType, false)
         outside(sig) = value + outside.getOrElse(sig, 0.0)
       }
 
@@ -195,9 +208,10 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       import result._
       //initialize
       val n = sorted.size
-      for (left <- 0 until n) {
-        incrIn(left, left + 1, RightParent, weights(left, left + 1))
-        incrIn(left, left + 1, LeftParent, weights(left + 1, left))
+      for (left <- 0 until n - 1) {
+        incrIn(left, left + 1, NoParents, true, 1.0)
+        incrIn(left, left + 1, RightParent, true, weights(left, left + 1))
+        incrIn(left, left + 1, LeftParent, true, weights(left + 1, left))
       }
       //calculate inside scores
       for (width <- 2 until n) {
@@ -208,67 +222,78 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
           //possible signatures
           for (m <- l + 1 until r) {
             //no heads on both ends
-            incrIn(l, r, NoParents, in(l, m, RightParent) * in(m, r, NoParents))
-            incrIn(l, r, NoParents, in(l, m, NoParents) * in(m, r, LeftParent))
+            incrIn(l, r, NoParents, false, in(l, m, RightParent, true) * in(m, r, NoParents))
+            incrIn(l, r, NoParents, false, in(l, m, NoParents, true) * in(m, r, LeftParent))
 
             //right end with parent 
-            incrIn(l, r, RightParent, in(l, m, RightParent) * in(m, r, RightParent))
-            incrIn(l, r, RightParent, in(l, m, RightParent) * in(m, r, NoParents) * lr)
-            incrIn(l, r, RightParent, in(l, m, NoParents) * in(m, r, LeftParent) * lr)
+            incrIn(l, r, RightParent, false, in(l, m, RightParent, true) * in(m, r, RightParent))
+            incrIn(l, r, RightParent, true, in(l, m, RightParent, true) * in(m, r, NoParents) * lr)
+            incrIn(l, r, RightParent, true, in(l, m, NoParents, true) * in(m, r, LeftParent) * lr)
 
             //left end with parent
-            incrIn(l, r, LeftParent, in(l, m, LeftParent) * in(m, r, LeftParent))
-            incrIn(l, r, LeftParent, in(l, m, NoParents) * in(m, r, LeftParent) * rl)
-            incrIn(l, r, LeftParent, in(l, m, RightParent) * in(m, r, NoParents) * rl)
+            incrIn(l, r, LeftParent, false, in(l, m, LeftParent, true) * in(m, r, LeftParent))
+            incrIn(l, r, LeftParent, true, in(l, m, NoParents, true) * in(m, r, LeftParent) * rl)
+            incrIn(l, r, LeftParent, true, in(l, m, RightParent, true) * in(m, r, NoParents) * rl)
           }
         }
       }
       //calculate outside scores
-      incrOut(0, n, RightParent, 1.0)
+      incrOut(0, n - 1, RightParent, 1.0)
+      incrOut(0, n - 1, NoParents, 1.0)
+      incrOut(0, n - 1, LeftParent, 1.0)
 
-      for (width <- (1 until n).reverse) {
+      for (width <- (1 until n-1).reverse) {
+        println("Width: " + width)
         for (l <- 0 until (n - width)) {
           val r = l + width
           for (i <- 0 until l) {
             val ir = weights(i, r)
             val ri = weights(r, i)
             //no heads on both ends
-            incrOut(l, r, NoParents, out(i, r, RightParent) * in(i, l, RightParent) * ir)
-            incrOut(l, r, NoParents, out(i, r, LeftParent) * in(i, l, RightParent) * ri)
-            incrOut(l, r, NoParents, out(i, r, NoParents) * in(i, l, RightParent))
+            println("%d (%d %d)".format(i,l,r))
+            incrOut(l, r, NoParents, in(i, l, RightParent, true) * out(i, r, NoParents))
 
             //right end with head
-            incrOut(l, r, RightParent, out(i, r, RightParent) * in(i, l, RightParent))
+            incrOut(l, r, RightParent, in(i, l, RightParent, true) * out(i, r, RightParent))
 
             //left end with head
-            incrOut(l, r, LeftParent, out(i, r, RightParent) * in(i, l, NoParents) * ir)
-            incrOut(l, r, LeftParent, out(i, r, LeftParent) * in(i, l, NoParents) * ri)
-            incrOut(l, r, LeftParent, out(i, r, LeftParent) * in(i, l, LeftParent))
-            incrOut(l, r, LeftParent, out(i, r, NoParents) * in(i, l, NoParents))
+            incrOut(l, r, LeftParent, in(i, l, NoParents, true) * out(i, r, NoParents))
+            incrOut(l, r, LeftParent, in(i, l, LeftParent, true) * out(i, r, LeftParent))
+
+            println("%d %d N = %f".format(l,r,out(l,r,NoParents)))
+            println("%d %d L = %f".format(l,r,out(l,r,LeftParent)))
+            println("%d %d R = %f".format(l,r,out(l,r,RightParent)))
           }
-          for (i <- r until n) {
+          for (i <- r + 1 until n) {
             val il = weights(i, l)
             val li = weights(l, i)
-            incrOut(l, r, NoParents, out(l, i, NoParents) * in(r, i, LeftParent))
-            incrOut(l, r, NoParents, out(l, i, LeftParent) * in(r, i, LeftParent) * il)
-            incrOut(l, r, NoParents, out(l, i, RightParent) * in(r, i, LeftParent) * li)
+            println("(%d %d) %d".format(l,r,i))
 
-            incrOut(l, r, RightParent, out(l, i, NoParents) * in(r, i, NoParents))
-            incrOut(l, r, RightParent, out(l, i, RightParent) * in(r, i, RightParent))
-            incrOut(l, r, RightParent, out(l, i, RightParent) * in(r, i, NoParents) * li)
-            incrOut(l, r, RightParent, out(l, i, LeftParent) * in(r, i, NoParents) * il)
+            incrOut(l, r, NoParents, in(r, i, LeftParent, true) * out(l, i, NoParents))
 
-            incrOut(l, r, LeftParent, out(l, i, LeftParent) * in(r, i, LeftParent))
+            incrOut(l, r, LeftParent, in(r, i, LeftParent, true) * out(l, i, LeftParent))
+
+            incrOut(l, r, RightParent, in(r, i, NoParents, true) * out(l, i, NoParents))
+            incrOut(l, r, RightParent, in(r, i, RightParent, true) * out(l, i, RightParent))
+
+            println("%d %d N = %f".format(l,r,out(l,r,NoParents)))
+            println("%d %d L = %f".format(l,r,out(l,r,LeftParent)))
+            println("%d %d R = %f".format(l,r,out(l,r,RightParent)))
           }
         }
-        println(width)
       }
       //partition function
-      Z = in(0, n, RightParent)
+      Z = in(0, n - 1, RightParent)
+
+      println("Z: " + Z)
 
       for (i <- 0 until n; j <- i + 1 until n) {
-        total(i -> j) = out(i, j, RightParent) * in(i, j, NoParents) * weights(i, j)
-        total(j -> i) = out(i, j, LeftParent) * in(i, j, NoParents) * weights(j, i)
+        println("IN  %d->%d R = %f".format(i, j, in(i, j, RightParent,true)))
+        println("OUT %d->%d R = %f".format(i, j, out(i, j, RightParent)))
+        println("IN  %d->%d L = %f".format(i, j, in(i, j, LeftParent,true)))
+        println("OUT %d->%d L = %f".format(i, j, out(i, j, LeftParent)))
+        total(i -> j) = out(i, j, RightParent) * in(i, j, RightParent, true)
+        total(j -> i) = out(i, j, LeftParent) * in(i, j, LeftParent, true)
       }
 
       result

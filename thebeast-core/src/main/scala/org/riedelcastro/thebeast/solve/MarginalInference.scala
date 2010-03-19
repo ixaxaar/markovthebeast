@@ -61,9 +61,6 @@ object ExhaustiveMarginalInference extends MarginalInference with Trackable {
     Env.forall(variables) {
       env => {
         val score = env(term);
-        if (score > 0) {
-          println(env)
-        }
         for (variable <- variables) {
           beliefs.increaseBelief(variable, env(variable), score)
         }
