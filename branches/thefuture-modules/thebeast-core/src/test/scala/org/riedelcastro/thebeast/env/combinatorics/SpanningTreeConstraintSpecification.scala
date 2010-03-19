@@ -109,7 +109,23 @@ object SpanningTreeConstraintSpecification extends Specification with TheBeastEn
         exact.belief(FunAppVar(link,edge)).belief(true) must_== counts(edge)
       }
     }
-    
+
+    "return exact marginals with DP inference" in {
+      val fixtures = new DependencyParsingFixtures
+      import fixtures._
+      val sentence = createSentence(
+        List("root", "the", "man", "walks"),
+        List("root", "DT", "NN", "VB"),
+        List((0, 3), (3, 2), (2, 1)))
+      val constraint = new SpanningTreeConstraint(link, token, 0, LessThan(Tokens))
+      val grounded = constraint.ground(sentence.mask(Set(link)))
+      val incoming = new CompleteIgnorance[Any, EnvVar[Any]]
+      val result = grounded.marginalize(incoming)
+      println(result)
+      println(counts.mkString("\n"))
+      
+    }
+
 
   }
 
