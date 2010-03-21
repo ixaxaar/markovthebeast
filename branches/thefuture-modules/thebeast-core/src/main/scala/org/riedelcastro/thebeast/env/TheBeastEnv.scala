@@ -1,5 +1,6 @@
 package org.riedelcastro.thebeast.env
 
+import combinatorics.SpanningTreeConstraint
 import doubles._
 import ints._
 import booleans._
@@ -12,7 +13,6 @@ import vectors._
  */
 
 object TheBeastImplicits extends TheBeastEnv {
-  
 }
 
 trait TheBeastEnv {
@@ -32,13 +32,18 @@ trait TheBeastEnv {
 
   def normalize(arg: DoubleTerm) = Normalize(arg)
 
+  def ptree[V](edges: Term[FunctionValue[(V, V), Boolean]],
+               vertices: Term[FunctionValue[V, Boolean]],
+               root: Term[V],
+               order: Term[FunctionValue[(V, V), Boolean]]) = SpanningTreeConstraint(edges,vertices,root,order)
+
   implicit def string2varbuilder(name: String) = new {
     def <~[T](values: Values[T]) = Var(name, values)
 
     //def in[T, R](values: FunctionValues[T, R]) = FunVar(name, values)
   }
 
-  implicit def varDouble2DoubleVar(varDouble:Var[Double]) = DoubleVar(varDouble.name,varDouble.values)
+  implicit def varDouble2DoubleVar(varDouble: Var[Double]) = DoubleVar(varDouble.name, varDouble.values)
 
   //def ground(variable:Var[T], t:T)
 
@@ -52,7 +57,7 @@ trait TheBeastEnv {
 
   implicit def function2constant[T1, R](value: T1 => R) = Constant(value)
 
-  implicit def function22constant[T1, T2, R](value: (T1,T2) => R) = Constant(value)
+  implicit def function22constant[T1, T2, R](value: (T1, T2) => R) = Constant(value)
 
 
   implicit def tuple2toTupleTerm2[T1, T2](value: (Term[T1], Term[T2])) = TupleTerm2(value._1, value._2)
@@ -66,7 +71,7 @@ trait TheBeastEnv {
   //  }
 
 
-  implicit def term2SingletonConditionedTerm[T](term : Term[T]) = new ConditionedTerm(term,Singleton)
+  implicit def term2SingletonConditionedTerm[T](term: Term[T]) = new ConditionedTerm(term, Singleton)
 
   implicit def term2ConditionedTermBuilder[T](term: Term[T]) = new {
 
@@ -81,19 +86,19 @@ trait TheBeastEnv {
     def |||[C1, C2](c1: Term[C1], c2: Term[C2]): ConditionedTerm[T, Tuple2[C1, C2]] = ConditionedTerm(term, TupleTerm2(c1, c2))
   }
 
-  implicit def tupleterm2toConditionedTermBuilder[T1,T2](term: Tuple2[Term[T1],Term[T2]]) = new {
+  implicit def tupleterm2toConditionedTermBuilder[T1, T2](term: Tuple2[Term[T1], Term[T2]]) = new {
 
     /**
      * Creates a conditioned term, useful for CPDs.
      */
-    def |||[C1](condition: Term[C1]): ConditionedTerm[(T1,T2), C1] =
-      ConditionedTerm(TupleTerm2(term._1,term._2), condition)
+    def |||[C1](condition: Term[C1]): ConditionedTerm[(T1, T2), C1] =
+      ConditionedTerm(TupleTerm2(term._1, term._2), condition)
 
     /**
      * Creates a conditioned term, useful for CPDs.
      */
-    def |||[C1, C2](c1: Term[C1], c2: Term[C2]): ConditionedTerm[(T1,T2), Tuple2[C1, C2]] =
-      ConditionedTerm(TupleTerm2(term._1,term._2), TupleTerm2(c1, c2))
+    def |||[C1, C2](c1: Term[C1], c2: Term[C2]): ConditionedTerm[(T1, T2), Tuple2[C1, C2]] =
+      ConditionedTerm(TupleTerm2(term._1, term._2), TupleTerm2(c1, c2))
   }
 
   //implicit def termtuple2toTupleTerm2[T1,T2](tuple: Tuple2[Term[T1],Term[T2]]) = TupleTerm2(tuple._1, tuple._2)
@@ -129,33 +134,33 @@ trait TheBeastEnv {
     def apply(t: Term[T]) = FunApp(fun, t)
   }
 
-//  implicit def term2groundFunAppBuilder[T, R](fun: FunctionVar[T,R]) = new (T => GroundFunApp[T, R]) {
-//    def apply(t: T) = GroundFunApp(fun, t)
-//  }
+  //  implicit def term2groundFunAppBuilder[T, R](fun: FunctionVar[T,R]) = new (T => GroundFunApp[T, R]) {
+  //    def apply(t: T) = GroundFunApp(fun, t)
+  //  }
 
   implicit def term2doubleFunAppBuilder[T](fun: Term[T => Double]) = new (Term[T] => DoubleFunApp[T]) {
     def apply(t: Term[T]) = DoubleFunApp(fun, t)
   }
 
-//  implicit def term2booleanFunAppBuilder[T >: AnyVal](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
-//    def apply(t: Term[T]) = BooleanFunApp(fun, t)
-//  }
+  //  implicit def term2booleanFunAppBuilder[T >: AnyVal](fun: Term[T => Boolean]) = new (Term[T] => BooleanFunApp[T]) {
+  //    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+  //  }
 
   implicit def term2booleanFunAppBuilder(fun: Term[Any => Boolean]) = new (Term[Any] => BooleanFunApp[Any]) {
     def apply(t: Term[Any]) = BooleanFunApp(fun, t)
   }
 
-  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T,Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
+  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
     def apply(t: Term[T]) = BooleanFunApp(fun, t)
   }
 
-  implicit def intTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[Int,Boolean]]) =
+  implicit def intTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[Int, Boolean]]) =
     genericTerm2booleanFunAppBuilder(fun)
 
-//  implicit def anyterm2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[Any, Boolean]]) = new {
-//    def apply(t: TupleTerm2[Any, Any]) = BooleanFunApp(fun, t)
-//    def apply(t1: Term[Any], t2: Term[Any]) = BooleanFunApp(fun, TupleTerm2(t1, t2))
-//  }
+  //  implicit def anyterm2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[Any, Boolean]]) = new {
+  //    def apply(t: TupleTerm2[Any, Any]) = BooleanFunApp(fun, t)
+  //    def apply(t1: Term[Any], t2: Term[Any]) = BooleanFunApp(fun, TupleTerm2(t1, t2))
+  //  }
 
 
   implicit def tuple2term2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[(T1, T2), Boolean]]) = new (TupleTerm2[T1, T2] => BooleanFunApp[(T1, T2)]) {
@@ -202,6 +207,7 @@ trait TheBeastEnv {
 
   implicit def intTerm2IntAppBuilder(lhs: Term[Int]) = new {
     def +(rhs: Term[Int]) = FunApp(FunApp(Constant(IntAdd), lhs), rhs)
+
     def <(rhs: Term[Int]) = BooleanFunApp(FunApp(Constant(IntLT), lhs), rhs)
   }
 
@@ -224,6 +230,7 @@ trait TheBeastEnv {
   }
 
   def $(term: BooleanTerm) = Indicator(term)
+
   def $$(term: BooleanTerm) = AlchemyIndicator(term)
 
 
@@ -252,7 +259,7 @@ trait TheBeastEnv {
   def vectorSum[T1, T2, T3](v1: Values[T1], v2: Values[T2], v3: Values[T3])(formula: (Var[T1], Var[T2], Var[T3]) => VectorTerm): QuantifiedVectorSum[T1] =
     vectorSum(v1) {x1 => vectorSum(v2, v3) {(x2, x3) => formula(x1, x2, x3)}}
 
-  def vectorSum[T1, T2, T3, T4](v1: Values[T1], v2: Values[T2], v3: Values[T3], v4:Values[T4])(formula: (Var[T1], Var[T2], Var[T3], Var[T4]) => VectorTerm): QuantifiedVectorSum[T1] =
+  def vectorSum[T1, T2, T3, T4](v1: Values[T1], v2: Values[T2], v3: Values[T3], v4: Values[T4])(formula: (Var[T1], Var[T2], Var[T3], Var[T4]) => VectorTerm): QuantifiedVectorSum[T1] =
     vectorSum(v1) {x1 => vectorSum(v2, v3, v4) {(x2, x3, x4) => formula(x1, x2, x3, x4)}}
 
   def forall[T](values: Values[T])(formula: Var[T] => Term[Boolean]) = {

@@ -21,7 +21,7 @@ object Logging {
 
   var level: Level = INFO
 
-  def isActive(level: Level) = level.level <= this.level.level
+  def isActive(level: Level) = level.level >= this.level.level
 
   var logger: (Level, String, Class[_]) => Unit = (level, text, clazz) => {
     println("%s@%s: %s".format(level.name,clazz.getName, text))
