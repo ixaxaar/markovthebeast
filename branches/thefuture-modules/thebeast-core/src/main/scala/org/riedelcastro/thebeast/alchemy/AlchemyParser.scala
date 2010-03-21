@@ -1,15 +1,9 @@
 package org.riedelcastro.thebeast.alchemy
 
 
-import _root_.scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
-import collection.mutable.{HashSet, ArrayBuffer, HashMap}
-import env._
-import booleans.{BooleanFunApp, BooleanTerm}
-import doubles.{AlchemyIndicator, DoubleConstant, DoubleTerm}
-import java.io.{Reader}
-import tuples.{TupleValues, TupleTerm, TupleValues3, TupleValues2}
-import vectors._
-
+import scala.util.parsing.combinator.{RegexParsers, JavaTokenParsers}
+import collection.mutable.{HashSet, HashMap}
+import org.riedelcastro.thebeast.env.tuples.{TupleTerm}
 /**
  * @author Sebastian Riedel
  */

@@ -28,20 +28,21 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
   def asLogic: DoubleTerm = {
     import TheBeastImplicits._
     val domain = vertices.values.asInstanceOf[FunctionValues[V,Boolean]].domain
-    val uniqueHead = forall(domain,domain,domain) {
-      (h,i,o)=> vertices(i) && vertices(h) && vertices(o) && edges(h,i) ~> !edges(o,i)}
-    val dominates = Predicate("dominates",domain x domain)
-    val linkAndDominates = forall(domain,domain) {
-      (h,i) => vertices(i) && vertices(h) && edges(h,i) ~> dominates(h,i)}
-    val transitive = forall(domain,domain,domain){
-      (h,m,g)=> vertices(h) && vertices(m) && vertices(g) && dominates(h,m) && edges(m,g) ~> dominates(h,g)}
-    val acyclic = forall(domain) {
-      i => vertices(i) ~> !dominates(i,i)}
-    val projective1 = forall(domain,domain,domain) {
-      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(h,i) && order(i,m) ~> dominates(h,i)}
-    val projective2 = forall(domain,domain,domain) {
-      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(m,i) && order(i,h) ~> dominates(h,i)}
-    ${uniqueHead && linkAndDominates && transitive && acyclic && projective1 && projective2}
+//    val uniqueHead = forall(domain,domain,domain) {
+//      (h,i,o)=> vertices(i) && vertices(h) && vertices(o) && edges(h,i) ~> !edges(o,i)}
+//    val dominates = Predicate("dominates",domain x domain)
+//    val linkAndDominates = forall(domain,domain) {
+//      (h,i) => vertices(i) && vertices(h) && edges(h,i) ~> dominates(h,i)}
+//    val transitive = forall(domain,domain,domain){
+//      (h,m,g)=> vertices(h) && vertices(m) && vertices(g) && dominates(h,m) && edges(m,g) ~> dominates(h,g)}
+//    val acyclic = forall(domain) {
+//      i => vertices(i) ~> !dominates(i,i)}
+//    val projective1 = forall(domain,domain,domain) {
+//      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(h,i) && order(i,m) ~> dominates(h,i)}
+//    val projective2 = forall(domain,domain,domain) {
+//      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(m,i) && order(i,h) ~> dominates(h,i)}
+//    ${uniqueHead && linkAndDominates && transitive && acyclic && projective1 && projective2}
+    this
   }
 
 

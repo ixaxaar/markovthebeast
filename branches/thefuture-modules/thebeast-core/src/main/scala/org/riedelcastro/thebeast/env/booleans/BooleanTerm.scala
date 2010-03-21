@@ -53,11 +53,17 @@ object Bools extends Values[Boolean] {
   def elements = seq.elements
 }
 
-case class Conjunction[+T <: BooleanTerm](override val args: Seq[T]) extends Fold[Boolean](Constant(And), args, Constant(true))
-    with BooleanTerm {
-  override def ground(env: Env) = Conjunction(args.map(_.ground(env)))
+case class Conjunction[T <: BooleanTerm](override val args: Seq[T]) extends Fold[Boolean](Constant(And), args, Constant(true))
+    with BooleanTerm with Composite[Boolean,Conjunction[T],T] {
+  //override def ground(env: Env) = Conjunction(args.map(_.ground(env)))
+
+
 
   //def this(args:T*) = this((args:*).toSeq)
+
+  def build(members: Seq[T]) = Conjunction(members)
+
+  def members: Seq[T] = args
 
   def upperBound = !args.exists(!_.upperBound)
 

@@ -3,7 +3,8 @@ package org.riedelcastro.thebeast.env.vectors
 
 import collection.mutable.{HashMap}
 import util.SimpleNamed
-import org.riedelcastro.thebeast.env.Values
+import org.riedelcastro.thebeast.util.SimpleNamed
+import org.riedelcastro.thebeast.env.{TheBeastEnv, Values}
 
 /**
  * @author Sebastian Riedel

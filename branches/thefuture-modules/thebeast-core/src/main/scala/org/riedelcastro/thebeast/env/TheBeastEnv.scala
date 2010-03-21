@@ -144,7 +144,7 @@ trait TheBeastEnv extends QuantificationShortCuts {
     def apply(t: Term[Any]) = BooleanFunApp(fun, t)
   }
 
-  implicit def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
+  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
     def apply(t: Term[T]) = BooleanFunApp(fun, t)
   }
 
