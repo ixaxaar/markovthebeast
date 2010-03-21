@@ -67,6 +67,33 @@ trait Term[+T] {
 }
 
 /**
+ * A Composite term consists of one more other terms. It knows how to
+ * take a sequence of members and create a new composite term, and
+ * how to return the composite members.
+ */
+trait Composite[V,T<:Term[V], M<:Term[_]] extends Term[V] {
+  
+  def members:Seq[M]
+  def build(members:Seq[M]):T
+
+  override def ground(env: Env): T = build(members.map(_.ground(env).asInstanceOf[M]))
+
+  override def isGround: Boolean = members.forall(_.isGround)
+}
+
+trait Composite1[V,T<:Term[V],M<:Term[_]] extends Composite[V,T,M] {
+
+  def build(member:M):T
+
+  def build(members: Seq[M]): T = build(members(0))
+
+  def member: M
+
+  def members: Seq[M] = Seq(member)
+}
+
+
+/**
  * Grounded is a pattern matcher that matches terms which are ground (no variables), and extracts
  * the value the term evaluates to.
  */
