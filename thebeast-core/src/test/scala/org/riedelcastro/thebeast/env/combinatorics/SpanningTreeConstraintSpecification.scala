@@ -121,8 +121,10 @@ object SpanningTreeConstraintSpecification extends Specification with TheBeastEn
       val grounded = constraint.ground(sentence.mask(Set(link)))
       val incoming = new CompleteIgnorance[Any, EnvVar[Any]]
       val result = grounded.marginalize(incoming)
-      println(result)
-      println(counts.mkString("\n"))
+      for (edge <- counts.keySet) {
+        result.belief(FunAppVar(link,edge)).belief(true) must_== counts(edge)
+      }
+
       
     }
 
