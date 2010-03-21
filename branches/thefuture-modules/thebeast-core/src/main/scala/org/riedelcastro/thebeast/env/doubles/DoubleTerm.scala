@@ -135,6 +135,22 @@ case class QuantifiedSum[T](override val variable: Var[T], override val formula:
 
   override def simplify = QuantifiedSum(variable,formula.simplify)
 }
+
+case class QuantifiedMultiplication[T](override val variable: Var[T], override val formula: DoubleTerm)
+        extends Quantification(Constant(Times), variable, formula, Constant(1.0)) with DoubleTerm {
+  override lazy val unroll = {
+    val env = new MutableEnv
+    Multiplication(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
+  }
+
+  def upperBound = unroll.upperBound
+
+  override def ground(env: Env) = unroll.ground(env)
+
+  override def simplify = QuantifiedMultiplication(variable,formula.simplify)
+}
+
+
 case class Indicator(boolTerm: BooleanTerm) extends FunApp(Constant(CastBoolToDouble), boolTerm)
         with DoubleTerm {
   def upperBound = if (boolTerm.upperBound) 1.0 else 0.0

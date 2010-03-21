@@ -4,6 +4,8 @@ import org.riedelcastro.thebeast.env._
 import doubles.Indicator
 import functions._
 import org.riedelcastro.thebeast.util.{Util, SimpleNamed}
+import java.lang.String
+
 /**
  * @author Sebastian Riedel
  */
@@ -16,6 +18,8 @@ trait BooleanTerm extends BoundedTerm[Boolean] {
   def ~>(rhs: BooleanTerm) = ImpliesApp(this, rhs)
 
   def <~>(rhs: BooleanTerm) = EquivalenceApp(this, rhs)
+
+  def unary_! = negate
 
   def ground(env: Env): BooleanTerm
 
@@ -286,6 +290,29 @@ case class BooleanFunAppVar[T](override val funVar: EnvVar[T => Boolean], overri
     extends FunAppVar(funVar,argValue) with BooleanEnvVar {
   override def simplify = this
 
+}
+
+case class Forall[T](override val variable: Var[T], override val formula: BooleanTerm)
+        extends Quantification(Constant(And), variable, formula, Constant(true)) with BooleanTerm {
+  override lazy val unroll = {
+    val env = new MutableEnv
+    Conjunction(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
+  }
+
+  def upperBound = unroll.upperBound
+
+  override def ground(env: Env) = unroll.ground(env)
+
+  override def simplify = Forall(variable,formula.simplify)
+
+  def flatten = this
+
+  def moveInNegation: BooleanTerm = this
+
+  def negate: BooleanTerm = NotApp(this)
+
+
+  override def toString: String = "{forall %s: %s}".format(variable,formula)
 }
 
 
