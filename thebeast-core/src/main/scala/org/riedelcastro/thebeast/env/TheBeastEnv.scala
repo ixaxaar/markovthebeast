@@ -15,10 +15,10 @@ import vectors._
 object TheBeastImplicits extends TheBeastEnv {
 }
 
-trait TheBeastEnv extends QuantificationShortCuts {
-  val Bools = booleans.Bools
-  //val Bools = Values(false,true)
+trait TermShortCuts {
+  def $(term: BooleanTerm) = Indicator(term)
 
+  def $$(term: BooleanTerm) = AlchemyIndicator(term)
 
   def unit(key: Term[Any]*) = UnitVector(key: _*)
 
@@ -26,10 +26,41 @@ trait TheBeastEnv extends QuantificationShortCuts {
 
   def normalize(arg: DoubleTerm) = Normalize(arg)
 
+  def ^[T](t: T) = Constant(t)
+
   def ptree[V](edges: Term[FunctionValue[(V, V), Boolean]],
                vertices: Term[FunctionValue[V, Boolean]],
                root: Term[V],
                order: Term[FunctionValue[(V, V), Boolean]]) = SpanningTreeConstraint(edges, vertices, root, order)
+}
+
+trait GenericTermConversion {
+
+  implicit def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
+    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+  }
+
+  implicit def tuple2term2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[(T1, T2), Boolean]]) = new (TupleTerm2[T1, T2] => BooleanFunApp[(T1, T2)]) {
+    def apply(t: TupleTerm2[T1, T2]) = BooleanFunApp(fun, t)
+
+    def apply(t1: Term[T1], t2: Term[T2]) = BooleanFunApp(fun, TupleTerm2(t1, t2))
+  }
+
+  implicit def tuple3term2booleanFunAppBuilder[T1, T2, T3](fun: Term[FunctionValue[(T1, T2, T3), Boolean]]) = new (TupleTerm3[T1, T2, T3] => BooleanFunApp[(T1, T2, T3)]) {
+    def apply(t: TupleTerm3[T1, T2, T3]) = BooleanFunApp(fun, t)
+
+    def apply(t1: Term[T1], t2: Term[T2], t3: Term[T3]) = BooleanFunApp(fun, TupleTerm3(t1, t2, t3))
+  }
+  
+
+}
+
+object GenericImplicits extends QuantificationShortCuts with TermShortCuts with GenericTermConversion
+
+trait TheBeastEnv extends QuantificationShortCuts with TermShortCuts {
+  val Bools = booleans.Bools
+  //val Bools = Values(false,true)
+
 
   implicit def string2varbuilder(name: String) = new {
     def <~[T](values: Values[T]) = Var(name, values)
@@ -42,6 +73,10 @@ trait TheBeastEnv extends QuantificationShortCuts {
   //def ground(variable:Var[T], t:T)
 
   implicit def termToTermBuilder[T](term: Term[T]) = TermBuilder(term)
+
+  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
+    def apply(t: Term[T]) = BooleanFunApp(fun, t)
+  }
 
 
 
@@ -144,11 +179,8 @@ trait TheBeastEnv extends QuantificationShortCuts {
     def apply(t: Term[Any]) = BooleanFunApp(fun, t)
   }
 
-  def genericTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[T, Boolean]]) = new (Term[T] => BooleanFunApp[T]) {
-    def apply(t: Term[T]) = BooleanFunApp(fun, t)
-  }
 
-  implicit def intTerm2booleanFunAppBuilder[T](fun: Term[FunctionValue[Int, Boolean]]) =
+  implicit def intTerm2booleanFunAppBuilder(fun: Term[FunctionValue[Int, Boolean]]) =
     genericTerm2booleanFunAppBuilder(fun)
 
   //  implicit def anyterm2booleanFunAppBuilder[T1, T2](fun: Term[FunctionValue[Any, Boolean]]) = new {
@@ -190,7 +222,6 @@ trait TheBeastEnv extends QuantificationShortCuts {
     FunctionValuesBuilder[T, R](domain)
 
 
-  def ^[T](t: T) = Constant(t)
 
   //  implicit def term2envVar[T](env:Term[T]): EnvVar[T] = {
   //    env match {
@@ -222,10 +253,6 @@ trait TheBeastEnv extends QuantificationShortCuts {
     def -->(rhs: BooleanTerm) = ImpliesApp(lhs, rhs)
 
   }
-
-  def $(term: BooleanTerm) = Indicator(term)
-
-  def $$(term: BooleanTerm) = AlchemyIndicator(term)
 
 
 }
