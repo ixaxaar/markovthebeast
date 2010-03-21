@@ -36,7 +36,7 @@ object Playground extends Application with TheBeastEnv {
   println(env(k(1)(2) + x))
 
   println(Quantification(IntAdd, x, f(x), 0).unroll)
-  println(intSum(Ints) {x => f(x)})
+  //println(intSum(Ints) {x => f(x)})
 
   println(forall(Ints) {x => f(x) === 1})
   println(sum(Ints) {x => {f(x) === 1} @@})

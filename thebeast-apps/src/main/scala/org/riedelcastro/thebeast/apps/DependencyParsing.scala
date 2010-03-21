@@ -80,6 +80,7 @@ object DependencyParsing extends TheBeastEnv {
       sum += marginals.belief(FunAppVar(link,(h,1))).belief(true)
     }
     println(sum)
+    println(ptree(link,token,0,LessThan(Tokens)).asLogic)
 
   }
 
