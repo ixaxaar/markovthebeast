@@ -184,26 +184,8 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
     import SpanType._
 
 
-    case class Signature(from: Int, to: Int, left: Boolean, right: Boolean, simple: Boolean) {
-      override def toString: String = "(%d,%d,%s,%s,%s)".format(from, to, left, right, simple)
-    }
-    sealed trait Operation {
-      def eval:Signature
-    }
-    case class Seed(index: Int) extends Operation {
-      val eval = Signature(index,index+1,false,false,true)
-    }
-    case class CloseRight(sig: Signature) extends Operation{
-      val eval = Signature(sig.from, sig.to, true, false, true)
-    }
-    case class CloseLeft(sig: Signature) extends Operation {
-      val eval = Signature(sig.from, sig.to, false, true, true)
-    }
-    case class Join(l: Signature, r: Signature) extends Operation {
-      val eval = Signature(l.from,r.to,l.left,r.right,false)
-      val defined = l.right != r.left && l.simple
-    }
 
+    case class Signature(from:Int,to:Int,rightWard:Boolean,link:Boolean)
 
 
     class InsideOutsideResult {
@@ -212,56 +194,120 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val total = new HashMap[(Int, Int), Double]
       var Z = 0.0
 
-      def incrOut(sig:Signature, value:Double) =
-        outside(sig) = outside.getOrElse(sig, 0.0) + value
-      def incrIn(sig:Signature, value:Double) =
-        inside(sig) = inside.getOrElse(sig, 0.0) + value
+      def in(from:Int,to:Int,rightWard:Boolean,link:Boolean):Double = {
+        inside.getOrElse(Signature(from,to,rightWard,link),0.0)
+      }
 
-      def in(sig:Signature) = inside.getOrElse(sig,0.0)
-      def out(sig:Signature) = outside.getOrElse(sig,0.0)
+      def incrIn(from:Int,to:Int,rightWard:Boolean,link:Boolean, value:Double) = {
+        val sig = Signature(from,to,rightWard,link)
+        inside(sig) = inside.getOrElse(sig,0.0) + value
+      }
+      def out(from:Int,to:Int,rightWard:Boolean,link:Boolean):Double = {
+        outside.getOrElse(Signature(from,to,rightWard,link),0.0)
+      }
+
+      def incrOut(from:Int,to:Int,rightWard:Boolean,link:Boolean, value:Double) = {
+        val sig = Signature(from,to,rightWard,link)
+        outside(sig) = outside.getOrElse(sig,0.0) + value
+      }
 
     }
 
     def calculate(sorted: Array[V], weights: scala.collection.Map[(Int, Int), Double]): InsideOutsideResult = {
 
-      val bools = Array(false,true)
+      val bools = Array(false, true)
       val result = new InsideOutsideResult
       import result._
-      def add(op:Operation) = op match {
-        case Seed(_) => incrIn(op.eval, 1.0)
-        case Join(l,r) => incrIn(op.eval, in(l) * in(r))
-        case CloseLeft(sig @ Signature(i,j,_,_,_)) => incrIn(op.eval, in(sig) * weights(i,j))
-        case CloseRight(sig @ Signature(i,j,_,_,_)) => incrIn(op.eval, in(sig) * weights(j,i))
-      }
+
       val n = sorted.size
 
-      //initialize inside probs
+      //init unit values
       for (i <- 0 until n-1){
-        add(Seed(i))
-        add(CloseLeft(Signature(i,i+1,false,false,true)))
-        add(CloseRight(Signature(i,i+1,false,false,true))) 
+        incrIn(i,i+1,true,true,weights(i,i+1))
+        incrIn(i,i+1,true,false,weights(i,i+1))
+        incrIn(i,i+1,false,true,weights(i+1,i))
+        incrIn(i,i+1,false,false,weights(i+1,i))
       }
-      for (length <- 2 until n){
-        for (i <- 0 until n - length){
-          val j = i + length
-          for (k <- i + 1 until j){
-            println("%d %d %d".format(i,k,j))
-            for (b_L <- bools; b <- bools; b_R <- bools; s <- bools){
-              val sig_L = Signature(i,k,b_L,b,true)
-              val sig_R = Signature(k,j,!b, b_R, s)
-              val join = Join(sig_L, sig_R)
-              if (join.defined) add(join)
-            }
+      for (i <- 0 until n){
+        incrIn(i,i,true,false,1.0)
+        incrIn(i,i,false,false,1.0)
+      }
+
+      for (width <- 2 until n){
+        for (i <- 0 until n - width){
+          val j = i + width
+          //complete link inside
+          println("%d %d".format(i,j))
+          for (m <- i until j){
+            incrIn(i,j,true,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(i,j))
+            incrIn(i,j,false,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(j,i))
           }
-          add(CloseLeft(Signature(i,j,false,false,false)))
-          add(CloseRight(Signature(i,j,false,false,false)))
+          //complete sequence inside
+          for (m <- i until j){
+            println("%d %d %d".format(i,m,j))
+            println("%d %d T F: %f".format(i,m,in(i,m,true,false)))
+            println("%d %d T T: %f".format(m,j,in(m,j,true,true)))
+            incrIn(i,j,true,false, in(i,m,true,false) * in(m,j,true,true))
+          }
+          for (m <- i + 1 until j+1){
+            println("%d %d %d".format(i,m,j))
+            incrIn(i,j,false,false, in(i,m,false,true) * in(m,j,false,false))
+          }
         }
       }
-      println(inside.mkString("\n"))
-      Z = in(Signature(0,n-1,false,true,false)) + in(Signature(0,n-1,false,true,true))
+
+      Z = in(0,n-1,true,false)
+
       println("Z: " + Z)
 
-      
+      //outside probabilities
+      incrOut(0, n-1, true, true, 1.0)
+      incrOut(0, n-1, true, false, 1.0)
+
+      for (width <- (1 until n-1).reverse){
+        for (i <- 0 until n - width){
+          val j = i + width
+          //complete sequence outside
+          for (h <- j + 1 until n){
+            incrOut(i,j,true,false, out(i,h,true,false) * in(j,h,true,true) +
+              out(i,h,true,true) * in(j+1,h,false,false) * weights(i,h) +
+              out(i,h,false,true) * in(j+1,h,false,false) * weights(h,i))
+          }
+          for (v <- 0 until i){
+            incrOut(i,j,false,false, out(v,j,false,false) * in(v,i,false,true) +
+              out(v,j,true,true) * in(v,i-1,true,false) * weights(v,j) +
+              out(v,j,false,true) * in(v,i-1,true,false) * weights(j,v))
+          }
+
+          //complete link outside
+          for (v <- 0 until i + 1){
+            incrOut(i,j,true,true, out(v,j,true,false) * in(v,i,true,false))
+          }
+          for (h <- j until n){
+            incrOut(i,j,false,true, out(i,h,false,false) * in(j,h,false,false))
+          }
+
+
+        }
+      }
+
+
+      for (i <- 0 until n; j <- i + 1 until n) {
+        println("IN %-30s: %f".format(Signature(i,j,false,false),in(i,j,false,false)))
+        println("IN %-30s: %f".format(Signature(i,j,true,false),in(i,j,true,false)))
+        println("IN %-30s: %f".format(Signature(i,j,false,true),in(i,j,false,true)))
+        println("IN %-30s: %f".format(Signature(i,j,true,true),in(i,j,true,true)))
+        println("OUT %-30s: %f".format(Signature(i,j,false,false),out(i,j,false,false)))
+        println("OUT %-30s: %f".format(Signature(i,j,true,false),out(i,j,true,false)))
+        println("OUT %-30s: %f".format(Signature(i,j,false,true),out(i,j,false,true)))
+        println("OUT %-30s: %f".format(Signature(i,j,true,true),out(i,j,true,true)))
+//        println("IN %d %d R: %f".format(i, j, in(Signature(i, j, false, true, true))))
+//        println("IN %d %d L: %f".format(i, j, in(Signature(i, j, true, false, true))))
+//        println("OUT %d %d R: %f".format(i, j, out(Signature(i, j, false, true, false))))
+//        println("OUT %d %d L: %f".format(i, j, out(Signature(i, j, true, false, false))))
+        total(i -> j) = in(i,j,true,true) * out(i,j,true,true)
+        total(j -> i) = in(i,j,false,true) * out(i,j,false,true)
+      }
 
       result
     }
