@@ -149,7 +149,6 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val beliefs = new MutableBeliefs[Any, EnvVar[Any]]
       for (i <- 0 until sorted.size; j <- 1 until sorted.size; if (i != j)) {
         val atom = FunAppVar(pred, (sorted(i), sorted(j)))
-        println("%d %d: %f".format(i, j, insideOutside.total(i, j)))
         val trueBelief = insideOutside.total(i, j) * pi
         beliefs.increaseBelief(atom, true, trueBelief)
         beliefs.increaseBelief(atom, false, b - trueBelief)
@@ -215,6 +214,11 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
     def calculate(sorted: Array[V], weights: scala.collection.Map[(Int, Int), Double]): InsideOutsideResult = {
 
+      /**
+       * Calculated according to "inside and outside probs using "Reestimation and Best-First Parsing
+       * Algorithm for Probabilistic Dependency Grammars" by Lee and Choi.
+       */
+
       val bools = Array(false, true)
       val result = new InsideOutsideResult
       import result._
@@ -237,28 +241,21 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
         for (i <- 0 until n - width){
           val j = i + width
           //complete link inside
-          println("%d %d".format(i,j))
           for (m <- i until j){
             incrIn(i,j,true,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(i,j))
             incrIn(i,j,false,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(j,i))
           }
           //complete sequence inside
           for (m <- i until j){
-            println("%d %d %d".format(i,m,j))
-            println("%d %d T F: %f".format(i,m,in(i,m,true,false)))
-            println("%d %d T T: %f".format(m,j,in(m,j,true,true)))
             incrIn(i,j,true,false, in(i,m,true,false) * in(m,j,true,true))
           }
           for (m <- i + 1 until j+1){
-            println("%d %d %d".format(i,m,j))
             incrIn(i,j,false,false, in(i,m,false,true) * in(m,j,false,false))
           }
         }
       }
 
       Z = in(0,n-1,true,false)
-
-      println("Z: " + Z)
 
       //outside probabilities
       incrOut(0, n-1, true, true, 1.0)
@@ -293,18 +290,6 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
 
       for (i <- 0 until n; j <- i + 1 until n) {
-        println("IN %-30s: %f".format(Signature(i,j,false,false),in(i,j,false,false)))
-        println("IN %-30s: %f".format(Signature(i,j,true,false),in(i,j,true,false)))
-        println("IN %-30s: %f".format(Signature(i,j,false,true),in(i,j,false,true)))
-        println("IN %-30s: %f".format(Signature(i,j,true,true),in(i,j,true,true)))
-        println("OUT %-30s: %f".format(Signature(i,j,false,false),out(i,j,false,false)))
-        println("OUT %-30s: %f".format(Signature(i,j,true,false),out(i,j,true,false)))
-        println("OUT %-30s: %f".format(Signature(i,j,false,true),out(i,j,false,true)))
-        println("OUT %-30s: %f".format(Signature(i,j,true,true),out(i,j,true,true)))
-//        println("IN %d %d R: %f".format(i, j, in(Signature(i, j, false, true, true))))
-//        println("IN %d %d L: %f".format(i, j, in(Signature(i, j, true, false, true))))
-//        println("OUT %d %d R: %f".format(i, j, out(Signature(i, j, false, true, false))))
-//        println("OUT %d %d L: %f".format(i, j, out(Signature(i, j, true, false, false))))
         total(i -> j) = in(i,j,true,true) * out(i,j,true,true)
         total(j -> i) = in(i,j,false,true) * out(i,j,false,true)
       }
