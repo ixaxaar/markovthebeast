@@ -9,7 +9,7 @@ import org.riedelcastro.thebeast.env.vectors.{VectorDotApp, VectorTerm, VectorSu
 object Factorizer {
   def toMultiplication(term: DoubleTerm): Multiplication[DoubleTerm] = {
     unroll(term).flatten match {
-      case m:Multiplication[_] => m
+      case Multiplication(args) => Multiplication(args.flatMap(toMultiplication(_).args))
       case Exp(Sum(args)) => Multiplication(args.map(Exp(_)))
       case Exp(v: VectorDotApp) => Multiplication(v.distribute.asInstanceOf[Sum[DoubleTerm]].args.map(Exp(_)))
       case x => Multiplication(Seq(x))
@@ -17,6 +17,7 @@ object Factorizer {
   }
 
   private def unroll(term: DoubleTerm): DoubleTerm = term match {
+    case Multiplication(args) => Multiplication(args.map(unroll(_)))
     case Sum(args) => Sum(args.map(unroll(_)))
     case x: QuantifiedSum[_] => x.unroll
     case Normalize(x) => Normalize(unroll(x))

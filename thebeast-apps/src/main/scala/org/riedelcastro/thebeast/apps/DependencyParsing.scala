@@ -40,7 +40,7 @@ object DependencyParsing extends TheBeastEnv {
     val weightVar = VectorVar("weights")
     //val linearModel = ((wordPair + posPair + bias) dot weightVar) + treeConstraint
     val linearModel = ((wordPair + posPair + bias) dot weightVar) 
-    val probModel = normalize(exp(linearModel))
+    val probModel = normalize(exp(linearModel) * ptree(link,token,0,LessThan(Tokens)))
 
     //some example data
     val sentence1 = new MutableEnv
@@ -48,9 +48,11 @@ object DependencyParsing extends TheBeastEnv {
     sentence1.atoms(word) ++= List("Root", "The", "man", "is", "fast").zipWithIndex.map(_.swap)
     sentence1.atoms(pos) ++=  List("Root", "DT",  "NN",  "VB", "AD").zipWithIndex.map(_.swap)
     sentence1.atoms(link) ++= List((0,3),(3,2),(3,4),(2,1))
+    sentence1.atoms(token) ++= (0 until 5)
     sentence1.close(word,true)
     sentence1.close(pos,true)
     sentence1.close(link,true)
+    sentence1.close(token,true)
 
     val weights = new Vector
     weights("bias") = -2.0
@@ -72,6 +74,13 @@ object DependencyParsing extends TheBeastEnv {
 
 
     println(marginals)
+
+    var sum = 0.0
+    for (h <- 0 until 5; if (h != 1)) {
+      sum += marginals.belief(FunAppVar(link,(h,1))).belief(true)
+    }
+    println(sum)
+
   }
 
 }
