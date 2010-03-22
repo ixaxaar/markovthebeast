@@ -4,6 +4,7 @@
 \begin_header
 \textclass article
 \begin_preamble
+\newcommand{\lang}{\noun{DFacto}}
 \usepackage{aaai}
 \end_preamble
 \use_default_options true
@@ -46,12 +47,570 @@
 \begin_body
 
 \begin_layout Title
-DFACTO: A Declarative, Undirected and Open-Ended Probabilistic Programming
- Language
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+: A Declarative, Undirected and Open Probabilistic Programming Language
 \end_layout
 
 \begin_layout Abstract
-We present a 
+While many probabilistic programming language focus on restricting expressivenes
+s to achieve complexity guarantees, we argue that we should rather design
+ 
+\emph on
+open
+\emph default
+ languages that are designed to grow over time.
+ In the languages we envision, new types of constructs, such as cardinality
+ constraints, projectivity assumptions, acyclicity, are constantly added
+ to a ever increasing set of declarative building blocks.
+ This leads to 
+\emph on
+more concise
+\emph default
+ programs.
+ More importantly, we argue that it can also lead to
+\emph on
+ more efficient
+\emph default
+ inference if we use 
+\emph on
+compositional
+\emph default
+ inference methods that can exploit building-block specific sub-routines.
+ We present 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+, a open-ended language to describe complex factor graphs, and extend it
+ with projective spanning tree constraint.
+ This constraint is used in place of a first order representation in a dependenc
+y parsing application, and leads to dramatic speed ups.
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+While many probabilistic programming language focus on restricting expressivenes
+s to achieve complexity guarantees, we argue that we should rather design
+ 
+\emph on
+open
+\emph default
+ languages that are designed to grow over time.
+ In the languages we envision, new types of constructs, such as cardinality
+ constraints, projectivity assumptions, acyclicity, are constantly added
+ to a ever increasing set of declarative building blocks.
+ This leads to 
+\emph on
+more concise
+\emph default
+ programs.
+ More importantly, we argue that it can also lead to
+\emph on
+ more efficient
+\emph default
+ inference if we use 
+\emph on
+compositional
+\emph default
+ inference methods that can exploit building-block specific sub-routines.
+ We present 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+, a open-ended language to describe complex factor graphs, and extend it
+ with projective spanning tree constraint.
+ This constraint is used in place of a first order representation in a dependenc
+y parsing application, and leads to dramatic speed ups.
+\end_layout
+
+\begin_layout Section
+Domains, Worlds, Terms
+\end_layout
+
+\begin_layout Standard
+A domain in 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ is a (finite) collection of values of a certain scala runtime type 
+\family typewriter
+T
+\family default
+, and is implemented through objects of class 
+\family typewriter
+Domain[T]
+\family default
+.
+ dfacto provides several 
+\family typewriter
+Domain
+\family default
+ subclasses that can be used to creates different types of domains.
+ The simplest class is 
+\family typewriter
+Values[T] (arg[T]:*) extends Domain[T]
+\family default
+ , which allows the user to explicitely define the collection of values
+ in the domain:
+\end_layout
+
+\begin_layout LyX-Code
+val DepLabels = Values('SUBJ,'OBJ,'DET)
+\end_layout
+
+\begin_layout LyX-Code
+val Persons = Values(
+\begin_inset Quotes eld
+\end_inset
+
+Anna
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+Peter
+\begin_inset Quotes erd
+\end_inset
+
+,...)
+\end_layout
+
+\begin_layout Standard
+In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ Variables are instances of the class 
+\end_layout
+
+\begin_layout LyX-Code
+
+\family typewriter
+Var[T] (name:String, domain:Domain[T]) 
+\end_layout
+
+\begin_layout LyX-Code
+
+\family typewriter
+   extends Term[T]
+\end_layout
+
+\begin_layout Standard
+that is, they are named placeholders constrained by a 
+\family typewriter
+domain
+\family default
+ (and type parameter 
+\family typewriter
+T
+\family default
+).
+ For now we ask the reader overlook the superclass Term[T] and bear with
+ us until section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Terms"
+
+\end_inset
+
+.
+ Note that often we can use scala identifiers to refer to variables, and
+ hence the name can be eft out if needed.
+ 
+\end_layout
+
+\begin_layout Subsection
+Variables
+\end_layout
+
+\begin_layout Standard
+Typical simple type variables are 
+\end_layout
+
+\begin_layout LyX-Code
+val height = Var(Doubles(0,230.0))
+\end_layout
+
+\begin_layout LyX-Code
+val person = Var(Persons)
+\end_layout
+
+\begin_layout LyX-Code
+val pair = Var(Persons x Persons)
+\end_layout
+
+\begin_layout Standard
+Variables are also used to represent the notion of predicate as used in
+ Markov Logic.
+ A predicate is simply a variable that has a 
+\family typewriter
+FunctionDomain
+\family default
+ as type for which the range are 
+\family typewriter
+Bools
+\family default
+.
+ A simple example would be 
+\end_layout
+
+\begin_layout LyX-Code
+val dependency = Var(Tokens x Tokens -> Bools)
+\end_layout
+
+\begin_layout LyX-Code
+val friends = Var(Persons x Persons -> Bools)
+\end_layout
+
+\begin_layout Subsection
+Terms
+\end_layout
+
+\begin_layout Standard
+Intuitively, a term is a symbolic expression that is, given a possible world,
+ evaluated to a value.
+ In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ a term is an instance of a term class, which is a subclass of the class
+ 
+\family typewriter
+Term
+\family default
+.
+ A term can have further 
+\emph on
+subterms
+\emph default
+ and 
+\emph on
+internal data
+\emph default
+, and specifies how the internal data and evaluation results for subterms
+ are combined to a value for the term itself.
+ Note that in contrast to a Model in Figaro, a term has no elements of randomnes
+s.
+ Finally, a term is parametrized by the class of values it evaluates to---in
+ scala this amounts to a class 
+\family typewriter
+Term[T]
+\family default
+ for value type 
+\family typewriter
+T
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+A quintessential term is 
+\family typewriter
+Variable[T] (name:String) extends Term[T]
+\family default
+, which is evaluated to the value the variable is assigned to in the possible
+ world.
+ Another core term class is 
+\family typewriter
+Constant[T](value:T) extends Term[T]
+\family default
+, which is always evaluated to 
+\family typewriter
+value
+\family default
+, regardless of the given possible world.
+ Note that scala's implicit conversion feature allows us to write 
+\family typewriter
+value
+\family default
+ instead of 
+\family typewriter
+Constant(value)
+\family default
+ in contexts where terms are expected.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ supports functional composition through the term class 
+\family typewriter
+FunApp[T,R] (f:Term[T=>R], arg:T) extends Term[R]
+\family default
+.
+ This term is evaluated by evaluating the function term 
+\family typewriter
+f
+\family default
+, the argument term 
+\family typewriter
+arg
+\family default
+, and then applying the function value to the argument value.
+ Note that this class allows us to incorporate arbitrary native scala functions
+ into 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+: for a given function 
+\family typewriter
+fun:T=>R
+\family default
+ we can use the term 
+\family typewriter
+FunApp(Constant(fun),x) 
+\family default
+to represent the application of this function to the value that 
+\family typewriter
+x
+\family default
+ evaluates to.
+ 
+\family typewriter
+FunApp
+\family default
+ is hence very similar to 
+\family typewriter
+Apply1
+\family default
+ in Figaro.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+One diference is the fact that we allow the function to be a term as well.
+ 
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Finally, we will often make use of an 
+\family typewriter
+IversonBracket (arg:Term[Boolean]) extends Term[Double]
+\family default
+ class.
+ This term evaluates the booelan 
+\family typewriter
+arg
+\family default
+ term, and evaluates to 1 if 
+\family typewriter
+arg
+\family default
+ evaluated to 
+\family typewriter
+true
+\family default
+, and to 0 otherwise.
+ This term is the cornerstone of Markov Logic---it provides the mapping
+ from boolean expressions to real values that sits in each ground feature.
+ Again, instead of fully writing out this term we accept 
+\family typewriter
+$(arg)
+\family default
+$.
+\end_layout
+
+\begin_layout Section
+Compositional Inference
+\end_layout
+
+\begin_layout Standard
+Belief Propagation lends itsell well to compositional inference.
+ Both in the case of Sum-Product BP
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "smith08dependency"
+
+\end_inset
+
+ and Max-Product BP
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Duchi07usingcombinatorial"
+
+\end_inset
+
+ is has been shown how to rewrite the BP update equations so that calculating
+ outgoing factor messages amounts to performing marginal inference for the
+ given factor alone (plus some local factors on each variable).
+ Here we present the case of Sum-Product BP, but note that Max-Product BP
+ has a very similar formulation.
+ 
+\end_layout
+
+\begin_layout Standard
+In its canocial form, BP requires us to marginalize a variable for a factor
+ term multiplied with the incoming messages from all but the current variable
+ node.
+ However, this marginalization can be rewritten as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{equation}
+\#\#\label{eq:BP-CI}\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ BP is therefore supported by a 
+\end_layout
+
+\begin_layout LyX-Code
+
+\family typewriter
+marginalize(incoming:Beliefs):Beliefs
+\end_layout
+
+\begin_layout Standard
+method for real valued terms 
+\family typewriter
+Term[Double]
+\family default
+.
+ This method performs the calculation in equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:BP-CI"
+
+\end_inset
+
+, and 
+\family typewriter
+incoming
+\family default
+ provides local beliefs for each variable contained in the term.
+ By default this method exhaustively goes through all variable states of
+ the variables in the term and sums up probabilities (or scores) for each
+ variable as defined by 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:BP-CI"
+
+\end_inset
+
+.
+ However, for simple terms (such as weighted CNF terms) or more complicated
+ ones (like a spanning tree constraint), we can provide tailor-made inference
+ and gain efficiencies.
+ 
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \end_body
