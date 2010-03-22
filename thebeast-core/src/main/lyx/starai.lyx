@@ -4,8 +4,8 @@
 \begin_header
 \textclass article
 \begin_preamble
-\newcommand{\lang}{\noun{DFacto}}
 \usepackage{aaai}
+\newcommand{\lang}{\textsc{DFacto}}
 \end_preamble
 \use_default_options true
 \language english
@@ -59,7 +59,7 @@ lang{}
 
 \end_inset
 
-: A Declarative, Undirected and Open Probabilistic Programming Language
+: Open Up to Scale Up
 \end_layout
 
 \begin_layout Abstract
@@ -111,31 +111,66 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-While many probabilistic programming language focus on restricting expressivenes
-s to achieve complexity guarantees, we argue that we should rather design
+In recent years Probabilistic Programming languages have been adopted in
+ several fields, and used for applications such as Natural Language Processing,
+ Planning, Sensor Networks, to name only a few.
+ One of most successful approaches is Markov Logic, a language that uses
+ weighted first order logic to describe Markov Networks of repetitive structure.
+ It is one of the most expressive languages as it can describe arbitrary
+ Markov Networks.
+ Its expressiveness comes at a price: we loose any complexity guaranteees
+ that less expressive langauges tend to give.
+ If the user designs the 
+\begin_inset Quotes eld
+\end_inset
+
+wrong
+\begin_inset Quotes erd
+\end_inset
+
+ model, inference and learning will be painfully slow.
+ While often there can be an efficient 
+\begin_inset Quotes eld
+\end_inset
+
+right
+\begin_inset Quotes erd
+\end_inset
+
+ model for the same task, there are cleary times when this is not the case.
+ One example is dependency parsing, where we are required to model relation
+ structure that represents projective trees.
+ Formulating this in Markov Logic leads to graphical models with very high
+ treewidth, and hence high complexity.
+\end_layout
+
+\begin_layout Standard
+In this work we argue that Markov Logic, in order to scale up, needs to
  
 \emph on
-open
+open up
 \emph default
- languages that are designed to grow over time.
- In the languages we envision, new types of constructs, such as cardinality
- constraints, projectivity assumptions, acyclicity, are constantly added
- to a ever increasing set of declarative building blocks.
- This leads to 
-\emph on
-more concise
-\emph default
- programs.
- More importantly, we argue that it can also lead to
-\emph on
- more efficient
-\emph default
- inference if we use 
-\emph on
-compositional
-\emph default
- inference methods that can exploit building-block specific sub-routines.
- We present 
+.
+ That is, we propose to generalize Markov Logic to not provide a fixed and
+ small set of logical connectives and universal or existential quantification.
+ Instead, it should allow users to add their own constructs, such as existing
+ Markov Logic building blocks, but also cardinality, projectivity or acyclicity
+ constraints.
+ The main function of the language is then to provide the glue to assemble
+ these constructs.
+ At first sight, new building blocks may only be syntactic sugar.
+ Markov Logic can, albeit less concise, already express such constraints.
+ However, for inference routines that decompose according to the structure
+ of our model, the subroutines for these building blocks can often be implemente
+d efficiently.
+ For example, Belief Propagation essentially requires each factor to marginalize
+ itself.
+ For a spanning tree constraint this can be achieved in cubic time.
+ 
+\end_layout
+
+\begin_layout Standard
+In the following we will present 
 \begin_inset ERT
 status open
 
@@ -148,14 +183,71 @@ lang{}
 
 \end_inset
 
-, a open-ended language to describe complex factor graphs, and extend it
- with projective spanning tree constraint.
- This constraint is used in place of a first order representation in a dependenc
-y parsing application, and leads to dramatic speed ups.
+,
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Declarative Factor Graphs, Open.
+\end_layout
+
+\end_inset
+
+ an attempt to provide the glue for open-ended probabilistic programming.
+ We have used it to (a) implement Markov Logic, and (b) extend it with powerful
+ building blocks such as a projective spanning tree constraint.
+ We show empirically that this allows us to implement a dramatically more
+ efficient dependency parser than in pure Markov Logic.
+ 
 \end_layout
 
 \begin_layout Section
 Domains, Worlds, Terms
+\end_layout
+
+\begin_layout Standard
+The glue that 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
+
+\end_inset
+
+ provides are several abstract datatypes that we will describe using traits
+ in Scala.
+ A 
+\family typewriter
+Domain
+\family default
+ contains the objects we want to talk about; A (possible) 
+\family typewriter
+World
+\family default
+, which describes how objects relate to each other; and a 
+\family typewriter
+Term
+\family default
+, which are symbols that evaluate to objects in the domain given a world.
+ Terms have an important sub-class: all terms that evaluate to real values.
+ We will call such a term a 
+\family typewriter
+Factor
+\family default
+, and will soon see how they relate to the well known concept of factor
+ graphs.
+ Default Building Blocks: FunApp, Variable, Constant.
+ 
+\end_layout
+
+\begin_layout Standard
+(possible) worlds, and terms.
+ 
 \end_layout
 
 \begin_layout Standard
