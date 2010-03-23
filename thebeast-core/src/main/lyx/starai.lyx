@@ -202,7 +202,7 @@ Declarative Factor Graphs, Open.
 \end_layout
 
 \begin_layout Section
-Domains, Worlds, Terms
+Domains, Variables, Worlds
 \end_layout
 
 \begin_layout Standard
@@ -219,99 +219,63 @@ lang{}
 
 \end_inset
 
- provides are several abstract datatypes that we will describe using traits
- in Scala.
- A 
-\family typewriter
-Domain
-\family default
- contains the objects we want to talk about; A (possible) 
-\family typewriter
-World
-\family default
-, which describes how objects relate to each other; and a 
-\family typewriter
-Term
-\family default
-, which are symbols that evaluate to objects in the domain given a world.
- Terms have an important sub-class: all terms that evaluate to real values.
- We will call such a term a 
-\family typewriter
-Factor
-\family default
-, and will soon see how they relate to the well known concept of factor
- graphs.
- Default Building Blocks: FunApp, Variable, Constant.
+ provides are abstract datatypes/interfaces for building blocks, as well
+ as a set of initial constructs.
+ We will describe them using classes and traits of Scala, a functional object-or
+iented programming language.
  
 \end_layout
 
 \begin_layout Standard
-(possible) worlds, and terms.
- 
-\end_layout
-
-\begin_layout Standard
-A domain in 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-lang{}
-\end_layout
-
-\end_inset
-
- is a (finite) collection of values of a certain scala runtime type 
-\family typewriter
-T
-\family default
-, and is implemented through objects of class 
+A 
 \family typewriter
 Domain[T]
 \family default
-.
- dfacto provides several 
+ contains (Scala) objects we want to talk about; implementations of Domain
+ usually need to provide an iterator over their objects, as well as a 
 \family typewriter
-Domain
+contains
 \family default
- subclasses that can be used to creates different types of domains.
- The simplest class is 
-\family typewriter
-Values[T] (arg[T]:*) extends Domain[T]
-\family default
- , which allows the user to explicitely define the collection of values
- in the domain:
-\end_layout
-
-\begin_layout LyX-Code
-val DepLabels = Values('SUBJ,'OBJ,'DET)
-\end_layout
-
-\begin_layout LyX-Code
-val Persons = Values(
-\begin_inset Quotes eld
-\end_inset
-
-Anna
-\begin_inset Quotes erd
-\end_inset
-
-,
-\begin_inset Quotes erd
-\end_inset
-
-Peter
-\begin_inset Quotes erd
-\end_inset
-
-,...)
+ method to indicate Domain membership.
+ Note that a Domain can be infinite, and also be used when no enumeration
+ of its objects is possible.
+ 
 \end_layout
 
 \begin_layout Standard
-In 
+The three core types of domains are 
+\family typewriter
+Values, Tuples, 
+\family default
+and 
+\family typewriter
+Functions
+\family default
+.
+ The former simply represents a user-defined set of objects of type T; the
+ latter a the set of all functions from a domain to a target.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+val Tokens = Values(0,1,2,3,4,5,...)
+\end_layout
+
+\begin_layout LyX-Code
+Val Bools  = Values(false,true)
+\end_layout
+
+\begin_layout LyX-Code
+val Parses = (Tokens x Labels) -> Bools 
+\end_layout
+
+\begin_layout Standard
+Ultimately we want to reason about the objects of our domains, using generic
+ knowledge independent of their actual identity.
+ To do so we need placeholders that allow us to speak about objects in an
+ abstract fashion.
+ This is generally achieved by variables.
+ In 
 \begin_inset ERT
 status open
 
@@ -324,90 +288,102 @@ lang{}
 
 \end_inset
 
- Variables are instances of the class 
+ a variable is represented by objects of the trait 
+\family typewriter
+Var[T]
+\family default
+.
+ Each variable has a name and a domain that specifies which values the variable
+ can possibly take on.
+ Variables can be simple (referring to simple objects) or complex (refering
+ to functions) :
 \end_layout
 
 \begin_layout LyX-Code
+val root = Var(
+\begin_inset Quotes eld
+\end_inset
 
-\family typewriter
-Var[T] (name:String, domain:Domain[T]) 
+root
+\begin_inset Quotes erd
+\end_inset
+
+, Tokens)
 \end_layout
 
 \begin_layout LyX-Code
+val parse = Var(
+\begin_inset Quotes eld
+\end_inset
 
-\family typewriter
-   extends Term[T]
+parse
+\begin_inset Quotes erd
+\end_inset
+
+, Parses)
 \end_layout
 
 \begin_layout Standard
-that is, they are named placeholders constrained by a 
-\family typewriter
-domain
-\family default
- (and type parameter 
-\family typewriter
-T
-\family default
-).
- For now we ask the reader overlook the superclass Term[T] and bear with
- us until section 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Terms"
+One can understand each variable as a question about the world we seek to
+ model.
+ In this sense each assignment to our variables refers to a possible state
+ of the world.
+ In 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lang{}
+\end_layout
 
 \end_inset
 
-.
- Note that often we can use scala identifiers to refer to variables, and
- hence the name can be eft out if needed.
- 
-\end_layout
-
-\begin_layout Subsection
-Variables
-\end_layout
-
-\begin_layout Standard
-Typical simple type variables are 
-\end_layout
-
-\begin_layout LyX-Code
-val height = Var(Doubles(0,230.0))
-\end_layout
-
-\begin_layout LyX-Code
-val person = Var(Persons)
-\end_layout
-
-\begin_layout LyX-Code
-val pair = Var(Persons x Persons)
-\end_layout
-
-\begin_layout Standard
-Variables are also used to represent the notion of predicate as used in
- Markov Logic.
- A predicate is simply a variable that has a 
+ we hence refer to assignments using the 
 \family typewriter
-FunctionDomain
+World
 \family default
- as type for which the range are 
+ trait.
+ The core method a 
 \family typewriter
-Bools
+World
 \family default
-.
- A simple example would be 
+ provides is 
+\family typewriter
+resolveVar
+\family default
+: it returns the object the variable is assigned to, or 
+\family typewriter
+None
+\family default
+ if no such object exists (for partial worlds).
+ To construct worlds we can use 
+\family typewriter
+MutableWorld
+\family default
+ objects:
 \end_layout
 
 \begin_layout LyX-Code
-val dependency = Var(Tokens x Tokens -> Bools)
+val world = new MutableWorld
 \end_layout
 
 \begin_layout LyX-Code
-val friends = Var(Persons x Persons -> Bools)
+world(root) = 0
 \end_layout
 
-\begin_layout Subsection
-Terms
+\begin_layout LyX-Code
+world(parse) = Map((0,2)->true,(0,4)->true)
+\end_layout
+
+\begin_layout LyX-Code
+world.close(parse)
+\end_layout
+
+\begin_layout Section
+Terms and Factors
 \end_layout
 
 \begin_layout Standard
@@ -426,65 +402,83 @@ lang{}
 
 \end_inset
 
- a term is an instance of a term class, which is a subclass of the class
- 
+ a term is an instance of a 
 \family typewriter
 Term
 \family default
-.
- A term can have further 
-\emph on
-subterms
-\emph default
- and 
-\emph on
-internal data
-\emph default
-, and specifies how the internal data and evaluation results for subterms
- are combined to a value for the term itself.
- Note that in contrast to a Model in Figaro, a term has no elements of randomnes
-s.
- Finally, a term is parametrized by the class of values it evaluates to---in
- scala this amounts to a class 
+ trait that has to implement a 
 \family typewriter
-Term[T]
+evaluate(world)
 \family default
- for value type 
+ that defines how the term maps worlds to values.
+ It also needs to provide a list of 
 \family typewriter
-T
+Var
 \family default
-.
-\end_layout
-
-\begin_layout Standard
-A quintessential term is 
-\family typewriter
-Variable[T] (name:String) extends Term[T]
-\family default
-, which is evaluated to the value the variable is assigned to in the possible
- world.
- Another core term class is 
-\family typewriter
-Constant[T](value:T) extends Term[T]
-\family default
-, which is always evaluated to 
-\family typewriter
-value
-\family default
-, regardless of the given possible world.
- Note that scala's implicit conversion feature allows us to write 
-\family typewriter
-value
-\family default
- instead of 
-\family typewriter
-Constant(value)
-\family default
- in contexts where terms are expected.
+ objects that it depends on.
  
 \end_layout
 
 \begin_layout Standard
+The core built-in Term classes are
+\end_layout
+
+\begin_layout Enumerate
+
+\family typewriter
+Var
+\family default
+: evaluates to the value it is assigned to
+\end_layout
+
+\begin_layout Enumerate
+
+\family typewriter
+Constant()
+\family default
+: evaluates to the given constant
+\end_layout
+
+\begin_layout Enumerate
+
+\family typewriter
+FunApp(f,a)
+\family default
+: evaluates to the result of applying f.evaluate to a.evaluate
+\end_layout
+
+\begin_layout Enumerate
+
+\family typewriter
+Quantification(o,v,f)
+\family default
+: ...
+\end_layout
+
+\begin_layout Standard
+It should be clear that the above terms can be used to create a wide array
+ of composite terms.
+ For example...
+\end_layout
+
+\begin_layout Standard
+Terms are the core building blocks we use to construct probability distributions
+ over possible worlds.
+ In our framework, a probability distribution is nothing more than a term
+ that evaluates to real values between 0 and 1 that sum up to 1 for all
+ possible assignments of its contained variables.
+ Once your term fulfills this contract, we can apply basic brute-force inference
+ algorithms to calculate expectations and find most likely assignments.
+\end_layout
+
+\begin_layout Standard
+Obviously any exhaustive inference scheme becomes intractable when the number
+ of variables in a term is large.
+ However, inference is generally more tractable if terms factor into a product
+ of sub-terms.
+ In this case we can apply methods such as Belief Propagation that avoid
+ summing over all possible worlds.
+ In 
 \begin_inset ERT
 status open
 
@@ -497,95 +491,16 @@ lang{}
 
 \end_inset
 
- supports functional composition through the term class 
+ such terms are instances of the 
 \family typewriter
-FunApp[T,R] (f:Term[T=>R], arg:T) extends Term[R]
+Factorizable
 \family default
-.
- This term is evaluated by evaluating the function term 
+ trait, and need to provide a 
 \family typewriter
-f
+factorize
 \family default
-, the argument term 
-\family typewriter
-arg
-\family default
-, and then applying the function value to the argument value.
- Note that this class allows us to incorporate arbitrary native scala functions
- into 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-lang{}
-\end_layout
-
-\end_inset
-
-: for a given function 
-\family typewriter
-fun:T=>R
-\family default
- we can use the term 
-\family typewriter
-FunApp(Constant(fun),x) 
-\family default
-to represent the application of this function to the value that 
-\family typewriter
-x
-\family default
- evaluates to.
+ method that returns all terms the term factors in.
  
-\family typewriter
-FunApp
-\family default
- is hence very similar to 
-\family typewriter
-Apply1
-\family default
- in Figaro.
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-One diference is the fact that we allow the function to be a term as well.
- 
-\end_layout
-
-\end_inset
-
- 
-\end_layout
-
-\begin_layout Standard
-Finally, we will often make use of an 
-\family typewriter
-IversonBracket (arg:Term[Boolean]) extends Term[Double]
-\family default
- class.
- This term evaluates the booelan 
-\family typewriter
-arg
-\family default
- term, and evaluates to 1 if 
-\family typewriter
-arg
-\family default
- evaluated to 
-\family typewriter
-true
-\family default
-, and to 0 otherwise.
- This term is the cornerstone of Markov Logic---it provides the mapping
- from boolean expressions to real values that sits in each ground feature.
- Again, instead of fully writing out this term we accept 
-\family typewriter
-$(arg)
-\family default
-$.
 \end_layout
 
 \begin_layout Section
