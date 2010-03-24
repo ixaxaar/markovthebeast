@@ -130,9 +130,6 @@ case class Constant[T](val value: T) extends Term[T] {
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = new Constant(value)
 }
 
-
-
-
 trait BoundedTerm[T] extends Term[T] {
   def upperBound: T
 }
