@@ -26,9 +26,7 @@ case class LogLinear(sufficient: VectorTerm, weights: VectorVar, bias: DoubleTer
 /**
  * A Featurized term is a term that deterministically depends on
  * the value of a feature-vector * weight dot product. Very close
- * to general linear models, but does not require normalization. Note that
- * the weight vector must be the result of grounding a vector variable, and that
- * that the term needs to provide this variable at request.
+ * to general linear models, but does not require normalization.
  */
 trait Featurized extends DoubleTerm {
   /**
@@ -43,9 +41,9 @@ trait Featurized extends DoubleTerm {
   def means(incoming: Beliefs[Any, EnvVar[Any]]): Vector
 
   /**
-   * The original weight vector variable that was grounded to produce the weight vector.
+   * The weight vector term.
    */
-  def weights: VectorVar
+  def weights: VectorTerm
 }
 
 class Weights extends HashMap[VectorVar, Vector]
