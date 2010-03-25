@@ -33,7 +33,7 @@ trait Term[+T] {
   def simplify: Term[T]
 
   /**
-   * Replace the free variables in this term which are set in the specified environment
+   * Replace the variables in this term with the values/constants they are bound to in the specified environment
    */
   def ground(env: Env): Term[T]
 
@@ -90,7 +90,10 @@ trait Composite1[V, T <: Term[V], M <: Term[_]] extends Composite[V, T, M] {
 
   def members: Seq[M] = Seq(member)
 
-  def variables: Set[EnvVar[Any]] = members.foldLeft(Set[EnvVar[Any]]()) {(a,m)=> a ++ m.variables}
+  def variables: Set[EnvVar[Any]] = members.foldLeft(Set[EnvVar[Any]]()) {(a, m) => a ++ m.variables}
+
+
+  def subterms: Seq[Term[Any]] = members.map(_.asInstanceOf[Term[Any]])
 }
 
 trait Composite2[V, T <: Term[V], M <: Term[_], M1 <: M, M2 <: M] extends Composite[V, T, M] {
@@ -393,23 +396,30 @@ object Singleton extends SingletonClass {
 }
 
 
+/**
+ * A DependsOn term, when evaluated on a world,
+ * bounds every variable in the inner term to its default value, unless it is in the hidden
+ * set of variables. Hence the term is guaranteed to yield a Non-None result
+ * when all of the hidden variables are bound, and this result only depends on
+ * the hidden variable assignments. 
+ */
+case class DependsOn[V, T <: Term[V]](term: T, hidden: Set[EnvVar[_]]) extends Composite1[V, DependsOn[V, T], T] {
+  def values: Values[V] = term.values
 
-case class InEnv[T](term:Term[T],env:Env) extends Term[T] with Composite1[T,InEnv[T],Term[T]] {
-  def eval(env: Env): Option[T] = {
-    term.eval(env.overlay(this.env))
+  def simplify: Term[V] = DependsOn[V,Term[V]](term.simplify, hidden)
+
+  def eval(env: Env): Option[V] = {
+    val closed = new MutableEnv
+    for (variable <- term.variables; if (!hidden(variable))) closed.close(variable, true)
+    term.eval(env.overlay(closed))
   }
 
-  def values: Values[T] = term.values
+  override def variables: Set[EnvVar[Any]] = hidden
 
-  def simplify: Term[T] = term.simplify match {case c:Constant[_] => c; case x => InEnv(x,env)}
+  def member: T = term
 
-  def member: Term[T] = term
-
-  def build(member: Term[T]): InEnv[T] = InEnv(member,env)
-
-  def subterms: Seq[Term[Any]] = Seq(term)
+  def build(member: T): DependsOn[V, T] = DependsOn(member, hidden)
 }
-
 
 
 
