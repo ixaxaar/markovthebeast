@@ -19,6 +19,10 @@ trait Env {
 
   def mask(hiddenVariables: Set[EnvVar[_]]) = new MaskedEnv(this, hiddenVariables);
 
+  /**
+   * uses the bindings of the overlayed env for all the variables it has bindings for, and otherwise
+   * the bindings of this env.
+   */
   def overlay(over: Env) = new OverlayedEnv(this, over)
 
   def variables: Set[EnvVar[_]]

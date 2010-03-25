@@ -105,6 +105,9 @@ case class Sum[+T <: DoubleTerm](override val args: Seq[T]) extends Fold[Double]
   override def simplify: DoubleTerm = Sum(args.map(_.simplify))
 }
 
+case class SumOverGroundings[+T<:DoubleTerm](term:T,envs:Seq[Env])
+        extends Sum[DoubleTerm](envs.map(term.ground(_)))
+
 object SumHelper {
   def sum(terms: Collection[DoubleTerm], env: Env) = terms.foldLeft(0.0) {(s, t) => s + env(t)}
 }

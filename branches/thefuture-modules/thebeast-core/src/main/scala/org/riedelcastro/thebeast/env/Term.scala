@@ -1,6 +1,7 @@
 package org.riedelcastro.thebeast.env
 
 import booleans.Equality
+import collection.immutable.Set
 
 
 /**
@@ -44,7 +45,7 @@ trait Term[+T] {
   /**
    * Return a term that evaluates to true iff this and that term evaluate to the same value
    */
-  def ===[V>:T](that:Term[V]) = Equality(this,that)
+  def ===[V >: T](that: Term[V]) = Equality(this, that)
 
   /**
    *  Are there no free variables in this term
@@ -56,7 +57,6 @@ trait Term[+T] {
    */
   def subterms: Seq[Term[Any]]
 
-  
 
   /**
    * todo: This method creates a clone of this object, but with the given set of subterms
@@ -71,25 +71,38 @@ trait Term[+T] {
  * take a sequence of members and create a new composite term, and
  * how to return the composite members.
  */
-trait Composite[V,T<:Term[V], M<:Term[_]] extends Term[V] {
-  
-  def members:Seq[M]
-  def build(members:Seq[M]):T
+trait Composite[V, T <: Term[V], M <: Term[_]] extends Term[V] {
+  def members: Seq[M]
+
+  def build(members: Seq[M]): T
 
   override def ground(env: Env): T = build(members.map(_.ground(env).asInstanceOf[M]))
 
   override def isGround: Boolean = members.forall(_.isGround)
 }
 
-trait Composite1[V,T<:Term[V],M<:Term[_]] extends Composite[V,T,M] {
-
-  def build(member:M):T
+trait Composite1[V, T <: Term[V], M <: Term[_]] extends Composite[V, T, M] {
+  def build(member: M): T
 
   def build(members: Seq[M]): T = build(members(0))
 
   def member: M
 
   def members: Seq[M] = Seq(member)
+
+  def variables: Set[EnvVar[Any]] = members.foldLeft(Set[EnvVar[Any]]()) {(a,m)=> a ++ m.variables}
+}
+
+trait Composite2[V, T <: Term[V], M <: Term[_], M1 <: M, M2 <: M] extends Composite[V, T, M] {
+  def build(member1: M1, member2: M2): T
+
+  def build(members: Seq[M]): T = build(members(0).asInstanceOf[M1], members(1).asInstanceOf[M2])
+
+  def member1: M1
+
+  def member2: M2
+
+  def members: Seq[M] = Seq(member1, member2)
 }
 
 
@@ -98,7 +111,7 @@ trait Composite1[V,T<:Term[V],M<:Term[_]] extends Composite[V,T,M] {
  * the value the term evaluates to.
  */
 object Grounded {
-  def unapply[T](term: Term[T]):Option[T] =
+  def unapply[T](term: Term[T]): Option[T] =
     if (term.isGround) EmptyEnv.eval(term)
     else None
 }
@@ -123,7 +136,7 @@ case class Constant[T](val value: T) extends Term[T] {
   def subterms = Seq()
 
   override def equals(obj: Any): Boolean = obj match {
-    case Constant(v)=> v == value
+    case Constant(v) => v == value
     case _ => false
   }
 
@@ -136,11 +149,11 @@ trait BoundedTerm[T] extends Term[T] {
 
 
 object EnvVarMatch {
-  def unapply[T](term:Term[T]):Option[EnvVar[T]] = {
+  def unapply[T](term: Term[T]): Option[EnvVar[T]] = {
     term match {
-      case x:EnvVar[_] => Some(x)
-      case app @ FunApp(EnvVarMatch(f),Grounded(arg)) =>Some(app.asFunAppVar) 
-      case _=> None
+      case x: EnvVar[_] => Some(x)
+      case app@FunApp(EnvVarMatch(f), Grounded(arg)) => Some(app.asFunAppVar)
+      case _ => None
     }
   }
 }
@@ -179,9 +192,10 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
   def cloneWithNewSubterms(subterms: Seq[Term[Any]]) = this
 
   override def hashCode = 31 * name.hashCode + values.hashCode
+
   override def equals(obj: Any) = obj match {
-    case Var(n,v)=> name == n && values == v
-    case _=> false
+    case Var(n, v) => name == n && values == v
+    case _ => false
   }
 
 }
@@ -190,7 +204,7 @@ case class FunctionVar[T, R](override val name: String, override val values: Fun
 }
 
 case class Predicate[T](override val name: String, domain: Values[T])
-    extends FunctionVar(name, FunctionValues(domain, TheBeastImplicits.Bools))
+        extends FunctionVar(name, FunctionValues(domain, TheBeastImplicits.Bools))
 
 case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Term[R] {
   override def eval(env: Env) = {
@@ -225,8 +239,8 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
     }
 
   def isAtomic: Boolean = arg.simplify.isInstanceOf[Constant[_]] &&
-                          (function.isInstanceOf[EnvVar[_]] ||
-                           (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isAtomic))
+          (function.isInstanceOf[EnvVar[_]] ||
+                  (function.isInstanceOf[FunApp[_, _]] && function.asInstanceOf[FunApp[_, _]].isAtomic))
 
   def asFunAppVar: FunAppVar[T, R] =
     if (function.isInstanceOf[EnvVar[_]])
@@ -241,8 +255,8 @@ case class FunApp[T, R](val function: Term[T => R], val arg: Term[T]) extends Te
 
   def subterms = Seq(function, arg)
 
-  override def equals(obj:Any) = obj match {
-    case FunApp(f,a) => this.function ==  f && this.arg == a
+  override def equals(obj: Any) = obj match {
+    case FunApp(f, a) => this.function == f && this.arg == a
     case _ => false
   }
 
@@ -268,7 +282,7 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
     }
   }
 
-  def simplify:Term[R] = Fold(function,args.map(_.simplify),init)
+  def simplify: Term[R] = Fold(function, args.map(_.simplify), init)
 
   def variables = function.variables ++ init.variables ++ args.flatMap(a => a.variables)
 
@@ -291,28 +305,28 @@ case class Fold[R](val function: Term[R => (R => R)], val args: Seq[Term[R]], va
     subterms match {
       case Seq(function, init, args@_*) =>
         Fold(function.asInstanceOf[Term[R => (R => R)]],
-            args.map(_.asInstanceOf[Term[R]]),
-            init.asInstanceOf[Term[R]])
+          args.map(_.asInstanceOf[Term[R]]),
+          init.asInstanceOf[Term[R]])
       case _ => error("subterms incompatible")
     }
 
 
   override def equals(obj: Any): Boolean = obj match {
-    case Fold(f,a,i) => function == f && init == i &&
-            args.size == a.size && (0 until args.size).forall(i=>args(i) == a(i))
+    case Fold(f, a, i) => function == f && init == i &&
+            args.size == a.size && (0 until args.size).forall(i => args(i) == a(i))
     case _ => false
   }
 }
 
 
 case class Quantification[R, V](val function: Term[R => (R => R)], val variable: Var[V], val formula: Term[R], val init: Term[R])
-    extends Term[R] {
+        extends Term[R] {
   lazy val unroll = {
     val env = new MutableEnv
     Fold(function, variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq, init)
   }
 
-  def unrollUncertain = Fold(function, unroll.args.filter(arg => !arg.simplify.isGround),init)
+  def unrollUncertain = Fold(function, unroll.args.filter(arg => !arg.simplify.isGround), init)
 
   def simplify = unroll.simplify
 
@@ -320,7 +334,7 @@ case class Quantification[R, V](val function: Term[R => (R => R)], val variable:
 
   def values = unroll.values
 
-  def ground(env: Env):Term[R] = unroll.ground(env)
+  def ground(env: Env): Term[R] = unroll.ground(env)
 
   def eval(env: Env) = unroll.eval(env)
 
@@ -344,13 +358,13 @@ trait EnvVar[+T] extends Term[T] {
 }
 
 case class FunAppVar[T, R](val funVar: EnvVar[T => R], val argValue: T)
-    extends FunApp(funVar, Constant(argValue))
-        with EnvVar[R] {
-
+        extends FunApp(funVar, Constant(argValue))
+                with EnvVar[R] {
   override def hashCode = 31 * funVar.hashCode + argValue.hashCode
+
   override def equals(obj: Any) = obj match {
-    case FunAppVar(f,a)=> funVar == f && argValue == a
-    case _=> false
+    case FunAppVar(f, a) => funVar == f && argValue == a
+    case _ => false
   }
 }
 
@@ -376,6 +390,24 @@ class SingletonClass extends Term[SingletonClass] with Values[SingletonClass] {
 
 object Singleton extends SingletonClass {
   override def toString = "Singleton"
+}
+
+
+
+case class InEnv[T](term:Term[T],env:Env) extends Term[T] with Composite1[T,InEnv[T],Term[T]] {
+  def eval(env: Env): Option[T] = {
+    term.eval(env.overlay(this.env))
+  }
+
+  def values: Values[T] = term.values
+
+  def simplify: Term[T] = term.simplify match {case c:Constant[_] => c; case x => InEnv(x,env)}
+
+  def member: Term[T] = term
+
+  def build(member: Term[T]): InEnv[T] = InEnv(member,env)
+
+  def subterms: Seq[Term[Any]] = Seq(term)
 }
 
 
