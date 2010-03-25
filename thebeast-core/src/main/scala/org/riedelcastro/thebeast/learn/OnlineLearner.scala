@@ -1,21 +1,32 @@
 package org.riedelcastro.thebeast.learn
 
 
-import env._
-import solve.{ExhaustiveSearch, ArgmaxSolver}
-import util.Trackable
-import vectors.{VectorTerm, Vector}
+import org.riedelcastro.thebeast.solve.{ExhaustiveSearch, ArgmaxSolver}
+import org.riedelcastro.thebeast.env.MaskedEnv
+import org.riedelcastro.thebeast.env.vectors.{VectorTerm, Vector}
+import org.riedelcastro.thebeast.util.Trackable
+import org.riedelcastro.thebeast.env.doubles.{LogLinear, Normalize, SumOverGroundings, DoubleTerm}
+
 /**
  * @author Sebastian Riedel
  */
 
-class OnlineLearner extends Trackable {
+class OnlineLearner extends ArgmaxSolver with Trackable {
   var solver: ArgmaxSolver = ExhaustiveSearch
   var updateRule: UpdateRule = new PerceptronUpdateRule
   var maxEpochs: Int = 1
 
+
+  def argmax(term: DoubleTerm): ArgmaxResult = {
+    term match {
+      case SumOverGroundings(Normalize(LogLinear(feature, weights, _)), data)
+        if (Set(weights) == term.variables) => CantSolve
+      case _ => CantSolve
+    }
+  }
+
   def learn(featureVector: VectorTerm, trainingSet: Seq[MaskedEnv]): Vector = {
-    |**("Learning"); 
+    |**("Learning");
     var weights = new Vector
     for (epoch <- 0 until maxEpochs) {
       for (instance <- trainingSet) {

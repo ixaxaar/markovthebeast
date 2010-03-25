@@ -1,5 +1,7 @@
 package org.riedelcastro.thebeast.env.tuples
 
+import org.riedelcastro.thebeast.env._
+
 /**
  * @author Sebastian Riedel
  */
@@ -9,8 +11,6 @@ trait TupleTerm extends scala.Product {
   def subterms: Seq[Term[Any]] = {
     for (i <- 0 until productArity) yield productElement(i).asInstanceOf[Term[Any]]
   }
-
-
   override def toString = (for (i <- 0 until productArity) yield productElement(i)).mkString(",")
 }
 
@@ -21,9 +21,10 @@ object TupleTerm {
     case 3 => TupleTerm3(args(0),args(1),args(2))
     case _ => error("Can't do tuples with more than 3 arguments yet")
   }
-
   //def apply(args:Term[Any]*): Term[Any] = apply(args.toSeq)
 }
+
+
 
 
 case class TupleTerm2[T1,T2](_1:Term[T1],_2:Term[T2]) extends Term[Tuple2[T1,T2]] with TupleTerm {
