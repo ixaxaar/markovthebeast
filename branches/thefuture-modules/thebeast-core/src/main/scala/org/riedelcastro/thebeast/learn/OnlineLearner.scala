@@ -2,10 +2,10 @@ package org.riedelcastro.thebeast.learn
 
 
 import org.riedelcastro.thebeast.solve.{ExhaustiveSearch, ArgmaxSolver}
-import org.riedelcastro.thebeast.env.MaskedEnv
 import org.riedelcastro.thebeast.env.vectors.{VectorTerm, Vector}
 import org.riedelcastro.thebeast.util.Trackable
-import org.riedelcastro.thebeast.env.doubles.{LogLinear, Normalize, SumOverGroundings, DoubleTerm}
+import org.riedelcastro.thebeast.env.{MutableEnv, DependsOn, MaskedEnv}
+import org.riedelcastro.thebeast.env.doubles._
 
 /**
  * @author Sebastian Riedel
@@ -19,8 +19,12 @@ class OnlineLearner extends ArgmaxSolver with Trackable {
 
   def argmax(term: DoubleTerm): ArgmaxResult = {
     term match {
-      case SumOverGroundings(Normalize(LogLinear(feature, weights, _)), data)
-        if (Set(weights) == term.variables) => CantSolve
+      case DoubleDependsOn(theta,SumOverGroundings(Normalize(DoubleDependsOn(hidden, LogLinear(feature, weights, _))), data))
+        if (Set(weights) == theta) => {
+        val result = new MutableEnv
+        result.set(weights,learn(feature,data.map(new MaskedEnv(_,hidden))))
+        ArgmaxResult(result, Status.Solved, Math.NEG_INF_DOUBLE)
+      }
       case _ => CantSolve
     }
   }
