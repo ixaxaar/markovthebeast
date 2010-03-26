@@ -24,10 +24,15 @@ case class LogLinear(sufficient: VectorTerm, weights: VectorVar, bias: DoubleTer
 }
 
 object LogLinearMatch {
+
   def unapply(term:DoubleTerm):Option[(VectorTerm,VectorVar,DoubleTerm)] = term match {
+    case Exp(Sum(Seq(VectorDotApp(sufficient,weights:VectorVar),bias:DoubleTerm))) => Some((sufficient,weights,bias))
+    case Exp(Sum(Seq(VectorDotApp(weights:VectorVar,sufficient),bias:DoubleTerm))) => Some((sufficient,weights,bias))
+    case Exp(VectorDotApp(sufficient,weights:VectorVar)) => Some((sufficient,weights,DoubleConstant(0.0)))
+    case Exp(VectorDotApp(weights:VectorVar,sufficient)) => Some((sufficient,weights,DoubleConstant(0.0)))
     case LogLinear(sufficient,weights,bias) => Some((sufficient,weights,bias))
     case _ => None
-  }
+  }                                         
 }
 
 /**
