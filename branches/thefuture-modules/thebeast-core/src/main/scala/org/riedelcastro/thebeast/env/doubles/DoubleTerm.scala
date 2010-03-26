@@ -33,11 +33,11 @@ trait DoubleTerm extends BoundedTerm[Double] {
   def flatten: DoubleTerm = this
 
   def apply(variables:EnvVar[_]*) = {
-    DoubleDependsOn(Set() ++ variables,this)
+    Objective(Set() ++ variables,this)
   }
 
-  def ~(variables:EnvVar[_]*) = {
-    DoubleDependsOn(Set() ++ variables,this)
+  def ?(variables:EnvVar[_]*) = {
+    Objective(Set() ++ variables,this)
   }
 
 }
@@ -261,14 +261,14 @@ case class Uniform(from: DoubleTerm, to: DoubleTerm) extends DoubleTerm {
 
 }
 
-case class DoubleDependsOn(override val hidden:Set[EnvVar[_]],override val term:DoubleTerm)
+case class Objective(override val hidden:Set[EnvVar[_]],override val term:DoubleTerm)
         extends DependsOn[Double,DoubleTerm](term,hidden) with DoubleTerm {
   def upperBound: Double = term.upperBound
 
 
-  override def ground(env: Env) = DoubleDependsOn(hidden,term.ground(env))
+  override def ground(env: Env) = Objective(hidden,term.ground(env))
 
-  override def simplify = DoubleDependsOn(hidden, term.simplify)
+  override def simplify = Objective(hidden, term.simplify)
 }
 
 object Add extends (Double => (Double => Double)) {

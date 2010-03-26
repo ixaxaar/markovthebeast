@@ -23,6 +23,13 @@ case class LogLinear(sufficient: VectorTerm, weights: VectorVar, bias: DoubleTer
 
 }
 
+object LogLinearMatch {
+  def unapply(term:DoubleTerm):Option[(VectorTerm,VectorVar,DoubleTerm)] = term match {
+    case LogLinear(sufficient,weights,bias) => Some((sufficient,weights,bias))
+    case _ => None
+  }
+}
+
 /**
  * A Featurized term is a term that deterministically depends on
  * the value of a feature-vector * weight dot product. Very close
