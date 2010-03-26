@@ -19,7 +19,7 @@ class OnlineLearner extends ArgmaxSolver with Trackable {
 
   def argmax(term: DoubleTerm): ArgmaxResult = {
     term match {
-      case DoubleDependsOn(theta,SumOverGroundings(Normalize(DoubleDependsOn(hidden, LogLinear(feature, weights, _))), data))
+      case Objective(theta,SumOverGroundings(Normalize(Objective(hidden, LogLinearMatch(feature, weights, _))), data))
         if (Set(weights) == theta) => {
         val result = new MutableEnv
         result.set(weights,learn(feature,data.map(new MaskedEnv(_,hidden))))
