@@ -31,7 +31,8 @@ object OnlineLearnerSpecification extends Specification with TheBeastEnv with Ci
                   {(c1,c2,c3)=>$((same(c1,c2) && same(c2,c3)) ~> same(c1,c3)) * UnitVector("trans")}
 
       val theta = new VectorVar("theta")
-      val unnormalized = LogLinear(features, theta, 0.0) ? same
+//      val unnormalized = LogLinear(features, theta, 0.0) ? same
+      val unnormalized = exp(features dot theta) ? same
       val model = normalize(unnormalized)
       val ll = SumOverGroundings(model,Seq(y1,y2)) ? theta
 
