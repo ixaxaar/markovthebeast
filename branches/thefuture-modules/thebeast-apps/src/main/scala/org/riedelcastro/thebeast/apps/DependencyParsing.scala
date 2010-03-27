@@ -24,6 +24,7 @@ object DependencyParsing extends TheBeastEnv {
   val word = Predicate("word", Tokens x Words)
   val pos = Predicate("pos", Tokens x Tags)
   val token = Predicate("token", Tokens)
+  val candidate = Predicate("cand", Tokens x Tokens)
 
   val ROOT = "Root"
 
@@ -46,7 +47,10 @@ object DependencyParsing extends TheBeastEnv {
         env.atoms(word) ++= asTokenProperties(ROOT,rows.map(row => row(1)))
         env.atoms(pos) ++= asTokenProperties(ROOT,rows.map(row => row(3)))
         env.atoms(link) ++= rows.map(row => row(6).toInt->row(0).toInt)
-        env.close(Set(token,word,pos,link),true)
+        for (i <- 0 until rows.size + 1; j <- 1 until rows.size+1; if (i != j)){
+          env.atoms(candidate) ++= Seq(i->j)
+        }
+        env.close(Set(token,word,pos,link,candidate),true)
         result += env
         if (result.size == to) return result.drop(from)
       } else {
@@ -68,7 +72,7 @@ object DependencyParsing extends TheBeastEnv {
         edgeCounts(headTag->childTag) = edgeCounts.getOrElse(headTag->childTag,0) + 1
       }
     }
-    Map() ++ (for (edge <- edgeCounts.keys) yield edge -> edgeCounts(edge).toDouble / childCounts(edge._2))
+    Map() ++ (for (edge <- edgeCounts.keys) yield edge -> Math.log(edgeCounts(edge).toDouble / childCounts(edge._2)))
   }
 
 
@@ -162,7 +166,7 @@ object NaiveDependencyParsingApp {
 
     val posPair = vectorSum(Tokens, Tokens, Tags, Tags) {
       (h, m, h_pos, m_pos) =>
-        $(pos(h, h_pos) && pos(m, m_pos) && link(h, m)) * unit("Pos", h_pos, m_pos)
+        $(pos(h, h_pos) && pos(m, m_pos) && candidate(h,m) && link(h, m)) * unit("Pos", h_pos, m_pos)
     }
 
     val treeConstraint = SpanningTreeConstraint(link, token, 0, LessThan(Tokens))
