@@ -14,7 +14,7 @@ import collection.mutable.{HashMap, ArrayBuffer}
  */
 object DependencyParsing extends TheBeastEnv {
 
-  val maxLength = 5
+  val maxLength = 50
 
   val Tokens = Ints(0 until maxLength)
   val Words = new MutableValues[String]()
@@ -46,6 +46,7 @@ object DependencyParsing extends TheBeastEnv {
         env.atoms(word) ++= asTokenProperties(ROOT,rows.map(row => row(1)))
         env.atoms(pos) ++= asTokenProperties(ROOT,rows.map(row => row(3)))
         env.atoms(link) ++= rows.map(row => row(6).toInt->row(0).toInt)
+        env.close(Set(token,word,pos,link),true)
         result += env
         if (result.size == to) return result.drop(from)
       } else {
@@ -148,7 +149,10 @@ object NaiveDependencyParsingApp {
   import DependencyParsing._
 
   def main(args:Array[String]) = {
-    val trainData = loadCoNLLFile(args(0),0,20)
+
+    Logging.level = Logging.DEBUG
+    
+    val trainData = loadCoNLLFile(args(0),0,10)
     println(trainData(0)(word))
     println(trainData(0)(pos))
     println(trainData(0)(link))
@@ -171,7 +175,16 @@ object NaiveDependencyParsingApp {
     val weights = new Vector
     for (pair <- posPairProbs) weights("Pos",pair._1._1,pair._1._2) = pair._2
 
+    val global = new MutableEnv
+    global(theta) = weights
+
     println(weights)
+
+    val bp = new SumProductBeliefPropagation
+    val marginals = bp.infer(probModel.ground(trainData(0).overlay(global).mask(Set(link))))
+
+    println(marginals)
+    
 
   }
 
