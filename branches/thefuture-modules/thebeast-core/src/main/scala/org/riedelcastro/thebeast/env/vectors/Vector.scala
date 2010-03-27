@@ -77,7 +77,7 @@ class Vector {
   override def toString =
     store.elements.foldLeft("") {
       (s, e) =>
-              s + e._1.asInstanceOf[Collection[_]].mkString(",") + "\t" + e._2.toString + "\n"
+              s + e._1.asInstanceOf[Collection[_]].map("%-6s".format(_)).mkString(" ") + "\t" + e._2.toString + "\n"
     }
 }
 
