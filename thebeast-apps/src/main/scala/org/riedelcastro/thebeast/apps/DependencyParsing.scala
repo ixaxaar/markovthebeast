@@ -32,11 +32,11 @@ object DependencyParsing extends TheBeastEnv {
   }
 
   def asTokenProperties[T](root:T, seq:Seq[T]):Seq[(Int,T)]  = {
-    Seq((0,root)) ++ (for (i <- 0 until seq.size) yield i -> seq(i))
+    Seq((0,root)) ++ (for (i <- 0 until seq.size) yield i + 1 -> seq(i))
   }
 
 
-  def loadCoNLLFile(file: String): Seq[Env] = {
+  def loadCoNLLFile(file: String, from:Int, to:Int): Seq[Env] = {
     val result = new ArrayBuffer[Env]
     val rows = new ArrayBuffer[Array[String]]
     for (line <- Source.fromFile(file).getLines.map(_.trim)) {
@@ -46,6 +46,8 @@ object DependencyParsing extends TheBeastEnv {
         env.atoms(word) ++= asTokenProperties(ROOT,rows.map(row => row(1)))
         env.atoms(pos) ++= asTokenProperties(ROOT,rows.map(row => row(3)))
         env.atoms(link) ++= rows.map(row => row(6).toInt->row(0).toInt)
+        result += env
+        if (result.size == to) return result.drop(from)
       } else {
         rows += line.split("\\s+")
       }
@@ -136,6 +138,40 @@ object DependencyParsing extends TheBeastEnv {
     }
     println(sum)
     println(ptree(link, token, 0, LessThan(Tokens)).asLogic)
+
+  }
+
+}
+
+object NaiveDependencyParsingApp {
+
+  import DependencyParsing._
+
+  def main(args:Array[String]) = {
+    val trainData = loadCoNLLFile(args(0),0,20)
+    println(trainData(0)(word))
+    println(trainData(0)(pos))
+    println(trainData(0)(link))
+
+    val posPairProbs = trainNaively(trainData)
+    println(posPairProbs)
+
+    val posPair = vectorSum(Tokens, Tokens, Tags, Tags) {
+      (h, m, h_pos, m_pos) =>
+        $(pos(h, h_pos) && pos(m, m_pos) && link(h, m)) * unit("Pos", h_pos, m_pos)
+    }
+
+    val treeConstraint = SpanningTreeConstraint(link, token, 0, LessThan(Tokens))
+
+    val theta = VectorVar("theta")
+    //val linearModel = ((wordPair + posPair + bias) dot weightVar) + treeConstraint
+    val linearModel = (posPair dot theta)
+    val probModel = normalize(exp(linearModel) * ptree(link, token, 0, LessThan(Tokens)))
+
+    val weights = new Vector
+    for (pair <- posPairProbs) weights("Pos",pair._1._1,pair._1._2) = pair._2
+
+    println(weights)
 
   }
 
