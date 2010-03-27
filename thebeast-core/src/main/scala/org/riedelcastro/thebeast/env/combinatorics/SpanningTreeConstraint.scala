@@ -28,21 +28,27 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
   def asLogic: DoubleTerm = {
     import GenericImplicits._
-    val domain = vertices.values.asInstanceOf[FunctionValues[V,Boolean]].domain
-    val uniqueHead = forall(domain,domain,domain) {
-      (h,i,o)=> vertices(i) && vertices(h) && vertices(o) && edges(h,i) ~> !edges(o,i)}
+    val domain = vertices.values.asInstanceOf[FunctionValues[V, Boolean]].domain
+    val uniqueHead = forall(domain, domain, domain) {
+      (h, i, o) => vertices(i) && vertices(h) && vertices(o) && edges(h, i) ~> !edges(o, i)
+    }
     val dominates = Predicate("dominates", TupleValues2(domain, domain))
-    val linkAndDominates = forall(domain,domain) {
-      (h,i) => vertices(i) && vertices(h) && edges(h,i) ~> dominates(h,i)}
-    val transitive = forall(domain,domain,domain){
-      (h,m,g)=> vertices(h) && vertices(m) && vertices(g) && dominates(h,m) && edges(m,g) ~> dominates(h,g)}
+    val linkAndDominates = forall(domain, domain) {
+      (h, i) => vertices(i) && vertices(h) && edges(h, i) ~> dominates(h, i)
+    }
+    val transitive = forall(domain, domain, domain) {
+      (h, m, g) => vertices(h) && vertices(m) && vertices(g) && dominates(h, m) && edges(m, g) ~> dominates(h, g)
+    }
     val acyclic = forall(domain) {
-      i => vertices(i) ~> !dominates(i,i)}
-    val projective1 = forall(domain,domain,domain) {
-      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(h,i) && order(i,m) ~> dominates(h,i)}
-    val projective2 = forall(domain,domain,domain) {
-      (h,m,i)=> vertices(h) && vertices(m) && vertices(i) && edges(h,m) && order(m,i) && order(i,h) ~> dominates(h,i)}
-    ${uniqueHead && linkAndDominates && transitive && acyclic && projective1 && projective2}
+      i => vertices(i) ~> !dominates(i, i)
+    }
+    val projective1 = forall(domain, domain, domain) {
+      (h, m, i) => vertices(h) && vertices(m) && vertices(i) && edges(h, m) && order(h, i) && order(i, m) ~> dominates(h, i)
+    }
+    val projective2 = forall(domain, domain, domain) {
+      (h, m, i) => vertices(h) && vertices(m) && vertices(i) && edges(h, m) && order(m, i) && order(i, h) ~> dominates(h, i)
+    }
+    $ {uniqueHead && linkAndDominates && transitive && acyclic && projective1 && projective2}
     this
   }
 
@@ -175,6 +181,17 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
         beliefs.increaseBelief(atom, true, trueBelief)
         beliefs.increaseBelief(atom, false, b - trueBelief)
       }
+      //set self loops and links to root to be impossible
+      for (i <- 0 until sorted.size) {
+        val self = FunAppVar(pred, (sorted(i), sorted(i)))
+        beliefs.increaseBelief(self, true, 0.0)
+        beliefs.increaseBelief(self, false, 1.0)
+        if (i > 0) {
+          val toRoot = FunAppVar(pred, (sorted(i), sorted(0)))
+          beliefs.increaseBelief(toRoot, true, 0.0)
+          beliefs.increaseBelief(toRoot, false, 1.0)
+        }
+      }
       beliefs
     } else
       super.marginalize(incoming)
@@ -206,7 +223,7 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
 
 
-    case class Signature(from:Int,to:Int,rightWard:Boolean,link:Boolean)
+    case class Signature(from: Int, to: Int, rightWard: Boolean, link: Boolean)
 
 
     class InsideOutsideResult {
@@ -215,21 +232,22 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val total = new HashMap[(Int, Int), Double]
       var Z = 0.0
 
-      def in(from:Int,to:Int,rightWard:Boolean,link:Boolean):Double = {
-        inside.getOrElse(Signature(from,to,rightWard,link),0.0)
+      def in(from: Int, to: Int, rightWard: Boolean, link: Boolean): Double = {
+        inside.getOrElse(Signature(from, to, rightWard, link), 0.0)
       }
 
-      def incrIn(from:Int,to:Int,rightWard:Boolean,link:Boolean, value:Double) = {
-        val sig = Signature(from,to,rightWard,link)
-        inside(sig) = inside.getOrElse(sig,0.0) + value
-      }
-      def out(from:Int,to:Int,rightWard:Boolean,link:Boolean):Double = {
-        outside.getOrElse(Signature(from,to,rightWard,link),0.0)
+      def incrIn(from: Int, to: Int, rightWard: Boolean, link: Boolean, value: Double) = {
+        val sig = Signature(from, to, rightWard, link)
+        inside(sig) = inside.getOrElse(sig, 0.0) + value
       }
 
-      def incrOut(from:Int,to:Int,rightWard:Boolean,link:Boolean, value:Double) = {
-        val sig = Signature(from,to,rightWard,link)
-        outside(sig) = outside.getOrElse(sig,0.0) + value
+      def out(from: Int, to: Int, rightWard: Boolean, link: Boolean): Double = {
+        outside.getOrElse(Signature(from, to, rightWard, link), 0.0)
+      }
+
+      def incrOut(from: Int, to: Int, rightWard: Boolean, link: Boolean, value: Double) = {
+        val sig = Signature(from, to, rightWard, link)
+        outside(sig) = outside.getOrElse(sig, 0.0) + value
       }
 
     }
@@ -248,62 +266,62 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       val n = sorted.size
 
       //init unit values
-      for (i <- 0 until n-1){
-        incrIn(i,i+1,true,true,weights(i,i+1))
-        incrIn(i,i+1,true,false,weights(i,i+1))
-        incrIn(i,i+1,false,true,weights(i+1,i))
-        incrIn(i,i+1,false,false,weights(i+1,i))
+      for (i <- 0 until n - 1) {
+        incrIn(i, i + 1, true, true, weights(i, i + 1))
+        incrIn(i, i + 1, true, false, weights(i, i + 1))
+        incrIn(i, i + 1, false, true, weights(i + 1, i))
+        incrIn(i, i + 1, false, false, weights(i + 1, i))
       }
-      for (i <- 0 until n){
-        incrIn(i,i,true,false,1.0)
-        incrIn(i,i,false,false,1.0)
+      for (i <- 0 until n) {
+        incrIn(i, i, true, false, 1.0)
+        incrIn(i, i, false, false, 1.0)
       }
 
-      for (width <- 2 until n){
-        for (i <- 0 until n - width){
+      for (width <- 2 until n) {
+        for (i <- 0 until n - width) {
           val j = i + width
           //complete link inside
-          for (m <- i until j){
-            incrIn(i,j,true,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(i,j))
-            incrIn(i,j,false,true, in(i,m,true,false) * in(m+1,j,false,false) * weights(j,i))
+          for (m <- i until j) {
+            incrIn(i, j, true, true, in(i, m, true, false) * in(m + 1, j, false, false) * weights(i, j))
+            incrIn(i, j, false, true, in(i, m, true, false) * in(m + 1, j, false, false) * weights(j, i))
           }
           //complete sequence inside
-          for (m <- i until j){
-            incrIn(i,j,true,false, in(i,m,true,false) * in(m,j,true,true))
+          for (m <- i until j) {
+            incrIn(i, j, true, false, in(i, m, true, false) * in(m, j, true, true))
           }
-          for (m <- i + 1 until j+1){
-            incrIn(i,j,false,false, in(i,m,false,true) * in(m,j,false,false))
+          for (m <- i + 1 until j + 1) {
+            incrIn(i, j, false, false, in(i, m, false, true) * in(m, j, false, false))
           }
         }
       }
 
-      Z = in(0,n-1,true,false)
+      Z = in(0, n - 1, true, false)
 
       //outside probabilities
-      incrOut(0, n-1, true, true, 1.0)
-      incrOut(0, n-1, true, false, 1.0)
+      incrOut(0, n - 1, true, true, 1.0)
+      incrOut(0, n - 1, true, false, 1.0)
 
-      for (width <- (1 until n-1).reverse){
-        for (i <- 0 until n - width){
+      for (width <- (1 until n - 1).reverse) {
+        for (i <- 0 until n - width) {
           val j = i + width
           //complete sequence outside
-          for (h <- j + 1 until n){
-            incrOut(i,j,true,false, out(i,h,true,false) * in(j,h,true,true) +
-              out(i,h,true,true) * in(j+1,h,false,false) * weights(i,h) +
-              out(i,h,false,true) * in(j+1,h,false,false) * weights(h,i))
+          for (h <- j + 1 until n) {
+            incrOut(i, j, true, false, out(i, h, true, false) * in(j, h, true, true) +
+                    out(i, h, true, true) * in(j + 1, h, false, false) * weights(i, h) +
+                    out(i, h, false, true) * in(j + 1, h, false, false) * weights(h, i))
           }
-          for (v <- 0 until i){
-            incrOut(i,j,false,false, out(v,j,false,false) * in(v,i,false,true) +
-              out(v,j,true,true) * in(v,i-1,true,false) * weights(v,j) +
-              out(v,j,false,true) * in(v,i-1,true,false) * weights(j,v))
+          for (v <- 0 until i) {
+            incrOut(i, j, false, false, out(v, j, false, false) * in(v, i, false, true) +
+                    out(v, j, true, true) * in(v, i - 1, true, false) * weights(v, j) +
+                    out(v, j, false, true) * in(v, i - 1, true, false) * weights(j, v))
           }
 
           //complete link outside
-          for (v <- 0 until i + 1){
-            incrOut(i,j,true,true, out(v,j,true,false) * in(v,i,true,false))
+          for (v <- 0 until i + 1) {
+            incrOut(i, j, true, true, out(v, j, true, false) * in(v, i, true, false))
           }
-          for (h <- j until n){
-            incrOut(i,j,false,true, out(i,h,false,false) * in(j,h,false,false))
+          for (h <- j until n) {
+            incrOut(i, j, false, true, out(i, h, false, false) * in(j, h, false, false))
           }
 
 
@@ -312,8 +330,8 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
 
 
       for (i <- 0 until n; j <- i + 1 until n) {
-        total(i -> j) = in(i,j,true,true) * out(i,j,true,true)
-        total(j -> i) = in(i,j,false,true) * out(i,j,false,true)
+        total(i -> j) = in(i, j, true, true) * out(i, j, true, true)
+        total(j -> i) = in(i, j, false, true) * out(i, j, false, true)
       }
 
       result

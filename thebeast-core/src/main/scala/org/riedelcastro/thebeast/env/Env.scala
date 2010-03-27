@@ -138,9 +138,11 @@ class MutableEnv extends Env {
     result
   }
 
-  def close(variable: EnvVar[_], closed: Boolean) {
+  def close(variable: EnvVar[_], closed: Boolean) : Unit = {
     if (closed) this.closed += variable else this.closed.removeEntry(variable)
   }
+
+  def close(variables:Iterable[EnvVar[_]],closed:Boolean): Unit = variables.foreach(close(_,closed))
 
 
   private def cloneMutableMap(map: MapType): MapType = {

@@ -5,8 +5,6 @@ import org.riedelcastro.thebeast._
 import env._
 import doubles._
 import util.{Logging, Trackable}
-import vectors.{VectorSum, VectorTerm, QuantifiedVectorSum, VectorDotApp}
-
 /**
  * @author Sebastian Riedel
  */
@@ -106,7 +104,7 @@ class SumProductBeliefPropagation extends MarginalInference with Trackable with 
     graph.addTerms(terms.map(DoubleTermOptimizer.optimize(_)))
     **|
 
-    debug("BP Nodes: %s".format(graph.nodes.mkString(",")))
+    debug("%d BP Nodes: %s".format(graph.nodes.size, graph.nodes.mkString(",")))
 
     _iterations = 0
     |**("Message passing")
