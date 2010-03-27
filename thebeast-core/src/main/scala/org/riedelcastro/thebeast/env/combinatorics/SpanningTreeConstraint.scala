@@ -181,17 +181,6 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
         beliefs.increaseBelief(atom, true, trueBelief)
         beliefs.increaseBelief(atom, false, b - trueBelief)
       }
-      //set self loops and links to root to be impossible
-      for (i <- 0 until sorted.size) {
-        val self = FunAppVar(pred, (sorted(i), sorted(i)))
-        beliefs.increaseBelief(self, true, 0.0)
-        beliefs.increaseBelief(self, false, 1.0)
-        if (i > 0) {
-          val toRoot = FunAppVar(pred, (sorted(i), sorted(0)))
-          beliefs.increaseBelief(toRoot, true, 0.0)
-          beliefs.increaseBelief(toRoot, false, 1.0)
-        }
-      }
       beliefs
     } else
       super.marginalize(incoming)
