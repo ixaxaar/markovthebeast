@@ -175,6 +175,7 @@ object NaiveDependencyParsingApp {
     //val linearModel = ((wordPair + posPair + bias) dot weightVar) + treeConstraint
     val linearModel = (posPair dot theta)
     val probModel = normalize(exp(linearModel) * ptree(link, token, 0, LessThan(Tokens)))
+    val mlModel = normalize(exp(linearModel) * ptree(link, token, 0, LessThan(Tokens)).asLogic)
 
     val weights = new Vector
     for (pair <- posPairProbs) weights("Pos",pair._1._1,pair._1._2) = pair._2
@@ -189,6 +190,9 @@ object NaiveDependencyParsingApp {
 
     println(marginals)
     
+    val mlMarginals = bp.infer(mlModel.ground(trainData(0).overlay(global).mask(Set(link))))
+
+    println(mlMarginals)
 
   }
 

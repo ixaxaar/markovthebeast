@@ -49,7 +49,6 @@ case class SpanningTreeConstraint[V](edges: Term[FunctionValue[(V, V), Boolean]]
       (h, m, i) => vertices(h) && vertices(m) && vertices(i) && edges(h, m) && order(m, i) && order(i, h) ~> dominates(h, i)
     }
     $ {uniqueHead && linkAndDominates && transitive && acyclic && projective1 && projective2}
-    this
   }
 
 

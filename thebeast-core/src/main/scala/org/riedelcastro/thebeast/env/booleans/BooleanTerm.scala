@@ -305,9 +305,11 @@ case class Forall[T](override val variable: Var[T], override val formula: Boolea
     Conjunction(variable.values.map(value => {env += variable -> value; formula.ground(env)}).toSeq)
   }
 
+  override def unrollUncertain = Conjunction(unroll.args.filter(arg => !arg.simplify.isGround))
+
   def upperBound = unroll.upperBound
 
-  override def ground(env: Env) = unroll.ground(env)
+  override def ground(env: Env) = Forall(variable,formula.ground(env.mask(Set(variable))))
 
   override def simplify = Forall(variable,formula.simplify)
 
