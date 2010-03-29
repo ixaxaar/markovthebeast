@@ -132,7 +132,13 @@ case class Constant[T](val value: T) extends Term[T] {
 
   override def eval(env: Env) = Some(value)
 
-  override def toString = value.toString
+  override def toString = value match {
+    case x:Integer => x.toString
+    case x:Product => x.toString
+    case x:String => x.toString
+    case x:AnyRef => x.getClass().getSimpleName
+    case x => x.toString
+  }
 
   override def isGround = true
 
