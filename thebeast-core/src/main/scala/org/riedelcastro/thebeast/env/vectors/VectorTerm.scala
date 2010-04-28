@@ -91,7 +91,7 @@ case class VectorAddApp(lhs:VectorTerm, rhs:VectorTerm)
 
 case class VectorVar(override val name: String)
         extends Var[Vector](name, VectorValues) with VectorTerm {
-  override def ground(env: Env) = env.eval(this).map(VectorConstant(_)).getOrElse(this)
+  override def ground(env: Env) = env.eval(this).map(new VectorConstant(_) with GroundedConstant).getOrElse(this)
 
   override def simplify = this
 }
