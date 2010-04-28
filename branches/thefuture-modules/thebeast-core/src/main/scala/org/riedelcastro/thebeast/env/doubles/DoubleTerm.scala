@@ -48,7 +48,7 @@ case class DoubleVar(override val name: String, override val values: Values[Doub
         extends Var[Double](name, values) with DoubleTerm {
   def upperBound = Math.POS_INF_DOUBLE
 
-  override def ground(env: Env) = env.eval(this).map(DoubleConstant(_)).getOrElse(this)
+  override def ground(env: Env) = env.eval(this).map(new DoubleConstant(_) with GroundedConstant).getOrElse(this)
 
 
   override def simplify = this

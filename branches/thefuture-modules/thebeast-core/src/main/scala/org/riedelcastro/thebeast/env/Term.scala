@@ -133,10 +133,11 @@ case class Constant[T](val value: T) extends Term[T] {
   override def eval(env: Env) = Some(value)
 
   override def toString = value match {
-    case x:Integer => x.toString
-    case x:Product => x.toString
-    case x:String => x.toString
-    case x:AnyRef => x.getClass().getSimpleName
+    case x: Var[_]#GroundedConstant => "#" + x.variable.toString
+    case x: Integer => x.toString
+    case x: Product => x.toString
+    case x: String => x.toString
+    case x: AnyRef => x.getClass().getSimpleName
     case x => x.toString
   }
 
@@ -168,6 +169,7 @@ object EnvVarMatch {
 }
 
 
+
 case class Var[+T](val name: String, override val values: Values[T]) extends Term[T] with EnvVar[T] {
   def variables =
     if (!values.isInstanceOf[FunctionValues[_, _]]) Set(this)
@@ -181,13 +183,17 @@ case class Var[+T](val name: String, override val values: Values[T]) extends Ter
       funapps
   }
 
+  trait GroundedConstant {
+    def variable = Var.this
+  }
   def simplify = this
 
   override def toString = name
 
   def ground(env: Env) = {
     val x = env.eval(this);
-    if (x.isDefined) Constant(x.get) else this
+    if (x.isDefined) new Constant(x.get) with GroundedConstant
+    else this
   }
 
   override def eval(env: Env) = env.resolveVar[T](this)
@@ -412,7 +418,7 @@ object Singleton extends SingletonClass {
 case class DependsOn[V, T <: Term[V]](term: T, hidden: Set[EnvVar[_]]) extends Composite1[V, DependsOn[V, T], T] {
   def values: Values[V] = term.values
 
-  def simplify: Term[V] = DependsOn[V,Term[V]](term.simplify, hidden)
+  def simplify: Term[V] = DependsOn[V, Term[V]](term.simplify, hidden)
 
   def eval(env: Env): Option[V] = {
     val closed = new MutableEnv
