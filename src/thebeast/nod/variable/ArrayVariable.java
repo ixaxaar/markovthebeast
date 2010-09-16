@@ -18,6 +18,8 @@ public interface ArrayVariable extends Variable<ArrayValue,ArrayType>, ArrayExpr
 
   void fill(double value, int howmany);
 
+  void scale(double value);  
+
   void enforceBound(int[] indices, boolean lower, double value);
 
   int nonZeroCount(double eps);
