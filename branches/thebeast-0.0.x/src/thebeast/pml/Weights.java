@@ -106,6 +106,15 @@ public class Weights implements HasProperties {
   }
 
   /**
+   * Scales the weights by the given value.
+   *
+   * @param value value to scale weights with.
+   */
+  public void scale(double value) {
+    weights.scale(value);
+  }
+
+  /**
    * Feature functions are stored in terms of tuples in a relation which contain the argument values and a feature index
    * (which can be used to get the feature weight from {@link thebeast.pml.Weights#getWeights()}). <p/> This variable
    * can be directly changed (and should be in the case of learning algorithms as clients). Be careful to leave the
