@@ -99,6 +99,23 @@ public class QueryGenerator {
     return rels.size() == 1 ? rels.get(0) : factory.createUnion(rels);
   }
 
+  public Count generateConditionCountQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
+     this.groundAtoms = groundAtoms;
+     this.weights = w;
+     builder = new FormulaBuilder(groundAtoms.getSignature());
+
+     BooleanFormula condition = factorFormula.getCondition();
+     processGlobalFormula(condition, factorFormula,false);
+     //if there is just one conjunction we don't need a union.
+     LinkedList<RelationExpression> rels = new LinkedList<RelationExpression>();
+     for (ConjunctionProcessor.Context context : conjunctions) {
+       BoolExpression where = factory.createAnd(context.conditions);
+       rels.add(factory.createQuery(context.prefixes, context.relations, where, context.selectBuilder.getTuple()));
+     }
+     return factory.createCount(rels.get(0));
+   }
+
+
   public RelationExpression generateAuxiliaryQuery(FactorFormula factorFormula, GroundAtoms groundAtoms, Weights w) {
     this.groundAtoms = groundAtoms;
     this.weights = w;
