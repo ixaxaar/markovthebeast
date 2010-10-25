@@ -36,7 +36,7 @@ public class MiraUpdateRule implements UpdateRule {
   }
 
 
-  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights) {
+  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights, int t) {
     profiler.start("build difs");
 
     ArrayList<SparseVector> allVectors = new ArrayList<SparseVector>(candidates.size());

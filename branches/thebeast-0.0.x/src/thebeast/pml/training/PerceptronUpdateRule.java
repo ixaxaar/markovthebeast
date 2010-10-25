@@ -20,7 +20,7 @@ public class PerceptronUpdateRule implements UpdateRule {
     learningRate *= decay;
   }
 
-  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights) {
+  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights, int t) {
     double scale = 1.0 / candidates.size();
     for (FeatureVector guess : candidates) {
       //FeatureVector guess = candidates.get(candidates.size() - 1);
