@@ -4,9 +4,11 @@ import thebeast.nod.FileSink;
 import thebeast.nod.statement.Interpreter;
 import thebeast.nod.variable.ArrayVariable;
 import thebeast.pml.*;
+import thebeast.pml.formula.FactorFormula;
 import thebeast.pml.solve.CuttingPlaneSolver;
 import thebeast.pml.solve.LocalSolver;
 import thebeast.pml.solve.Solver;
+import thebeast.pml.solve.ilp.ILPSolverLpSolve;
 import thebeast.util.*;
 
 import java.io.File;
@@ -42,6 +44,7 @@ public class OnlineLearner implements Learner, HasProperties {
   private int count;
   private Profiler profiler = new NullProfiler();
   private LossFunction lossFunction;
+  private boolean lossAugmentedInfer = false;
   private boolean penalizeGold = false;
   private boolean rewardBad = false;
   private boolean maxLossScaling = false;
@@ -58,6 +61,10 @@ public class OnlineLearner implements Learner, HasProperties {
   private int minCandidates = 1;
   private int maxCandidates = 1;
   private int maxAtomCount = Integer.MAX_VALUE;
+
+  private boolean saveAfterNExamples = false;
+  private int numExamplesToSave = 10000;
+  private boolean filterHardConstraints = false;
 
   public OnlineLearner(Model model, Weights weights) {
     configure(model, weights);
@@ -248,18 +255,32 @@ public class OnlineLearner implements Learner, HasProperties {
    * @param instances the training instances to use.
    */
   public void learn(TrainingInstances instances) {
+	  if (filterHardConstraints) {
+		  profiler.start("filter-hard-constraints");
+		  List<FactorFormula> hardConstraints = model.getDeterministicFormulas();
+		  for (FactorFormula hardClause : hardConstraints) {
+			  
+		  }
+		  profiler.end();
+	  }
     profiler.start("learn");
     progressReporter.setColumns("Loss", "F1", "Iterations", "Candidates");
     setUpAverage();
+    int t = 0;
     if (initializeWeights)
       weights.setAllWeights(initialWeight);
+    updateRule.setProperty(new PropertyName("T",null), (Integer) numEpochs*instances.size());
     for (int epoch = 0; epoch < numEpochs; ++epoch) {
       profiler.start("epoch");
       progressReporter.started("Epoch " + epoch);
       scores.setPenalizeGoldScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       scores.setRewardBadScale(maxLossScaling ? epoch / (numEpochs - 1.0) : 1.0);
       for (TrainingInstance instance : instances) {
-        if (instance.getData().getGroundAtomCount() <= maxAtomCount) learn(instance);
+    	t++;  
+        if (instance.getData().getGroundAtomCount() <= maxAtomCount) learn(instance,t);
+        if ( (saveAfterNExamples) && (((t % numExamplesToSave == 0) && (t > 10000)) || ((t % 2000 == 0) && (t <= 10000))) )  {
+        	saveCurrentWeights(t);
+        }
       }
       updateRule.endEpoch();
       progressReporter.finished();
@@ -272,22 +293,26 @@ public class OnlineLearner implements Learner, HasProperties {
 
   private void saveCurrentWeights(int epoch) {
     try {
-      //write plain weights
-      File file = File.createTempFile(savePrefix + epoch + "_", ".dmp");
-      file.delete();
-      FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
-      weights.write(sink);
-      sink.flush();
-
-      //write averaged weights
-      File avgFile = File.createTempFile(savePrefix + epoch + "_", ".avg.dmp");
-      avgFile.delete();
-      FileSink avgSink = TheBeast.getInstance().getNodServer().createSink(avgFile, 1024);
-      Weights copy = weights.copy();
-      finalizeAverage(copy);
-      copy.write(avgSink);
-      avgSink.flush();
-
+      if (averaging) {
+    	  //write averaged weights
+          //File avgFile = File.createTempFile(savePrefix + epoch + "_", ".avg.dmp");
+          File avgFile = new File(savePrefix + epoch + ".avg.dmp");
+          avgFile.delete();
+          FileSink avgSink = TheBeast.getInstance().getNodServer().createSink(avgFile, 1024);
+          Weights copy = weights.copy();
+          finalizeAverage(copy);
+          copy.write(avgSink);
+          avgSink.flush();
+      }
+      else {
+    	//write plain weights
+    	//File file = File.createTempFile(savePrefix + epoch + "_", ".dmp");
+	      File file = new File(savePrefix + epoch + ".dmp");
+	      file.delete();
+	      FileSink sink = TheBeast.getInstance().getNodServer().createSink(file, 1024);
+	      weights.write(sink);
+	      sink.flush();
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -298,7 +323,7 @@ public class OnlineLearner implements Learner, HasProperties {
    *
    * @param data the instance to process
    */
-  private void learn(TrainingInstance data) {
+  private void learn(TrainingInstance data, int t) {
     //load the instance from the corpus into our local variable
     profiler.start("learn one");
     goldAtoms.load(model.getGlobalAtoms(), model.getGlobalPredicates());
@@ -315,17 +340,26 @@ public class OnlineLearner implements Learner, HasProperties {
     if (data.getFeatures() == null)
       scores.score(features, data.getData());
     else
-      scores.scoreWithGroups(features, data.getData());
-    if (penalizeGold)
-      scores.penalizeGold(goldAtoms);
-    if (rewardBad)
-      scores.rewardBad(goldAtoms);
+      scores.scoreWithGroups(features, data.getData());    
+    
+    if (lossAugmentedInfer) {
+    	scores.penalizeGold(goldAtoms);
+    	scores.rewardBad(goldAtoms);
+    }
+    else {
+    	if (penalizeGold)
+    		scores.penalizeGold(goldAtoms);
+    	if (rewardBad)
+    		scores.rewardBad(goldAtoms);
+    }
+    
     profiler.end();
 
     //use the scores to solve the model
     solver.setObservation(data.getData());
     solver.setScores(scores);
     solver.solve();
+    
     solution.getGroundAtoms().load(solver.getBestAtoms(), model.getHiddenPredicates());
     solution.getGroundFormulas().load(solver.getBestFormulas());
 
@@ -377,7 +411,7 @@ public class OnlineLearner implements Learner, HasProperties {
 
     //update the weights
     profiler.start("update");
-    if (candidates.size() > 0) updateRule.update(gold, candidates, losses, this.weights);
+    if (candidates.size() > 0) updateRule.update(gold, candidates, losses, this.weights, t);
     profiler.end();
 
     //System.out.println(losses);
@@ -395,6 +429,9 @@ public class OnlineLearner implements Learner, HasProperties {
     profiler.end();
   }
 
+  public void setFilterHardConstraints(boolean filterHardConstraints){
+	  this.filterHardConstraints = filterHardConstraints;
+  }
 
   public boolean isSaveAfterEpoch() {
     return saveAfterEpoch;
@@ -402,6 +439,18 @@ public class OnlineLearner implements Learner, HasProperties {
 
   public void setSaveAfterEpoch(boolean saveAfterEpoch) {
     this.saveAfterEpoch = saveAfterEpoch;
+  }
+  
+  public void setSaveAfterNExamples(boolean saveAfterNExamples) {
+	    this.saveAfterNExamples = saveAfterNExamples;
+  }
+  
+  public void setNumExamplesToSave(int numExamplesToSave){
+	  this.numExamplesToSave = numExamplesToSave;
+  }
+  
+  public void setSavePrefix(String savePrefix){
+	  this.savePrefix = savePrefix;
   }
 
   public boolean isAveraging() {
@@ -417,6 +466,10 @@ public class OnlineLearner implements Learner, HasProperties {
     return penalizeGold;
   }
 
+  public void setLossAugmentedInfer(boolean lossAugmentedInfer){
+	  this.lossAugmentedInfer = lossAugmentedInfer;
+  }
+  
   public void setPenalizeGold(boolean penalizeGold) {
     this.penalizeGold = penalizeGold;
   }
@@ -436,7 +489,7 @@ public class OnlineLearner implements Learner, HasProperties {
         solver.setProperty(name.getTail(), value);
       else {
         if ("local".equals(value))
-          solver = new LocalSolver();
+          solver = new LocalSolver();        
         else if ("cut".equals(value))
           solver = new CuttingPlaneSolver();
         else
@@ -462,6 +515,12 @@ public class OnlineLearner implements Learner, HasProperties {
           setUpdateRule(new PerceptronUpdateRule());
         else if ("pa".equals(value.toString()))
           setUpdateRule(new PassiveAggressiveUpdateRule());
+        else if ("subgradient".equals(value.toString()))
+            setUpdateRule(new SubgradientUpdateRule());
+        else if ("cda".equals(value.toString()))
+            setUpdateRule(new CDAUpdateRule());
+        else if ("1-best mira".equals(value.toString()))
+            setUpdateRule(new OneBestMiraUpdateRule());
         else throw new IllegalPropertyValueException(name, value);
       } else
         updateRule.setProperty(name.getTail(), value);
@@ -475,8 +534,12 @@ public class OnlineLearner implements Learner, HasProperties {
       setMaxLossScaling((Boolean) value);
     } else if ("saveAfterEpoch".equals(name.getHead())) {
       setSaveAfterEpoch((Boolean) value);
-    } else if ("initWeights".equals(name.getHead())) {
-      setInitializeWeights((Boolean) value);
+    } else if ("saveAfterNExamples".equals(name.getHead())) {
+          setSaveAfterNExamples((Boolean) value);  
+    } else if ("numExamplesToSave".equals(name.getHead())) {
+      setNumExamplesToSave((Integer) value);
+    } else if ("savePrefix".equals(name.getHead())) {
+      setSavePrefix((String) value);    	
     } else if ("initWeight".equals(name.getHead())) {
       setInitialWeight((Double) value);
     } else if ("loss".equals(name.getHead())) {
@@ -499,9 +562,17 @@ public class OnlineLearner implements Learner, HasProperties {
           throw new IllegalPropertyValueException(name, value);
       } else
         lossFunction.setProperty(name.getTail(), value);
-    } else if (name.getHead().equals("profile"))
+    } else if (name.getHead().equals("profile")) {
       setProfiler(((Boolean) value) ? new TreeProfiler() : new NullProfiler());
-
+    }
+    else if ("lossAugmented".equals(name.getHead())) {
+    	setLossAugmentedInfer((Boolean) value);
+        setPenalizeGold((Boolean) value);
+        setRewardBad((Boolean) value);
+    }
+    else if ("filterHardConstraints".equals(name.getHead())) {
+    	setFilterHardConstraints((Boolean) value);
+    }
   }
 
   private void setRewardBad(Boolean rewardBad) {
