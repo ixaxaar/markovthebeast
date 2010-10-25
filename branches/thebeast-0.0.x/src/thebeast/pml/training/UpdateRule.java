@@ -13,6 +13,6 @@ import java.util.List;
 public interface UpdateRule extends HasProperties {
   public void endEpoch();
 
-  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights);
+  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights, int t);
 }
 
