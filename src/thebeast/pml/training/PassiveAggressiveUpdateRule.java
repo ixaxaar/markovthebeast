@@ -22,18 +22,18 @@ public class PassiveAggressiveUpdateRule implements UpdateRule {
   public void endEpoch() {
   }
 
-  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights) {
+  public void update(FeatureVector gold, List<FeatureVector> candidates, List<Double> losses, Weights weights, int t) {
     double goldScore = weights.score(gold);
     int index = 0;
     for (FeatureVector guess : candidates) {
       SparseVector diffLocal = gold.getLocal().add(-1.0, guess.getLocal());
       SparseVector diffNN = gold.getFalseVector().add(-1.0, guess.getFalseVector());
       SparseVector diffNP = gold.getTrueVector().add(-1.0, guess.getTrueVector());
-      double sqNorm = diffLocal.norm() + diffNN.norm() + diffNP.norm();
-      sqNorm *= sqNorm;
+      double sqNorm = diffLocal.squaredNorm() + diffNN.squaredNorm() + diffNP.squaredNorm();      
       double loss = losses.get(index++);
       double guessScore = weights.score(guess);
       double sufferLoss = guessScore - goldScore + loss;
+      sufferLoss = Math.max(sufferLoss, 0);
       double scale = 0;
       switch (type) {
         case PA:
