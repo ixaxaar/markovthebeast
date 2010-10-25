@@ -322,6 +322,10 @@ public class IntegerLinearProgram implements PropositionalModel {
     clear();
     buildLocalModel = false;
   }
+  
+  public void resetScores(Scores scores){
+	this.scores.load(scores);
+  }
 
   public void buildLocalModel() {
     //interpreter.assign(lastVarCount, varCount);
@@ -660,9 +664,11 @@ public class IntegerLinearProgram implements PropositionalModel {
   public String toLpSolveFormat(RelationVariable vars, RelationVariable constraints) {
     StringBuffer result = new StringBuffer();
 
+    int nvars = 0;
     result.append("max: ");
     int index = 0;
     for (TupleValue var : vars.value()) {
+      nvars++;
       double weight = var.doubleElement("weight").getDouble();
       if (weight != 0.0) {
         if (index++ > 0) result.append(" + ");
@@ -672,7 +678,9 @@ public class IntegerLinearProgram implements PropositionalModel {
     }
 
     result.append(";\n\n");
+    int nConstraints = 0;
     for (TupleValue tuple : constraints.value()) {
+      nConstraints++;
       double lb = tuple.doubleElement("lb").getDouble();
       double ub = tuple.doubleElement("ub").getDouble();
       index = 0;
@@ -696,6 +704,8 @@ public class IntegerLinearProgram implements PropositionalModel {
     for (TupleValue var : fractionals.value()) {
       result.append(indexToVariableString(var.intElement("index").getInt())).append("\n");
     }
+    
+    result.append("\nnum of vars = " + nvars + "; num of constraints = " + nConstraints + "\n");
 
     return result.toString();
   }
@@ -783,12 +793,16 @@ public class IntegerLinearProgram implements PropositionalModel {
         String type = (String) value;
         if ("lpsolve".equals(type))
           solver = new ILPSolverLpSolve();
+        else if ("gurobi".equals(type))
+          solver = new ILPSolverGurobi();
+        else if ("cplex".equals(type))
+          solver = new ILPSolverCplex();
 //        else if ("osi".equals(type))
 //          solver = new ILPSolverOsi();
 //        else if ("mosek".equals(type))
 //          solver = new ILPSolverMosek();
 //        else if ("cbc".equals(type))
-//          solver = new ILPSolverCbc();
+//          solver = new ILPSolverCbc();        
         else
           throw new IllegalPropertyValueException(name, value);
       } else
