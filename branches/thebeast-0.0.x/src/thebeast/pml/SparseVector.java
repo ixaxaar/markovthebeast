@@ -144,7 +144,7 @@ public class SparseVector {
     return count;
   }
 
-  public double norm(){
+  public double squaredNorm(){
     double[] values = getValueArray();
     double norm = 0;
     for (double value : values)
