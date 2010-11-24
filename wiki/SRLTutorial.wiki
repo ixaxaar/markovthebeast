@@ -124,7 +124,7 @@ set collector.all.w_pos_p = true;
 
 Finally we add 
 {{{
-include "srl-global.pml";
+include "srl-local.pml";
 }}}
 to {{{srl.pml}}}. 
 
