@@ -53,6 +53,7 @@ non terminal ParserTerm constant,term,termInBrackets;
 non terminal ParserNamedConstant namedconstant;
 non terminal ParserFormula atom, formula;
 non terminal LinkedList<ParserFormula> conjunction;
+non terminal LinkedList<ParserFormula> disjunction;
 non terminal ParserFactorFormula factor;
 non terminal ParserIntConstant intconstant;
 non terminal ParserStatement statement;
@@ -73,6 +74,7 @@ precedence left X;
 precedence nonassoc LPAREN,RPAREN,UNDERSCORE;
 precedence left IMPLIES;
 precedence left AND;
+precedence left BAR;
 precedence nonassoc EXCL;
 precedence left PLUS, MINUS;
 precedence left TIMES;
@@ -388,6 +390,8 @@ formula ::=
     {: RESULT = new ParserAtom(name,args); :}
   | formula:l AND formula:r
     {: RESULT = new ParserConjunction(l,r); :}
+  | formula:l BAR formula:r
+    {: RESULT = new ParserDisjunction(l,r); :}
   | formula:l IMPLIES formula:r
     {: RESULT = new ParserImplies(l,r); :}
   | BAR quantification:q COLON formula:f BAR LEQ term:ub
@@ -422,6 +426,15 @@ formula ::=
 
 conjunction ::=
     conjunction:l AND formula:c
+    {: l.add(c);
+       RESULT = l ; :}
+  | formula:c
+    {: LinkedList<ParserFormula> l = new LinkedList<ParserFormula>();
+       l.add(c);
+       RESULT = l; :};
+
+disjunction ::=
+    disjunction:l AND formula:c
     {: l.add(c);
        RESULT = l ; :}
   | formula:c
