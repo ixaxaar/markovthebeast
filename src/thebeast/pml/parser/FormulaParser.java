@@ -132,7 +132,7 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     }
     rhs.acceptParserFormulaVisitor(this);
     args.add(this.formula);
-    formula = new Conjunction(args);
+    formula = new Disjunction(args);
   }
     
   public void visitImplies(ParserImplies parserImplies) {
