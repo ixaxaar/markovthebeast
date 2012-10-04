@@ -119,6 +119,22 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     formula = new Conjunction(args);
   }
 
+  public void visitDisjuction(ParserDisjunction parserDisjunction) {
+    LinkedList<BooleanFormula> args = new LinkedList<BooleanFormula>();
+    parserDisjunction.lhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    ParserFormula rhs = parserDisjunction.rhs;
+    while (rhs instanceof ParserDisjunction) {
+      ParserDisjunction c = (ParserDisjunction) rhs;
+      c.lhs.acceptParserFormulaVisitor(this);
+      args.add(this.formula);
+      rhs = c.rhs;
+    }
+    rhs.acceptParserFormulaVisitor(this);
+    args.add(this.formula);
+    formula = new Conjunction(args);
+  }
+    
   public void visitImplies(ParserImplies parserImplies) {
     parserImplies.lhs.acceptParserFormulaVisitor(this);
     BooleanFormula lhs = this.formula;
