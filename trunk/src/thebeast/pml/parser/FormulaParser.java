@@ -119,7 +119,7 @@ public class FormulaParser implements ParserFormulaVisitor, ParserTermVisitor {
     formula = new Conjunction(args);
   }
 
-  public void visitDisjuction(ParserDisjunction parserDisjunction) {
+  public void visitDisjunction(ParserDisjunction parserDisjunction) {
     LinkedList<BooleanFormula> args = new LinkedList<BooleanFormula>();
     parserDisjunction.lhs.acceptParserFormulaVisitor(this);
     args.add(this.formula);

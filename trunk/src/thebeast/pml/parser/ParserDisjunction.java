@@ -18,7 +18,7 @@ public class ParserDisjunction extends ParserFormula {
   }
 
   public void acceptParserFormulaVisitor(ParserFormulaVisitor visitor) {    
-    visitor.visitDisjuction(this);
+    visitor.visitDisjunction(this);
   }
 
 

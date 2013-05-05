@@ -8,6 +8,8 @@ public interface ParserFormulaVisitor {
 
   void visitConjuction(ParserConjunction parserConjunction);
 
+  void visitDisjunction(ParserDisjunction parserDisjunction);
+    
   void visitImplies(ParserImplies parserImplies);
 
   void visitCardinalityConstraint(ParserCardinalityConstraint parserCardinalityConstraint);
